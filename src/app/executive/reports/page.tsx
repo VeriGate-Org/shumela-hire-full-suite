@@ -417,7 +417,7 @@ export default function ExecutiveReportsPage() {
         confidence: 82,
         dataPoints: [
           { metric: 'Competitor Hiring Increase', value: '60%', change: 25 },
-          { metric: 'Average Salary Offers', value: '$185K', change: 15 },
+          { metric: 'Average Salary Offers', value: 'R185K', change: 15 },
           { metric: 'Time to Close Offers', value: '5 days', change: -30 }
         ],
         recommendations: [
@@ -686,7 +686,7 @@ export default function ExecutiveReportsPage() {
                   <CurrencyDollarIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500">Cost per Hire</p>
-                    <p className="text-2xl font-semibold text-gray-900">${executiveMetrics.costPerHire.toLocaleString()}</p>
+                    <p className="text-2xl font-semibold text-gray-900">R{executiveMetrics.costPerHire.toLocaleString()}</p>
                     <p className="text-xs text-green-600">-12% vs industry avg</p>
                   </div>
                 </div>
@@ -757,7 +757,7 @@ export default function ExecutiveReportsPage() {
                         </div>
                         <div>
                           <p className="text-gray-500">Cost per Hire</p>
-                          <p className="font-semibold text-gray-900">${dept.costPerHire.toLocaleString()}</p>
+                          <p className="font-semibold text-gray-900">R{dept.costPerHire.toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-gray-500">Acceptance Rate</p>

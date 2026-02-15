@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, ALL_ROLES, ROLE_DISPLAY_NAMES, UserRole } from '../../contexts/AuthContext';
 import { rolePermissions } from '@/config/permissions';
 import { useEffect, useState, Suspense } from 'react';
 import ThemeToggle from '../../components/ThemeToggle';
@@ -21,6 +21,7 @@ function LoginContent() {
   const [ssoEnabled, setSsoEnabled] = useState(false);
   const [ssoProviders, setSsoProviders] = useState<SsoProvider[]>([]);
   const [ssoError, setSsoError] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('ADMIN');
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -69,13 +70,13 @@ function LoginContent() {
     }
   };
 
-  const handleMockLogin = () => {
+  const handleMockLogin = (role: UserRole) => {
     const mockUser = {
       id: '1',
       name: 'John Doe',
       email: 'john.doe@company.com',
-      role: 'ADMIN' as const,
-      permissions: rolePermissions['ADMIN'],
+      role,
+      permissions: rolePermissions[role],
     };
 
     sessionStorage.setItem('jwt_token', 'mock-jwt-token-' + Date.now());
@@ -130,12 +131,33 @@ function LoginContent() {
           </div>
         )}
 
-        <div>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="role-select" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Sign in as
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {ALL_ROLES.map((role) => (
+                <button
+                  key={role}
+                  onClick={() => setSelectedRole(role)}
+                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                    selectedRole === role
+                      ? 'bg-violet-600 text-white border-violet-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-violet-300 hover:bg-violet-50'
+                  }`}
+                >
+                  {ROLE_DISPLAY_NAMES[role]}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button
-            onClick={handleMockLogin}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
+            onClick={() => handleMockLogin(selectedRole)}
+            className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
           >
-            Sign In (Demo)
+            Sign In as {ROLE_DISPLAY_NAMES[selectedRole]}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import ApprovalTimeline, { ApprovalStep } from '../../../components/ApprovalTime
 import AuditLogViewer from '../../../components/AuditLogViewer';
 import { approvalTimelineService } from '../../../services/approvalTimelineService';
 import { requisitionService } from '../../../services/requisitionService';
+import { formatSalaryRange } from '@/utils/currency';
 
 const RequisitionDetailPage: React.FC = () => {
   const params = useParams();
@@ -71,16 +72,6 @@ const RequisitionDetailPage: React.FC = () => {
       default:
         return 'bg-yellow-100 text-yellow-800';
     }
-  };
-
-  const formatSalary = (min?: number, max?: number) => {
-    if (!min && !max) return 'Not specified';
-    if (min && max) {
-      return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
-    }
-    if (min) return `$${min.toLocaleString()}+`;
-    if (max) return `Up to $${max.toLocaleString()}`;
-    return 'Not specified';
   };
 
   if (loading) {
@@ -160,7 +151,7 @@ const RequisitionDetailPage: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Salary Range</label>
-                  <p className="text-gray-900">{formatSalary(requisition.salaryMin, requisition.salaryMax)}</p>
+                  <p className="text-gray-900">{formatSalaryRange(requisition.salaryMin, requisition.salaryMax)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Created By</label>

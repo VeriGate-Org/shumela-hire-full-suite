@@ -110,7 +110,7 @@ export default function BrowseJobsPage() {
         experienceLevel: 'senior',
         postedDate: '2025-01-22T10:00:00Z',
         applicationDeadline: '2025-02-15T23:59:59Z',
-        salaryRange: { min: 180000, max: 250000, currency: 'USD' },
+        salaryRange: { min: 180000, max: 250000, currency: 'ZAR' },
         description: 'Join our world-class engineering team to build products that impact billions of users. Work on cutting-edge technology and solve complex technical challenges at scale.',
         responsibilities: [
           'Design and implement scalable distributed systems',
@@ -165,7 +165,7 @@ export default function BrowseJobsPage() {
         experienceLevel: 'senior',
         postedDate: '2025-01-21T14:30:00Z',
         applicationDeadline: '2025-02-20T23:59:59Z',
-        salaryRange: { min: 160000, max: 220000, currency: 'USD' },
+        salaryRange: { min: 160000, max: 220000, currency: 'ZAR' },
         description: 'Lead product strategy for our social platform serving billions of users worldwide. Drive innovation and user experience across web and mobile platforms.',
         responsibilities: [
           'Define product roadmap and strategy',
@@ -218,7 +218,7 @@ export default function BrowseJobsPage() {
         jobType: 'full_time',
         experienceLevel: 'mid',
         postedDate: '2025-01-20T09:15:00Z',
-        salaryRange: { min: 140000, max: 180000, currency: 'USD' },
+        salaryRange: { min: 140000, max: 180000, currency: 'ZAR' },
         description: 'Build and maintain the infrastructure that powers our global streaming platform. Work with cutting-edge cloud technologies and automation tools.',
         responsibilities: [
           'Manage cloud infrastructure and deployments',
@@ -270,7 +270,7 @@ export default function BrowseJobsPage() {
         jobType: 'full_time',
         experienceLevel: 'mid',
         postedDate: '2025-01-19T16:45:00Z',
-        salaryRange: { min: 120000, max: 160000, currency: 'USD' },
+        salaryRange: { min: 120000, max: 160000, currency: 'ZAR' },
         description: 'Create exceptional user experiences for millions of travelers and hosts worldwide. Join our design team to shape the future of travel and hospitality.',
         responsibilities: [
           'Design user interfaces for web and mobile',
@@ -323,7 +323,7 @@ export default function BrowseJobsPage() {
         experienceLevel: 'senior',
         postedDate: '2025-01-18T11:20:00Z',
         applicationDeadline: '2025-02-10T23:59:59Z',
-        salaryRange: { min: 170000, max: 230000, currency: 'USD' },
+        salaryRange: { min: 170000, max: 230000, currency: 'ZAR' },
         description: 'Drive the future of autonomous vehicles through advanced machine learning and data science. Work on cutting-edge AI technologies that will revolutionize transportation.',
         responsibilities: [
           'Develop machine learning models for autonomous driving',
@@ -377,7 +377,7 @@ export default function BrowseJobsPage() {
         jobType: 'remote',
         experienceLevel: 'mid',
         postedDate: '2025-01-17T13:30:00Z',
-        salaryRange: { min: 130000, max: 170000, currency: 'USD' },
+        salaryRange: { min: 130000, max: 170000, currency: 'ZAR' },
         description: 'Build beautiful and intuitive user interfaces for our payment platform used by millions of businesses worldwide. Work remotely with a world-class engineering team.',
         responsibilities: [
           'Develop responsive web applications',
@@ -429,7 +429,7 @@ export default function BrowseJobsPage() {
         jobType: 'full_time',
         experienceLevel: 'mid',
         postedDate: '2025-01-16T10:00:00Z',
-        salaryRange: { min: 90000, max: 120000, currency: 'USD' },
+        salaryRange: { min: 90000, max: 120000, currency: 'ZAR' },
         description: 'Lead marketing campaigns for our music streaming platform. Drive user acquisition and engagement through creative marketing strategies and data-driven insights.',
         responsibilities: [
           'Develop and execute marketing campaigns',
@@ -481,7 +481,7 @@ export default function BrowseJobsPage() {
         jobType: 'full_time',
         experienceLevel: 'entry',
         postedDate: '2025-01-15T14:15:00Z',
-        salaryRange: { min: 110000, max: 140000, currency: 'USD' },
+        salaryRange: { min: 110000, max: 140000, currency: 'ZAR' },
         description: 'Start your career with us and help build the collaboration tools that connect teams around the world. Perfect opportunity for new graduates or junior developers.',
         responsibilities: [
           'Write clean, maintainable code',
@@ -806,7 +806,7 @@ export default function BrowseJobsPage() {
                   {job.salaryRange && (
                     <div className="flex items-center text-sm text-gray-600">
                       <CurrencyDollarIcon className="w-4 h-4 mr-1" />
-                      ${job.salaryRange.min.toLocaleString()} - ${job.salaryRange.max.toLocaleString()} {job.salaryRange.currency}
+                      R{job.salaryRange.min.toLocaleString()} - R{job.salaryRange.max.toLocaleString()} {job.salaryRange.currency}
                     </div>
                   )}
                   
@@ -997,7 +997,7 @@ export default function BrowseJobsPage() {
                         {selectedJob.salaryRange && (
                           <div className="flex justify-between">
                             <span className="font-medium">Salary Range:</span>
-                            <span>${selectedJob.salaryRange.min.toLocaleString()} - ${selectedJob.salaryRange.max.toLocaleString()}</span>
+                            <span>R{selectedJob.salaryRange.min.toLocaleString()} - R{selectedJob.salaryRange.max.toLocaleString()}</span>
                           </div>
                         )}
                       </div>

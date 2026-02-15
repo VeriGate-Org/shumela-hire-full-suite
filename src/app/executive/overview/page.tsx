@@ -466,7 +466,7 @@ export default function OrganizationalOverviewPage() {
         category: 'compliance',
         title: 'New York Office Lease Expiring Soon',
         description: 'NYC office lease expires in 7 months with 120 employees currently based there',
-        impact: 'High disruption risk for Product and Sales teams, potential relocation costs $2.5M+',
+        impact: 'High disruption risk for Product and Sales teams, potential relocation costs R2.5M+',
         location: 'New York Office',
         recommendedAction: 'Initiate lease renewal negotiations or identify alternative office space by March 2025',
         urgency: 'high',
@@ -513,8 +513,8 @@ export default function OrganizationalOverviewPage() {
         type: 'warning',
         category: 'budget',
         title: 'San Francisco Office Utilization Below Optimal',
-        description: 'SF HQ at 75% utilization despite $2.1M annual operational cost',
-        impact: 'Potential cost optimization opportunity of $500K+ annually',
+        description: 'SF HQ at 75% utilization despite R2.1M annual operational cost',
+        impact: 'Potential cost optimization opportunity of R500K+ annually',
         location: 'San Francisco HQ',
         recommendedAction: 'Review space efficiency, consider downsizing or subleasing unused space',
         urgency: 'medium',
@@ -527,7 +527,7 @@ export default function OrganizationalOverviewPage() {
       {
         id: 'milestone_001',
         title: 'Series C Funding Completion',
-        description: 'Successfully closed $150M Series C round led by top-tier VCs',
+        description: 'Successfully closed R150M Series C round led by top-tier VCs',
         date: '2025-01-15',
         type: 'funding',
         status: 'completed',
@@ -841,7 +841,7 @@ export default function OrganizationalOverviewPage() {
                             {milestone.metrics && (
                               <>
                                 <span>Employees Impacted: {milestone.metrics.employeesImpacted.toLocaleString()}</span>
-                                <span>Budget: ${(milestone.metrics.budgetImpact / 1000000).toFixed(0)}M</span>
+                                <span>Budget: R{(milestone.metrics.budgetImpact / 1000000).toFixed(0)}M</span>
                               </>
                             )}
                           </div>
@@ -868,7 +868,7 @@ export default function OrganizationalOverviewPage() {
                         <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
                           <span>{dept.headcount} employees</span>
                           <span>{dept.openPositions} open positions</span>
-                          <span>${(dept.budget / 1000000).toFixed(1)}M budget</span>
+                          <span>R{(dept.budget / 1000000).toFixed(1)}M budget</span>
                         </div>
                       </div>
                       <button
@@ -896,7 +896,7 @@ export default function OrganizationalOverviewPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Avg Salary</p>
-                        <p className="text-lg font-semibold text-gray-900">${dept.averageSalary.toLocaleString()}</p>
+                        <p className="text-lg font-semibold text-gray-900">R{dept.averageSalary.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Retention</p>
@@ -981,7 +981,7 @@ export default function OrganizationalOverviewPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Annual Cost</p>
-                        <p className="text-lg font-semibold text-gray-900">${(location.operationalCost / 1000).toFixed(0)}K</p>
+                        <p className="text-lg font-semibold text-gray-900">R{(location.operationalCost / 1000).toFixed(0)}K</p>
                       </div>
                     </div>
 
@@ -1245,13 +1245,13 @@ export default function OrganizationalOverviewPage() {
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-600">Annual Budget</span>
                           <span className="text-lg font-semibold text-gray-900">
-                            ${(selectedDepartment.budget / 1000000).toFixed(1)}M
+                            R{(selectedDepartment.budget / 1000000).toFixed(1)}M
                           </span>
                         </div>
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-600">Average Salary</span>
                           <span className="text-sm font-medium text-gray-900">
-                            ${selectedDepartment.averageSalary.toLocaleString()}
+                            R{selectedDepartment.averageSalary.toLocaleString()}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">

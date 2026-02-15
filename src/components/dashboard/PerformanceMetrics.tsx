@@ -55,7 +55,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
       case 'percentage':
         return `${value.toFixed(1)}%`;
       case 'currency':
-        return `$${value.toLocaleString()}`;
+        return `R${value.toLocaleString()}`;
       case 'days':
         return `${Math.round(value)} days`;
       default:

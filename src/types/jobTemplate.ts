@@ -112,7 +112,7 @@ export const TEMPLATE_PLACEHOLDERS: TemplatePlaceholder[] = [
     key: '{{salaryRange}}',
     label: 'Salary Range',
     description: 'Salary range for the position',
-    example: '$80,000 - $120,000'
+    example: 'R80,000 - R120,000'
   },
   {
     key: '{{companyName}}',

@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { 
+import {
   ArrowLeftIcon,
   ExclamationTriangleIcon,
   MapPinIcon,
@@ -12,6 +12,7 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import JobDetailClient from '../../../components/JobDetailClient';
+import { formatSalaryRange } from '@/utils/currency';
 
 // Types for the backend API response
 interface BackendJobAd {
@@ -52,14 +53,6 @@ const extractIntroFromHtml = (htmlBody: string): string => {
   // Extract first paragraph or first 160 characters for meta description
   const withoutTags = stripHtmlTags(htmlBody);
   return withoutTags.length > 160 ? withoutTags.substring(0, 157) + '...' : withoutTags;
-};
-
-const formatSalaryRange = (min?: number, max?: number): string => {
-  if (!min && !max) return 'Competitive salary';
-  if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
-  if (min) return `$${min.toLocaleString()}+`;
-  if (max) return `Up to $${max.toLocaleString()}`;
-  return 'Competitive salary';
 };
 
 const isJobExpired = (status: string, closingDate?: string): boolean => {
@@ -223,7 +216,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
     },
     "baseSalary": job.salaryRangeMin || job.salaryRangeMax ? {
       "@type": "MonetaryAmount",
-      "currency": "USD",
+      "currency": "ZAR",
       "value": {
         "@type": "QuantitativeValue",
         "minValue": job.salaryRangeMin,

@@ -104,7 +104,7 @@ export default function MyApplicationsPage() {
         salaryRange: {
           min: 180000,
           max: 250000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         priority: 'high',
         timeline: [
@@ -180,7 +180,7 @@ export default function MyApplicationsPage() {
         salaryRange: {
           min: 200000,
           max: 280000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         priority: 'high',
         timeline: [
@@ -236,7 +236,7 @@ export default function MyApplicationsPage() {
         salaryRange: {
           min: 220000,
           max: 300000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         priority: 'high',
         timeline: [
@@ -312,7 +312,7 @@ export default function MyApplicationsPage() {
         salaryRange: {
           min: 120000,
           max: 160000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         priority: 'medium',
         timeline: [
@@ -379,7 +379,7 @@ export default function MyApplicationsPage() {
         salaryRange: {
           min: 150000,
           max: 200000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         priority: 'medium',
         timeline: [
@@ -676,7 +676,7 @@ export default function MyApplicationsPage() {
                           {application.salaryRange && (
                             <span className="flex items-center">
                               <CurrencyDollarIcon className="w-4 h-4 mr-1" />
-                              ${application.salaryRange.min.toLocaleString()} - ${application.salaryRange.max.toLocaleString()}
+                              R{application.salaryRange.min.toLocaleString()} - R{application.salaryRange.max.toLocaleString()}
                             </span>
                           )}
                         </div>
@@ -882,7 +882,7 @@ export default function MyApplicationsPage() {
                         {selectedApplication.salaryRange && (
                           <div className="flex justify-between">
                             <span className="font-medium">Salary Range:</span>
-                            <span>${selectedApplication.salaryRange.min.toLocaleString()} - ${selectedApplication.salaryRange.max.toLocaleString()}</span>
+                            <span>R{selectedApplication.salaryRange.min.toLocaleString()} - R{selectedApplication.salaryRange.max.toLocaleString()}</span>
                           </div>
                         )}
                       </div>

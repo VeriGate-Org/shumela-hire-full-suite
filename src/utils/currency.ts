@@ -67,14 +67,18 @@ export const parseCurrencyAmount = (currencyString: string): number | null => {
 };
 
 /**
- * Constants for South African Rand
+ * Default currency configuration.
+ * Change these values to switch the entire app to a different currency.
  */
-export const ZAR_CONFIG = {
-  currency: 'ZAR',
+export const DEFAULT_CURRENCY = {
+  code: 'ZAR',
   locale: 'en-ZA',
   symbol: 'R',
-  name: 'South African Rand'
+  name: 'South African Rand',
 } as const;
+
+/** @deprecated Use DEFAULT_CURRENCY instead */
+export const ZAR_CONFIG = DEFAULT_CURRENCY;
 
 /**
  * Salary range formatting specifically for job postings

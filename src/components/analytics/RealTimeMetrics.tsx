@@ -34,7 +34,7 @@ const formatValue = (value: number, format: MetricData['format']): string => {
     case 'percentage':
       return `${value.toFixed(1)}%`;
     case 'currency':
-      return `$${value.toLocaleString()}`;
+      return `R${value.toLocaleString()}`;
     case 'duration':
       return `${value}d`;
     default:

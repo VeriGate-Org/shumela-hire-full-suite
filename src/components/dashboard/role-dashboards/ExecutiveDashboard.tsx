@@ -95,10 +95,10 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
               >
                 <div className="space-y-4">
                   {[
-                    { department: 'Engineering', target: 50, current: 45, budget: '$2.1M', utilization: 78 },
-                    { department: 'Sales', target: 25, current: 22, budget: '$980K', utilization: 65 },
-                    { department: 'Marketing', target: 15, current: 12, budget: '$540K', utilization: 55 },
-                    { department: 'Operations', target: 20, current: 18, budget: '$720K', utilization: 82 },
+                    { department: 'Engineering', target: 50, current: 45, budget: 'R2.1M', utilization: 78 },
+                    { department: 'Sales', target: 25, current: 22, budget: 'R980K', utilization: 65 },
+                    { department: 'Marketing', target: 15, current: 12, budget: 'R540K', utilization: 55 },
+                    { department: 'Operations', target: 20, current: 18, budget: 'R720K', utilization: 82 },
                   ].map((dept) => (
                     <div key={dept.department} className="p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
@@ -136,7 +136,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     { 
                       position: 'Chief Technology Officer', 
                       department: 'Engineering', 
-                      salary: '$280K - $350K',
+                      salary: 'R280K - R350K',
                       stage: 'Final Interviews',
                       priority: 'Critical',
                       candidates: 2,
@@ -146,7 +146,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     { 
                       position: 'VP of Sales', 
                       department: 'Sales', 
-                      salary: '$220K - $280K',
+                      salary: 'R220K - R280K',
                       stage: 'Sourcing',
                       priority: 'High',
                       candidates: 0,
@@ -156,7 +156,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     { 
                       position: 'Director of Marketing', 
                       department: 'Marketing', 
-                      salary: '$180K - $220K',
+                      salary: 'R180K - R220K',
                       stage: 'Interviews',
                       priority: 'Medium',
                       candidates: 3,
@@ -205,7 +205,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                   {
                     id: '1',
                     type: 'offer',
-                    message: 'Senior Director offer $285K - Tech Lead',
+                    message: 'Senior Director offer R285K - Tech Lead',
                     time: '2 hours ago',
                     urgent: true,
                     color: 'text-red-600',

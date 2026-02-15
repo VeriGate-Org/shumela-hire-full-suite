@@ -404,7 +404,7 @@ export default function BudgetApprovalsPage() {
         justification: 'Q1 performance exceeded targets by 12%. Bonus program essential for retention and motivation of top performers.',
         businessImpact: 'Maintains high performance culture and reduces risk of losing top talent. Historical data shows 95% retention rate for bonus recipients.',
         alternatives: [
-          'Reduce bonus pool by 25% to $320K',
+          'Reduce bonus pool by 25% to R320K',
           'Defer bonuses to Q2 based on continued performance',
           'Replace cash bonuses with additional equity grants'
         ],

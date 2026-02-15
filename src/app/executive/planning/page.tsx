@@ -220,7 +220,7 @@ export default function StrategicPlanningPage() {
         kpis: [
           { name: 'Markets Active', current: 1, target: 3, unit: 'locations' },
           { name: 'International Hires', current: 12, target: 50, unit: 'people' },
-          { name: 'Cost per Hire', current: 8500, target: 7000, unit: 'USD' }
+          { name: 'Cost per Hire', current: 8500, target: 7000, unit: 'ZAR' }
         ],
         milestones: [
           {
@@ -308,7 +308,7 @@ export default function StrategicPlanningPage() {
         budget: 300000,
         actualSpend: 180000,
         kpis: [
-          { name: 'Cost per Hire', current: 12500, target: 9375, unit: 'USD' },
+          { name: 'Cost per Hire', current: 12500, target: 9375, unit: 'ZAR' },
           { name: 'Quality Score', current: 8.1, target: 8.0, unit: 'rating' },
           { name: 'Process Efficiency', current: 10, target: 30, unit: '%' }
         ],
@@ -599,10 +599,10 @@ export default function StrategicPlanningPage() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500">Total Investment</p>
                     <p className="text-2xl font-semibold text-gray-900">
-                      ${goals.reduce((sum, g) => sum + g.budget, 0).toLocaleString()}
+                      R{goals.reduce((sum, g) => sum + g.budget, 0).toLocaleString()}
                     </p>
                     <p className="text-xs text-gray-500">
-                      ${goals.reduce((sum, g) => sum + g.actualSpend, 0).toLocaleString()} spent
+                      R{goals.reduce((sum, g) => sum + g.actualSpend, 0).toLocaleString()} spent
                     </p>
                   </div>
                 </div>
@@ -744,11 +744,11 @@ export default function StrategicPlanningPage() {
                       </div>
                       <div>
                         <span className="text-gray-500">Budget:</span>
-                        <p className="font-medium">${goal.budget.toLocaleString()}</p>
+                        <p className="font-medium">R{goal.budget.toLocaleString()}</p>
                       </div>
                       <div>
                         <span className="text-gray-500">Spent:</span>
-                        <p className="font-medium">${goal.actualSpend.toLocaleString()}</p>
+                        <p className="font-medium">R{goal.actualSpend.toLocaleString()}</p>
                       </div>
                     </div>
 
@@ -995,11 +995,11 @@ export default function StrategicPlanningPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Budget:</span>
-                          <span>${selectedGoal.budget.toLocaleString()}</span>
+                          <span>R{selectedGoal.budget.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Spent:</span>
-                          <span>${selectedGoal.actualSpend.toLocaleString()}</span>
+                          <span>R{selectedGoal.actualSpend.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>

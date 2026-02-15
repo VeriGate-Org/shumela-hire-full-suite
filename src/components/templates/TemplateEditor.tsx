@@ -69,7 +69,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       department: 'Engineering',
       location: 'San Francisco, CA',
       employmentType: 'Full-time',
-      salaryRange: '$120,000 - $180,000',
+      salaryRange: 'R120,000 - R180,000',
       companyName: 'TechCorp Inc.',
       contactEmail: 'careers@techcorp.com',
       applicationDeadline: 'March 31, 2024'

@@ -138,7 +138,7 @@ export default function CandidateProfilePage() {
       salaryExpectation: {
         min: 120000,
         max: 160000,
-        currency: 'USD'
+        currency: 'ZAR'
       },
       availability: 'two_weeks',
       noticePeriod: '2 weeks',

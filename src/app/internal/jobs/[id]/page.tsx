@@ -20,6 +20,7 @@ import {
   UserGroupIcon,
   PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
+import { formatSalaryRange } from '@/utils/currency';
 
 // Types for internal job data
 interface InternalJobAd {
@@ -53,14 +54,6 @@ interface ApiResponse {
 }
 
 // Utility functions
-const formatSalaryRange = (min?: number, max?: number): string => {
-  if (!min && !max) return 'Competitive salary';
-  if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
-  if (min) return `$${min.toLocaleString()}+`;
-  if (max) return `Up to $${max.toLocaleString()}`;
-  return 'Competitive salary';
-};
-
 const getDaysUntilExpiry = (closingDate?: string): number => {
   if (!closingDate) return Infinity;
   const today = new Date();

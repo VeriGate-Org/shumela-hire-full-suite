@@ -140,9 +140,9 @@ export const isJobAdActive = (jobAd: JobAd): boolean => {
 
 export const formatSalaryRange = (min?: number, max?: number): string => {
   if (!min && !max) return 'Salary not specified';
-  if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
-  if (min) return `$${min.toLocaleString()}+`;
-  if (max) return `Up to $${max.toLocaleString()}`;
+  if (min && max) return `R${min.toLocaleString()} - R${max.toLocaleString()}`;
+  if (min) return `R${min.toLocaleString()}+`;
+  if (max) return `Up to R${max.toLocaleString()}`;
   return 'Salary not specified';
 };
 

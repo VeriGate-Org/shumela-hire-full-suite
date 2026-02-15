@@ -104,13 +104,13 @@ export default function MyOffersPage() {
         status: 'pending',
         salary: {
           base: 165000,
-          currency: 'USD',
+          currency: 'ZAR',
           frequency: 'annual'
         },
         bonus: {
           signing: 25000,
           annual: 30000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         benefits: [
           'Health Insurance (100% covered)',
@@ -151,7 +151,7 @@ export default function MyOffersPage() {
             date: '2025-01-22T14:30:00Z',
             type: 'salary',
             requestedBy: 'candidate',
-            details: 'Requesting base salary increase to $175,000',
+            details: 'Requesting base salary increase to R175,000',
             status: 'pending'
           }
         ]
@@ -167,13 +167,13 @@ export default function MyOffersPage() {
         status: 'negotiating',
         salary: {
           base: 180000,
-          currency: 'USD',
+          currency: 'ZAR',
           frequency: 'annual'
         },
         bonus: {
           signing: 35000,
           annual: 40000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         benefits: [
           'Premium Health Insurance',
@@ -236,13 +236,13 @@ export default function MyOffersPage() {
         status: 'accepted',
         salary: {
           base: 145000,
-          currency: 'USD',
+          currency: 'ZAR',
           frequency: 'annual'
         },
         bonus: {
           signing: 15000,
           annual: 20000,
-          currency: 'USD'
+          currency: 'ZAR'
         },
         benefits: [
           'Health Insurance',

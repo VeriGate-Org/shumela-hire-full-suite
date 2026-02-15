@@ -176,7 +176,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
       case 'percentage':
         return `${Number(value).toFixed(1)}%`;
       case 'currency':
-        return `$${Number(value).toLocaleString()}`;
+        return `R${Number(value).toLocaleString()}`;
       case 'date':
         return new Date(value).toLocaleDateString();
       case 'number':
