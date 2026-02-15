@@ -10,6 +10,7 @@ import {
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import DashboardWidget from './DashboardWidget';
+import EmptyState from '@/components/EmptyState';
 
 interface Candidate {
   id: string;
@@ -315,13 +316,12 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
 
                   {/* Empty State */}
                   {stage.candidates.length === 0 && (
-                    <div className="text-center py-8">
-                      <UserIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No candidates yet</p>
-                      <p className="text-xs text-gray-400">
-                        Drag candidates here
-                      </p>
-                    </div>
+                    <EmptyState
+                      icon={UserIcon}
+                      title="No candidates yet"
+                      description="Drag candidates here or create a job posting"
+                      action={{ label: 'Create Job Posting', href: '/job-postings' }}
+                    />
                   )}
                 </div>
               </div>

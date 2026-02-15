@@ -403,7 +403,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                   type="text"
                   value={customData.companyName || ''}
                   onChange={(e) => setCustomData(prev => ({ ...prev, companyName: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="Your Company Name"
                 />
               </div>
@@ -416,7 +416,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                   type="text"
                   value={customData.applicationDeadline || ''}
                   onChange={(e) => setCustomData(prev => ({ ...prev, applicationDeadline: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="March 31, 2024"
                 />
               </div>
@@ -431,7 +431,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                       type="text"
                       value={customData.jobTitle || ''}
                       onChange={(e) => setCustomData(prev => ({ ...prev, jobTitle: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="e.g., Senior Software Engineer"
                     />
                   </div>
@@ -444,7 +444,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                       type="text"
                       value={customData.department || ''}
                       onChange={(e) => setCustomData(prev => ({ ...prev, department: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="e.g., Engineering"
                     />
                   </div>
@@ -457,7 +457,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                       type="text"
                       value={customData.location || ''}
                       onChange={(e) => setCustomData(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="e.g., San Francisco, CA"
                     />
                   </div>
@@ -470,7 +470,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                       type="text"
                       value={customData.salaryRange || ''}
                       onChange={(e) => setCustomData(prev => ({ ...prev, salaryRange: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="e.g., R2,000,000 - R3,000,000"
                     />
                   </div>

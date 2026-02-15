@@ -467,7 +467,7 @@ export default function ApprovalCenter({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={actionType === 'approve' ? 'Optional comment...' : 'Reason for rejection...'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               rows={3}
               required={actionType === 'reject'}
             />

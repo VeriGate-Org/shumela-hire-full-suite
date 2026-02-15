@@ -246,57 +246,65 @@ export default function InternalApplicationPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="applicant-name" className="block text-sm font-medium text-gray-700 mb-2">
                       Full Name *
                     </label>
                     <input
                       type="text"
+                      id="applicant-name"
                       required
+                      aria-required="true"
                       value={formData.applicantName}
                       onChange={(e) => handleInputChange('applicantName', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Your full name"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="applicant-email" className="block text-sm font-medium text-gray-700 mb-2">
                       Email Address *
                     </label>
                     <input
                       type="email"
+                      id="applicant-email"
                       required
+                      aria-required="true"
                       value={formData.applicantEmail}
                       onChange={(e) => handleInputChange('applicantEmail', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="your.email@company.com"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="employee-id" className="block text-sm font-medium text-gray-700 mb-2">
                       Employee ID *
                     </label>
                     <input
                       type="text"
+                      id="employee-id"
                       required
+                      aria-required="true"
                       value={formData.employeeId}
                       onChange={(e) => handleInputChange('employeeId', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="EMP123456"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="current-department" className="block text-sm font-medium text-gray-700 mb-2">
                       Current Department *
                     </label>
                     <input
                       type="text"
+                      id="current-department"
                       required
+                      aria-required="true"
                       value={formData.department}
                       onChange={(e) => handleInputChange('department', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Current department"
                     />
                   </div>
@@ -308,28 +316,31 @@ export default function InternalApplicationPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Position</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="current-position" className="block text-sm font-medium text-gray-700 mb-2">
                       Current Position Title *
                     </label>
                     <input
                       type="text"
+                      id="current-position"
                       required
+                      aria-required="true"
                       value={formData.currentPosition}
                       onChange={(e) => handleInputChange('currentPosition', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Your current job title"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="availability-date" className="block text-sm font-medium text-gray-700 mb-2">
                       Available Start Date
                     </label>
                     <input
                       type="date"
+                      id="availability-date"
                       value={formData.availabilityDate}
                       onChange={(e) => handleInputChange('availabilityDate', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
                 </div>
@@ -341,14 +352,15 @@ export default function InternalApplicationPage() {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="resume-url" className="block text-sm font-medium text-gray-700 mb-2">
                       Resume/CV URL
                     </label>
                     <input
                       type="url"
+                      id="resume-url"
                       value={formData.resumeUrl}
                       onChange={(e) => handleInputChange('resumeUrl', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="https://... (link to your updated resume)"
                     />
                     <p className="text-xs text-gray-500 mt-1">
@@ -357,41 +369,45 @@ export default function InternalApplicationPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="reason-for-application" className="block text-sm font-medium text-gray-700 mb-2">
                       Reason for Application *
                     </label>
                     <textarea
+                      id="reason-for-application"
                       rows={4}
                       required
+                      aria-required="true"
                       value={formData.reasonForApplication}
                       onChange={(e) => handleInputChange('reasonForApplication', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Why are you interested in this position? What motivates you to make this internal move?"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="cover-letter" className="block text-sm font-medium text-gray-700 mb-2">
                       Cover Letter
                     </label>
                     <textarea
+                      id="cover-letter"
                       rows={6}
                       value={formData.coverLetter}
                       onChange={(e) => handleInputChange('coverLetter', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Describe how your current experience and skills make you a great fit for this role..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="additional-comments" className="block text-sm font-medium text-gray-700 mb-2">
                       Additional Comments
                     </label>
                     <textarea
+                      id="additional-comments"
                       rows={3}
                       value={formData.additionalComments}
                       onChange={(e) => handleInputChange('additionalComments', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Any additional information you'd like to share..."
                     />
                   </div>

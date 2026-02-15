@@ -201,7 +201,7 @@ export default function ReportLibrary({
                 placeholder="Search reports..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-64 pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
             
@@ -213,7 +213,7 @@ export default function ReportLibrary({
                 setSortBy(field as any);
                 setSortOrder(order as any);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             >
               <option value="updated-desc">Recently Updated</option>
               <option value="created-desc">Recently Created</option>
@@ -360,7 +360,7 @@ export default function ReportLibrary({
                           </button>
                           <button
                             onClick={() => onShare(report.id)}
-                            className="p-1.5 text-gray-400 hover:text-purple-600 rounded"
+                            className="p-1.5 text-gray-400 hover:text-violet-600 rounded"
                             title="Share"
                           >
                             <ShareIcon className="h-4 w-4" />

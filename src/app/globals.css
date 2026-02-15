@@ -39,6 +39,27 @@
   --motion-duration-quick: 100ms;
   --motion-duration-show: 200ms;
   --motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Density — comfortable is default */
+  --density-padding: 1rem;
+  --density-gap: 1rem;
+  --density-text: 0.875rem;
+  --density-row-height: 3rem;
+}
+
+/* Density overrides */
+[data-density="compact"] {
+  --density-padding: 0.5rem;
+  --density-gap: 0.5rem;
+  --density-text: 0.8125rem;
+  --density-row-height: 2.25rem;
+}
+
+[data-density="spacious"] {
+  --density-padding: 1.5rem;
+  --density-gap: 1.5rem;
+  --density-text: 0.875rem;
+  --density-row-height: 3.5rem;
 }
 
 .dark {
@@ -125,7 +146,13 @@
   button:focus-visible,
   input:focus-visible,
   select:focus-visible,
-  textarea:focus-visible {
+  textarea:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible,
+  [tabindex]:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
@@ -312,6 +339,23 @@
     color: var(--foreground);
     margin-bottom: 0.5rem;
     display: block;
+  }
+
+  /* Density-aware utilities */
+  .density-padding {
+    padding: var(--density-padding);
+  }
+
+  .density-gap {
+    gap: var(--density-gap);
+  }
+
+  .density-text {
+    font-size: var(--density-text);
+  }
+
+  .density-row {
+    min-height: var(--density-row-height);
   }
 }
 

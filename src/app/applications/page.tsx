@@ -310,7 +310,7 @@ export default function ApplicationsPage() {
                   placeholder="Search by name, job title, department, or email..."
                   value={searchTerm}
                   onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function ApplicationsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-                className="w-full py-2 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full py-2 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>
@@ -331,7 +331,7 @@ export default function ApplicationsPage() {
               <select
                 value={departmentFilter}
                 onChange={(e) => { setDepartmentFilter(e.target.value); setPage(0); }}
-                className="w-full py-2 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full py-2 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               >
                 <option value="ALL">All Departments</option>
                 {DEPARTMENT_OPTIONS.map(dept => (
@@ -355,7 +355,7 @@ export default function ApplicationsPage() {
                   setSortDir(dir as typeof sortDir);
                   setPage(0);
                 }}
-                className="py-1 px-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="py-1 px-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               >
                 <option value="submittedAt-desc">Newest first</option>
                 <option value="submittedAt-asc">Oldest first</option>

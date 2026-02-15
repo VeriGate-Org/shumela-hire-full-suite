@@ -270,7 +270,7 @@ const ReportingDashboard: React.FC = () => {
             <select
               value={reportConfig.reportType}
               onChange={(e) => setReportConfig({ ...reportConfig, reportType: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
             >
               <option value="">Select Report Type</option>
               {Object.entries(reportTypes).map(([key, reportType]) => (
@@ -286,7 +286,7 @@ const ReportingDashboard: React.FC = () => {
                 type="date"
                 value={reportConfig.startDate}
                 onChange={(e) => setReportConfig({ ...reportConfig, startDate: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
               />
             </div>
             <div>
@@ -295,7 +295,7 @@ const ReportingDashboard: React.FC = () => {
                 type="date"
                 value={reportConfig.endDate}
                 onChange={(e) => setReportConfig({ ...reportConfig, endDate: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
               />
             </div>
           </div>
@@ -429,7 +429,7 @@ const ReportingDashboard: React.FC = () => {
               type="date"
               value={bulkExportConfig.startDate}
               onChange={(e) => setBulkExportConfig({ ...bulkExportConfig, startDate: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
             />
           </div>
           <div>
@@ -438,7 +438,7 @@ const ReportingDashboard: React.FC = () => {
               type="date"
               value={bulkExportConfig.endDate}
               onChange={(e) => setBulkExportConfig({ ...bulkExportConfig, endDate: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
             />
           </div>
         </div>
@@ -446,7 +446,7 @@ const ReportingDashboard: React.FC = () => {
         <button
           onClick={handleBulkExport}
           disabled={bulkExportConfig.reportTypes.length === 0 || isGenerating}
-          className="w-full bg-purple-600 text-white px-4 py-3 rounded hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+          className="w-full bg-violet-600 text-white px-4 py-3 rounded hover:bg-violet-700 disabled:bg-gray-400 transition-colors"
         >
           {isGenerating ? 'Generating Bulk Export...' : `Export ${bulkExportConfig.reportTypes.length} Reports as ZIP`}
         </button>

@@ -205,7 +205,7 @@ export default function SecurityCompliancePage() {
                       type="password"
                       value={passwordForm.currentPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/40 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/60 focus:border-violet-400"
                       required
                     />
                   </div>
@@ -217,7 +217,7 @@ export default function SecurityCompliancePage() {
                       type="password"
                       value={passwordForm.newPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/40 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/60 focus:border-violet-400"
                       required
                     />
                     <p className="mt-1 text-sm text-gray-500">
@@ -232,7 +232,7 @@ export default function SecurityCompliancePage() {
                       type="password"
                       value={passwordForm.confirmPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/40 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-violet-500/60 focus:border-violet-400"
                       required
                     />
                   </div>
@@ -317,7 +317,7 @@ export default function SecurityCompliancePage() {
                     </div>
                     <input
                       type="checkbox"
-                      className="h-4 w-4 text-violet-600 focus:ring-violet-500/40 border-gray-300 rounded"
+                      className="h-4 w-4 text-violet-600 focus:ring-violet-500/60 border-gray-300 rounded"
                       defaultChecked
                     />
                   </div>
@@ -332,7 +332,7 @@ export default function SecurityCompliancePage() {
                     </div>
                     <input
                       type="checkbox"
-                      className="h-4 w-4 text-violet-600 focus:ring-violet-500/40 border-gray-300 rounded"
+                      className="h-4 w-4 text-violet-600 focus:ring-violet-500/60 border-gray-300 rounded"
                     />
                   </div>
                 </div>

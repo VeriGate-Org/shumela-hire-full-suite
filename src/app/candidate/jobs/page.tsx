@@ -619,7 +619,7 @@ export default function BrowseJobsPage() {
           placeholder="Search jobs, companies, skills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 w-80"
+          className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 w-80"
         />
       </div>
       
@@ -628,7 +628,7 @@ export default function BrowseJobsPage() {
         placeholder="Location"
         value={locationFilter}
         onChange={(e) => setLocationFilter(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 w-40"
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 w-40"
       />
       
       <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
@@ -639,7 +639,7 @@ export default function BrowseJobsPage() {
       <select
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
       >
         <option value="relevance">Most Relevant</option>
         <option value="date">Most Recent</option>
@@ -672,7 +672,7 @@ export default function BrowseJobsPage() {
             <select
               value={jobTypeFilter}
               onChange={(e) => setJobTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             >
               <option value="all">All Types</option>
               <option value="full_time">Full Time</option>
@@ -686,7 +686,7 @@ export default function BrowseJobsPage() {
             <select
               value={experienceLevelFilter}
               onChange={(e) => setExperienceLevelFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             >
               <option value="all">All Levels</option>
               <option value="entry">Entry Level</option>
@@ -700,7 +700,7 @@ export default function BrowseJobsPage() {
               placeholder="Min Salary"
               value={salaryMinFilter}
               onChange={(e) => setSalaryMinFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 w-32"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 w-32"
             />
 
             <label className="flex items-center">
@@ -708,7 +708,7 @@ export default function BrowseJobsPage() {
                 type="checkbox"
                 checked={remoteOnlyFilter}
                 onChange={(e) => setRemoteOnlyFilter(e.target.checked)}
-                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/40"
+                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/60"
               />
               <span className="ml-2 text-sm text-gray-700">Remote Only</span>
             </label>

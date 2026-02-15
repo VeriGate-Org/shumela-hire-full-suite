@@ -333,12 +333,16 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
           {/* Application Selection */}
           {!interviewId && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="application-id" className="block text-sm font-medium text-gray-700 mb-1">
                 Select Application *
               </label>
               <select
+                id="application-id"
                 value={formData.applicationId}
                 onChange={(e) => handleInputChange('applicationId', parseInt(e.target.value))}
+                aria-required="true"
+                aria-invalid={!!errors.applicationId}
+                aria-describedby={errors.applicationId ? 'application-id-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.applicationId ? 'border-red-500' : 'border-gray-300'}`}
               >
                 <option value={0}>Select an application...</option>
@@ -348,33 +352,39 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
                   </option>
                 ))}
               </select>
-              {errors.applicationId && <p className="text-red-500 text-sm mt-1">{errors.applicationId}</p>}
+              {errors.applicationId && <p id="application-id-error" role="alert" className="text-red-500 text-sm mt-1">{errors.applicationId}</p>}
             </div>
           )}
 
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-title" className="block text-sm font-medium text-gray-700 mb-1">
                 Interview Title *
               </label>
               <input
                 type="text"
+                id="interview-title"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
+                aria-required="true"
+                aria-invalid={!!errors.title}
+                aria-describedby={errors.title ? 'interview-title-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="e.g. Technical Interview - Senior Developer"
               />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+              {errors.title && <p id="interview-title-error" role="alert" className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-type" className="block text-sm font-medium text-gray-700 mb-1">
                 Interview Type *
               </label>
               <select
+                id="interview-type"
                 value={formData.type}
                 onChange={(e) => handleInputChange('type', e.target.value)}
+                aria-required="true"
                 className="w-full p-3 border border-gray-300 rounded-md"
               >
                 {INTERVIEW_TYPES.map(type => (
@@ -384,12 +394,14 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-round" className="block text-sm font-medium text-gray-700 mb-1">
                 Interview Round *
               </label>
               <select
+                id="interview-round"
                 value={formData.round}
                 onChange={(e) => handleInputChange('round', e.target.value)}
+                aria-required="true"
                 className="w-full p-3 border border-gray-300 rounded-md"
               >
                 {INTERVIEW_ROUNDS.map(round => (
@@ -399,12 +411,14 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interviewer-id" className="block text-sm font-medium text-gray-700 mb-1">
                 Interviewer *
               </label>
               <select
+                id="interviewer-id"
                 value={formData.interviewerId}
                 onChange={(e) => handleInputChange('interviewerId', parseInt(e.target.value))}
+                aria-required="true"
                 className="w-full p-3 border border-gray-300 rounded-md"
               >
                 {MOCK_INTERVIEWERS.map(interviewer => (
@@ -417,40 +431,49 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
           </div>
 
           {/* Scheduling */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <legend className="sr-only">Interview Scheduling</legend>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="scheduled-at" className="block text-sm font-medium text-gray-700 mb-1">
                 Date & Time *
               </label>
               <input
                 type="datetime-local"
+                id="scheduled-at"
                 value={formData.scheduledAt}
                 onChange={(e) => handleInputChange('scheduledAt', e.target.value)}
                 onBlur={checkAvailability}
+                aria-required="true"
+                aria-invalid={!!errors.scheduledAt}
+                aria-describedby={errors.scheduledAt ? 'scheduled-at-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.scheduledAt ? 'border-red-500' : 'border-gray-300'}`}
               />
-              {errors.scheduledAt && <p className="text-red-500 text-sm mt-1">{errors.scheduledAt}</p>}
+              {errors.scheduledAt && <p id="scheduled-at-error" role="alert" className="text-red-500 text-sm mt-1">{errors.scheduledAt}</p>}
               {checkingAvailability && (
                 <p className="text-violet-500 text-sm mt-1">Checking availability...</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="duration-minutes" className="block text-sm font-medium text-gray-700 mb-1">
                 Duration (minutes) *
               </label>
               <input
                 type="number"
+                id="duration-minutes"
                 min="15"
                 max="480"
                 step="15"
                 value={formData.durationMinutes}
                 onChange={(e) => handleInputChange('durationMinutes', parseInt(e.target.value))}
+                aria-required="true"
+                aria-invalid={!!errors.durationMinutes}
+                aria-describedby={errors.durationMinutes ? 'duration-minutes-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.durationMinutes ? 'border-red-500' : 'border-gray-300'}`}
               />
-              {errors.durationMinutes && <p className="text-red-500 text-sm mt-1">{errors.durationMinutes}</p>}
+              {errors.durationMinutes && <p id="duration-minutes-error" role="alert" className="text-red-500 text-sm mt-1">{errors.durationMinutes}</p>}
             </div>
-          </div>
+          </fieldset>
 
           {/* Suggested Times */}
           {availability.length > 0 && (
@@ -477,49 +500,61 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
           <div className="space-y-4">
             {(formData.type === 'IN_PERSON' || formData.type === 'PANEL' || formData.type === 'GROUP') && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="interview-location" className="block text-sm font-medium text-gray-700 mb-1">
                   Location *
                 </label>
                 <input
                   type="text"
+                  id="interview-location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
+                  aria-required="true"
+                  aria-invalid={!!errors.location}
+                  aria-describedby={errors.location ? 'interview-location-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.location ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. Conference Room A, 2nd Floor"
                 />
-                {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+                {errors.location && <p id="interview-location-error" role="alert" className="text-red-500 text-sm mt-1">{errors.location}</p>}
               </div>
             )}
 
             {formData.type === 'VIDEO' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="meeting-link" className="block text-sm font-medium text-gray-700 mb-1">
                   Video Meeting Link *
                 </label>
                 <input
                   type="url"
+                  id="meeting-link"
                   value={formData.meetingLink}
                   onChange={(e) => handleInputChange('meetingLink', e.target.value)}
+                  aria-required="true"
+                  aria-invalid={!!errors.meetingLink}
+                  aria-describedby={errors.meetingLink ? 'meeting-link-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.meetingLink ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. https://zoom.us/j/123456789"
                 />
-                {errors.meetingLink && <p className="text-red-500 text-sm mt-1">{errors.meetingLink}</p>}
+                {errors.meetingLink && <p id="meeting-link-error" role="alert" className="text-red-500 text-sm mt-1">{errors.meetingLink}</p>}
               </div>
             )}
 
             {formData.type === 'PHONE' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone-number" className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number *
                 </label>
                 <input
                   type="tel"
+                  id="phone-number"
                   value={formData.phoneNumber}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  aria-required="true"
+                  aria-invalid={!!errors.phoneNumber}
+                  aria-describedby={errors.phoneNumber ? 'phone-number-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. +27 11 123 4567"
                 />
-                {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+                {errors.phoneNumber && <p id="phone-number-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
               </div>
             )}
 

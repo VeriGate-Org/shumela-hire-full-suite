@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiInterviewService } from '@/services/aiInterviewService';
+import AiDisclaimer from './AiDisclaimer';
 import { InterviewType, GeneratedQuestion, InterviewQuestionsResult } from '@/types/ai';
 
 interface AiInterviewQuestionGeneratorProps {
@@ -82,6 +83,7 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-violet-500" />
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Interview Questions</h3>
+        <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -175,6 +177,7 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
               Apply {selected.size} Question{selected.size !== 1 ? 's' : ''} to Interview
             </button>
           )}
+          <AiDisclaimer level="advisory" />
         </div>
       )}
     </div>

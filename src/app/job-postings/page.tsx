@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DashboardShell from '@/components/DashboardShell';
 import PageWrapper from '@/components/PageWrapper';
 import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
@@ -114,10 +113,10 @@ export default function JobPostingsPage() {
   };
 
   return (
-    <DashboardShell
+    <PageWrapper
       title={
-        view === 'list' ? 'Job Postings' : 
-        view === 'create' ? 'Create Job Posting' : 
+        view === 'list' ? 'Job Postings' :
+        view === 'create' ? 'Create Job Posting' :
         view === 'edit' ? 'Edit Job Posting' :
         'Job Posting Workflow'
       }
@@ -153,7 +152,7 @@ export default function JobPostingsPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by title or department..."
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   />
                 </div>
                 <div>
@@ -163,7 +162,7 @@ export default function JobPostingsPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="ALL">All Statuses</option>
                     {getStatusOptions().map(status => (
@@ -353,6 +352,6 @@ export default function JobPostingsPage() {
           </div>
         )}
       </div>
-    </DashboardShell>
+    </PageWrapper>
   );
 }

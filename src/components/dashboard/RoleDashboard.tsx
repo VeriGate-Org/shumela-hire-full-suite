@@ -170,7 +170,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <h4 className="font-medium mb-1">Employee Records</h4>
                 <p className="text-sm opacity-90">Manage employee data</p>
               </button>
-              <button className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-left">
+              <button className="bg-violet-600 text-white p-4 rounded-lg hover:bg-violet-700 transition-colors text-left">
                 <h4 className="font-medium mb-1">Recruitment Overview</h4>
                 <p className="text-sm opacity-90">Monitor hiring activities</p>
               </button>
@@ -186,7 +186,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <h4 className="font-medium mb-1">My Job Postings</h4>
                 <p className="text-sm opacity-90">Manage open positions</p>
               </button>
-              <button className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-left">
+              <button className="bg-violet-600 text-white p-4 rounded-lg hover:bg-violet-700 transition-colors text-left">
                 <h4 className="font-medium mb-1">Interview Schedule</h4>
                 <p className="text-sm opacity-90">View and manage interviews</p>
               </button>
@@ -202,7 +202,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <h4 className="font-medium mb-1">My Interviews</h4>
                 <p className="text-sm opacity-90">View upcoming interview schedule</p>
               </button>
-              <button className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-left">
+              <button className="bg-violet-600 text-white p-4 rounded-lg hover:bg-violet-700 transition-colors text-left">
                 <h4 className="font-medium mb-1">Submit Feedback</h4>
                 <p className="text-sm opacity-90">Provide candidate evaluations</p>
               </button>
@@ -218,7 +218,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
                 <h4 className="font-medium mb-1">Internal Jobs</h4>
                 <p className="text-sm opacity-90">Browse internal opportunities</p>
               </button>
-              <button className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-left">
+              <button className="bg-violet-600 text-white p-4 rounded-lg hover:bg-violet-700 transition-colors text-left">
                 <h4 className="font-medium mb-1">My Profile</h4>
                 <p className="text-sm opacity-90">Update your profile details</p>
               </button>

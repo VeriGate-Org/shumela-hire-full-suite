@@ -238,7 +238,7 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
                 {[
                   { label: 'Search Candidates', color: 'bg-violet-600', icon: '🔍' },
                   { label: 'Send Outreach', color: 'bg-green-600', icon: '📧' },
-                  { label: 'Schedule Screen', color: 'bg-purple-600', icon: '📞' },
+                  { label: 'Schedule Screen', color: 'bg-violet-600', icon: '📞' },
                   { label: 'Update Pipeline', color: 'bg-orange-600', icon: '📊' },
                   { label: 'Generate Report', color: 'bg-red-600', icon: '📋' },
                 ].map((action) => (

@@ -307,7 +307,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: e.target.value }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             )}
             
@@ -318,7 +318,7 @@ export default function WorkflowBuilder({
                   config: { ...action.config, [key]: e.target.value }
                 })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             )}
             
@@ -329,7 +329,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: parseInt(e.target.value) || 0 }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             )}
             
@@ -339,7 +339,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: e.target.value }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               >
                 <option value="">Select...</option>
                 {key === 'assignee' || key === 'interviewer' ? (
@@ -366,7 +366,7 @@ export default function WorkflowBuilder({
                 delay: parseInt(e.target.value) || 0
               })}
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
             <p className="text-xs text-gray-500 mt-1">
               Wait time before executing this action
@@ -423,7 +423,7 @@ export default function WorkflowBuilder({
               value={currentWorkflow.name}
               onChange={(e) => handleUpdateWorkflow({ name: e.target.value })}
               placeholder="Enter workflow name..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
           </div>
           
@@ -436,7 +436,7 @@ export default function WorkflowBuilder({
                 type="checkbox"
                 checked={currentWorkflow.isActive}
                 onChange={(e) => handleUpdateWorkflow({ isActive: e.target.checked })}
-                className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/40"
+                className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/60"
               />
               <label className="ml-2 text-sm text-gray-700">
                 Active (workflow will run automatically)
@@ -454,7 +454,7 @@ export default function WorkflowBuilder({
             onChange={(e) => handleUpdateWorkflow({ description: e.target.value })}
             placeholder="Describe what this workflow does..."
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -473,7 +473,7 @@ export default function WorkflowBuilder({
                   handleUpdateWorkflow({ trigger });
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             >
               {WORKFLOW_TRIGGERS.map((trigger) => (
                 <option key={trigger.id} value={trigger.id}>
@@ -559,7 +559,7 @@ export default function WorkflowBuilder({
                               type="text"
                               value={step.name}
                               onChange={(e) => handleUpdateStep(step.id, { name: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                             />
                           </div>
                           
@@ -574,7 +574,7 @@ export default function WorkflowBuilder({
                                 timeoutMinutes: parseInt(e.target.value) || undefined 
                               })}
                               min="0"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                             />
                           </div>
                         </div>
@@ -587,7 +587,7 @@ export default function WorkflowBuilder({
                             value={step.description}
                             onChange={(e) => handleUpdateStep(step.id, { description: e.target.value })}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                           />
                         </div>
 
@@ -600,7 +600,7 @@ export default function WorkflowBuilder({
                               onChange={(e) => handleUpdateStep(step.id, { 
                                 approvalRequired: e.target.checked 
                               })}
-                              className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/40"
+                              className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/60"
                             />
                             <span className="ml-2 text-sm text-gray-700">
                               Require approval before executing this step
@@ -619,7 +619,7 @@ export default function WorkflowBuilder({
                                   const values = Array.from(e.target.selectedOptions, option => option.value);
                                   handleUpdateStep(step.id, { approvers: values });
                                 }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                                 size={3}
                               >
                                 {availableUsers.map(user => (
@@ -713,7 +713,7 @@ export default function WorkflowBuilder({
               tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean) 
             })}
             placeholder="automation, onboarding, notifications..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
       </div>

@@ -241,7 +241,7 @@ export function OptimizedList<T>({
 }: OptimizedListProps<T>) {
   if (items.length === 0 && !isLoading) {
     return (
-      <div className={`flex items-center justify-center py-8 text-gray-500 ${className}`}>
+      <div role="status" aria-live="polite" className={`flex items-center justify-center py-8 text-gray-500 ${className}`}>
         {emptyMessage}
       </div>
     );

@@ -52,7 +52,7 @@ const RECOMMENDATIONS = [
   { value: 'REJECT', label: 'Do Not Recommend', color: 'text-red-600' },
   { value: 'ANOTHER_ROUND', label: 'Recommend Another Round', color: 'text-violet-600' },
   { value: 'ON_HOLD', label: 'Put on Hold', color: 'text-gray-600' },
-  { value: 'SECOND_OPINION', label: 'Needs Second Opinion', color: 'text-purple-600' }
+  { value: 'SECOND_OPINION', label: 'Needs Second Opinion', color: 'text-violet-600' }
 ];
 
 export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }: InterviewFeedbackFormProps) {
@@ -157,17 +157,19 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
   };
 
   const renderStarRating = (field: string, value: number, label: string, required = true) => {
+    const errorId = `${field}-error`;
     return (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div role="group" aria-labelledby={`${field}-label`}>
+        <label id={`${field}-label`} className="block text-sm font-medium text-gray-700 mb-2">
           {label} {required && '*'}
         </label>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1" aria-describedby={errors[field] ? errorId : undefined}>
           {[1, 2, 3, 4, 5].map(star => (
             <button
               key={star}
               type="button"
               onClick={() => handleInputChange(field, star)}
+              aria-label={`Rate ${star} out of 5`}
               className={`text-2xl hover:scale-110 transition-transform ${
                 star <= value ? 'text-yellow-400' : 'text-gray-300'
               }`}
@@ -179,7 +181,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
             {value > 0 ? `${value}/5` : 'Not rated'}
           </span>
         </div>
-        {errors[field] && <p className="text-red-500 text-sm mt-1">{errors[field]}</p>}
+        {errors[field] && <p id={errorId} role="alert" className="text-red-500 text-sm mt-1">{errors[field]}</p>}
       </div>
     );
   };
@@ -235,17 +237,21 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 mb-1">
               Overall Feedback *
             </label>
             <textarea
+              id="feedback"
               value={formData.feedback}
               onChange={(e) => handleInputChange('feedback', e.target.value)}
               rows={4}
+              aria-required="true"
+              aria-invalid={!!errors.feedback}
+              aria-describedby={errors.feedback ? 'feedback-error' : undefined}
               className={`w-full p-3 border rounded-md ${errors.feedback ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Provide your overall assessment of the candidate's performance during the interview..."
             />
-            {errors.feedback && <p className="text-red-500 text-sm mt-1">{errors.feedback}</p>}
+            {errors.feedback && <p id="feedback-error" role="alert" className="text-red-500 text-sm mt-1">{errors.feedback}</p>}
           </div>
 
           {/* Skills Assessment */}
@@ -259,11 +265,11 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
           </div>
 
           {/* Recommendation */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <fieldset>
+            <legend className="block text-sm font-medium text-gray-700 mb-1">
               Recommendation *
-            </label>
-            <div className="space-y-2">
+            </legend>
+            <div className="space-y-2" aria-required="true">
               {RECOMMENDATIONS.map(rec => (
                 <label key={rec.value} className="flex items-center">
                   <input
@@ -272,14 +278,15 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                     value={rec.value}
                     checked={formData.recommendation === rec.value}
                     onChange={(e) => handleInputChange('recommendation', e.target.value)}
+                    aria-describedby={errors.recommendation ? 'recommendation-error' : undefined}
                     className="mr-3"
                   />
                   <span className={`font-medium ${rec.color}`}>{rec.label}</span>
                 </label>
               ))}
             </div>
-            {errors.recommendation && <p className="text-red-500 text-sm mt-1">{errors.recommendation}</p>}
-          </div>
+            {errors.recommendation && <p id="recommendation-error" role="alert" className="text-red-500 text-sm mt-1">{errors.recommendation}</p>}
+          </fieldset>
 
           {/* Overall Impression */}
           <div>

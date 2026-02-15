@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiJobDescriptionService } from '@/services/aiJobDescriptionService';
+import AiDisclaimer from './AiDisclaimer';
 import { JobDescriptionRequest, JobDescriptionResult, BiasCheckResult } from '@/types/ai';
 
 interface AiJobDescriptionWriterProps {
@@ -69,6 +70,7 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-violet-500" />
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Job Description Writer</h3>
+        <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
       </div>
 
       {/* Form */}
@@ -242,6 +244,7 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
               </button>
             )}
           </div>
+          <AiDisclaimer level="advisory" />
         </div>
       )}
     </div>

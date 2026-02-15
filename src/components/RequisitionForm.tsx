@@ -238,13 +238,16 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             name="jobTitle"
             value={formData.jobTitle}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+            aria-required="true"
+            aria-invalid={!!errors.jobTitle}
+            aria-describedby={errors.jobTitle ? 'job-title-error' : undefined}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
               errors.jobTitle ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="e.g., Senior Software Engineer"
           />
           {errors.jobTitle && (
-            <p className="mt-1 text-sm text-red-600">{errors.jobTitle}</p>
+            <p id="job-title-error" role="alert" className="mt-1 text-sm text-red-600">{errors.jobTitle}</p>
           )}
         </div>
 
@@ -259,7 +262,10 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
               name="department"
               value={formData.department}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+              aria-required="true"
+              aria-invalid={!!errors.department}
+              aria-describedby={errors.department ? 'department-error' : undefined}
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
                 errors.department ? 'border-red-300' : 'border-gray-300'
               }`}
             >
@@ -275,7 +281,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
               <option value="Customer Success">Customer Success</option>
             </select>
             {errors.department && (
-              <p className="mt-1 text-sm text-red-600">{errors.department}</p>
+              <p id="department-error" role="alert" className="mt-1 text-sm text-red-600">{errors.department}</p>
             )}
           </div>
 
@@ -289,13 +295,16 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+              aria-required="true"
+              aria-invalid={!!errors.location}
+              aria-describedby={errors.location ? 'location-error' : undefined}
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
                 errors.location ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="e.g., New York, NY or Remote"
             />
             {errors.location && (
-              <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+              <p id="location-error" role="alert" className="mt-1 text-sm text-red-600">{errors.location}</p>
             )}
           </div>
         </div>
@@ -310,7 +319,10 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             name="employmentType"
             value={formData.employmentType}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+            aria-required="true"
+            aria-invalid={!!errors.employmentType}
+            aria-describedby={errors.employmentType ? 'employment-type-error' : undefined}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
               errors.employmentType ? 'border-red-300' : 'border-gray-300'
             }`}
           >
@@ -322,15 +334,15 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             <option value="Internship">Internship</option>
           </select>
           {errors.employmentType && (
-            <p className="mt-1 text-sm text-red-600">{errors.employmentType}</p>
+            <p id="employment-type-error" role="alert" className="mt-1 text-sm text-red-600">{errors.employmentType}</p>
           )}
         </div>
 
         {/* Salary Range */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-1">
             Salary Range
-          </label>
+          </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="salaryMin" className="block text-xs text-gray-500 mb-1">
@@ -344,13 +356,15 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
                 onChange={handleInputChange}
                 min="0"
                 step="1000"
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+                aria-invalid={!!errors.salaryMin}
+                aria-describedby={errors.salaryMin ? 'salary-min-error' : undefined}
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
                   errors.salaryMin ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="50000"
               />
               {errors.salaryMin && (
-                <p className="mt-1 text-sm text-red-600">{errors.salaryMin}</p>
+                <p id="salary-min-error" role="alert" className="mt-1 text-sm text-red-600">{errors.salaryMin}</p>
               )}
             </div>
             <div>
@@ -365,17 +379,19 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
                 onChange={handleInputChange}
                 min="0"
                 step="1000"
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+                aria-invalid={!!errors.salaryMax}
+                aria-describedby={errors.salaryMax ? 'salary-max-error' : undefined}
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
                   errors.salaryMax ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="80000"
               />
               {errors.salaryMax && (
-                <p className="mt-1 text-sm text-red-600">{errors.salaryMax}</p>
+                <p id="salary-max-error" role="alert" className="mt-1 text-sm text-red-600">{errors.salaryMax}</p>
               )}
             </div>
           </div>
-        </div>
+        </fieldset>
 
         {/* Description */}
         <div>
@@ -388,13 +404,15 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             rows={6}
             value={formData.description}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+            aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? 'description-error' : undefined}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
               errors.description ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="Describe the role, responsibilities, requirements, and qualifications..."
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+            <p id="description-error" role="alert" className="mt-1 text-sm text-red-600">{errors.description}</p>
           )}
           <p className="mt-1 text-sm text-gray-500">
             Required for submission. You can save as draft without a description.
@@ -407,7 +425,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             type="button"
             onClick={handleSaveDraft}
             disabled={isSubmitting}
-            className="w-full sm:w-auto px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Saving...' : 'Save as Draft'}
           </button>
@@ -415,7 +433,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             type="button"
             onClick={handleSubmitForApproval}
             disabled={isSubmitting}
-            className="w-full sm:w-auto px-6 py-2 bg-violet-600 text-white rounded-md shadow-sm hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-6 py-2 bg-violet-600 text-white rounded-md shadow-sm hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
           </button>

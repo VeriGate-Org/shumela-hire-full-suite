@@ -2,43 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { roleConfigurations } from '../config/roleConfig';
+import { navigationRegistry, sectionLabels, NavSection, NavigationEntry } from '@/config/navigationRegistry';
 import {
-  HomeIcon,
-  UsersIcon,
-  BriefcaseIcon,
-  ChartBarIcon,
-  DocumentTextIcon,
-  CalendarIcon,
-  CogIcon,
-  BuildingOfficeIcon,
   MagnifyingGlassIcon,
   ChevronRightIcon,
-  Squares2X2Icon,
-  ClipboardDocumentListIcon,
-  AcademicCapIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
-import {
-  HomeIcon as HomeIconSolid,
-  UsersIcon as UsersIconSolid,
-  BriefcaseIcon as BriefcaseIconSolid,
-  ChartBarIcon as ChartBarIconSolid,
-  DocumentTextIcon as DocumentTextIconSolid,
-  CalendarIcon as CalendarIconSolid
-} from '@heroicons/react/24/solid';
-
-interface NavigationItem {
-  id: string;
-  label: string;
-  href: string;
-  icon: React.ComponentType<any>;
-  iconSolid?: React.ComponentType<any>;
-  badge?: string;
-  children?: NavigationItem[];
-}
 
 interface ModernSidebarProps {
   isCollapsed?: boolean;
@@ -51,69 +20,43 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 }) => {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['dashboard', 'talent']);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredItems, setFilteredItems] = useState<NavigationItem[]>([]);
 
-  const getIconForNavItem = (label: string, href: string) => {
-    if (href.includes('/dashboard') || label.toLowerCase().includes('dashboard')) return { icon: HomeIcon, iconSolid: HomeIconSolid };
-    if (label.toLowerCase().includes('analytics') || label.toLowerCase().includes('reports')) return { icon: ChartBarIcon, iconSolid: ChartBarIconSolid };
-    if (label.toLowerCase().includes('job') || label.toLowerCase().includes('posting')) return { icon: BriefcaseIcon, iconSolid: BriefcaseIconSolid };
-    if (href.includes('/internal/jobs')) return { icon: BuildingOfficeIcon };
-    if (label.toLowerCase().includes('applicant') || label.toLowerCase().includes('candidate') || label.toLowerCase().includes('user')) return { icon: UsersIcon, iconSolid: UsersIconSolid };
-    if (label.toLowerCase().includes('application')) return { icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid };
-    if (label.toLowerCase().includes('interview') || label.toLowerCase().includes('schedule')) return { icon: CalendarIcon, iconSolid: CalendarIconSolid };
-    if (label.toLowerCase().includes('pipeline') || label.toLowerCase().includes('workflow')) return { icon: Squares2X2Icon };
-    if (label.toLowerCase().includes('management') || label.toLowerCase().includes('admin')) return { icon: CogIcon };
-    if (label.toLowerCase().includes('audit') || label.toLowerCase().includes('logs')) return { icon: ClipboardDocumentListIcon };
-    return { icon: DocumentTextIcon };
-  };
-
+  // Filter navigation entries by user permissions
   const navigationItems = useMemo(() => {
     if (!user) return [];
-    const roleConfig = roleConfigurations[user.role];
-    const items: NavigationItem[] = [];
-    roleConfig.navigationItems.forEach((navItem, index) => {
-      const iconMapping = getIconForNavItem(navItem.label, navItem.href);
-      items.push({
-        id: navItem.href.replace('/', '_') + '_' + index,
-        label: navItem.label,
-        href: navItem.href,
-        icon: iconMapping.icon,
-        iconSolid: iconMapping.iconSolid,
-        badge: navItem.label.toLowerCase().includes('application') ? '8' :
-               navItem.label.toLowerCase().includes('interview') ? '3' :
-               navItem.label.toLowerCase().includes('offer') ? '2' : undefined,
-      });
-    });
-    return items;
-  }, [user?.role]);
+    const userPermissions = user.permissions || [];
+    return navigationRegistry.filter(entry =>
+      entry.requiredPermissions.every(p => userPermissions.includes(p))
+    );
+  }, [user?.permissions]);
 
-  const bottomNavigationItems: NavigationItem[] = [
-    { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon },
-    { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon },
-    { id: 'security', label: 'Security', href: '/security', icon: ShieldCheckIcon },
-  ];
-
-  useEffect(() => {
-    if (searchQuery) {
-      const filtered = navigationItems.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.children && item.children.some(child =>
-          child.label.toLowerCase().includes(searchQuery.toLowerCase())
-        ))
-      );
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems(navigationItems);
-    }
+  // Apply search filtering
+  const filteredItems = useMemo(() => {
+    if (!searchQuery) return navigationItems;
+    return navigationItems.filter(item =>
+      item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   }, [searchQuery, navigationItems]);
 
-  const toggleMenu = (menuId: string) => {
-    if (isCollapsed) return;
-    setExpandedMenus(prev =>
-      prev.includes(menuId) ? prev.filter(id => id !== menuId) : [...prev, menuId]
-    );
+  // Group items by section
+  const groupedNavItems = useMemo(() => {
+    const groups: Partial<Record<NavSection, NavigationEntry[]>> = {};
+    for (const item of filteredItems) {
+      const section = item.section || 'recruitment';
+      if (!groups[section]) groups[section] = [];
+      groups[section]!.push(item);
+    }
+    return groups;
+  }, [filteredItems]);
+
+  const keyShortcutMap: Record<string, string> = {
+    '/dashboard': 'g d',
+    '/pipeline': 'g p',
+    '/applications': 'g a',
+    '/job-postings': 'g j',
+    '/interviews': 'g i',
+    '/reports': 'g r',
   };
 
   const isActiveRoute = (href: string, exact = false) => {
@@ -121,28 +64,20 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     return pathname.startsWith(href) && href !== '/';
   };
 
-  const renderNavigationItem = (item: NavigationItem, isChild = false) => {
+  const renderNavigationItem = (item: NavigationEntry) => {
     const isActive = isActiveRoute(item.href);
-    const isExpanded = expandedMenus.includes(item.id);
-    const hasChildren = item.children && item.children.length > 0;
     const IconComponent = isActive && item.iconSolid ? item.iconSolid : item.icon;
 
     return (
       <div key={item.id}>
         <Link
-          href={!hasChildren ? item.href : '#'}
-          onClick={(e) => {
-            if (hasChildren) { e.preventDefault(); toggleMenu(item.id); }
-          }}
+          href={item.href}
+          aria-keyshortcuts={keyShortcutMap[item.href]}
           className={`
             group flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent
-            ${isChild
-              ? isActive
-                ? 'bg-violet-500/[0.06] text-violet-800 border-violet-500/40'
-                : 'text-gray-500 hover:bg-gray-100 hover:text-violet-700'
-              : isActive
-                ? 'bg-violet-500/[0.06] text-violet-800 border-l-[3px] border-l-violet-600 border-y-transparent border-r-transparent pl-[7px]'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-violet-700'
+            ${isActive
+              ? 'bg-violet-500/[0.06] text-violet-800 border-l-[3px] border-l-violet-600 border-y-transparent border-r-transparent pl-[7px]'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-violet-700'
             }
             ${isCollapsed ? 'justify-center px-2' : ''}
           `}
@@ -163,21 +98,14 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </span>
               )}
 
-              {hasChildren && (
-                <ChevronRightIcon className={`
-                  h-3 w-3 text-gray-400 transition-transform duration-200
-                  ${isExpanded ? 'rotate-90' : ''}
-                `} />
+              {keyShortcutMap[item.href] && (
+                <span className="hidden group-hover:inline text-[10px] text-gray-400 ml-auto">
+                  {keyShortcutMap[item.href]}
+                </span>
               )}
             </>
           )}
         </Link>
-
-        {hasChildren && !isCollapsed && isExpanded && (
-          <div className="mt-0.5 space-y-0.5 ml-4">
-            {item.children?.map((child) => renderNavigationItem(child, true))}
-          </div>
-        )}
       </div>
     );
   };
@@ -208,28 +136,20 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         </div>
       )}
 
-      {/* Main Navigation */}
+      {/* Section-grouped Navigation */}
       <div className="px-3 py-1">
-        {!isCollapsed && (
-          <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
-            Navigation
-          </p>
-        )}
-        <nav className="space-y-0.5">
-          {filteredItems.map(item => renderNavigationItem(item))}
-        </nav>
-      </div>
-
-      {/* Bottom section */}
-      <div className="px-3 pt-4 mt-4 border-t border-gray-100">
-        {!isCollapsed && (
-          <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
-            System
-          </p>
-        )}
-        <nav className="space-y-0.5">
-          {bottomNavigationItems.map(item => renderNavigationItem(item))}
-        </nav>
+        {Object.entries(groupedNavItems).map(([section, items]) => (
+          <div key={section} className="mb-4">
+            {!isCollapsed && (
+              <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
+                {sectionLabels[section as NavSection] || section}
+              </p>
+            )}
+            <nav className="space-y-0.5">
+              {items?.map(item => renderNavigationItem(item))}
+            </nav>
+          </div>
+        ))}
       </div>
     </aside>
   );

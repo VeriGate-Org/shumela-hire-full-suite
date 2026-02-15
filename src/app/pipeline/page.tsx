@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { 
+import {
   FunnelIcon,
   ChartBarIcon,
   UserGroupIcon,
@@ -15,8 +15,10 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   CalendarIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  ArrowUturnLeftIcon
 } from '@heroicons/react/24/outline';
+import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 
 interface PipelineStage {
   id: string;
@@ -84,6 +86,7 @@ export default function PipelinePage() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'funnel'>('kanban');
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const pipelineStages: PipelineStage[] = [
     {
@@ -321,6 +324,22 @@ export default function PipelinePage() {
     }));
   };
 
+  const handleBulkMove = (targetStageId: string) => {
+    selectedIds.forEach(id => {
+      handleStageTransition(id, targetStageId);
+    });
+    setSelectedIds(new Set());
+  };
+
+  const handleBulkReject = () => {
+    if (confirm(`Reject ${selectedIds.size} selected candidates?`)) {
+      selectedIds.forEach(id => {
+        handleStageTransition(id, 'rejected', 'Bulk rejection');
+      });
+      setSelectedIds(new Set());
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-800 border-red-300';
@@ -331,12 +350,13 @@ export default function PipelinePage() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'hired': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'withdrawn': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-violet-100 text-violet-800';
-    }
+    return getStatusConfig(pipelineApplicationStatusConfig, status).color;
+  };
+
+  const getStatusIcon = (status: string) => {
+    const config = getStatusConfig(pipelineApplicationStatusConfig, status);
+    const IconComponent = config.icon;
+    return <IconComponent className="w-3.5 h-3.5" />;
   };
 
   const actions = (
@@ -447,7 +467,7 @@ export default function PipelinePage() {
                   placeholder="Search candidates or jobs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 />
               </div>
             </div>
@@ -456,7 +476,7 @@ export default function PipelinePage() {
               <select
                 value={selectedStage}
                 onChange={(e) => setSelectedStage(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               >
                 <option value="all">All Stages</option>
                 {pipelineStages.map(stage => (
@@ -510,19 +530,42 @@ export default function PipelinePage() {
         {viewMode === 'kanban' && (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex space-x-6 overflow-x-auto pb-4">
-              {pipelineStages.map(stage => {
+              {pipelineStages.map((stage, stageIndex) => {
                 const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
-                
+                const nextStage = pipelineStages[stageIndex + 1];
+                const nextStageCount = nextStage
+                  ? filteredApplications.filter(app => app.currentStage === nextStage.id).length
+                  : 0;
+
                 return (
                   <div key={stage.id} className="flex-shrink-0 w-80">
                     <div className={`rounded-lg border-2 ${stage.color} p-4 mb-4`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={stageApplications.length > 0 && stageApplications.every(a => selectedIds.has(a.id))}
+                            onChange={(e) => {
+                              const next = new Set(selectedIds);
+                              if (e.target.checked) {
+                                stageApplications.forEach(a => next.add(a.id));
+                              } else {
+                                stageApplications.forEach(a => next.delete(a.id));
+                              }
+                              setSelectedIds(next);
+                            }}
+                            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          />
                           <stage.icon className="w-5 h-5" />
                           <h3 className="font-semibold">{stage.displayName}</h3>
                         </div>
                         <span className="text-sm font-medium">
                           {stageApplications.length}
+                          {stageIndex < pipelineStages.length - 1 && stageApplications.length > 0 && (
+                            <span className="text-[10px] text-gray-400 font-normal ml-2">
+                              &rarr; {Math.round((nextStageCount / stageApplications.length) * 100)}%
+                            </span>
+                          )}
                         </span>
                       </div>
                       <p className="text-xs mt-1 opacity-75">{stage.description}</p>
@@ -532,25 +575,46 @@ export default function PipelinePage() {
                       {stageApplications.map(application => (
                         <div key={application.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                           <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
+                            <div className="flex items-start gap-2 flex-1">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(application.id)}
+                                onChange={(e) => {
+                                  const next = new Set(selectedIds);
+                                  if (e.target.checked) next.add(application.id);
+                                  else next.delete(application.id);
+                                  setSelectedIds(next);
+                                }}
+                                className="mt-1 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                              />
+                              <div>
                               <h4 className="font-medium text-gray-900">
                                 {application.candidate.firstName} {application.candidate.lastName}
                               </h4>
                               <p className="text-sm text-gray-600">{application.job.title}</p>
                               <p className="text-xs text-gray-500">{application.job.department}</p>
+                              </div>
                             </div>
                             <div className="flex flex-col items-end space-y-1">
                               <span className={`px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(application.priority)}`}>
                                 {application.priority}
                               </span>
-                              <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(application.status)}`}>
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${getStatusColor(application.status)}`}>
+                                {getStatusIcon(application.status)}
                                 {application.status}
                               </span>
                             </div>
                           </div>
                           
                           <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span>{application.daysInStage} days in stage</span>
+                            <span className={`inline-flex items-center gap-1 ${
+                              application.daysInStage <= 3 ? 'text-green-600' :
+                              application.daysInStage <= 7 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>
+                              <ClockIcon className="w-3 h-3" />
+                              {application.daysInStage}d
+                            </span>
                             <span>{new Date(application.lastActivity).toLocaleDateString()}</span>
                           </div>
                           
@@ -681,7 +745,8 @@ export default function PipelinePage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
+                            {getStatusIcon(application.status)}
                             {application.status}
                           </span>
                         </td>
@@ -718,6 +783,43 @@ export default function PipelinePage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Bulk Action Bar */}
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg px-6 py-3 flex items-center gap-4 z-50">
+            <span className="text-sm font-medium text-gray-700">
+              {selectedIds.size} selected
+            </span>
+            <div className="h-4 w-px bg-gray-300" />
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  handleBulkMove(e.target.value);
+                  e.target.value = '';
+                }
+              }}
+              className="text-sm border border-gray-300 rounded-md px-2 py-1"
+              defaultValue=""
+            >
+              <option value="" disabled>Move to...</option>
+              {pipelineStages.map(s => (
+                <option key={s.id} value={s.id}>{s.displayName}</option>
+              ))}
+            </select>
+            <button
+              onClick={handleBulkReject}
+              className="text-sm text-red-600 hover:text-red-800 font-medium"
+            >
+              Reject Selected
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Clear
+            </button>
           </div>
         )}
 

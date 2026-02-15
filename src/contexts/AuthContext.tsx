@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { rolePermissions } from '@/config/permissions';
 
 export type UserRole =
   | 'ADMIN'
@@ -33,6 +34,7 @@ interface User {
   name: string;
   email: string;
   role: UserRole;
+  permissions: string[];
 }
 
 interface AuthContextType {
@@ -40,6 +42,7 @@ interface AuthContextType {
   login: (userData: User) => void;
   logout: () => void;
   switchRole: (role: UserRole) => void;
+  hasPermission: (permission: string) => boolean;
   isAuthenticated: boolean;
   token: string | null;
 }
@@ -73,7 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: '1',
         name: 'John Doe',
         email: 'john.doe@company.com',
-        role: 'ADMIN'
+        role: 'ADMIN',
+        permissions: rolePermissions['ADMIN'],
       });
     }
   }, []);
@@ -94,14 +98,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const switchRole = (role: UserRole) => {
     if (user) {
-      setUser({ ...user, role });
+      setUser({ ...user, role, permissions: rolePermissions[role] });
     }
+  };
+
+  const hasPermission = (permission: string): boolean => {
+    return user?.permissions.includes(permission) ?? false;
   };
 
   const isAuthenticated = !!user && !!token;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, switchRole, isAuthenticated, token }}>
+    <AuthContext.Provider value={{ user, login, logout, switchRole, hasPermission, isAuthenticated, token }}>
       {children}
     </AuthContext.Provider>
   );

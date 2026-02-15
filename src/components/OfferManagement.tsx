@@ -515,7 +515,7 @@ export default function OfferManagement() {
                         {canPerformAction(offer, 'negotiate') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'negotiate')}
-                            className="text-purple-600 hover:text-purple-900"
+                            className="text-violet-600 hover:text-violet-900"
                           >
                             Negotiate
                           </button>

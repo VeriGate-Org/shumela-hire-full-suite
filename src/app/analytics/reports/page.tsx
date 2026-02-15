@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import DashboardShell from '../../../components/DashboardShell';
+import PageWrapper from '@/components/PageWrapper';
 import { CustomReportBuilder } from '../../../components/analytics';
 import { 
   DocumentChartBarIcon, 
@@ -74,7 +74,7 @@ export default function CustomReportsPage() {
 
   if (showBuilder) {
     return (
-      <DashboardShell>
+      <PageWrapper title="Custom Reports" subtitle="Build personalized reports with drag-and-drop interface">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
@@ -93,12 +93,12 @@ export default function CustomReportsPage() {
           
           <CustomReportBuilder onSave={handleSaveReport} />
         </div>
-      </DashboardShell>
+      </PageWrapper>
     );
   }
 
   return (
-    <DashboardShell>
+    <PageWrapper title="Custom Reports" subtitle="Build personalized reports with drag-and-drop interface">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -280,6 +280,6 @@ export default function CustomReportsPage() {
           )}
         </div>
       </div>
-    </DashboardShell>
+    </PageWrapper>
   );
 }

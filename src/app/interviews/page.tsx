@@ -349,7 +349,7 @@ export default function InterviewsPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by title, candidate, or job..."
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   />
                 </div>
                 <div>
@@ -359,7 +359,7 @@ export default function InterviewsPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="ALL">All Statuses</option>
                     {getStatusOptions().map(status => (
@@ -374,7 +374,7 @@ export default function InterviewsPage() {
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="ALL">All Types</option>
                     {getTypeOptions().map(type => (

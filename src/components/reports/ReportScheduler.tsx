@@ -163,7 +163,7 @@ export default function ReportScheduler({
                 <select
                   value={formData.reportId}
                   onChange={(e) => setFormData(prev => ({ ...prev, reportId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   required
                 >
                   <option value="">Choose a report...</option>
@@ -182,7 +182,7 @@ export default function ReportScheduler({
                 <select
                   value={formData.frequency}
                   onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value as any }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -200,7 +200,7 @@ export default function ReportScheduler({
                 onChange={(e) => setFormData(prev => ({ ...prev, recipients: e.target.value }))}
                 placeholder="user1@company.com, user2@company.com"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 required
               />
             </div>
@@ -211,7 +211,7 @@ export default function ReportScheduler({
                   type="checkbox"
                   checked={formData.enabled}
                   onChange={(e) => setFormData(prev => ({ ...prev, enabled: e.target.checked }))}
-                  className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/40"
+                  className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/60"
                 />
                 <span className="ml-2 text-sm text-gray-700">Enable schedule immediately</span>
               </label>

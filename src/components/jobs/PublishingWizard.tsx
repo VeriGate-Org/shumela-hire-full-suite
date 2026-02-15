@@ -203,7 +203,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.title}
             onChange={(e) => handleFormChange('title', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -215,7 +215,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.companyName}
             onChange={(e) => handleFormChange('companyName', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -227,7 +227,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.department}
             onChange={(e) => handleFormChange('department', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             placeholder="e.g., Engineering"
           />
         </div>
@@ -240,7 +240,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="email"
             value={formData.contactEmail}
             onChange={(e) => handleFormChange('contactEmail', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -252,7 +252,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.location}
             onChange={(e) => handleFormChange('location', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -263,7 +263,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           <select
             value={formData.employmentType}
             onChange={(e) => handleFormChange('employmentType', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           >
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
@@ -283,14 +283,14 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="number"
             value={formData.salaryRangeMin || ''}
             onChange={(e) => handleFormChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             placeholder="Min salary"
           />
           <input
             type="number"
             value={formData.salaryRangeMax || ''}
             onChange={(e) => handleFormChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             placeholder="Max salary"
           />
         </div>
@@ -307,7 +307,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.customSlug}
             onChange={(e) => handleFormChange('customSlug', e.target.value)}
-            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             placeholder={generatedSlug}
           />
         </div>
@@ -323,7 +323,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           id="featured"
           checked={formData.featured}
           onChange={(e) => handleFormChange('featured', e.target.checked)}
-          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/40"
+          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/60"
         />
         <label htmlFor="featured" className="ml-2 text-sm text-gray-700">
           Mark as featured job (appears prominently in listings)
@@ -415,7 +415,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           onChange={(e) => handleFormChange('expiresAt', new Date(e.target.value))}
           min={new Date().toISOString().split('T')[0]}
           max={new Date(Date.now() + DEFAULT_PUBLISHING_SETTINGS.maxExpiryDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-          className="w-full md:w-auto border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+          className="w-full md:w-auto border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
         />
         <p className="text-xs text-gray-500 mt-1">
           Job will automatically unpublish after this date. Maximum {DEFAULT_PUBLISHING_SETTINGS.maxExpiryDays} days from today.

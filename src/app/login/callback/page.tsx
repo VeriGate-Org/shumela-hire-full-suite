@@ -3,6 +3,7 @@
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, UserRole } from '../../../contexts/AuthContext';
+import { rolePermissions } from '@/config/permissions';
 
 function LoginCallbackContent() {
   const router = useRouter();
@@ -30,11 +31,13 @@ function LoginCallbackContent() {
           // Decode JWT payload to extract user info
           const payload = JSON.parse(atob(token.split('.')[1]));
 
+          const userRole = (payload.role || 'EMPLOYEE') as UserRole;
           const userData = {
             id: payload.sub || payload.userId || '1',
             name: payload.name || payload.firstName || payload.sub || 'SSO User',
             email: payload.email || payload.sub || '',
-            role: (payload.role || 'EMPLOYEE') as UserRole,
+            role: userRole,
+            permissions: rolePermissions[userRole],
           };
 
           login(userData);
@@ -82,11 +85,13 @@ function LoginCallbackContent() {
 
           const userRole = extractUserRole(mockJwtPayload);
 
+          const typedRole = userRole as UserRole;
           const userData = {
             id: mockJwtPayload.sub,
             name: mockJwtPayload.name,
             email: mockJwtPayload.email,
-            role: userRole as UserRole,
+            role: typedRole,
+            permissions: rolePermissions[typedRole],
           };
 
           sessionStorage.setItem('jwt_token', 'mock_jwt_token_' + Date.now());

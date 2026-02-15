@@ -210,7 +210,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   type="text"
                   value={formData.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="e.g., Software Engineer Template"
                 />
               </div>
@@ -223,7 +223,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   type="text"
                   value={formData.description || ''}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="Brief description of this template"
                 />
               </div>
@@ -236,7 +236,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   <select
                     value={formData.employmentType || 'Full-time'}
                     onChange={(e) => handleInputChange('employmentType', e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
@@ -253,7 +253,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                     type="email"
                     value={formData.contactEmail || ''}
                     onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     placeholder="careers@company.com"
                   />
                 </div>
@@ -268,7 +268,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   type="text"
                   value={formData.title || ''}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="{{jobTitle}} - {{department}}"
                 />
               </div>
@@ -282,7 +282,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   type="text"
                   value={formData.location || ''}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="{{location}}"
                 />
               </div>
@@ -302,7 +302,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                     value={(formData[key as keyof JobAdTemplate] as string) || ''}
                     onChange={(e) => handleInputChange(key as keyof JobAdTemplate, e.target.value)}
                     rows={6}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 font-mono text-sm"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 font-mono text-sm"
                     placeholder={placeholder}
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -322,7 +322,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                       type="number"
                       value={formData.salaryRangeMin || ''}
                       onChange={(e) => handleInputChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Min salary"
                     />
                   </div>
@@ -331,7 +331,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                       type="number"
                       value={formData.salaryRangeMax || ''}
                       onChange={(e) => handleInputChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                       placeholder="Max salary"
                     />
                   </div>
@@ -347,7 +347,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   type="date"
                   value={formData.closingDate ? formData.closingDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => handleInputChange('closingDate', e.target.value ? new Date(e.target.value) : undefined)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 />
               </div>
             </div>

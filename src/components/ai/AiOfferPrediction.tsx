@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiOfferPredictionService } from '@/services/aiOfferPredictionService';
+import AiDisclaimer from './AiDisclaimer';
 import { OfferPredictionResult } from '@/types/ai';
 
 interface AiOfferPredictionProps {
@@ -57,6 +58,7 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-violet-500" />
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Offer Prediction</h3>
+        <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -145,6 +147,7 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
               </ul>
             </div>
           )}
+          <AiDisclaimer level="high-risk" />
         </div>
       )}
     </div>

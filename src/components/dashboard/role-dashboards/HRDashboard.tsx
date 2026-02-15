@@ -207,7 +207,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange }: HR
                 {[
                   { label: 'Employee Records', color: 'bg-violet-600', icon: '👤' },
                   { label: 'Onboarding Portal', color: 'bg-green-600', icon: '🚀' },
-                  { label: 'Policy Management', color: 'bg-purple-600', icon: '📜' },
+                  { label: 'Policy Management', color: 'bg-violet-600', icon: '📜' },
                   { label: 'Performance Reviews', color: 'bg-orange-600', icon: '⭐' },
                   { label: 'Compliance Report', color: 'bg-red-600', icon: '📊' },
                 ].map((action) => (

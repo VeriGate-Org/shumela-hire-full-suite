@@ -387,12 +387,12 @@ export default function ApplicationManagementConsole() {
               placeholder="Search by candidate name, email, or job title..."
               value={filters.searchTerm}
               onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-transparent"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+            className="px-6 py-2 bg-violet-600 text-white rounded-md hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
           >
             Search
           </button>
@@ -411,7 +411,7 @@ export default function ApplicationManagementConsole() {
                 multiple
                 value={filters.statuses}
                 onChange={(e) => handleFilterChange('statuses', Array.from(e.target.selectedOptions, option => option.value))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
               >
                 {statusOptions.map(status => (
                   <option key={status} value={status}>{status.replace('_', ' ')}</option>
@@ -426,7 +426,7 @@ export default function ApplicationManagementConsole() {
                 multiple
                 value={filters.departments}
                 onChange={(e) => handleFilterChange('departments', Array.from(e.target.selectedOptions, option => option.value))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
               >
                 {departmentOptions.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -445,7 +445,7 @@ export default function ApplicationManagementConsole() {
                   placeholder="Min"
                   value={filters.minRating || ''}
                   onChange={(e) => handleFilterChange('minRating', parseInt(e.target.value) || 0)}
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
                 />
                 <input
                   type="number"
@@ -454,7 +454,7 @@ export default function ApplicationManagementConsole() {
                   placeholder="Max"
                   value={filters.maxRating || ''}
                   onChange={(e) => handleFilterChange('maxRating', parseInt(e.target.value) || 5)}
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
                 />
               </div>
             </div>
@@ -466,7 +466,7 @@ export default function ApplicationManagementConsole() {
                 type="datetime-local"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
               />
             </div>
 
@@ -476,7 +476,7 @@ export default function ApplicationManagementConsole() {
                 type="datetime-local"
                 value={filters.dateTo}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
               />
             </div>
 
@@ -487,7 +487,7 @@ export default function ApplicationManagementConsole() {
                 <select
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
                 >
                   <option value="submittedAt">Submit Date</option>
                   <option value="lastUpdated">Last Updated</option>
@@ -497,7 +497,7 @@ export default function ApplicationManagementConsole() {
                 <select
                   value={filters.sortDirection}
                   onChange={(e) => handleFilterChange('sortDirection', e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40"
+                  className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60"
                 >
                   <option value="desc">Desc</option>
                   <option value="asc">Asc</option>

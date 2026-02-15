@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
@@ -22,6 +22,15 @@ interface Column {
   filterable?: boolean;
 }
 
+interface SavedView {
+  id: string;
+  name: string;
+  filters: Record<string, any>;
+  sort: { key: string; direction: 'asc' | 'desc' } | null;
+  pageSize: number;
+  searchTerm: string;
+}
+
 interface DataExplorerProps {
   data: DataPoint[];
   columns: Column[];
@@ -30,6 +39,7 @@ interface DataExplorerProps {
   defaultView?: 'table' | 'chart';
   exportable?: boolean;
   className?: string;
+  tableId?: string;
 }
 
 const DataExplorer: React.FC<DataExplorerProps> = ({
@@ -40,6 +50,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
   defaultView = 'table',
   exportable = true,
   className = '',
+  tableId,
 }) => {
   const [view, setView] = useState<'table' | 'chart'>(defaultView);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,6 +63,51 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
   });
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedViews, setSavedViews] = useState<SavedView[]>([]);
+  const [showSavePopover, setShowSavePopover] = useState(false);
+  const [newViewName, setNewViewName] = useState('');
+
+  // Saved views persistence
+  const storageKey = `talentgate-saved-views-${tableId || 'default'}`;
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) setSavedViews(JSON.parse(stored));
+    } catch {}
+  }, [storageKey]);
+
+  const persistViews = (views: SavedView[]) => {
+    setSavedViews(views);
+    localStorage.setItem(storageKey, JSON.stringify(views));
+  };
+
+  const handleSaveView = () => {
+    if (!newViewName.trim()) return;
+    const view: SavedView = {
+      id: Date.now().toString(),
+      name: newViewName.trim(),
+      filters,
+      sort: sortConfig,
+      pageSize,
+      searchTerm,
+    };
+    persistViews([...savedViews, view]);
+    setNewViewName('');
+    setShowSavePopover(false);
+  };
+
+  const handleApplyView = (view: SavedView) => {
+    setFilters(view.filters);
+    setSortConfig(view.sort);
+    setPageSize(view.pageSize);
+    setSearchTerm(view.searchTerm);
+    setCurrentPage(1);
+  };
+
+  const handleDeleteView = (viewId: string) => {
+    persistViews(savedViews.filter(v => v.id !== viewId));
+  };
 
   // Data processing
   const processedData = useMemo(() => {
@@ -244,8 +300,68 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
                 placeholder="Search data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-transparent"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-transparent"
               />
+            </div>
+
+            {/* Saved Views */}
+            <div className="relative flex items-center gap-2">
+              {savedViews.length > 0 && (
+                <div className="relative">
+                  <select
+                    onChange={(e) => {
+                      const view = savedViews.find(v => v.id === e.target.value);
+                      if (view) handleApplyView(view);
+                      e.target.value = '';
+                    }}
+                    defaultValue=""
+                    className="text-sm border border-gray-300 rounded-md px-2 py-1.5 pr-8 bg-white"
+                  >
+                    <option value="" disabled>Saved Views ({savedViews.length})</option>
+                    {savedViews.map(view => (
+                      <option key={view.id} value={view.id}>{view.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowSavePopover(!showSavePopover)}
+                  className="text-sm px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Save View
+                </button>
+
+                {showSavePopover && (
+                  <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-10 w-64">
+                    <input
+                      type="text"
+                      value={newViewName}
+                      onChange={(e) => setNewViewName(e.target.value)}
+                      placeholder="View name..."
+                      className="w-full text-sm p-2 border border-gray-300 rounded-md mb-2"
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
+                      autoFocus
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setShowSavePopover(false)}
+                        className="text-xs px-2 py-1 text-gray-500 hover:text-gray-700"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveView}
+                        disabled={!newViewName.trim()}
+                        className="text-xs px-3 py-1 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Export Button */}
@@ -260,6 +376,25 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
             )}
           </div>
         </div>
+
+        {/* Saved View Tags */}
+        {savedViews.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {savedViews.map(view => (
+              <span key={view.id} className="inline-flex items-center gap-1 px-2 py-1 bg-violet-50 text-violet-700 text-xs rounded-md">
+                <button onClick={() => handleApplyView(view)} className="hover:underline">
+                  {view.name}
+                </button>
+                <button
+                  onClick={() => handleDeleteView(view.id)}
+                  className="text-violet-400 hover:text-violet-600 ml-1"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Chart Column Selection */}
         {view === 'chart' && (

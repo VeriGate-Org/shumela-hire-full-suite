@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiReportNarrativeService } from '@/services/aiReportNarrativeService';
+import AiDisclaimer from './AiDisclaimer';
 import { ReportNarrativeResult } from '@/types/ai';
 
 interface AiReportNarrativeProps {
@@ -40,6 +41,7 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-violet-500" />
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Report Narrative</h3>
+        <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
       </div>
 
       <div className="flex gap-4">
@@ -121,6 +123,7 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
               </button>
             )}
           </div>
+          <AiDisclaimer level="advisory" />
         </div>
       )}
     </div>

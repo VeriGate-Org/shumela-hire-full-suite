@@ -275,7 +275,7 @@ const ReportVisualization: React.FC = () => {
             <select
               value={selectedDateRange}
               onChange={(e) => setSelectedDateRange(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/60"
             >
               <option value="last-30-days">Last 30 Days</option>
               <option value="last-3-months">Last 3 Months</option>

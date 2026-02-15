@@ -312,7 +312,7 @@ export default function ApplicationTimeline({ application, onClose, onStageTrans
                 <select
                   value={selectedStage}
                   onChange={(e) => setSelectedStage(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 >
                   <option value="">Select a stage...</option>
                   {AVAILABLE_STAGES
@@ -333,7 +333,7 @@ export default function ApplicationTimeline({ application, onClose, onStageTrans
                   value={transitionReason}
                   onChange={(e) => setTransitionReason(e.target.value)}
                   rows={3}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   placeholder="Explain why this transition is being made..."
                 />
               </div>

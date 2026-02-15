@@ -176,7 +176,7 @@ export default function ContractBuilder({
                 required
                 value={contract.employeeId}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeId: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -189,7 +189,7 @@ export default function ContractBuilder({
                 required
                 value={contract.employeeName}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeName: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -201,7 +201,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.employeeNumber}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeNumber: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -214,7 +214,7 @@ export default function ContractBuilder({
                 required
                 value={contract.managerName}
                 onChange={(e) => setContract(prev => ({ ...prev, managerName: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -226,7 +226,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.department}
                 onChange={(e) => setContract(prev => ({ ...prev, department: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -238,7 +238,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.jobTitle}
                 onChange={(e) => setContract(prev => ({ ...prev, jobTitle: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function ContractBuilder({
                           required
                           value={currentGoal.title}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, title: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -323,7 +323,7 @@ export default function ContractBuilder({
                           rows={3}
                           value={currentGoal.description}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, description: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -335,7 +335,7 @@ export default function ContractBuilder({
                           <select
                             value={currentGoal.type}
                             onChange={(e) => setCurrentGoal(prev => ({ ...prev, type: e.target.value as GoalType }))}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                           >
                             {Object.values(GoalType).map(type => (
                               <option key={type} value={type}>{type}</option>
@@ -354,7 +354,7 @@ export default function ContractBuilder({
                             required
                             value={currentGoal.weighting}
                             onChange={(e) => setCurrentGoal(prev => ({ ...prev, weighting: parseInt(e.target.value) || 0 }))}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                           />
                         </div>
                       </div>
@@ -367,7 +367,7 @@ export default function ContractBuilder({
                           type="text"
                           value={currentGoal.targetValue}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, targetValue: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -379,7 +379,7 @@ export default function ContractBuilder({
                           rows={2}
                           value={currentGoal.measurementCriteria}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, measurementCriteria: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                         />
                       </div>
                     </div>

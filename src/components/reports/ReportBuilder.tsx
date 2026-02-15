@@ -233,7 +233,7 @@ export default function ReportBuilder({
               value={config.name}
               onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
               placeholder="Enter report name..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
           </div>
           
@@ -246,7 +246,7 @@ export default function ReportBuilder({
               value={config.description || ''}
               onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Brief description..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
           </div>
         </div>
@@ -264,7 +264,7 @@ export default function ReportBuilder({
                 ...prev,
                 dateRange: { ...prev.dateRange, start: e.target.value }
               }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
           </div>
           
@@ -279,7 +279,7 @@ export default function ReportBuilder({
                 ...prev,
                 dateRange: { ...prev.dateRange, end: e.target.value }
               }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
             />
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function ReportBuilder({
                         type="checkbox"
                         checked={config.fields.includes(field.id)}
                         onChange={() => handleFieldToggle(field.id)}
-                        className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/40"
+                        className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/60"
                       />
                       <div className="ml-3">
                         <div className="text-sm font-medium text-gray-900">{field.name}</div>
@@ -387,7 +387,7 @@ export default function ReportBuilder({
                         <select
                           value={filter.field}
                           onChange={(e) => handleUpdateFilter(filter.id, { field: e.target.value })}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                         >
                           {availableFields.map((field) => (
                             <option key={field.id} value={field.id}>
@@ -404,7 +404,7 @@ export default function ReportBuilder({
                         <select
                           value={filter.operator}
                           onChange={(e) => handleUpdateFilter(filter.id, { operator: e.target.value as any })}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                         >
                           {FILTER_OPERATORS.map((op) => (
                             <option key={op.value} value={op.value}>
@@ -423,7 +423,7 @@ export default function ReportBuilder({
                           value={filter.value}
                           onChange={(e) => handleUpdateFilter(filter.id, { value: e.target.value })}
                           placeholder="Filter value..."
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -477,7 +477,7 @@ export default function ReportBuilder({
                   <select
                     value={config.visualization.xAxis || ''}
                     onChange={(e) => handleVisualizationChange({ xAxis: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="">Select field...</option>
                     {config.fields.map((fieldId) => {
@@ -498,7 +498,7 @@ export default function ReportBuilder({
                   <select
                     value={config.visualization.yAxis || ''}
                     onChange={(e) => handleVisualizationChange({ yAxis: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="">Select field...</option>
                     {config.fields.map((fieldId) => {
@@ -532,7 +532,7 @@ export default function ReportBuilder({
                       ...prev.schedule,
                     }
                   }))}
-                  className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/40"
+                  className="h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500/60"
                 />
                 <span className="ml-2 text-sm font-medium text-gray-900">
                   Enable automated report scheduling
@@ -558,7 +558,7 @@ export default function ReportBuilder({
                         frequency: e.target.value as any,
                       }
                     }))}
-                    className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -581,7 +581,7 @@ export default function ReportBuilder({
                     }))}
                     placeholder="user1@company.com, user2@company.com"
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   />
                 </div>
               </div>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiCandidateSummaryService } from '@/services/aiCandidateSummaryService';
+import AiDisclaimer from './AiDisclaimer';
 import { CandidateSummaryResult } from '@/types/ai';
 
 interface AiCandidateSummaryProps {
@@ -30,6 +31,7 @@ export default function AiCandidateSummary({ applicationId }: AiCandidateSummary
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-violet-500" />
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Candidate Summary</h3>
+          <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
         </div>
         <button onClick={handleSummarize} disabled={loading}
           className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50">
@@ -94,6 +96,7 @@ export default function AiCandidateSummary({ applicationId }: AiCandidateSummary
               <p className="text-sm text-gray-700 leading-relaxed">{result.fitAssessment}</p>
             </div>
           )}
+          <AiDisclaimer level="high-risk" />
         </div>
       )}
     </div>

@@ -278,7 +278,7 @@ export default function IntegrationDemo() {
           <button
             onClick={loadRecentApplications}
             disabled={isLoading}
-            className="mt-4 w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors text-sm disabled:opacity-50"
+            className="mt-4 w-full bg-violet-500 text-white px-4 py-2 rounded hover:bg-violet-600 transition-colors text-sm disabled:opacity-50"
           >
             Refresh Applications
           </button>

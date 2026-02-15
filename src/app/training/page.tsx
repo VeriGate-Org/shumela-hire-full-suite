@@ -406,7 +406,7 @@ export default function TrainingPage() {
                 placeholder="Search training..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
               <div className="flex gap-2 overflow-x-auto">
                 {categories.map(category => (

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { aiSalaryBenchmarkService } from '@/services/aiSalaryBenchmarkService';
+import AiDisclaimer from './AiDisclaimer';
 import { SalaryBenchmarkRequest, SalaryBenchmarkResult } from '@/types/ai';
 
 interface AiSalaryBenchmarkProps {
@@ -43,6 +44,7 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-violet-500" />
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Salary Benchmark</h3>
+        <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -131,6 +133,7 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
               </button>
             )}
           </div>
+          <AiDisclaimer level="advisory" />
         </div>
       )}
     </div>

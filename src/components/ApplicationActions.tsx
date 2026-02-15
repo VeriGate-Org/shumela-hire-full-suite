@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface ApplicationActionsProps {
   applicationId: number;
@@ -27,6 +28,7 @@ interface DeleteConfirmationProps {
 
 function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawModalProps) {
   const [reason, setReason] = useState('');
+  const focusTrapRef = useFocusTrap(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -39,14 +41,20 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div
+        ref={focusTrapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="withdraw-modal-title"
+        className="bg-white rounded-lg p-6 w-full max-w-md"
+      >
         <div className="flex items-center mb-4">
           <div className="bg-yellow-100 rounded-full p-2 mr-3">
             <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.598 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">Withdraw Application</h3>
+          <h3 id="withdraw-modal-title" className="text-lg font-semibold text-gray-900">Withdraw Application</h3>
         </div>
         
         <form onSubmit={handleSubmit}>
@@ -63,7 +71,7 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please provide a reason for withdrawing your application..."
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-transparent"
               rows={3}
               maxLength={500}
               required
@@ -100,18 +108,26 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
 }
 
 function DeleteConfirmation({ isOpen, onClose, onConfirm, isDeleting }: DeleteConfirmationProps) {
+  const focusTrapRef = useFocusTrap(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div
+        ref={focusTrapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        className="bg-white rounded-lg p-6 w-full max-w-md"
+      >
         <div className="flex items-center mb-4">
           <div className="bg-red-100 rounded-full p-2 mr-3">
             <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">Delete Application</h3>
+          <h3 id="delete-modal-title" className="text-lg font-semibold text-gray-900">Delete Application</h3>
         </div>
         
         <p className="text-gray-600 mb-6">

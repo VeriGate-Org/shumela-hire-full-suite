@@ -220,7 +220,7 @@ export default function JobApplicationForm({
           <select
             value={applicationSource}
             onChange={(e) => setApplicationSource(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
           >
             <option value="EXTERNAL">Job Board / Website</option>
             <option value="INTERNAL">Internal Posting</option>
@@ -241,7 +241,7 @@ export default function JobApplicationForm({
             onChange={(e) => setCoverLetter(e.target.value)}
             placeholder="Please explain why you are interested in this position and how your skills and experience make you a good fit..."
             rows={8}
-            className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400 ${
+            className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400 ${
               errors.coverLetter ? 'border-red-500' : 'border-gray-300'
             }`}
           />

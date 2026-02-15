@@ -330,7 +330,7 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
               <div className="grid grid-cols-1 gap-2">
                 {[
                   { label: 'Post New Job', color: 'bg-violet-600', icon: '📝' },
-                  { label: 'Review Applications', color: 'bg-purple-600', icon: '📋' },
+                  { label: 'Review Applications', color: 'bg-violet-600', icon: '📋' },
                   { label: 'Schedule Interview', color: 'bg-green-600', icon: '📅' },
                   { label: 'Send Offer', color: 'bg-orange-600', icon: '💰' },
                 ].map((action) => (

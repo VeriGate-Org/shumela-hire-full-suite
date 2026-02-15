@@ -148,7 +148,7 @@ const JobsPortalPage: React.FC = () => {
                 placeholder="Search jobs by title, company, or keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -185,7 +185,7 @@ const JobsPortalPage: React.FC = () => {
                       placeholder="Enter location..."
                       value={locationFilter}
                       onChange={(e) => setLocationFilter(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
 
@@ -198,7 +198,7 @@ const JobsPortalPage: React.FC = () => {
                       placeholder="Enter department..."
                       value={departmentFilter}
                       onChange={(e) => setDepartmentFilter(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
 
@@ -209,7 +209,7 @@ const JobsPortalPage: React.FC = () => {
                     <select
                       value={employmentTypeFilter}
                       onChange={(e) => setEmploymentTypeFilter(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     >
                       <option value="">All Types</option>
                       <option value="Full-time">Full-time</option>

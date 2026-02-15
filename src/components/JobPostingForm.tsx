@@ -272,26 +272,34 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="job-title" className="block text-sm font-medium text-gray-700 mb-1">
                   Job Title *
                 </label>
                 <input
                   type="text"
+                  id="job-title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
+                  aria-required="true"
+                  aria-invalid={!!errors.title}
+                  aria-describedby={errors.title ? 'job-title-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. Senior Software Engineer"
                 />
-                {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                {errors.title && <p id="job-title-error" role="alert" className="text-red-500 text-sm mt-1">{errors.title}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="job-department" className="block text-sm font-medium text-gray-700 mb-1">
                   Department *
                 </label>
                 <select
+                  id="job-department"
                   value={formData.department}
                   onChange={(e) => handleInputChange('department', e.target.value)}
+                  aria-required="true"
+                  aria-invalid={!!errors.department}
+                  aria-describedby={errors.department ? 'job-department-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
                 >
                   <option value="">Select Department</option>
@@ -299,7 +307,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                     <option key={dept} value={dept}>{dept}</option>
                   ))}
                 </select>
-                {errors.department && <p className="text-red-500 text-sm mt-1">{errors.department}</p>}
+                {errors.department && <p id="job-department-error" role="alert" className="text-red-500 text-sm mt-1">{errors.department}</p>}
               </div>
 
               <div>
@@ -316,26 +324,32 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="positions-available" className="block text-sm font-medium text-gray-700 mb-1">
                   Positions Available *
                 </label>
                 <input
                   type="number"
+                  id="positions-available"
                   min="1"
                   value={formData.positionsAvailable}
                   onChange={(e) => handleInputChange('positionsAvailable', parseInt(e.target.value))}
+                  aria-required="true"
+                  aria-invalid={!!errors.positionsAvailable}
+                  aria-describedby={errors.positionsAvailable ? 'positions-available-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.positionsAvailable ? 'border-red-500' : 'border-gray-300'}`}
                 />
-                {errors.positionsAvailable && <p className="text-red-500 text-sm mt-1">{errors.positionsAvailable}</p>}
+                {errors.positionsAvailable && <p id="positions-available-error" role="alert" className="text-red-500 text-sm mt-1">{errors.positionsAvailable}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="employment-type" className="block text-sm font-medium text-gray-700 mb-1">
                   Employment Type *
                 </label>
                 <select
+                  id="employment-type"
                   value={formData.employmentType}
                   onChange={(e) => handleInputChange('employmentType', e.target.value)}
+                  aria-required="true"
                   className="w-full p-3 border border-gray-300 rounded-md"
                 >
                   {EMPLOYMENT_TYPES.map(type => (
@@ -345,12 +359,14 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="experience-level" className="block text-sm font-medium text-gray-700 mb-1">
                   Experience Level *
                 </label>
                 <select
+                  id="experience-level"
                   value={formData.experienceLevel}
                   onChange={(e) => handleInputChange('experienceLevel', e.target.value)}
+                  aria-required="true"
                   className="w-full p-3 border border-gray-300 rounded-md"
                 >
                   {EXPERIENCE_LEVELS.map(level => (
@@ -421,18 +437,22 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
         {activeTab === 'details' && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="job-description" className="block text-sm font-medium text-gray-700 mb-1">
                 Job Description *
               </label>
               <textarea
+                id="job-description"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={6}
+                aria-required="true"
+                aria-invalid={!!errors.description}
+                aria-describedby={errors.description ? 'job-description-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Provide a detailed description of the role, including key objectives and what the successful candidate will be responsible for..."
               />
               <div className="flex justify-between mt-1">
-                {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
+                {errors.description && <p id="job-description-error" role="alert" className="text-red-500 text-sm">{errors.description}</p>}
                 <p className="text-gray-500 text-sm ml-auto">
                   {formData.description.length} characters (minimum 100)
                 </p>
@@ -496,13 +516,15 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
         {/* Compensation Tab */}
         {activeTab === 'compensation' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <fieldset className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <legend className="sr-only">Salary Range</legend>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="salary-min" className="block text-sm font-medium text-gray-700 mb-1">
                   Minimum Salary
                 </label>
                 <input
                   type="number"
+                  id="salary-min"
                   min="0"
                   step="1000"
                   value={formData.salaryMin || ''}
@@ -513,26 +535,30 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="salary-max" className="block text-sm font-medium text-gray-700 mb-1">
                   Maximum Salary
                 </label>
                 <input
                   type="number"
+                  id="salary-max"
                   min="0"
                   step="1000"
                   value={formData.salaryMax || ''}
                   onChange={(e) => handleInputChange('salaryMax', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  aria-invalid={!!errors.salaryMax}
+                  aria-describedby={errors.salaryMax ? 'salary-max-error' : undefined}
                   className={`w-full p-3 border rounded-md ${errors.salaryMax ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. 80000"
                 />
-                {errors.salaryMax && <p className="text-red-500 text-sm mt-1">{errors.salaryMax}</p>}
+                {errors.salaryMax && <p id="salary-max-error" role="alert" className="text-red-500 text-sm mt-1">{errors.salaryMax}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="salary-currency" className="block text-sm font-medium text-gray-700 mb-1">
                   Currency
                 </label>
                 <select
+                  id="salary-currency"
                   value={formData.salaryCurrency}
                   onChange={(e) => handleInputChange('salaryCurrency', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md"
@@ -543,7 +569,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   <option value="GBP">GBP (British Pound)</option>
                 </select>
               </div>
-            </div>
+            </fieldset>
 
             <div className="bg-gray-50 rounded-md p-4">
               <h4 className="font-medium text-gray-900 mb-2">Salary Range Preview</h4>
@@ -569,19 +595,22 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
         {activeTab === 'seo' && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="seo-title" className="block text-sm font-medium text-gray-700 mb-1">
                 SEO Title
               </label>
               <input
                 type="text"
+                id="seo-title"
                 maxLength={60}
                 value={formData.seoTitle}
                 onChange={(e) => handleInputChange('seoTitle', e.target.value)}
+                aria-invalid={!!errors.seoTitle}
+                aria-describedby={errors.seoTitle ? 'seo-title-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.seoTitle ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Custom title for search engines (optional)"
               />
               <div className="flex justify-between mt-1">
-                {errors.seoTitle && <p className="text-red-500 text-sm">{errors.seoTitle}</p>}
+                {errors.seoTitle && <p id="seo-title-error" role="alert" className="text-red-500 text-sm">{errors.seoTitle}</p>}
                 <p className="text-gray-500 text-sm ml-auto">
                   {formData.seoTitle.length}/60 characters
                 </p>
@@ -589,19 +618,22 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="seo-description" className="block text-sm font-medium text-gray-700 mb-1">
                 SEO Description
               </label>
               <textarea
+                id="seo-description"
                 maxLength={160}
                 value={formData.seoDescription}
                 onChange={(e) => handleInputChange('seoDescription', e.target.value)}
                 rows={3}
+                aria-invalid={!!errors.seoDescription}
+                aria-describedby={errors.seoDescription ? 'seo-description-error' : undefined}
                 className={`w-full p-3 border rounded-md ${errors.seoDescription ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Brief description for search engines (optional)"
               />
               <div className="flex justify-between mt-1">
-                {errors.seoDescription && <p className="text-red-500 text-sm">{errors.seoDescription}</p>}
+                {errors.seoDescription && <p id="seo-description-error" role="alert" className="text-red-500 text-sm">{errors.seoDescription}</p>}
                 <p className="text-gray-500 text-sm ml-auto">
                   {formData.seoDescription.length}/160 characters
                 </p>

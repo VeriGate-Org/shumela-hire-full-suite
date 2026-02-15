@@ -170,7 +170,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }:
               <div className="grid grid-cols-1 gap-2">
                 {[
                   { label: 'User Management', color: 'bg-violet-600', icon: '👥' },
-                  { label: 'System Settings', color: 'bg-purple-600', icon: '⚙️' },
+                  { label: 'System Settings', color: 'bg-violet-600', icon: '⚙️' },
                   { label: 'Backup Database', color: 'bg-green-600', icon: '💾' },
                   { label: 'Audit Logs', color: 'bg-orange-600', icon: '📋' },
                   { label: 'Security Center', color: 'bg-red-600', icon: '🔐' },

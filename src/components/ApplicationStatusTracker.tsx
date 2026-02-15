@@ -237,15 +237,17 @@ export default function ApplicationStatusTracker({
           <h4 className="font-medium text-gray-900 mb-3">Withdraw Application</h4>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="withdrawal-reason" className="block text-sm font-medium text-gray-700 mb-1">
                 Reason for withdrawal *
               </label>
               <textarea
+                id="withdrawal-reason"
                 value={withdrawalReason}
                 onChange={(e) => setWithdrawalReason(e.target.value)}
                 placeholder="Please provide a reason for withdrawing your application..."
                 rows={3}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                aria-required="true"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
             <div className="flex justify-end space-x-3">

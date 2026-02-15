@@ -194,7 +194,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                 placeholder="Search templates..."
                 value={filters.search || ''}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -219,7 +219,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                   <select
                     value={filters.employmentType || ''}
                     onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="">All Types</option>
                     <option value="Full-time">Full-time</option>
@@ -238,7 +238,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                     placeholder="Filter by location..."
                     value={filters.location || ''}
                     onChange={(e) => handleFilterChange('location', e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   />
                 </div>
 
@@ -248,7 +248,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                       type="checkbox"
                       checked={filters.showArchived || false}
                       onChange={(e) => handleFilterChange('showArchived', e.target.checked)}
-                      className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/40"
+                      className="rounded border-gray-300 text-violet-600 focus:ring-violet-500/60"
                     />
                     <span className="ml-2 text-sm text-gray-700">Show archived</span>
                   </label>
@@ -333,7 +333,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                         type="checkbox"
                         checked={selectedTemplates.has(template.id)}
                         onChange={() => toggleSelectTemplate(template.id)}
-                        className="mr-3 rounded border-gray-300 text-violet-600 focus:ring-violet-500/40"
+                        className="mr-3 rounded border-gray-300 text-violet-600 focus:ring-violet-500/60"
                       />
                       <h3 className="text-lg font-semibold text-gray-900 truncate">
                         {template.name}

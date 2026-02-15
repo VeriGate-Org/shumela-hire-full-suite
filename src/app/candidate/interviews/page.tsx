@@ -399,7 +399,7 @@ export default function InterviewSchedulePage() {
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
       >
         <option value="all">All Interviews</option>
         <option value="upcoming">Upcoming</option>
@@ -625,7 +625,7 @@ export default function InterviewSchedulePage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
             

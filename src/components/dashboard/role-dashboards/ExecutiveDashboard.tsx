@@ -266,7 +266,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                 {[
                   { label: 'Approval Center', color: 'bg-red-600', icon: '✓' },
                   { label: 'Budget Planning', color: 'bg-violet-600', icon: '💰' },
-                  { label: 'Strategic Reports', color: 'bg-purple-600', icon: '📊' },
+                  { label: 'Strategic Reports', color: 'bg-violet-600', icon: '📊' },
                   { label: 'Leadership Pipeline', color: 'bg-green-600', icon: '👥' },
                   { label: 'Board Reports', color: 'bg-orange-600', icon: '📋' },
                 ].map((action) => (

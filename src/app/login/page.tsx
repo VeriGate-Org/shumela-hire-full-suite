@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { rolePermissions } from '@/config/permissions';
 import { useEffect, useState, Suspense } from 'react';
 import ThemeToggle from '../../components/ThemeToggle';
 
@@ -73,7 +74,8 @@ function LoginContent() {
       id: '1',
       name: 'John Doe',
       email: 'john.doe@company.com',
-      role: 'ADMIN' as const
+      role: 'ADMIN' as const,
+      permissions: rolePermissions['ADMIN'],
     };
 
     sessionStorage.setItem('jwt_token', 'mock-jwt-token-' + Date.now());

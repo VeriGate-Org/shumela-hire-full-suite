@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import EmptyState from '@/components/EmptyState';
 
 interface SearchResult {
   id: string;
@@ -22,6 +25,10 @@ const GlobalSearch: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const focusTrapRef = useFocusTrap(isOpen, () => {
+    setIsOpen(false);
+    setQuery('');
+  });
 
   // Sample search results data
   const sampleResults: SearchResult[] = [
@@ -195,7 +202,14 @@ const GlobalSearch: React.FC = () => {
           />
 
           {/* Search Panel */}
-          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-white rounded-lg shadow-2xl z-50 mx-4">
+          <div
+            ref={focusTrapRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-dialog-title"
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-white rounded-lg shadow-2xl z-50 mx-4"
+          >
+            <h2 id="search-dialog-title" className="sr-only">Search</h2>
             {/* Search Input */}
             <div className="relative">
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">
@@ -217,8 +231,9 @@ const GlobalSearch: React.FC = () => {
             </div>
 
             {/* Search Results */}
-            <div 
+            <div
               ref={resultsRef}
+              role="listbox"
               className="max-h-96 overflow-y-auto border-t border-gray-200"
             >
               {query.trim() === '' ? (
@@ -236,10 +251,12 @@ const GlobalSearch: React.FC = () => {
                   </div>
                 </div>
               ) : results.length === 0 && !isLoading ? (
-                <div className="p-6 text-center text-gray-500">
-                  <span className="text-4xl mb-4 block">😔</span>
-                  <p className="text-lg mb-2">No results found</p>
-                  <p className="text-sm">Try different keywords or check your spelling</p>
+                <div className="p-6">
+                  <EmptyState
+                    icon={MagnifyingGlassIcon}
+                    title="No results found"
+                    description="Try different keywords or check your spelling"
+                  />
                 </div>
               ) : (
                 <div className="py-2">
@@ -248,6 +265,8 @@ const GlobalSearch: React.FC = () => {
                       key={result.id}
                       href={result.href}
                       onClick={() => setIsOpen(false)}
+                      role="option"
+                      aria-selected={index === selectedIndex}
                       className={`block px-4 py-3 hover:bg-gray-50 transition-colors ${
                         index === selectedIndex ? 'bg-violet-50 border-r-2 border-r-violet-500' : ''
                       }`}

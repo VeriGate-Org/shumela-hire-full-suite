@@ -26,6 +26,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { AuditLogEntry } from '@/types/workflow';
 import { auditLogService } from '@/services/auditLogService';
+import { auditSeverityConfig, getStatusConfig } from '@/utils/statusIcons';
 
 interface AuditLogFilter {
   dateRange: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
@@ -508,7 +509,7 @@ export default function AuditLogsPage() {
                   placeholder="Search logs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                 />
               </div>
             </div>
@@ -527,7 +528,7 @@ export default function AuditLogsPage() {
                   <select
                     value={filters.dateRange}
                     onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value as any }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="today">Today</option>
                     <option value="week">Last Week</option>
@@ -543,7 +544,7 @@ export default function AuditLogsPage() {
                   <select
                     value={filters.entityType}
                     onChange={(e) => setFilters(prev => ({ ...prev, entityType: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="all">All Types</option>
                     {uniqueEntityTypes.map(type => (
@@ -557,7 +558,7 @@ export default function AuditLogsPage() {
                   <select
                     value={filters.action}
                     onChange={(e) => setFilters(prev => ({ ...prev, action: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="all">All Actions</option>
                     {uniqueActions.map(action => (
@@ -571,7 +572,7 @@ export default function AuditLogsPage() {
                   <select
                     value={filters.userRole}
                     onChange={(e) => setFilters(prev => ({ ...prev, userRole: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                   >
                     <option value="all">All Roles</option>
                     {uniqueRoles.map(role => (
@@ -589,7 +590,7 @@ export default function AuditLogsPage() {
                       type="date"
                       value={filters.customStartDate || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, customStartDate: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
                   <div>
@@ -598,7 +599,7 @@ export default function AuditLogsPage() {
                       type="date"
                       value={filters.customEndDate || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, customEndDate: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
                 </div>
@@ -683,9 +684,16 @@ export default function AuditLogsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${severityColors[severity]}`}>
-                          {severity}
-                        </span>
+                        {(() => {
+                          const severityConfig = getStatusConfig(auditSeverityConfig, severity);
+                          const SeverityIcon = severityConfig.icon;
+                          return (
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${severityColors[severity]}`}>
+                              <SeverityIcon className="w-3.5 h-3.5" />
+                              {severity}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <button

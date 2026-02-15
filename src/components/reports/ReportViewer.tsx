@@ -11,6 +11,7 @@ import {
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import { ReportConfig } from './ReportBuilder';
+import EmptyState from '@/components/EmptyState';
 
 export interface ReportResult {
   id: string;
@@ -88,11 +89,11 @@ export default function ReportViewer({
   const renderTableView = () => {
     if (!result.data.length) {
       return (
-        <div className="text-center py-12">
-          <DocumentTextIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No data available</h3>
-          <p className="text-gray-500">The report query returned no results.</p>
-        </div>
+        <EmptyState
+          icon={DocumentTextIcon}
+          title="No data available"
+          description="The report query returned no results. Try adjusting your filters."
+        />
       );
     }
 

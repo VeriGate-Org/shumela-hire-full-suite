@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { aiDuplicateDetectionService } from '@/services/aiDuplicateDetectionService';
+import AiDisclaimer from './AiDisclaimer';
 import { DuplicateCandidate } from '@/types/ai';
 
 interface AiDuplicateDetectionPanelProps {
@@ -55,6 +56,7 @@ export default function AiDuplicateDetectionPanel({
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-violet-500" />
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Duplicate Detection</h3>
+          <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
         </div>
         {!autoCheck && (
           <button onClick={handleCheck} disabled={loading}
@@ -102,6 +104,7 @@ export default function AiDuplicateDetectionPanel({
               </div>
             </div>
           ))}
+          <AiDisclaimer level="high-risk" />
         </div>
       )}
     </div>

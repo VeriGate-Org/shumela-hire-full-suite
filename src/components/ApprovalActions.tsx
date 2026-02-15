@@ -116,7 +116,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
                 rows={4}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-violet-500/40 focus:border-violet-400 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-violet-500/60 focus:border-violet-400 resize-none"
                 placeholder={`Enter your ${actionType === 'approve' ? 'approval' : 'rejection'} comment...`}
                 disabled={isSubmitting}
               />
@@ -126,7 +126,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
               <button
                 onClick={handleCloseModal}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

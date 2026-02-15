@@ -501,7 +501,7 @@ export default function StrategicPlanningPage() {
       <select
         value={filterCategory}
         onChange={(e) => setFilterCategory(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
       >
         <option value="all">All Categories</option>
         <option value="growth">Growth</option>
@@ -514,7 +514,7 @@ export default function StrategicPlanningPage() {
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
       >
         <option value="all">All Status</option>
         <option value="on_track">On Track</option>

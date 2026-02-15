@@ -2,39 +2,38 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export type Density = 'compact' | 'comfortable' | 'spacious';
+
 interface LayoutContextType {
-  useModernLayout: boolean;
-  setUseModernLayout: (use: boolean) => void;
-  toggleLayout: () => void;
+  density: Density;
+  setDensity: (density: Density) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
-export function LayoutProvider({ children }: { children: ReactNode }) {
-  const [useModernLayout, setUseModernLayout] = useState(true); // Default to modern layout
+const DENSITY_KEY = 'talentgate-density';
 
-  // Persist layout preference in localStorage
+export function LayoutProvider({ children }: { children: ReactNode }) {
+  const [density, setDensityState] = useState<Density>('comfortable');
+
   useEffect(() => {
-    const saved = localStorage.getItem('useModernLayout');
-    if (saved !== null) {
-      setUseModernLayout(JSON.parse(saved));
+    const stored = localStorage.getItem(DENSITY_KEY);
+    if (stored === 'compact' || stored === 'comfortable' || stored === 'spacious') {
+      setDensityState(stored);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('useModernLayout', JSON.stringify(useModernLayout));
-  }, [useModernLayout]);
+    document.documentElement.setAttribute('data-density', density);
+    localStorage.setItem(DENSITY_KEY, density);
+  }, [density]);
 
-  const toggleLayout = () => {
-    setUseModernLayout(prev => !prev);
+  const setDensity = (d: Density) => {
+    setDensityState(d);
   };
 
   return (
-    <LayoutContext.Provider value={{
-      useModernLayout,
-      setUseModernLayout,
-      toggleLayout
-    }}>
+    <LayoutContext.Provider value={{ density, setDensity }}>
       {children}
     </LayoutContext.Provider>
   );

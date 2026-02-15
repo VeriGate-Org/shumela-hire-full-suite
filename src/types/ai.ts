@@ -106,6 +106,9 @@ export interface CvScreeningResult {
   strengths: string[];
   concerns: string[];
   summary: string;
+  scoringMethodology?: string;
+  confidenceInterval?: { low: number; high: number };
+  weightBreakdown?: Array<{ factor: string; weight: number; score: number; explanation: string }>;
 }
 
 export interface CvRankingEntry {
@@ -114,6 +117,7 @@ export interface CvRankingEntry {
   rank: number;
   overallScore: number;
   quickSummary: string;
+  scoringFactors?: Array<{ factor: string; contribution: number }>;
 }
 
 // --- Candidate Summary ---

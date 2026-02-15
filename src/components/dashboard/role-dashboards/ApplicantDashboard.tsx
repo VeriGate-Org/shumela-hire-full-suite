@@ -231,7 +231,7 @@ export default function ApplicantDashboard({ selectedTimeframe, onTimeframeChang
                 {[
                   { label: 'Browse Jobs', color: 'bg-violet-600', icon: '🔍' },
                   { label: 'Update Profile', color: 'bg-green-600', icon: '👤' },
-                  { label: 'Upload Resume', color: 'bg-purple-600', icon: '📄' },
+                  { label: 'Upload Resume', color: 'bg-violet-600', icon: '📄' },
                   { label: 'Messages', color: 'bg-orange-600', icon: '💬' },
                 ].map((action) => (
                   <button

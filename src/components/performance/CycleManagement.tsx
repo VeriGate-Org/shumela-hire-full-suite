@@ -130,7 +130,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
           </div>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500/40"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500/60"
           >
             Create New Cycle
           </button>
@@ -160,7 +160,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                       required
                       value={newCycle.name}
                       onChange={(e) => setNewCycle(prev => ({ ...prev, name: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
                   
@@ -172,7 +172,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                       rows={3}
                       value={newCycle.description}
                       onChange={(e) => setNewCycle(prev => ({ ...prev, description: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                     />
                   </div>
                   
@@ -186,7 +186,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                         required
                         value={newCycle.startDate}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, startDate: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                       />
                     </div>
                     
@@ -199,7 +199,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                         required
                         value={newCycle.endDate}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, endDate: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                       />
                     </div>
                   </div>
@@ -214,7 +214,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                         required
                         value={newCycle.midYearDeadline}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, midYearDeadline: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                       />
                     </div>
                     
@@ -227,7 +227,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                         required
                         value={newCycle.finalReviewDeadline}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, finalReviewDeadline: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/40 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-violet-500/60 focus:border-violet-400"
                       />
                     </div>
                   </div>

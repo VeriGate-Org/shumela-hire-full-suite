@@ -449,7 +449,7 @@ export default function InternalJobsBoard() {
                 placeholder="Search jobs by title, keywords, or description..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -484,7 +484,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.department}
                       onChange={(e) => handleFilterChange('department', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     >
                       <option value="">All Departments</option>
                       {filterOptions.departments.map(dept => (
@@ -500,7 +500,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.location}
                       onChange={(e) => handleFilterChange('location', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     >
                       <option value="">All Locations</option>
                       {filterOptions.locations.map(location => (
@@ -516,7 +516,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.employmentType}
                       onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     >
                       <option value="">All Types</option>
                       {filterOptions.employmentTypes.map(type => (
@@ -532,7 +532,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.closingDate}
                       onChange={(e) => handleFilterChange('closingDate', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/40 focus:border-violet-400"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-violet-500/60 focus:border-violet-400"
                     >
                       <option value="">Any Time</option>
                       <option value="7">Next 7 days</option>
