@@ -154,6 +154,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")
                 .requestMatchers("/api/agencies/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
+                // AI endpoints
+                .requestMatchers("/api/ai/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+
                 // Job board endpoints
                 .requestMatchers("/api/job-boards/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
