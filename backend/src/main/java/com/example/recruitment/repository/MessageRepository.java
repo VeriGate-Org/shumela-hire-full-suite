@@ -7,6 +7,7 @@ import com.example.recruitment.entity.MessageRecipientType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -192,16 +193,17 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     // Performance queries
     @Query("SELECT m FROM Message m WHERE " +
            "(m.senderId = :userId OR m.recipientIds LIKE %:userIdStr%) " +
-           "AND m.isDeleted = false ORDER BY m.createdAt DESC LIMIT :limit")
-    List<Message> findRecentMessagesByUser(@Param("userId") Long userId, 
-                                          @Param("userIdStr") String userIdStr, 
-                                          @Param("limit") int limit);
+           "AND m.isDeleted = false ORDER BY m.createdAt DESC")
+    List<Message> findRecentMessagesByUser(@Param("userId") Long userId,
+                                          @Param("userIdStr") String userIdStr,
+                                          Pageable pageable);
     
-    @Query("SELECT DISTINCT m.conversationId FROM Message m WHERE " +
+    @Query("SELECT m.conversationId FROM Message m WHERE " +
            "(m.senderId = :userId OR m.recipientIds LIKE %:userIdStr%) " +
            "AND m.conversationId IS NOT NULL AND m.isDeleted = false " +
+           "GROUP BY m.conversationId " +
            "ORDER BY MAX(m.createdAt) DESC")
-    List<String> findActiveConversationsByUser(@Param("userId") Long userId, 
+    List<String> findActiveConversationsByUser(@Param("userId") Long userId,
                                               @Param("userIdStr") String userIdStr);
 
     // Dashboard queries
@@ -219,18 +221,21 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Long countRequiringResponse(@Param("recipientId") String recipientId);
 
     // Bulk operations
+    @Modifying
     @Query("UPDATE Message m SET m.isRead = true WHERE m.recipientIds LIKE %:recipientId% " +
            "AND m.isRead = false")
     int markAllAsReadForRecipient(@Param("recipientId") String recipientId);
-    
+
+    @Modifying
     @Query("UPDATE Message m SET m.isArchived = true, m.archivedAt = :archivedAt " +
            "WHERE m.id IN :messageIds")
-    int archiveMessages(@Param("messageIds") List<Long> messageIds, 
+    int archiveMessages(@Param("messageIds") List<Long> messageIds,
                        @Param("archivedAt") LocalDateTime archivedAt);
-    
+
+    @Modifying
     @Query("UPDATE Message m SET m.isDeleted = true, m.deletedAt = :deletedAt, m.deletedBy = :deletedBy " +
            "WHERE m.id IN :messageIds")
-    int deleteMessages(@Param("messageIds") List<Long> messageIds, 
-                      @Param("deletedAt") LocalDateTime deletedAt, 
+    int deleteMessages(@Param("messageIds") List<Long> messageIds,
+                      @Param("deletedAt") LocalDateTime deletedAt,
                       @Param("deletedBy") Long deletedBy);
 }

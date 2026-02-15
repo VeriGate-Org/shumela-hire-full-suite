@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/interviews")
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER')")
 public class InterviewController {
 
     @Autowired

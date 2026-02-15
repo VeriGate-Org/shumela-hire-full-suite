@@ -195,15 +195,19 @@ public class AnalyticsService {
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
         
         // Pipeline conversion rates
-        Map<String, Long> stageDistribution = applicationRepository.getPipelineDistribution();
-        
+        List<Object[]> pipelineRows = applicationRepository.getPipelineDistribution();
+        Map<String, Long> stageDistribution = new LinkedHashMap<>();
+        for (Object[] row : pipelineRows) {
+            stageDistribution.put(row[0].toString(), ((Number) row[1]).longValue());
+        }
+
         Long totalActive = stageDistribution.values().stream().mapToLong(Long::longValue).sum();
         if (totalActive > 0) {
             for (Map.Entry<String, Long> entry : stageDistribution.entrySet()) {
                 BigDecimal percentage = BigDecimal.valueOf(entry.getValue())
                     .divide(BigDecimal.valueOf(totalActive), 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100));
-                saveMetric(date, "PIPELINE", "stage_" + entry.getKey().toLowerCase() + "_percentage", 
+                saveMetric(date, "PIPELINE", "stage_" + entry.getKey().toLowerCase() + "_percentage",
                           MetricType.PERCENTAGE, percentage, department);
             }
         }

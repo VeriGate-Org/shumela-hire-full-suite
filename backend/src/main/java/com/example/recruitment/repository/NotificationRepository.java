@@ -7,6 +7,7 @@ import com.example.recruitment.entity.NotificationPriority;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -41,8 +42,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findUnreadByRecipientAndType(@Param("recipientId") Long recipientId, 
                                                    @Param("type") NotificationType type);
 
-    // Delivery status
-    List<Notification> findByIsDeliveredFalseAndCanBeDeliveredTrue();
+    // Delivery status — canBeDelivered is a computed method, not a persistent property
+    @Query("SELECT n FROM Notification n WHERE n.isDelivered = false " +
+           "AND (n.expiresAt IS NULL OR n.expiresAt > CURRENT_TIMESTAMP) " +
+           "AND (n.scheduledFor IS NULL OR n.scheduledFor <= CURRENT_TIMESTAMP)")
+    List<Notification> findDeliverableNotifications();
     
     @Query("SELECT n FROM Notification n WHERE n.isDelivered = false " +
            "AND (n.scheduledFor IS NULL OR n.scheduledFor <= :now) " +
@@ -157,9 +161,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                  @Param("since") LocalDateTime since);
     
     @Query("SELECT n FROM Notification n WHERE n.recipientId = :recipientId " +
-           "AND n.isRead = false ORDER BY n.priority DESC, n.createdAt DESC LIMIT :limit")
-    List<Notification> findTopUnreadNotifications(@Param("recipientId") Long recipientId, 
-                                                 @Param("limit") int limit);
+           "AND n.isRead = false ORDER BY n.priority DESC, n.createdAt DESC")
+    List<Notification> findTopUnreadNotifications(@Param("recipientId") Long recipientId,
+                                                 Pageable pageable);
     
     @Query("SELECT n FROM Notification n WHERE n.recipientId = :recipientId " +
            "AND n.type IN :urgentTypes AND n.isRead = false " +
@@ -177,14 +181,16 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findExpiredNotificationsForCleanup(@Param("now") LocalDateTime now);
 
     // Bulk operations
+    @Modifying
     @Query("UPDATE Notification n SET n.isRead = true, n.readAt = :readAt " +
            "WHERE n.recipientId = :recipientId AND n.isRead = false")
-    int markAllAsReadForRecipient(@Param("recipientId") Long recipientId, 
+    int markAllAsReadForRecipient(@Param("recipientId") Long recipientId,
                                  @Param("readAt") LocalDateTime readAt);
-    
+
+    @Modifying
     @Query("UPDATE Notification n SET n.isRead = true, n.readAt = :readAt " +
            "WHERE n.recipientId = :recipientId AND n.type = :type AND n.isRead = false")
-    int markAllAsReadByTypeForRecipient(@Param("recipientId") Long recipientId, 
+    int markAllAsReadByTypeForRecipient(@Param("recipientId") Long recipientId,
                                        @Param("type") NotificationType type,
                                        @Param("readAt") LocalDateTime readAt);
 

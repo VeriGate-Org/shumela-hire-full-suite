@@ -12,7 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/visualization")
 @CrossOrigin(origins = "http://localhost:3000")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
 public class DataVisualizationController {
 
     @Autowired

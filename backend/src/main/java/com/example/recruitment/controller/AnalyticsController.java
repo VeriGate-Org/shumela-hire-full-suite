@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/analytics")
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
 public class AnalyticsController {
 
     @Autowired

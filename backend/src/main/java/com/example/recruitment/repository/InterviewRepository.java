@@ -42,17 +42,19 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
                                           @Param("startDate") LocalDateTime startDate,
                                           @Param("endDate") LocalDateTime endDate);
 
-    // Conflict checking
-    @Query("SELECT i FROM Interview i WHERE i.interviewerId = :interviewerId " +
+    // Conflict checking (native query for H2-compatible DATEADD)
+    @Query(value = "SELECT * FROM interviews i WHERE i.interviewer_id = :interviewerId " +
            "AND i.status IN ('SCHEDULED', 'RESCHEDULED') " +
-           "AND ((i.scheduledAt <= :endTime AND i.scheduledAt + INTERVAL i.durationMinutes MINUTE >= :startTime))")
+           "AND i.scheduled_at <= :endTime AND DATEADD(MINUTE, i.duration_minutes, i.scheduled_at) >= :startTime",
+           nativeQuery = true)
     List<Interview> findConflictingInterviews(@Param("interviewerId") Long interviewerId,
                                              @Param("startTime") LocalDateTime startTime,
                                              @Param("endTime") LocalDateTime endTime);
 
-    @Query("SELECT i FROM Interview i WHERE i.meetingRoom = :meetingRoom " +
+    @Query(value = "SELECT * FROM interviews i WHERE i.meeting_room = :meetingRoom " +
            "AND i.status IN ('SCHEDULED', 'RESCHEDULED') " +
-           "AND ((i.scheduledAt <= :endTime AND i.scheduledAt + INTERVAL i.durationMinutes MINUTE >= :startTime))")
+           "AND i.scheduled_at <= :endTime AND DATEADD(MINUTE, i.duration_minutes, i.scheduled_at) >= :startTime",
+           nativeQuery = true)
     List<Interview> findMeetingRoomConflicts(@Param("meetingRoom") String meetingRoom,
                                            @Param("startTime") LocalDateTime startTime,
                                            @Param("endTime") LocalDateTime endTime);

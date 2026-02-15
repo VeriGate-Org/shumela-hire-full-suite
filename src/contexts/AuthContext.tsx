@@ -2,7 +2,31 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type UserRole = 'Admin' | 'HR' | 'Hiring Manager' | 'Recruiter' | 'Applicant' | 'Executive';
+export type UserRole =
+  | 'ADMIN'
+  | 'EXECUTIVE'
+  | 'HR_MANAGER'
+  | 'HIRING_MANAGER'
+  | 'RECRUITER'
+  | 'INTERVIEWER'
+  | 'EMPLOYEE'
+  | 'APPLICANT';
+
+export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
+  ADMIN: 'Administrator',
+  EXECUTIVE: 'Executive',
+  HR_MANAGER: 'HR Manager',
+  HIRING_MANAGER: 'Hiring Manager',
+  RECRUITER: 'Recruiter',
+  INTERVIEWER: 'Interviewer',
+  EMPLOYEE: 'Employee',
+  APPLICANT: 'Applicant',
+};
+
+export const ALL_ROLES: UserRole[] = [
+  'ADMIN', 'EXECUTIVE', 'HR_MANAGER', 'HIRING_MANAGER',
+  'RECRUITER', 'INTERVIEWER', 'EMPLOYEE', 'APPLICANT',
+];
 
 interface User {
   id: string;
@@ -49,13 +73,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: '1',
         name: 'John Doe',
         email: 'john.doe@company.com',
-        role: 'Admin'
+        role: 'ADMIN'
       });
     }
   }, []);
 
   const login = (userData: User) => {
     setUser(userData);
+    const storedToken = sessionStorage.getItem('jwt_token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
   };
 
   const logout = () => {

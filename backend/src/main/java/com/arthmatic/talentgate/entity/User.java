@@ -227,6 +227,7 @@ public class User implements UserDetails {
      */
     public enum Role {
         ADMIN("Administrator", 100),
+        EXECUTIVE("Executive", 90),
         HR_MANAGER("HR Manager", 80),
         HIRING_MANAGER("Hiring Manager", 70),
         RECRUITER("Recruiter", 60),

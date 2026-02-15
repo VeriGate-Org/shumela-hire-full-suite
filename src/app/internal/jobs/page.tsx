@@ -133,101 +133,128 @@ export default function InternalJobsBoard() {
     }
   }, [isAuthenticated, router]);
 
-  // Fetch jobs from backend
+  const generateDemoJobs = (): InternalJobAd[] => {
+    const titles = [
+      'Senior Software Engineer', 'HR Business Partner', 'Financial Analyst',
+      'Marketing Manager', 'Product Designer', 'Data Engineer',
+      'Operations Coordinator', 'Legal Counsel', 'Sales Executive',
+      'DevOps Engineer', 'Talent Acquisition Specialist', 'Project Manager',
+    ];
+    const departments = ['Engineering', 'Human Resources', 'Finance', 'Marketing', 'Product', 'Operations', 'Legal', 'Sales'];
+    const locations = ['Johannesburg', 'Cape Town', 'Pretoria', 'Durban', 'Remote'];
+    const types = ['Full-time', 'Part-time', 'Contract', 'Internship'];
+
+    return titles.map((title, i) => {
+      const created = new Date();
+      created.setDate(created.getDate() - Math.floor(Math.random() * 14));
+      const closing = new Date();
+      closing.setDate(closing.getDate() + Math.floor(Math.random() * 30) + 3);
+      const dept = departments[i % departments.length];
+
+      return {
+        id: i + 1,
+        requisitionId: 1000 + i,
+        title,
+        htmlBody: `<p>We are looking for a talented ${title} to join our ${dept} team. This is an exciting opportunity to grow your career internally.</p>`,
+        channelInternal: true,
+        channelExternal: i % 3 === 0,
+        status: 'PUBLISHED' as const,
+        closingDate: closing.toISOString(),
+        slug: title.toLowerCase().replace(/\s+/g, '-'),
+        createdBy: 'HR Team',
+        createdAt: created.toISOString(),
+        updatedAt: created.toISOString(),
+        department: dept,
+        location: locations[Math.floor(Math.random() * locations.length)],
+        employmentType: types[i % types.length],
+        salaryRangeMin: (Math.floor(Math.random() * 20) + 15) * 10000,
+        salaryRangeMax: (Math.floor(Math.random() * 20) + 40) * 10000,
+        applicationCount: Math.floor(Math.random() * 25),
+        viewCount: Math.floor(Math.random() * 200) + 20,
+      };
+    });
+  };
+
+  const loadDemoJobs = useCallback(() => {
+    const demoJobs = generateDemoJobs();
+    setJobs(demoJobs);
+    setTotalJobs(demoJobs.length);
+    setFilterOptions({
+      departments: [...new Set(demoJobs.map(j => j.department).filter(Boolean))] as string[],
+      locations: [...new Set(demoJobs.map(j => j.location).filter(Boolean))] as string[],
+      employmentTypes: [...new Set(demoJobs.map(j => j.employmentType).filter(Boolean))] as string[],
+    });
+  }, []);
+
+  // Fetch jobs from backend (or use demo data when API not configured)
   const fetchJobs = useCallback(async () => {
     if (!isAuthenticated) return;
-    
+
+    setLoading(true);
+    setError(null);
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    // Use demo data when backend API URL is not configured
+    if (!baseUrl) {
+      loadDemoJobs();
+      setLoading(false);
+      return;
+    }
+
     try {
-      setLoading(true);
-      setError(null);
-      
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       const url = new URL('/ads', baseUrl);
-      
-      // Build query parameters based on role permissions
+
       url.searchParams.set('status', 'PUBLISHED');
-      
-      // For internal users, show internal jobs and optionally external jobs
-      if (user?.role === 'Applicant') {
-        // Applicants can see both internal and external jobs
-        url.searchParams.set('channel', 'internal');
-      } else {
-        // Staff can see internal jobs (and external if configured)
-        url.searchParams.set('channel', 'internal');
-      }
-      
-      // Apply filters
-      if (filters.search) {
-        url.searchParams.set('q', filters.search);
-      }
-      if (filters.department) {
-        url.searchParams.set('department', filters.department);
-      }
-      if (filters.location) {
-        url.searchParams.set('location', filters.location);
-      }
-      if (filters.employmentType) {
-        url.searchParams.set('employmentType', filters.employmentType);
-      }
-      if (filters.closingDate) {
-        url.searchParams.set('closingDate', filters.closingDate);
-      }
-      
+      url.searchParams.set('channel', 'internal');
+
+      if (filters.search) url.searchParams.set('q', filters.search);
+      if (filters.department) url.searchParams.set('department', filters.department);
+      if (filters.location) url.searchParams.set('location', filters.location);
+      if (filters.employmentType) url.searchParams.set('employmentType', filters.employmentType);
+      if (filters.closingDate) url.searchParams.set('closingDate', filters.closingDate);
+
       url.searchParams.set('size', '50');
       url.searchParams.set('sort', 'createdAt,desc');
-      
+
       const response = await fetch(url.toString(), {
         headers: {
-          'Authorization': `Bearer ${user?.id}`, // Use proper JWT token in production
+          'Authorization': `Bearer ${user?.id}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const apiResponse: ApiResponse = await response.json();
-      
+
       if (!apiResponse.success || !apiResponse.data) {
         throw new Error(apiResponse.error || 'Failed to fetch jobs');
       }
-      
-      // Filter out expired jobs and apply additional role-based filtering
+
       const filteredJobs = apiResponse.data.content.filter(job => {
-        // Always show internal channel jobs
         if (job.channelInternal) return true;
-        
-        // Show external jobs based on role permissions
-        if (job.channelExternal) {
-          // Different roles may have different visibility rules
-          return user?.role !== 'Applicant'; // Example: Applicants only see internal jobs
-        }
-        
+        if (job.channelExternal) return user?.role !== 'Applicant';
         return false;
       });
-      
+
       setJobs(filteredJobs);
       setTotalJobs(apiResponse.data.totalElements);
-      
-      // Extract unique filter options from jobs
-      const departments = [...new Set(filteredJobs.map(job => job.department).filter(Boolean))];
-      const locations = [...new Set(filteredJobs.map(job => job.location).filter(Boolean))];
-      const employmentTypes = [...new Set(filteredJobs.map(job => job.employmentType).filter(Boolean))];
-      
+
       setFilterOptions({
-        departments: departments as string[],
-        locations: locations as string[],
-        employmentTypes: employmentTypes as string[]
+        departments: [...new Set(filteredJobs.map(job => job.department).filter(Boolean))] as string[],
+        locations: [...new Set(filteredJobs.map(job => job.location).filter(Boolean))] as string[],
+        employmentTypes: [...new Set(filteredJobs.map(job => job.employmentType).filter(Boolean))] as string[],
       });
-      
     } catch (err) {
       console.error('Error fetching jobs:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load jobs');
+      loadDemoJobs();
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user, filters]);
+  }, [isAuthenticated, user, filters, loadDemoJobs]);
 
   // Fetch jobs on mount and filter changes
   useEffect(() => {

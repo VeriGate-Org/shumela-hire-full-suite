@@ -36,9 +36,10 @@ public interface RecruitmentMetricsRepository extends JpaRepository<RecruitmentM
     // Latest metrics
     @Query("SELECT rm FROM RecruitmentMetrics rm WHERE rm.metricName = :metricName " +
            "AND rm.department = :department AND rm.isActive = true " +
-           "ORDER BY rm.metricDate DESC LIMIT 1")
-    Optional<RecruitmentMetrics> findLatestByMetricNameAndDepartment(
-        @Param("metricName") String metricName, @Param("department") String department);
+           "ORDER BY rm.metricDate DESC")
+    List<RecruitmentMetrics> findLatestByMetricNameAndDepartment(
+        @Param("metricName") String metricName, @Param("department") String department,
+        Pageable pageable);
 
     @Query("SELECT rm FROM RecruitmentMetrics rm WHERE rm.metricCategory = :category " +
            "AND rm.isActive = true ORDER BY rm.metricDate DESC")

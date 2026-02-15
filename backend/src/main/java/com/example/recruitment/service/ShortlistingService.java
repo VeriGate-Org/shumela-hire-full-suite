@@ -80,7 +80,7 @@ public class ShortlistingService {
 
     @Transactional
     public List<ShortlistScore> calculateScoresForJobPosting(Long jobPostingId) {
-        List<Application> applications = applicationRepository.findByJobAdIdOrderBySubmittedAtDesc(jobPostingId);
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobPostingId);
         return applications.stream()
             .map(app -> calculateScore(app.getId()))
             .toList();

@@ -39,7 +39,7 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
     @Query("SELECT o FROM Offer o WHERE o.status = 'PENDING_APPROVAL' AND o.approvalLevelRequired <= :userApprovalLevel")
     List<Offer> findOffersRequiringApproval(@Param("userApprovalLevel") Integer userApprovalLevel);
     
-    @Query("SELECT o FROM Offer o WHERE o.status = 'PENDING_APPROVAL' AND o.getTotalCompensation() >= :threshold")
+    @Query("SELECT o FROM Offer o WHERE o.status = 'PENDING_APPROVAL' AND o.baseSalary >= :threshold")
     List<Offer> findHighValueOffersRequiringApproval(@Param("threshold") BigDecimal threshold);
     
     // Expiry and time-based queries
@@ -101,15 +101,15 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
            "GROUP BY o.offerType")
     List<Object[]> getAcceptanceRateByOfferType(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // Time to acceptance/decision metrics
-    @Query("SELECT AVG(EXTRACT(EPOCH FROM (o.acceptedAt - o.offerSentAt)) / 3600) " +
-           "FROM Offer o WHERE o.status = 'ACCEPTED' AND o.offerSentAt IS NOT NULL AND o.acceptedAt IS NOT NULL " +
-           "AND o.createdAt BETWEEN :startDate AND :endDate")
+    // Time to acceptance/decision metrics (uses DATEDIFF for H2 compatibility)
+    @Query(value = "SELECT AVG(DATEDIFF(HOUR, o.offer_sent_at, o.accepted_at)) " +
+           "FROM offers o WHERE o.status = 'ACCEPTED' AND o.offer_sent_at IS NOT NULL AND o.accepted_at IS NOT NULL " +
+           "AND o.created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
     Double getAverageTimeToAcceptanceHours(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-    
-    @Query("SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(o.acceptedAt, o.declinedAt) - o.offerSentAt)) / 3600) " +
-           "FROM Offer o WHERE o.status IN ('ACCEPTED', 'DECLINED') AND o.offerSentAt IS NOT NULL " +
-           "AND o.createdAt BETWEEN :startDate AND :endDate")
+
+    @Query(value = "SELECT AVG(DATEDIFF(HOUR, o.offer_sent_at, COALESCE(o.accepted_at, o.declined_at))) " +
+           "FROM offers o WHERE o.status IN ('ACCEPTED', 'DECLINED') AND o.offer_sent_at IS NOT NULL " +
+           "AND o.created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
     Double getAverageTimeToDecisionHours(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     // Compensation analysis

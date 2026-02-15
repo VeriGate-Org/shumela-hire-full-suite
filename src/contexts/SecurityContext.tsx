@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { UserRole } from './AuthContext';
 
 /**
  * Security Context for authentication and authorization
@@ -13,7 +14,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  role: UserRole;
   authorities: string[];
   twoFactorEnabled: boolean;
   emailVerified: boolean;

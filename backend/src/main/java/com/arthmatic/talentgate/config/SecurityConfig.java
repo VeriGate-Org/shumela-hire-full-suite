@@ -116,21 +116,30 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                
+
                 // Admin only endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "HR_MANAGER")
                 .requestMatchers("/api/users/manage/**").hasAnyRole("ADMIN", "HR_MANAGER")
-                
+
+                // Executive endpoints
+                .requestMatchers("/api/executive/**").hasAnyRole("ADMIN", "EXECUTIVE")
+
                 // HR Manager endpoints
                 .requestMatchers("/api/requisitions/approve/**").hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER")
                 .requestMatchers("/api/job-postings/publish/**").hasAnyRole("ADMIN", "HR_MANAGER")
-                .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
-                
+                .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "EXECUTIVE")
+
+                // Interview endpoints
+                .requestMatchers("/api/interviews/assigned/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+                .requestMatchers("/api/interviews/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+
                 // Recruiter endpoints
                 .requestMatchers("/api/applications/manage/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
-                .requestMatchers("/api/interviews/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
-                
+
+                // Internal jobs — accessible to all internal staff
+                .requestMatchers("/api/internal/jobs/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "EMPLOYEE", "EXECUTIVE")
+
                 // E-Signature endpoints
                 .requestMatchers("/api/esignature/webhook").permitAll()
                 .requestMatchers("/api/esignature/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
@@ -149,11 +158,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/talent-pools/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Compliance endpoints
-                .requestMatchers("/api/compliance/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/compliance/**").hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
 
                 // General authenticated endpoints
                 .requestMatchers("/api/**").authenticated()
-                
+
                 // Permit all other requests
                 .anyRequest().permitAll()
             );

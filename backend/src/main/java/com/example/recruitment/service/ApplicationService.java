@@ -49,7 +49,7 @@ public class ApplicationService {
         Applicant applicant = findApplicantById(request.getApplicantId());
         
         // Check if applicant has already applied for this job
-        if (applicationRepository.existsByApplicantIdAndJobAdId(request.getApplicantId(), request.getJobAdId())) {
+        if (applicationRepository.existsByApplicantIdAndJobPostingId(request.getApplicantId(), request.getJobAdId())) {
             throw new IllegalArgumentException("Applicant has already applied for this job");
         }
         
@@ -102,7 +102,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByJobAd(Long jobAdId) {
-        List<Application> applications = applicationRepository.findByJobAdIdOrderBySubmittedAtDesc(jobAdId);
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobAdId);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -291,7 +291,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public boolean canApplicantApplyForJob(Long applicantId, Long jobAdId) {
-        return !applicationRepository.existsByApplicantIdAndJobAdId(applicantId, jobAdId);
+        return !applicationRepository.existsByApplicantIdAndJobPostingId(applicantId, jobAdId);
     }
     
     /**

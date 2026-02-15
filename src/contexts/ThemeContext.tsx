@@ -22,7 +22,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>('system');
   const [isDark, setIsDark] = useState(false);
   const [isHighContrast, setIsHighContrast] = useState(false);
-  const [currentRole, setCurrentRole] = useState<UserRole>('HR');
+  const [currentRole, setCurrentRole] = useState<UserRole>('HR_MANAGER');
 
   // Initialize theme from localStorage
   useEffect(() => {

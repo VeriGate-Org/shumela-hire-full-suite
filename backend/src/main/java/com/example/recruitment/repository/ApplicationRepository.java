@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -23,16 +22,16 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     List<Application> findByApplicantIdOrderBySubmittedAtDesc(Long applicantId);
     
     // Find applications by job ad
-    List<Application> findByJobAdIdOrderBySubmittedAtDesc(Long jobAdId);
+    List<Application> findByJobPostingIdOrderBySubmittedAtDesc(Long jobAdId);
     
     // Find applications by status
     List<Application> findByStatusOrderBySubmittedAtDesc(ApplicationStatus status);
     
     // Find applications by applicant and job ad
-    Optional<Application> findByApplicantIdAndJobAdId(Long applicantId, Long jobAdId);
+    Optional<Application> findByApplicantIdAndJobPostingId(Long applicantId, Long jobAdId);
     
     // Check if applicant has already applied for job
-    boolean existsByApplicantIdAndJobAdId(Long applicantId, Long jobAdId);
+    boolean existsByApplicantIdAndJobPostingId(Long applicantId, Long jobAdId);
     
     // Find applications by status with pagination
     Page<Application> findByStatus(ApplicationStatus status, Pageable pageable);
@@ -66,7 +65,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     long countByStatus(ApplicationStatus status);
     
     // Count applications by job ad
-    long countByJobAdId(Long jobAdId);
+    long countByJobPostingId(Long jobAdId);
     
     // Count applications by applicant
     long countByApplicantId(Long applicantId);
@@ -86,7 +85,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     List<Object[]> getApplicationStatusCounts();
     
     // Find applications by job ad and status
-    List<Application> findByJobAdIdAndStatus(Long jobAdId, ApplicationStatus status);
+    List<Application> findByJobPostingIdAndStatus(Long jobAdId, ApplicationStatus status);
     
     // Find active applications (not terminal status)
     @Query("SELECT a FROM Application a WHERE a.status NOT IN ('WITHDRAWN', 'REJECTED', 'HIRED', 'OFFER_DECLINED') ORDER BY a.submittedAt DESC")
@@ -107,7 +106,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     List<Application> findByStatusAndSubmittedAtBetween(ApplicationStatus status, LocalDateTime startDate, LocalDateTime endDate);
     
     @Query("SELECT a.status, COUNT(a) FROM Application a GROUP BY a.status")
-    Map<String, Long> getPipelineDistribution();
+    List<Object[]> getPipelineDistribution();
     
     @Query("SELECT pt FROM PipelineTransition pt WHERE pt.effectiveAt BETWEEN :startDate AND :endDate")
     List<PipelineTransition> findTransitionsByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
