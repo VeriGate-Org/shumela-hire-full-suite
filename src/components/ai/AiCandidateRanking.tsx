@@ -18,7 +18,7 @@ const DEFAULT_WEIGHTS: Record<string, number> = {
 };
 
 const FACTOR_COLORS: Record<string, string> = {
-  skills: 'bg-violet-500',
+  skills: 'bg-teal-500',
   experience: 'bg-blue-500',
   education: 'bg-emerald-500',
   keywords: 'bg-amber-500',
@@ -123,9 +123,9 @@ export default function AiCandidateRanking({ jobId, jobRequirements = [] }: AiCa
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-violet-500" />
+          <div className="w-2 h-2 rounded-full bg-teal-500" />
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Candidate Ranking</h3>
-          <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
+          <span className="text-[10px] font-medium bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">AI-generated</span>
         </div>
         <button onClick={handleRank} disabled={loading}
           className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50">

@@ -38,7 +38,7 @@ public class DataVisualizationService {
         List<String> labels = new ArrayList<>();
         List<Integer> data = new ArrayList<>();
         List<String> colors = Arrays.asList(
-            "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4", "#84CC16"
+            "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#05527E", "#06B6D4", "#84CC16"
         );
         
         for (Object[] row : statusCounts) {

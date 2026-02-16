@@ -143,7 +143,7 @@ function LoginContent() {
                   onClick={() => setSelectedRole(role)}
                   className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
                     selectedRole === role
-                      ? 'bg-violet-600 text-white border-violet-600'
+                      ? 'bg-violet-600 text-white border-violet-600 ring-1 ring-gold-400/40'
                       : 'bg-white text-gray-700 border-gray-300 hover:border-violet-300 hover:bg-violet-50'
                   }`}
                 >

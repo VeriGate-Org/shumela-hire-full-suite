@@ -76,7 +76,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           className={`
             group flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent
             ${isActive
-              ? 'bg-violet-500/[0.06] text-violet-800 border-l-[3px] border-l-violet-600 border-y-transparent border-r-transparent pl-[7px]'
+              ? 'bg-violet-500/[0.06] text-violet-800 border-l-[3px] border-l-gold-500 border-y-transparent border-r-transparent pl-[7px]'
               : 'text-gray-600 hover:bg-gray-100 hover:text-violet-700'
             }
             ${isCollapsed ? 'justify-center px-2' : ''}

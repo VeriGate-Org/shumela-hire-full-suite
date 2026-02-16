@@ -63,8 +63,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#7C3AED' },
-    { media: '(prefers-color-scheme: dark)', color: '#5B21B6' }
+    { media: '(prefers-color-scheme: light)', color: '#05527E' },
+    { media: '(prefers-color-scheme: dark)', color: '#04466B' }
   ],
   colorScheme: 'light'
 };
@@ -82,7 +82,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="msapplication-TileColor" content="#7C3AED" />
+        <meta name="msapplication-TileColor" content="#05527E" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body

@@ -31,7 +31,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 }
 
 const WEIGHT_COLORS = [
-  'bg-violet-500',
+  'bg-teal-500',
   'bg-blue-500',
   'bg-emerald-500',
   'bg-amber-500',
@@ -68,9 +68,9 @@ export default function AiCvScreeningPanel({ applicationId, jobRequirements = []
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-violet-500" />
+          <div className="w-2 h-2 rounded-full bg-teal-500" />
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI CV Screening</h3>
-          <span className="text-[10px] font-medium bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">AI-generated</span>
+          <span className="text-[10px] font-medium bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">AI-generated</span>
         </div>
         <button onClick={handleScreen} disabled={loading}
           className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50">

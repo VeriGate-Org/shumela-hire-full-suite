@@ -73,7 +73,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
             </button>
 
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 bg-violet-600 rounded-lg grid place-items-center">
+              <div className="h-8 w-8 bg-violet-600 rounded-lg grid place-items-center ring-2 ring-gold-400/30">
                 <span className="text-white font-bold text-sm">TG</span>
               </div>
               <span className="font-bold text-sm tracking-tight text-gray-900 hidden sm:block">TalentGate</span>
@@ -91,7 +91,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
           <div className="flex items-center gap-1">
             <button className="relative p-2 rounded hover:bg-gray-100">
               <BellIcon className="h-4 w-4 text-gray-500" />
-              <span className="absolute top-1.5 right-1.5 block h-1.5 w-1.5 rounded-full bg-orange-500" />
+              <span className="absolute top-1.5 right-1.5 block h-1.5 w-1.5 rounded-full bg-gold-500" />
             </button>
 
             <button className="p-2 rounded hover:bg-gray-100">
