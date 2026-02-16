@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '../contexts/AuthContext';
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -18,6 +21,8 @@ interface NavItem {
 
 const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
+  const { logout } = useAuth();
+  const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const navigationItems: NavItem[] = [
@@ -255,6 +260,21 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) 
               <span>Settings</span>
             </Link>
           </div>
+
+          {/* Sign Out */}
+          <button
+            onClick={() => {
+              onClose();
+              logout();
+              router.push('/login');
+            }}
+            className="w-full mt-2 flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-sm hover:bg-red-100 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
     </>

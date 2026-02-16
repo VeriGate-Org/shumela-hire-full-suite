@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { UserRole, ROLE_DISPLAY_NAMES } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { UserRole, ROLE_DISPLAY_NAMES, useAuth } from '../contexts/AuthContext';
 
 interface UserProfileProps {
   user?: {
@@ -13,6 +16,8 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useAuth();
+  const router = useRouter();
 
   // Default user if none provided
   const currentUser = user || {
@@ -176,14 +181,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
               <button
                 onClick={() => {
                   setIsOpen(false);
-                  // Handle sign out logic here
-                  console.log('Sign out clicked');
+                  logout();
+                  router.push('/login');
                 }}
                 role="menuitem"
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <span className="text-lg text-red-500">🚪</span>
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
                   <div>
                     <p className="text-sm font-medium text-red-600">
                       Sign Out

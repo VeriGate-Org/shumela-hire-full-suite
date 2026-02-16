@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import EnterpriseThemeToggle from '../../EnterpriseThemeToggle';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
@@ -41,29 +40,6 @@ const adminMetrics = [
 export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }: AdminDashboardProps) {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">System Administration</h1>
-          <p className="text-gray-500 mt-1">
-            Monitor system health and manage platform operations
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <EnterpriseThemeToggle variant="compact" />
-          <select
-            value={selectedTimeframe}
-            onChange={(e) => onTimeframeChange(e.target.value)}
-            className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
-          >
-            <option value="7days">Last 7 days</option>
-            <option value="30days">Last 30 days</option>
-            <option value="90days">Last 3 months</option>
-          </select>
-        </div>
-      </div>
-
       {/* Real-Time System Status */}
       <div className="w-full overflow-hidden">
         <RealTimeMetrics updateInterval={5000} />
@@ -169,17 +145,16 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }:
             >
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { label: 'User Management', color: 'bg-violet-600', icon: '👥' },
-                  { label: 'System Settings', color: 'bg-violet-600', icon: '⚙️' },
-                  { label: 'Backup Database', color: 'bg-green-600', icon: '💾' },
-                  { label: 'Audit Logs', color: 'bg-orange-600', icon: '📋' },
-                  { label: 'Security Center', color: 'bg-red-600', icon: '🔐' },
+                  { label: 'User Management', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'System Settings', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Backup Database', color: 'bg-green-600 text-white' },
+                  { label: 'Audit Logs', color: 'bg-orange-600 text-white' },
+                  { label: 'Security Center', color: 'bg-red-600 text-white' },
                 ].map((action) => (
                   <button
                     key={action.label}
-                    className={`${action.color} text-white p-3 rounded-sm hover:opacity-90 transition-opacity text-sm font-medium text-center w-full flex items-center justify-center gap-2`}
+                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
                   >
-                    <span>{action.icon}</span>
                     {action.label}
                   </button>
                 ))}

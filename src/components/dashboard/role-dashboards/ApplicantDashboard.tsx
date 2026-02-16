@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import EnterpriseThemeToggle from '../../EnterpriseThemeToggle';
 import { DashboardWidget } from '../../dashboard';
 
 interface ApplicantDashboardProps {
@@ -12,29 +11,6 @@ interface ApplicantDashboardProps {
 export default function ApplicantDashboard({ selectedTimeframe, onTimeframeChange }: ApplicantDashboardProps) {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Job Search Dashboard</h1>
-          <p className="text-gray-500 mt-1">
-            Track your applications and manage your job search journey
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <EnterpriseThemeToggle variant="compact" />
-          <select
-            value={selectedTimeframe}
-            onChange={(e) => onTimeframeChange(e.target.value)}
-            className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
-          >
-            <option value="7days">Last 7 days</option>
-            <option value="30days">Last 30 days</option>
-            <option value="90days">Last 3 months</option>
-          </select>
-        </div>
-      </div>
-
       {/* Applicant Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Main Applicant Content */}
@@ -229,16 +205,15 @@ export default function ApplicantDashboard({ selectedTimeframe, onTimeframeChang
             >
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { label: 'Browse Jobs', color: 'bg-violet-600', icon: '🔍' },
-                  { label: 'Update Profile', color: 'bg-green-600', icon: '👤' },
-                  { label: 'Upload Resume', color: 'bg-violet-600', icon: '📄' },
-                  { label: 'Messages', color: 'bg-orange-600', icon: '💬' },
+                  { label: 'Browse Jobs', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Update Profile', color: 'bg-green-600 text-white' },
+                  { label: 'Upload Resume', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Messages', color: 'bg-orange-600 text-white' },
                 ].map((action) => (
                   <button
                     key={action.label}
-                    className={`${action.color} text-white p-3 rounded-sm hover:opacity-90 transition-opacity text-sm font-medium text-center w-full flex items-center justify-center gap-2`}
+                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
                   >
-                    <span>{action.icon}</span>
                     {action.label}
                   </button>
                 ))}
