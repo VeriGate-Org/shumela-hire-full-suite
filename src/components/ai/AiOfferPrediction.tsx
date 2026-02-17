@@ -73,7 +73,7 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
             <input type="text" value={benefitInput} onChange={e => setBenefitInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addBenefit()}
               className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Add benefit" />
-            <button onClick={addBenefit} className="px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200">+</button>
+            <button onClick={addBenefit} className="px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">+</button>
           </div>
           {benefits.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
@@ -89,7 +89,7 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
       </div>
 
       <button onClick={handlePredict} disabled={loading || !proposedSalary}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Predicting...' : 'Predict Acceptance'}
       </button>
 

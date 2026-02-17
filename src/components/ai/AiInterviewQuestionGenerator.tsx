@@ -128,7 +128,7 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
           <input type="text" value={skillInput} onChange={e => setSkillInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addSkill()}
             className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Add a skill" />
-          <button onClick={addSkill} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200">Add</button>
+          <button onClick={addSkill} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">Add</button>
         </div>
         {candidateSkills.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
@@ -143,7 +143,7 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
       </div>
 
       <button onClick={handleGenerate} disabled={loading || !jobTitle}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Generating...' : 'Generate Questions'}
       </button>
 
@@ -173,7 +173,7 @@ export default function AiInterviewQuestionGenerator({ jobTitle: initialTitle, j
           {onApply && (
             <button onClick={() => onApply(result.questions.filter((_, i) => selected.has(i)))}
               disabled={selected.size === 0}
-              className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
               Apply {selected.size} Question{selected.size !== 1 ? 's' : ''} to Interview
             </button>
           )}

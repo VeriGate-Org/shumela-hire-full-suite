@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { 
   CalendarIcon,
   ClockIcon,
@@ -658,23 +659,26 @@ export default function InterviewSchedulePage() {
                   </div>
                 ))}
               {interviews.filter(interview => interview.scheduledDate === selectedDate).length === 0 && (
-                <p className="text-gray-500 text-center py-8">No interviews scheduled for this date</p>
+                <EmptyState
+                  icon={CalendarIcon}
+                  title="No interviews scheduled"
+                  description="No interviews scheduled for this date."
+                />
               )}
             </div>
           </div>
         )}
 
         {filteredInterviews.length === 0 && (
-          <div className="bg-white rounded-sm shadow p-12 text-center">
-            <CalendarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No interviews found</h3>
-            <p className="text-gray-600">
-              {filterStatus === 'all' 
+          <EmptyState
+            icon={CalendarIcon}
+            title="No interviews scheduled"
+            description={
+              filterStatus === 'all'
                 ? "You don't have any interviews scheduled yet."
                 : `No ${filterStatus} interviews found.`
-              }
-            </p>
-          </div>
+            }
+          />
         )}
 
         {/* Interview Details Modal */}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { CustomReportBuilder } from '../../../components/analytics';
 import { 
   DocumentChartBarIcon, 
@@ -200,7 +201,7 @@ export default function CustomReportsPage() {
                   <div>
                     <h4 className="font-medium text-gray-900">{template.name}</h4>
                     <p className="text-sm text-gray-500 mt-1">{template.description}</p>
-                    <button className="text-gold-600 text-sm font-medium mt-2 hover:text-gold-700">
+                    <button className="text-gold-600 text-sm font-medium mt-2 hover:text-gold-700 rounded-full">
                       Use Template →
                     </button>
                   </div>
@@ -245,15 +246,15 @@ export default function CustomReportsPage() {
                   </div>
                   
                   <div className="flex items-center gap-2 ml-4">
-                    <button className="p-2 text-gray-400 hover:text-gold-600 rounded-sm hover:bg-gold-50">
+                    <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full hover:bg-gold-50">
                       <EyeIcon className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-orange-600 rounded-sm hover:bg-orange-50">
+                    <button className="p-2 text-gray-400 hover:text-orange-600 rounded-full hover:bg-orange-50">
                       <PencilIcon className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteReport(report.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 rounded-sm hover:bg-red-50"
+                      className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>
@@ -264,19 +265,15 @@ export default function CustomReportsPage() {
           </div>
           
           {savedReports.length === 0 && (
-            <div className="p-12 text-center">
-              <DocumentChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No reports yet</h3>
-              <p className="text-gray-500 mb-6">
-                Create your first custom report to get started with personalized analytics
-              </p>
-              <button
-                onClick={() => setShowBuilder(true)}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600"
-              >
-                Create Your First Report
-              </button>
-            </div>
+            <EmptyState
+              icon={DocumentChartBarIcon}
+              title="No reports yet"
+              description="Create your first custom report to get started with personalized analytics."
+              action={{
+                label: 'Create Your First Report',
+                onClick: () => setShowBuilder(true),
+              }}
+            />
           )}
         </div>
       </div>

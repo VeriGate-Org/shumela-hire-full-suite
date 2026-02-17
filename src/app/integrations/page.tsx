@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { 
   CheckCircleIcon, 
   XCircleIcon, 
@@ -252,11 +253,11 @@ export default function IntegrationsPage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50">
+      <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
         <PlusIcon className="w-4 h-4 mr-2" />
         Add Integration
       </button>
-      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
+      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
         <ArrowPathIcon className="w-4 h-4 mr-2" />
         Sync All
       </button>
@@ -338,7 +339,7 @@ export default function IntegrationsPage() {
                 <button
                   key={category.name}
                   onClick={() => setSelectedCategory(category.name)}
-                  className={`px-4 py-2 rounded-sm whitespace-nowrap text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
                     selectedCategory === category.name
                       ? 'bg-gold-100 text-gold-800 border border-violet-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -420,7 +421,7 @@ export default function IntegrationsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleToggleIntegration(integration.id)}
-                      className={`flex-1 px-3 py-2 rounded-sm text-sm font-medium transition-colors ${
+                      className={`flex-1 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
                         integration.status === 'connected'
                           ? 'bg-red-100 text-red-800 hover:bg-red-200'
                           : 'bg-green-100 text-green-800 hover:bg-green-200'
@@ -428,13 +429,13 @@ export default function IntegrationsPage() {
                     >
                       {integration.status === 'connected' ? 'Disconnect' : 'Connect'}
                     </button>
-                    <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-sm text-sm hover:bg-gray-200">
+                    <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200">
                       <CogIcon className="w-4 h-4" />
                     </button>
                     {integration.status === 'connected' && (
-                      <button 
+                      <button
                         onClick={() => handleRefreshIntegration(integration.id)}
-                        className="px-3 py-2 bg-gold-100 text-violet-700 rounded-sm text-sm hover:bg-gold-200"
+                        className="px-3 py-2 bg-gold-100 text-violet-700 rounded-full text-sm hover:bg-gold-200"
                       >
                         <ArrowPathIcon className="w-4 h-4" />
                       </button>
@@ -447,11 +448,11 @@ export default function IntegrationsPage() {
         )}
 
         {filteredIntegrations.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <LinkIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No integrations found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
-          </div>
+          <EmptyState
+            icon={LinkIcon}
+            title="No integrations found"
+            description="Try adjusting your search or filter criteria."
+          />
         )}
       </div>
     </PageWrapper>

@@ -389,7 +389,7 @@ export default function AdminPermissionsPage() {
                 <button
                   key={view.id}
                   onClick={() => setSelectedView(view.id as any)}
-                  className={`flex items-center px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                  className={`flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedView === view.id
                       ? 'bg-gold-100 text-gold-800'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -460,7 +460,7 @@ export default function AdminPermissionsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSelectedRole(role)}
-                      className="flex-1 px-3 py-2 bg-gold-100 text-gold-800 rounded-sm hover:bg-gold-200 transition-colors"
+                      className="flex-1 px-3 py-2 bg-gold-100 text-gold-800 rounded-full hover:bg-gold-200 transition-colors"
                     >
                       View Details
                     </button>
@@ -468,13 +468,13 @@ export default function AdminPermissionsPage() {
                       <>
                         <button
                           onClick={() => handleEditRole(role)}
-                          className="px-3 py-2 bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200"
+                          className="px-3 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200"
                         >
                           <PencilIcon className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteRole(role.id)}
-                          className="px-3 py-2 bg-red-100 text-red-700 rounded-sm hover:bg-red-200"
+                          className="px-3 py-2 bg-red-100 text-red-700 rounded-full hover:bg-red-200"
                         >
                           <TrashIcon className="w-4 h-4" />
                         </button>
@@ -605,10 +605,10 @@ export default function AdminPermissionsPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex gap-2">
-                              <button className="text-gold-600 hover:text-violet-900">
+                              <button className="text-gold-600 hover:text-violet-900 rounded-full">
                                 <PencilIcon className="w-4 h-4" />
                               </button>
-                              <button className="text-red-600 hover:text-red-900">
+                              <button className="text-red-600 hover:text-red-900 rounded-full">
                                 <TrashIcon className="w-4 h-4" />
                               </button>
                             </div>
@@ -700,12 +700,12 @@ export default function AdminPermissionsPage() {
                 <div className="flex justify-end gap-3 mt-6 pt-6 border-t">
                   <button
                     onClick={() => setSelectedRole(null)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50"
                   >
                     Close
                   </button>
                   {!selectedRole.isSystem && (
-                    <button className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600">
+                    <button className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600">
                       Save Changes
                     </button>
                   )}

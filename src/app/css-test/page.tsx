@@ -8,7 +8,7 @@ export default function CSSTest() {
           <div className="bg-card border border-border rounded-sm p-6">
             <h2 className="text-xl font-semibold mb-4 text-foreground">Card 1</h2>
             <p className="text-muted-foreground">This should have proper styling with background and borders.</p>
-            <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:opacity-90">
+            <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-full hover:opacity-90">
               Primary Button
             </button>
           </div>
@@ -16,7 +16,7 @@ export default function CSSTest() {
           <div className="bg-secondary border border-border rounded-sm p-6">
             <h2 className="text-xl font-semibold mb-4 text-secondary-foreground">Card 2</h2>
             <p className="text-muted-foreground">Secondary background with proper text colors.</p>
-            <button className="mt-4 px-4 py-2 border border-border text-foreground rounded-sm hover:bg-accent">
+            <button className="mt-4 px-4 py-2 border border-border text-foreground rounded-full hover:bg-accent">
               Secondary Button
             </button>
           </div>
@@ -24,7 +24,7 @@ export default function CSSTest() {
           <div className="bg-accent border border-border rounded-sm p-6">
             <h2 className="text-xl font-semibold mb-4 text-accent-foreground">Card 3</h2>
             <p className="text-muted-foreground">Accent background with proper styling.</p>
-            <button className="mt-4 px-4 py-2 bg-destructive text-destructive-foreground rounded-sm hover:opacity-90">
+            <button className="mt-4 px-4 py-2 bg-destructive text-destructive-foreground rounded-full hover:opacity-90">
               Destructive Button
             </button>
           </div>

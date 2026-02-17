@@ -596,10 +596,10 @@ export default function CandidateProfilePage() {
                         
                         {isEditing && (
                           <div className="flex space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gold-600">
+                            <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
                               <PencilIcon className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-red-600">
+                            <button className="p-2 text-gray-400 hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -668,10 +668,10 @@ export default function CandidateProfilePage() {
                         
                         {isEditing && (
                           <div className="flex space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gold-600">
+                            <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
                               <PencilIcon className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-red-600">
+                            <button className="p-2 text-gray-400 hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -759,11 +759,11 @@ export default function CandidateProfilePage() {
                         </div>
                         
                         <div className="flex space-x-1">
-                          <button className="p-1 text-gray-400 hover:text-gold-600">
+                          <button className="p-1 text-gray-400 hover:text-gold-600 rounded-full">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                           {isEditing && (
-                            <button className="p-1 text-gray-400 hover:text-red-600">
+                            <button className="p-1 text-gray-400 hover:text-red-600 rounded-full">
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           )}
@@ -824,10 +824,10 @@ export default function CandidateProfilePage() {
                         </div>
                         
                         <div className="flex space-x-2">
-                          <button className="p-2 text-gray-400 hover:text-gold-600">
+                          <button className="p-2 text-gray-400 hover:text-gold-600 rounded-full">
                             <EyeIcon className="w-5 h-5" />
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-gray-600">
+                          <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full">
                             <LinkIcon className="w-5 h-5" />
                           </button>
                         </div>

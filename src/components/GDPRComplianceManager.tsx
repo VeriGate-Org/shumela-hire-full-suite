@@ -308,7 +308,7 @@ const GDPRComplianceManager: React.FC = () => {
                           {new Date(request.date).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-gold-600 hover:text-violet-900">
+                          <button className="text-gold-600 hover:text-violet-900 rounded-full">
                             View Details
                           </button>
                         </td>

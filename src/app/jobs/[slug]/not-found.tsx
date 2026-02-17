@@ -14,13 +14,13 @@ export default function JobNotFound() {
         </div>
         <div className="space-y-3">
           <Link href="/jobs">
-            <button className="w-full inline-flex items-center justify-center px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 transition-colors">
+            <button className="w-full inline-flex items-center justify-center px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 transition-colors">
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               View All Jobs
             </button>
           </Link>
           <Link href="/">
-            <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50 transition-colors">
+            <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors">
               Go to Homepage
             </button>
           </Link>

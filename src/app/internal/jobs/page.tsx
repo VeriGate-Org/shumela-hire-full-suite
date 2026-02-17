@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -367,7 +369,7 @@ export default function InternalJobsBoard() {
         
         <div className="flex items-center justify-between">
           <Link href={`/internal/jobs/${job.id}`}>
-            <button className="text-gold-600 hover:text-gold-800 text-sm font-medium">
+            <button className="text-gold-600 hover:text-gold-800 text-sm font-medium rounded-full">
               View Details
             </button>
           </Link>
@@ -396,44 +398,34 @@ export default function InternalJobsBoard() {
     return null; // Will redirect to login
   }
 
+  const actions = (
+    <button
+      onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+      className="px-3 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50"
+    >
+      {viewMode === 'cards' ? 'Table View' : 'Card View'}
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading internal job board...</div>
-      </div>
+      <PageWrapper title="Internal Job Board" subtitle="Browse internal opportunities and advance your career" actions={actions}>
+        <div className="flex items-center justify-center p-8">
+          <div className="text-gray-500">Loading internal job board...</div>
+        </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Internal Job Board</h1>
-                <p className="text-gray-600 mt-1">
-                  Browse internal opportunities and advance your career
-                </p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-                  className="px-3 py-2 border border-gray-300 rounded-sm text-sm hover:bg-gray-50"
-                >
-                  {viewMode === 'cards' ? 'Table View' : 'Card View'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <PageWrapper
+      title="Internal Job Board"
+      subtitle="Browse internal opportunities and advance your career"
+      actions={actions}
+    >
+      <div className="space-y-6">
         {/* Search and Filters */}
-        <div className="mb-8">
-          <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-sm shadow p-6">
             {/* Search Bar */}
             <div className="relative mb-4">
               <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -549,11 +541,10 @@ export default function InternalJobsBoard() {
               </div>
             )}
           </div>
-        </div>
 
         {/* Error Display */}
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-sm">
             <div className="flex">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
               <div className="ml-3">
@@ -572,25 +563,19 @@ export default function InternalJobsBoard() {
 
         {/* Job Listings */}
         {jobs.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-lg mb-4">
-              No internal job openings found
-            </div>
-            <p className="text-gray-400 mb-4">
-              {Object.values(filters).some(v => v) 
-                ? 'Try adjusting your filters to see more results'
-                : 'Check back later for new opportunities'
-              }
-            </p>
-            {Object.values(filters).some(v => v) && (
-              <button
-                onClick={clearFilters}
-                className="text-gold-600 hover:text-gold-800"
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={BriefcaseIcon}
+            title="No internal job openings found"
+            description={
+              Object.values(filters).some(v => v)
+                ? 'Try adjusting your filters to see more results.'
+                : 'Check back later for new opportunities.'
+            }
+            action={Object.values(filters).some(v => v) ? {
+              label: 'Clear Filters',
+              onClick: clearFilters,
+            } : undefined}
+          />
         ) : (
           <div className={`${viewMode === 'cards' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
             {jobs.map((job) => (
@@ -599,6 +584,6 @@ export default function InternalJobsBoard() {
           </div>
         )}
       </div>
-    </div>
+    </PageWrapper>
   );
 }

@@ -30,7 +30,7 @@ export default function OnboardingPage() {
 
       {/* Minimal footer */}
       <footer className="w-full px-6 py-4 text-center">
-        <p className="text-xs text-gray-400">&copy; 2026 ShumelaHire by Arthmatic DevWorks</p>
+        <p className="text-xs text-gray-400">&copy; 2026 <span className="text-primary">Shumela</span><span className="text-cta">Hire</span> by Arthmatic DevWorks</p>
       </footer>
     </div>
   );

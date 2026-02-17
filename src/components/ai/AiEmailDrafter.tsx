@@ -100,7 +100,7 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
           <input type="text" value={contextValue} onChange={e => setContextValue(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addContext()}
             className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Value" />
-          <button onClick={addContext} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200">Add</button>
+          <button onClick={addContext} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">Add</button>
         </div>
         {Object.keys(context).length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
@@ -116,7 +116,7 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
       </div>
 
       <button onClick={handleGenerate} disabled={loading || !candidateName}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Drafting...' : 'Generate Email'}
       </button>
 

@@ -179,7 +179,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
             </p>
           </div>
           <Link href="/jobs">
-            <button className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 transition-colors">
+            <button className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 transition-colors">
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               View All Jobs
             </button>
@@ -320,14 +320,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                     </p>
                     {job.requisitionId ? (
                       <Link href={`/apply/${job.requisitionId}`}>
-                        <button className="inline-flex items-center px-6 py-3 bg-gold-500 text-violet-950 text-lg font-medium rounded-sm hover:bg-gold-600 transition-colors">
+                        <button className="inline-flex items-center px-6 py-3 bg-gold-500 text-violet-950 text-lg font-medium rounded-full hover:bg-gold-600 transition-colors">
                           Apply Now
                         </button>
                       </Link>
                     ) : (
                       <button 
                         disabled 
-                        className="inline-flex items-center px-6 py-3 bg-gray-400 text-white text-lg font-medium rounded-sm cursor-not-allowed"
+                        className="inline-flex items-center px-6 py-3 bg-gray-400 text-white text-lg font-medium rounded-full cursor-not-allowed"
                       >
                         Application Not Available
                       </button>
@@ -354,7 +354,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
               and excellence.
             </p>
             <Link href="/jobs">
-              <button className="text-gold-600 hover:text-gold-800 text-sm transition-colors">
+              <button className="text-gold-600 hover:text-gold-800 text-sm transition-colors rounded-full">
                 View all open positions →
               </button>
             </Link>

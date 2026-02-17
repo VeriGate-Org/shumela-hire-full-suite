@@ -1,9 +1,10 @@
 import React, { useState, ReactNode } from 'react';
 import Link from 'next/link';
 import ModernSidebar from './ModernSidebar';
+import NotificationCenter from './NotificationCenter';
+import UserProfile from './UserProfile';
 import { useAuth } from '../contexts/AuthContext';
-import { useLayout, Density } from '../contexts/LayoutContext';
-import { BellIcon, Bars3Icon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface ModernLayoutProps {
@@ -22,42 +23,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { density, setDensity } = useLayout();
   const { showOverlay, setShowOverlay, shortcutList } = useKeyboardShortcuts();
-
-  const densityOptions: { value: Density; label: string; icon: ReactNode }[] = [
-    {
-      value: 'compact',
-      label: 'Compact',
-      icon: (
-        <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <line x1="2" y1="4" x2="14" y2="4" /><line x1="2" y1="8" x2="14" y2="8" /><line x1="2" y1="12" x2="14" y2="12" />
-        </svg>
-      ),
-    },
-    {
-      value: 'comfortable',
-      label: 'Comfortable',
-      icon: (
-        <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <line x1="2" y1="3" x2="14" y2="3" /><line x1="2" y1="8" x2="14" y2="8" /><line x1="2" y1="13" x2="14" y2="13" />
-        </svg>
-      ),
-    },
-    {
-      value: 'spacious',
-      label: 'Spacious',
-      icon: (
-        <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <line x1="2" y1="2" x2="14" y2="2" /><line x1="2" y1="8" x2="14" y2="8" /><line x1="2" y1="14" x2="14" y2="14" />
-        </svg>
-      ),
-    },
-  ];
-
-  const userInitials = user
-    ? user.name.split(' ').map(n => n[0]).join('')
-    : 'JD';
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -91,48 +57,17 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 
           {/* Right: notifications, help, avatar */}
           <div className="flex items-center gap-1">
-            <button
-              aria-label="Open notifications"
-              className="relative p-2 rounded-control hover:bg-accent"
-            >
-              <BellIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 block h-1.5 w-1.5 rounded-full bg-cta" />
-            </button>
+            <NotificationCenter />
 
             <button
-              aria-label="Open help center"
+              aria-label="Open keyboard shortcuts"
+              onClick={() => setShowOverlay(true)}
               className="p-2 rounded-control hover:bg-accent"
             >
               <QuestionMarkCircleIcon className="h-4 w-4 text-muted-foreground" />
             </button>
 
-            {/* Density toggle */}
-            <div className="hidden sm:flex items-center bg-muted rounded-control p-0.5 ml-1">
-              {densityOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setDensity(opt.value)}
-                  aria-label={`Switch to ${opt.label} density`}
-                  title={opt.label}
-                  className={`p-1.5 rounded transition-colors ${
-                    density === opt.value
-                      ? 'bg-card text-primary shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {opt.icon}
-                </button>
-              ))}
-            </div>
-
-            <button
-              aria-label="Open user profile menu"
-              className="flex items-center gap-2 px-1.5 py-1 rounded-full hover:bg-accent ml-1"
-            >
-              <div className="h-7 w-7 rounded-full bg-cta text-cta-foreground grid place-items-center font-semibold text-xs ring-2 ring-cta/30">
-                {userInitials}
-              </div>
-            </button>
+            <UserProfile user={user ? { name: user.name, email: user.email, role: user.role } : undefined} />
           </div>
         </div>
       </header>
@@ -191,7 +126,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 
         <footer className="border-t border-border bg-card">
           <div className="px-6 py-4 flex flex-col sm:flex-row justify-between items-center text-xs text-muted-foreground">
-            <p>&copy; 2026 ShumelaHire</p>
+            <p>&copy; 2026 <span className="text-primary">Shumela</span><span className="text-cta">Hire</span></p>
             <div className="flex gap-4 mt-2 sm:mt-0">
               <Link href="/privacy" className="idc-link">Privacy</Link>
               <Link href="/terms" className="idc-link">Terms</Link>

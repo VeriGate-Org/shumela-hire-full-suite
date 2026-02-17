@@ -100,7 +100,7 @@ export default function ApplicantDashboard({ selectedTimeframe, onTimeframeChang
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${application.statusColor}`}>
                         {application.status}
                       </span>
-                      <button className="text-gold-600 hover:text-gold-800 text-sm font-medium">
+                      <button className="text-gold-600 hover:text-gold-800 text-sm font-medium rounded-full">
                         View Details
                       </button>
                     </div>

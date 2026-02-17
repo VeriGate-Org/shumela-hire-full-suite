@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import ApplicationStatusTracker from '@/components/ApplicationStatusTracker';
+import EmptyState from '@/components/EmptyState';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -371,11 +372,11 @@ export default function ApplicationsPage() {
         {/* Applications Table */}
         <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden">
           {paginatedApplications.length === 0 ? (
-            <div className="p-12 text-center">
-              <FunnelIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 font-medium">No applications match your filters</p>
-              <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filter criteria</p>
-            </div>
+            <EmptyState
+              icon={FunnelIcon}
+              title="No applications"
+              description="No applications match your filters. Try adjusting your search or filter criteria."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">

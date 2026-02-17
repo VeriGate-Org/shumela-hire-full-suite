@@ -148,7 +148,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
 
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-ZA');
   };
 
   const totalCandidates = stages.reduce((total, stage) => total + stage.candidates.length, 0);
@@ -307,7 +307,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
 
                       {/* Actions (shown on hover) */}
                       <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 rounded">
+                        <button className="p-1 text-gray-400 hover:text-gray-600 rounded-full">
                           <EllipsisVerticalIcon className="w-4 h-4" />
                         </button>
                       </div>

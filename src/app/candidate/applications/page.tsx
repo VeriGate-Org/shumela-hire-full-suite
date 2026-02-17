@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { 
   BriefcaseIcon,
   MapPinIcon,
@@ -774,18 +775,17 @@ export default function MyApplicationsPage() {
         </div>
 
         {filteredApplications.length === 0 && (
-          <div className="bg-white rounded-sm shadow p-12 text-center">
-            <BriefcaseIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
-            <p className="text-gray-600">
-              {filterStatus === 'all' 
-                ? searchTerm 
+          <EmptyState
+            icon={BriefcaseIcon}
+            title="No applications found"
+            description={
+              filterStatus === 'all'
+                ? searchTerm
                   ? `No applications found for "${searchTerm}"`
                   : "You haven't submitted any job applications yet."
                 : `No applications with status "${filterStatus}" found.`
-              }
-            </p>
-          </div>
+            }
+          />
         )}
 
         {/* Application Details Modal */}
@@ -850,7 +850,7 @@ export default function MyApplicationsPage() {
                                 </p>
                               </div>
                             </div>
-                            <button className="text-gold-600 hover:text-gold-800">
+                            <button className="text-gold-600 hover:text-gold-800 rounded-full">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { 
   CurrencyDollarIcon,
   CalendarIcon,
@@ -574,16 +575,15 @@ export default function MyOffersPage() {
         </div>
 
         {filteredOffers.length === 0 && (
-          <div className="bg-white rounded-sm shadow p-12 text-center">
-            <CurrencyDollarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No offers found</h3>
-            <p className="text-gray-600">
-              {filterStatus === 'all' 
-                ? "You don't have any job offers yet. Keep applying to great opportunities!"
+          <EmptyState
+            icon={CurrencyDollarIcon}
+            title="No offers found"
+            description={
+              filterStatus === 'all'
+                ? "You don't have any job offers yet. Keep applying to great opportunities."
                 : `No offers with status "${filterStatus}" found.`
-              }
-            </p>
-          </div>
+            }
+          />
         )}
 
         {/* Offer Details Modal */}
@@ -703,7 +703,7 @@ export default function MyOffersPage() {
                               <DocumentTextIcon className="w-5 h-5 text-violet-500 mr-3" />
                               <span className="text-sm font-medium">{doc.name}</span>
                             </div>
-                            <button className="text-gold-600 hover:text-gold-800">
+                            <button className="text-gold-600 hover:text-gold-800 rounded-full">
                               <ArrowDownTrayIcon className="w-4 h-4" />
                             </button>
                           </div>

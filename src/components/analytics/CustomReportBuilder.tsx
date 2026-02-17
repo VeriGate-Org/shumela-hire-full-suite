@@ -292,12 +292,12 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
             />
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 text-gray-500 hover:text-gray-700 rounded-sm hover:bg-gray-100">
+            <button className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
               <ShareIcon className="w-5 h-5" />
             </button>
             <button
               onClick={() => onSave?.(reportConfig)}
-              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 flex items-center gap-2"
+              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 flex items-center gap-2"
             >
               <DocumentArrowDownIcon className="w-4 h-4" />
               Save Report
@@ -439,7 +439,7 @@ const CustomReportBuilder: React.FC<CustomReportBuilderProps> = ({
                     <button
                       key={viz.id}
                       onClick={() => setReportConfig(prev => ({ ...prev, visualization: viz.id as any }))}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-sm text-sm ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm ${
                         reportConfig.visualization === viz.id
                           ? 'bg-gold-100 text-violet-700'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

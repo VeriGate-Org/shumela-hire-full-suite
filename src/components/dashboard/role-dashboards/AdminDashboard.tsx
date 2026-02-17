@@ -1,7 +1,16 @@
 'use client';
 
 import React from 'react';
-import { RealTimeMetrics } from '../../analytics';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
 interface AdminDashboardProps {
@@ -9,7 +18,21 @@ interface AdminDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-// Mock data for admin dashboard
+const systemHealthData = [
+  { time: '00:00', cpu: 32, memory: 61, requests: 120 },
+  { time: '02:00', cpu: 28, memory: 59, requests: 85 },
+  { time: '04:00', cpu: 22, memory: 57, requests: 42 },
+  { time: '06:00', cpu: 35, memory: 60, requests: 190 },
+  { time: '08:00', cpu: 58, memory: 68, requests: 480 },
+  { time: '10:00', cpu: 72, memory: 74, requests: 720 },
+  { time: '12:00', cpu: 68, memory: 72, requests: 650 },
+  { time: '14:00', cpu: 75, memory: 76, requests: 780 },
+  { time: '16:00', cpu: 70, memory: 73, requests: 690 },
+  { time: '18:00', cpu: 52, memory: 67, requests: 410 },
+  { time: '20:00', cpu: 41, memory: 63, requests: 260 },
+  { time: '22:00', cpu: 35, memory: 62, requests: 170 },
+];
+
 const adminMetrics = [
   {
     id: 'total-users',
@@ -40,11 +63,6 @@ const adminMetrics = [
 export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }: AdminDashboardProps) {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
-      {/* Real-Time System Status */}
-      <div className="w-full overflow-hidden">
-        <RealTimeMetrics updateInterval={5000} />
-      </div>
-
       {/* Admin Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
         {/* Main Admin Content */}
@@ -68,10 +86,29 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }:
               refreshable={true}
               size="large"
             >
-              <div className="w-full h-64 overflow-hidden">
-                <div className="bg-gradient-to-r from-gray-50 to-violet-50 p-6 rounded-sm h-full flex items-center justify-center">
-                  <p className="text-gray-600">System Health Chart Component</p>
-                </div>
+              <div className="w-full h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={systemHealthData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                    <XAxis dataKey="time" tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={false} domain={[0, 100]} unit="%" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '2px', fontSize: 13 }}
+                      formatter={(value: number, name: string) => {
+                        if (name === 'requests') return [`${value}`, 'Requests/min'];
+                        return [`${value}%`, name === 'cpu' ? 'CPU Usage' : 'Memory Usage'];
+                      }}
+                    />
+                    <Legend verticalAlign="top" height={28} iconType="square" iconSize={10}
+                      formatter={(value: string) => {
+                        const labels: Record<string, string> = { cpu: 'CPU', memory: 'Memory', requests: 'Req/min' };
+                        return <span style={{ color: '#64748B', fontSize: 12 }}>{labels[value] || value}</span>;
+                      }}
+                    />
+                    <Area type="monotone" dataKey="cpu" stroke="#05527E" fill="#05527E" fillOpacity={0.15} strokeWidth={2} />
+                    <Area type="monotone" dataKey="memory" stroke="#008C7F" fill="#008C7F" fillOpacity={0.1} strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </DashboardWidget>
           </div>

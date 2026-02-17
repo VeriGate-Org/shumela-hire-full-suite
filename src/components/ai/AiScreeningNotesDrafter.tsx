@@ -68,7 +68,7 @@ export default function AiScreeningNotesDrafter({ applicationId, candidateName, 
           <input type="text" value={currentPoint} onChange={e => setCurrentPoint(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addPoint()}
             className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Add an observation" />
-          <button onClick={addPoint} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200">Add</button>
+          <button onClick={addPoint} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">Add</button>
         </div>
         {bulletPoints.length > 0 && (
           <ul className="mt-2 space-y-1">
@@ -96,7 +96,7 @@ export default function AiScreeningNotesDrafter({ applicationId, candidateName, 
       </div>
 
       <button onClick={handleDraft} disabled={loading || bulletPoints.length === 0}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Drafting...' : 'Draft Notes'}
       </button>
 

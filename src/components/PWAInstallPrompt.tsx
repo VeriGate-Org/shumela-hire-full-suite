@@ -141,7 +141,7 @@ const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ onInstall, onDismis
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Install ShumelaHire
+                Install <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
               </h3>
               <p className="text-gray-600 text-sm mb-4">
                 Get quick access to your recruitment dashboard. Install our app for a better experience with offline support and push notifications.
@@ -186,7 +186,7 @@ const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ onInstall, onDismis
                 Install App
               </h4>
               <p className="text-xs text-gray-600 mt-1">
-                Add ShumelaHire to your desktop for quick access and offline support.
+                Add <span className="font-semibold"><span className="text-primary">Shumela</span><span className="text-cta">Hire</span></span> to your desktop for quick access and offline support.
               </p>
               <div className="flex items-center space-x-2 mt-3">
                 <button

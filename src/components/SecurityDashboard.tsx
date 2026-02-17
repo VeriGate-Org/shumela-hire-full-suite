@@ -195,10 +195,10 @@ const SecurityDashboard: React.FC = () => {
             </button>
             {hasPermission('SECURITY_MANAGE') && (
               <>
-                <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50">
+                <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
                   Manage IP Blocks
                 </button>
-                <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50">
+                <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
                   Export Audit Logs
                 </button>
               </>

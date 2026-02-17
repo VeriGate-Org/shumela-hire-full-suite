@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import { 
   ClockIcon,
   UserIcon,
@@ -609,6 +610,13 @@ export default function AuditLogsPage() {
         </div>
 
         {/* Audit Logs Table */}
+        {filteredLogs.length === 0 ? (
+          <EmptyState
+            icon={ShieldCheckIcon}
+            title="No audit logs"
+            description="No audit logs match your current filters. Try adjusting your search or filter criteria."
+          />
+        ) : (
         <div className="bg-white rounded-sm shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -718,6 +726,7 @@ export default function AuditLogsPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* Log Detail Modal */}
         {selectedLog && (

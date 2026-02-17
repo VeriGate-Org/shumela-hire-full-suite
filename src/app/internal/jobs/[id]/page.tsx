@@ -265,12 +265,12 @@ export default function InternalJobDetailPage() {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleShare}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
                 >
                   <ShareIcon className="w-4 h-4 mr-2" />
                   Share
                 </button>
-                <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors">
+                <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
                   <BookmarkIcon className="w-4 h-4 mr-2" />
                   Save
                 </button>

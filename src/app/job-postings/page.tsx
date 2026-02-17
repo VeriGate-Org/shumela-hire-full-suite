@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import EmptyState from '@/components/EmptyState';
 import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 interface JobPosting {
   id: number;
   title: string;
@@ -117,14 +119,38 @@ export default function JobPostingsPage() {
     return statuses;
   };
 
+  const getPageTitle = () => {
+    switch (view) {
+      case 'create': return 'Create Job Posting';
+      case 'edit': return 'Edit Job Posting';
+      case 'workflow': return 'Job Posting Workflow';
+      default: return 'Job Postings';
+    }
+  };
+
+  const getPageSubtitle = () => {
+    switch (view) {
+      case 'create': return 'Fill in the details to create a new job posting.';
+      case 'edit': return 'Update the job posting details.';
+      case 'workflow': return 'Manage the approval and publishing workflow.';
+      default: return 'Create, review, and publish job postings with full workflow controls.';
+    }
+  };
+
+  const pageActions = view === 'list' ? (
+    <button
+      onClick={() => setView('create')}
+      className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
+    >
+      Create Job Posting
+    </button>
+  ) : undefined;
+
   return (
     <PageWrapper
-      title={
-        view === 'list' ? 'Job Postings' :
-        view === 'create' ? 'Create Job Posting' :
-        view === 'edit' ? 'Edit Job Posting' :
-        'Job Posting Workflow'
-      }
+      title={getPageTitle()}
+      subtitle={getPageSubtitle()}
+      actions={pageActions}
     >
       <div className="space-y-6">
         {view === 'list' && (
@@ -134,18 +160,6 @@ export default function JobPostingsPage() {
                 Workflow actions require a valid signed-in numeric user ID for audit tracking.
               </div>
             )}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h1 className="text-2xl font-bold">Job Posting Management</h1>
-                <p className="mt-1 text-gray-600">Create, review, and publish job postings with full workflow controls.</p>
-              </div>
-              <button
-                onClick={() => setView('create')}
-                className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
-              >
-                Create Job Posting
-              </button>
-            </div>
 
             {/* Search and Filter */}
             <div className="rounded-md border border-gray-200 bg-white p-4 shadow-sm mb-6">
@@ -188,39 +202,19 @@ export default function JobPostingsPage() {
             ) : (
               <div className="space-y-4">
                 {filteredJobPostings.length === 0 ? (
-                  <div className="rounded-md border border-gray-200 bg-white p-8 text-center shadow-sm">
-                    <p className="text-gray-600 mb-4">
-                      {jobPostings.length === 0 ? 
-                        'No job postings are currently available.' :
-                        'No job postings match your search criteria.'
-                      }
-                    </p>
-                    
-                    {jobPostings.length === 0 && (
-                      <div className="space-y-4">
-                        <div className="rounded-md border border-gray-200 p-4 text-left">
-                          <h3 className="font-medium text-lg mb-2">Feature Overview</h3>
-                          <ul className="list-disc list-inside space-y-1 text-gray-600">
-                            <li>Complete job posting creation with rich form validation</li>
-                            <li>Comprehensive approval workflow (Draft → Approval → Published)</li>
-                            <li>Status-based permissions and workflow actions</li>
-                            <li>Publication and unpublication controls</li>
-                            <li>SEO optimization fields and settings</li>
-                            <li>Analytics tracking (views, applications)</li>
-                            <li>Advanced search and filtering capabilities</li>
-                            <li>Role-based access control and audit logging</li>
-                          </ul>
-                        </div>
-                        
-                        <button
-                          onClick={() => setView('create')}
-                          className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
-                        >
-                          Create Job Posting
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <EmptyState
+                    icon={DocumentTextIcon}
+                    title="No job postings available"
+                    description={
+                      jobPostings.length === 0
+                        ? 'No job postings are currently available. Create your first one to get started.'
+                        : 'No job postings match your search criteria.'
+                    }
+                    action={jobPostings.length === 0 ? {
+                      label: 'Create Job Posting',
+                      onClick: () => setView('create'),
+                    } : undefined}
+                  />
                 ) : (
                   filteredJobPostings.map((jobPosting) => (
                     <div key={jobPosting.id} className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">

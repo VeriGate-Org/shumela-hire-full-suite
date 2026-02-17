@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { RequisitionData, RequisitionStatus, ApprovalRole, WorkflowAction } from '../types/workflow';
+import EmptyState from './EmptyState';
 import { useAuth } from '../contexts/AuthContext';
 import { formatSalaryRange } from '../utils/currency';
 import WorkflowStatusBadge from './WorkflowStatusBadge';
@@ -142,12 +144,15 @@ const RequisitionList: React.FC<RequisitionListProps> = ({
 
   if (requisitions.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <p>No requisitions found</p>
-        {filterStatus && (
-          <p className="text-sm mt-1">No requisitions with status: {filterStatus}</p>
-        )}
-      </div>
+      <EmptyState
+        icon={DocumentTextIcon}
+        title="No requisitions found"
+        description={
+          filterStatus
+            ? `No requisitions with status: ${filterStatus}`
+            : 'No requisitions are available at this time.'
+        }
+      />
     );
   }
 

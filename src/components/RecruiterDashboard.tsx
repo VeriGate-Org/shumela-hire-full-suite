@@ -1,214 +1,141 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-interface RecruiterMetrics {
-  totalApplications: number;
-  activeJobPostings: number;
-  newApplicants: number;
-  applicationsByStatus: { [key: string]: number };
+// Mock data
+const mockMetrics = {
+  totalApplications: 1284,
+  activeJobPostings: 23,
+  newApplicants: 187,
+  applicationsByStatus: {
+    Applied: 412,
+    Screening: 298,
+    Interview: 186,
+    Offer: 47,
+    Hired: 34,
+    Rejected: 307,
+  },
   conversionRates: {
-    screeningRate: number;
-    interviewRate: number;
-    hireRate: number;
-  };
-  dailyTrends: { [key: string]: number };
-}
+    screeningRate: 72.3,
+    interviewRate: 45.6,
+    hireRate: 8.2,
+  },
+  dailyTrends: {},
+};
 
-interface ApplicationPerVacancy {
-  vacancy: string;
-  applications: number;
-  jobId: number;
-}
+const mockApplicationsPerVacancy = [
+  { vacancy: 'Senior Software Engineer', applications: 142, jobId: 1 },
+  { vacancy: 'Product Manager', applications: 98, jobId: 2 },
+  { vacancy: 'UX Designer', applications: 87, jobId: 3 },
+  { vacancy: 'Data Analyst', applications: 76, jobId: 4 },
+  { vacancy: 'DevOps Engineer', applications: 63, jobId: 5 },
+  { vacancy: 'Marketing Coordinator', applications: 51, jobId: 6 },
+];
 
-interface PipelineFunnelData {
-  funnel: { [key: string]: number };
-  department: string;
-  period: string;
-}
+const mockPipelineFunnel = {
+  funnel: {
+    Applied: 1284,
+    Screening: 926,
+    'Phone Interview': 584,
+    'On-site Interview': 312,
+    'Final Round': 128,
+    Offer: 47,
+    Hired: 34,
+  },
+  department: 'All Departments',
+  period: 'Last 30 days',
+};
 
-interface TimeToFillData {
-  averageDays: number;
-  positions: Array<{
-    jobTitle: string;
-    department: string;
-    daysToFill: number;
-    hiredDate: string;
-  }>;
-  department: string;
-}
+const mockTimeToFill = {
+  averageDays: 32.4,
+  positions: [
+    { jobTitle: 'Senior Software Engineer', department: 'Engineering', daysToFill: 45, hiredDate: '2026-02-03' },
+    { jobTitle: 'Product Manager', department: 'Product', daysToFill: 38, hiredDate: '2026-01-28' },
+    { jobTitle: 'UX Designer', department: 'Design', daysToFill: 29, hiredDate: '2026-02-10' },
+    { jobTitle: 'Data Analyst', department: 'Engineering', daysToFill: 22, hiredDate: '2026-02-12' },
+    { jobTitle: 'Marketing Coordinator', department: 'Marketing', daysToFill: 18, hiredDate: '2026-01-20' },
+  ],
+  department: 'All Departments',
+};
 
-interface RecentActivity {
-  id: number;
-  applicantName: string;
-  jobTitle: string;
-  status: string;
-  action: string;
-  timestamp: string;
-  department: string;
-}
+const mockRecentActivity = [
+  { id: 1, applicantName: 'Thabo Mokoena', jobTitle: 'Senior Software Engineer', status: 'interview_scheduled', action: 'Interview scheduled', timestamp: '2026-02-17T09:30:00', department: 'Engineering' },
+  { id: 2, applicantName: 'Naledi Dlamini', jobTitle: 'Product Manager', status: 'hired', action: 'Offer accepted', timestamp: '2026-02-16T14:15:00', department: 'Product' },
+  { id: 3, applicantName: 'Sipho Ndlovu', jobTitle: 'UX Designer', status: 'screening', action: 'Moved to screening', timestamp: '2026-02-16T11:00:00', department: 'Design' },
+  { id: 4, applicantName: 'Lerato Mahlangu', jobTitle: 'Data Analyst', status: 'rejected', action: 'Application rejected', timestamp: '2026-02-15T16:45:00', department: 'Engineering' },
+  { id: 5, applicantName: 'Kamogelo Sithole', jobTitle: 'DevOps Engineer', status: 'interview_scheduled', action: 'Final round scheduled', timestamp: '2026-02-15T10:20:00', department: 'Engineering' },
+  { id: 6, applicantName: 'Zanele Khumalo', jobTitle: 'Marketing Coordinator', status: 'hired', action: 'Offer accepted', timestamp: '2026-02-14T13:00:00', department: 'Marketing' },
+  { id: 7, applicantName: 'Bongani Mthembu', jobTitle: 'Senior Software Engineer', status: 'screening', action: 'CV reviewed', timestamp: '2026-02-14T09:10:00', department: 'Engineering' },
+];
 
-interface DepartmentStats {
+const mockDepartmentStats = {
   departments: {
-    [key: string]: {
-      totalApplications: number;
-      uniqueApplicants: number;
-      hired: number;
-      averageTimeToFill: number;
-    };
-  };
-  period: string;
-}
+    Engineering: { totalApplications: 486, uniqueApplicants: 312, hired: 14, averageTimeToFill: 38.2 },
+    Product: { totalApplications: 198, uniqueApplicants: 145, hired: 6, averageTimeToFill: 34.5 },
+    Design: { totalApplications: 164, uniqueApplicants: 118, hired: 4, averageTimeToFill: 28.1 },
+    Marketing: { totalApplications: 152, uniqueApplicants: 110, hired: 5, averageTimeToFill: 21.3 },
+    Sales: { totalApplications: 178, uniqueApplicants: 134, hired: 3, averageTimeToFill: 25.7 },
+    Operations: { totalApplications: 106, uniqueApplicants: 82, hired: 2, averageTimeToFill: 30.9 },
+  },
+  period: 'Last 30 days',
+};
 
-const RecruiterDashboard: React.FC = () => {
-  const [metrics, setMetrics] = useState<RecruiterMetrics | null>(null);
-  const [applicationsPerVacancy, setApplicationsPerVacancy] = useState<ApplicationPerVacancy[]>([]);
-  const [pipelineFunnel, setPipelineFunnel] = useState<PipelineFunnelData | null>(null);
-  const [timeToFill, setTimeToFill] = useState<TimeToFillData | null>(null);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [departmentStats, setDepartmentStats] = useState<DepartmentStats | null>(null);
-  
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Filters
+const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
+
+export function RecruiterDashboardFilters() {
   const [dateRange, setDateRange] = useState('30');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
-  
-  const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [dateRange, selectedDepartment]);
-
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Fetch all dashboard data in parallel
-      const [
-        metricsResponse,
-        vacancyResponse,
-        funnelResponse,
-        timeToFillResponse,
-        activityResponse,
-        statsResponse
-      ] = await Promise.all([
-        fetch(`/api/recruiter/metrics?days=${dateRange}`),
-        fetch(`/api/recruiter/applications/per-vacancy?days=${dateRange}`),
-        fetch(`/api/recruiter/pipeline/funnel?department=${selectedDepartment}&days=${dateRange}`),
-        fetch(`/api/recruiter/time-to-fill?department=${selectedDepartment}&days=${dateRange}`),
-        fetch('/api/recruiter/activity?limit=10'),
-        fetch(`/api/recruiter/departments/stats?days=${dateRange}`)
-      ]);
-
-      const [
-        metricsData,
-        vacancyData,
-        funnelData,
-        timeToFillData,
-        activityData,
-        statsData
-      ] = await Promise.all([
-        metricsResponse.json(),
-        vacancyResponse.json(),
-        funnelResponse.json(),
-        timeToFillResponse.json(),
-        activityResponse.json(),
-        statsResponse.json()
-      ]);
-
-      setMetrics(metricsData);
-      setApplicationsPerVacancy(vacancyData);
-      setPipelineFunnel(funnelData);
-      setTimeToFill(timeToFillData);
-      setRecentActivity(activityData);
-      setDepartmentStats(statsData);
-      
-    } catch (err) {
-      setError('Failed to fetch dashboard data');
-      console.error('Dashboard fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'hired': return 'bg-green-100 text-green-800';
-      case 'interview_scheduled': return 'bg-gold-100 text-gold-800';
-      case 'screening': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'withdrawn': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-white p-8 rounded-sm shadow-lg max-w-md w-full">
-          <h2 className="text-xl font-semibold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={fetchDashboardData}
-            className="bg-gold-500 text-violet-950 px-4 py-2 rounded hover:bg-gold-600"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
-          <p className="text-gray-600">Analytics and insights for recruitment performance</p>
-        </div>
-        
-        {/* Filters */}
-        <div className="flex gap-4">
-          <select 
-            value={dateRange} 
-            onChange={(e) => setDateRange(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="180">Last 6 months</option>
-          </select>
+    <div className="flex gap-4">
+      <select
+        value={dateRange}
+        onChange={(e) => setDateRange(e.target.value)}
+        className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
+      >
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 90 days</option>
+        <option value="180">Last 6 months</option>
+      </select>
+      <select
+        value={selectedDepartment}
+        onChange={(e) => setSelectedDepartment(e.target.value)}
+        className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
+      >
+        <option value="">All Departments</option>
+        {departments.map((dept) => (
+          <option key={dept} value={dept}>{dept}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
-          <select 
-            value={selectedDepartment} 
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2"
-          >
-            <option value="">All Departments</option>
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>{dept}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+const getStatusBadgeColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'hired': return 'bg-green-100 text-green-800';
+    case 'interview_scheduled': return 'bg-gold-100 text-gold-800';
+    case 'screening': return 'bg-yellow-100 text-yellow-800';
+    case 'rejected': return 'bg-red-100 text-red-800';
+    case 'withdrawn': return 'bg-gray-100 text-gray-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+};
 
+const RecruiterDashboard: React.FC = () => {
+  const metrics = mockMetrics;
+  const applicationsPerVacancy = mockApplicationsPerVacancy;
+  const pipelineFunnel = mockPipelineFunnel;
+  const timeToFill = mockTimeToFill;
+  const recentActivity = mockRecentActivity;
+  const departmentStats = mockDepartmentStats;
+
+  return (
+    <div className="space-y-6">
       {/* KPI Cards */}
-      {metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-sm shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Applications</p>
@@ -223,7 +150,7 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Job Postings</p>
@@ -238,11 +165,11 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Interview Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.conversionRates.interviewRate.toFixed(1)}%</p>
+                <p className="text-2xl font-bold text-gray-900">{(metrics.conversionRates?.interviewRate ?? 0).toFixed(1)}%</p>
                 <p className="text-xs text-gray-500">Screening to interview</p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-full">
@@ -253,11 +180,11 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Hire Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.conversionRates.hireRate.toFixed(1)}%</p>
+                <p className="text-2xl font-bold text-gray-900">{(metrics.conversionRates?.hireRate ?? 0).toFixed(1)}%</p>
                 <p className="text-xs text-gray-500">Application to hire</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
@@ -268,14 +195,12 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pipeline Funnel */}
-        {pipelineFunnel && (
-          <div className="bg-white p-6 rounded-sm shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
-            <p className="text-sm text-gray-600 mb-6">{pipelineFunnel.department} - {pipelineFunnel.period}</p>
+        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
+          <p className="text-sm text-gray-600 mb-6">{pipelineFunnel.department} - {pipelineFunnel.period}</p>
             <div className="space-y-4">
               {Object.entries(pipelineFunnel.funnel).map(([stage, count]) => {
                 const percentage = Object.values(pipelineFunnel.funnel)[0] > 0 
@@ -300,42 +225,40 @@ const RecruiterDashboard: React.FC = () => {
               })}
             </div>
           </div>
-        )}
 
         {/* Applications per Vacancy */}
-        <div className="bg-white p-6 rounded-sm shadow">
+        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Applications per Vacancy</h3>
-          <p className="text-sm text-gray-600 mb-6">Job postings with highest application volume</p>
-          <div className="space-y-3">
-            {applicationsPerVacancy.slice(0, 6).map((vacancy, index) => {
-              const maxApplications = Math.max(...applicationsPerVacancy.map(v => v.applications));
-              const percentage = maxApplications > 0 ? (vacancy.applications / maxApplications) * 100 : 0;
-              return (
-                <div key={vacancy.jobId} className="flex items-center justify-between">
-                  <div className="flex-1 mr-4">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700 truncate">{vacancy.vacancy}</span>
-                      <span className="text-sm text-gray-600 ml-2">{vacancy.applications}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${percentage}%` }}
-                      ></div>
+            <p className="text-sm text-gray-600 mb-6">Job postings with highest application volume</p>
+            <div className="space-y-3">
+              {applicationsPerVacancy.slice(0, 6).map((vacancy) => {
+                const maxApplications = Math.max(...applicationsPerVacancy.map(v => v.applications));
+                const percentage = maxApplications > 0 ? (vacancy.applications / maxApplications) * 100 : 0;
+                return (
+                  <div key={vacancy.jobId} className="flex items-center justify-between">
+                    <div className="flex-1 mr-4">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700 truncate">{vacancy.vacancy}</span>
+                        <span className="text-sm text-gray-600 ml-2">{vacancy.applications}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
 
         {/* Time to Fill */}
-        {timeToFill && (
-          <div className="bg-white p-6 rounded-sm shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Time to Fill</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Average: {timeToFill.averageDays.toFixed(1)} days ({timeToFill.department})
+        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Time to Fill</h3>
+          <p className="text-sm text-gray-600 mb-6">
+            Average: {timeToFill.averageDays.toFixed(1)} days ({timeToFill.department})
             </p>
             <div className="space-y-4">
               {timeToFill.positions.slice(0, 5).map((position, index) => (
@@ -352,10 +275,9 @@ const RecruiterDashboard: React.FC = () => {
               ))}
             </div>
           </div>
-        )}
 
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-sm shadow">
+        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
           <p className="text-sm text-gray-600 mb-6">Latest recruitment activities</p>
           <div className="space-y-4">
@@ -380,10 +302,9 @@ const RecruiterDashboard: React.FC = () => {
       </div>
 
       {/* Department Statistics */}
-      {departmentStats && (
-        <div className="bg-white p-6 rounded-sm shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Performance</h3>
-          <p className="text-sm text-gray-600 mb-6">Statistics by department for {departmentStats.period}</p>
+      <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Performance</h3>
+        <p className="text-sm text-gray-600 mb-6">Statistics by department for {departmentStats.period}</p>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -409,7 +330,6 @@ const RecruiterDashboard: React.FC = () => {
             </table>
           </div>
         </div>
-      )}
     </div>
   );
 };

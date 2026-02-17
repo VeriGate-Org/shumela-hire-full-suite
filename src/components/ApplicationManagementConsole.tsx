@@ -724,13 +724,13 @@ export default function ApplicationManagementConsole() {
                       {formatDate(application.submittedAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-gold-600 hover:text-violet-900 mr-3">
+                      <button className="text-gold-600 hover:text-violet-900 mr-3 rounded-full">
                         View
                       </button>
-                      <button className="text-green-600 hover:text-green-900 mr-3">
+                      <button className="text-green-600 hover:text-green-900 mr-3 rounded-full">
                         Review
                       </button>
-                      <button className="text-red-600 hover:text-red-900">
+                      <button className="text-red-600 hover:text-red-900 rounded-full">
                         Reject
                       </button>
                     </td>

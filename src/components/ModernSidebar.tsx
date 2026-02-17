@@ -115,6 +115,15 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       fixed left-0 top-14 bottom-0 bg-card border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
       ${isCollapsed ? 'w-16' : 'w-60'}
     `}>
+      {/* IDC Partner Logo */}
+      <div className={`px-3 pt-3 pb-1 border-b border-border mb-1 ${isCollapsed ? 'flex justify-center' : ''}`}>
+        <img
+          src="/icons/idc-logo.png"
+          alt="IDC — Industrial Development Corporation"
+          className={isCollapsed ? 'h-6 w-auto' : 'h-8 w-auto'}
+        />
+      </div>
+
       {/* Search */}
       {!isCollapsed && (
         <div className="px-3 py-3">

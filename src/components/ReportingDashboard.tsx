@@ -506,8 +506,8 @@ const ReportingDashboard: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 text-sm">
-                    <button className="text-gold-600 hover:text-gold-800 mr-2">Edit</button>
-                    <button className="text-red-600 hover:text-red-800">Delete</button>
+                    <button className="text-gold-600 hover:text-gold-800 mr-2 rounded-full">Edit</button>
+                    <button className="text-red-600 hover:text-red-800 rounded-full">Delete</button>
                   </td>
                 </tr>
               ))}

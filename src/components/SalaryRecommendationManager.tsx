@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { salaryRecommendationService } from '@/services/salaryRecommendationService';
+import EmptyState from './EmptyState';
 import {
   SalaryRecommendation,
   SalaryRecommendationStatus,
@@ -204,7 +206,17 @@ export default function SalaryRecommendationManager() {
           <tbody className="bg-white divide-y divide-gray-200">
             {recommendations.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No salary recommendations found</td>
+                <td colSpan={7} className="p-0">
+                  <EmptyState
+                    icon={CurrencyDollarIcon}
+                    title="No salary recommendations"
+                    description="No salary recommendations have been created yet."
+                    action={{
+                      label: 'New Recommendation',
+                      onClick: () => setShowCreateModal(true),
+                    }}
+                  />
+                </td>
               </tr>
             ) : (
               recommendations.map(rec => (

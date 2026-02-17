@@ -449,13 +449,13 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
       {/* Channel toggles for preview */}
       <div className="flex space-x-4 mb-6">
         {formData.channels.includes(PublishingChannel.EXTERNAL) && (
-          <button className="px-4 py-2 bg-green-100 text-green-800 rounded-sm text-sm font-medium">
+          <button className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
             <GlobeAltIcon className="w-4 h-4 inline mr-1" />
             Public View
           </button>
         )}
         {formData.channels.includes(PublishingChannel.INTERNAL) && (
-          <button className="px-4 py-2 bg-gold-100 text-gold-800 rounded-sm text-sm font-medium">
+          <button className="px-4 py-2 bg-gold-100 text-gold-800 rounded-full text-sm font-medium">
             <BuildingOfficeIcon className="w-4 h-4 inline mr-1" />
             Internal View
           </button>
@@ -557,7 +557,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
         <button
           onClick={handlePublish}
           disabled={loading}
-          className="inline-flex items-center px-6 py-3 bg-gold-500 text-violet-950 rounded-sm font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-6 py-3 bg-gold-500 text-violet-950 rounded-full font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -601,13 +601,13 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
         <div className="flex justify-center space-x-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50"
           >
             Close
           </button>
           <button
             onClick={() => window.open(`/jobs/${publishedJobAd.slug}`, '_blank')}
-            className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+            className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600"
           >
             View Live Job
           </button>
@@ -689,7 +689,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
         <button
           onClick={handlePrevious}
           disabled={currentStep === 0}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowLeftIcon className="w-4 h-4 mr-2" />
           Previous
@@ -699,7 +699,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           <button
             onClick={handleNext}
             disabled={!canProceed()}
-            className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
             <ArrowRightIcon className="w-4 h-4 ml-2" />

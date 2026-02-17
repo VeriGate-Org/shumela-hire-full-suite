@@ -373,16 +373,6 @@ export default function ReportsPage() {
   return (
     <PageWrapper title="Custom Reports" subtitle="Create, manage, and automate recruitment reports">
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Custom Reports</h1>
-            <p className="text-gray-500 mt-1">
-              Create, manage, and automate recruitment reports
-            </p>
-          </div>
-        </div>
-
         {/* Tabs */}
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
