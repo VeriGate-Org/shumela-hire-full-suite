@@ -76,7 +76,7 @@ const config: Config = {
         900: '#7D1D3B',
         950: '#460A1C',
       },
-      talentgate: {
+      shumelahire: {
         50:  '#F0F7FB',
         100: '#DCEEF7',
         200: '#B5DCEF',

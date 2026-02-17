@@ -30,7 +30,7 @@ const NotificationCenter: React.FC = () => {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('talentgate-notification-prefs');
+      const stored = localStorage.getItem('shumelahire-notification-prefs');
       if (stored) setPreferences(JSON.parse(stored));
     } catch {}
   }, []);
@@ -38,7 +38,7 @@ const NotificationCenter: React.FC = () => {
   const updatePreference = (type: string, enabled: boolean) => {
     const updated = { ...preferences, [type]: enabled };
     setPreferences(updated);
-    localStorage.setItem('talentgate-notification-prefs', JSON.stringify(updated));
+    localStorage.setItem('shumelahire-notification-prefs', JSON.stringify(updated));
   };
 
   useEffect(() => {

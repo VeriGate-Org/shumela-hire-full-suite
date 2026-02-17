@@ -83,7 +83,7 @@ const mockCandidateColumns = [
   { key: 'score', label: 'Score', sortable: true, type: 'number' as const },
 ];
 
-export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChange }: RecruiterDashboardProps) {
+export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time Sourcing Metrics */}
@@ -137,7 +137,7 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
                     type: 'outreach',
                     message: 'Contacted 5 developers on LinkedIn',
                     time: '30 minutes ago',
-                    color: 'text-gold-600',
+                    color: 'text-primary',
                   },
                   {
                     id: '2',
@@ -151,7 +151,7 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
                     type: 'screening',
                     message: 'Completed phone screen with Mike Rodriguez',
                     time: '2 hours ago',
-                    color: 'text-purple-600',
+                    color: 'text-link',
                   },
                   {
                     id: '4',
@@ -161,11 +161,11 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
                     color: 'text-orange-600',
                   },
                 ].map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
+                  <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-card">
                     <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.color.replace('text-', 'bg-')}`}></div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900 truncate">{activity.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                      <p className="text-sm text-foreground truncate">{activity.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                     </div>
                   </div>
                 ))}
@@ -183,17 +183,17 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
             >
               <div className="space-y-3">
                 {[
-                  { source: 'LinkedIn', candidates: 45, quality: 8.2, color: 'bg-gold-500' },
+                  { source: 'LinkedIn', candidates: 45, quality: 8.2, color: 'bg-cta' },
                   { source: 'Referrals', candidates: 23, quality: 9.1, color: 'bg-green-500' },
-                  { source: 'Job Boards', candidates: 34, quality: 6.8, color: 'bg-purple-500' },
+                  { source: 'Job Boards', candidates: 34, quality: 6.8, color: 'bg-primary' },
                   { source: 'GitHub', candidates: 18, quality: 8.7, color: 'bg-gray-600' },
                 ].map((channel) => (
-                  <div key={channel.source} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                  <div key={channel.source} className="flex items-center justify-between p-3 bg-muted rounded-card">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${channel.color}`}></div>
-                      <span className="font-medium text-gray-900">{channel.source}</span>
+                      <span className="font-medium text-foreground">{channel.source}</span>
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       {channel.candidates} • {channel.quality}/10
                     </div>
                   </div>
@@ -212,15 +212,15 @@ export default function RecruiterDashboard({ selectedTimeframe, onTimeframeChang
             >
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { label: 'Search Candidates', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Search Candidates', color: 'bg-cta text-cta-foreground' },
                   { label: 'Send Outreach', color: 'bg-green-600 text-white' },
-                  { label: 'Schedule Screen', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Schedule Screen', color: 'bg-cta text-cta-foreground' },
                   { label: 'Update Pipeline', color: 'bg-orange-600 text-white' },
                   { label: 'Generate Report', color: 'bg-red-600 text-white' },
                 ].map((action) => (
                   <button
                     key={action.label}
-                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
+                    className={`${action.color} p-3 rounded-control hover:opacity-95 transition-opacity text-sm font-medium text-center w-full`}
                   >
                     {action.label}
                   </button>

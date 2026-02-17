@@ -51,7 +51,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    companyName: 'TalentGate',
+    companyName: 'ShumelaHire',
     onComplete: fn(),
   },
   decorators: [withAuth('ADMIN')],
@@ -67,7 +67,7 @@ export const CustomCompanyName: Story = {
 
 export const WithCompleteCallback: Story = {
   args: {
-    companyName: 'TalentGate',
+    companyName: 'ShumelaHire',
     onComplete: fn(),
   },
   decorators: [withAuth('HR_MANAGER')],

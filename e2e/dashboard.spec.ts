@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('TalentGate Dashboard', () => {
+test.describe('ShumelaHire Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the homepage
     await page.goto('/');
@@ -8,7 +8,7 @@ test.describe('TalentGate Dashboard', () => {
 
   test('homepage loads successfully', async ({ page }) => {
     // Check that the page loads
-    await expect(page).toHaveTitle(/TalentGate/);
+    await expect(page).toHaveTitle(/ShumelaHire/);
     
     // Check for main navigation or key elements
     await expect(page.locator('body')).toBeVisible();

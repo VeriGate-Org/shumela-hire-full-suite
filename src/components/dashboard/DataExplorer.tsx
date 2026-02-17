@@ -68,7 +68,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
   const [newViewName, setNewViewName] = useState('');
 
   // Saved views persistence
-  const storageKey = `talentgate-saved-views-${tableId || 'default'}`;
+  const storageKey = `shumelahire-saved-views-${tableId || 'default'}`;
 
   useEffect(() => {
     try {

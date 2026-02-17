@@ -22,15 +22,15 @@ import {
 
 // Color palette for consistent chart theming
 export const CHART_COLORS = {
-  primary: '#3b82f6',
-  secondary: '#8b5cf6',
+  primary: '#05527E',
+  secondary: '#008C7F',
   success: '#10b981',
-  warning: '#f59e0b',
+  warning: '#F1C54B',
   danger: '#ef4444',
-  info: '#06b6d4',
-  gray: '#6b7280',
-  light: '#e5e7eb',
-  dark: '#374151',
+  info: '#0693E3',
+  gray: '#64748B',
+  light: '#E2E8F0',
+  dark: '#0F172A',
 } as const;
 
 export const CHART_COLOR_PALETTE = [
@@ -40,15 +40,24 @@ export const CHART_COLOR_PALETTE = [
   CHART_COLORS.warning,
   CHART_COLORS.danger,
   CHART_COLORS.info,
-  '#f472b6', // pink
-  '#a78bfa', // purple
-  '#34d399', // emerald
-  '#fbbf24', // amber
+  '#4CA6D0', // navy-400
+  '#21D4C4', // teal-400
+  '#D4A832', // gold-600
+  '#04466B', // navy-700
 ];
+
+const CHART_GRID = '#E2E8F0';
+const CHART_AXIS = '#64748B';
+const CHART_TOOLTIP_STYLE = {
+  backgroundColor: 'var(--card)',
+  border: '1px solid var(--border)',
+  borderRadius: '4px',
+  boxShadow: '0 4px 10px rgba(50, 50, 93, 0.09), 0 2px 5px rgba(0, 0, 0, 0.07)',
+} as const;
 
 // Common chart props interface
 interface BaseChartProps {
-  data: any[];
+  data: Array<Record<string, unknown>>;
   height?: number;
   showGrid?: boolean;
   showLegend?: boolean;
@@ -84,24 +93,17 @@ export const RecruitmentLineChart: React.FC<LineChartProps> = ({
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
           <XAxis 
             dataKey={xKey} 
-            stroke="#6b7280"
+            stroke={CHART_AXIS}
             fontSize={12}
           />
           <YAxis 
-            stroke="#6b7280"
+            stroke={CHART_AXIS}
             fontSize={12}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           <Line
             type={curved ? "monotone" : "linear"}
@@ -142,17 +144,10 @@ export const RecruitmentAreaChart: React.FC<AreaChartProps> = ({
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
-          <XAxis dataKey={xKey} stroke="#6b7280" fontSize={12} />
-          <YAxis stroke="#6b7280" fontSize={12} />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
+          <XAxis dataKey={xKey} stroke={CHART_AXIS} fontSize={12} />
+          <YAxis stroke={CHART_AXIS} fontSize={12} />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           <Area
             type="monotone"
@@ -198,27 +193,20 @@ export const RecruitmentBarChart: React.FC<BarChartProps> = ({
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           layout={horizontal ? 'horizontal' : 'vertical'}
         >
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
           <XAxis 
             dataKey={horizontal ? yKey : xKey}
             type={horizontal ? 'number' : 'category'}
-            stroke="#6b7280"
+            stroke={CHART_AXIS}
             fontSize={12}
           />
           <YAxis 
             dataKey={horizontal ? xKey : undefined}
             type={horizontal ? 'category' : 'number'}
-            stroke="#6b7280"
+            stroke={CHART_AXIS}
             fontSize={12}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           <Bar
             dataKey={yKey}
@@ -235,7 +223,6 @@ export const RecruitmentBarChart: React.FC<BarChartProps> = ({
 // Pie Chart Component
 interface PieChartProps extends BaseChartProps {
   dataKey: string;
-  nameKey: string;
   colors?: string[];
   innerRadius?: number;
   showLabels?: boolean;
@@ -244,7 +231,6 @@ interface PieChartProps extends BaseChartProps {
 export const RecruitmentPieChart: React.FC<PieChartProps> = ({
   data,
   dataKey,
-  nameKey,
   height = 300,
   colors = CHART_COLOR_PALETTE,
   innerRadius = 0,
@@ -272,14 +258,7 @@ export const RecruitmentPieChart: React.FC<PieChartProps> = ({
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
         </PieChart>
       </ResponsiveContainer>
@@ -290,7 +269,6 @@ export const RecruitmentPieChart: React.FC<PieChartProps> = ({
 // Radial Bar Chart (Progress/Gauge Chart)
 interface RadialBarChartProps extends BaseChartProps {
   dataKey: string;
-  maxValue?: number;
   color?: string;
 }
 
@@ -298,7 +276,6 @@ export const RecruitmentRadialChart: React.FC<RadialBarChartProps> = ({
   data,
   dataKey,
   height = 250,
-  maxValue = 100,
   color = CHART_COLORS.primary,
   animated = true,
   className = '',
@@ -313,14 +290,7 @@ export const RecruitmentRadialChart: React.FC<RadialBarChartProps> = ({
             fill={color}
             animationDuration={animated ? 1500 : 0}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
         </RadialBarChart>
       </ResponsiveContainer>
     </div>
@@ -349,17 +319,10 @@ export const RecruitmentComposedChart: React.FC<ComposedChartProps> = ({
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <ComposedChart data={data} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
-          <XAxis dataKey={xKey} stroke="#6b7280" fontSize={12} />
-          <YAxis stroke="#6b7280" fontSize={12} />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
+          <XAxis dataKey={xKey} stroke={CHART_AXIS} fontSize={12} />
+          <YAxis stroke={CHART_AXIS} fontSize={12} />
+          <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           {barData.map((bar, index) => (
             <Bar
@@ -387,12 +350,24 @@ export const RecruitmentComposedChart: React.FC<ComposedChartProps> = ({
 };
 
 // Custom Tooltip Component
-export const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipPayloadEntry {
+  color: string;
+  name: string;
+  value: string | number;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: CustomTooltipPayloadEntry[];
+  label?: string | number;
+}
+
+export const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 border border-gray-200 rounded-sm shadow-lg">
-        <p className="font-medium text-gray-900">{`${label}`}</p>
-        {payload.map((entry: any, index: number) => (
+      <div className="bg-card p-3 border border-border rounded-card shadow-lg">
+        <p className="font-medium text-foreground">{`${label}`}</p>
+        {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {`${entry.name}: ${entry.value}`}
           </p>

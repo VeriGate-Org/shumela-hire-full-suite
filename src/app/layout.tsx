@@ -17,25 +17,25 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TalentGate",
+  title: "ShumelaHire",
   description: "Comprehensive recruitment and hiring management platform",
   manifest: "/manifest.json",
   keywords: ["recruitment", "hiring", "HR", "job", "dashboard", "management"],
   authors: [{ name: "Arthmatic DevWorks" }],
-  creator: "TalentGate",
+  creator: "ShumelaHire",
   publisher: "Arthmatic DevWorks",
-  metadataBase: new URL('https://talentgate.co.za'),
+  metadataBase: new URL('https://shumelahire.co.za'),
   openGraph: {
-    title: "TalentGate",
+    title: "ShumelaHire",
     description: "Comprehensive recruitment and hiring management platform",
-    url: "https://talentgate.co.za",
-    siteName: "TalentGate",
+    url: "https://shumelahire.co.za",
+    siteName: "ShumelaHire",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "TalentGate"
+        alt: "ShumelaHire"
       }
     ],
     locale: "en_US",
@@ -43,12 +43,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TalentGate",
+    title: "ShumelaHire",
     description: "Comprehensive recruitment and hiring management platform",
     images: ["/twitter-image.jpg"]
   },
   appleWebApp: {
-    title: "TalentGate",
+    title: "ShumelaHire",
     statusBarStyle: "default",
     capable: true
   },
@@ -60,13 +60,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  userScalable: true,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#05527E' },
     { media: '(prefers-color-scheme: dark)', color: '#04466B' }
   ],
-  colorScheme: 'light'
+  colorScheme: 'light dark'
 };
 
 export default function RootLayout({

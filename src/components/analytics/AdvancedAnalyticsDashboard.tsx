@@ -15,6 +15,7 @@ import {
   PerformanceGaugeChart,
   HiringManagerPerformanceChart,
   MonthlyTrendsChart,
+  CHART_COLORS,
 } from '../charts';
 
 // Mock data - In real app, this would come from APIs
@@ -27,12 +28,12 @@ const mockApplicationVolumeData = Array.from({ length: 30 }, (_, i) => ({
 }));
 
 const mockPipelineData = [
-  { stage: 'Applications', count: 1250, color: '#3b82f6' },
-  { stage: 'Phone Screen', count: 450, color: '#6366f1' },
-  { stage: 'Technical', count: 200, color: '#8b5cf6' },
-  { stage: 'Final', count: 85, color: '#a855f7' },
-  { stage: 'Offer', count: 45, color: '#d946ef' },
-  { stage: 'Hired', count: 35, color: '#10b981' },
+  { stage: 'Applications', count: 1250, color: CHART_COLORS.primary },
+  { stage: 'Phone Screen', count: 450, color: CHART_COLORS.info },
+  { stage: 'Technical', count: 200, color: CHART_COLORS.secondary },
+  { stage: 'Final', count: 85, color: '#4CA6D0' },
+  { stage: 'Offer', count: 45, color: CHART_COLORS.warning },
+  { stage: 'Hired', count: 35, color: CHART_COLORS.success },
 ];
 
 const mockSourceData = [
@@ -87,6 +88,17 @@ interface AdvancedAnalyticsDashboardProps {
   className?: string;
 }
 
+const viewOptions: Array<{
+  key: 'overview' | 'performance' | 'sources' | 'managers';
+  label: string;
+  icon: typeof ChartBarIcon;
+}> = [
+  { key: 'overview', label: 'Overview', icon: ChartBarIcon },
+  { key: 'performance', label: 'Performance', icon: ArrowTrendingUpIcon },
+  { key: 'sources', label: 'Sources', icon: DocumentChartBarIcon },
+  { key: 'managers', label: 'Managers', icon: UsersIcon },
+];
+
 export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProps> = ({
   className = '',
 }) => {
@@ -119,11 +131,11 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header with controls */}
-      <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+      <div className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Advanced Analytics Dashboard</h1>
-            <p className="text-gray-500">Comprehensive recruitment metrics and insights</p>
+            <h1 className="text-2xl font-bold text-foreground">Advanced Analytics Dashboard</h1>
+            <p className="text-muted-foreground">Comprehensive recruitment metrics and insights</p>
           </div>
           
           {/* Time range selector */}
@@ -132,10 +144,10 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
               <button
                 key={range.key}
                 onClick={() => setSelectedTimeRange(range.key)}
-                className={`px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-control text-sm font-medium border transition-colors ${
                   selectedTimeRange === range.key
-                    ? 'bg-gold-100 text-violet-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-primary/10 text-primary border-primary/20'
+                    : 'bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-foreground'
                 }`}
               >
                 {range.label}
@@ -146,20 +158,15 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
 
         {/* View selector */}
         <div className="flex flex-wrap gap-2 mt-4">
-          {[
-            { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-            { key: 'performance', label: 'Performance', icon: ArrowTrendingUpIcon },
-            { key: 'sources', label: 'Sources', icon: DocumentChartBarIcon },
-            { key: 'managers', label: 'Managers', icon: UsersIcon },
-          ].map(({ key, label, icon: Icon }) => (
+          {viewOptions.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
-              onClick={() => setSelectedView(key as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
-                selectedView === key
-                  ? 'bg-gold-500 text-violet-950'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              onClick={() => setSelectedView(key)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
+                  selectedView === key
+                    ? 'bg-cta text-cta-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
+                }`}
             >
               <Icon className="w-4 h-4" />
               {label}
@@ -191,7 +198,7 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
             title: 'Conversion Rate',
             value: `${summaryStats.conversionRate.toFixed(1)}%`,
             icon: ArrowTrendingUpIcon,
-            color: 'text-purple-600 bg-purple-100',
+            color: 'text-primary bg-primary/10',
             change: '-2.1%',
             changeType: 'negative' as const,
           },
@@ -207,7 +214,7 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
             title: 'Active Positions',
             value: summaryStats.activePositions.toString(),
             icon: ChartBarIcon,
-            color: 'text-indigo-600 bg-indigo-100',
+            color: 'text-link bg-link/10',
             change: '+3',
             changeType: 'positive' as const,
           },
@@ -220,7 +227,7 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
             changeType: 'positive' as const,
           },
         ].map((stat) => (
-          <div key={stat.title} className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div key={stat.title} className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div className={`p-2 rounded-sm ${stat.color}`}>
                 <stat.icon className="w-5 h-5" />
@@ -234,8 +241,8 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
               </span>
             </div>
             <div className="mt-4">
-              <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
-              <p className="text-sm text-gray-500 mt-1">{stat.title}</p>
+              <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{stat.title}</p>
             </div>
           </div>
         ))}

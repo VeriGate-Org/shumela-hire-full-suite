@@ -1,12 +1,12 @@
 # Day 5.5 - Advanced Reporting & Export Features
 
 ## Overview
-Implemented a comprehensive reporting and data visualization system that provides advanced export capabilities, custom report builders, and interactive data visualizations for the talentgate system.
+Implemented a comprehensive reporting and data visualization system that provides advanced export capabilities, custom report builders, and interactive data visualizations for the shumelahire system.
 
 ## Backend Implementation
 
 ### 1. ReportingService.java
-**Location**: `backend/src/main/java/com/arthmatic/talentgate/service/ReportingService.java`
+**Location**: `backend/src/main/java/com/arthmatic/shumelahire/service/ReportingService.java`
 
 **Key Features**:
 - **CSV Generation Methods**: Applications, Interviews, Applicants, Performance Analytics
@@ -23,7 +23,7 @@ Implemented a comprehensive reporting and data visualization system that provide
 - `generateBulkExportZip()` - Multiple reports in ZIP format
 
 ### 2. ReportingController.java
-**Location**: `backend/src/main/java/com/arthmatic/talentgate/controller/ReportingController.java`
+**Location**: `backend/src/main/java/com/arthmatic/shumelahire/controller/ReportingController.java`
 
 **REST Endpoints**:
 - `GET /api/reports/applications/csv` - Applications export
@@ -35,7 +35,7 @@ Implemented a comprehensive reporting and data visualization system that provide
 - `GET /api/reports/preview/{reportType}` - Report preview
 
 ### 3. DataVisualizationService.java
-**Location**: `backend/src/main/java/com/arthmatic/talentgate/service/DataVisualizationService.java`
+**Location**: `backend/src/main/java/com/arthmatic/shumelahire/service/DataVisualizationService.java`
 
 **Visualization Features**:
 - **Chart Generation**: Application status pie charts, timeline charts, bar charts
@@ -52,7 +52,7 @@ Implemented a comprehensive reporting and data visualization system that provide
 - Horizontal bar charts for rankings
 
 ### 4. DataVisualizationController.java
-**Location**: `backend/src/main/java/com/arthmatic/talentgate/controller/DataVisualizationController.java`
+**Location**: `backend/src/main/java/com/arthmatic/shumelahire/controller/DataVisualizationController.java`
 
 **Visualization Endpoints**:
 - `GET /api/visualization/charts/dashboard` - Complete dashboard charts
@@ -141,7 +141,7 @@ Implemented a comprehensive reporting and data visualization system that provide
 
 ### Sample Output
 ```csv
-TalentGate System Performance Report
+ShumelaHire System Performance Report
 Generated on: 2025-08-17T18:41:22.63182
 Period: 2025-02-17 to 2025-08-17
 
@@ -231,7 +231,7 @@ Interview Completion Rate (%),44.44
 
 ## Summary
 
-Day 5.5 successfully implemented a comprehensive reporting and visualization system that transforms the talentgate platform into a data-driven hiring solution. The system provides:
+Day 5.5 successfully implemented a comprehensive reporting and visualization system that transforms the shumelahire platform into a data-driven hiring solution. The system provides:
 
 1. **Complete Reporting Stack**: From raw data export to executive summaries
 2. **Advanced Customization**: User-configurable reports with extensive filtering

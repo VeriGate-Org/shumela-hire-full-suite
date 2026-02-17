@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,7 +29,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     return navigationRegistry.filter(entry =>
       entry.requiredPermissions.every(p => userPermissions.includes(p))
     );
-  }, [user?.permissions]);
+  }, [user]);
 
   // Apply search filtering
   const filteredItems = useMemo(() => {
@@ -76,15 +76,15 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           className={`
             group flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent
             ${isActive
-              ? 'bg-gold-500/[0.06] text-violet-800 border-l-[3px] border-l-gold-500 border-y-transparent border-r-transparent pl-[7px]'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gold-700'
+              ? 'bg-cta/10 text-primary border-l-[3px] border-l-cta border-y-transparent border-r-transparent pl-[7px]'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             }
             ${isCollapsed ? 'justify-center px-2' : ''}
           `}
         >
           <IconComponent className={`
             h-4 w-4 flex-shrink-0
-            ${isActive ? 'text-gold-600' : 'text-gray-400 group-hover:text-gray-500'}
+            ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}
             transition-colors
           `} />
 
@@ -93,13 +93,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               <span className="flex-1 text-left truncate">{item.label}</span>
 
               {item.badge && (
-                <span className="px-1.5 py-0.5 text-[10px] rounded bg-gold-500 text-violet-950">
+                <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground">
                   {item.badge}
                 </span>
               )}
 
               {keyShortcutMap[item.href] && (
-                <span className="hidden group-hover:inline text-[10px] text-gray-400 ml-auto">
+                <span className="hidden group-hover:inline text-[10px] text-muted-foreground ml-auto">
                   {keyShortcutMap[item.href]}
                 </span>
               )}
@@ -112,24 +112,28 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
   return (
     <aside className={`
-      fixed left-0 top-14 bottom-0 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-200 ease-in-out z-40
+      fixed left-0 top-14 bottom-0 bg-card border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
       ${isCollapsed ? 'w-16' : 'w-60'}
     `}>
       {/* Search */}
       {!isCollapsed && (
         <div className="px-3 py-3">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded bg-gray-50 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500/25 focus:border-transparent"
+              className="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-control bg-muted text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-transparent"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                <XMarkIcon className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+              <button
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear navigation search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2"
+              >
+                <XMarkIcon className="h-3 w-3 text-muted-foreground hover:text-foreground" />
               </button>
             )}
           </div>
@@ -141,7 +145,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         {Object.entries(groupedNavItems).map(([section, items]) => (
           <div key={section} className="mb-4">
             {!isCollapsed && (
-              <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
                 {sectionLabels[section as NavSection] || section}
               </p>
             )}
@@ -151,6 +155,19 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </div>
         ))}
       </div>
+
+      {onToggleCollapse && (
+        <div className="sticky bottom-0 border-t border-border bg-card p-2">
+          <button
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="w-full flex items-center justify-center gap-2 py-1.5 rounded-control text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
+            <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
+            {!isCollapsed && <span>Collapse</span>}
+          </button>
+        </div>
+      )}
     </aside>
   );
 };

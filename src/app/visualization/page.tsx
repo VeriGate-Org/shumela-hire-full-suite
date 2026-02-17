@@ -1,15 +1,15 @@
 'use client';
 
 import ReportVisualization from '../../components/ReportVisualization';
-import DashboardLayout from '../../components/DashboardLayout';
+import PageWrapper from '../../components/PageWrapper';
 
 export default function VisualizationPage() {
   return (
-    <DashboardLayout 
+    <PageWrapper
       title="Data Visualization" 
       subtitle="Interactive charts and analytics for recruitment insights"
     >
       <ReportVisualization />
-    </DashboardLayout>
+    </PageWrapper>
   );
 }

@@ -37,19 +37,20 @@ interface JobPostingWorkflowProps {
   currentUserId?: number;
 }
 
-export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId = 1 }: JobPostingWorkflowProps) {
+export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId }: JobPostingWorkflowProps) {
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [showRejectionForm, setShowRejectionForm] = useState(false);
   const [approvalNotes, setApprovalNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const workflowSteps = [
-    { key: 'DRAFT', label: 'Draft', icon: '📝', description: 'Job posting is being created' },
-    { key: 'PENDING_APPROVAL', label: 'Pending Approval', icon: '⏳', description: 'Waiting for approval' },
-    { key: 'APPROVED', label: 'Approved', icon: '✅', description: 'Approved and ready to publish' },
-    { key: 'PUBLISHED', label: 'Published', icon: '🌐', description: 'Live and accepting applications' },
-    { key: 'CLOSED', label: 'Closed', icon: '🔒', description: 'No longer accepting applications' }
+    { key: 'DRAFT', label: 'Draft', marker: '1', description: 'Job posting is being created' },
+    { key: 'PENDING_APPROVAL', label: 'Pending Approval', marker: '2', description: 'Waiting for approval' },
+    { key: 'APPROVED', label: 'Approved', marker: '3', description: 'Approved and ready to publish' },
+    { key: 'PUBLISHED', label: 'Published', marker: '4', description: 'Live and accepting applications' },
+    { key: 'CLOSED', label: 'Closed', marker: '5', description: 'No longer accepting applications' }
   ];
 
   const getCurrentStepIndex = () => {
@@ -73,7 +74,6 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
     switch (jobPosting.status) {
       case 'REJECTED':
         return {
-          icon: '❌',
           title: 'Job Posting Rejected',
           description: jobPosting.rejectionReason || 'Job posting was rejected during approval process',
           color: 'text-red-600',
@@ -81,7 +81,6 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         };
       case 'CANCELLED':
         return {
-          icon: '🚫',
           title: 'Job Posting Cancelled',
           description: 'Job posting was cancelled',
           color: 'text-red-600',
@@ -89,7 +88,6 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         };
       case 'UNPUBLISHED':
         return {
-          icon: '⏸️',
           title: 'Job Posting Unpublished',
           description: 'Job posting was temporarily unpublished',
           color: 'text-orange-600',
@@ -101,53 +99,91 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   };
 
   const handleWorkflowAction = async (action: string, notes?: string) => {
+    if (!currentUserId || !Number.isFinite(currentUserId)) {
+      setActionFeedback({
+        type: 'error',
+        message: 'Unable to determine the current user for audit tracking. Please sign in again.',
+      });
+      return;
+    }
+
+    if (action === 'reject' && !notes?.trim()) {
+      setActionFeedback({
+        type: 'error',
+        message: 'Rejection reason is required before rejecting a job posting.',
+      });
+      return;
+    }
+
     try {
       setLoading(action);
-      
-      let url = `/api/job-postings/${jobPosting.id}/${action}?`;
-      
+      setActionFeedback(null);
+      const payload = new URLSearchParams();
+
       switch (action) {
         case 'submit-for-approval':
-          url += `submittedBy=${currentUserId}`;
+          payload.append('submittedBy', String(currentUserId));
           break;
         case 'approve':
-          url += `approvedBy=${currentUserId}`;
-          if (notes) url += `&approvalNotes=${encodeURIComponent(notes)}`;
+          payload.append('approvedBy', String(currentUserId));
+          if (notes?.trim()) payload.append('approvalNotes', notes.trim());
           break;
         case 'reject':
-          url += `rejectedBy=${currentUserId}&rejectionReason=${encodeURIComponent(notes || '')}`;
+          payload.append('rejectedBy', String(currentUserId));
+          payload.append('rejectionReason', notes?.trim() || '');
           break;
         case 'publish':
-          url += `publishedBy=${currentUserId}`;
+          payload.append('publishedBy', String(currentUserId));
           break;
         case 'unpublish':
-          url += `unpublishedBy=${currentUserId}`;
+          payload.append('unpublishedBy', String(currentUserId));
           break;
         case 'close':
-          url += `closedBy=${currentUserId}`;
+          payload.append('closedBy', String(currentUserId));
           break;
       }
 
-      const response = await fetch(url, { method: 'POST' });
+      const response = await fetch(`/api/job-postings/${jobPosting.id}/${action}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: payload.toString(),
+      });
 
       if (response.ok) {
         const updatedJobPosting = await response.json();
         if (onStatusChange) {
           onStatusChange(jobPosting.id, updatedJobPosting.status);
         }
-        
+        setActionFeedback({
+          type: 'success',
+          message: `Successfully completed "${action.replace('-', ' ')}".`,
+        });
+
         // Reset forms
         setShowApprovalForm(false);
         setShowRejectionForm(false);
         setApprovalNotes('');
         setRejectionReason('');
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || `Failed to ${action.replace('-', ' ')}`);
+        let message = `Failed to ${action.replace('-', ' ')}`;
+        try {
+          const errorData = await response.json();
+          if (errorData?.message) {
+            message = errorData.message;
+          }
+        } catch {
+          // Leave default message when response body is not JSON.
+        }
+        setActionFeedback({ type: 'error', message });
       }
     } catch (error) {
       console.error(`Error performing ${action}:`, error);
-      alert(`An error occurred while performing ${action.replace('-', ' ')}`);
+      setActionFeedback({
+        type: 'error',
+        message: `An unexpected error occurred while performing "${action.replace('-', ' ')}".`,
+      });
     } finally {
       setLoading(null);
     }
@@ -156,7 +192,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   const terminalInfo = getTerminalStatusInfo();
 
   return (
-    <div className="bg-white rounded-sm shadow-lg p-6">
+    <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-start">
@@ -166,7 +202,6 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           </div>
           <div className="text-right">
             <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${jobPosting.statusCssClass}`}>
-              <span className="mr-1">{jobPosting.statusIcon}</span>
               {jobPosting.statusDisplayName}
             </span>
             <p className="text-sm text-gray-500 mt-1">
@@ -178,44 +213,34 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
       {/* Analytics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gold-50 rounded-sm p-4">
-          <div className="flex items-center">
-            <span className="text-2xl mr-3">👁️</span>
-            <div>
-              <p className="text-sm font-medium text-violet-900">Views</p>
-              <p className="text-lg font-bold text-gold-600">{jobPosting.viewsCount}</p>
-            </div>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700">Views</p>
+            <p className="text-lg font-semibold text-gray-900">{jobPosting.viewsCount}</p>
           </div>
         </div>
         
-        <div className="bg-green-50 rounded-sm p-4">
-          <div className="flex items-center">
-            <span className="text-2xl mr-3">📄</span>
-            <div>
-              <p className="text-sm font-medium text-green-900">Applications</p>
-              <p className="text-lg font-bold text-green-600">{jobPosting.applicationsCount}</p>
-            </div>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700">Applications</p>
+            <p className="text-lg font-semibold text-gray-900">{jobPosting.applicationsCount}</p>
           </div>
         </div>
         
-        <div className="bg-purple-50 rounded-sm p-4">
-          <div className="flex items-center">
-            <span className="text-2xl mr-3">📅</span>
-            <div>
-              <p className="text-sm font-medium text-purple-900">Days Published</p>
-              <p className="text-lg font-bold text-purple-600">
-                {jobPosting.status === 'PUBLISHED' ? jobPosting.daysFromPublication : 'Not published'}
-              </p>
-            </div>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700">Days Published</p>
+            <p className="text-lg font-semibold text-gray-900">
+              {jobPosting.status === 'PUBLISHED' ? jobPosting.daysFromPublication : 'Not published'}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Terminal Status Display */}
       {terminalInfo && (
-        <div className={`${terminalInfo.bgColor} border rounded-sm p-4 mb-6`}>
+        <div className={`${terminalInfo.bgColor} mb-6 rounded-md border border-gray-200 p-4`}>
           <div className="flex items-center">
-            <span className="text-2xl mr-3">{terminalInfo.icon}</span>
             <div>
               <h4 className={`font-medium ${terminalInfo.color}`}>{terminalInfo.title}</h4>
               <p className="text-gray-700 text-sm">{terminalInfo.description}</p>
@@ -237,7 +262,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
                     isStepCurrent(index) ? 'bg-gold-500 text-white' :
                     'bg-gray-200 text-gray-600'
                   }`}>
-                    {isStepCompleted(index) ? '✓' : step.icon}
+                    {isStepCompleted(index) ? '✓' : step.marker}
                   </div>
                 </div>
                 <div className="ml-4 flex-1">
@@ -263,6 +288,18 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
       {/* Workflow Actions */}
       <div className="space-y-4">
+        {actionFeedback && (
+          <div
+            className={`rounded-md border px-4 py-3 text-sm ${
+              actionFeedback.type === 'success'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-red-300 bg-red-50 text-red-700'
+            }`}
+          >
+            {actionFeedback.message}
+          </div>
+        )}
+
         {jobPosting.canBeSubmittedForApproval && (
           <button
             onClick={() => handleWorkflowAction('submit-for-approval')}
@@ -279,25 +316,25 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
               <div className="flex space-x-2">
                 <button
                   onClick={() => setShowApprovalForm(true)}
-                  className="flex-1 py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                  className="flex-1 rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
                 >
                   Approve Job Posting
                 </button>
                 <button
                   onClick={() => setShowRejectionForm(true)}
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-sm shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                 >
                   Reject Job Posting
                 </button>
               </div>
             ) : (
-              <div className="border rounded-sm p-4">
+              <div className="rounded-md border border-gray-200 p-4">
                 <h5 className="font-medium text-gray-900 mb-2">Approve Job Posting</h5>
                 <textarea
                   value={approvalNotes}
                   onChange={(e) => setApprovalNotes(e.target.value)}
                   placeholder="Optional approval notes..."
-                  className="w-full p-2 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   rows={3}
                 />
                 <div className="flex justify-end space-x-2 mt-3">
@@ -310,7 +347,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
                   <button
                     onClick={() => handleWorkflowAction('approve', approvalNotes)}
                     disabled={loading === 'approve'}
-                    className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                    className="rounded-md bg-green-600 px-4 py-1 text-white hover:bg-green-700 disabled:opacity-50"
                   >
                     {loading === 'approve' ? 'Approving...' : 'Confirm Approval'}
                   </button>
@@ -321,13 +358,13 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         )}
 
         {jobPosting.canBeRejected && showRejectionForm && (
-          <div className="border rounded-sm p-4">
+          <div className="rounded-md border border-gray-200 p-4">
             <h5 className="font-medium text-gray-900 mb-2">Reject Job Posting</h5>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Please provide a reason for rejection..."
-              className="w-full p-2 border border-gray-300 rounded-sm"
+              className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
               rows={3}
               required
             />
@@ -341,7 +378,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
               <button
                 onClick={() => handleWorkflowAction('reject', rejectionReason)}
                 disabled={loading === 'reject' || !rejectionReason.trim()}
-                className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                className="rounded-md bg-red-600 px-4 py-1 text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {loading === 'reject' ? 'Rejecting...' : 'Confirm Rejection'}
               </button>
@@ -384,21 +421,21 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
       <div className="mt-6 pt-6 border-t border-gray-200">
         <h4 className="font-medium text-gray-900 mb-2">Timeline</h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <p>• Created: {new Date(jobPosting.createdAt).toLocaleDateString()}</p>
+          <p>Created: {new Date(jobPosting.createdAt).toLocaleDateString()}</p>
           {jobPosting.submittedForApprovalAt && (
-            <p>• Submitted for approval: {new Date(jobPosting.submittedForApprovalAt).toLocaleDateString()}</p>
+            <p>Submitted for approval: {new Date(jobPosting.submittedForApprovalAt).toLocaleDateString()}</p>
           )}
           {jobPosting.approvedAt && (
-            <p>• Approved: {new Date(jobPosting.approvedAt).toLocaleDateString()}</p>
+            <p>Approved: {new Date(jobPosting.approvedAt).toLocaleDateString()}</p>
           )}
           {jobPosting.publishedAt && (
-            <p>• Published: {new Date(jobPosting.publishedAt).toLocaleDateString()}</p>
+            <p>Published: {new Date(jobPosting.publishedAt).toLocaleDateString()}</p>
           )}
           {jobPosting.unpublishedAt && (
-            <p>• Unpublished: {new Date(jobPosting.unpublishedAt).toLocaleDateString()}</p>
+            <p>Unpublished: {new Date(jobPosting.unpublishedAt).toLocaleDateString()}</p>
           )}
           {jobPosting.closedAt && (
-            <p>• Closed: {new Date(jobPosting.closedAt).toLocaleDateString()}</p>
+            <p>Closed: {new Date(jobPosting.closedAt).toLocaleDateString()}</p>
           )}
         </div>
       </div>

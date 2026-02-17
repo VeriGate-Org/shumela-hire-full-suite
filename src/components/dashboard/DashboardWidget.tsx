@@ -53,6 +53,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const sizeOptions: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
@@ -90,16 +91,19 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 shadow-sm ${getSizeClasses()} ${getHeightClass()} ${className}`}>
+    <div
+      data-widget-id={id}
+      className={`bg-card rounded-card border border-border border-t-2 border-t-cta shadow-sm ${getSizeClasses()} ${getHeightClass()} ${className}`}
+    >
       {/* Widget Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-gray-900 truncate">{title}</h3>
+          <h3 className="text-lg font-semibold text-foreground truncate">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-gray-500 truncate mt-1">{subtitle}</p>
+            <p className="text-sm text-muted-foreground truncate mt-1">{subtitle}</p>
           )}
           {lastUpdated && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Updated {lastUpdated.toLocaleTimeString()}
             </p>
           )}
@@ -111,7 +115,8 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors disabled:animate-spin"
+              aria-label={`Refresh ${title} widget`}
+              className="p-1 text-muted-foreground hover:text-foreground rounded-control transition-colors disabled:animate-spin"
               title="Refresh"
             >
               <ArrowPathIcon className="w-4 h-4" />
@@ -123,20 +128,28 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                aria-haspopup="menu"
+                aria-expanded={showMenu}
+                aria-label={`Open ${title} widget options`}
+                className="p-1 text-muted-foreground hover:text-foreground rounded-control transition-colors"
               >
                 <EllipsisVerticalIcon className="w-4 h-4" />
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 top-8 w-48 bg-white rounded-sm shadow-lg border border-gray-200 py-1 z-50">
+                <div
+                  role="menu"
+                  aria-label={`${title} widget options`}
+                  className="absolute right-0 top-8 w-48 bg-card rounded-card shadow-lg border border-border py-1 z-50"
+                >
                   {collapsible && (
                     <button
                       onClick={() => {
                         setIsCollapsed(!isCollapsed);
                         setShowMenu(false);
                       }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      role="menuitem"
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent"
                     >
                       {isCollapsed ? (
                         <ArrowsPointingOutIcon className="w-4 h-4" />
@@ -149,26 +162,27 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 
                   {resizable && (
                     <>
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-border my-1"></div>
                       <div className="px-3 py-1">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Size</p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase">Size</p>
                       </div>
-                      {['small', 'medium', 'large'].map((sizeOption) => (
+                      {sizeOptions.map((sizeOption) => (
                         <button
                           key={sizeOption}
                           onClick={() => {
-                            onResize?.(sizeOption as any);
+                            onResize?.(sizeOption);
                             setShowMenu(false);
                           }}
+                          role="menuitem"
                           className={`flex items-center justify-between w-full px-3 py-2 text-sm ${
                             size === sizeOption
-                              ? 'text-gold-600 bg-gold-50'
-                              : 'text-gray-700 hover:bg-gray-50'
+                              ? 'text-primary bg-accent'
+                              : 'text-foreground hover:bg-accent'
                           }`}
                         >
                           <span className="capitalize">{sizeOption}</span>
                           {size === sizeOption && (
-                            <div className="w-2 h-2 bg-violet-600 rounded-full"></div>
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
                           )}
                         </button>
                       ))}
@@ -177,13 +191,14 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 
                   {configurable && (
                     <>
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-border my-1"></div>
                       <button
                         onClick={() => {
                           onConfigure?.();
                           setShowMenu(false);
                         }}
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        role="menuitem"
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent"
                       >
                         <Cog6ToothIcon className="w-4 h-4" />
                         Configure
@@ -193,12 +208,13 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 
                   {removable && (
                     <>
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-border my-1"></div>
                       <button
                         onClick={() => {
                           onRemove?.();
                           setShowMenu(false);
                         }}
+                        role="menuitem"
                         className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -230,7 +246,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
                 {refreshable && (
                   <button
                     onClick={handleRefresh}
-                    className="mt-2 text-sm text-gold-600 hover:text-gold-800"
+                    className="mt-2 text-sm text-primary hover:text-link-hover"
                   >
                     Try again
                   </button>

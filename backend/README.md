@@ -1,6 +1,6 @@
-# TalentGate Backend API
+# ShumelaHire Backend API
 
-A Spring Boot REST API for the TalentGate platform with audit logging capabilities.
+A Spring Boot REST API for the ShumelaHire platform with audit logging capabilities.
 
 ## Features
 
@@ -31,7 +31,7 @@ The application will start on `http://localhost:8080`
 
 Access the H2 database console at: `http://localhost:8080/h2-console`
 
-- **JDBC URL**: `jdbc:h2:mem:talentgate`
+- **JDBC URL**: `jdbc:h2:mem:shumelahire`
 - **Username**: `sa`
 - **Password**: (leave empty)
 

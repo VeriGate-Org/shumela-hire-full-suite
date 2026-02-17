@@ -61,7 +61,7 @@ function LoginCallbackContent() {
               roles: ['ADMIN', 'user']
             },
             resource_access: {
-              'talentgate': {
+              'shumelahire': {
                 roles: ['ADMIN']
               }
             }
@@ -71,7 +71,7 @@ function LoginCallbackContent() {
             realm_access?: { roles?: string[] };
             resource_access?: { [key: string]: { roles?: string[] } };
           }): string => {
-            const clientRoles = payload.resource_access?.['talentgate']?.roles || [];
+            const clientRoles = payload.resource_access?.['shumelahire']?.roles || [];
             const realmRoles = payload.realm_access?.roles || [];
             const roleHierarchy = ['ADMIN', 'EXECUTIVE', 'HR_MANAGER', 'HIRING_MANAGER', 'RECRUITER', 'INTERVIEWER', 'EMPLOYEE', 'APPLICANT'];
 

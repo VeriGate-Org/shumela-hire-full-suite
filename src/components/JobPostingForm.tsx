@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface JobPostingFormProps {
   jobPostingId?: number;
+  currentUserId?: number | null;
   onSuccess?: (jobPosting: { id: number; title: string; status: string }) => void;
   onCancel?: () => void;
 }
@@ -71,7 +73,8 @@ const DEPARTMENTS = [
   'Administration'
 ];
 
-export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: JobPostingFormProps) {
+export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<JobPostingData>({
     title: '',
     department: '',
@@ -98,15 +101,22 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
-
-  // Load job posting data if editing
-  useEffect(() => {
-    if (jobPostingId) {
-      loadJobPosting();
+  const actorId = useMemo(() => {
+    if (typeof currentUserId === 'number' && Number.isFinite(currentUserId)) {
+      return currentUserId;
     }
-  }, [jobPostingId]);
+    if (!user?.id) {
+      return null;
+    }
+    const parsedId = Number.parseInt(user.id, 10);
+    return Number.isFinite(parsedId) ? parsedId : null;
+  }, [currentUserId, user?.id]);
 
-  const loadJobPosting = async () => {
+  const loadJobPosting = useCallback(async () => {
+    if (!jobPostingId) {
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`/api/job-postings/${jobPostingId}`);
@@ -125,7 +135,14 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
     } finally {
       setLoading(false);
     }
-  };
+  }, [jobPostingId]);
+
+  // Load job posting data if editing
+  useEffect(() => {
+    if (jobPostingId) {
+      loadJobPosting();
+    }
+  }, [jobPostingId, loadJobPosting]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -159,6 +176,10 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
     e.preventDefault();
 
     if (!validateForm()) return;
+    if (!actorId) {
+      setErrors({ general: 'Unable to determine the signed-in user for audit tracking. Please sign in again.' });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -169,9 +190,10 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
           new Date(formData.applicationDeadline).toISOString() : null
       };
 
-      const url = jobPostingId ? 
-        `/api/job-postings/${jobPostingId}?updatedBy=1` : 
-        '/api/job-postings?createdBy=1';
+      const actorParam = jobPostingId ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
+      const url = jobPostingId ?
+        `/api/job-postings/${jobPostingId}?${actorParam}` :
+        `/api/job-postings?${actorParam}`;
       const method = jobPostingId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -199,7 +221,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
     }
   };
 
-  const handleInputChange = (field: keyof JobPostingData, value: any) => {
+  const handleInputChange = <K extends keyof JobPostingData>(field: K, value: JobPostingData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -208,10 +230,10 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
   };
 
   const tabs = [
-    { id: 'basic', label: 'Basic Information', icon: '📝' },
-    { id: 'details', label: 'Job Details', icon: '📋' },
-    { id: 'compensation', label: 'Compensation', icon: '💰' },
-    { id: 'seo', label: 'SEO & Settings', icon: '🔍' }
+    { id: 'basic', label: 'Basic Information' },
+    { id: 'details', label: 'Job Details' },
+    { id: 'compensation', label: 'Compensation' },
+    { id: 'seo', label: 'SEO & Settings' }
   ];
 
   if (loading && jobPostingId) {
@@ -226,9 +248,9 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-sm shadow-lg">
+    <div className="mx-auto max-w-4xl rounded-md border border-gray-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="border-b border-gray-200 px-6 py-4">
         <h2 className="text-2xl font-bold text-gray-900">
           {jobPostingId ? 'Edit Job Posting' : 'Create Job Posting'}
         </h2>
@@ -245,13 +267,12 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                className={`border-b-2 px-2 py-2 text-sm font-medium ${
                   activeTab === tab.id
                     ? 'border-gold-500 text-gold-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <span>{tab.icon}</span>
                 <span>{tab.label}</span>
               </button>
             ))}
@@ -262,7 +283,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
       {/* Form */}
       <form onSubmit={handleSubmit} className="p-6">
         {errors.general && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-6 rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-700">
             {errors.general}
           </div>
         )}
@@ -283,7 +304,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   aria-required="true"
                   aria-invalid={!!errors.title}
                   aria-describedby={errors.title ? 'job-title-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. Senior Software Engineer"
                 />
                 {errors.title && <p id="job-title-error" role="alert" className="text-red-500 text-sm mt-1">{errors.title}</p>}
@@ -300,7 +321,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   aria-required="true"
                   aria-invalid={!!errors.department}
                   aria-describedby={errors.department ? 'job-department-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
                 >
                   <option value="">Select Department</option>
                   {DEPARTMENTS.map(dept => (
@@ -318,7 +339,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   type="text"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   placeholder="e.g. Cape Town, South Africa"
                 />
               </div>
@@ -332,11 +353,14 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   id="positions-available"
                   min="1"
                   value={formData.positionsAvailable}
-                  onChange={(e) => handleInputChange('positionsAvailable', parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const parsed = Number.parseInt(e.target.value, 10);
+                    handleInputChange('positionsAvailable', Number.isNaN(parsed) ? 0 : parsed);
+                  }}
                   aria-required="true"
                   aria-invalid={!!errors.positionsAvailable}
                   aria-describedby={errors.positionsAvailable ? 'positions-available-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.positionsAvailable ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.positionsAvailable ? 'border-red-500' : 'border-gray-300'}`}
                 />
                 {errors.positionsAvailable && <p id="positions-available-error" role="alert" className="text-red-500 text-sm mt-1">{errors.positionsAvailable}</p>}
               </div>
@@ -350,7 +374,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   value={formData.employmentType}
                   onChange={(e) => handleInputChange('employmentType', e.target.value)}
                   aria-required="true"
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 >
                   {EMPLOYMENT_TYPES.map(type => (
                     <option key={type.value} value={type.value}>{type.label}</option>
@@ -367,7 +391,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   value={formData.experienceLevel}
                   onChange={(e) => handleInputChange('experienceLevel', e.target.value)}
                   aria-required="true"
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 >
                   {EXPERIENCE_LEVELS.map(level => (
                     <option key={level.value} value={level.value}>{level.label}</option>
@@ -384,13 +408,13 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 type="datetime-local"
                 value={formData.applicationDeadline}
                 onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
               />
               <p className="text-sm text-gray-500 mt-1">Leave empty for no deadline</p>
             </div>
 
-            <div className="flex space-x-6">
-              <label className="flex items-center">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={formData.remoteWorkAllowed}
@@ -400,7 +424,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 Remote work allowed
               </label>
 
-              <label className="flex items-center">
+              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={formData.travelRequired}
@@ -410,7 +434,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 Travel required
               </label>
 
-              <label className="flex items-center">
+              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={formData.featured}
@@ -420,7 +444,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 Featured position
               </label>
 
-              <label className="flex items-center">
+              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={formData.urgent}
@@ -448,7 +472,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 aria-required="true"
                 aria-invalid={!!errors.description}
                 aria-describedby={errors.description ? 'job-description-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Provide a detailed description of the role, including key objectives and what the successful candidate will be responsible for..."
               />
               <div className="flex justify-between mt-1">
@@ -467,7 +491,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 value={formData.responsibilities}
                 onChange={(e) => handleInputChange('responsibilities', e.target.value)}
                 rows={4}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="List the main responsibilities and duties for this position..."
               />
             </div>
@@ -480,7 +504,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 value={formData.requirements}
                 onChange={(e) => handleInputChange('requirements', e.target.value)}
                 rows={4}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="List the essential requirements, skills, and experience needed..."
               />
             </div>
@@ -493,7 +517,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 value={formData.qualifications}
                 onChange={(e) => handleInputChange('qualifications', e.target.value)}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="Educational qualifications, certifications, or preferred qualifications..."
               />
             </div>
@@ -506,7 +530,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 value={formData.benefits}
                 onChange={(e) => handleInputChange('benefits', e.target.value)}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="List the benefits, perks, and what makes this opportunity attractive..."
               />
             </div>
@@ -529,7 +553,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   step="1000"
                   value={formData.salaryMin || ''}
                   onChange={(e) => handleInputChange('salaryMin', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   placeholder="e.g. 50000"
                 />
               </div>
@@ -547,7 +571,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   onChange={(e) => handleInputChange('salaryMax', e.target.value ? parseFloat(e.target.value) : undefined)}
                   aria-invalid={!!errors.salaryMax}
                   aria-describedby={errors.salaryMax ? 'salary-max-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.salaryMax ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.salaryMax ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="e.g. 80000"
                 />
                 {errors.salaryMax && <p id="salary-max-error" role="alert" className="text-red-500 text-sm mt-1">{errors.salaryMax}</p>}
@@ -561,17 +585,17 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                   id="salary-currency"
                   value={formData.salaryCurrency}
                   onChange={(e) => handleInputChange('salaryCurrency', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 >
                   <option value="ZAR">ZAR (South African Rand)</option>
-                  <option value="ZAR">ZAR (South African Rand)</option>
+                  <option value="USD">USD (US Dollar)</option>
                   <option value="EUR">EUR (Euro)</option>
                   <option value="GBP">GBP (British Pound)</option>
                 </select>
               </div>
             </fieldset>
 
-            <div className="bg-gray-50 rounded-sm p-4">
+            <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
               <h4 className="font-medium text-gray-900 mb-2">Salary Range Preview</h4>
               <p className="text-gray-600">
                 {formData.salaryMin || formData.salaryMax ? (
@@ -606,7 +630,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 onChange={(e) => handleInputChange('seoTitle', e.target.value)}
                 aria-invalid={!!errors.seoTitle}
                 aria-describedby={errors.seoTitle ? 'seo-title-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.seoTitle ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.seoTitle ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Custom title for search engines (optional)"
               />
               <div className="flex justify-between mt-1">
@@ -629,7 +653,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 rows={3}
                 aria-invalid={!!errors.seoDescription}
                 aria-describedby={errors.seoDescription ? 'seo-description-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.seoDescription ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.seoDescription ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Brief description for search engines (optional)"
               />
               <div className="flex justify-between mt-1">
@@ -648,7 +672,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 type="text"
                 value={formData.seoKeywords}
                 onChange={(e) => handleInputChange('seoKeywords', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="Comma-separated keywords for search optimization"
               />
             </div>
@@ -661,7 +685,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
                 value={formData.internalNotes}
                 onChange={(e) => handleInputChange('internalNotes', e.target.value)}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                 placeholder="Internal notes for hiring team (not visible to applicants)"
               />
             </div>
@@ -669,7 +693,7 @@ export default function JobPostingForm({ jobPostingId, onSuccess, onCancel }: Jo
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 mt-6 border-t border-gray-200">
+        <div className="mt-6 flex justify-end space-x-4 border-t border-gray-200 pt-6">
           {onCancel && (
             <button
               type="button"

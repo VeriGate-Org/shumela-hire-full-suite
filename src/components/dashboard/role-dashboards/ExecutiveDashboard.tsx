@@ -37,7 +37,7 @@ const executiveMetrics = [
   },
 ];
 
-export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChange }: ExecutiveDashboardProps) {
+export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashboardProps) {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time Executive Metrics */}
@@ -76,18 +76,18 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     { department: 'Marketing', target: 15, current: 12, budget: 'R540K', utilization: 55 },
                     { department: 'Operations', target: 20, current: 18, budget: 'R720K', utilization: 82 },
                   ].map((dept) => (
-                    <div key={dept.department} className="p-3 bg-gray-50 rounded-sm">
+                    <div key={dept.department} className="p-3 bg-muted rounded-card">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-900">{dept.department}</span>
-                        <span className="text-sm text-gray-600">{dept.budget}</span>
+                        <span className="font-medium text-foreground">{dept.department}</span>
+                        <span className="text-sm text-muted-foreground">{dept.budget}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm mb-1">
-                        <span className="text-gray-600">{dept.current}/{dept.target} staff</span>
+                        <span className="text-muted-foreground">{dept.current}/{dept.target} staff</span>
                         <span className={`font-medium ${dept.utilization > 75 ? 'text-green-600' : dept.utilization > 50 ? 'text-yellow-600' : 'text-red-600'}`}>
                           {dept.utilization}% budget used
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-border rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${dept.utilization > 75 ? 'bg-green-600' : dept.utilization > 50 ? 'bg-yellow-600' : 'bg-red-600'}`}
                           style={{ width: `${(dept.current / dept.target) * 100}%` }}
@@ -116,7 +116,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                       stage: 'Final Interviews',
                       priority: 'Critical',
                       candidates: 2,
-                      statusColor: 'bg-purple-100 text-purple-800',
+                      statusColor: 'bg-primary/10 text-primary',
                       priorityColor: 'bg-red-100 text-red-800'
                     },
                     { 
@@ -126,7 +126,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                       stage: 'Sourcing',
                       priority: 'High',
                       candidates: 0,
-                      statusColor: 'bg-gold-100 text-gold-800',
+                      statusColor: 'bg-cta/20 text-cta-foreground',
                       priorityColor: 'bg-orange-100 text-orange-800'
                     },
                     { 
@@ -140,18 +140,18 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                       priorityColor: 'bg-yellow-100 text-yellow-800'
                     },
                   ].map((position) => (
-                    <div key={position.position} className="p-3 bg-gray-50 rounded-sm">
+                    <div key={position.position} className="p-3 bg-muted rounded-card">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900 truncate">{position.position}</h4>
-                          <p className="text-sm text-gray-600">{position.department}</p>
-                          <p className="text-sm text-gray-500">{position.salary}</p>
+                          <h4 className="font-medium text-foreground truncate">{position.position}</h4>
+                          <p className="text-sm text-muted-foreground">{position.department}</p>
+                          <p className="text-sm text-muted-foreground">{position.salary}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${position.priorityColor}`}>
                             {position.priority}
                           </span>
-                          <span className="text-xs text-gray-500">{position.candidates} candidates</span>
+                          <span className="text-xs text-muted-foreground">{position.candidates} candidates</span>
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${position.statusColor}`}>
@@ -200,7 +200,7 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     message: 'New VP Marketing position approval',
                     time: '1 day ago',
                     urgent: false,
-                    color: 'text-gold-600',
+                    color: 'text-primary',
                   },
                   {
                     id: '4',
@@ -208,16 +208,16 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
                     message: 'Executive search firm contract renewal',
                     time: '2 days ago',
                     urgent: false,
-                    color: 'text-purple-600',
+                    color: 'text-link',
                   },
                 ].map((approval) => (
-                  <div key={approval.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm border-l-2 border-transparent hover:border-gray-300">
+                  <div key={approval.id} className="flex items-start gap-3 p-3 hover:bg-muted rounded-card border-l-2 border-transparent hover:border-border">
                     <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${approval.color.replace('text-', 'bg-')}`}></div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${approval.urgent ? 'font-semibold' : 'font-normal'} text-gray-900 truncate`}>
+                      <p className={`text-sm ${approval.urgent ? 'font-semibold' : 'font-normal'} text-foreground truncate`}>
                         {approval.message}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">{approval.time}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{approval.time}</p>
                       {approval.urgent && (
                         <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full mt-1 inline-block">
                           Urgent
@@ -241,14 +241,14 @@ export default function ExecutiveDashboard({ selectedTimeframe, onTimeframeChang
               <div className="grid grid-cols-1 gap-2">
                 {[
                   { label: 'Approval Center', color: 'bg-red-600 text-white' },
-                  { label: 'Budget Planning', color: 'bg-gold-500 text-violet-950' },
-                  { label: 'Strategic Reports', color: 'bg-gold-500 text-violet-950' },
+                  { label: 'Budget Planning', color: 'bg-cta text-cta-foreground' },
+                  { label: 'Strategic Reports', color: 'bg-cta text-cta-foreground' },
                   { label: 'Leadership Pipeline', color: 'bg-green-600 text-white' },
                   { label: 'Board Reports', color: 'bg-orange-600 text-white' },
                 ].map((action) => (
                   <button
                     key={action.label}
-                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
+                    className={`${action.color} p-3 rounded-control hover:opacity-95 transition-opacity text-sm font-medium text-center w-full`}
                   >
                     {action.label}
                   </button>

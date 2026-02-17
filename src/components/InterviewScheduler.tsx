@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface InterviewSchedulerProps {
   interviewId?: number;
-  onSuccess?: (interview: any) => void;
+  onSuccess?: (interview: InterviewSaveResponse) => void;
   onCancel?: () => void;
 }
 
@@ -41,6 +42,15 @@ interface InterviewData {
   applicationId: number;
 }
 
+interface InterviewSaveResponse {
+  id: number;
+  title: string;
+  scheduledAt: string;
+  application: {
+    id: number;
+  };
+}
+
 const INTERVIEW_TYPES = [
   { value: 'PHONE', label: 'Phone Interview' },
   { value: 'VIDEO', label: 'Video Interview' },
@@ -51,7 +61,7 @@ const INTERVIEW_TYPES = [
   { value: 'COMPETENCY', label: 'Competency Interview' },
   { value: 'GROUP', label: 'Group Interview' },
   { value: 'PRESENTATION', label: 'Presentation Interview' },
-  { value: 'CASE_STUDY', label: 'Case Study Interview' }
+  { value: 'CASE_STUDY', label: 'Case Study Interview' },
 ];
 
 const INTERVIEW_ROUNDS = [
@@ -62,7 +72,7 @@ const INTERVIEW_ROUNDS = [
   { value: 'PANEL', label: 'Panel Interview' },
   { value: 'MANAGER', label: 'Manager Interview' },
   { value: 'FINAL', label: 'Final Interview' },
-  { value: 'OFFER', label: 'Offer Discussion' }
+  { value: 'OFFER', label: 'Offer Discussion' },
 ];
 
 const MOCK_INTERVIEWERS = [
@@ -70,10 +80,11 @@ const MOCK_INTERVIEWERS = [
   { id: 2, name: 'Michael Chen', role: 'Engineering Manager' },
   { id: 3, name: 'Emily Rodriguez', role: 'HR Director' },
   { id: 4, name: 'David Kim', role: 'Technical Lead' },
-  { id: 5, name: 'Lisa Thompson', role: 'Product Manager' }
+  { id: 5, name: 'Lisa Thompson', role: 'Product Manager' },
 ];
 
 export default function InterviewScheduler({ interviewId, onSuccess, onCancel }: InterviewSchedulerProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<InterviewData>({
     title: '',
     type: 'VIDEO',
@@ -87,38 +98,25 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     instructions: '',
     agenda: '',
     interviewerId: 1,
-    applicationId: 0
+    applicationId: 0,
   });
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const [availability, setAvailability] = useState<any[]>([]);
+  const [availability, setAvailability] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [checkingAvailability, setCheckingAvailability] = useState(false);
 
-  // Load applications and interview data if editing
-  useEffect(() => {
-    loadApplications();
-    if (interviewId) {
-      loadInterview();
+  const getActorId = useCallback((): number | null => {
+    const actorId = Number(user?.id);
+    if (!Number.isFinite(actorId) || actorId <= 0) {
+      setErrors((prev) => ({ ...prev, general: 'Unable to identify current user. Please sign in again.' }));
+      return null;
     }
-  }, [interviewId]);
+    return actorId;
+  }, [user]);
 
-  // Update title when application or round changes
-  useEffect(() => {
-    if (formData.applicationId > 0 && formData.round) {
-      const application = applications.find(app => app.id === formData.applicationId);
-      if (application) {
-        const roundLabel = INTERVIEW_ROUNDS.find(r => r.value === formData.round)?.label || '';
-        setFormData(prev => ({
-          ...prev,
-          title: `${roundLabel} - ${application.jobPosting.title}`
-        }));
-      }
-    }
-  }, [formData.applicationId, formData.round, applications]);
-
-  const loadApplications = async () => {
+  const loadApplications = useCallback(async () => {
     try {
       const response = await fetch('/api/applications?status=SCREENING,PHONE_INTERVIEW,FIRST_INTERVIEW,SECOND_INTERVIEW,TECHNICAL_ASSESSMENT,FINAL_INTERVIEW');
       if (response.ok) {
@@ -128,9 +126,11 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     } catch (error) {
       console.error('Error loading applications:', error);
     }
-  };
+  }, []);
 
-  const loadInterview = async () => {
+  const loadInterview = useCallback(async () => {
+    if (!interviewId) return;
+
     try {
       setLoading(true);
       const response = await fetch(`/api/interviews/${interviewId}`);
@@ -139,13 +139,40 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
         setFormData({
           ...data,
           scheduledAt: new Date(data.scheduledAt).toISOString().slice(0, 16),
-          applicationId: data.application.id
+          applicationId: data.application.id,
         });
       }
     } catch (error) {
       console.error('Error loading interview:', error);
     } finally {
       setLoading(false);
+    }
+  }, [interviewId]);
+
+  useEffect(() => {
+    void loadApplications();
+    if (interviewId) {
+      void loadInterview();
+    }
+  }, [interviewId, loadApplications, loadInterview]);
+
+  useEffect(() => {
+    if (formData.applicationId > 0 && formData.round) {
+      const application = applications.find((app) => app.id === formData.applicationId);
+      if (application) {
+        const roundLabel = INTERVIEW_ROUNDS.find((round) => round.value === formData.round)?.label || '';
+        setFormData((prev) => ({
+          ...prev,
+          title: `${roundLabel} - ${application.jobPosting.title}`,
+        }));
+      }
+    }
+  }, [formData.applicationId, formData.round, applications]);
+
+  const handleInputChange = <K extends keyof InterviewData>(field: K, value: InterviewData[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -155,27 +182,26 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     try {
       setCheckingAvailability(true);
       const startTime = new Date(formData.scheduledAt).toISOString();
-      
-      const response = await fetch(
-        `/api/interviews/availability/interviewer/${formData.interviewerId}?startTime=${startTime}&durationMinutes=${formData.durationMinutes}`
+
+      const availabilityResponse = await fetch(
+        `/api/interviews/availability/interviewer/${formData.interviewerId}?startTime=${startTime}&durationMinutes=${formData.durationMinutes}`,
       );
-      
-      if (response.ok) {
-        const data = await response.json();
+
+      if (availabilityResponse.ok) {
+        const data = await availabilityResponse.json();
         if (!data.available) {
-          setErrors(prev => ({ ...prev, scheduledAt: 'Interviewer is not available at this time' }));
+          setErrors((prev) => ({ ...prev, scheduledAt: 'Interviewer is not available at this time' }));
         } else {
-          setErrors(prev => ({ ...prev, scheduledAt: '' }));
+          setErrors((prev) => ({ ...prev, scheduledAt: '' }));
         }
       }
 
-      // Also get suggested time slots
       const suggestionsResponse = await fetch(
-        `/api/interviews/suggestions/interviewer/${formData.interviewerId}?preferredDate=${startTime}&durationMinutes=${formData.durationMinutes}&numberOfSuggestions=5`
+        `/api/interviews/suggestions/interviewer/${formData.interviewerId}?preferredDate=${startTime}&durationMinutes=${formData.durationMinutes}&numberOfSuggestions=5`,
       );
-      
+
       if (suggestionsResponse.ok) {
-        const suggestions = await suggestionsResponse.json();
+        const suggestions = await suggestionsResponse.json() as string[];
         setAvailability(suggestions);
       }
     } catch (error) {
@@ -194,12 +220,11 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     if (formData.durationMinutes < 15) newErrors.durationMinutes = 'Duration must be at least 15 minutes';
     if (formData.durationMinutes > 480) newErrors.durationMinutes = 'Duration cannot exceed 8 hours';
 
-    // Validate business hours
     if (formData.scheduledAt) {
       const scheduledDate = new Date(formData.scheduledAt);
       const hour = scheduledDate.getHours();
       const dayOfWeek = scheduledDate.getDay();
-      
+
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         newErrors.scheduledAt = 'Interviews must be scheduled on weekdays';
       } else if (hour < 8 || hour >= 18) {
@@ -207,18 +232,16 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       }
     }
 
-    // Validate minimum advance notice
     if (formData.scheduledAt) {
       const scheduledDate = new Date(formData.scheduledAt);
       const now = new Date();
       const hoursAhead = (scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-      
+
       if (hoursAhead < 2) {
         newErrors.scheduledAt = 'Interview must be scheduled at least 2 hours in advance';
       }
     }
 
-    // Type-specific validations
     if (formData.type === 'PHONE' && !formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required for phone interviews';
     }
@@ -227,38 +250,35 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       newErrors.meetingLink = 'Meeting link is required for video interviews';
     }
 
-    if (['IN_PERSON', 'PANEL', 'GROUP'].includes(formData.type)) {
-      if (!formData.location.trim()) {
-        newErrors.location = 'Location is required for in-person interviews';
-      }
+    if (['IN_PERSON', 'PANEL', 'GROUP'].includes(formData.type) && !formData.location.trim()) {
+      newErrors.location = 'Location is required for in-person interviews';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (!validateForm()) return;
+
+    const actorId = getActorId();
+    if (!actorId) return;
 
     try {
       setLoading(true);
 
-      const submitData = {
+      const submitData: InterviewData = {
         ...formData,
-        scheduledAt: new Date(formData.scheduledAt).toISOString()
+        scheduledAt: new Date(formData.scheduledAt).toISOString(),
       };
 
-      let url, method;
-      if (interviewId) {
-        url = `/api/interviews/${interviewId}?updatedBy=1`;
-        method = 'PUT';
-      } else {
-        url = '/api/interviews?createdBy=1';
-        method = 'POST';
-        submitData.applicationId = formData.applicationId;
-      }
+      const url = interviewId
+        ? `/api/interviews/${interviewId}?updatedBy=${actorId}`
+        : `/api/interviews?createdBy=${actorId}`;
+
+      const method = interviewId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -269,7 +289,7 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       });
 
       if (response.ok) {
-        const result = await response.json();
+        const result = await response.json() as InterviewSaveResponse;
         if (onSuccess) {
           onSuccess(result);
         }
@@ -285,14 +305,6 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     }
   };
 
-  const handleInputChange = (field: keyof InterviewData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
   const handleSuggestedTimeSelect = (suggestedTime: string) => {
     const localTime = new Date(suggestedTime).toISOString().slice(0, 16);
     handleInputChange('scheduledAt', localTime);
@@ -302,53 +314,50 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading interview...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading interview...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-sm shadow-lg">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900">
+    <div className="max-w-4xl mx-auto bg-card rounded-card border border-border shadow-md">
+      <div className="px-6 py-4 border-b border-border">
+        <h2 className="text-2xl font-bold text-foreground">
           {interviewId ? 'Edit Interview' : 'Schedule New Interview'}
         </h2>
-        <p className="text-gray-600 mt-1">
+        <p className="text-muted-foreground mt-1">
           {interviewId ? 'Update interview details and scheduling' : 'Schedule an interview with a candidate'}
         </p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="p-6">
         {errors.general && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-control">
             {errors.general}
           </div>
         )}
 
         <div className="space-y-6">
-          {/* Application Selection */}
           {!interviewId && (
             <div>
-              <label htmlFor="application-id" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="application-id" className="block text-sm font-medium text-foreground mb-1">
                 Select Application *
               </label>
               <select
                 id="application-id"
                 value={formData.applicationId}
-                onChange={(e) => handleInputChange('applicationId', parseInt(e.target.value))}
+                onChange={(event) => handleInputChange('applicationId', Number(event.target.value))}
                 aria-required="true"
                 aria-invalid={!!errors.applicationId}
                 aria-describedby={errors.applicationId ? 'application-id-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.applicationId ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.applicationId ? 'border-red-500' : 'border-border'}`}
               >
                 <option value={0}>Select an application...</option>
-                {applications.map(app => (
-                  <option key={app.id} value={app.id}>
-                    {app.applicant.firstName} {app.applicant.lastName} - {app.jobPosting.title} ({app.jobPosting.department})
+                {applications.map((application) => (
+                  <option key={application.id} value={application.id}>
+                    {application.applicant.firstName} {application.applicant.lastName} - {application.jobPosting.title} ({application.jobPosting.department})
                   </option>
                 ))}
               </select>
@@ -356,72 +365,71 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
           )}
 
-          {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="interview-title" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-title" className="block text-sm font-medium text-foreground mb-1">
                 Interview Title *
               </label>
               <input
                 type="text"
                 id="interview-title"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                onChange={(event) => handleInputChange('title', event.target.value)}
                 aria-required="true"
                 aria-invalid={!!errors.title}
                 aria-describedby={errors.title ? 'interview-title-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.title ? 'border-red-500' : 'border-border'}`}
                 placeholder="e.g. Technical Interview - Senior Developer"
               />
               {errors.title && <p id="interview-title-error" role="alert" className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </div>
 
             <div>
-              <label htmlFor="interview-type" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-type" className="block text-sm font-medium text-foreground mb-1">
                 Interview Type *
               </label>
               <select
                 id="interview-type"
                 value={formData.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
+                onChange={(event) => handleInputChange('type', event.target.value)}
                 aria-required="true"
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
               >
-                {INTERVIEW_TYPES.map(type => (
+                {INTERVIEW_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="interview-round" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interview-round" className="block text-sm font-medium text-foreground mb-1">
                 Interview Round *
               </label>
               <select
                 id="interview-round"
                 value={formData.round}
-                onChange={(e) => handleInputChange('round', e.target.value)}
+                onChange={(event) => handleInputChange('round', event.target.value)}
                 aria-required="true"
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
               >
-                {INTERVIEW_ROUNDS.map(round => (
+                {INTERVIEW_ROUNDS.map((round) => (
                   <option key={round.value} value={round.value}>{round.label}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="interviewer-id" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="interviewer-id" className="block text-sm font-medium text-foreground mb-1">
                 Interviewer *
               </label>
               <select
                 id="interviewer-id"
                 value={formData.interviewerId}
-                onChange={(e) => handleInputChange('interviewerId', parseInt(e.target.value))}
+                onChange={(event) => handleInputChange('interviewerId', Number(event.target.value))}
                 aria-required="true"
-                className="w-full p-3 border border-gray-300 rounded-sm"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
               >
-                {MOCK_INTERVIEWERS.map(interviewer => (
+                {MOCK_INTERVIEWERS.map((interviewer) => (
                   <option key={interviewer.id} value={interviewer.id}>
                     {interviewer.name} ({interviewer.role})
                   </option>
@@ -430,32 +438,31 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
           </div>
 
-          {/* Scheduling */}
           <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <legend className="sr-only">Interview Scheduling</legend>
             <div>
-              <label htmlFor="scheduled-at" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="scheduled-at" className="block text-sm font-medium text-foreground mb-1">
                 Date & Time *
               </label>
               <input
                 type="datetime-local"
                 id="scheduled-at"
                 value={formData.scheduledAt}
-                onChange={(e) => handleInputChange('scheduledAt', e.target.value)}
+                onChange={(event) => handleInputChange('scheduledAt', event.target.value)}
                 onBlur={checkAvailability}
                 aria-required="true"
                 aria-invalid={!!errors.scheduledAt}
                 aria-describedby={errors.scheduledAt ? 'scheduled-at-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.scheduledAt ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.scheduledAt ? 'border-red-500' : 'border-border'}`}
               />
               {errors.scheduledAt && <p id="scheduled-at-error" role="alert" className="text-red-500 text-sm mt-1">{errors.scheduledAt}</p>}
               {checkingAvailability && (
-                <p className="text-violet-500 text-sm mt-1">Checking availability...</p>
+                <p className="text-link text-sm mt-1">Checking availability...</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="duration-minutes" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="duration-minutes" className="block text-sm font-medium text-foreground mb-1">
                 Duration (minutes) *
               </label>
               <input
@@ -465,29 +472,28 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
                 max="480"
                 step="15"
                 value={formData.durationMinutes}
-                onChange={(e) => handleInputChange('durationMinutes', parseInt(e.target.value))}
+                onChange={(event) => handleInputChange('durationMinutes', Number(event.target.value))}
                 aria-required="true"
                 aria-invalid={!!errors.durationMinutes}
                 aria-describedby={errors.durationMinutes ? 'duration-minutes-error' : undefined}
-                className={`w-full p-3 border rounded-sm ${errors.durationMinutes ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.durationMinutes ? 'border-red-500' : 'border-border'}`}
               />
               {errors.durationMinutes && <p id="duration-minutes-error" role="alert" className="text-red-500 text-sm mt-1">{errors.durationMinutes}</p>}
             </div>
           </fieldset>
 
-          {/* Suggested Times */}
           {availability.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Suggested Available Times
               </label>
               <div className="flex flex-wrap gap-2">
-                {availability.map((time, index) => (
+                {availability.map((time) => (
                   <button
-                    key={index}
+                    key={time}
                     type="button"
                     onClick={() => handleSuggestedTimeSelect(time)}
-                    className="px-3 py-1 bg-gold-100 text-gold-800 rounded-sm hover:bg-gold-200 text-sm"
+                    className="px-3 py-1 bg-gold-100 text-gold-800 rounded-control hover:bg-gold-200 text-sm"
                   >
                     {new Date(time).toLocaleString()}
                   </button>
@@ -496,22 +502,21 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
           )}
 
-          {/* Location Details */}
           <div className="space-y-4">
             {(formData.type === 'IN_PERSON' || formData.type === 'PANEL' || formData.type === 'GROUP') && (
               <div>
-                <label htmlFor="interview-location" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="interview-location" className="block text-sm font-medium text-foreground mb-1">
                   Location *
                 </label>
                 <input
                   type="text"
                   id="interview-location"
                   value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  onChange={(event) => handleInputChange('location', event.target.value)}
                   aria-required="true"
                   aria-invalid={!!errors.location}
                   aria-describedby={errors.location ? 'interview-location-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.location ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.location ? 'border-red-500' : 'border-border'}`}
                   placeholder="e.g. Conference Room A, 2nd Floor"
                 />
                 {errors.location && <p id="interview-location-error" role="alert" className="text-red-500 text-sm mt-1">{errors.location}</p>}
@@ -520,18 +525,18 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
 
             {formData.type === 'VIDEO' && (
               <div>
-                <label htmlFor="meeting-link" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="meeting-link" className="block text-sm font-medium text-foreground mb-1">
                   Video Meeting Link *
                 </label>
                 <input
                   type="url"
                   id="meeting-link"
                   value={formData.meetingLink}
-                  onChange={(e) => handleInputChange('meetingLink', e.target.value)}
+                  onChange={(event) => handleInputChange('meetingLink', event.target.value)}
                   aria-required="true"
                   aria-invalid={!!errors.meetingLink}
                   aria-describedby={errors.meetingLink ? 'meeting-link-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.meetingLink ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.meetingLink ? 'border-red-500' : 'border-border'}`}
                   placeholder="e.g. https://zoom.us/j/123456789"
                 />
                 {errors.meetingLink && <p id="meeting-link-error" role="alert" className="text-red-500 text-sm mt-1">{errors.meetingLink}</p>}
@@ -540,18 +545,18 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
 
             {formData.type === 'PHONE' && (
               <div>
-                <label htmlFor="phone-number" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone-number" className="block text-sm font-medium text-foreground mb-1">
                   Phone Number *
                 </label>
                 <input
                   type="tel"
                   id="phone-number"
                   value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  onChange={(event) => handleInputChange('phoneNumber', event.target.value)}
                   aria-required="true"
                   aria-invalid={!!errors.phoneNumber}
                   aria-describedby={errors.phoneNumber ? 'phone-number-error' : undefined}
-                  className={`w-full p-3 border rounded-sm ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.phoneNumber ? 'border-red-500' : 'border-border'}`}
                   placeholder="e.g. +27 11 123 4567"
                 />
                 {errors.phoneNumber && <p id="phone-number-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
@@ -560,57 +565,55 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
 
             {(formData.type === 'PANEL' || formData.type === 'GROUP') && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Meeting Room
                 </label>
                 <input
                   type="text"
                   value={formData.meetingRoom}
-                  onChange={(e) => handleInputChange('meetingRoom', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-sm"
+                  onChange={(event) => handleInputChange('meetingRoom', event.target.value)}
+                  className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
                   placeholder="e.g. Boardroom 1"
                 />
               </div>
             )}
           </div>
 
-          {/* Additional Details */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Interview Agenda
               </label>
               <textarea
                 value={formData.agenda}
-                onChange={(e) => handleInputChange('agenda', e.target.value)}
+                onChange={(event) => handleInputChange('agenda', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-sm"
-                placeholder="Outline what will be covered in this interview..."
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                placeholder="Outline what will be covered in this interview"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Instructions for Candidate
               </label>
               <textarea
                 value={formData.instructions}
-                onChange={(e) => handleInputChange('instructions', e.target.value)}
+                onChange={(event) => handleInputChange('instructions', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-sm"
-                placeholder="Any special instructions, preparation requirements, or what to bring..."
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                placeholder="Any special instructions or preparation requirements"
               />
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 mt-6 border-t border-gray-200">
+        <div className="flex justify-end space-x-4 pt-6 mt-6 border-t border-border">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+              className="px-6 py-2 border border-border text-foreground rounded-control hover:bg-accent"
             >
               Cancel
             </button>
@@ -618,11 +621,11 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-cta text-cta-foreground rounded-full border border-cta-border hover:bg-cta-hover disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
           >
             {loading ? (
               <span className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cta-foreground mr-2" />
                 Saving...
               </span>
             ) : (

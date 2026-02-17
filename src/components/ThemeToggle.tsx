@@ -41,6 +41,7 @@ export default function ThemeToggle({
     return (
       <button
         onClick={toggleTheme}
+        aria-label={`Switch theme mode. Current mode: ${getThemeLabel()}`}
         className={`p-2 rounded-control border border-border bg-card hover:bg-accent transition-colors ${className}`}
         title={`Current: ${getThemeLabel()} theme`}
       >
@@ -53,13 +54,14 @@ export default function ThemeToggle({
     <div className={`flex items-center gap-2 ${className}`}>
       <button
         onClick={toggleTheme}
+        aria-label={`Switch theme mode. Current mode: ${getThemeLabel()}`}
         className="flex items-center gap-2 px-3 py-2 rounded-control border border-border bg-card hover:bg-accent transition-colors"
       >
         {getThemeIcon()}
         <span className="text-sm font-medium">{getThemeLabel()}</span>
       </button>
       <span className="flex items-center gap-1 text-xs text-muted-foreground">
-        <span className={`w-2 h-2 rounded-full ${isDark ? 'bg-violet-400' : 'bg-amber-400'}`} />
+        <span className={`w-2 h-2 rounded-full ${isDark ? 'bg-primary' : 'bg-cta'}`} />
         {isDark ? 'Dark' : 'Light'}
       </span>
     </div>

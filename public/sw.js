@@ -1,7 +1,7 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'talentgate-v1.0.0';
-const STATIC_CACHE_NAME = 'talentgate-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'talentgate-dynamic-v1.0.0';
+const CACHE_NAME = 'shumelahire-v1.0.0';
+const STATIC_CACHE_NAME = 'shumelahire-static-v1.0.0';
+const DYNAMIC_CACHE_NAME = 'shumelahire-dynamic-v1.0.0';
 
 // Files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -57,7 +57,7 @@ self.addEventListener('activate', (event) => {
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE_NAME && 
                 cacheName !== DYNAMIC_CACHE_NAME &&
-                cacheName.startsWith('talentgate-')) {
+                cacheName.startsWith('shumelahire-')) {
               console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -255,7 +255,7 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
   
   let notificationData = {
-    title: 'TalentGate',
+    title: 'ShumelaHire',
     body: 'You have a new notification',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/badge-72x72.png',
@@ -287,7 +287,7 @@ self.addEventListener('push', (event) => {
           title: 'Dismiss'
         }
       ],
-      tag: 'talentgate-notification',
+      tag: 'shumelahire-notification',
       renotify: true,
       requireInteraction: false,
       silent: false

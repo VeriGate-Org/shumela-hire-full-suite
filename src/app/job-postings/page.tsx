@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import EnterpriseThemeToggle from '@/components/EnterpriseThemeToggle';
 
 interface JobPosting {
@@ -56,6 +57,12 @@ export default function JobPostingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const { setCurrentRole } = useTheme();
+  const { user } = useAuth();
+  const currentUserId = useMemo(() => {
+    if (!user?.id) return null;
+    const parsedId = Number.parseInt(user.id, 10);
+    return Number.isFinite(parsedId) ? parsedId : null;
+  }, [user?.id]);
 
   // Set theme to admin for job postings page
   useEffect(() => {
@@ -124,10 +131,15 @@ export default function JobPostingsPage() {
       <div className="space-y-6">
         {view === 'list' && (
           <div>
+            {!currentUserId && (
+              <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Workflow actions require a valid signed-in numeric user ID for audit tracking.
+              </div>
+            )}
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h1 className="text-2xl font-bold">Job Posting Management</h1>
-                <p className="text-gray-500 mt-1">Create and manage job postings</p>
+                <p className="mt-1 text-gray-600">Create, review, and publish job postings with full workflow controls.</p>
               </div>
               <div className="flex items-center gap-2">
                 <EnterpriseThemeToggle variant="compact" />
@@ -141,10 +153,10 @@ export default function JobPostingsPage() {
             </div>
 
             {/* Search and Filter */}
-            <div className="bg-white rounded-sm shadow p-4 mb-6">
+            <div className="rounded-md border border-gray-200 bg-white p-4 shadow-sm mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Search Job Postings
                   </label>
                   <input
@@ -152,17 +164,17 @@ export default function JobPostingsPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by title or department..."
-                    className="w-full p-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Filter by Status
                   </label>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   >
                     <option value="ALL">All Statuses</option>
                     {getStatusOptions().map(status => (
@@ -181,17 +193,17 @@ export default function JobPostingsPage() {
             ) : (
               <div className="space-y-4">
                 {filteredJobPostings.length === 0 ? (
-                  <div className="bg-white rounded-sm shadow p-8 text-center">
+                  <div className="rounded-md border border-gray-200 bg-white p-8 text-center shadow-sm">
                     <p className="text-gray-600 mb-4">
                       {jobPostings.length === 0 ? 
-                        'No job postings found. This is a demo of the Job Posting Management feature.' :
+                        'No job postings are currently available.' :
                         'No job postings match your search criteria.'
                       }
                     </p>
                     
                     {jobPostings.length === 0 && (
                       <div className="space-y-4">
-                        <div className="border rounded-sm p-4 text-left">
+                        <div className="rounded-md border border-gray-200 p-4 text-left">
                           <h3 className="font-medium text-lg mb-2">Feature Overview</h3>
                           <ul className="list-disc list-inside space-y-1 text-gray-600">
                             <li>Complete job posting creation with rich form validation</li>
@@ -209,31 +221,31 @@ export default function JobPostingsPage() {
                           onClick={() => setView('create')}
                           className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
                         >
-                          Try Demo Job Posting Form
+                          Create Job Posting
                         </button>
                       </div>
                     )}
                   </div>
                 ) : (
                   filteredJobPostings.map((jobPosting) => (
-                    <div key={jobPosting.id} className="bg-white rounded-sm shadow p-6">
+                    <div key={jobPosting.id} className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-medium text-gray-900">{jobPosting.title}</h3>
                             {jobPosting.featured && (
-                              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded">
-                                ⭐ Featured
+                              <span className="inline-flex items-center rounded-full border border-yellow-300 bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800">
+                                Featured
                               </span>
                             )}
                             {jobPosting.urgent && (
-                              <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">
-                                🚨 Urgent
+                              <span className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+                                Urgent
                               </span>
                             )}
                             {jobPosting.remoteWorkAllowed && (
-                              <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">
-                                🏠 Remote
+                              <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+                                Remote
                               </span>
                             )}
                           </div>
@@ -259,7 +271,6 @@ export default function JobPostingsPage() {
                         
                         <div className="flex items-center space-x-3">
                           <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${jobPosting.statusCssClass}`}>
-                            <span className="mr-1">{jobPosting.statusIcon}</span>
                             {jobPosting.statusDisplayName}
                           </span>
                           
@@ -281,7 +292,7 @@ export default function JobPostingsPage() {
                                 setSelectedJobPosting(jobPosting);
                                 setView('workflow');
                               }}
-                              className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                              className="text-violet-600 hover:text-violet-800 text-sm font-medium"
                             >
                               Workflow
                             </button>
@@ -308,6 +319,7 @@ export default function JobPostingsPage() {
             </div>
             
             <JobPostingForm
+              currentUserId={currentUserId}
               onSuccess={handleJobPostingSaved}
               onCancel={() => setView('list')}
             />
@@ -327,6 +339,7 @@ export default function JobPostingsPage() {
 
             <JobPostingForm
               jobPostingId={selectedJobPosting.id}
+              currentUserId={currentUserId}
               onSuccess={handleJobPostingSaved}
               onCancel={() => setView('list')}
             />
@@ -347,7 +360,7 @@ export default function JobPostingsPage() {
             <JobPostingWorkflow
               jobPosting={selectedJobPosting}
               onStatusChange={handleStatusChange}
-              currentUserId={1}
+              currentUserId={currentUserId ?? undefined}
             />
           </div>
         )}

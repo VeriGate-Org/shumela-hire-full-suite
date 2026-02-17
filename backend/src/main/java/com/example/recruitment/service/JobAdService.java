@@ -6,7 +6,7 @@ import com.example.recruitment.entity.JobAdHistory;
 import com.example.recruitment.entity.JobAdStatus;
 import com.example.recruitment.repository.JobAdHistoryRepository;
 import com.example.recruitment.repository.JobAdRepository;
-import com.arthmatic.talentgate.config.CacheConfig;
+import com.arthmatic.shumelahire.config.CacheConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

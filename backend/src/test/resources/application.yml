@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: talentgate-backend
+    name: shumelahire-backend
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -54,7 +54,7 @@ app:
 
 logging:
   level:
-    com.arthmatic.talentgate: DEBUG
+    com.arthmatic.shumelahire: DEBUG
     com.example.recruitment: DEBUG
 
 management:

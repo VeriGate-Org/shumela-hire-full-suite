@@ -1,4 +1,4 @@
-# TalentGate
+# ShumelaHire
 
 A comprehensive recruitment and hiring management platform built with Next.js 15, React 19, TypeScript, and Tailwind CSS.
 

@@ -104,7 +104,7 @@ class WebSocketService extends EventEmitter {
   
   private readonly options: Required<WebSocketOptions> = {
     url: process.env.NODE_ENV === 'production' 
-      ? 'wss://api.talentgate.co.za/ws'
+      ? 'wss://api.shumelahire.co.za/ws'
       : 'ws://localhost:8080/ws',
     reconnectInterval: 5000,
     maxReconnectAttempts: 10,

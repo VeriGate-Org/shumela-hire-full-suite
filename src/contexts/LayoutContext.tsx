@@ -11,7 +11,7 @@ interface LayoutContextType {
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
-const DENSITY_KEY = 'talentgate-density';
+const DENSITY_KEY = 'shumelahire-density';
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
   const [density, setDensityState] = useState<Density>('comfortable');

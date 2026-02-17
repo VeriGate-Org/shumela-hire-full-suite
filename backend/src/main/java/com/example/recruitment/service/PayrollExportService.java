@@ -1,6 +1,6 @@
 package com.example.recruitment.service;
 
-import com.arthmatic.talentgate.service.DataEncryptionService;
+import com.arthmatic.shumelahire.service.DataEncryptionService;
 import com.example.recruitment.dto.PayrollPackage;
 import com.example.recruitment.entity.Offer;
 import com.example.recruitment.entity.OfferStatus;

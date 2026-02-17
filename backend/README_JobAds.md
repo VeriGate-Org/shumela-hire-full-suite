@@ -1,6 +1,6 @@
 # Job Ads Service Documentation
 
-This document describes the Job Ads service implementation for the TalentGate platform.
+This document describes the Job Ads service implementation for the ShumelaHire platform.
 
 ## Overview
 

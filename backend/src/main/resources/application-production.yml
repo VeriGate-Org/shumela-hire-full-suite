@@ -23,6 +23,6 @@ storage:
 
 logging:
   level:
-    com.arthmatic.talentgate: INFO
+    com.arthmatic.shumelahire: INFO
     org.springframework.web: WARN
     org.hibernate.SQL: WARN

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ShumelaHire — App Icon — Primary Teal Background -->
+<!-- Use for: PWA icon, mobile app, browser tab, platform sidebar -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="64" fill="#05527E"/>
+
+  <g transform="translate(256, 256)">
+    <!-- Orbital ring -->
+    <ellipse cx="0" cy="0" rx="176" ry="176" stroke="#FFFFFF" stroke-width="5.6" fill="none" opacity="0.08"/>
+
+    <!-- Connection lines -->
+    <line x1="0" y1="0" x2="144" y2="-96" stroke="#FFFFFF" stroke-width="8" opacity="0.12"/>
+    <line x1="0" y1="0" x2="-128" y2="-128" stroke="#FFFFFF" stroke-width="8" opacity="0.12"/>
+    <line x1="0" y1="0" x2="-160" y2="64" stroke="#FFFFFF" stroke-width="8" opacity="0.12"/>
+    <line x1="0" y1="0" x2="64" y2="160" stroke="#FFFFFF" stroke-width="8" opacity="0.12"/>
+    <line x1="0" y1="0" x2="176" y2="32" stroke="#FFFFFF" stroke-width="8" opacity="0.12"/>
+
+    <!-- Satellite nodes -->
+    <circle cx="144" cy="-96" r="28" fill="#FFFFFF"/>
+    <circle cx="-128" cy="-128" r="24" fill="#FFFFFF" opacity="0.6"/>
+    <circle cx="-160" cy="64" r="28" fill="#FFFFFF"/>
+    <circle cx="64" cy="160" r="24" fill="#FFFFFF" opacity="0.6"/>
+    <circle cx="176" cy="32" r="20" fill="#FFFFFF" opacity="0.4"/>
+
+    <!-- Central hub -->
+    <circle cx="0" cy="0" r="48" fill="#F1C54B"/>
+    <circle cx="0" cy="0" r="24" fill="#05527E"/>
+  </g>
+</svg>

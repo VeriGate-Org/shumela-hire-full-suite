@@ -496,10 +496,10 @@ export default function BudgetApprovalsPage() {
     switch (status) {
       case 'on_track': case 'approved': return 'bg-green-100 text-green-800 border-green-300';
       case 'over_budget': case 'rejected': return 'bg-red-100 text-red-800 border-red-300';
-      case 'under_utilized': return 'bg-gold-100 text-gold-800 border-violet-300';
+      case 'under_utilized': return 'bg-gold-100 text-gold-800 border-primary/40';
       case 'needs_attention': case 'needs_info': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'pending': return 'bg-orange-100 text-orange-800 border-orange-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -509,7 +509,7 @@ export default function BudgetApprovalsPage() {
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -540,20 +540,20 @@ export default function BudgetApprovalsPage() {
       {activeView === 'approvals' && (
         <>
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search requests..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="pl-10 pr-4 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             />
           </div>
           
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -564,7 +564,7 @@ export default function BudgetApprovalsPage() {
         </>
       )}
       
-      <button className="flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium">
+      <button className="flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-primary hover:bg-gold-500 hover:text-primary uppercase tracking-wider rounded-full text-sm font-medium">
         <PlusIcon className="w-4 h-4 mr-2" />
         New Request
       </button>
@@ -589,7 +589,7 @@ export default function BudgetApprovalsPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-card rounded-sm shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', name: 'Executive Overview', icon: ChartBarIcon },
@@ -602,8 +602,8 @@ export default function BudgetApprovalsPage() {
                 onClick={() => setActiveView(item.id as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
                   activeView === item.id
-                    ? 'bg-gold-100 text-violet-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'bg-gold-100 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <item.icon className="h-5 w-5" />
@@ -618,27 +618,27 @@ export default function BudgetApprovalsPage() {
           <div className="space-y-6">
             {/* Key Financial Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
-                  <CurrencyDollarIconSolid className="w-8 h-8 text-violet-500" />
+                  <CurrencyDollarIconSolid className="w-8 h-8 text-primary" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Total Budget</p>
-                    <p className="text-2xl font-semibold text-gray-900">
+                    <p className="text-sm font-medium text-muted-foreground">Total Budget</p>
+                    <p className="text-2xl font-semibold text-foreground">
                       {formatCurrency(analytics.totalAllocated)}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {formatCurrency(analytics.totalSpent)} spent
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
                   <ReceiptPercentIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Utilization Rate</p>
-                    <p className="text-2xl font-semibold text-gray-900">
+                    <p className="text-sm font-medium text-muted-foreground">Utilization Rate</p>
+                    <p className="text-2xl font-semibold text-foreground">
                       {analytics.utilizationRate}%
                     </p>
                     <p className="text-xs text-green-600">Within target range</p>
@@ -646,12 +646,12 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
                   <ClockIconSolid className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Pending Approvals</p>
-                    <p className="text-2xl font-semibold text-gray-900">
+                    <p className="text-sm font-medium text-muted-foreground">Pending Approvals</p>
+                    <p className="text-2xl font-semibold text-foreground">
                       {approvalRequests.filter(r => r.status === 'pending').length}
                     </p>
                     <p className="text-xs text-orange-600">Require attention</p>
@@ -659,12 +659,12 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
                   <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Projected Overrun</p>
-                    <p className="text-2xl font-semibold text-gray-900">
+                    <p className="text-sm font-medium text-muted-foreground">Projected Overrun</p>
+                    <p className="text-2xl font-semibold text-foreground">
                       {formatCurrency(analytics.projectedOverrun)}
                     </p>
                     <p className="text-xs text-red-600">Monitor closely</p>
@@ -674,9 +674,9 @@ export default function BudgetApprovalsPage() {
             </div>
 
             {/* Budget Status Overview */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Budget Status by Category</h3>
+            <div className="bg-card rounded-sm shadow">
+              <div className="p-6 border-b border-border">
+                <h3 className="text-lg font-medium text-foreground">Budget Status by Category</h3>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
@@ -685,17 +685,17 @@ export default function BudgetApprovalsPage() {
                       <div className="flex items-center space-x-3">
                         {getCategoryIcon(item.category)}
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900">{item.subcategory}</h4>
-                          <p className="text-sm text-gray-600">{item.department}</p>
+                          <h4 className="text-sm font-medium text-foreground">{item.subcategory}</h4>
+                          <p className="text-sm text-muted-foreground">{item.department}</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-foreground">
                             {formatCurrency(item.spentAmount)} / {formatCurrency(item.allocatedBudget)}
                           </p>
-                          <div className="w-32 bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="w-32 bg-border rounded-full h-2 mt-1">
                             <div 
                               className={`h-2 rounded-full ${
                                 item.status === 'over_budget' ? 'bg-red-500' :
@@ -718,18 +718,18 @@ export default function BudgetApprovalsPage() {
             </div>
 
             {/* Critical Approvals */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Critical Approvals Required</h3>
+            <div className="bg-card rounded-sm shadow">
+              <div className="p-6 border-b border-border">
+                <h3 className="text-lg font-medium text-foreground">Critical Approvals Required</h3>
               </div>
               <div className="p-6 space-y-4">
                 {approvalRequests.filter(r => r.status === 'pending' && (r.urgency === 'critical' || r.urgency === 'high')).slice(0, 3).map((request) => (
                   <div key={request.id} className="border-l-4 border-l-orange-400 pl-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900">{request.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{request.description}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                        <h4 className="text-sm font-medium text-foreground">{request.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">{request.description}</p>
+                        <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
                           <span>{request.requestedBy.name}</span>
                           <span>{formatCurrency(request.amount)}</span>
                           <span className={`px-2 py-1 rounded-full ${getUrgencyColor(request.urgency)}`}>
@@ -757,14 +757,14 @@ export default function BudgetApprovalsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {budgetItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500">
+                <div key={item.id} className="bg-card rounded-sm shadow border-l-4 border-l-primary">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         {getCategoryIcon(item.category)}
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{item.subcategory}</h3>
-                          <p className="text-sm text-gray-600">{item.description}</p>
+                          <h3 className="text-lg font-semibold text-foreground">{item.subcategory}</h3>
+                          <p className="text-sm text-muted-foreground">{item.description}</p>
                         </div>
                       </div>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
@@ -774,20 +774,20 @@ export default function BudgetApprovalsPage() {
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-sm text-gray-500">Allocated</p>
-                        <p className="text-lg font-semibold text-gray-900">{formatCurrency(item.allocatedBudget)}</p>
+                        <p className="text-sm text-muted-foreground">Allocated</p>
+                        <p className="text-lg font-semibold text-foreground">{formatCurrency(item.allocatedBudget)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Spent</p>
-                        <p className="text-lg font-semibold text-gray-900">{formatCurrency(item.spentAmount)}</p>
+                        <p className="text-sm text-muted-foreground">Spent</p>
+                        <p className="text-lg font-semibold text-foreground">{formatCurrency(item.spentAmount)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Remaining</p>
+                        <p className="text-sm text-muted-foreground">Remaining</p>
                         <p className="text-lg font-semibold text-green-600">{formatCurrency(item.remainingAmount)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Projected</p>
-                        <p className={`text-lg font-semibold ${item.projectedSpend > item.allocatedBudget ? 'text-red-600' : 'text-gray-900'}`}>
+                        <p className="text-sm text-muted-foreground">Projected</p>
+                        <p className={`text-lg font-semibold ${item.projectedSpend > item.allocatedBudget ? 'text-red-600' : 'text-foreground'}`}>
                           {formatCurrency(item.projectedSpend)}
                         </p>
                       </div>
@@ -795,10 +795,10 @@ export default function BudgetApprovalsPage() {
 
                     <div className="mb-4">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-500">Utilization</span>
+                        <span className="text-muted-foreground">Utilization</span>
                         <span className="font-medium">{Math.round((item.spentAmount / item.allocatedBudget) * 100)}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-border rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
                             item.status === 'over_budget' ? 'bg-red-500' :
@@ -810,12 +810,12 @@ export default function BudgetApprovalsPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-200 text-sm">
+                    <div className="flex justify-between items-center pt-4 border-t border-border text-sm">
                       <div>
-                        <span className="text-gray-500">Owner: </span>
+                        <span className="text-muted-foreground">Owner: </span>
                         <span className="font-medium">{item.owner}</span>
                       </div>
-                      <div className="text-gray-500">
+                      <div className="text-muted-foreground">
                         {item.period}
                       </div>
                     </div>
@@ -830,20 +830,20 @@ export default function BudgetApprovalsPage() {
         {activeView === 'approvals' && (
           <div className="space-y-6">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-white rounded-sm shadow">
+              <div key={request.id} className="bg-card rounded-sm shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{request.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{request.description}</p>
+                      <h3 className="text-lg font-semibold text-foreground">{request.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{request.description}</p>
                       <div className="flex items-center space-x-4 mt-3 text-sm">
-                        <span className="text-gray-500">
-                          Requested by: <span className="font-medium text-gray-900">{request.requestedBy.name}</span>
+                        <span className="text-muted-foreground">
+                          Requested by: <span className="font-medium text-foreground">{request.requestedBy.name}</span>
                         </span>
-                        <span className="text-gray-500">
+                        <span className="text-muted-foreground">
                           Amount: <span className="font-semibold text-green-600">{formatCurrency(request.amount)}</span>
                         </span>
-                        <span className="text-gray-500">
+                        <span className="text-muted-foreground">
                           Date: {new Date(request.requestedDate).toLocaleDateString()}
                         </span>
                       </div>
@@ -865,14 +865,14 @@ export default function BudgetApprovalsPage() {
                   </div>
 
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Business Justification</h4>
-                    <p className="text-sm text-gray-700">{request.justification}</p>
+                    <h4 className="text-sm font-medium text-foreground mb-2">Business Justification</h4>
+                    <p className="text-sm text-foreground">{request.justification}</p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
                     <button
                       onClick={() => setSelectedRequest(request)}
-                      className="flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                      className="flex items-center px-3 py-2 border border-border text-sm font-medium rounded-full text-foreground bg-card hover:bg-muted"
                     >
                       <EyeIcon className="w-4 h-4 mr-2" />
                       View Details
@@ -916,40 +916,40 @@ export default function BudgetApprovalsPage() {
         {activeView === 'analytics' && analytics && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Cost Per Hire</p>
-                    <p className="text-2xl font-semibold text-gray-900">{formatCurrency(analytics.costPerHire)}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Cost Per Hire</p>
+                    <p className="text-2xl font-semibold text-foreground">{formatCurrency(analytics.costPerHire)}</p>
                   </div>
-                  <UserIcon className="w-8 h-8 text-violet-500" />
+                  <UserIcon className="w-8 h-8 text-primary" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Monthly Burn Rate</p>
-                    <p className="text-2xl font-semibold text-gray-900">{formatCurrency(analytics.monthlyBurnRate)}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Monthly Burn Rate</p>
+                    <p className="text-2xl font-semibold text-foreground">{formatCurrency(analytics.monthlyBurnRate)}</p>
                   </div>
                   <ArrowTrendingUpIcon className="w-8 h-8 text-green-500" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Forecast Accuracy</p>
-                    <p className="text-2xl font-semibold text-gray-900">{analytics.forecastAccuracy}%</p>
+                    <p className="text-sm font-medium text-muted-foreground">Forecast Accuracy</p>
+                    <p className="text-2xl font-semibold text-foreground">{analytics.forecastAccuracy}%</p>
                   </div>
-                  <ChartBarIcon className="w-8 h-8 text-purple-500" />
+                  <ChartBarIcon className="w-8 h-8 text-primary" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Budget Variance</p>
+                    <p className="text-sm font-medium text-muted-foreground">Budget Variance</p>
                     <p className="text-2xl font-semibold text-red-600">-{formatCurrency(analytics.projectedOverrun)}</p>
                   </div>
                   <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
@@ -957,12 +957,12 @@ export default function BudgetApprovalsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-6">Detailed Financial Analytics</h3>
+            <div className="bg-card rounded-sm shadow p-6">
+              <h3 className="text-lg font-medium text-foreground mb-6">Detailed Financial Analytics</h3>
               <div className="text-center py-12">
-                <ChartBarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">Advanced Analytics Dashboard</h4>
-                <p className="text-gray-600">
+                <ChartBarIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-foreground mb-2">Advanced Analytics Dashboard</h4>
+                <p className="text-muted-foreground">
                   Comprehensive financial reporting and predictive analytics will be available in the next release.
                 </p>
               </div>
@@ -973,12 +973,12 @@ export default function BudgetApprovalsPage() {
         {/* Approval Request Details Modal */}
         {selectedRequest && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{selectedRequest.title}</h2>
-                    <p className="text-gray-600 mt-1">{selectedRequest.description}</p>
+                    <h2 className="text-2xl font-bold text-foreground">{selectedRequest.title}</h2>
+                    <p className="text-muted-foreground mt-1">{selectedRequest.description}</p>
                     <div className="flex items-center space-x-4 mt-3">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedRequest.status)}`}>
                         {selectedRequest.status.replace('_', ' ').toUpperCase()}
@@ -986,14 +986,14 @@ export default function BudgetApprovalsPage() {
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getUrgencyColor(selectedRequest.urgency)}`}>
                         {selectedRequest.urgency.toUpperCase()}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         Amount: <span className="font-semibold text-green-600">{formatCurrency(selectedRequest.amount)}</span>
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedRequest(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-muted-foreground hover:text-muted-foreground"
                   >
                     <XMarkIcon className="w-6 h-6" />
                   </button>
@@ -1002,23 +1002,23 @@ export default function BudgetApprovalsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Request Details</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Request Details</h3>
+                      <div className="bg-muted rounded-sm p-4 space-y-3">
                         <div>
-                          <span className="font-medium text-gray-700">Requested by:</span>
+                          <span className="font-medium text-foreground">Requested by:</span>
                           <div className="mt-1">
-                            <p className="text-sm text-gray-900">{selectedRequest.requestedBy.name}</p>
-                            <p className="text-sm text-gray-600">{selectedRequest.requestedBy.title}</p>
-                            <p className="text-sm text-gray-600">{selectedRequest.requestedBy.department}</p>
+                            <p className="text-sm text-foreground">{selectedRequest.requestedBy.name}</p>
+                            <p className="text-sm text-muted-foreground">{selectedRequest.requestedBy.title}</p>
+                            <p className="text-sm text-muted-foreground">{selectedRequest.requestedBy.department}</p>
                           </div>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-700">Request Date:</span>
-                          <p className="text-sm text-gray-900 mt-1">{new Date(selectedRequest.requestedDate).toLocaleDateString()}</p>
+                          <span className="font-medium text-foreground">Request Date:</span>
+                          <p className="text-sm text-foreground mt-1">{new Date(selectedRequest.requestedDate).toLocaleDateString()}</p>
                         </div>
                         {selectedRequest.deadline && (
                           <div>
-                            <span className="font-medium text-gray-700">Deadline:</span>
+                            <span className="font-medium text-foreground">Deadline:</span>
                             <p className="text-sm text-red-600 mt-1">{new Date(selectedRequest.deadline).toLocaleDateString()}</p>
                           </div>
                         )}
@@ -1026,21 +1026,21 @@ export default function BudgetApprovalsPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Business Justification</h3>
-                      <p className="text-sm text-gray-700">{selectedRequest.justification}</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Business Justification</h3>
+                      <p className="text-sm text-foreground">{selectedRequest.justification}</p>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Business Impact</h3>
-                      <p className="text-sm text-gray-700">{selectedRequest.businessImpact}</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Business Impact</h3>
+                      <p className="text-sm text-foreground">{selectedRequest.businessImpact}</p>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Alternative Options</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Alternative Options</h3>
                       <ul className="space-y-2">
                         {selectedRequest.alternatives.map((alt, index) => (
-                          <li key={index} className="flex items-start text-sm text-gray-700">
-                            <MinusIcon className="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" />
+                          <li key={index} className="flex items-start text-sm text-foreground">
+                            <MinusIcon className="w-4 h-4 text-muted-foreground mr-2 mt-0.5 flex-shrink-0" />
                             {alt}
                           </li>
                         ))}
@@ -1050,27 +1050,27 @@ export default function BudgetApprovalsPage() {
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Supporting Documents</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Supporting Documents</h3>
                       <div className="space-y-2">
                         {selectedRequest.supportingDocuments.map((doc, index) => (
-                          <div key={index} className="flex items-center p-2 bg-gray-50 rounded-sm">
-                            <DocumentTextIcon className="w-5 h-5 text-violet-500 mr-3" />
-                            <span className="text-sm text-gray-900">{doc}</span>
+                          <div key={index} className="flex items-center p-2 bg-muted rounded-sm">
+                            <DocumentTextIcon className="w-5 h-5 text-primary mr-3" />
+                            <span className="text-sm text-foreground">{doc}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Comments & Discussion</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Comments & Discussion</h3>
                       <div className="space-y-3 max-h-60 overflow-y-auto">
                         {selectedRequest.comments.map((comment) => (
-                          <div key={comment.id} className="bg-gray-50 rounded-sm p-3">
+                          <div key={comment.id} className="bg-muted rounded-sm p-3">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-sm text-gray-900">{comment.author}</span>
-                              <span className="text-xs text-gray-500">{new Date(comment.timestamp).toLocaleDateString()}</span>
+                              <span className="font-medium text-sm text-foreground">{comment.author}</span>
+                              <span className="text-xs text-muted-foreground">{new Date(comment.timestamp).toLocaleDateString()}</span>
                             </div>
-                            <p className="text-sm text-gray-700">{comment.content}</p>
+                            <p className="text-sm text-foreground">{comment.content}</p>
                           </div>
                         ))}
                       </div>
@@ -1078,7 +1078,7 @@ export default function BudgetApprovalsPage() {
                       <div className="mt-4">
                         <textarea
                           placeholder="Add a comment..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                          className="w-full px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
                           rows={3}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter' && e.ctrlKey) {
@@ -1090,7 +1090,7 @@ export default function BudgetApprovalsPage() {
                             }
                           }}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Ctrl+Enter to submit</p>
+                        <p className="text-xs text-muted-foreground mt-1">Ctrl+Enter to submit</p>
                       </div>
                     </div>
                   </div>
@@ -1099,7 +1099,7 @@ export default function BudgetApprovalsPage() {
                 <div className="flex items-center justify-between mt-6 pt-6 border-t">
                   <button
                     onClick={() => setSelectedRequest(null)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                    className="px-4 py-2 bg-muted-foreground text-white rounded-full hover:bg-foreground"
                   >
                     Close
                   </button>

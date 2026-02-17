@@ -71,7 +71,7 @@ const FEATURE_CATALOG: Record<string, { title: string; description: string; href
   },
   manage_integrations: {
     title: 'Integrations',
-    description: 'Connect TalentGate with external tools, job boards, and HR systems.',
+    description: 'Connect ShumelaHire with external tools, job boards, and HR systems.',
     href: '/integrations',
   },
   view_internal_jobs: {
@@ -180,7 +180,7 @@ const PERMISSION_LABELS: Record<string, string> = {
   send_messages: 'Send Messages',
 };
 
-export default function OnboardingWizard({ companyName = 'TalentGate', onComplete }: OnboardingWizardProps) {
+export default function OnboardingWizard({ companyName = 'ShumelaHire', onComplete }: OnboardingWizardProps) {
   const { user } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
@@ -368,7 +368,7 @@ export default function OnboardingWizard({ companyName = 'TalentGate', onComplet
               <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
               <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
               <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
-              <span className="ml-2 text-[10px] text-gray-400 font-medium">TalentGate - {roleName} Dashboard</span>
+              <span className="ml-2 text-[10px] text-gray-400 font-medium">ShumelaHire - {roleName} Dashboard</span>
             </div>
           </div>
           <div className="p-4 bg-white">

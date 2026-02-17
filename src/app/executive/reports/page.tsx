@@ -521,8 +521,8 @@ export default function ExecutiveReportsPage() {
     switch (type) {
       case 'critical': return <ExclamationTriangleIconSolid className="w-5 h-5 text-red-500" />;
       case 'warning': return <ExclamationCircleIcon className="w-5 h-5 text-yellow-500" />;
-      case 'info': return <InformationCircleIcon className="w-5 h-5 text-violet-500" />;
-      default: return <InformationCircleIcon className="w-5 h-5 text-gray-500" />;
+      case 'info': return <InformationCircleIcon className="w-5 h-5 text-primary" />;
+      default: return <InformationCircleIcon className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
@@ -530,8 +530,8 @@ export default function ExecutiveReportsPage() {
     switch (type) {
       case 'critical': return 'bg-red-50 border-red-200 text-red-800';
       case 'warning': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-      case 'info': return 'bg-gold-50 border-violet-200 text-violet-800';
-      default: return 'bg-gray-50 border-gray-200 text-gray-800';
+      case 'info': return 'bg-gold-50 border-primary/30 text-primary';
+      default: return 'bg-muted border-border text-foreground';
     }
   };
 
@@ -540,7 +540,7 @@ export default function ExecutiveReportsPage() {
       case 'high': return 'bg-red-100 text-red-800 border-red-300';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -569,20 +569,20 @@ export default function ExecutiveReportsPage() {
       {activeView === 'reports' && (
         <>
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search reports..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="pl-10 pr-4 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             />
           </div>
           
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
           >
             <option value="all">All Categories</option>
             <option value="executive">Executive</option>
@@ -597,7 +597,7 @@ export default function ExecutiveReportsPage() {
       <select
         value={selectedPeriod}
         onChange={(e) => setSelectedPeriod(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
       >
         <option value="week">This Week</option>
         <option value="month">This Month</option>
@@ -605,7 +605,7 @@ export default function ExecutiveReportsPage() {
         <option value="year">This Year</option>
       </select>
       
-      <button className="flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium">
+      <button className="flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-primary hover:bg-gold-500 hover:text-primary uppercase tracking-wider rounded-full text-sm font-medium">
         <PlusIcon className="w-4 h-4 mr-2" />
         New Report
       </button>
@@ -630,7 +630,7 @@ export default function ExecutiveReportsPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-card rounded-sm shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'dashboard', name: 'Executive Dashboard', icon: ChartBarIcon },
@@ -643,8 +643,8 @@ export default function ExecutiveReportsPage() {
                 onClick={() => setActiveView(item.id as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
                   activeView === item.id
-                    ? 'bg-gold-100 text-violet-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'bg-gold-100 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <item.icon className="h-5 w-5" />
@@ -659,45 +659,45 @@ export default function ExecutiveReportsPage() {
           <div className="space-y-6">
             {/* Key Executive Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
-                  <UsersIcon className="w-8 h-8 text-violet-500" />
+                  <UsersIcon className="w-8 h-8 text-primary" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Total Hires</p>
-                    <p className="text-2xl font-semibold text-gray-900">{executiveMetrics.totalHires}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Total Hires</p>
+                    <p className="text-2xl font-semibold text-foreground">{executiveMetrics.totalHires}</p>
                     <p className="text-xs text-green-600">+{executiveMetrics.monthlyTrend}% vs last month</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
                   <ClockIcon className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Avg Time to Hire</p>
-                    <p className="text-2xl font-semibold text-gray-900">{executiveMetrics.averageTimeToHire} days</p>
+                    <p className="text-sm font-medium text-muted-foreground">Avg Time to Hire</p>
+                    <p className="text-2xl font-semibold text-foreground">{executiveMetrics.averageTimeToHire} days</p>
                     <p className="text-xs text-red-600">Target: 25 days</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
                   <CurrencyDollarIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Cost per Hire</p>
-                    <p className="text-2xl font-semibold text-gray-900">R{executiveMetrics.costPerHire.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Cost per Hire</p>
+                    <p className="text-2xl font-semibold text-foreground">R{executiveMetrics.costPerHire.toLocaleString()}</p>
                     <p className="text-xs text-green-600">-12% vs industry avg</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-card rounded-sm shadow p-6">
                 <div className="flex items-center">
-                  <TrophyIconSolid className="w-8 h-8 text-purple-500" />
+                  <TrophyIconSolid className="w-8 h-8 text-primary" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Offer Acceptance</p>
-                    <p className="text-2xl font-semibold text-gray-900">{executiveMetrics.offerAcceptanceRate}%</p>
+                    <p className="text-sm font-medium text-muted-foreground">Offer Acceptance</p>
+                    <p className="text-2xl font-semibold text-foreground">{executiveMetrics.offerAcceptanceRate}%</p>
                     <p className="text-xs text-green-600">Above industry benchmark</p>
                   </div>
                 </div>
@@ -705,9 +705,9 @@ export default function ExecutiveReportsPage() {
             </div>
 
             {/* Performance Alerts */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Performance Alerts</h3>
+            <div className="bg-card rounded-sm shadow">
+              <div className="p-6 border-b border-border">
+                <h3 className="text-lg font-medium text-foreground">Performance Alerts</h3>
               </div>
               <div className="p-6 space-y-4">
                 {performanceAlerts.slice(0, 4).map((alert) => (
@@ -733,35 +733,35 @@ export default function ExecutiveReportsPage() {
             </div>
 
             {/* Department Performance */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Department Performance Overview</h3>
+            <div className="bg-card rounded-sm shadow">
+              <div className="p-6 border-b border-border">
+                <h3 className="text-lg font-medium text-foreground">Department Performance Overview</h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {departmentMetrics.slice(0, 4).map((dept) => (
-                    <div key={dept.department} className="border border-gray-200 rounded-sm p-4">
+                    <div key={dept.department} className="border border-border rounded-sm p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-lg font-semibold text-gray-900">{dept.department}</h4>
-                        <span className="text-sm text-gray-500">{dept.openRequisitions} open positions</span>
+                        <h4 className="text-lg font-semibold text-foreground">{dept.department}</h4>
+                        <span className="text-sm text-muted-foreground">{dept.openRequisitions} open positions</span>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-500">Filled Positions</p>
-                          <p className="font-semibold text-gray-900">{dept.filledPositions}</p>
+                          <p className="text-muted-foreground">Filled Positions</p>
+                          <p className="font-semibold text-foreground">{dept.filledPositions}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Avg Time to Fill</p>
-                          <p className="font-semibold text-gray-900">{dept.averageTimeToFill} days</p>
+                          <p className="text-muted-foreground">Avg Time to Fill</p>
+                          <p className="font-semibold text-foreground">{dept.averageTimeToFill} days</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Cost per Hire</p>
-                          <p className="font-semibold text-gray-900">R{dept.costPerHire.toLocaleString()}</p>
+                          <p className="text-muted-foreground">Cost per Hire</p>
+                          <p className="font-semibold text-foreground">R{dept.costPerHire.toLocaleString()}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Acceptance Rate</p>
-                          <p className="font-semibold text-gray-900">{dept.offerAcceptanceRate}%</p>
+                          <p className="text-muted-foreground">Acceptance Rate</p>
+                          <p className="font-semibold text-foreground">{dept.offerAcceptanceRate}%</p>
                         </div>
                       </div>
                       
@@ -783,7 +783,7 @@ export default function ExecutiveReportsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               {filteredReports.map((report) => (
-                <div key={report.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500">
+                <div key={report.id} className="bg-card rounded-sm shadow border-l-4 border-l-primary">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-start space-x-3">
@@ -791,12 +791,12 @@ export default function ExecutiveReportsPage() {
                           {getCategoryIcon(report.category)}
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{report.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{report.description}</p>
-                          <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                            <span>Category: <span className="font-medium text-gray-700">{report.category}</span></span>
-                            <span>Frequency: <span className="font-medium text-gray-700">{report.frequency}</span></span>
-                            <span>Format: <span className="font-medium text-gray-700">{report.format.toUpperCase()}</span></span>
+                          <h3 className="text-lg font-semibold text-foreground">{report.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{report.description}</p>
+                          <div className="flex items-center space-x-4 mt-3 text-sm text-muted-foreground">
+                            <span>Category: <span className="font-medium text-foreground">{report.category}</span></span>
+                            <span>Frequency: <span className="font-medium text-foreground">{report.frequency}</span></span>
+                            <span>Format: <span className="font-medium text-foreground">{report.format.toUpperCase()}</span></span>
                           </div>
                         </div>
                       </div>
@@ -805,7 +805,7 @@ export default function ExecutiveReportsPage() {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           report.status === 'active' ? 'bg-green-100 text-green-800' :
                           report.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-muted text-foreground'
                         }`}>
                           {report.status.toUpperCase()}
                         </span>
@@ -819,10 +819,10 @@ export default function ExecutiveReportsPage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Critical Metrics</h4>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Critical Metrics</h4>
                         <div className="flex flex-wrap gap-1">
                           {report.criticalMetrics.map((metric, index) => (
-                            <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
                               {metric}
                             </span>
                           ))}
@@ -830,11 +830,11 @@ export default function ExecutiveReportsPage() {
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Key Insights</h4>
-                        <ul className="text-xs text-gray-600 space-y-1">
+                        <h4 className="text-sm font-medium text-foreground mb-2">Key Insights</h4>
+                        <ul className="text-xs text-muted-foreground space-y-1">
                           {report.insights.map((insight, index) => (
                             <li key={index} className="flex items-start">
-                              <span className="text-gray-400 mr-2">•</span>
+                              <span className="text-muted-foreground mr-2">•</span>
                               {insight}
                             </li>
                           ))}
@@ -842,8 +842,8 @@ export default function ExecutiveReportsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200 text-sm">
-                      <div className="flex items-center space-x-4 text-gray-500">
+                    <div className="flex items-center justify-between pt-4 border-t border-border text-sm">
+                      <div className="flex items-center space-x-4 text-muted-foreground">
                         <span>Last Generated: {new Date(report.lastGenerated).toLocaleDateString()}</span>
                         {report.nextScheduled && (
                           <span>Next: {new Date(report.nextScheduled).toLocaleDateString()}</span>
@@ -853,7 +853,7 @@ export default function ExecutiveReportsPage() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => setSelectedReport(report)}
-                          className="flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                          className="flex items-center px-3 py-1 border border-border text-sm font-medium rounded-full text-foreground bg-card hover:bg-muted"
                         >
                           <EyeIcon className="w-4 h-4 mr-1" />
                           View
@@ -861,13 +861,13 @@ export default function ExecutiveReportsPage() {
 
                         <button
                           onClick={() => handleReportGeneration(report.id)}
-                          className="flex items-center px-3 py-1 border border-violet-300 text-sm font-medium rounded-full text-violet-700 bg-gold-50 hover:bg-gold-100"
+                          className="flex items-center px-3 py-1 border border-primary/40 text-sm font-medium rounded-full text-primary bg-gold-50 hover:bg-gold-100"
                         >
                           <PlayIcon className="w-4 h-4 mr-1" />
                           Generate
                         </button>
 
-                        <button className="flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
+                        <button className="flex items-center px-3 py-1 border border-border text-sm font-medium rounded-full text-foreground bg-card hover:bg-muted">
                           <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
                           Download
                         </button>
@@ -884,30 +884,30 @@ export default function ExecutiveReportsPage() {
         {activeView === 'insights' && (
           <div className="space-y-6">
             {strategicInsights.map((insight) => (
-              <div key={insight.id} className="bg-white rounded-sm shadow">
+              <div key={insight.id} className="bg-card rounded-sm shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{insight.title}</h3>
-                      <p className="text-gray-600 mt-2">{insight.description}</p>
+                      <h3 className="text-xl font-semibold text-foreground">{insight.title}</h3>
+                      <p className="text-muted-foreground mt-2">{insight.description}</p>
                       <div className="flex items-center space-x-4 mt-3">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getImpactColor(insight.impact)}`}>
                           {insight.impact.toUpperCase()} IMPACT
                         </span>
-                        <span className="text-sm text-gray-500">Confidence: {insight.confidence}%</span>
-                        <span className="text-sm text-gray-500">Timeline: {insight.timeframe}</span>
+                        <span className="text-sm text-muted-foreground">Confidence: {insight.confidence}%</span>
+                        <span className="text-sm text-muted-foreground">Timeline: {insight.timeframe}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     {insight.dataPoints.map((point, index) => (
-                      <div key={index} className="bg-gray-50 rounded-sm p-4">
-                        <h4 className="text-sm font-medium text-gray-900">{point.metric}</h4>
+                      <div key={index} className="bg-muted rounded-sm p-4">
+                        <h4 className="text-sm font-medium text-foreground">{point.metric}</h4>
                         <div className="flex items-center mt-2">
-                          <span className="text-2xl font-bold text-gray-900">{point.value}</span>
+                          <span className="text-2xl font-bold text-foreground">{point.value}</span>
                           <div className={`ml-2 flex items-center text-sm ${
-                            point.change > 0 ? 'text-green-600' : point.change < 0 ? 'text-red-600' : 'text-gray-600'
+                            point.change > 0 ? 'text-green-600' : point.change < 0 ? 'text-red-600' : 'text-muted-foreground'
                           }`}>
                             {point.change > 0 ? (
                               <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
@@ -922,12 +922,12 @@ export default function ExecutiveReportsPage() {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-medium text-gray-900 mb-3">Strategic Recommendations</h4>
+                    <h4 className="text-lg font-medium text-foreground mb-3">Strategic Recommendations</h4>
                     <div className="space-y-2">
                       {insight.recommendations.map((rec, index) => (
                         <div key={index} className="flex items-start">
                           <CheckCircleIconSolid className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{rec}</span>
+                          <span className="text-sm text-foreground">{rec}</span>
                         </div>
                       ))}
                     </div>
@@ -942,31 +942,31 @@ export default function ExecutiveReportsPage() {
         {activeView === 'analytics' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Hiring Velocity Trends</h3>
+              <div className="bg-card rounded-sm shadow p-6">
+                <h3 className="text-lg font-medium text-foreground mb-4">Hiring Velocity Trends</h3>
                 <div className="text-center py-12">
-                  <ChartBarIconSolid className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">Advanced Analytics Coming Soon</h4>
-                  <p className="text-gray-600">Interactive charts and predictive analytics will be available in the next release.</p>
+                  <ChartBarIconSolid className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-foreground mb-2">Advanced Analytics Coming Soon</h4>
+                  <p className="text-muted-foreground">Interactive charts and predictive analytics will be available in the next release.</p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Cost Analysis</h3>
+              <div className="bg-card rounded-sm shadow p-6">
+                <h3 className="text-lg font-medium text-foreground mb-4">Cost Analysis</h3>
                 <div className="text-center py-12">
-                  <ChartPieIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">Detailed Cost Breakdown</h4>
-                  <p className="text-gray-600">Comprehensive cost analysis and ROI tracking dashboard in development.</p>
+                  <ChartPieIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-foreground mb-2">Detailed Cost Breakdown</h4>
+                  <p className="text-muted-foreground">Comprehensive cost analysis and ROI tracking dashboard in development.</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Predictive Analytics Dashboard</h3>
+            <div className="bg-card rounded-sm shadow p-6">
+              <h3 className="text-lg font-medium text-foreground mb-4">Predictive Analytics Dashboard</h3>
               <div className="text-center py-12">
-                <PresentationChartLineIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">AI-Powered Insights</h4>
-                <p className="text-gray-600">Machine learning models for hiring predictions and market analysis coming soon.</p>
+                <PresentationChartLineIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-foreground mb-2">AI-Powered Insights</h4>
+                <p className="text-muted-foreground">Machine learning models for hiring predictions and market analysis coming soon.</p>
               </div>
             </div>
           </div>
@@ -975,27 +975,27 @@ export default function ExecutiveReportsPage() {
         {/* Report Details Modal */}
         {selectedReport && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{selectedReport.name}</h2>
-                    <p className="text-gray-600 mt-2">{selectedReport.description}</p>
+                    <h2 className="text-2xl font-bold text-foreground">{selectedReport.name}</h2>
+                    <p className="text-muted-foreground mt-2">{selectedReport.description}</p>
                     <div className="flex items-center space-x-4 mt-3">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
                         {selectedReport.category.toUpperCase()}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         {selectedReport.frequency.charAt(0).toUpperCase() + selectedReport.frequency.slice(1)} Report
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         Format: {selectedReport.format.toUpperCase()}
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedReport(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-muted-foreground hover:text-muted-foreground"
                   >
                     <XMarkIcon className="w-6 h-6" />
                   </button>
@@ -1004,19 +1004,19 @@ export default function ExecutiveReportsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Recipients</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Recipients</h3>
                       <div className="space-y-2">
                         {selectedReport.recipients.map((recipient, index) => (
-                          <div key={index} className="flex items-center p-2 bg-gray-50 rounded-sm">
-                            <UsersIcon className="w-4 h-4 text-gray-400 mr-2" />
-                            <span className="text-sm text-gray-900">{recipient}</span>
+                          <div key={index} className="flex items-center p-2 bg-muted rounded-sm">
+                            <UsersIcon className="w-4 h-4 text-muted-foreground mr-2" />
+                            <span className="text-sm text-foreground">{recipient}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Critical Metrics</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Critical Metrics</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedReport.criticalMetrics.map((metric, index) => (
                           <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gold-100 text-gold-800">
@@ -1029,10 +1029,10 @@ export default function ExecutiveReportsPage() {
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Insights</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Key Insights</h3>
                       <ul className="space-y-2">
                         {selectedReport.insights.map((insight, index) => (
-                          <li key={index} className="flex items-start text-sm text-gray-700">
+                          <li key={index} className="flex items-start text-sm text-foreground">
                             <LightBulbIcon className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
                             {insight}
                           </li>
@@ -1041,25 +1041,25 @@ export default function ExecutiveReportsPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Schedule Information</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-2 text-sm">
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Schedule Information</h3>
+                      <div className="bg-muted rounded-sm p-4 space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Frequency:</span>
+                          <span className="text-muted-foreground">Frequency:</span>
                           <span className="font-medium">{selectedReport.frequency}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Last Generated:</span>
+                          <span className="text-muted-foreground">Last Generated:</span>
                           <span className="font-medium">{new Date(selectedReport.lastGenerated).toLocaleDateString()}</span>
                         </div>
                         {selectedReport.nextScheduled && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Next Scheduled:</span>
+                            <span className="text-muted-foreground">Next Scheduled:</span>
                             <span className="font-medium">{new Date(selectedReport.nextScheduled).toLocaleDateString()}</span>
                           </div>
                         )}
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Automation:</span>
-                          <span className={`font-medium ${selectedReport.automated ? 'text-green-600' : 'text-gray-600'}`}>
+                          <span className="text-muted-foreground">Automation:</span>
+                          <span className={`font-medium ${selectedReport.automated ? 'text-green-600' : 'text-muted-foreground'}`}>
                             {selectedReport.automated ? 'Enabled' : 'Manual'}
                           </span>
                         </div>
@@ -1071,18 +1071,18 @@ export default function ExecutiveReportsPage() {
                 <div className="flex items-center justify-between mt-6 pt-6 border-t">
                   <button
                     onClick={() => setSelectedReport(null)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                    className="px-4 py-2 bg-muted-foreground text-white rounded-full hover:bg-foreground"
                   >
                     Close
                   </button>
                   
                   <div className="flex items-center space-x-3">
-                    <button className="flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
+                    <button className="flex items-center px-4 py-2 border border-border text-sm font-medium rounded-full text-foreground bg-card hover:bg-muted">
                       <Cog6ToothIcon className="w-4 h-4 mr-2" />
                       Configure
                     </button>
 
-                    <button className="flex items-center px-4 py-2 border border-violet-300 text-sm font-medium rounded-full text-violet-700 bg-gold-50 hover:bg-gold-100">
+                    <button className="flex items-center px-4 py-2 border border-primary/40 text-sm font-medium rounded-full text-primary bg-gold-50 hover:bg-gold-100">
                       <ShareIcon className="w-4 h-4 mr-2" />
                       Share
                     </button>
@@ -1092,7 +1092,7 @@ export default function ExecutiveReportsPage() {
                         handleReportGeneration(selectedReport.id);
                         setSelectedReport(null);
                       }}
-                      className="flex items-center px-6 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium"
+                      className="flex items-center px-6 py-2 bg-transparent border-2 border-gold-500 text-primary hover:bg-gold-500 hover:text-primary uppercase tracking-wider rounded-full text-sm font-medium"
                     >
                       <PlayIcon className="w-4 h-4 mr-2" />
                       Generate Report

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* TalentGate Design System */
+  /* ShumelaHire Design System */
   --background: #F8FAFC;
   --foreground: #0F172A;
   --card: #FFFFFF;
@@ -185,7 +185,7 @@
 }
 
 @layer components {
-  /* TalentGate Card */
+  /* ShumelaHire Card */
   .enterprise-card {
     background-color: var(--card);
     color: var(--card-foreground);

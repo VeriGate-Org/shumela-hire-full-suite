@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ShumelaHire — Orbital Hub — Full Logo for Light Backgrounds -->
+<!-- Brand: Primary #05527E | Gold #F1C54B | Deep Navy #032E49 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" width="360" height="80">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@800&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Orbital Hub Icon -->
+  <g transform="translate(30, 40)">
+    <!-- Orbital ring -->
+    <ellipse cx="0" cy="0" rx="26" ry="26" stroke="#05527E" stroke-width="0.8" fill="none" opacity="0.1"/>
+    <ellipse cx="0" cy="0" rx="16" ry="16" stroke="#05527E" stroke-width="0.6" fill="none" opacity="0.08"/>
+
+    <!-- Connection lines to hub -->
+    <line x1="0" y1="0" x2="22" y2="-14" stroke="#05527E" stroke-width="1.2" opacity="0.15"/>
+    <line x1="0" y1="0" x2="-18" y2="-20" stroke="#05527E" stroke-width="1.2" opacity="0.15"/>
+    <line x1="0" y1="0" x2="-24" y2="10" stroke="#05527E" stroke-width="1.2" opacity="0.15"/>
+    <line x1="0" y1="0" x2="10" y2="24" stroke="#05527E" stroke-width="1.2" opacity="0.15"/>
+    <line x1="0" y1="0" x2="26" y2="6" stroke="#05527E" stroke-width="1.2" opacity="0.15"/>
+
+    <!-- Orbital connections -->
+    <line x1="22" y1="-14" x2="-18" y2="-20" stroke="#05527E" stroke-width="0.8" opacity="0.08"/>
+    <line x1="-24" y1="10" x2="10" y2="24" stroke="#05527E" stroke-width="0.8" opacity="0.08"/>
+
+    <!-- Satellite nodes -->
+    <circle cx="22" cy="-14" r="4" fill="#05527E"/>
+    <circle cx="-18" cy="-20" r="3.5" fill="#05527E" opacity="0.7"/>
+    <circle cx="-24" cy="10" r="4" fill="#05527E"/>
+    <circle cx="10" cy="24" r="3.5" fill="#05527E" opacity="0.7"/>
+    <circle cx="26" cy="6" r="3" fill="#05527E" opacity="0.5"/>
+
+    <!-- Tiny outer satellites -->
+    <circle cx="14" cy="-24" r="2" fill="#05527E" opacity="0.2"/>
+    <circle cx="-10" cy="26" r="2" fill="#05527E" opacity="0.2"/>
+
+    <!-- Central hub -->
+    <circle cx="0" cy="0" r="7" fill="#F1C54B"/>
+    <circle cx="0" cy="0" r="3.5" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="68" y="42" font-family="'Manrope', sans-serif" font-size="30" font-weight="800" letter-spacing="-0.5">
+    <tspan fill="#05527E">Shumela</tspan><tspan fill="#F1C54B">Hire</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="68" y="60" font-family="'Manrope', sans-serif" font-size="9" font-weight="600" fill="#94A3B8" letter-spacing="3">TALENT ACQUISITION PLATFORM</text>
+</svg>
