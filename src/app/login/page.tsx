@@ -4,8 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, ALL_ROLES, ROLE_DISPLAY_NAMES, UserRole } from '../../contexts/AuthContext';
 import { rolePermissions } from '@/config/permissions';
 import { useEffect, useState, Suspense } from 'react';
-import ThemeToggle from '../../components/ThemeToggle';
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 interface SsoProvider {
@@ -86,11 +84,6 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 relative">
-      {/* Theme Toggle in top-right corner */}
-      <div className="absolute top-6 right-6">
-        <ThemeToggle compact />
-      </div>
-
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">

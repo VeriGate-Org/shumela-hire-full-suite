@@ -10,8 +10,6 @@ import {
   FilterValue 
 } from '../../components/analytics';
 import { useTheme } from '../../contexts/ThemeContext';
-import EnterpriseThemeToggle from '../../components/EnterpriseThemeToggle';
-
 // Filter configuration for analytics
 const analyticsFilters: FilterConfig[] = [
   {
@@ -96,12 +94,9 @@ export default function AnalyticsPage() {
   };
 
   const actions = (
-    <div className="flex items-center gap-4">
-      <EnterpriseThemeToggle variant="compact" />
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        Live Data • Auto-refreshing
-      </div>
+    <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+      Live Data • Auto-refreshing
     </div>
   );
 

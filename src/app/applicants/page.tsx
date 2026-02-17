@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import ApplicantProfile from '@/components/ApplicantProfile';
 import { useTheme } from '@/contexts/ThemeContext';
-import EnterpriseThemeToggle from '@/components/EnterpriseThemeToggle';
-
 export default function ApplicantsPage() {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [selectedApplicantId, setSelectedApplicantId] = useState<number | undefined>();
@@ -54,15 +52,12 @@ export default function ApplicantsPage() {
   };
 
   const actions = view === 'list' ? (
-    <div className="flex items-center gap-2">
-      <EnterpriseThemeToggle variant="compact" />
-      <button
-        onClick={handleCreateNew}
-        className="px-4 py-2 bg-gold-500 text-white rounded-sm hover:bg-gold-600"
-      >
-        Create New Applicant
-      </button>
-    </div>
+    <button
+      onClick={handleCreateNew}
+      className="px-4 py-2 bg-gold-500 text-white rounded-sm hover:bg-gold-600"
+    >
+      Create New Applicant
+    </button>
   ) : (
     <button
       onClick={handleBackToList}

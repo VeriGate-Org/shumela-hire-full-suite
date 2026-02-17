@@ -6,8 +6,6 @@ import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import EnterpriseThemeToggle from '@/components/EnterpriseThemeToggle';
-
 interface JobPosting {
   id: number;
   title: string;
@@ -141,15 +139,12 @@ export default function JobPostingsPage() {
                 <h1 className="text-2xl font-bold">Job Posting Management</h1>
                 <p className="mt-1 text-gray-600">Create, review, and publish job postings with full workflow controls.</p>
               </div>
-              <div className="flex items-center gap-2">
-                <EnterpriseThemeToggle variant="compact" />
-                <button
-                  onClick={() => setView('create')}
-                  className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
-                >
-                  Create Job Posting
-                </button>
-              </div>
+              <button
+                onClick={() => setView('create')}
+                className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
+              >
+                Create Job Posting
+              </button>
             </div>
 
             {/* Search and Filter */}
