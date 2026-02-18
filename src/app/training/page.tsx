@@ -85,9 +85,9 @@ export default function TrainingPage() {
     // Mock training modules
     const mockModules: TrainingModule[] = [
       {
-        id: 'sage-integration-101',
-        title: 'Sage Integration Fundamentals',
-        description: 'Learn how to effectively use Sage integration for payroll and HR data synchronization.',
+        id: 'docusign-integration-101',
+        title: 'DocuSign Integration Fundamentals',
+        description: 'Learn how to effectively use DocuSign integration for e-signatures and offer letter management.',
         category: 'systems',
         level: 'intermediate',
         duration: 45,
@@ -97,7 +97,7 @@ export default function TrainingPage() {
         rating: 4.8,
         enrolledUsers: 156,
         isRequired: true,
-        tags: ['Sage', 'Integration', 'Payroll', 'HR Systems'],
+        tags: ['DocuSign', 'Integration', 'E-Signature', 'Offers'],
         type: 'interactive'
       },
       {

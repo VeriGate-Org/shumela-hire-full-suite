@@ -3,6 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
 import com.arthmatic.shumelahire.repository.OfferRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +12,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @ConditionalOnProperty(name = "esignature.provider", havingValue = "docusign", matchIfMissing = true)
@@ -42,10 +47,19 @@ public class DocuSignService implements ESignatureService {
     @Value("${docusign.webhook-hmac-key:}")
     private String webhookHmacKey;
 
+    @Value("${docusign.private-key:}")
+    private String privateKeyPem;
+
+    @Value("${docusign.auth-server:https://account-d.docusign.com}")
+    private String authServer;
+
     @Autowired
     private OfferRepository offerRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private String cachedAccessToken;
+    private Instant tokenExpiresAt;
 
     @Override
     public String sendForSignature(Offer offer, String signerEmail, String signerName) {
@@ -248,9 +262,73 @@ public class DocuSignService implements ESignatureService {
         return headers;
     }
 
-    private String getAccessToken() {
-        // In production, implement JWT Grant flow with integration key and private key
-        // For now, return a placeholder that should be configured via environment
-        return integrationKey;
+    @SuppressWarnings("unchecked")
+    private synchronized String getAccessToken() {
+        if (cachedAccessToken != null && tokenExpiresAt != null && Instant.now().isBefore(tokenExpiresAt)) {
+            return cachedAccessToken;
+        }
+
+        if (privateKeyPem == null || privateKeyPem.isBlank()) {
+            logger.warn("DocuSign private key not configured, using integration key as fallback");
+            return integrationKey;
+        }
+
+        try {
+            PrivateKey rsaKey = loadRsaPrivateKey(privateKeyPem);
+
+            Instant now = Instant.now();
+            String jwt = Jwts.builder()
+                .setIssuer(integrationKey)
+                .setSubject(userId)
+                .setAudience(authServer.replaceFirst("^https?://", ""))
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusSeconds(3600)))
+                .claim("scope", "signature impersonation")
+                .signWith(rsaKey, SignatureAlgorithm.RS256)
+                .compact();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+            body.add("assertion", jwt);
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                authServer + "/oauth/token",
+                HttpMethod.POST,
+                request,
+                Map.class
+            );
+
+            Map<String, Object> tokenResponse = response.getBody();
+            cachedAccessToken = (String) tokenResponse.get("access_token");
+            int expiresIn = tokenResponse.get("expires_in") instanceof Number
+                ? ((Number) tokenResponse.get("expires_in")).intValue()
+                : 3600;
+            tokenExpiresAt = Instant.now().plusSeconds(expiresIn - 100);
+
+            logger.info("DocuSign JWT Grant token obtained, expires in {}s", expiresIn);
+            return cachedAccessToken;
+        } catch (Exception e) {
+            logger.error("Failed to obtain DocuSign access token via JWT Grant: {}", e.getMessage());
+            throw new RuntimeException("Failed to obtain DocuSign access token", e);
+        }
+    }
+
+    private PrivateKey loadRsaPrivateKey(String pem) throws Exception {
+        String cleaned = pem
+            .replace("-----BEGIN RSA PRIVATE KEY-----", "")
+            .replace("-----END RSA PRIVATE KEY-----", "")
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(cleaned);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(spec);
     }
 }

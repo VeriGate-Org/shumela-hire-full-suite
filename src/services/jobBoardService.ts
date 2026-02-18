@@ -87,9 +87,8 @@ export const jobBoardService = {
     return data ?? [
       { type: 'LINKEDIN', displayName: 'LinkedIn', requiresApiIntegration: true },
       { type: 'INDEED', displayName: 'Indeed', requiresApiIntegration: true },
-      { type: 'PNET', displayName: 'PNet', requiresApiIntegration: false },
-      { type: 'CAREER_JUNCTION', displayName: 'CareerJunction', requiresApiIntegration: false },
-      { type: 'GLASSDOOR', displayName: 'Glassdoor', requiresApiIntegration: true },
+      { type: 'PNET', displayName: 'PNet', requiresApiIntegration: true },
+      { type: 'CAREER_JUNCTION', displayName: 'CareerJunction', requiresApiIntegration: true },
     ];
   },
 };

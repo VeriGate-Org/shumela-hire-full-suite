@@ -1,43 +1,95 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface ExecutiveDashboardProps {
   selectedTimeframe: string;
   onTimeframeChange: (timeframe: string) => void;
 }
 
-// Mock data for executive dashboard
-const executiveMetrics = [
+interface MetricData {
+  id: string;
+  label: string;
+  value: number;
+  previousValue?: number;
+  target?: number;
+  unit: 'number' | 'percentage' | 'currency' | 'days';
+  trend: 'up' | 'down' | 'neutral';
+  trendValue: number;
+  description?: string;
+  status: 'good' | 'warning' | 'critical';
+}
+
+const DEFAULT_METRICS: MetricData[] = [
   {
     id: 'hiring-budget',
     label: 'Hiring Budget Utilization',
-    value: 67,
-    previousValue: 58,
+    value: 0,
+    previousValue: 0,
     target: 85,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 15.5,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Percentage of annual hiring budget utilized',
-    status: 'good' as const,
+    status: 'good',
   },
   {
     id: 'strategic-hires',
     label: 'Strategic Hires Completed',
-    value: 12,
-    previousValue: 8,
+    value: 0,
+    previousValue: 0,
     target: 20,
-    unit: 'number' as const,
-    trend: 'up' as const,
-    trendValue: 50.0,
+    unit: 'number',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Executive and senior leadership positions filled',
-    status: 'warning' as const,
+    status: 'warning',
   },
 ];
 
 export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashboardProps) {
+  const [executiveMetrics, setExecutiveMetrics] = useState<MetricData[]>(DEFAULT_METRICS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMetrics() {
+      setLoading(true);
+      try {
+        const res = await apiFetch('/api/analytics/dashboard?role=EXECUTIVE');
+        if (res.ok) {
+          const data = await res.json();
+          // Map the API response to MetricData shape
+          const metrics = data.metrics ?? data ?? [];
+          if (Array.isArray(metrics) && metrics.length > 0) {
+            setExecutiveMetrics(
+              metrics.map((m: Record<string, unknown>) => ({
+                id: (m.id ?? m.metricId ?? '') as string,
+                label: (m.label ?? m.name ?? '') as string,
+                value: (m.value ?? 0) as number,
+                previousValue: (m.previousValue ?? m.prevValue ?? 0) as number,
+                target: (m.target ?? 0) as number,
+                unit: (m.unit ?? 'number') as MetricData['unit'],
+                trend: (m.trend ?? 'neutral') as MetricData['trend'],
+                trendValue: (m.trendValue ?? m.changePercent ?? 0) as number,
+                description: (m.description ?? '') as string,
+                status: (m.status ?? 'good') as MetricData['status'],
+              }))
+            );
+          }
+        }
+      } catch {
+        // On error, keep default metrics
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMetrics();
+  }, []);
+
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time Executive Metrics */}
@@ -51,15 +103,27 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
         <div className="lg:col-span-2 space-y-6 min-w-0">
           {/* Executive Performance Metrics */}
           <div className="w-full overflow-hidden">
-            <PerformanceMetrics
-              metrics={executiveMetrics}
-              title="Strategic Hiring Indicators"
-              subtitle="Track organizational hiring strategy and budget utilization"
-              timeframe={selectedTimeframe}
-            />
+            {loading ? (
+              <div className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse">
+                <div className="h-5 bg-gray-200 rounded w-1/3 mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-2/3 mb-6" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-32 bg-gray-100 rounded-sm" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <PerformanceMetrics
+                metrics={executiveMetrics}
+                title="Strategic Hiring Indicators"
+                subtitle="Track organizational hiring strategy and budget utilization"
+                timeframe={selectedTimeframe}
+              />
+            )}
           </div>
 
-          {/* Strategic Overview */}
+          {/* Strategic Overview — static UI config */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-full">
             <div className="min-w-0 overflow-hidden">
               <DashboardWidget
@@ -88,7 +152,7 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
                         </span>
                       </div>
                       <div className="w-full bg-border rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${dept.utilization > 75 ? 'bg-green-600' : dept.utilization > 50 ? 'bg-yellow-600' : 'bg-red-600'}`}
                           style={{ width: `${(dept.current / dept.target) * 100}%` }}
                         ></div>
@@ -109,9 +173,9 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
               >
                 <div className="space-y-4">
                   {[
-                    { 
-                      position: 'Chief Technology Officer', 
-                      department: 'Engineering', 
+                    {
+                      position: 'Chief Technology Officer',
+                      department: 'Engineering',
                       salary: 'R280K - R350K',
                       stage: 'Final Interviews',
                       priority: 'Critical',
@@ -119,9 +183,9 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
                       statusColor: 'bg-primary/10 text-primary',
                       priorityColor: 'bg-red-100 text-red-800'
                     },
-                    { 
-                      position: 'VP of Sales', 
-                      department: 'Sales', 
+                    {
+                      position: 'VP of Sales',
+                      department: 'Sales',
                       salary: 'R220K - R280K',
                       stage: 'Sourcing',
                       priority: 'High',
@@ -129,9 +193,9 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
                       statusColor: 'bg-cta/20 text-cta-foreground',
                       priorityColor: 'bg-orange-100 text-orange-800'
                     },
-                    { 
-                      position: 'Director of Marketing', 
-                      department: 'Marketing', 
+                    {
+                      position: 'Director of Marketing',
+                      department: 'Marketing',
                       salary: 'R180K - R220K',
                       stage: 'Interviews',
                       priority: 'Medium',
@@ -165,7 +229,7 @@ export default function ExecutiveDashboard({ selectedTimeframe }: ExecutiveDashb
           </div>
         </div>
 
-        {/* Executive Sidebar */}
+        {/* Executive Sidebar — static UI config */}
         <div className="space-y-6 min-w-0">
           {/* Pending Approvals */}
           <div className="w-full overflow-hidden">

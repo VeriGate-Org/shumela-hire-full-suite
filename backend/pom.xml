@@ -57,22 +57,10 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         
-        <!-- OAuth2 Client (SSO) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
-
         <!-- OAuth2 Resource Server (Cognito JWT validation) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-
-        <!-- SAML2 Service Provider -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-saml2-service-provider</artifactId>
         </dependency>
 
         <!-- JWT -->
@@ -197,13 +185,6 @@
             <version>3.0.1</version>
         </dependency>
 
-        <!-- OpenCSV for CSV export -->
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>5.9</version>
-        </dependency>
-
         <!-- Spring Boot Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -243,15 +224,21 @@
             <artifactId>ses</artifactId>
             <version>2.21.0</version>
         </dependency>
-    </dependencies>
 
-    <repositories>
-        <repository>
-            <id>shibboleth</id>
-            <name>Shibboleth Repository</name>
-            <url>https://build.shibboleth.net/maven/releases/</url>
-        </repository>
-    </repositories>
+        <!-- Microsoft Graph SDK -->
+        <dependency>
+            <groupId>com.microsoft.graph</groupId>
+            <artifactId>microsoft-graph</artifactId>
+            <version>6.6.0</version>
+        </dependency>
+
+        <!-- Azure Identity -->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-identity</artifactId>
+            <version>1.11.1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

@@ -67,13 +67,6 @@ public class JobBoardController {
 
     @GetMapping("/available-boards")
     public ResponseEntity<List<Map<String, Object>>> getAvailableBoards() {
-        List<Map<String, Object>> boards = Arrays.stream(JobBoardType.values())
-                .map(bt -> Map.<String, Object>of(
-                        "type", bt.name(),
-                        "displayName", bt.getDisplayName(),
-                        "requiresApiIntegration", bt.isRequiresApiIntegration()
-                ))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(boards);
+        return ResponseEntity.ok(jobBoardService.getAvailableBoards());
     }
 }

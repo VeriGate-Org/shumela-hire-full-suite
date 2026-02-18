@@ -99,9 +99,6 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/api/auth/me").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/auth/sso/**").permitAll()
-                .requestMatchers("/login/oauth2/**").permitAll()
-                .requestMatchers("/saml2/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -137,8 +134,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/esignature/webhook").permitAll()
                 .requestMatchers("/api/esignature/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
-                // Payroll endpoints
-                .requestMatchers("/api/payroll/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                // Integration endpoints
+                .requestMatchers("/api/integrations/ms-teams/webhook").permitAll()
+                .requestMatchers("/api/integrations/**").hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Agency endpoints
                 .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")

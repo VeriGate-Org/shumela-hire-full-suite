@@ -40,6 +40,8 @@ docusign:
   secret-key: ${DOCUSIGN_SECRET_KEY:}
   user-id: ${DOCUSIGN_USER_ID:}
   webhook-hmac-key: ${DOCUSIGN_WEBHOOK_HMAC_KEY:}
+  private-key: ${DOCUSIGN_PRIVATE_KEY:}
+  auth-server: ${DOCUSIGN_AUTH_SERVER:https://account-d.docusign.com}
 
 # Data Residency
 data-residency:
@@ -51,12 +53,6 @@ data-residency:
 app:
   file:
     upload-dir: ${UPLOAD_DIR:uploads}
-
-# SSO Configuration
-sso:
-  enabled: ${SSO_ENABLED:false}
-  default-role: EMPLOYEE
-  auto-provision-users: true
 
 # AI Configuration
 ai:
@@ -76,16 +72,43 @@ job-boards:
     api-key: ${LINKEDIN_API_KEY:}
     api-secret: ${LINKEDIN_API_SECRET:}
     org-id: ${LINKEDIN_ORG_ID:}
+  indeed:
+    enabled: ${INDEED_ENABLED:false}
+    employer-id: ${INDEED_EMPLOYER_ID:}
+    api-token: ${INDEED_API_TOKEN:}
+  pnet:
+    enabled: ${PNET_ENABLED:false}
+    api-key: ${PNET_API_KEY:}
+  career-junction:
+    enabled: ${CAREER_JUNCTION_ENABLED:false}
+    api-key: ${CAREER_JUNCTION_API_KEY:}
+    partner-id: ${CAREER_JUNCTION_PARTNER_ID:}
 
 # Notification Configuration
 notification:
   email:
     enabled: ${NOTIFICATION_EMAIL_ENABLED:true}
-  sms:
-    enabled: ${NOTIFICATION_SMS_ENABLED:false}
   sqs:
     enabled: ${NOTIFICATION_SQS_ENABLED:false}
     queue-url: ${SQS_NOTIFICATION_QUEUE_URL:}
+
+# AWS SES Email
+ses:
+  enabled: ${SES_ENABLED:false}
+  region: ${SES_REGION:af-south-1}
+  from-email: ${SES_FROM_EMAIL:noreply@shumelahire.co.za}
+  from-name: ${SES_FROM_NAME:ShumelaHire}
+
+# Microsoft Graph (Teams + Outlook)
+microsoft:
+  enabled: ${MICROSOFT_ENABLED:false}
+  tenant-id: ${MICROSOFT_TENANT_ID:}
+  client-id: ${MICROSOFT_CLIENT_ID:}
+  client-secret: ${MICROSOFT_CLIENT_SECRET:}
+  teams:
+    webhook-url: ${TEAMS_WEBHOOK_URL:}
+  outlook:
+    calendar-user: ${OUTLOOK_CALENDAR_USER:}
 
 # Management endpoints
 management:

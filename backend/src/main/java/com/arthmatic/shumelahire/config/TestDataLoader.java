@@ -37,7 +37,7 @@ public class TestDataLoader implements CommandLineRunner {
     }
 
     private void loadTestData() {
-        String[] sources = {"LinkedIn", "Company Website", "Job Board", "Referral", "Indeed", "Glassdoor", "Recruiter", "Other"};
+        String[] sources = {"LinkedIn", "Company Website", "Job Board", "Referral", "Indeed", "PNet", "Recruiter", "Other"};
         List<Applicant> applicants = Arrays.asList(
             createApplicant("John", "Doe", "john.doe@email.com", "+1234567890", "New York", "5+ years", "Java, Spring, React", sources[0]),
             createApplicant("Jane", "Smith", "jane.smith@email.com", "+1234567891", "San Francisco", "3+ years", "Python, Django, Vue.js", sources[1]),

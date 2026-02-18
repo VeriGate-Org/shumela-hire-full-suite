@@ -1,22 +1,19 @@
 package com.arthmatic.shumelahire.entity;
 
 public enum NotificationChannel {
-    IN_APP("In-App", "In-application notification", "🔔"),
-    EMAIL("Email", "Email notification", "📧"),
-    SMS("SMS", "Text message notification", "📱"),
-    PUSH("Push", "Push notification", "📲"),
-    SLACK("Slack", "Slack message", "💬"),
-    WEBHOOK("Webhook", "Webhook notification", "🔗"),
-    BROWSER("Browser", "Browser notification", "🌐");
+    IN_APP("In-App", "In-application notification"),
+    EMAIL("Email", "Email notification"),
+    PUSH("Push", "Push notification"),
+    MS_TEAMS("MS Teams", "Microsoft Teams notification"),
+    WEBHOOK("Webhook", "Webhook notification"),
+    BROWSER("Browser", "Browser notification");
 
     private final String displayName;
     private final String description;
-    private final String icon;
 
-    NotificationChannel(String displayName, String description, String icon) {
+    NotificationChannel(String displayName, String description) {
         this.displayName = displayName;
         this.description = description;
-        this.icon = icon;
     }
 
     public String getDisplayName() {
@@ -27,12 +24,8 @@ public enum NotificationChannel {
         return description;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
     public boolean requiresExternalService() {
-        return this == EMAIL || this == SMS || this == SLACK || this == WEBHOOK;
+        return this == EMAIL || this == MS_TEAMS || this == WEBHOOK;
     }
 
     public boolean isRealTime() {
@@ -40,15 +33,11 @@ public enum NotificationChannel {
     }
 
     public boolean supportsRichContent() {
-        return this == IN_APP || this == EMAIL || this == SLACK;
+        return this == IN_APP || this == EMAIL || this == MS_TEAMS;
     }
 
     public boolean requiresDeviceToken() {
         return this == PUSH;
-    }
-
-    public boolean requiresPhoneNumber() {
-        return this == SMS;
     }
 
     public boolean requiresEmailAddress() {
@@ -56,15 +45,13 @@ public enum NotificationChannel {
     }
 
     public int getDeliveryPriority() {
-        switch (this) {
-            case IN_APP: return 1;
-            case PUSH: return 2;
-            case EMAIL: return 3;
-            case SMS: return 4;
-            case SLACK: return 5;
-            case WEBHOOK: return 6;
-            case BROWSER: return 7;
-            default: return 99;
-        }
+        return switch (this) {
+            case IN_APP -> 1;
+            case PUSH -> 2;
+            case EMAIL -> 3;
+            case MS_TEAMS -> 4;
+            case WEBHOOK -> 5;
+            case BROWSER -> 6;
+        };
     }
 }

@@ -3,9 +3,8 @@ package com.arthmatic.shumelahire.entity;
 public enum JobBoardType {
     LINKEDIN("LinkedIn", true),
     INDEED("Indeed", true),
-    PNET("PNet", false),
-    CAREER_JUNCTION("CareerJunction", false),
-    GLASSDOOR("Glassdoor", true),
+    PNET("PNet", true),
+    CAREER_JUNCTION("CareerJunction", true),
     CUSTOM("Custom", false);
 
     private final String displayName;

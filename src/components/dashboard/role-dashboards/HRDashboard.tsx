@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
 
@@ -9,35 +10,101 @@ interface HRDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-// Mock data for HR dashboard
-const hrMetrics = [
+interface MetricItem {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  target: number;
+  unit: 'percentage' | 'number' | 'days';
+  trend: 'up' | 'down' | 'neutral';
+  trendValue: number;
+  description: string;
+  status: 'good' | 'warning' | 'critical';
+}
+
+const defaultMetrics: MetricItem[] = [
   {
     id: 'employee-satisfaction',
     label: 'Employee Satisfaction',
-    value: 87,
-    previousValue: 82,
+    value: 0,
+    previousValue: 0,
     target: 90,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 6.1,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Overall employee satisfaction score',
-    status: 'good' as const,
+    status: 'warning',
   },
   {
     id: 'onboarding-completion',
     label: 'Onboarding Completion Rate',
-    value: 94,
-    previousValue: 91,
+    value: 0,
+    previousValue: 0,
     target: 95,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 3.3,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'New hire onboarding completion rate',
-    status: 'good' as const,
+    status: 'warning',
   },
 ];
 
 export default function HRDashboard({ selectedTimeframe, onTimeframeChange }: HRDashboardProps) {
+  const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+
+      try {
+        const response = await apiFetch('/api/analytics/dashboard?role=HR_MANAGER');
+
+        if (cancelled) return;
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
+            setMetrics(data.metrics);
+          }
+        }
+      } catch {
+        // Keep default metrics on error
+      }
+
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-white rounded-sm border border-gray-200 p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time HR Metrics */}
@@ -52,7 +119,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange }: HR
           {/* HR Performance Metrics */}
           <div className="w-full overflow-hidden">
             <PerformanceMetrics
-              metrics={hrMetrics}
+              metrics={metrics}
               title="HR Key Performance Indicators"
               subtitle="Track employee satisfaction and HR effectiveness"
               timeframe={selectedTimeframe}

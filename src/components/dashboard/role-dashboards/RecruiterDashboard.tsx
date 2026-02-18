@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, DataExplorer } from '../../dashboard';
 
@@ -9,70 +10,30 @@ interface RecruiterDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-// Mock data for recruiter dashboard
-const recruiterMetrics = [
-  {
-    id: 'sourcing-effectiveness',
-    label: 'Sourcing Effectiveness',
-    value: 68,
-    previousValue: 62,
-    target: 75,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 9.7,
-    description: 'Quality candidates sourced to total outreach ratio',
-    status: 'good' as const,
-  },
-  {
-    id: 'candidate-response-rate',
-    label: 'Candidate Response Rate',
-    value: 24,
-    previousValue: 19,
-    target: 30,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 26.3,
-    description: 'Response rate to initial candidate outreach',
-    status: 'warning' as const,
-  },
-];
+interface MetricItem {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  target: number;
+  unit: 'percentage' | 'number' | 'days';
+  trend: 'up' | 'down' | 'neutral';
+  trendValue: number;
+  description: string;
+  status: 'good' | 'warning' | 'critical';
+}
 
-// Mock candidate data for DataExplorer
-const mockCandidateData = [
-  {
-    id: '1',
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    position: 'Senior Developer',
-    skills: 'React, Node.js, TypeScript',
-    experience: '5 years',
-    status: 'Active',
-    source: 'LinkedIn',
-    score: 85,
-  },
-  {
-    id: '2',
-    name: 'Sarah Chen',
-    email: 'sarah.chen@email.com',
-    position: 'Product Manager',
-    skills: 'Product Strategy, Agile, Analytics',
-    experience: '7 years',
-    status: 'Interview',
-    source: 'Referral',
-    score: 92,
-  },
-  {
-    id: '3',
-    name: 'Mike Rodriguez',
-    email: 'mike.r@email.com',
-    position: 'UX Designer',
-    skills: 'Figma, User Research, Prototyping',
-    experience: '4 years',
-    status: 'Screen',
-    source: 'Job Board',
-    score: 78,
-  },
-];
+interface CandidateRow {
+  id: string;
+  name: string;
+  email: string;
+  position: string;
+  skills: string;
+  experience: string;
+  status: string;
+  source: string;
+  score: number;
+}
 
 const mockCandidateColumns = [
   { key: 'name', label: 'Name', sortable: true, type: 'string' as const },
@@ -83,7 +44,113 @@ const mockCandidateColumns = [
   { key: 'score', label: 'Score', sortable: true, type: 'number' as const },
 ];
 
+const defaultMetrics: MetricItem[] = [
+  {
+    id: 'sourcing-effectiveness',
+    label: 'Sourcing Effectiveness',
+    value: 0,
+    previousValue: 0,
+    target: 75,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
+    description: 'Quality candidates sourced to total outreach ratio',
+    status: 'warning',
+  },
+  {
+    id: 'candidate-response-rate',
+    label: 'Candidate Response Rate',
+    value: 0,
+    previousValue: 0,
+    target: 30,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
+    description: 'Response rate to initial candidate outreach',
+    status: 'warning',
+  },
+];
+
 export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
+  const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
+  const [candidateData, setCandidateData] = useState<CandidateRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+
+      // Fetch metrics and candidates in parallel
+      const [metricsResult, candidatesResult] = await Promise.allSettled([
+        apiFetch('/api/analytics/dashboard?role=RECRUITER'),
+        apiFetch('/api/applications/manage/search?size=10&sortBy=submittedAt&sortDirection=desc'),
+      ]);
+
+      if (cancelled) return;
+
+      // Process metrics
+      if (metricsResult.status === 'fulfilled' && metricsResult.value.ok) {
+        try {
+          const data = await metricsResult.value.json();
+          if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
+            setMetrics(data.metrics);
+          }
+        } catch {
+          // Keep default metrics on parse error
+        }
+      }
+
+      // Process candidates
+      if (candidatesResult.status === 'fulfilled' && candidatesResult.value.ok) {
+        try {
+          const data = await candidatesResult.value.json();
+          const items = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
+          const mapped: CandidateRow[] = items.map((item: any) => ({
+            id: item.id?.toString() || '',
+            name: item.candidateName || item.name || '',
+            email: item.candidateEmail || item.email || '',
+            position: item.jobTitle || item.position || '',
+            skills: Array.isArray(item.skills) ? item.skills.join(', ') : (item.skills || ''),
+            experience: item.experience || '',
+            status: item.status || '',
+            source: item.source || '',
+            score: item.score ?? 0,
+          }));
+          setCandidateData(mapped);
+        } catch {
+          // Keep empty candidates on parse error
+        }
+      }
+
+      setLoading(false);
+    }
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-white rounded-sm border border-gray-200 p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time Sourcing Metrics */}
@@ -98,7 +165,7 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
           {/* Recruiting Performance Metrics */}
           <div className="w-full overflow-hidden">
             <PerformanceMetrics
-              metrics={recruiterMetrics}
+              metrics={metrics}
               title="Recruiting Performance Indicators"
               subtitle="Track your sourcing and candidate engagement effectiveness"
               timeframe={selectedTimeframe}
@@ -109,7 +176,7 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
           <div className="w-full overflow-hidden">
             <div className="max-h-96 overflow-hidden">
               <DataExplorer
-                data={mockCandidateData}
+                data={candidateData}
                 columns={mockCandidateColumns}
                 title="Candidate Database"
                 subtitle="Search and manage your candidate pipeline"

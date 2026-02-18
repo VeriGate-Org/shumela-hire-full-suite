@@ -3,7 +3,6 @@ export enum JobBoardType {
   INDEED = 'INDEED',
   PNET = 'PNET',
   CAREER_JUNCTION = 'CAREER_JUNCTION',
-  GLASSDOOR = 'GLASSDOOR',
   CUSTOM = 'CUSTOM',
 }
 
@@ -46,7 +45,6 @@ export function getBoardDisplayName(type: JobBoardType): string {
     case JobBoardType.INDEED: return 'Indeed';
     case JobBoardType.PNET: return 'PNet';
     case JobBoardType.CAREER_JUNCTION: return 'CareerJunction';
-    case JobBoardType.GLASSDOOR: return 'Glassdoor';
     case JobBoardType.CUSTOM: return 'Custom';
     default: return type;
   }

@@ -9,6 +9,8 @@ import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.repository.ApplicantRepository;
 import com.arthmatic.shumelahire.repository.NotificationRepository;
+import com.arthmatic.shumelahire.service.integration.EmailService;
+import com.arthmatic.shumelahire.service.integration.MsTeamsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +46,16 @@ public class NotificationService {
     private SqsClient sqsClient;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired(required = false)
+    private MsTeamsService msTeamsService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Value("${notification.email.enabled:true}")
     private boolean emailEnabled;
-
-    @Value("${notification.sms.enabled:false}")
-    private boolean smsEnabled;
 
     @Value("${notification.sqs.enabled:false}")
     private boolean sqsEnabled;
@@ -85,17 +90,6 @@ public class NotificationService {
 
         sendNotification(application.getApplicant().getId(), subject, message,
                         NotificationChannel.EMAIL, "APPLICATION_SUBMITTED");
-
-        if (smsEnabled) {
-            String smsMessage = String.format(
-                "Hi %s, your application for %s has been submitted successfully. Application ID: %s",
-                application.getApplicant().getName(),
-                application.getJobTitle(),
-                application.getId()
-            );
-            sendNotification(application.getApplicant().getId(), "Application Submitted", smsMessage,
-                            NotificationChannel.SMS, "APPLICATION_SUBMITTED");
-        }
     }
 
     @Async
@@ -108,17 +102,6 @@ public class NotificationService {
 
         sendNotification(application.getApplicant().getId(), subject, message,
                         NotificationChannel.EMAIL, "STATUS_CHANGE");
-
-        if (smsEnabled && isImportantStatusChange(application.getStatus())) {
-            String smsMessage = String.format(
-                "Hi %s, your application for %s has been updated to: %s",
-                application.getApplicant().getName(),
-                application.getJobTitle(),
-                getStatusDisplayName(application.getStatus())
-            );
-            sendNotification(application.getApplicant().getId(), "Application Update", smsMessage,
-                            NotificationChannel.SMS, "STATUS_CHANGE");
-        }
     }
 
     @Async
@@ -195,16 +178,6 @@ public class NotificationService {
 
         sendNotification(application.getApplicant().getId(), subject, message,
                         NotificationChannel.EMAIL, "APPLICATION_SHORTLISTED");
-
-        if (smsEnabled) {
-            String smsMessage = String.format(
-                "Congratulations %s! Your application for %s has been shortlisted. We'll be in touch soon.",
-                application.getApplicant().getName(),
-                application.getJobTitle()
-            );
-            sendNotification(application.getApplicant().getId(), "Application Shortlisted", smsMessage,
-                            NotificationChannel.SMS, "APPLICATION_SHORTLISTED");
-        }
     }
 
     private void sendNotification(Long applicantId, String subject, String message,
@@ -228,13 +201,10 @@ public class NotificationService {
                     notification.setEmailTo(applicant.getEmail());
                     notification.setEmailSubject(subject);
                     break;
-                case SMS:
-                    notification.setPhoneNumber(applicant.getPhone());
-                    break;
                 case IN_APP:
                 case PUSH:
                 case WEBHOOK:
-                case SLACK:
+                case MS_TEAMS:
                 case BROWSER:
                     break;
             }
@@ -250,15 +220,14 @@ public class NotificationService {
                         case EMAIL:
                             sent = sendEmail(applicant.getEmail(), subject, message);
                             break;
-                        case SMS:
-                            sent = sendSMS(applicant.getPhone(), message);
-                            break;
                         case IN_APP:
                             sent = true;
                             break;
+                        case MS_TEAMS:
+                            sent = msTeamsService != null && msTeamsService.sendNotification(subject, message, null);
+                            break;
                         case PUSH:
                         case WEBHOOK:
-                        case SLACK:
                         case BROWSER:
                             sent = true;
                             break;
@@ -323,17 +292,7 @@ public class NotificationService {
             logger.info("Email sending is disabled - would send to {}: {}", email, subject);
             return true;
         }
-        logger.info("Sending email to {}: {}", email, subject);
-        return true;
-    }
-
-    private boolean sendSMS(String phoneNumber, String message) {
-        if (!smsEnabled) {
-            logger.info("SMS sending is disabled - would send to {}", phoneNumber);
-            return true;
-        }
-        logger.info("Sending SMS to {}", phoneNumber);
-        return true;
+        return emailService.sendEmail(email, subject, message);
     }
 
     @Transactional(readOnly = true)

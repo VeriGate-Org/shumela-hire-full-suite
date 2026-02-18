@@ -124,8 +124,9 @@ public class CognitoSecurityConfig {
                 .requestMatchers("/api/esignature/webhook").permitAll()
                 .requestMatchers("/api/esignature/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
-                // Payroll endpoints
-                .requestMatchers("/api/payroll/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                // Integration endpoints
+                .requestMatchers("/api/integrations/ms-teams/webhook").permitAll()
+                .requestMatchers("/api/integrations/**").hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Agency endpoints
                 .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")

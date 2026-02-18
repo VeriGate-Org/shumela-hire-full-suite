@@ -3,36 +3,82 @@
 import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
-import { 
-  CheckCircleIcon, 
-  XCircleIcon, 
-  CogIcon, 
+import { apiFetch } from '@/lib/api-fetch';
+import {
+  CheckCircleIcon,
+  XCircleIcon,
+  CogIcon,
   LinkIcon,
-  ClockIcon,
   ExclamationTriangleIcon,
-  PlusIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  DocumentCheckIcon,
+  BriefcaseIcon,
+  ChatBubbleLeftRightIcon,
+  EnvelopeIcon,
+  CalendarDaysIcon,
+  MegaphoneIcon,
+  GlobeAltIcon,
+  BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 
 interface Integration {
   id: string;
   name: string;
-  description: string;
   category: string;
-  status: 'connected' | 'disconnected' | 'error' | 'configuring';
-  logo: string;
-  features: string[];
-  lastSync?: string;
-  dataFlow: 'bidirectional' | 'inbound' | 'outbound';
-  isPopular: boolean;
-  setupComplexity: 'easy' | 'medium' | 'complex';
+  configured: boolean;
+  status: 'connected' | 'disconnected' | 'error';
 }
 
-interface IntegrationCategory {
-  name: string;
-  description: string;
-  count: number;
-}
+const INTEGRATION_META: Record<string, { description: string; icon: React.ElementType; features: string[] }> = {
+  'docusign': {
+    description: 'E-signature solution for offer letters and employment contracts.',
+    icon: DocumentCheckIcon,
+    features: ['Offer signing', 'Envelope tracking', 'Webhook events'],
+  },
+  'linkedin': {
+    description: 'Professional networking platform for job posting and candidate sourcing.',
+    icon: BriefcaseIcon,
+    features: ['Job posting', 'Candidate sourcing', 'Analytics'],
+  },
+  'indeed': {
+    description: 'Global job search engine and recruitment platform.',
+    icon: GlobeAltIcon,
+    features: ['Job posting', 'Resume search', 'Sponsored jobs'],
+  },
+  'pnet': {
+    description: 'South African job board for local recruitment.',
+    icon: BuildingOfficeIcon,
+    features: ['Job posting', 'XML feed', 'Local reach'],
+  },
+  'career-junction': {
+    description: 'South African career and recruitment platform.',
+    icon: MegaphoneIcon,
+    features: ['Job posting', 'Candidate matching', 'Local reach'],
+  },
+  'ms-teams': {
+    description: 'Microsoft Teams notifications for hiring events and interview updates.',
+    icon: ChatBubbleLeftRightIcon,
+    features: ['Notifications', 'Adaptive cards', 'Team updates'],
+  },
+  'outlook': {
+    description: 'Outlook Calendar integration for interview scheduling.',
+    icon: CalendarDaysIcon,
+    features: ['Calendar events', 'Interview invites', 'Rescheduling'],
+  },
+  'aws-ses': {
+    description: 'AWS Simple Email Service for transactional email delivery.',
+    icon: EnvelopeIcon,
+    features: ['Email delivery', 'Templates', 'Delivery tracking'],
+  },
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  'all': 'All Integrations',
+  'Job Boards': 'Job Boards',
+  'Communication': 'Communication',
+  'E-Signature': 'E-Signature',
+  'Email': 'Email',
+};
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
@@ -40,164 +86,39 @@ export default function IntegrationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const categories: IntegrationCategory[] = [
-    { name: 'all', description: 'All Integrations', count: 0 },
-    { name: 'hrms', description: 'HR Management Systems', count: 0 },
-    { name: 'accounting', description: 'Accounting & Payroll', count: 0 },
-    { name: 'job-boards', description: 'Job Boards', count: 0 },
-    { name: 'assessment', description: 'Assessment Tools', count: 0 },
-    { name: 'communication', description: 'Communication', count: 0 },
-    { name: 'background-check', description: 'Background Verification', count: 0 }
-  ];
-
   useEffect(() => {
     loadIntegrations();
   }, []);
 
   const loadIntegrations = async () => {
     setLoading(true);
-    
-    // Mock integration data
-    const mockIntegrations: Integration[] = [
-      // Accounting & Payroll Systems
-      {
-        id: 'sage',
-        name: 'Sage',
-        description: 'Enterprise accounting and payroll management system with comprehensive HR integration capabilities.',
-        category: 'accounting',
-        status: 'connected',
-        logo: '🟢',
-        features: ['Employee data sync', 'Payroll integration', 'Cost center mapping', 'Financial reporting', 'Tax compliance'],
-        lastSync: '2024-01-21T10:30:00Z',
-        dataFlow: 'bidirectional',
-        isPopular: true,
-        setupComplexity: 'medium'
-      },
-      {
-        id: 'quickbooks',
-        name: 'QuickBooks',
-        description: 'Popular accounting software for small to medium businesses with payroll capabilities.',
-        category: 'accounting',
-        status: 'disconnected',
-        logo: '🔵',
-        features: ['Employee records', 'Payroll processing', 'Expense tracking', 'Financial reporting'],
-        dataFlow: 'bidirectional',
-        isPopular: true,
-        setupComplexity: 'easy'
-      },
-      
-      // HR Management Systems
-      {
-        id: 'workday',
-        name: 'Workday',
-        description: 'Enterprise cloud-based HR and financial management system.',
-        category: 'hrms',
-        status: 'connected',
-        logo: '🟡',
-        features: ['Employee lifecycle', 'Performance management', 'Learning & development', 'Analytics'],
-        lastSync: '2024-01-21T09:15:00Z',
-        dataFlow: 'bidirectional',
-        isPopular: true,
-        setupComplexity: 'complex'
-      },
-      {
-        id: 'bamboohr',
-        name: 'BambooHR',
-        description: 'All-in-one HR software for small and medium-sized businesses.',
-        category: 'hrms',
-        status: 'connected',
-        logo: '🟢',
-        features: ['Employee database', 'Time tracking', 'Performance reviews', 'Reporting'],
-        lastSync: '2024-01-21T08:45:00Z',
-        dataFlow: 'bidirectional',
-        isPopular: true,
-        setupComplexity: 'medium'
-      },
-      
-      // Job Boards
-      {
-        id: 'linkedin',
-        name: 'LinkedIn Jobs',
-        description: 'Professional networking platform with job posting and candidate sourcing.',
-        category: 'job-boards',
-        status: 'connected',
-        logo: '🔗',
-        features: ['Job posting', 'Candidate sourcing', 'InMail integration', 'Analytics'],
-        lastSync: '2024-01-21T11:00:00Z',
-        dataFlow: 'bidirectional',
-        isPopular: true,
-        setupComplexity: 'easy'
-      },
-      {
-        id: 'indeed',
-        name: 'Indeed',
-        description: 'Global job search engine and recruitment platform.',
-        category: 'job-boards',
-        status: 'error',
-        logo: '🔵',
-        features: ['Job posting', 'Resume search', 'Candidate tracking', 'Sponsored jobs'],
-        lastSync: '2024-01-20T15:30:00Z',
-        dataFlow: 'outbound',
-        isPopular: true,
-        setupComplexity: 'easy'
-      },
-      
-      // Assessment Tools
-      {
-        id: 'codility',
-        name: 'Codility',
-        description: 'Technical assessment platform for evaluating programming skills.',
-        category: 'assessment',
-        status: 'connected',
-        logo: '⚡',
-        features: ['Coding tests', 'Technical interviews', 'Skills assessment', 'Anti-cheat technology'],
-        lastSync: '2024-01-21T07:20:00Z',
-        dataFlow: 'bidirectional',
-        isPopular: false,
-        setupComplexity: 'medium'
-      },
-      
-      // Communication
-      {
-        id: 'slack',
-        name: 'Slack',
-        description: 'Team communication and collaboration platform.',
-        category: 'communication',
-        status: 'connected',
-        logo: '💬',
-        features: ['Notifications', 'Team updates', 'Candidate alerts', 'Interview scheduling'],
-        lastSync: '2024-01-21T11:45:00Z',
-        dataFlow: 'outbound',
-        isPopular: true,
-        setupComplexity: 'easy'
-      },
-      
-      // Background Check
-      {
-        id: 'checkr',
-        name: 'Checkr',
-        description: 'Modern background check and drug screening platform.',
-        category: 'background-check',
-        status: 'configuring',
-        logo: '🛡️',
-        features: ['Background checks', 'Drug screening', 'Identity verification', 'Compliance reporting'],
-        dataFlow: 'bidirectional',
-        isPopular: false,
-        setupComplexity: 'medium'
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setIntegrations(mockIntegrations);
+    try {
+      const response = await apiFetch('/api/integrations/status');
+      const data = await response.json();
+      setIntegrations(data);
+    } catch {
+      // Fallback to static data if API unavailable
+      setIntegrations([
+        { id: 'docusign', name: 'DocuSign', category: 'E-Signature', configured: false, status: 'disconnected' },
+        { id: 'linkedin', name: 'LinkedIn Jobs', category: 'Job Boards', configured: false, status: 'disconnected' },
+        { id: 'indeed', name: 'Indeed', category: 'Job Boards', configured: false, status: 'disconnected' },
+        { id: 'pnet', name: 'PNet', category: 'Job Boards', configured: false, status: 'disconnected' },
+        { id: 'career-junction', name: 'CareerJunction', category: 'Job Boards', configured: false, status: 'disconnected' },
+        { id: 'ms-teams', name: 'Microsoft Teams', category: 'Communication', configured: false, status: 'disconnected' },
+        { id: 'outlook', name: 'Outlook Calendar', category: 'Communication', configured: false, status: 'disconnected' },
+        { id: 'aws-ses', name: 'AWS SES', category: 'Email', configured: false, status: 'disconnected' },
+      ]);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
+
+  const categories = ['all', ...new Set(integrations.map(i => i.category))];
 
   const filteredIntegrations = integrations.filter(integration => {
     const matchesCategory = selectedCategory === 'all' || integration.category === selectedCategory;
     const matchesSearch = integration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         integration.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (INTEGRATION_META[integration.id]?.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -206,9 +127,7 @@ export default function IntegrationsPage() {
       case 'connected':
         return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
       case 'error':
-        return <XCircleIcon className="w-5 h-5 text-red-500" />;
-      case 'configuring':
-        return <ClockIcon className="w-5 h-5 text-yellow-500" />;
+        return <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />;
       default:
         return <XCircleIcon className="w-5 h-5 text-gray-400" />;
     }
@@ -221,31 +140,9 @@ export default function IntegrationsPage() {
         return `${baseClasses} bg-green-100 text-green-800`;
       case 'error':
         return `${baseClasses} bg-red-100 text-red-800`;
-      case 'configuring':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
-  };
-
-  const handleToggleIntegration = (integrationId: string) => {
-    setIntegrations(prev => prev.map(integration => 
-      integration.id === integrationId 
-        ? { 
-            ...integration, 
-            status: integration.status === 'connected' ? 'disconnected' : 'connected',
-            lastSync: integration.status === 'disconnected' ? new Date().toISOString() : integration.lastSync
-          }
-        : integration
-    ));
-  };
-
-  const handleRefreshIntegration = (integrationId: string) => {
-    setIntegrations(prev => prev.map(integration => 
-      integration.id === integrationId 
-        ? { ...integration, lastSync: new Date().toISOString() }
-        : integration
-    ));
   };
 
   const connectedCount = integrations.filter(i => i.status === 'connected').length;
@@ -253,13 +150,12 @@ export default function IntegrationsPage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
-        <PlusIcon className="w-4 h-4 mr-2" />
-        Add Integration
-      </button>
-      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
+      <button
+        onClick={loadIntegrations}
+        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+      >
         <ArrowPathIcon className="w-4 h-4 mr-2" />
-        Sync All
+        Refresh Status
       </button>
     </div>
   );
@@ -267,12 +163,12 @@ export default function IntegrationsPage() {
   return (
     <PageWrapper
       title="Integrations"
-      subtitle="Connect your recruitment platform with external systems and tools"
+      subtitle="Manage connections to external platforms and services"
       actions={actions}
     >
       <div className="space-y-6">
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -284,7 +180,7 @@ export default function IntegrationsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -296,27 +192,15 @@ export default function IntegrationsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <ExclamationTriangleIcon className="w-8 h-8 text-yellow-500" />
+                <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Errors</p>
                 <p className="text-2xl font-semibold text-gray-900">{errorCount}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ArrowPathIcon className="w-8 h-8 text-purple-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Last Sync</p>
-                <p className="text-sm font-semibold text-gray-900">2 mins ago</p>
               </div>
             </div>
           </div>
@@ -335,17 +219,17 @@ export default function IntegrationsPage() {
               />
             </div>
             <div className="flex gap-2 overflow-x-auto">
-              {categories.map(category => (
+              {categories.map(cat => (
                 <button
-                  key={category.name}
-                  onClick={() => setSelectedCategory(category.name)}
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
-                    selectedCategory === category.name
+                    selectedCategory === cat
                       ? 'bg-gold-100 text-gold-800 border border-violet-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {category.description}
+                  {CATEGORY_LABELS[cat] || cat}
                 </button>
               ))}
             </div>
@@ -360,90 +244,67 @@ export default function IntegrationsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredIntegrations.map(integration => (
-              <div key={integration.id} className="bg-white rounded-sm shadow hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="text-2xl mr-3">{integration.logo}</div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{integration.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={getStatusBadge(integration.status)}>
-                            {integration.status.replace('-', ' ')}
-                          </span>
-                          {integration.isPopular && (
-                            <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                              Popular
+            {filteredIntegrations.map(integration => {
+              const meta = INTEGRATION_META[integration.id] || { description: '', icon: LinkIcon, features: [] };
+              const IconComponent = meta.icon;
+
+              return (
+                <div key={integration.id} className="bg-white rounded-sm shadow hover:shadow-md transition-shadow">
+                  <div className="p-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-gray-100 rounded-sm mr-3">
+                          <IconComponent className="w-6 h-6 text-gray-700" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{integration.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={getStatusBadge(integration.status)}>
+                              {integration.status}
                             </span>
-                          )}
+                            <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs">
+                              {integration.category}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      {getStatusIcon(integration.status)}
                     </div>
-                    {getStatusIcon(integration.status)}
-                  </div>
 
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4">{integration.description}</p>
+                    {/* Description */}
+                    <p className="text-gray-600 text-sm mb-4">{meta.description}</p>
 
-                  {/* Features */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Features</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {integration.features.slice(0, 3).map(feature => (
-                        <span key={feature} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                          {feature}
-                        </span>
-                      ))}
-                      {integration.features.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                          +{integration.features.length - 3} more
-                        </span>
-                      )}
+                    {/* Features */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        {meta.features.map(feature => (
+                          <span key={feature} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Metadata */}
-                  <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                    <span>Setup: {integration.setupComplexity}</span>
-                    <span>{integration.dataFlow}</span>
-                  </div>
-
-                  {/* Last Sync */}
-                  {integration.lastSync && (
-                    <div className="text-xs text-gray-500 mb-4">
-                      Last synced: {new Date(integration.lastSync).toLocaleString()}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleToggleIntegration(integration.id)}
-                      className={`flex-1 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                        integration.status === 'connected'
-                          ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                          : 'bg-green-100 text-green-800 hover:bg-green-200'
-                      }`}
-                    >
-                      {integration.status === 'connected' ? 'Disconnect' : 'Connect'}
-                    </button>
-                    <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200">
-                      <CogIcon className="w-4 h-4" />
-                    </button>
-                    {integration.status === 'connected' && (
+                    {/* Actions */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => handleRefreshIntegration(integration.id)}
-                        className="px-3 py-2 bg-gold-100 text-violet-700 rounded-full text-sm hover:bg-gold-200"
+                        className={`flex-1 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                          integration.status === 'connected'
+                            ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                            : 'bg-green-100 text-green-800 hover:bg-green-200'
+                        }`}
                       >
-                        <ArrowPathIcon className="w-4 h-4" />
+                        {integration.status === 'connected' ? 'Disconnect' : 'Connect'}
                       </button>
-                    )}
+                      <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200">
+                        <CogIcon className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

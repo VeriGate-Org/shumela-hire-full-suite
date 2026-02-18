@@ -250,7 +250,7 @@ public class Notification {
     }
 
     public String getChannelIcon() {
-        return channel.getIcon();
+        return channel.name().toLowerCase();
     }
 
     private void setRelatedEntity(NotificationType type, Long entityId) {

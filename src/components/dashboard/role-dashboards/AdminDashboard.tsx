@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import {
   AreaChart,
   Area,
@@ -18,49 +19,117 @@ interface AdminDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-const systemHealthData = [
-  { time: '00:00', cpu: 32, memory: 61, requests: 120 },
-  { time: '02:00', cpu: 28, memory: 59, requests: 85 },
-  { time: '04:00', cpu: 22, memory: 57, requests: 42 },
-  { time: '06:00', cpu: 35, memory: 60, requests: 190 },
-  { time: '08:00', cpu: 58, memory: 68, requests: 480 },
-  { time: '10:00', cpu: 72, memory: 74, requests: 720 },
-  { time: '12:00', cpu: 68, memory: 72, requests: 650 },
-  { time: '14:00', cpu: 75, memory: 76, requests: 780 },
-  { time: '16:00', cpu: 70, memory: 73, requests: 690 },
-  { time: '18:00', cpu: 52, memory: 67, requests: 410 },
-  { time: '20:00', cpu: 41, memory: 63, requests: 260 },
-  { time: '22:00', cpu: 35, memory: 62, requests: 170 },
-];
+interface SystemHealthPoint {
+  time: string;
+  cpu: number;
+  memory: number;
+  requests: number;
+}
 
-const adminMetrics = [
+interface MetricItem {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  target: number;
+  unit: 'percentage' | 'number' | 'days';
+  trend: 'up' | 'down' | 'neutral';
+  trendValue: number;
+  description: string;
+  status: 'good' | 'warning' | 'critical';
+}
+
+const defaultSystemHealthData: SystemHealthPoint[] = [];
+
+const defaultAdminMetrics: MetricItem[] = [
   {
     id: 'total-users',
     label: 'Total System Users',
-    value: 847,
-    previousValue: 823,
+    value: 0,
+    previousValue: 0,
     target: 900,
-    unit: 'number' as const,
-    trend: 'up' as const,
-    trendValue: 2.9,
+    unit: 'number',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Active users in the system',
-    status: 'good' as const,
+    status: 'warning',
   },
   {
     id: 'system-uptime',
     label: 'System Uptime',
-    value: 99.8,
-    previousValue: 99.5,
+    value: 0,
+    previousValue: 0,
     target: 99.9,
-    unit: 'percentage' as const,
-    trend: 'up' as const,
-    trendValue: 0.3,
+    unit: 'percentage',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'System availability percentage',
-    status: 'good' as const,
+    status: 'warning',
   },
 ];
 
 export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }: AdminDashboardProps) {
+  const [systemHealthData, setSystemHealthData] = useState<SystemHealthPoint[]>(defaultSystemHealthData);
+  const [adminMetrics, setAdminMetrics] = useState<MetricItem[]>(defaultAdminMetrics);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+
+      try {
+        const response = await apiFetch('/api/analytics/dashboard?role=ADMIN');
+
+        if (cancelled) return;
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Process system health data
+          if (Array.isArray(data?.systemHealth) && data.systemHealth.length > 0) {
+            setSystemHealthData(data.systemHealth);
+          }
+
+          // Process admin metrics
+          if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
+            setAdminMetrics(data.metrics);
+          }
+        }
+      } catch {
+        // Keep default values on error
+      }
+
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-white rounded-sm border border-gray-200 p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Admin Grid Layout */}
@@ -86,30 +155,36 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange }:
               refreshable={true}
               size="large"
             >
-              <div className="w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={systemHealthData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                    <XAxis dataKey="time" tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={false} domain={[0, 100]} unit="%" />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '2px', fontSize: 13 }}
-                      formatter={(value: number, name: string) => {
-                        if (name === 'requests') return [`${value}`, 'Requests/min'];
-                        return [`${value}%`, name === 'cpu' ? 'CPU Usage' : 'Memory Usage'];
-                      }}
-                    />
-                    <Legend verticalAlign="top" height={28} iconType="square" iconSize={10}
-                      formatter={(value: string) => {
-                        const labels: Record<string, string> = { cpu: 'CPU', memory: 'Memory', requests: 'Req/min' };
-                        return <span style={{ color: '#64748B', fontSize: 12 }}>{labels[value] || value}</span>;
-                      }}
-                    />
-                    <Area type="monotone" dataKey="cpu" stroke="#05527E" fill="#05527E" fillOpacity={0.15} strokeWidth={2} />
-                    <Area type="monotone" dataKey="memory" stroke="#008C7F" fill="#008C7F" fillOpacity={0.1} strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              {systemHealthData.length > 0 ? (
+                <div className="w-full h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={systemHealthData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                      <XAxis dataKey="time" tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }} />
+                      <YAxis tick={{ fontSize: 12, fill: '#64748B' }} tickLine={false} axisLine={false} domain={[0, 100]} unit="%" />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '2px', fontSize: 13 }}
+                        formatter={(value: number, name: string) => {
+                          if (name === 'requests') return [`${value}`, 'Requests/min'];
+                          return [`${value}%`, name === 'cpu' ? 'CPU Usage' : 'Memory Usage'];
+                        }}
+                      />
+                      <Legend verticalAlign="top" height={28} iconType="square" iconSize={10}
+                        formatter={(value: string) => {
+                          const labels: Record<string, string> = { cpu: 'CPU', memory: 'Memory', requests: 'Req/min' };
+                          return <span style={{ color: '#64748B', fontSize: 12 }}>{labels[value] || value}</span>;
+                        }}
+                      />
+                      <Area type="monotone" dataKey="cpu" stroke="#05527E" fill="#05527E" fillOpacity={0.15} strokeWidth={2} />
+                      <Area type="monotone" dataKey="memory" stroke="#008C7F" fill="#008C7F" fillOpacity={0.1} strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                  No system health data available
+                </div>
+              )}
             </DashboardWidget>
           </div>
         </div>

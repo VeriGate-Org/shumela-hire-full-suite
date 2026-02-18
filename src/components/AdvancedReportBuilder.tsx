@@ -67,8 +67,8 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
   ];
 
   const sourceOptions = [
-    'LinkedIn', 'Company Website', 'Indeed', 'Glassdoor', 
-    'Job Board', 'Referral', 'Career Fair', 'Direct Application'
+    'LinkedIn', 'Company Website', 'Indeed', 'PNet',
+    'CareerJunction', 'Referral', 'Career Fair', 'Direct Application'
   ];
 
   const handleDatePresetChange = (preset: string) => {

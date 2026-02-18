@@ -189,7 +189,7 @@ export default function AuditLogsPage() {
       case 'integration_disabled':
         return { 
           ...baseDetails, 
-          integration: ['Sage', 'BambooHR', 'Workday', 'ATS'][Math.floor(Math.random() * 4)],
+          integration: ['DocuSign', 'LinkedIn Jobs', 'AWS SES', 'MS Teams'][Math.floor(Math.random() * 4)],
           configuration: { enabled: action === 'integration_enabled' }
         };
       default:

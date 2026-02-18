@@ -1,14 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-// Using placeholder icons - install lucide-react or replace with your preferred icon library
-const Search = ({ className }: { className?: string }) => <span className={className}>🔍</span>;
-const Filter = ({ className }: { className?: string }) => <span className={className}>🔽</span>;
-const Download = ({ className }: { className?: string }) => <span className={className}>💾</span>;
-const Users = ({ className }: { className?: string }) => <span className={className}>👥</span>;
-const Star = ({ className }: { className?: string }) => <span className={className}>⭐</span>;
-const Clock = ({ className }: { className?: string }) => <span className={className}>⏰</span>;
-const CheckCircle = ({ className }: { className?: string }) => <span className={className}>✅</span>;
+import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface Application {
   id: number;
@@ -45,13 +39,15 @@ interface BulkOperation {
 }
 
 export default function ApplicationManagementConsole() {
+  const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalElements, setTotalElements] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
-  
+  const [error, setError] = useState<string | null>(null);
+
   const [filters, setFilters] = useState<SearchFilters>({
     searchTerm: '',
     statuses: [],
@@ -80,7 +76,6 @@ export default function ApplicationManagementConsole() {
     averageRating: 0
   });
 
-  // Available filter options
   const statusOptions = ['APPLIED', 'UNDER_REVIEW', 'INTERVIEWED', 'OFFERED', 'HIRED', 'REJECTED'];
   const departmentOptions = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'];
   const stageOptions = ['APPLICATION', 'SCREENING', 'INTERVIEW', 'TECHNICAL', 'FINAL', 'OFFER'];
@@ -92,66 +87,35 @@ export default function ApplicationManagementConsole() {
 
   const searchApplications = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Mock data instead of API call
-      const mockApplications: Application[] = [
-        {
-          id: 1,
-          candidateName: 'John Doe',
-          email: 'john.doe@email.com',
-          jobTitle: 'Senior Software Engineer',
-          department: 'Engineering',
-          status: 'UNDER_REVIEW',
-          pipelineStage: 'INTERVIEW',
-          rating: 4.2,
-          submittedAt: '2024-01-15T10:00:00Z',
-          lastUpdated: '2024-01-16T14:30:00Z'
-        },
-        {
-          id: 2,
-          candidateName: 'Jane Smith',
-          email: 'jane.smith@email.com',
-          jobTitle: 'Product Manager',
-          department: 'Product',
-          status: 'INTERVIEWED',
-          pipelineStage: 'FINAL',
-          rating: 4.8,
-          submittedAt: '2024-01-10T14:30:00Z',
-          lastUpdated: '2024-01-17T09:15:00Z'
-        },
-        {
-          id: 3,
-          candidateName: 'Mike Johnson',
-          email: 'mike.johnson@email.com',
-          jobTitle: 'UX Designer',
-          department: 'Design',
-          status: 'APPLIED',
-          pipelineStage: 'APPLICATION',
-          rating: 3.9,
-          submittedAt: '2024-01-18T11:20:00Z',
-          lastUpdated: '2024-01-18T11:20:00Z'
-        }
-      ];
+      const params = new URLSearchParams();
+      if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
+      if (filters.statuses.length > 0) filters.statuses.forEach(s => params.append('statuses', s));
+      if (filters.departments.length > 0) filters.departments.forEach(d => params.append('departments', d));
+      if (filters.jobTitle) params.append('jobTitle', filters.jobTitle);
+      if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters.dateTo) params.append('dateTo', filters.dateTo);
+      if (filters.minRating > 0) params.append('minRating', String(filters.minRating));
+      if (filters.maxRating < 5) params.append('maxRating', String(filters.maxRating));
+      params.append('sortBy', filters.sortBy);
+      params.append('sortDirection', filters.sortDirection);
+      params.append('page', String(filters.page));
+      params.append('size', String(filters.size));
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Apply basic filtering based on search term
-      let filteredApps = mockApplications;
-      if (filters.searchTerm) {
-        const searchLower = filters.searchTerm.toLowerCase();
-        filteredApps = mockApplications.filter(app => 
-          app.candidateName.toLowerCase().includes(searchLower) ||
-          app.email.toLowerCase().includes(searchLower) ||
-          app.jobTitle.toLowerCase().includes(searchLower) ||
-          app.department.toLowerCase().includes(searchLower)
-        );
+      const response = await apiFetch(`/api/applications/manage/search?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setApplications(data.content || data.applications || []);
+        setTotalElements(data.totalElements || data.total || 0);
+      } else {
+        setError('Failed to load applications');
+        setApplications([]);
       }
-
-      setApplications(filteredApps);
-      setTotalElements(filteredApps.length);
-    } catch (error) {
-      console.error('Error searching applications:', error);
+    } catch (err) {
+      console.error('Error searching applications:', err);
+      setError('Failed to load applications');
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -159,20 +123,18 @@ export default function ApplicationManagementConsole() {
 
   const fetchStatistics = async () => {
     try {
-      // Mock statistics data instead of API call
-      const mockStats = {
-        totalApplications: 245,
-        newApplications: 18,
-        inReviewApplications: 42,
-        averageRating: 4.2
-      };
-
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      setStatistics(mockStats);
-    } catch (error) {
-      console.error('Error fetching statistics:', error);
+      const response = await apiFetch('/api/applications/manage/statistics');
+      if (response.ok) {
+        const data = await response.json();
+        setStatistics({
+          totalApplications: data.totalApplications ?? 0,
+          newApplications: data.newApplications ?? 0,
+          inReviewApplications: data.inReviewApplications ?? 0,
+          averageRating: data.averageRating ?? 0
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching statistics:', err);
     }
   };
 
@@ -186,8 +148,8 @@ export default function ApplicationManagementConsole() {
   };
 
   const handleSelectApplication = (applicationId: number) => {
-    setSelectedApplications(prev => 
-      prev.includes(applicationId) 
+    setSelectedApplications(prev =>
+      prev.includes(applicationId)
         ? prev.filter(id => id !== applicationId)
         : [...prev, applicationId]
     );
@@ -201,84 +163,109 @@ export default function ApplicationManagementConsole() {
     }
   };
 
+  const handleViewApplication = (applicationId: number) => {
+    router.push(`/applications/${applicationId}`);
+  };
+
+  const handleReviewApplication = async (applicationId: number) => {
+    try {
+      const response = await apiFetch(`/api/applications/${applicationId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'UNDER_REVIEW' }),
+      });
+      if (response.ok) {
+        setApplications(prev => prev.map(app =>
+          app.id === applicationId
+            ? { ...app, status: 'UNDER_REVIEW', lastUpdated: new Date().toISOString() }
+            : app
+        ));
+      }
+    } catch (err) {
+      console.error('Error updating application status:', err);
+    }
+  };
+
+  const handleRejectApplication = async (applicationId: number) => {
+    if (!confirm('Are you sure you want to reject this application?')) return;
+    try {
+      const response = await apiFetch(`/api/applications/${applicationId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'REJECTED' }),
+      });
+      if (response.ok) {
+        setApplications(prev => prev.map(app =>
+          app.id === applicationId
+            ? { ...app, status: 'REJECTED', lastUpdated: new Date().toISOString() }
+            : app
+        ));
+      }
+    } catch (err) {
+      console.error('Error rejecting application:', err);
+    }
+  };
+
   const executeBulkOperation = async () => {
     if (selectedApplications.length === 0) return;
 
     try {
-      // Mock bulk operation instead of API calls
-      console.log('Executing bulk operation:', {
-        type: bulkOperation.type,
-        value: bulkOperation.value,
-        applicationIds: selectedApplications
-      });
+      const bulkPayload: Record<string, any> = { applicationIds: selectedApplications };
+      let endpoint = '';
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update local state to reflect the bulk operation
       if (bulkOperation.type === 'status') {
-        setApplications(prev => prev.map(app => 
-          selectedApplications.includes(app.id) 
-            ? { ...app, status: bulkOperation.value, lastUpdated: new Date().toISOString() }
-            : app
-        ));
+        endpoint = '/api/applications/manage/bulk/status';
+        bulkPayload.status = bulkOperation.value;
       } else if (bulkOperation.type === 'rating') {
-        setApplications(prev => prev.map(app => 
-          selectedApplications.includes(app.id) 
-            ? { ...app, rating: parseInt(bulkOperation.value), lastUpdated: new Date().toISOString() }
-            : app
-        ));
+        endpoint = '/api/applications/manage/bulk/rating';
+        bulkPayload.rating = parseInt(bulkOperation.value);
       } else if (bulkOperation.type === 'stage') {
-        setApplications(prev => prev.map(app => 
-          selectedApplications.includes(app.id) 
-            ? { ...app, pipelineStage: bulkOperation.value, lastUpdated: new Date().toISOString() }
-            : app
-        ));
+        endpoint = '/api/applications/manage/bulk/pipeline-stage';
+        bulkPayload.pipelineStage = bulkOperation.value;
       }
 
-      setSelectedApplications([]);
-      setShowBulkActions(false);
-      alert(`Bulk operation completed successfully. Updated ${selectedApplications.length} applications.`);
-    } catch (error) {
-      console.error('Error executing bulk operation:', error);
+      const response = await apiFetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bulkPayload),
+      });
+
+      if (response.ok) {
+        setSelectedApplications([]);
+        setShowBulkActions(false);
+        searchApplications();
+        fetchStatistics();
+      } else {
+        alert('Error executing bulk operation');
+      }
+    } catch (err) {
+      console.error('Error executing bulk operation:', err);
       alert('Error executing bulk operation');
     }
   };
 
   const exportApplications = async () => {
     try {
-      // Mock export functionality
-      console.log('Exporting applications with filters:', filters);
-      
-      // Create a simple CSV export
-      const csvData = applications.map(app => ({
-        'Candidate Name': app.candidateName,
-        'Email': app.email,
-        'Job Title': app.jobTitle,
-        'Department': app.department,
-        'Status': app.status,
-        'Pipeline Stage': app.pipelineStage,
-        'Rating': app.rating,
-        'Submitted At': app.submittedAt,
-        'Last Updated': app.lastUpdated
-      }));
+      const params = new URLSearchParams();
+      if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
+      if (filters.statuses.length > 0) filters.statuses.forEach(s => params.append('statuses', s));
+      if (filters.departments.length > 0) filters.departments.forEach(d => params.append('departments', d));
+      params.append('format', 'csv');
 
-      // Simulate download
-      const csvContent = [
-        Object.keys(csvData[0] || {}).join(','),
-        ...csvData.map(row => Object.values(row).join(','))
-      ].join('\n');
-      
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'applications-export.csv';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      
-    } catch (error) {
-      console.error('Error exporting applications:', error);
+      const response = await apiFetch(`/api/applications/manage/export?${params.toString()}`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'applications-export.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        alert('Error exporting applications');
+      }
+    } catch (err) {
+      console.error('Error exporting applications:', err);
       alert('Error exporting applications');
     }
   };
@@ -307,10 +294,12 @@ export default function ApplicationManagementConsole() {
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <Star
+      <span
         key={i}
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-      />
+        className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+      >
+        &#9733;
+      </span>
     ));
   };
 
@@ -323,16 +312,14 @@ export default function ApplicationManagementConsole() {
           <div className="flex space-x-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
-              <Filter className="w-4 h-4 mr-2" />
               Filters
             </button>
             <button
               onClick={exportApplications}
-              className="flex items-center px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
-              <Download className="w-4 h-4 mr-2" />
               Export
             </button>
           </div>
@@ -341,58 +328,38 @@ export default function ApplicationManagementConsole() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-gold-50 p-4 rounded-sm">
-            <div className="flex items-center">
-              <Users className="w-8 h-8 text-gold-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-gold-600">Total Applications</p>
-                <p className="text-2xl font-bold text-violet-900">{statistics.totalApplications}</p>
-              </div>
-            </div>
+            <p className="text-sm font-medium text-gold-600">Total Applications</p>
+            <p className="text-2xl font-bold text-violet-900">{statistics.totalApplications}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-sm">
-            <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-green-600">New Applications</p>
-                <p className="text-2xl font-bold text-green-900">{statistics.newApplications}</p>
-              </div>
-            </div>
+            <p className="text-sm font-medium text-green-600">New Applications</p>
+            <p className="text-2xl font-bold text-green-900">{statistics.newApplications}</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-sm">
-            <div className="flex items-center">
-              <Clock className="w-8 h-8 text-yellow-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-yellow-600">In Review</p>
-                <p className="text-2xl font-bold text-yellow-900">{statistics.inReviewApplications}</p>
-              </div>
-            </div>
+            <p className="text-sm font-medium text-yellow-600">In Review</p>
+            <p className="text-2xl font-bold text-yellow-900">{statistics.inReviewApplications}</p>
           </div>
           <div className="bg-purple-50 p-4 rounded-sm">
-            <div className="flex items-center">
-              <Star className="w-8 h-8 text-purple-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-purple-600">Avg Rating</p>
-                <p className="text-2xl font-bold text-purple-900">{statistics.averageRating.toFixed(1)}</p>
-              </div>
-            </div>
+            <p className="text-sm font-medium text-purple-600">Avg Rating</p>
+            <p className="text-2xl font-bold text-purple-900">{statistics.averageRating.toFixed(1)}</p>
           </div>
         </div>
 
         {/* Basic Search */}
         <div className="flex items-center space-x-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search by candidate name, email, or job title..."
               value={filters.searchTerm}
               onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
           >
             Search
           </button>
@@ -404,7 +371,6 @@ export default function ApplicationManagementConsole() {
         <div className="bg-white rounded-sm shadow p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Advanced Filters</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <select
@@ -419,7 +385,6 @@ export default function ApplicationManagementConsole() {
               </select>
             </div>
 
-            {/* Department Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
               <select
@@ -434,7 +399,6 @@ export default function ApplicationManagementConsole() {
               </select>
             </div>
 
-            {/* Rating Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Rating Range</label>
               <div className="flex space-x-2">
@@ -459,7 +423,6 @@ export default function ApplicationManagementConsole() {
               </div>
             </div>
 
-            {/* Date Range Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Date From</label>
               <input
@@ -480,7 +443,6 @@ export default function ApplicationManagementConsole() {
               />
             </div>
 
-            {/* Sort Options */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
               <div className="flex space-x-2">
@@ -509,7 +471,7 @@ export default function ApplicationManagementConsole() {
           <div className="mt-4 flex space-x-3">
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600"
             >
               Apply Filters
             </button>
@@ -531,7 +493,7 @@ export default function ApplicationManagementConsole() {
                 });
                 searchApplications();
               }}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50"
             >
               Clear Filters
             </button>
@@ -549,7 +511,7 @@ export default function ApplicationManagementConsole() {
               </span>
               <button
                 onClick={() => setShowBulkActions(!showBulkActions)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-sm hover:bg-indigo-700 text-sm"
+                className="px-4 py-2 bg-[#05527E] text-white rounded-full hover:opacity-90 text-sm"
               >
                 Bulk Actions
               </button>
@@ -617,13 +579,23 @@ export default function ApplicationManagementConsole() {
                 <button
                   onClick={executeBulkOperation}
                   disabled={!bulkOperation.value}
-                  className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:bg-gray-300"
                 >
                   Execute
                 </button>
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-sm p-4 text-red-700 text-sm">
+          {error}
+          <button onClick={searchApplications} className="ml-2 underline hover:no-underline">
+            Retry
+          </button>
         </div>
       )}
 
@@ -724,13 +696,22 @@ export default function ApplicationManagementConsole() {
                       {formatDate(application.submittedAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-gold-600 hover:text-violet-900 mr-3 rounded-full">
+                      <button
+                        onClick={() => handleViewApplication(application.id)}
+                        className="text-gold-600 hover:text-violet-900 mr-3"
+                      >
                         View
                       </button>
-                      <button className="text-green-600 hover:text-green-900 mr-3 rounded-full">
+                      <button
+                        onClick={() => handleReviewApplication(application.id)}
+                        className="text-green-600 hover:text-green-900 mr-3"
+                      >
                         Review
                       </button>
-                      <button className="text-red-600 hover:text-red-900 rounded-full">
+                      <button
+                        onClick={() => handleRejectApplication(application.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
                         Reject
                       </button>
                     </td>
@@ -748,14 +729,14 @@ export default function ApplicationManagementConsole() {
               <button
                 onClick={() => handleFilterChange('page', Math.max(0, filters.page - 1))}
                 disabled={filters.page === 0}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
               >
                 Previous
               </button>
               <button
                 onClick={() => handleFilterChange('page', filters.page + 1)}
                 disabled={(filters.page + 1) * filters.size >= totalElements}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
               >
                 Next
               </button>
@@ -779,14 +760,14 @@ export default function ApplicationManagementConsole() {
                   <button
                     onClick={() => handleFilterChange('page', Math.max(0, filters.page - 1))}
                     disabled={filters.page === 0}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
+                    className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => handleFilterChange('page', filters.page + 1)}
                     disabled={(filters.page + 1) * filters.size >= totalElements}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
+                    className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
                   >
                     Next
                   </button>

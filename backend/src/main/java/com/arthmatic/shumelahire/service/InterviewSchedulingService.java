@@ -8,6 +8,9 @@ import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.InterviewRecommendation;
 import com.arthmatic.shumelahire.repository.InterviewRepository;
 import com.arthmatic.shumelahire.repository.ApplicationRepository;
+import com.arthmatic.shumelahire.service.integration.OutlookCalendarService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class InterviewSchedulingService {
 
+    private static final Logger logger = LoggerFactory.getLogger(InterviewSchedulingService.class);
+
     @Autowired
     private InterviewRepository interviewRepository;
 
@@ -33,6 +38,9 @@ public class InterviewSchedulingService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired(required = false)
+    private OutlookCalendarService outlookCalendarService;
 
     /**
      * Schedule a new interview
@@ -80,7 +88,24 @@ public class InterviewSchedulingService {
 
         // Send notifications
         notificationService.notifyInterviewScheduled(application, formatInterviewDetails(savedInterview));
-        
+
+        // Create Outlook calendar event (non-fatal on failure)
+        if (outlookCalendarService != null) {
+            try {
+                outlookCalendarService.createInterviewEvent(
+                    "Interview: " + application.getApplicant().getFullName() + " - " + application.getJobTitle(),
+                    formatInterviewDetails(savedInterview),
+                    savedInterview.getScheduledDate(),
+                    savedInterview.getDurationMinutes(),
+                    savedInterview.getLocation(),
+                    savedInterview.getInterviewerEmail(),
+                    application.getApplicant().getEmail()
+                );
+            } catch (Exception e) {
+                logger.warn("Failed to create Outlook calendar event: {}", e.getMessage());
+            }
+        }
+
         // Log audit
         auditLogService.saveLog(
             "system",

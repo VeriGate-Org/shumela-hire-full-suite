@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, CandidatePipeline } from '../../dashboard';
 import { ApplicationVolumeChart } from '../../charts';
@@ -10,127 +11,217 @@ interface HiringManagerDashboardProps {
   onTimeframeChange: (timeframe: string) => void;
 }
 
-// Mock data for hiring manager dashboard
-const hiringManagerMetrics = [
+interface MetricItem {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  target: number;
+  unit: 'percentage' | 'number' | 'days';
+  trend: 'up' | 'down' | 'neutral';
+  trendValue: number;
+  description: string;
+  status: 'good' | 'warning' | 'critical';
+}
+
+interface PipelineCandidate {
+  id: string;
+  name: string;
+  email: string;
+  position: string;
+  avatar: string;
+  score: number;
+  appliedDate: string;
+  source: string;
+  status: 'new' | 'in_review' | 'interview_scheduled' | 'offer_made' | 'hired' | 'rejected';
+}
+
+interface PipelineStage {
+  id: string;
+  name: string;
+  color: string;
+  candidates: PipelineCandidate[];
+}
+
+interface VolumeDataPoint {
+  date: string;
+  applications: number;
+  interviews: number;
+  offers: number;
+  hires: number;
+  [key: string]: unknown;
+}
+
+const defaultMetrics: MetricItem[] = [
   {
     id: 'time-to-fill',
     label: 'Average Time to Fill',
-    value: 32,
-    previousValue: 38,
+    value: 0,
+    previousValue: 0,
     target: 30,
-    unit: 'days' as const,
-    trend: 'down' as const,
-    trendValue: -15.8,
+    unit: 'days',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Days from job posting to offer acceptance',
-    status: 'warning' as const,
+    status: 'warning',
   },
   {
     id: 'interview-satisfaction',
     label: 'Interview Satisfaction',
-    value: 4.3,
-    previousValue: 4.1,
+    value: 0,
+    previousValue: 0,
     target: 4.5,
-    unit: 'number' as const,
-    trend: 'up' as const,
-    trendValue: 4.9,
+    unit: 'number',
+    trend: 'neutral',
+    trendValue: 0,
     description: 'Candidate satisfaction score (1-5 scale)',
-    status: 'good' as const,
+    status: 'warning',
   },
 ];
 
-// Mock pipeline data
-const mockPipelineStages = [
-  {
-    id: 'applied',
-    name: 'Applied',
-    color: 'bg-gold-100',
-    candidates: [
-      { 
-        id: '1', 
-        name: 'John Smith', 
-        email: 'john.smith@email.com',
-        position: 'Senior Developer', 
-        avatar: 'JS', 
-        score: 85,
-        appliedDate: '2025-08-15',
-        source: 'LinkedIn',
-        status: 'new' as const
-      },
-      { 
-        id: '2', 
-        name: 'Sarah Chen', 
-        email: 'sarah.chen@email.com',
-        position: 'Product Manager', 
-        avatar: 'SC', 
-        score: 92,
-        appliedDate: '2025-08-14',
-        source: 'Company Website',
-        status: 'new' as const
-      },
-    ],
-  },
-  {
-    id: 'screening',
-    name: 'Phone Screen',
-    color: 'bg-yellow-100',
-    candidates: [
-      { 
-        id: '3', 
-        name: 'Mike Rodriguez', 
-        email: 'mike.rodriguez@email.com',
-        position: 'UX Designer', 
-        avatar: 'MR', 
-        score: 78,
-        appliedDate: '2025-08-13',
-        source: 'Referral',
-        status: 'in_review' as const
-      },
-    ],
-  },
-  {
-    id: 'interview',
-    name: 'Interview',
-    color: 'bg-purple-100',
-    candidates: [
-      { 
-        id: '4', 
-        name: 'Lisa Park', 
-        email: 'lisa.park@email.com',
-        position: 'Data Scientist', 
-        avatar: 'LP', 
-        score: 88,
-        appliedDate: '2025-08-12',
-        source: 'Job Board',
-        status: 'interview_scheduled' as const
-      },
-    ],
-  },
-];
+const stageMapping: Record<string, { name: string; color: string; order: number }> = {
+  SUBMITTED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
+  APPLIED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
+  SCREENING: { name: 'Phone Screen', color: 'bg-yellow-100', order: 1 },
+  PHONE_SCREEN: { name: 'Phone Screen', color: 'bg-yellow-100', order: 1 },
+  INTERVIEW: { name: 'Interview', color: 'bg-purple-100', order: 2 },
+  INTERVIEW_SCHEDULED: { name: 'Interview', color: 'bg-purple-100', order: 2 },
+  OFFER: { name: 'Offer', color: 'bg-green-100', order: 3 },
+  OFFERED: { name: 'Offer', color: 'bg-green-100', order: 3 },
+};
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function mapStatusToCandidate(status: string): PipelineCandidate['status'] {
+  const mapping: Record<string, PipelineCandidate['status']> = {
+    SUBMITTED: 'new',
+    APPLIED: 'new',
+    SCREENING: 'in_review',
+    PHONE_SCREEN: 'in_review',
+    INTERVIEW: 'interview_scheduled',
+    INTERVIEW_SCHEDULED: 'interview_scheduled',
+    OFFER: 'offer_made',
+    OFFERED: 'offer_made',
+    HIRED: 'hired',
+    REJECTED: 'rejected',
+  };
+  return mapping[status] || 'new';
+}
+
+function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
+  const stageMap = new Map<string, PipelineCandidate[]>();
+
+  // Initialize default stages
+  const defaultStages = ['applied', 'screening', 'interview'];
+  defaultStages.forEach((id) => stageMap.set(id, []));
+
+  applications.forEach((app: any) => {
+    const status = (app.status || 'SUBMITTED').toUpperCase();
+    const stageInfo = stageMapping[status];
+    if (!stageInfo) return;
+
+    const stageId = stageInfo.name.toLowerCase().replace(/\s+/g, '-').replace('phone-screen', 'screening');
+    const normalizedId = stageId === 'applied' ? 'applied' : stageId === 'phone-screen' ? 'screening' : stageId;
+
+    if (!stageMap.has(normalizedId)) {
+      stageMap.set(normalizedId, []);
+    }
+
+    stageMap.get(normalizedId)?.push({
+      id: app.id?.toString() || '',
+      name: app.candidateName || app.name || '',
+      email: app.candidateEmail || app.email || '',
+      position: app.jobTitle || app.position || '',
+      avatar: getInitials(app.candidateName || app.name || ''),
+      score: app.score ?? 0,
+      appliedDate: app.submittedAt || app.appliedDate || '',
+      source: app.source || '',
+      status: mapStatusToCandidate(status),
+    });
+  });
+
+  const stages: PipelineStage[] = [
+    { id: 'applied', name: 'Applied', color: 'bg-gold-100', candidates: stageMap.get('applied') || [] },
+    { id: 'screening', name: 'Phone Screen', color: 'bg-yellow-100', candidates: stageMap.get('screening') || [] },
+    { id: 'interview', name: 'Interview', color: 'bg-purple-100', candidates: stageMap.get('interview') || [] },
+  ];
+
+  // Add offer stage if there are candidates in it
+  const offerCandidates = stageMap.get('offer');
+  if (offerCandidates && offerCandidates.length > 0) {
+    stages.push({ id: 'offer', name: 'Offer', color: 'bg-green-100', candidates: offerCandidates });
+  }
+
+  return stages;
+}
 
 export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeChange }: HiringManagerDashboardProps) {
   const [isMounted, setIsMounted] = useState(false);
-  
-  // Generate mock data only on client side to avoid hydration mismatch
-  const [applicationVolumeData, setApplicationVolumeData] = useState<Array<{
-    date: string;
-    applications: number;
-    interviews: number;
-    offers: number;
-    hires: number;
-  }>>([]);
+  const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
+  const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([]);
+  const [applicationVolumeData, setApplicationVolumeData] = useState<VolumeDataPoint[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
-    // Generate mock application volume data on client side only
-    const mockData = Array.from({ length: 30 }, (_, i) => ({
-      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      applications: Math.floor(Math.random() * 20) + 5,
-      interviews: Math.floor(Math.random() * 10) + 2,
-      offers: Math.floor(Math.random() * 3) + 1,
-      hires: Math.floor(Math.random() * 2) + 1,
-    }));
-    setApplicationVolumeData(mockData);
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+
+      const [dashboardResult, applicationsResult] = await Promise.allSettled([
+        apiFetch('/api/analytics/dashboard?role=HIRING_MANAGER'),
+        apiFetch('/api/applications/manage/search?size=20'),
+      ]);
+
+      if (cancelled) return;
+
+      // Process dashboard analytics (metrics + volume data)
+      if (dashboardResult.status === 'fulfilled' && dashboardResult.value.ok) {
+        try {
+          const data = await dashboardResult.value.json();
+
+          if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
+            setMetrics(data.metrics);
+          }
+
+          if (Array.isArray(data?.applicationVolume) && data.applicationVolume.length > 0) {
+            setApplicationVolumeData(data.applicationVolume);
+          }
+        } catch {
+          // Keep defaults on parse error
+        }
+      }
+
+      // Process applications into pipeline stages
+      if (applicationsResult.status === 'fulfilled' && applicationsResult.value.ok) {
+        try {
+          const data = await applicationsResult.value.json();
+          const items = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
+          const stages = transformApplicationsToPipeline(items);
+          setPipelineStages(stages);
+        } catch {
+          // Keep empty pipeline on parse error
+        }
+      }
+
+      setLoading(false);
+    }
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
   const handleCandidateMove = (candidateId: string, fromStage: string, toStage: string) => {
     console.log(`Moving candidate ${candidateId} from ${fromStage} to ${toStage}`);
   };
@@ -138,6 +229,23 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
   const handleCandidateClick = (candidate: any) => {
     console.log(`Viewing candidate details for ${candidate.id}`);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
@@ -162,7 +270,7 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
           {/* Hiring Performance Metrics */}
           <div className="w-full overflow-hidden">
             <PerformanceMetrics
-              metrics={hiringManagerMetrics}
+              metrics={metrics}
               title="Hiring Performance Indicators"
               subtitle="Track your team's hiring effectiveness"
               timeframe={selectedTimeframe}
@@ -221,10 +329,16 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
                 size="medium"
               >
                 <div className="w-full h-64 overflow-hidden">
-                  <ApplicationVolumeChart
-                    data={applicationVolumeData.slice(-30)}
-                    timeframe="month"
-                  />
+                  {applicationVolumeData.length > 0 ? (
+                    <ApplicationVolumeChart
+                      data={applicationVolumeData.slice(-30)}
+                      timeframe="month"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">
+                      No volume data available
+                    </div>
+                  )}
                 </div>
               </DashboardWidget>
             </div>
@@ -237,7 +351,7 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
           <div className="max-h-96 overflow-hidden">
             <div className="h-full overflow-y-auto">
               <CandidatePipeline
-                stages={mockPipelineStages}
+                stages={pipelineStages}
                 onCandidateMove={handleCandidateMove}
                 onCandidateClick={handleCandidateClick}
                 title="Candidate Pipeline"
