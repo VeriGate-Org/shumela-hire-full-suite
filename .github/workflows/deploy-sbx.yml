@@ -19,3 +19,4 @@ jobs:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
       API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
+      WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}

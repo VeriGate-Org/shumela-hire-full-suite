@@ -21,6 +21,8 @@ on:
         required: false
       API_CERTIFICATE_ARN:
         required: false
+      WILDCARD_CERTIFICATE_ARN:
+        required: false
 
 permissions:
   id-token: write
@@ -73,6 +75,7 @@ jobs:
           SHUMELAHIRE_DOMAIN: ${{ inputs.domain-name }}
           CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
           API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
+          WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
         run: |
           npm install -g aws-cdk
           dotnet restore
@@ -81,7 +84,8 @@ jobs:
             -c env=${{ inputs.environment }} \
             -c domain=${{ inputs.domain-name }} \
             -c certificateArn="${CERTIFICATE_ARN}" \
-            -c apiCertificateArn="${API_CERTIFICATE_ARN}"
+            -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
+            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}"
 
       # ── Get CDK outputs (Cognito IDs for frontend build) ────────────────
       - name: Get CDK outputs
