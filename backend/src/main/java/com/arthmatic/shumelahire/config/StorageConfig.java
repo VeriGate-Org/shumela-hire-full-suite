@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -17,29 +18,33 @@ public class StorageConfig {
     @Value("${s3.region:af-south-1}")
     private String region;
 
-    @Value("${s3.access-key}")
+    @Value("${s3.access-key:}")
     private String accessKey;
 
-    @Value("${s3.secret-key}")
+    @Value("${s3.secret-key:}")
     private String secretKey;
 
     @Bean
     public S3Client s3Client() {
-        return S3Client.builder()
-            .region(Region.of(region))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(accessKey, secretKey)
-            ))
-            .build();
+        var builder = S3Client.builder().region(Region.of(region));
+        if (!accessKey.isBlank() && !secretKey.isBlank()) {
+            builder.credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)));
+        } else {
+            builder.credentialsProvider(DefaultCredentialsProvider.create());
+        }
+        return builder.build();
     }
 
     @Bean
     public S3Presigner s3Presigner() {
-        return S3Presigner.builder()
-            .region(Region.of(region))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(accessKey, secretKey)
-            ))
-            .build();
+        var builder = S3Presigner.builder().region(Region.of(region));
+        if (!accessKey.isBlank() && !secretKey.isBlank()) {
+            builder.credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)));
+        } else {
+            builder.credentialsProvider(DefaultCredentialsProvider.create());
+        }
+        return builder.build();
     }
 }
