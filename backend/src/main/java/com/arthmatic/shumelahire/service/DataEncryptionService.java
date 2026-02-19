@@ -33,17 +33,27 @@ public class DataEncryptionService {
     @Value("${encryption.key}")
     private String encryptionKey;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
     @PostConstruct
     public void validateKey() {
         if (encryptionKey == null || encryptionKey.isBlank()) {
             throw new IllegalStateException("encryption.key must be set via ENCRYPTION_KEY environment variable");
         }
         if (INSECURE_DEFAULT_KEY.equals(encryptionKey)) {
-            throw new IllegalStateException("encryption.key must not use the insecure default value — generate a new key");
+            if (!"dev".equals(activeProfile) && !"test".equals(activeProfile)) {
+                throw new IllegalStateException("encryption.key must not use the insecure default value — generate a new key");
+            }
+            logger.warn("Using insecure default encryption key — acceptable for dev/test only");
         }
-        byte[] keyBytes = Base64.getDecoder().decode(encryptionKey);
-        if (keyBytes.length < 16) {
-            throw new IllegalStateException("encryption.key must be at least 128 bits (16 bytes)");
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(encryptionKey);
+            if (keyBytes.length < 16) {
+                throw new IllegalStateException("encryption.key must be at least 128 bits (16 bytes)");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("encryption.key is not valid Base64 — set ENCRYPTION_KEY to a Base64-encoded AES key", e);
         }
     }
 

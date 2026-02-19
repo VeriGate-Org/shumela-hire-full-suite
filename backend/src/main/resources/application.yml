@@ -15,7 +15,7 @@ jwt:
 
 # Encryption
 encryption:
-  key: ${ENCRYPTION_KEY:dev-encryption-key-change-in-production}
+  key: ${ENCRYPTION_KEY:dGhpcyBpcyBhIGRlZmF1bHQgZW5jcnlwdGlvbiBrZXkgZm9yIGRldmVsb3BtZW50}
 
 # Storage
 storage:
