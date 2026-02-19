@@ -167,9 +167,9 @@ public class ShumelaHireComputeStack : Stack
             {
                 Command = new[] { "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" },
                 Interval = Duration.Seconds(30),
-                Timeout = Duration.Seconds(5),
-                Retries = 3,
-                StartPeriod = Duration.Seconds(60)
+                Timeout = Duration.Seconds(10),
+                Retries = 5,
+                StartPeriod = Duration.Seconds(180)
             },
             Environment = new Dictionary<string, string>
             {
@@ -261,9 +261,10 @@ public class ShumelaHireComputeStack : Stack
             SecurityGroups = new[] { foundation.EcsSecurityGroup },
             VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PRIVATE_WITH_EGRESS },
             AssignPublicIp = false,
-            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = true },
-            MinHealthyPercent = 100,
-            MaxHealthyPercent = 200
+            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
+            MinHealthyPercent = config.IsProduction ? 100 : 0,
+            MaxHealthyPercent = 200,
+            HealthCheckGracePeriod = Duration.Seconds(180)
         });
 
         // ── Frontend Task Definition ─────────────────────────────────────────
