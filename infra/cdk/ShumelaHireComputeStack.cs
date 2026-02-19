@@ -254,11 +254,11 @@ public class ShumelaHireComputeStack : Stack
             },
             HealthCheck = new Amazon.CDK.AWS.ECS.HealthCheck
             {
-                Command = new[] { "CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1" },
+                Command = new[] { "CMD-SHELL", "node -e \"const http=require('http');const r=http.request({host:'localhost',port:3000,path:'/api/health'},res=>{process.exit(res.statusCode===200?0:1)});r.on('error',()=>process.exit(1));r.end()\"" },
                 Interval = Duration.Seconds(30),
                 Timeout = Duration.Seconds(5),
                 Retries = 3,
-                StartPeriod = Duration.Seconds(30)
+                StartPeriod = Duration.Seconds(60)
             }
         });
 
@@ -272,7 +272,10 @@ public class ShumelaHireComputeStack : Stack
             SecurityGroups = new[] { foundation.EcsSecurityGroup },
             VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PRIVATE_WITH_EGRESS },
             AssignPublicIp = false,
-            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = true }
+            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
+            MinHealthyPercent = config.IsProduction ? 100 : 0,
+            MaxHealthyPercent = 200,
+            HealthCheckGracePeriod = Duration.Seconds(120)
         });
 
         // ── ALB Listeners & Path-Based Routing ──────────────────────────────
@@ -338,7 +341,7 @@ public class ShumelaHireComputeStack : Stack
             Targets = new[] { frontendService },
             HealthCheck = new Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck
             {
-                Path = "/",
+                Path = "/api/health",
                 HealthyThresholdCount = 2,
                 UnhealthyThresholdCount = 3,
                 Interval = Duration.Seconds(30),
