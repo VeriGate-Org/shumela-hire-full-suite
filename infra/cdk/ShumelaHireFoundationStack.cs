@@ -1,5 +1,6 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.RDS;
 using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.S3;
@@ -23,6 +24,8 @@ public class ShumelaHireFoundationStack : Stack
     public UserPool UserPool { get; }
     public UserPoolClient AppClient { get; }
     public string RedisEndpointAddress { get; }
+    public Repository BackendEcrRepo { get; }
+    public Repository FrontendEcrRepo { get; }
 
     public ShumelaHireFoundationStack(Construct scope, string id, EnvironmentConfig config,
         IStackProps? props = null) : base(scope, id, props)
@@ -177,7 +180,7 @@ public class ShumelaHireFoundationStack : Stack
             AutoDeleteObjects = !config.IsProduction,
             LifecycleRules = new[]
             {
-                new LifecycleRule
+                new Amazon.CDK.AWS.S3.LifecycleRule
                 {
                     Id = "CleanupTempUploads",
                     Prefix = "temp/",
@@ -303,6 +306,35 @@ public class ShumelaHireFoundationStack : Stack
             GenerateSecret = false
         });
 
+        // ── ECR Repositories ───────────────────────────────────────────────
+        BackendEcrRepo = new Repository(this, "BackendRepo", new RepositoryProps
+        {
+            RepositoryName = "shumelahire-backend",
+            RemovalPolicy = RemovalPolicy.RETAIN,
+            LifecycleRules = new[]
+            {
+                new Amazon.CDK.AWS.ECR.LifecycleRule
+                {
+                    MaxImageCount = 10,
+                    Description = "Keep last 10 images"
+                }
+            }
+        });
+
+        FrontendEcrRepo = new Repository(this, "FrontendRepo", new RepositoryProps
+        {
+            RepositoryName = "shumelahire-frontend",
+            RemovalPolicy = RemovalPolicy.RETAIN,
+            LifecycleRules = new[]
+            {
+                new Amazon.CDK.AWS.ECR.LifecycleRule
+                {
+                    MaxImageCount = 10,
+                    Description = "Keep last 10 images"
+                }
+            }
+        });
+
         // ── CfnOutputs ──────────────────────────────────────────────────────
         new CfnOutput(this, "VpcId", new CfnOutputProps { Value = Vpc.VpcId });
         new CfnOutput(this, "DatabaseEndpoint", new CfnOutputProps { Value = Database.ClusterEndpoint.Hostname });
@@ -312,5 +344,7 @@ public class ShumelaHireFoundationStack : Stack
         new CfnOutput(this, "NotificationQueueUrl", new CfnOutputProps { Value = NotificationQueue.QueueUrl });
         new CfnOutput(this, "UserPoolId", new CfnOutputProps { Value = UserPool.UserPoolId });
         new CfnOutput(this, "UserPoolClientId", new CfnOutputProps { Value = AppClient.UserPoolClientId });
+        new CfnOutput(this, "BackendEcrRepoUri", new CfnOutputProps { Value = BackendEcrRepo.RepositoryUri });
+        new CfnOutput(this, "FrontendEcrRepoUri", new CfnOutputProps { Value = FrontendEcrRepo.RepositoryUri });
     }
 }

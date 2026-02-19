@@ -2,7 +2,6 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.CloudWatch;
 using Amazon.CDK.AWS.CloudWatch.Actions;
 using Amazon.CDK.AWS.EC2;
-using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Amazon.CDK.AWS.IAM;
@@ -24,34 +23,9 @@ public class ShumelaHireComputeStack : Stack
     {
         var prefix = config.Prefix;
 
-        // ── ECR Repositories ───────────────────────────────────────────────────
-        var ecrRepository = new Repository(this, "BackendRepo", new RepositoryProps
-        {
-            RepositoryName = "shumelahire-backend",
-            RemovalPolicy = RemovalPolicy.RETAIN,
-            LifecycleRules = new[]
-            {
-                new Amazon.CDK.AWS.ECR.LifecycleRule
-                {
-                    MaxImageCount = 10,
-                    Description = "Keep last 10 images"
-                }
-            }
-        });
-
-        var frontendEcrRepository = new Repository(this, "FrontendRepo", new RepositoryProps
-        {
-            RepositoryName = "shumelahire-frontend",
-            RemovalPolicy = RemovalPolicy.RETAIN,
-            LifecycleRules = new[]
-            {
-                new Amazon.CDK.AWS.ECR.LifecycleRule
-                {
-                    MaxImageCount = 10,
-                    Description = "Keep last 10 images"
-                }
-            }
-        });
+        // ECR repos are in the foundation stack
+        var ecrRepository = foundation.BackendEcrRepo;
+        var frontendEcrRepository = foundation.FrontendEcrRepo;
 
         // ── ECS Cluster ──────────────────────────────────────────────────────
         var cluster = new Cluster(this, "Cluster", new ClusterProps
@@ -594,16 +568,6 @@ public class ShumelaHireComputeStack : Stack
         {
             Value = service.ServiceName,
             ExportName = $"{prefix}-ServiceName"
-        });
-        new CfnOutput(this, "EcrRepositoryUri", new CfnOutputProps
-        {
-            Value = ecrRepository.RepositoryUri,
-            ExportName = $"{prefix}-EcrRepositoryUri"
-        });
-        new CfnOutput(this, "FrontendEcrRepositoryUri", new CfnOutputProps
-        {
-            Value = frontendEcrRepository.RepositoryUri,
-            ExportName = $"{prefix}-FrontendEcrRepositoryUri"
         });
         new CfnOutput(this, "FrontendServiceName", new CfnOutputProps
         {

@@ -63,12 +63,20 @@ jobs:
         working-directory: backend
         run: mvn clean package -DskipTests -q
 
-      # ── CDK Deploy (creates ECR repos, ECS services, secrets) ──────────
+      # ── CDK Setup ────────────────────────────────────────────────────────
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
 
-      - name: CDK Deploy
+      - name: CDK Prepare
+        working-directory: infra/cdk
+        run: |
+          npm install -g aws-cdk
+          dotnet restore
+          dotnet build --no-restore
+
+      # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
+      - name: CDK Deploy Foundation
         working-directory: infra/cdk
         env:
           SHUMELAHIRE_ENV: ${{ inputs.environment }}
@@ -77,10 +85,7 @@ jobs:
           API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
           WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
         run: |
-          npm install -g aws-cdk
-          dotnet restore
-          dotnet build --no-restore
-          cdk deploy --all --require-approval never \
+          cdk deploy shumelahire-${{ inputs.environment }}-foundation --require-approval never \
             -c env=${{ inputs.environment }} \
             -c domain=${{ inputs.domain-name }} \
             -c certificateArn="${CERTIFICATE_ARN}" \
@@ -95,7 +100,7 @@ jobs:
           echo "user_pool_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "user_pool_client_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
 
-      # ── Docker builds ──────────────────────────────────────────────────
+      # ── Phase 2: Push Docker images (ECR repos now exist) ──────────────
       - name: Login to ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
@@ -133,6 +138,23 @@ jobs:
             -t $ECR_REGISTRY/shumelahire-frontend:latest \
             .
           docker push --all-tags $ECR_REGISTRY/shumelahire-frontend
+
+      # ── Phase 3: Deploy compute, API, frontend stacks ──────────────────
+      - name: CDK Deploy Services
+        working-directory: infra/cdk
+        env:
+          SHUMELAHIRE_ENV: ${{ inputs.environment }}
+          SHUMELAHIRE_DOMAIN: ${{ inputs.domain-name }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
+          WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
+        run: |
+          cdk deploy --all --require-approval never \
+            -c env=${{ inputs.environment }} \
+            -c domain=${{ inputs.domain-name }} \
+            -c certificateArn="${CERTIFICATE_ARN}" \
+            -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
+            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}"
 
       # ── Force ECS Redeployment ──────────────────────────────────────────
       - name: Force ECS redeployment
