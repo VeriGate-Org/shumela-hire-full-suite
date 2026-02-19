@@ -3,6 +3,8 @@ package com.arthmatic.shumelahire.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -39,7 +41,8 @@ public class Tenant {
     @Column(name = "max_users")
     private Integer maxUsers = 50;
 
-    @Column(name = "settings", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "settings")
     private String settings = "{}";
 
     @Column(name = "created_at", nullable = false)

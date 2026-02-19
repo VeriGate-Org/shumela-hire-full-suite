@@ -9,20 +9,18 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
   flyway:
     enabled: false
 
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: false
 
-  # Redis disabled for dev — uses ConcurrentMapCache via @Profile("dev")
   data:
     redis:
       repositories:
@@ -36,7 +34,6 @@ spring:
 
 logging:
   level:
-    com.arthmatic.shumelahire: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.arthmatic.shumelahire: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
