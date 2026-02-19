@@ -8,4 +8,4 @@ UPDATE notifications SET channel = 'EMAIL' WHERE channel = 'SMS';
 UPDATE notifications SET channel = 'IN_APP' WHERE channel = 'SLACK';
 
 -- Convert GLASSDOOR job board postings to CUSTOM
-UPDATE job_board_postings SET board_type = 'CUSTOM' WHERE board_type = 'GLASSDOOR';
+UPDATE tg_job_board_postings SET board_type = 'CUSTOM' WHERE board_type = 'GLASSDOOR';
