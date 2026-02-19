@@ -137,7 +137,7 @@ public class ShumelaHireComputeStack : Stack
         {
             LogGroupName = $"/ecs/{prefix}",
             Retention = config.IsProduction ? RetentionDays.THREE_MONTHS : RetentionDays.ONE_WEEK,
-            RemovalPolicy = RemovalPolicy.DESTROY
+            RemovalPolicy = RemovalPolicy.RETAIN
         });
 
         // ── Backend Task Definition ──────────────────────────────────────────
