@@ -99,7 +99,7 @@ public class ShumelaHireFoundationStack : Stack
             ClusterIdentifier = $"{config.Prefix}-db",
             Engine = DatabaseClusterEngine.AuroraPostgres(new AuroraPostgresClusterEngineProps
             {
-                Version = AuroraPostgresEngineVersion.VER_15_4
+                Version = AuroraPostgresEngineVersion.VER_15_8
             }),
             ServerlessV2MinCapacity = config.IsProduction ? 2 : 0.5,
             ServerlessV2MaxCapacity = config.IsProduction ? 16 : 2,
