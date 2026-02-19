@@ -21,7 +21,7 @@ public class ShumelaHireFrontendStack : Stack
             : $"{config.EnvironmentName}.{config.DomainName}";
 
         // ── ALB HTTP Origin ────────────────────────────────────────────────────
-        var albDns = Fn.ImportValue($"{prefix}-AlbDnsName");
+        var albDns = compute.AlbDnsName;
         var albOrigin = new HttpOrigin(albDns, new HttpOriginProps
         {
             ProtocolPolicy = OriginProtocolPolicy.HTTP_ONLY

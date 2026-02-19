@@ -103,10 +103,9 @@ public class ShumelaHireApiStack : Stack
         });
 
         // Associate WAF with ALB
-        var albArn = Fn.ImportValue($"{prefix}-AlbArn");
         new CfnWebACLAssociation(this, "WafAlbAssociation", new CfnWebACLAssociationProps
         {
-            ResourceArn = albArn,
+            ResourceArn = compute.AlbArn,
             WebAclArn = webAcl.AttrArn
         });
 
@@ -122,7 +121,7 @@ public class ShumelaHireApiStack : Stack
                 DomainName = config.DomainName
             });
 
-            var albDns = Fn.ImportValue($"{prefix}-AlbDnsName");
+            var albDns = compute.AlbDnsName;
 
             new CnameRecord(this, "ApiDnsRecord", new CnameRecordProps
             {

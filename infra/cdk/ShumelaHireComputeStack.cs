@@ -17,6 +17,7 @@ namespace ShumelaHire.Infra;
 public class ShumelaHireComputeStack : Stack
 {
     public string AlbDnsName { get; }
+    public string AlbArn { get; }
 
     public ShumelaHireComputeStack(Construct scope, string id, EnvironmentConfig config,
         ShumelaHireFoundationStack foundation, IStackProps? props = null) : base(scope, id, props)
@@ -274,6 +275,7 @@ public class ShumelaHireComputeStack : Stack
         });
 
         AlbDnsName = alb.LoadBalancerDnsName;
+        AlbArn = alb.LoadBalancerArn;
 
         // ── Backend Fargate Service ──────────────────────────────────────────
         var service = new FargateService(this, "Service", new FargateServiceProps
