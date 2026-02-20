@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import JobPostingForm from '@/components/JobPostingForm';
 import JobPostingWorkflow from '@/components/JobPostingWorkflow';
+import JobBoardManager from '@/components/JobBoardManager';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
@@ -352,6 +353,12 @@ export default function JobPostingsPage() {
               onStatusChange={handleStatusChange}
               currentUserId={currentUserId ?? undefined}
             />
+
+            {selectedJobPosting.status === 'PUBLISHED' && (
+              <div className="mt-6 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                <JobBoardManager jobId={String(selectedJobPosting.id)} />
+              </div>
+            )}
           </div>
         )}
       </div>
