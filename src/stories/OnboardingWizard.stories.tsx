@@ -14,7 +14,7 @@ const withAuth = (role: string) => {
   return function AuthDecorator(Story: React.ComponentType) {
     // Seed a fake JWT so AuthProvider recognises a session
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('jwt_token', 'storybook-mock-token');
+      sessionStorage.setItem('jwt_token', 'storybook-token');
       // AuthProvider always sets ADMIN by default when a token exists.
       // The component reads user.role from context.
     }

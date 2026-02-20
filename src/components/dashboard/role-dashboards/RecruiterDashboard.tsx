@@ -35,14 +35,7 @@ interface CandidateRow {
   score: number;
 }
 
-const mockCandidateColumns = [
-  { key: 'name', label: 'Name', sortable: true, type: 'string' as const },
-  { key: 'position', label: 'Position', sortable: true, type: 'string' as const },
-  { key: 'experience', label: 'Experience', sortable: true, type: 'string' as const },
-  { key: 'source', label: 'Source', sortable: true, type: 'string' as const },
-  { key: 'status', label: 'Status', sortable: true, type: 'string' as const },
-  { key: 'score', label: 'Score', sortable: true, type: 'number' as const },
-];
+const mockCandidateColumns: any[] = [];
 
 export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
   const [metrics, setMetrics] = useState<MetricItem[]>([]);

@@ -52,20 +52,8 @@ function LoginCallbackContent() {
       // Handle OAuth2 authorization code flow (existing mock flow)
       if (code) {
         try {
-          const mockJwtPayload = {
-            sub: '123e4567-e89b-12d3-a456-426614174000',
-            name: 'John Doe',
-            email: 'john.doe@company.com',
-            preferred_username: 'john.doe',
-            realm_access: {
-              roles: ['ADMIN', 'user']
-            },
-            resource_access: {
-              'shumelahire': {
-                roles: ['ADMIN']
-              }
-            }
-          };
+          // TODO: Replace with real JWT token exchange
+          const mockJwtPayload: any = null;
 
           const extractUserRole = (payload: {
             realm_access?: { roles?: string[] };
@@ -83,20 +71,8 @@ function LoginCallbackContent() {
             return 'APPLICANT';
           };
 
-          const userRole = extractUserRole(mockJwtPayload);
-
-          const typedRole = userRole as UserRole;
-          const userData = {
-            id: mockJwtPayload.sub,
-            name: mockJwtPayload.name,
-            email: mockJwtPayload.email,
-            role: typedRole,
-            permissions: rolePermissions[typedRole],
-          };
-
-          sessionStorage.setItem('jwt_token', 'mock_jwt_token_' + Date.now());
-          login(userData);
-          router.push('/dashboard');
+          // Mock auth code flow removed - redirect to login
+          router.push('/login?error=mock_auth_removed');
         } catch (err) {
           console.error('Token exchange failed:', err);
           router.push('/login?error=token_exchange_failed');

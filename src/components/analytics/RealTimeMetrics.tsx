@@ -23,7 +23,8 @@ interface RealTimeMetricsProps {
   updateInterval?: number; // in milliseconds
 }
 
-// Mock real-time data generator
+// TODO: Replace with real WebSocket/SSE data source
+
 const generateMetricValue = (baseValue: number, variance: number = 0.1): number => {
   const change = (Math.random() - 0.5) * variance * 2;
   return Math.max(0, Math.round(baseValue * (1 + change)));
@@ -59,8 +60,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     {
       id: 'applications_today',
       label: 'Applications Today',
-      value: 42,
-      previousValue: 42,
+      value: 0,
+      previousValue: 0,
       format: 'number',
       icon: UserGroupIcon,
       color: 'text-gold-600 bg-gold-100',
@@ -68,8 +69,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     {
       id: 'active_sessions',
       label: 'Active Sessions',
-      value: 18,
-      previousValue: 18,
+      value: 0,
+      previousValue: 0,
       format: 'number',
       icon: EyeIcon,
       color: 'text-green-600 bg-green-100',
@@ -77,8 +78,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     {
       id: 'avg_response_time',
       label: 'Avg Response Time',
-      value: 2.3,
-      previousValue: 2.3,
+      value: 0,
+      previousValue: 0,
       format: 'duration',
       icon: ClockIcon,
       color: 'text-orange-600 bg-orange-100',
@@ -86,8 +87,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     {
       id: 'conversion_rate',
       label: 'Today\'s Conversion',
-      value: 12.5,
-      previousValue: 12.5,
+      value: 0,
+      previousValue: 0,
       format: 'percentage',
       icon: CheckCircleIcon,
       color: 'text-purple-600 bg-purple-100',
@@ -212,22 +213,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
         <div className="mt-6 pt-6 border-t border-gray-200">
           <h4 className="text-sm font-medium text-gray-900 mb-3">Recent Activity</h4>
           <div className="space-y-2">
-            {[
-              { time: '2 min ago', event: 'New application received for Senior Developer', type: 'application' },
-              { time: '5 min ago', event: 'Interview scheduled with Sarah Chen', type: 'interview' },
-              { time: '8 min ago', event: 'Offer accepted for UX Designer position', type: 'offer' },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-start gap-3 text-sm">
-                <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                  activity.type === 'application' ? 'bg-gold-500' :
-                  activity.type === 'interview' ? 'bg-orange-500' : 'bg-green-500'
-                }`} />
-                <div>
-                  <span className="text-gray-600">{activity.event}</span>
-                  <div className="text-gray-400 text-xs">{activity.time}</div>
-                </div>
-              </div>
-            ))}
+            <p className="text-sm text-gray-400">No recent activity</p>
           </div>
         </div>
       </div>

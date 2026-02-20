@@ -10,9 +10,6 @@ export async function GET(
   try {
     const params = await context.params;
     
-    // Ensure demo data is initialized
-    await requisitionService.initializeDemoData();
-    
     const requisition = await requisitionService.getRequisition(params.id);
 
     if (!requisition) {

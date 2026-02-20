@@ -1,13 +1,7 @@
 import { tryApi } from '@/services/aiService';
 import { OfferPredictionRequest, OfferPredictionResult } from '@/types/ai';
 
-const mockResult: OfferPredictionResult = {
-  acceptanceProbability: 72,
-  riskLevel: 'MEDIUM',
-  positiveFactors: ['Competitive salary offer', 'Strong employer brand', 'Role alignment with career goals'],
-  riskFactors: ['Extended hiring timeline', 'Candidate has competing offers'],
-  recommendations: ['Consider expediting the offer process', 'Highlight unique benefits and growth opportunities'],
-};
+const mockResult: any = {}; // TODO: Remove mock fallback
 
 export const aiOfferPredictionService = {
   async predict(request: OfferPredictionRequest): Promise<OfferPredictionResult> {

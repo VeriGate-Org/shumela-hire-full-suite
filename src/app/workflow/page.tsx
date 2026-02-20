@@ -29,12 +29,11 @@ export default function WorkflowPage() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Initialize demo data
   useEffect(() => {
-    initializeDemoData();
+    loadDemoData();
   }, []);
 
-  const initializeDemoData = () => {
+  const loadDemoData = () => {
     // Demo workflows
     const demoWorkflows: WorkflowDefinition[] = [
       {

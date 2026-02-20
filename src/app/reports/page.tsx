@@ -66,8 +66,8 @@ export default function ReportsPage() {
   useEffect(() => {
     async function loadData() {
       const [reportsRes, schedulesRes] = await Promise.allSettled([
-        apiFetch('/api/reports'),
-        apiFetch('/api/reports/schedules'),
+        apiFetch('/api/reports/types'),
+        apiFetch('/api/reports/scheduled'),
       ]);
       if (reportsRes.status === 'fulfilled' && reportsRes.value.ok) {
         const data = await reportsRes.value.json();
@@ -99,63 +99,31 @@ export default function ReportsPage() {
   }, []);
 
   const handleRunReport = useCallback(async (config: ReportConfig) => {
-    // Simulate report execution
     const startTime = Date.now();
-    
-    // Mock data generation based on selected fields
-    const mockData = Array.from({ length: Math.floor(Math.random() * 100) + 20 }, (_, i) => {
-      const row: any = {};
-      config.fields.forEach(fieldId => {
-        const field = AVAILABLE_FIELDS.find(f => f.id === fieldId);
-        if (field) {
-          switch (field.type) {
-            case 'string':
-              if (fieldId.includes('name')) {
-                row[fieldId] = `Sample Name ${i + 1}`;
-              } else if (fieldId.includes('email')) {
-                row[fieldId] = `user${i + 1}@company.com`;
-              } else if (fieldId.includes('source')) {
-                row[fieldId] = ['LinkedIn', 'Indeed', 'Company Site', 'Referral'][i % 4];
-              } else if (fieldId.includes('department')) {
-                row[fieldId] = ['Engineering', 'Product', 'Design', 'Sales'][i % 4];
-              } else if (fieldId.includes('title')) {
-                row[fieldId] = ['Developer', 'Manager', 'Analyst', 'Coordinator'][i % 4];
-              } else {
-                row[fieldId] = `Sample ${field.name} ${i + 1}`;
-              }
-              break;
-            case 'number':
-              if (fieldId.includes('score')) {
-                row[fieldId] = Math.floor(Math.random() * 40) + 60; // 60-100
-              } else if (fieldId.includes('salary')) {
-                row[fieldId] = Math.floor(Math.random() * 50000) + 50000; // 50k-100k
-              } else if (fieldId.includes('count')) {
-                row[fieldId] = Math.floor(Math.random() * 20) + 1;
-              } else if (fieldId.includes('rate')) {
-                row[fieldId] = Math.random() * 30 + 5; // 5-35%
-              } else {
-                row[fieldId] = Math.floor(Math.random() * 1000);
-              }
-              break;
-            case 'date':
-              const days = Math.floor(Math.random() * 365);
-              row[fieldId] = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-              break;
-            default:
-              row[fieldId] = `Sample ${i + 1}`;
-          }
-        }
+    let data: any[] = [];
+
+    try {
+      const reportType = config.name?.toLowerCase().replace(/\s+/g, '-') || 'general';
+      const response = await apiFetch(`/api/analytics/reports/${reportType}`, {
+        method: 'POST',
+        body: JSON.stringify(config),
       });
-      return row;
-    });
+      if (response.ok) {
+        const result = await response.json();
+        data = result.data || result.rows || result || [];
+        if (!Array.isArray(data)) data = [];
+      }
+    } catch (error) {
+      console.error('Failed to generate report:', error);
+    }
 
     const result: ReportResult = {
       id: `result_${Date.now()}`,
       config,
-      data: mockData,
+      data,
       generatedAt: new Date().toISOString(),
       executionTime: Date.now() - startTime,
-      rowCount: mockData.length,
+      rowCount: data.length,
     };
 
     setReportResults(prev => [result, ...prev]);

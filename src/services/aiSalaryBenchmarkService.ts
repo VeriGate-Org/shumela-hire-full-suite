@@ -1,15 +1,7 @@
 import { tryApi } from '@/services/aiService';
 import { SalaryBenchmarkRequest, SalaryBenchmarkResult } from '@/types/ai';
 
-const mockResult: SalaryBenchmarkResult = {
-  suggestedMin: 650000,
-  suggestedMax: 850000,
-  suggestedTarget: 750000,
-  currency: 'ZAR',
-  justification: 'Based on market data for similar roles in the region, accounting for experience level and industry standards.',
-  marketFactors: ['High demand for this skill set', 'Regional cost of living adjustments', 'Industry-standard compensation ranges'],
-  dataPointsUsed: 12,
-};
+const mockResult: any = {}; // TODO: Remove mock fallback
 
 export const aiSalaryBenchmarkService = {
   async analyze(request: SalaryBenchmarkRequest): Promise<SalaryBenchmarkResult> {

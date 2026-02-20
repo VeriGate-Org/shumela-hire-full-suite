@@ -4,9 +4,6 @@ import { jobTemplateService } from '../../../../services/jobTemplateService';
 // GET /api/job-templates/stats - Get template usage statistics
 export async function GET() {
   try {
-    // Ensure demo data is initialized
-    await jobTemplateService.initializeDemoData();
-    
     const stats = await jobTemplateService.getTemplateStats();
 
     return NextResponse.json({

@@ -21,9 +21,6 @@ const JobTemplatesPage: React.FC = () => {
   useEffect(() => {
     const initializeData = async () => {
       try {
-        // Initialize demo data
-        await jobTemplateService.initializeDemoData();
-        
         // Load stats
         const templateStats = await jobTemplateService.getTemplateStats();
         setStats(templateStats);

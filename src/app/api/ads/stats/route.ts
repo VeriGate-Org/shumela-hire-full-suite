@@ -4,9 +4,6 @@ import { jobAdService } from '../../../../services/jobAdService';
 // GET /api/ads/stats - Get job ad statistics
 export async function GET() {
   try {
-    // Ensure demo data is initialized
-    await jobAdService.initializeDemoData();
-    
     const stats = await jobAdService.getStats();
 
     return NextResponse.json({

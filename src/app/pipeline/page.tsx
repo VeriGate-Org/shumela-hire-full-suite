@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import { apiFetch } from '@/lib/api-fetch';
 import {
   FunnelIcon,
   ChartBarIcon,
@@ -160,72 +161,62 @@ export default function PipelinePage() {
 
   const loadPipelineData = async () => {
     setLoading(true);
-    
-    // Generate comprehensive mock data
-    const mockApplications: Application[] = [];
-    const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
-    const locations = ['New York', 'San Francisco', 'Austin', 'Remote', 'London', 'Toronto'];
-    const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship'];
-    const priorities = ['low', 'medium', 'high'] as const;
-
-    for (let i = 1; i <= 150; i++) {
-      const submittedDate = new Date();
-      submittedDate.setDate(submittedDate.getDate() - Math.floor(Math.random() * 90));
-      
-      const lastActivityDate = new Date();
-      lastActivityDate.setDate(lastActivityDate.getDate() - Math.floor(Math.random() * 30));
-
-      const currentStageIndex = Math.floor(Math.random() * pipelineStages.length);
-      const currentStage = pipelineStages[currentStageIndex];
-      
-      let status: 'active' | 'hired' | 'rejected' | 'withdrawn' = 'active';
-      if (currentStage.id === 'hired') status = 'hired';
-      else if (Math.random() < 0.1) status = 'rejected';
-      else if (Math.random() < 0.05) status = 'withdrawn';
-
-      const application: Application = {
-        id: `app_${i.toString().padStart(3, '0')}`,
-        candidate: {
-          id: `candidate_${i}`,
-          firstName: `Candidate`,
-          lastName: `${i}`,
-          email: `candidate${i}@email.com`,
-          phone: `+1-555-${Math.floor(Math.random() * 9000) + 1000}`
-        },
-        job: {
-          id: `job_${Math.floor(Math.random() * 20) + 1}`,
-          title: [
-            'Senior Software Engineer', 'Marketing Manager', 'Sales Representative',
-            'HR Coordinator', 'Financial Analyst', 'Product Manager', 'UX Designer',
-            'Data Scientist', 'DevOps Engineer', 'Content Writer'
-          ][Math.floor(Math.random() * 10)],
-          department: departments[Math.floor(Math.random() * departments.length)],
-          location: locations[Math.floor(Math.random() * locations.length)],
-          type: jobTypes[Math.floor(Math.random() * jobTypes.length)]
-        },
-        currentStage: currentStage.id,
-        submittedAt: submittedDate.toISOString(),
-        lastActivity: lastActivityDate.toISOString(),
-        daysInStage: Math.floor(Math.random() * 30) + 1,
-        progress: (currentStageIndex / (pipelineStages.length - 1)) * 100,
-        status,
-        priority: priorities[Math.floor(Math.random() * priorities.length)],
-        notes: [
-          'Strong technical background',
-          'Great cultural fit',
-          'Excellent communication skills'
-        ].slice(0, Math.floor(Math.random() * 3) + 1),
-        timeline: generateTimeline(submittedDate, currentStageIndex)
-      };
-
-      mockApplications.push(application);
-    }
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setApplications(mockApplications);
+    try {
+      const response = await apiFetch('/api/applications/manage/search?size=200');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      const items = result.content || result.data || result || [];
+      const mapped: Application[] = items.map((a: any) => {
+        const nameParts = (a.applicantName || '').split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        const stageMap: Record<string, string> = {
+          SUBMITTED: 'applied', SCREENING: 'screening',
+          PHONE_INTERVIEW: 'phone_interview', TECHNICAL_INTERVIEW: 'technical_interview',
+          FINAL_INTERVIEW: 'final_interview', OFFER: 'offer',
+          HIRED: 'hired', REJECTED: 'rejected',
+        };
+        const currentStage = stageMap[a.pipelineStage || a.status] || stageMap[a.status] || 'applied';
+        const stageIndex = pipelineStages.findIndex(s => s.id === currentStage);
+        const daysInStage = a.updatedAt
+          ? Math.floor((Date.now() - new Date(a.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
+          : 0;
+        const statusMap: Record<string, Application['status']> = {
+          HIRED: 'hired', REJECTED: 'rejected', WITHDRAWN: 'withdrawn',
+        };
+        return {
+          id: a.id,
+          candidate: {
+            id: a.applicantId || '',
+            firstName,
+            lastName,
+            email: a.applicantEmail || '',
+            phone: '',
+          },
+          job: {
+            id: a.jobPostingId || '',
+            title: a.jobTitle || '',
+            department: a.department || '',
+            location: '',
+            type: '',
+          },
+          currentStage,
+          submittedAt: a.submittedAt || a.createdAt || new Date().toISOString(),
+          lastActivity: a.updatedAt || a.submittedAt || new Date().toISOString(),
+          daysInStage,
+          progress: stageIndex >= 0 ? (stageIndex / Math.max(pipelineStages.length - 1, 1)) * 100 : 0,
+          status: statusMap[a.status] || 'active',
+          priority: (a.priority || 'medium').toLowerCase() as Application['priority'],
+          notes: [],
+          timeline: [],
+        };
+      });
+      setApplications(mapped);
+    } catch (error) {
+      console.error('Failed to load pipeline data:', error);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const generateTimeline = (startDate: Date, currentStageIndex: number) => {

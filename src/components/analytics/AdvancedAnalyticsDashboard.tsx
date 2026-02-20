@@ -19,62 +19,19 @@ import {
 } from '../charts';
 
 // Mock data - In real app, this would come from APIs
-const mockApplicationVolumeData = Array.from({ length: 30 }, (_, i) => ({
-  date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString(),
-  applications: Math.floor(Math.random() * 50) + 20,
-  interviews: Math.floor(Math.random() * 25) + 5,
-  offers: Math.floor(Math.random() * 10) + 2,
-  hires: Math.floor(Math.random() * 5) + 1,
-}));
+const mockApplicationVolumeData: any[] = [];
 
-const mockPipelineData = [
-  { stage: 'Applications', count: 1250, color: CHART_COLORS.primary },
-  { stage: 'Phone Screen', count: 450, color: CHART_COLORS.info },
-  { stage: 'Technical', count: 200, color: CHART_COLORS.secondary },
-  { stage: 'Final', count: 85, color: '#4CA6D0' },
-  { stage: 'Offer', count: 45, color: CHART_COLORS.warning },
-  { stage: 'Hired', count: 35, color: CHART_COLORS.success },
-];
+const mockPipelineData: any[] = [];
 
-const mockSourceData = [
-  { source: 'LinkedIn', applications: 450, hires: 25, conversionRate: 5.6 },
-  { source: 'Indeed', applications: 320, hires: 15, conversionRate: 4.7 },
-  { source: 'Company Site', applications: 280, hires: 22, conversionRate: 7.9 },
-  { source: 'Referrals', applications: 150, hires: 35, conversionRate: 23.3 },
-  { source: 'University', applications: 200, hires: 18, conversionRate: 9.0 },
-];
+const mockSourceData: any[] = [];
 
-const mockTimeToHireData = [
-  { position: 'Software Engineer', timeToHire: 25, target: 30 },
-  { position: 'Product Manager', timeToHire: 35, target: 28 },
-  { position: 'Data Scientist', timeToHire: 42, target: 35 },
-  { position: 'UX Designer', timeToHire: 28, target: 25 },
-  { position: 'DevOps Engineer', timeToHire: 38, target: 32 },
-];
+const mockTimeToHireData: any[] = [];
 
-const mockPerformanceData = [
-  { metric: 'Time to Fill', current: 32, target: 30, percentage: 93.8 },
-  { metric: 'Quality of Hire', current: 4.2, target: 4.0, percentage: 105.0 },
-  { metric: 'Offer Acceptance', current: 78, target: 80, percentage: 97.5 },
-  { metric: 'Cost per Hire', current: 3200, target: 3500, percentage: 91.4 },
-];
+const mockPerformanceData: any[] = [];
 
-const mockHiringManagerData = [
-  { manager: 'Sarah Chen', positions: 8, timeToFill: 28, satisfaction: 4.5 },
-  { manager: 'Mike Rodriguez', positions: 12, timeToFill: 35, satisfaction: 4.2 },
-  { manager: 'Emily Watson', positions: 6, timeToFill: 22, satisfaction: 4.8 },
-  { manager: 'David Kim', positions: 15, timeToFill: 31, satisfaction: 4.1 },
-  { manager: 'Lisa Park', positions: 9, timeToFill: 26, satisfaction: 4.6 },
-];
+const mockHiringManagerData: any[] = [];
 
-const mockMonthlyData = Array.from({ length: 12 }, (_, i) => ({
-  month: new Date(2024, i, 1).toLocaleDateString('en-US', { month: 'short' }),
-  applications: Math.floor(Math.random() * 500) + 300,
-  interviews: Math.floor(Math.random() * 200) + 100,
-  offers: Math.floor(Math.random() * 50) + 25,
-  hires: Math.floor(Math.random() * 30) + 15,
-  rejections: Math.floor(Math.random() * 400) + 200,
-}));
+const mockMonthlyData: any[] = [];
 
 // Time range selector
 const timeRanges = [

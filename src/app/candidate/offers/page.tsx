@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import { useAuth } from '@/contexts/AuthContext';
+import { getApplicantId, getApplications, getOffersForApplication } from '@/services/candidateService';
 import { 
   CurrencyDollarIcon,
   CalendarIcon,
@@ -77,7 +79,19 @@ interface Offer {
   }>;
 }
 
+function mapOfferStatus(status: string): Offer['status'] {
+  const statusMap: Record<string, Offer['status']> = {
+    PENDING: 'pending', DRAFT: 'pending',
+    ACCEPTED: 'accepted',
+    DECLINED: 'declined', REJECTED: 'declined',
+    EXPIRED: 'expired',
+    NEGOTIATING: 'negotiating', COUNTER_OFFERED: 'negotiating',
+  };
+  return statusMap[status] || 'pending';
+}
+
 export default function MyOffersPage() {
+  const { user } = useAuth();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'expired' | 'negotiating'>('all');
@@ -86,198 +100,70 @@ export default function MyOffersPage() {
 
   useEffect(() => {
     loadOffers();
-  }, []);
+  }, [user]);
 
   const loadOffers = async () => {
+    if (!user?.email) { setLoading(false); return; }
     setLoading(true);
-    
-    // Mock offer data
-    const mockOffers: Offer[] = [
-      {
-        id: 'offer_001',
-        jobTitle: 'Senior Software Engineer',
-        company: 'TechCorp Inc.',
-        department: 'Engineering',
-        location: 'San Francisco, CA',
-        offerDate: '2025-01-20T10:00:00Z',
-        expirationDate: '2025-02-03T17:00:00Z',
-        status: 'pending',
-        salary: {
-          base: 165000,
-          currency: 'ZAR',
-          frequency: 'annual'
-        },
-        bonus: {
-          signing: 25000,
-          annual: 30000,
-          currency: 'ZAR'
-        },
-        benefits: [
-          'Health Insurance (100% covered)',
-          'Dental & Vision',
-          '401k with 6% match',
-          '20 days PTO',
-          'Stock Options',
-          'Home Office Stipend',
-          'Professional Development Budget'
-        ],
-        workSchedule: {
-          type: 'full_time',
-          hoursPerWeek: 40,
-          remote: 'hybrid',
-          flexibleHours: true
-        },
-        startDate: '2025-03-01',
-        equity: {
-          percentage: 0.25,
-          vestingPeriod: '4 years with 1 year cliff'
-        },
-        relocationAssistance: 15000,
-        additionalNotes: 'Exceptional opportunity to lead our new AI initiatives. Remote work available 3 days per week.',
-        contactPerson: {
-          name: 'Sarah Martinez',
-          title: 'Senior Talent Acquisition Manager',
-          email: 'sarah.martinez@techcorp.com',
-          phone: '+1 (555) 123-4567'
-        },
-        documents: [
-          { name: 'Offer Letter.pdf', type: 'offer_letter', url: '/docs/offer1.pdf' },
-          { name: 'Benefits Overview.pdf', type: 'benefits', url: '/docs/benefits1.pdf' },
-          { name: 'Employee Handbook.pdf', type: 'handbook', url: '/docs/handbook1.pdf' }
-        ],
-        negotiations: [
-          {
-            id: 'neg_001',
-            date: '2025-01-22T14:30:00Z',
-            type: 'salary',
-            requestedBy: 'candidate',
-            details: 'Requesting base salary increase to R175,000',
-            status: 'pending'
-          }
-        ]
-      },
-      {
-        id: 'offer_002',
-        jobTitle: 'Principal Engineer',
-        company: 'InnovateLabs',
-        department: 'R&D',
-        location: 'Austin, TX',
-        offerDate: '2025-01-18T15:30:00Z',
-        expirationDate: '2025-01-30T17:00:00Z',
-        status: 'negotiating',
-        salary: {
-          base: 180000,
-          currency: 'ZAR',
-          frequency: 'annual'
-        },
-        bonus: {
-          signing: 35000,
-          annual: 40000,
-          currency: 'ZAR'
-        },
-        benefits: [
-          'Premium Health Insurance',
-          'Dental & Vision',
-          '401k with 8% match',
-          'Unlimited PTO',
-          'Stock Options',
-          'Learning & Development Budget',
-          'Gym Membership'
-        ],
-        workSchedule: {
-          type: 'full_time',
-          hoursPerWeek: 40,
-          remote: 'fully_remote',
-          flexibleHours: true
-        },
-        startDate: '2025-02-15',
-        equity: {
-          percentage: 0.5,
-          vestingPeriod: '4 years with 6 month cliff'
-        },
-        additionalNotes: 'Leading our next-generation platform architecture. Fully remote with quarterly team meetups.',
-        contactPerson: {
-          name: 'Michael Chen',
-          title: 'VP of Engineering',
-          email: 'michael.chen@innovatelabs.com',
-          phone: '+1 (555) 987-6543'
-        },
-        documents: [
-          { name: 'Offer Package.pdf', type: 'offer_letter', url: '/docs/offer2.pdf' },
-          { name: 'Equity Agreement.pdf', type: 'equity', url: '/docs/equity2.pdf' }
-        ],
-        negotiations: [
-          {
-            id: 'neg_002',
-            date: '2025-01-20T10:00:00Z',
-            type: 'start_date',
-            requestedBy: 'candidate',
-            details: 'Requesting start date moved to March 1st',
-            status: 'accepted'
-          },
-          {
-            id: 'neg_003',
-            date: '2025-01-21T16:00:00Z',
-            type: 'benefits',
-            requestedBy: 'candidate',
-            details: 'Requesting additional home office budget',
-            status: 'pending'
-          }
-        ]
-      },
-      {
-        id: 'offer_003',
-        jobTitle: 'Lead Frontend Developer',
-        company: 'DesignCo',
-        department: 'Product',
-        location: 'Remote',
-        offerDate: '2025-01-10T09:00:00Z',
-        expirationDate: '2025-01-25T17:00:00Z',
-        status: 'accepted',
-        salary: {
-          base: 145000,
-          currency: 'ZAR',
-          frequency: 'annual'
-        },
-        bonus: {
-          signing: 15000,
-          annual: 20000,
-          currency: 'ZAR'
-        },
-        benefits: [
-          'Health Insurance',
-          'Dental & Vision',
-          '401k with 4% match',
-          '25 days PTO',
-          'Remote Work Stipend',
-          'Professional Development'
-        ],
-        workSchedule: {
-          type: 'full_time',
-          hoursPerWeek: 40,
-          remote: 'fully_remote',
-          flexibleHours: true
-        },
-        startDate: '2025-02-01',
-        additionalNotes: 'Exciting opportunity to shape the future of design tools.',
-        contactPerson: {
-          name: 'Emily Rodriguez',
-          title: 'Head of Talent',
-          email: 'emily.rodriguez@designco.com',
-          phone: '+1 (555) 456-7890'
-        },
-        documents: [
-          { name: 'Final Offer.pdf', type: 'offer_letter', url: '/docs/offer3.pdf' }
-        ],
-        negotiations: []
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setOffers(mockOffers);
+    try {
+      const applicantId = await getApplicantId(user.email);
+      if (!applicantId) { setOffers([]); return; }
+      const apps = await getApplications(applicantId);
+      const allOffers: Offer[] = [];
+      const results = await Promise.allSettled(
+        apps.map((app: any) => getOffersForApplication(app.id))
+      );
+      results.forEach((result, idx) => {
+        if (result.status !== 'fulfilled') return;
+        const app = apps[idx];
+        result.value.forEach((o: any) => {
+          allOffers.push({
+            id: o.id,
+            jobTitle: app.jobTitle || o.jobTitle || '',
+            company: 'ShumelaHire',
+            department: app.department || o.department || '',
+            location: app.location || o.location || '',
+            offerDate: o.createdAt || new Date().toISOString(),
+            expirationDate: o.expiresAt || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+            status: mapOfferStatus(o.status || ''),
+            salary: {
+              base: o.salary || o.baseSalary || 0,
+              currency: o.currency || 'ZAR',
+              frequency: 'annual' as const,
+            },
+            benefits: o.benefits ? (typeof o.benefits === 'string' ? o.benefits.split('\n').filter(Boolean) : o.benefits) : [],
+            workSchedule: {
+              type: 'full_time' as const,
+              hoursPerWeek: 40,
+              remote: 'hybrid' as const,
+              flexibleHours: false,
+            },
+            startDate: o.proposedStartDate || o.startDate || '',
+            additionalNotes: o.notes || o.additionalNotes || '',
+            contactPerson: {
+              name: o.recruiterName || '',
+              title: 'Recruiter',
+              email: o.recruiterEmail || '',
+              phone: '',
+            },
+            documents: [],
+            negotiations: o.negotiationStatus ? [{
+              id: `neg-${o.id}`,
+              date: o.updatedAt || new Date().toISOString(),
+              type: 'salary' as const,
+              requestedBy: 'candidate' as const,
+              details: o.candidateCounterOffer || o.companyResponse || '',
+              status: o.negotiationStatus === 'RESOLVED' ? 'accepted' as const : 'pending' as const,
+            }] : [],
+          });
+        });
+      });
+      setOffers(allOffers);
+    } catch (error) {
+      console.error('Failed to load offers:', error);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const filteredOffers = offers.filter(offer => 

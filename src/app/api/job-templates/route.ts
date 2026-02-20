@@ -25,9 +25,6 @@ export async function GET(request: NextRequest) {
       filters.showArchived = searchParams.get('showArchived') === 'true';
     }
 
-    // Ensure demo data is initialized
-    await jobTemplateService.initializeDemoData();
-    
     const templates = await jobTemplateService.getAllTemplates(filters);
 
     return NextResponse.json({

@@ -8,50 +8,7 @@ import {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // Mock data store for development
-const mockRecommendations: SalaryRecommendation[] = [
-  {
-    id: 1,
-    recommendationNumber: 'SR-A1B2C3D4',
-    status: SalaryRecommendationStatus.PENDING_REVIEW,
-    positionTitle: 'Senior Software Engineer',
-    department: 'Engineering',
-    jobGrade: 'D3',
-    positionLevel: 'Senior',
-    requestedBy: 'admin',
-    candidateName: 'Thabo Mokoena',
-    candidateCurrentSalary: 650000,
-    candidateExpectedSalary: 850000,
-    proposedMinSalary: 750000,
-    proposedMaxSalary: 900000,
-    proposedTargetSalary: 820000,
-    requiresApproval: true,
-    approvalLevelRequired: 1,
-    currency: 'ZAR',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    recommendationNumber: 'SR-E5F6G7H8',
-    status: SalaryRecommendationStatus.DRAFT,
-    positionTitle: 'HR Business Partner',
-    department: 'Human Resources',
-    jobGrade: 'C2',
-    positionLevel: 'Mid-level',
-    requestedBy: 'admin',
-    candidateName: 'Naledi Dlamini',
-    candidateCurrentSalary: 480000,
-    candidateExpectedSalary: 580000,
-    proposedMinSalary: 520000,
-    proposedMaxSalary: 600000,
-    proposedTargetSalary: 560000,
-    requiresApproval: true,
-    approvalLevelRequired: 1,
-    currency: 'ZAR',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+const mockRecommendations: SalaryRecommendation[] = []; // TODO: Remove mock data store
 let nextId = 3;
 
 function getAuthHeaders(): Record<string, string> {

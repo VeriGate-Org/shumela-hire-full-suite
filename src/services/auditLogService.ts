@@ -1,71 +1,32 @@
 import { AuditLogEntry } from '../types/workflow';
+import { apiFetch } from '@/lib/api-fetch';
 
-/**
- * Mock PostgreSQL data store for audit logs
- * In production, this would connect to actual PostgreSQL database
- */
-class MockAuditLogStore {
-  private auditLogs: Map<string, AuditLogEntry> = new Map();
-
-  private generateId(): string {
-    return 'audit_' + Math.random().toString(36).substring(2, 15);
-  }
-
-  async create(entry: Omit<AuditLogEntry, 'id' | 'timestamp'>, customTimestamp?: Date): Promise<AuditLogEntry> {
-    const id = this.generateId();
-    const auditEntry: AuditLogEntry = {
-      ...entry,
-      id,
-      timestamp: customTimestamp || new Date()
-    };
-
-    this.auditLogs.set(id, auditEntry);
-    return auditEntry;
-  }
-
-  async findByEntityId(entityId: string): Promise<AuditLogEntry[]> {
-    return Array.from(this.auditLogs.values())
-      .filter(entry => entry.entityId === entityId)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }
-
-  async findByEntityType(entityType: string): Promise<AuditLogEntry[]> {
-    return Array.from(this.auditLogs.values())
-      .filter(entry => entry.entityType === entityType)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }
-
-  async findByUserId(userId: string): Promise<AuditLogEntry[]> {
-    return Array.from(this.auditLogs.values())
-      .filter(entry => entry.userId === userId)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }
-
-  async findAll(limit?: number): Promise<AuditLogEntry[]> {
-    const entries = Array.from(this.auditLogs.values())
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
-    return limit ? entries.slice(0, limit) : entries;
-  }
-
-  async findRecent(limit: number = 50): Promise<AuditLogEntry[]> {
-    return this.findAll(limit);
-  }
+function parseAuditLog(raw: any): AuditLogEntry {
+  return {
+    id: raw.id || '',
+    entityType: raw.entityType || '',
+    entityId: raw.entityId || '',
+    action: raw.action || '',
+    userId: raw.userId || '',
+    userRole: raw.userRole || '',
+    details: typeof raw.details === 'string' ? JSON.parse(raw.details) : (raw.details || {}),
+    timestamp: new Date(raw.timestamp || raw.createdAt || Date.now()),
+  };
 }
 
-// Singleton instance
-const auditLogStore = new MockAuditLogStore();
+async function fetchAuditLogs(path: string): Promise<AuditLogEntry[]> {
+  const response = await apiFetch(path);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const result = await response.json();
+  const items = result.content || result.data || result || [];
+  return Array.isArray(items) ? items.map(parseAuditLog) : [];
+}
 
 /**
  * Audit Log Service
- * Tracks all system actions for compliance and debugging
+ * Connects to the backend audit API endpoints
  */
 export class AuditLogService {
-  private store = auditLogStore;
-
-  /**
-   * Log a workflow transition
-   */
   async logWorkflowTransition(
     requisitionId: string,
     fromStatus: string,
@@ -73,151 +34,131 @@ export class AuditLogService {
     userId: string,
     userRole: string,
     comment?: string,
-    customTimestamp?: Date
+    _customTimestamp?: Date
   ): Promise<AuditLogEntry> {
     const action = toStatus === 'REJECTED' ? 'REJECT' : 'APPROVE';
-    return this.store.create({
-      entityType: 'Requisition',
-      entityId: requisitionId,
-      action: `workflow_${action.toLowerCase()}`,
-      userId,
-      userRole,
-      details: {
-        action,
-        fromStatus,
-        toStatus,
-        comment: comment || undefined
-      }
-    }, customTimestamp);
+    const response = await apiFetch('/api/audit', {
+      method: 'POST',
+      body: JSON.stringify({
+        entityType: 'Requisition',
+        entityId: requisitionId,
+        action: `workflow_${action.toLowerCase()}`,
+        userId,
+        userRole,
+        details: { action, fromStatus, toStatus, comment: comment || undefined },
+      }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return parseAuditLog(await response.json());
   }
 
-  /**
-   * Log requisition creation
-   */
   async logRequisitionCreated(
     requisitionId: string,
     userId: string,
     userRole: string,
     requisitionData: Record<string, unknown> | Date
   ): Promise<AuditLogEntry> {
-    // Handle case where timestamp is passed as the data parameter (for demo data)
-    const timestamp = requisitionData instanceof Date ? requisitionData : undefined;
     const data = requisitionData instanceof Date ? {} : requisitionData;
-    
-    return this.store.create({
-      entityType: 'Requisition',
-      entityId: requisitionId,
-      action: 'created',
-      userId,
-      userRole,
-      details: {
-        jobTitle: data.jobTitle,
-        department: data.department,
-        location: data.location,
-        employmentType: data.employmentType
-      }
-    }, timestamp);
+    const response = await apiFetch('/api/audit', {
+      method: 'POST',
+      body: JSON.stringify({
+        entityType: 'Requisition',
+        entityId: requisitionId,
+        action: 'created',
+        userId,
+        userRole,
+        details: {
+          jobTitle: data.jobTitle,
+          department: data.department,
+          location: data.location,
+          employmentType: data.employmentType,
+        },
+      }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return parseAuditLog(await response.json());
   }
 
-  /**
-   * Log requisition update
-   */
   async logRequisitionUpdated(
     requisitionId: string,
     userId: string,
     userRole: string,
     changes: Record<string, unknown>
   ): Promise<AuditLogEntry> {
-    return this.store.create({
-      entityType: 'Requisition',
-      entityId: requisitionId,
-      action: 'updated',
-      userId,
-      userRole,
-      details: {
-        changes
-      }
+    const response = await apiFetch('/api/audit', {
+      method: 'POST',
+      body: JSON.stringify({
+        entityType: 'Requisition',
+        entityId: requisitionId,
+        action: 'updated',
+        userId,
+        userRole,
+        details: { changes },
+      }),
     });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return parseAuditLog(await response.json());
   }
 
-  /**
-   * Log user authentication
-   */
   async logUserAuthentication(
     userId: string,
     userRole: string,
     action: 'login' | 'logout',
     ipAddress?: string
   ): Promise<AuditLogEntry> {
-    return this.store.create({
-      entityType: 'User',
-      entityId: userId,
-      action: `auth_${action}`,
-      userId,
-      userRole,
-      details: {
-        action,
-        ipAddress,
-        timestamp: new Date().toISOString()
-      }
+    const response = await apiFetch('/api/audit', {
+      method: 'POST',
+      body: JSON.stringify({
+        entityType: 'User',
+        entityId: userId,
+        action: `auth_${action}`,
+        userId,
+        userRole,
+        details: { action, ipAddress, timestamp: new Date().toISOString() },
+      }),
     });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return parseAuditLog(await response.json());
   }
 
-  /**
-   * Log role switch (for demo purposes)
-   */
   async logRoleSwitch(
     userId: string,
     fromRole: string,
     toRole: string
   ): Promise<AuditLogEntry> {
-    return this.store.create({
-      entityType: 'User',
-      entityId: userId,
-      action: 'role_switch',
-      userId,
-      userRole: toRole,
-      details: {
-        fromRole,
-        toRole,
-        reason: 'demo_role_switch'
-      }
+    const response = await apiFetch('/api/audit', {
+      method: 'POST',
+      body: JSON.stringify({
+        entityType: 'User',
+        entityId: userId,
+        action: 'role_switch',
+        userId,
+        userRole: toRole,
+        details: { fromRole, toRole, reason: 'demo_role_switch' },
+      }),
     });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return parseAuditLog(await response.json());
   }
 
-  /**
-   * Get audit logs for a specific requisition
-   */
   async getRequisitionAuditLogs(requisitionId: string): Promise<AuditLogEntry[]> {
-    return this.store.findByEntityId(requisitionId);
+    return fetchAuditLogs(`/api/audit/entity/${requisitionId}`);
   }
 
-  /**
-   * Get all audit logs for requisitions
-   */
   async getAllRequisitionAuditLogs(): Promise<AuditLogEntry[]> {
-    return this.store.findByEntityType('Requisition');
+    return fetchAuditLogs('/api/audit/all');
   }
 
-  /**
-   * Get audit logs for a specific user
-   */
   async getUserAuditLogs(userId: string): Promise<AuditLogEntry[]> {
-    return this.store.findByUserId(userId);
+    return fetchAuditLogs(`/api/audit/user/${userId}`);
   }
 
-  /**
-   * Get recent audit logs
-   */
   async getRecentAuditLogs(limit: number = 50): Promise<AuditLogEntry[]> {
-    return this.store.findRecent(limit);
+    return fetchAuditLogs(`/api/audit/all?size=${limit}`);
   }
 
-  /**
-   * Get all audit logs
-   */
   async getAllAuditLogs(): Promise<AuditLogEntry[]> {
-    return this.store.findAll();
+    return fetchAuditLogs('/api/audit/all');
   }
 }
 

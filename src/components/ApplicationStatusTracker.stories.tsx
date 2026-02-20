@@ -33,18 +33,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Mock application data
-const mockApplication = {
-  id: 1,
-  jobTitle: 'Senior Frontend Developer',
-  department: 'Engineering',
-  status: 'under_review',
-  statusDisplayName: 'Under Review',
-  statusCssClass: 'bg-yellow-100 text-yellow-800',
-  submittedAt: '2024-08-15T10:00:00Z',
-  rating: 4.5,
-  canBeWithdrawn: true,
-  daysFromSubmission: 5,
-};
+const mockApplication: any = {};
 
 export const Default: Story = {
   args: {

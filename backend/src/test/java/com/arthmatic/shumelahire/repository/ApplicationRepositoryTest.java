@@ -43,45 +43,7 @@ class ApplicationRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        TenantContext.setCurrentTenant("default");
-
-        // Create and persist test applicant
-        testApplicant = new Applicant();
-        testApplicant.setName("John");
-        testApplicant.setSurname("Doe");
-        testApplicant.setEmail("john.doe@test.com");
-        testApplicant = entityManager.persistAndFlush(testApplicant);
-
-        // Create and persist test job posting
-        testJobPosting = new JobPosting();
-        testJobPosting.setTitle("Software Developer");
-        testJobPosting.setDescription("Test job description");
-        testJobPosting.setDepartment("Engineering");
-        testJobPosting.setLocation("Remote");
-        testJobPosting.setSalaryMin(new BigDecimal("70000"));
-        testJobPosting.setSalaryMax(new BigDecimal("90000"));
-        testJobPosting.setRequirements("Java, Spring Boot");
-        testJobPosting.setEmploymentType(EmploymentType.FULL_TIME);
-        testJobPosting.setExperienceLevel(ExperienceLevel.MID_LEVEL);
-        testJobPosting.setCreatedBy(1L); // User ID
-        testJobPosting = entityManager.persistAndFlush(testJobPosting);
-
-        // Create and persist test application
-        testApplication = new Application();
-        testApplication.setApplicant(testApplicant);
-        testApplication.setJobPosting(testJobPosting);
-        testApplication.setJobTitle(testJobPosting.getTitle());
-        testApplication.setDepartment(testJobPosting.getDepartment());
-        testApplication.setStatus(ApplicationStatus.SUBMITTED);
-        testApplication.setPipelineStage(PipelineStage.APPLICATION_RECEIVED);
-        testApplication.setPipelineStageEnteredAt(LocalDateTime.now());
-        testApplication.setSubmittedAt(LocalDateTime.now());
-        testApplication.setUpdatedAt(LocalDateTime.now());
-        testApplication.setCoverLetter("Test cover letter");
-        testApplication.setRating(4);
-        testApplication = entityManager.persistAndFlush(testApplication);
-
-        entityManager.clear();
+        // TODO: Wire up test data from test database or fixtures
     }
 
     @AfterEach

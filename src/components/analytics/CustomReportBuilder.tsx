@@ -58,47 +58,9 @@ const availableFields: ReportField[] = [
   { id: 'cost_per_hire', label: 'Cost per Hire', type: 'metric', dataType: 'number' },
 ];
 
-// Sample data for preview
-const generateSampleData = (config: ReportConfig) => {
-  const sampleData = [];
-  for (let i = 0; i < 10; i++) {
-    const dataPoint: any = {};
-    
-    config.dimensions.forEach(dim => {
-      const field = availableFields.find(f => f.id === dim);
-      if (field) {
-        switch (dim) {
-          case 'department':
-            dataPoint[dim] = ['Engineering', 'Product', 'Design', 'Marketing'][i % 4];
-            break;
-          case 'source':
-            dataPoint[dim] = ['LinkedIn', 'Indeed', 'Referrals', 'Company Site'][i % 4];
-            break;
-          default:
-            dataPoint[dim] = `${field.label} ${i + 1}`;
-        }
-      }
-    });
-    
-    config.metrics.forEach(metric => {
-      switch (metric) {
-        case 'applications_count':
-          dataPoint[metric] = Math.floor(Math.random() * 100) + 20;
-          break;
-        case 'conversion_rate':
-          dataPoint[metric] = Math.random() * 25 + 5;
-          break;
-        case 'time_to_hire':
-          dataPoint[metric] = Math.floor(Math.random() * 30) + 15;
-          break;
-        default:
-          dataPoint[metric] = Math.floor(Math.random() * 50) + 10;
-      }
-    });
-    
-    sampleData.push(dataPoint);
-  }
-  return sampleData;
+// TODO: Replace with actual report data from API
+const generateSampleData = (_config: ReportConfig): any[] => {
+  return [];
 };
 
 interface CustomReportBuilderProps {

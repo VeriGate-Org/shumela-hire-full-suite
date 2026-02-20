@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import { useAuth } from '@/contexts/AuthContext';
+import { getApplicantId, getApplications, getInterviewsForApplication } from '@/services/candidateService';
 import { 
   CalendarIcon,
   ClockIcon,
@@ -73,7 +75,29 @@ interface _CalendarEvent {
   status: string;
 }
 
+function mapInterviewType(type: string): Interview['interviewType'] {
+  const typeMap: Record<string, Interview['interviewType']> = {
+    PHONE: 'phone', PHONE_SCREEN: 'phone',
+    VIDEO: 'video', VIDEO_CALL: 'video',
+    IN_PERSON: 'in_person', ONSITE: 'in_person',
+    TECHNICAL: 'technical', TECHNICAL_ASSESSMENT: 'technical',
+    PANEL: 'panel',
+    FINAL: 'final', FINAL_ROUND: 'final',
+  };
+  return typeMap[type] || 'video';
+}
+
+function mapInterviewStatus(status: string): Interview['status'] {
+  const statusMap: Record<string, Interview['status']> = {
+    SCHEDULED: 'scheduled', CONFIRMED: 'confirmed',
+    COMPLETED: 'completed', CANCELLED: 'cancelled',
+    RESCHEDULED: 'rescheduled', NO_SHOW: 'no_show',
+  };
+  return statusMap[status] || 'scheduled';
+}
+
 export default function InterviewSchedulePage() {
+  const { user } = useAuth();
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
@@ -83,204 +107,61 @@ export default function InterviewSchedulePage() {
 
   useEffect(() => {
     loadInterviews();
-  }, []);
+  }, [user]);
 
   const loadInterviews = async () => {
+    if (!user?.email) { setLoading(false); return; }
     setLoading(true);
-    
-    // Mock interview data
-    const mockInterviews: Interview[] = [
-      {
-        id: 'interview_001',
-        jobTitle: 'Senior Software Engineer',
-        company: 'TechCorp Inc.',
-        interviewType: 'video',
-        round: 2,
-        totalRounds: 4,
-        scheduledDate: '2025-01-25',
-        scheduledTime: '14:00',
-        duration: 60,
-        timezone: 'PST',
-        status: 'confirmed',
-        meetingLink: 'https://zoom.us/j/123456789',
-        meetingId: '123 456 789',
-        meetingPassword: 'tech2025',
-        interviewers: [
-          {
-            name: 'Sarah Martinez',
-            title: 'Senior Engineering Manager',
-            email: 'sarah.martinez@techcorp.com',
-            linkedinUrl: 'https://linkedin.com/in/sarah-martinez'
-          },
-          {
-            name: 'Mike Chen',
-            title: 'Staff Software Engineer',
-            email: 'mike.chen@techcorp.com'
-          }
-        ],
-        preparationMaterials: [
-          {
-            name: 'Technical Interview Guide',
-            type: 'document',
-            url: '/docs/tech-guide.pdf',
-            description: 'Overview of our technical interview process and expectations'
-          },
-          {
-            name: 'Code Review Exercise',
-            type: 'link',
-            url: 'https://github.com/techcorp/interview-exercise',
-            description: 'Please review this code and be prepared to discuss improvements'
-          }
-        ],
-        notes: 'Technical round focusing on system design and coding best practices. Be prepared to discuss your experience with distributed systems.',
-        contactPerson: {
-          name: 'Jennifer Lee',
-          email: 'jennifer.lee@techcorp.com',
-          phone: '+1 (555) 123-4567'
-        },
-        reminders: [
-          { type: 'email', timeBeforeInterview: 1440, sent: true }, // 24 hours
-          { type: 'email', timeBeforeInterview: 60, sent: false }    // 1 hour
-        ]
-      },
-      {
-        id: 'interview_002',
-        jobTitle: 'Principal Engineer',
-        company: 'InnovateLabs',
-        interviewType: 'panel',
-        round: 3,
-        totalRounds: 3,
-        scheduledDate: '2025-01-28',
-        scheduledTime: '10:30',
-        duration: 90,
-        timezone: 'PST',
-        status: 'scheduled',
-        location: 'InnovateLabs HQ, Conference Room A',
-        interviewers: [
-          {
-            name: 'David Park',
-            title: 'VP of Engineering',
-            email: 'david.park@innovatelabs.com'
-          },
-          {
-            name: 'Lisa Wong',
-            title: 'Principal Architect',
-            email: 'lisa.wong@innovatelabs.com'
-          },
-          {
-            name: 'James Rodriguez',
-            title: 'Engineering Director',
-            email: 'james.rodriguez@innovatelabs.com'
-          }
-        ],
-        preparationMaterials: [
-          {
-            name: 'Company Culture Guide',
-            type: 'document',
-            url: '/docs/culture-guide.pdf',
-            description: 'Learn about our values and engineering principles'
-          },
-          {
-            name: 'Architecture Overview',
-            type: 'video',
-            url: 'https://vimeo.com/123456',
-            description: 'Overview of our current platform architecture'
-          }
-        ],
-        notes: 'Final round panel interview. Focus on leadership experience, technical vision, and cultural fit.',
-        contactPerson: {
-          name: 'Maria Santos',
-          email: 'maria.santos@innovatelabs.com',
-          phone: '+1 (555) 987-6543'
-        },
-        reminders: [
-          { type: 'email', timeBeforeInterview: 1440, sent: false },
-          { type: 'sms', timeBeforeInterview: 120, sent: false }
-        ]
-      },
-      {
-        id: 'interview_003',
-        jobTitle: 'Lead Frontend Developer',
-        company: 'DesignCo',
-        interviewType: 'technical',
-        round: 1,
-        totalRounds: 3,
-        scheduledDate: '2025-01-22',
-        scheduledTime: '15:30',
-        duration: 45,
-        timezone: 'PST',
-        status: 'completed',
-        meetingLink: 'https://meet.google.com/abc-defg-hij',
-        interviewers: [
-          {
-            name: 'Alex Johnson',
-            title: 'Senior Frontend Engineer',
-            email: 'alex.johnson@designco.com'
-          }
-        ],
-        preparationMaterials: [
-          {
-            name: 'Portfolio Review Guidelines',
-            type: 'document',
-            url: '/docs/portfolio-guidelines.pdf'
-          }
-        ],
-        notes: 'Initial technical screening completed. Great discussion about React patterns and performance optimization.',
-        feedback: 'Strong technical skills demonstrated. Excellent understanding of modern frontend technologies. Recommended for next round.',
-        nextSteps: 'Design challenge and product manager interview scheduled for next week.',
-        contactPerson: {
-          name: 'Emma Davis',
-          email: 'emma.davis@designco.com'
-        },
-        reminders: [
-          { type: 'email', timeBeforeInterview: 1440, sent: true },
-          { type: 'email', timeBeforeInterview: 60, sent: true }
-        ]
-      },
-      {
-        id: 'interview_004',
-        jobTitle: 'Software Engineering Manager',
-        company: 'StartupXYZ',
-        interviewType: 'phone',
-        round: 1,
-        totalRounds: 4,
-        scheduledDate: '2025-01-30',
-        scheduledTime: '11:00',
-        duration: 30,
-        timezone: 'PST',
-        status: 'scheduled',
-        interviewers: [
-          {
-            name: 'Rachel Kim',
-            title: 'Head of Engineering',
-            email: 'rachel.kim@startupxyz.com'
-          }
-        ],
-        preparationMaterials: [
-          {
-            name: 'Company Overview',
-            type: 'link',
-            url: 'https://startupxyz.com/about',
-            description: 'Learn about our mission and recent achievements'
-          }
-        ],
-        notes: 'Initial phone screening to discuss background and mutual interest.',
-        contactPerson: {
-          name: 'Tom Wilson',
-          email: 'tom.wilson@startupxyz.com',
-          phone: '+1 (555) 456-7890'
-        },
-        reminders: [
-          { type: 'email', timeBeforeInterview: 1440, sent: false }
-        ]
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setInterviews(mockInterviews);
+    try {
+      const applicantId = await getApplicantId(user.email);
+      if (!applicantId) { setInterviews([]); return; }
+      const apps = await getApplications(applicantId);
+      const allInterviews: Interview[] = [];
+      const results = await Promise.allSettled(
+        apps.map((app: any) => getInterviewsForApplication(app.id))
+      );
+      results.forEach((result, idx) => {
+        if (result.status !== 'fulfilled') return;
+        const app = apps[idx];
+        result.value.forEach((i: any) => {
+          const scheduledAt = i.scheduledAt || i.scheduledDate || '';
+          const date = scheduledAt ? new Date(scheduledAt) : new Date();
+          allInterviews.push({
+            id: i.id,
+            jobTitle: app.jobTitle || '',
+            company: 'ShumelaHire',
+            interviewType: mapInterviewType(i.interviewType || i.type || ''),
+            round: i.round || 1,
+            totalRounds: i.totalRounds || 1,
+            scheduledDate: date.toISOString().split('T')[0],
+            scheduledTime: date.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }),
+            duration: i.durationMinutes || i.duration || 60,
+            timezone: 'SAST',
+            status: mapInterviewStatus(i.status || ''),
+            location: i.location || undefined,
+            meetingLink: i.meetingLink || undefined,
+            interviewers: (i.interviewers || []).map((int: any) => ({
+              name: int.name || `${int.firstName || ''} ${int.lastName || ''}`.trim(),
+              title: int.title || int.role || '',
+              email: int.email || '',
+            })),
+            preparationMaterials: [],
+            notes: i.instructions || i.notes || '',
+            feedback: i.feedback || undefined,
+            contactPerson: {
+              name: i.organizerName || '',
+              email: i.organizerEmail || '',
+            },
+            reminders: [],
+          });
+        });
+      });
+      setInterviews(allInterviews);
+    } catch (error) {
+      console.error('Failed to load interviews:', error);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const filteredInterviews = interviews.filter(interview => {

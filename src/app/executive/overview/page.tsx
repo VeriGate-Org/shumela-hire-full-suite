@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { 
+import { apiFetch } from '@/lib/api-fetch';
+import {
   BuildingOfficeIcon,
   UserGroupIcon,
   ChartBarIcon,
@@ -159,457 +160,95 @@ export default function OrganizationalOverviewPage() {
 
   const loadOrganizationalData = async () => {
     setLoading(true);
+    try {
+      const [dashboardRes, kpisRes, deptRes, alertsRes] = await Promise.allSettled([
+        apiFetch('/api/analytics/dashboard'),
+        apiFetch('/api/analytics/kpis'),
+        apiFetch('/api/pipeline/analytics/departments'),
+        apiFetch('/api/analytics/alerts'),
+      ]);
 
-    // Mock organization metrics
-    const mockOrgMetrics: OrganizationMetrics = {
-      totalEmployees: 1247,
-      totalContractors: 189,
-      totalOpenPositions: 87,
-      monthlyGrowthRate: 3.2,
-      quarterlyGrowthRate: 12.8,
-      yearlyGrowthRate: 47.3,
-      averageTenure: 2.8,
-      turnoverRate: 8.5,
-      engagementScore: 4.3,
-      diversityScore: 68.5,
-      remoteWorkPercentage: 73.2,
-      averageSalary: 95000
-    };
-
-    // Mock departments
-    const mockDepartments: Department[] = [
-      {
-        id: 'engineering',
-        name: 'Engineering',
-        headcount: 387,
-        openPositions: 23,
-        budget: 58500000,
-        utilizationRate: 94.2,
-        averageSalary: 125000,
-        growthTarget: 15,
-        currentGrowth: 12.8,
-        keyMetrics: {
-          productivity: 4.4,
-          satisfaction: 4.2,
-          retention: 91.5,
-          diversity: 32.1
-        },
-        recentChanges: {
-          newHires: 18,
-          departures: 5,
-          promotions: 12
-        },
-        locations: [
-          { city: 'San Francisco', employees: 195, type: 'office' },
-          { city: 'Austin', employees: 89, type: 'hybrid' },
-          { city: 'Remote', employees: 103, type: 'remote' }
-        ],
-        criticalRoles: ['Staff Engineer', 'Principal Architect', 'Engineering Manager'],
-        upcomingMilestones: [
-          { title: 'Q2 Hiring Sprint', date: '2025-02-15', type: 'hiring' },
-          { title: 'Architecture Review', date: '2025-03-01', type: 'project' }
-        ]
-      },
-      {
-        id: 'product',
-        name: 'Product',
-        headcount: 124,
-        openPositions: 12,
-        budget: 18700000,
-        utilizationRate: 89.7,
-        averageSalary: 135000,
-        growthTarget: 20,
-        currentGrowth: 18.5,
-        keyMetrics: {
-          productivity: 4.5,
-          satisfaction: 4.4,
-          retention: 93.2,
-          diversity: 45.8
-        },
-        recentChanges: {
-          newHires: 8,
-          departures: 2,
-          promotions: 6
-        },
-        locations: [
-          { city: 'San Francisco', employees: 67, type: 'office' },
-          { city: 'New York', employees: 31, type: 'hybrid' },
-          { city: 'Remote', employees: 26, type: 'remote' }
-        ],
-        criticalRoles: ['Senior Product Manager', 'Product Designer', 'Data Analyst'],
-        upcomingMilestones: [
-          { title: 'Product Strategy Review', date: '2025-02-28', type: 'project' },
-          { title: 'Design System Launch', date: '2025-03-15', type: 'project' }
-        ]
-      },
-      {
-        id: 'sales',
-        name: 'Sales',
-        headcount: 198,
-        openPositions: 18,
-        budget: 29800000,
-        utilizationRate: 96.8,
-        averageSalary: 98000,
-        growthTarget: 25,
-        currentGrowth: 22.7,
-        keyMetrics: {
-          productivity: 4.1,
-          satisfaction: 4.0,
-          retention: 87.3,
-          diversity: 41.2
-        },
-        recentChanges: {
-          newHires: 15,
-          departures: 8,
-          promotions: 9
-        },
-        locations: [
-          { city: 'New York', employees: 89, type: 'office' },
-          { city: 'Chicago', employees: 54, type: 'hybrid' },
-          { city: 'Remote', employees: 55, type: 'remote' }
-        ],
-        criticalRoles: ['Enterprise AE', 'Sales Development Rep', 'Sales Engineer'],
-        upcomingMilestones: [
-          { title: 'Q1 Sales Kickoff', date: '2025-02-01', type: 'project' },
-          { title: 'Territory Expansion', date: '2025-03-30', type: 'hiring' }
-        ]
-      },
-      {
-        id: 'marketing',
-        name: 'Marketing',
-        headcount: 87,
-        openPositions: 8,
-        budget: 13200000,
-        utilizationRate: 91.3,
-        averageSalary: 89000,
-        growthTarget: 18,
-        currentGrowth: 15.2,
-        keyMetrics: {
-          productivity: 4.3,
-          satisfaction: 4.2,
-          retention: 89.7,
-          diversity: 52.3
-        },
-        recentChanges: {
-          newHires: 6,
-          departures: 3,
-          promotions: 4
-        },
-        locations: [
-          { city: 'San Francisco', employees: 43, type: 'office' },
-          { city: 'Austin', employees: 28, type: 'hybrid' },
-          { city: 'Remote', employees: 16, type: 'remote' }
-        ],
-        criticalRoles: ['Growth Marketing Manager', 'Content Strategist', 'Brand Designer'],
-        upcomingMilestones: [
-          { title: 'Brand Refresh Launch', date: '2025-02-20', type: 'project' },
-          { title: 'Marketing Tech Stack', date: '2025-04-01', type: 'project' }
-        ]
-      },
-      {
-        id: 'operations',
-        name: 'Operations',
-        headcount: 156,
-        openPositions: 15,
-        budget: 23400000,
-        utilizationRate: 88.9,
-        averageSalary: 78000,
-        growthTarget: 12,
-        currentGrowth: 10.8,
-        keyMetrics: {
-          productivity: 4.2,
-          satisfaction: 4.1,
-          retention: 85.4,
-          diversity: 47.9
-        },
-        recentChanges: {
-          newHires: 9,
-          departures: 6,
-          promotions: 7
-        },
-        locations: [
-          { city: 'Austin', employees: 78, type: 'office' },
-          { city: 'Denver', employees: 41, type: 'hybrid' },
-          { city: 'Remote', employees: 37, type: 'remote' }
-        ],
-        criticalRoles: ['Operations Manager', 'Business Analyst', 'Process Engineer'],
-        upcomingMilestones: [
-          { title: 'ERP System Upgrade', date: '2025-03-10', type: 'project' },
-          { title: 'Ops Center Expansion', date: '2025-05-15', type: 'project' }
-        ]
-      },
-      {
-        id: 'customer_success',
-        name: 'Customer Success',
-        headcount: 112,
-        openPositions: 11,
-        budget: 16800000,
-        utilizationRate: 93.5,
-        averageSalary: 85000,
-        growthTarget: 22,
-        currentGrowth: 24.1,
-        keyMetrics: {
-          productivity: 4.4,
-          satisfaction: 4.3,
-          retention: 92.8,
-          diversity: 49.1
-        },
-        recentChanges: {
-          newHires: 12,
-          departures: 3,
-          promotions: 8
-        },
-        locations: [
-          { city: 'San Francisco', employees: 45, type: 'office' },
-          { city: 'Chicago', employees: 34, type: 'hybrid' },
-          { city: 'Remote', employees: 33, type: 'remote' }
-        ],
-        criticalRoles: ['Customer Success Manager', 'Technical Account Manager', 'Support Engineer'],
-        upcomingMilestones: [
-          { title: 'Customer Health Platform', date: '2025-02-28', type: 'project' },
-          { title: 'Enterprise Team Build', date: '2025-04-15', type: 'hiring' }
-        ]
+      // Map dashboard + KPIs to OrganizationMetrics
+      let dashData: any = {};
+      if (dashboardRes.status === 'fulfilled' && dashboardRes.value.ok) {
+        dashData = await dashboardRes.value.json();
       }
-    ];
-
-    // Mock locations
-    const mockLocations: Location[] = [
-      {
-        id: 'sf_hq',
-        name: 'San Francisco HQ',
-        type: 'headquarters',
-        address: '123 Market Street, San Francisco, CA 94105',
-        employees: 450,
-        capacity: 600,
-        operationalCost: 2100000,
-        departments: ['Engineering', 'Product', 'Marketing', 'Customer Success'],
-        amenities: ['Gym', 'Cafeteria', 'Game Room', 'Parking', 'Rooftop', 'Meditation Room'],
-        utilization: 75.0,
-        expansion: true,
-        leaseExpiry: '2027-12-31'
-      },
-      {
-        id: 'austin_office',
-        name: 'Austin Office',
-        type: 'office',
-        address: '456 Congress Avenue, Austin, TX 78701',
-        employees: 195,
-        capacity: 250,
-        operationalCost: 890000,
-        departments: ['Engineering', 'Marketing', 'Operations'],
-        amenities: ['Kitchen', 'Meeting Rooms', 'Parking', 'Bike Storage'],
-        utilization: 78.0,
-        expansion: false,
-        leaseExpiry: '2026-06-30'
-      },
-      {
-        id: 'ny_office',
-        name: 'New York Office',
-        type: 'office',
-        address: '789 Broadway, New York, NY 10003',
-        employees: 120,
-        capacity: 150,
-        operationalCost: 1350000,
-        departments: ['Product', 'Sales'],
-        amenities: ['Reception', 'Conference Rooms', 'Kitchen', 'Lounge'],
-        utilization: 80.0,
-        expansion: false,
-        leaseExpiry: '2025-09-30'
-      },
-      {
-        id: 'chicago_office',
-        name: 'Chicago Office',
-        type: 'office',
-        address: '321 West Loop, Chicago, IL 60606',
-        employees: 88,
-        capacity: 120,
-        operationalCost: 720000,
-        departments: ['Sales', 'Customer Success'],
-        amenities: ['Meeting Rooms', 'Kitchen', 'City Views'],
-        utilization: 73.3,
-        expansion: true,
-        leaseExpiry: '2026-12-31'
-      },
-      {
-        id: 'denver_coworking',
-        name: 'Denver Co-working Hub',
-        type: 'coworking',
-        address: '555 17th Street, Denver, CO 80202',
-        employees: 41,
-        capacity: 60,
-        operationalCost: 180000,
-        departments: ['Operations'],
-        amenities: ['Hot Desks', 'Meeting Rooms', 'Coffee Bar'],
-        utilization: 68.3,
-        expansion: false
-      },
-      {
-        id: 'remote_workforce',
-        name: 'Remote Workforce',
-        type: 'remote_hub',
-        address: 'Global Remote Employees',
-        employees: 353,
-        capacity: 1000,
-        operationalCost: 850000,
-        departments: ['Engineering', 'Product', 'Sales', 'Marketing', 'Operations', 'Customer Success'],
-        amenities: ['Home Office Stipend', 'Co-working Credits', 'Quarterly Meetups'],
-        utilization: 35.3,
-        expansion: true
+      let kpiData: any = {};
+      if (kpisRes.status === 'fulfilled' && kpisRes.value.ok) {
+        kpiData = await kpisRes.value.json();
       }
-    ];
 
-    // Mock alerts
-    const mockAlerts: OrganizationalAlert[] = [
-      {
-        id: 'alert_001',
-        type: 'critical',
-        category: 'compliance',
-        title: 'New York Office Lease Expiring Soon',
-        description: 'NYC office lease expires in 7 months with 120 employees currently based there',
-        impact: 'High disruption risk for Product and Sales teams, potential relocation costs R2.5M+',
-        location: 'New York Office',
-        recommendedAction: 'Initiate lease renewal negotiations or identify alternative office space by March 2025',
-        urgency: 'high',
-        timestamp: '2025-01-22T09:00:00Z',
-        dueDate: '2025-03-01T00:00:00Z'
-      },
-      {
-        id: 'alert_002',
-        type: 'opportunity',
-        category: 'performance',
-        title: 'Customer Success Exceeding Growth Targets',
-        description: 'Customer Success team at 124% of growth target with strong retention metrics',
-        impact: 'Opportunity to accelerate expansion and capture market share in customer success',
-        department: 'Customer Success',
-        recommendedAction: 'Consider additional headcount allocation and expansion budget for Q2',
-        urgency: 'medium',
-        timestamp: '2025-01-21T14:30:00Z'
-      },
-      {
-        id: 'alert_003',
-        type: 'warning',
-        category: 'headcount',
-        title: 'Engineering Critical Role Vacancies',
-        description: '3 critical Staff Engineer positions vacant for 60+ days, impacting delivery timelines',
-        impact: 'Delayed product roadmap delivery, potential customer impact, team burnout risk',
-        department: 'Engineering',
-        recommendedAction: 'Escalate recruitment efforts, consider contractor bridge resources, review compensation packages',
-        urgency: 'high',
-        timestamp: '2025-01-20T11:15:00Z'
-      },
-      {
-        id: 'alert_004',
-        type: 'info',
-        category: 'culture',
-        title: 'Remote Work Percentage Above Industry Average',
-        description: '73.2% of workforce working remotely, significantly above 58% industry average',
-        impact: 'Strong competitive advantage for talent acquisition, reduced office costs',
-        recommendedAction: 'Leverage remote-first positioning in employer branding and recruitment marketing',
-        urgency: 'low',
-        timestamp: '2025-01-19T16:45:00Z'
-      },
-      {
-        id: 'alert_005',
-        type: 'warning',
-        category: 'budget',
-        title: 'San Francisco Office Utilization Below Optimal',
-        description: 'SF HQ at 75% utilization despite R2.1M annual operational cost',
-        impact: 'Potential cost optimization opportunity of R500K+ annually',
-        location: 'San Francisco HQ',
-        recommendedAction: 'Review space efficiency, consider downsizing or subleasing unused space',
-        urgency: 'medium',
-        timestamp: '2025-01-18T13:20:00Z'
+      setOrgMetrics({
+        totalEmployees: dashData.totalEmployees || kpiData.totalEmployees || 0,
+        totalContractors: dashData.totalContractors || 0,
+        totalOpenPositions: dashData.openPositions || dashData.totalOpenPositions || 0,
+        monthlyGrowthRate: dashData.monthlyGrowthRate || kpiData.monthlyGrowthRate || 0,
+        quarterlyGrowthRate: dashData.quarterlyGrowthRate || kpiData.quarterlyGrowthRate || 0,
+        yearlyGrowthRate: dashData.yearlyGrowthRate || kpiData.yearlyGrowthRate || 0,
+        averageTenure: dashData.averageTenure || 0,
+        turnoverRate: dashData.turnoverRate || kpiData.turnoverRate || 0,
+        engagementScore: dashData.engagementScore || kpiData.engagementScore || 0,
+        diversityScore: dashData.diversityScore || kpiData.diversityScore || 0,
+        remoteWorkPercentage: dashData.remoteWorkPercentage || 0,
+        averageSalary: dashData.averageSalary || 0,
+      });
+
+      // Map department pipeline stats
+      if (deptRes.status === 'fulfilled' && deptRes.value.ok) {
+        const deptData = await deptRes.value.json();
+        const depts = deptData.departments || deptData || {};
+        const mappedDepts: Department[] = Object.entries(depts).map(([name, stats]: [string, any]) => ({
+          id: name.toLowerCase().replace(/\s+/g, '-'),
+          name,
+          headcount: stats.totalApplications || stats.headcount || 0,
+          openPositions: stats.openPositions || 0,
+          budget: stats.budget || 0,
+          utilizationRate: stats.utilizationRate || 0,
+          averageSalary: stats.averageSalary || stats.averageTimeToFill || 0,
+          growthTarget: stats.growthTarget || 0,
+          currentGrowth: stats.currentGrowth || 0,
+          keyMetrics: {
+            productivity: stats.productivity || 0,
+            satisfaction: stats.satisfaction || 0,
+            retention: stats.retention || 0,
+            diversity: stats.diversity || 0,
+          },
+          recentChanges: {
+            newHires: stats.hired || stats.newHires || 0,
+            departures: stats.departures || 0,
+            promotions: stats.promotions || 0,
+          },
+          locations: [],
+          criticalRoles: stats.criticalRoles || [],
+          upcomingMilestones: [],
+        }));
+        setDepartments(mappedDepts);
       }
-    ];
 
-    // Mock milestones
-    const mockMilestones: CompanyMilestone[] = [
-      {
-        id: 'milestone_001',
-        title: 'Series C Funding Completion',
-        description: 'Successfully closed R150M Series C round led by top-tier VCs',
-        date: '2025-01-15',
-        type: 'funding',
-        status: 'completed',
-        impact: 'high',
-        departments: ['All'],
-        metrics: {
-          employeesImpacted: 1247,
-          budgetImpact: 150000000,
-          timelineWeeks: 24
-        }
-      },
-      {
-        id: 'milestone_002',
-        title: 'European Market Expansion',
-        description: 'Launch operations in London and Amsterdam with local teams',
-        date: '2025-03-15',
-        type: 'expansion',
-        status: 'in_progress',
-        impact: 'high',
-        departments: ['Sales', 'Customer Success', 'Engineering'],
-        metrics: {
-          employeesImpacted: 450,
-          budgetImpact: 25000000,
-          timelineWeeks: 32
-        }
-      },
-      {
-        id: 'milestone_003',
-        title: 'AI Platform Launch',
-        description: 'Release of next-generation AI-powered product suite',
-        date: '2025-04-30',
-        type: 'launch',
-        status: 'in_progress',
-        impact: 'high',
-        departments: ['Engineering', 'Product', 'Marketing'],
-        metrics: {
-          employeesImpacted: 615,
-          budgetImpact: 45000000,
-          timelineWeeks: 48
-        }
-      },
-      {
-        id: 'milestone_004',
-        title: 'Diversity & Inclusion Initiative',
-        description: 'Company-wide D&I program targeting 40% underrepresented groups by 2026',
-        date: '2025-02-01',
-        type: 'achievement',
-        status: 'in_progress',
-        impact: 'medium',
-        departments: ['All'],
-        metrics: {
-          employeesImpacted: 1247,
-          budgetImpact: 5000000,
-          timelineWeeks: 52
-        }
-      },
-      {
-        id: 'milestone_005',
-        title: 'Strategic Partnership with Enterprise',
-        description: 'Multi-year partnership agreement with Fortune 100 company',
-        date: '2025-05-15',
-        type: 'partnership',
-        status: 'planned',
-        impact: 'high',
-        departments: ['Sales', 'Engineering', 'Customer Success'],
-        metrics: {
-          employeesImpacted: 780,
-          budgetImpact: 75000000,
-          timelineWeeks: 20
-        }
+      // Map alerts
+      if (alertsRes.status === 'fulfilled' && alertsRes.value.ok) {
+        const alertData = await alertsRes.value.json();
+        const alertItems = alertData.content || alertData.data || alertData || [];
+        setAlerts(Array.isArray(alertItems) ? alertItems.map((a: any) => ({
+          id: a.id || `alert-${Math.random()}`,
+          type: (a.type || a.severity || 'info').toLowerCase() as OrganizationalAlert['type'],
+          category: (a.category || 'performance') as OrganizationalAlert['category'],
+          title: a.title || a.message || '',
+          description: a.description || '',
+          impact: a.impact || '',
+          department: a.department,
+          location: a.location,
+          recommendedAction: a.recommendedAction || a.recommendation || '',
+          urgency: (a.urgency || 'medium') as OrganizationalAlert['urgency'],
+          timestamp: a.timestamp || a.createdAt || new Date().toISOString(),
+          dueDate: a.dueDate,
+        })) : []);
       }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setOrgMetrics(mockOrgMetrics);
-      setDepartments(mockDepartments);
-      setLocations(mockLocations);
-      setAlerts(mockAlerts);
-      setMilestones(mockMilestones);
+    } catch (error) {
+      console.error('Failed to load organizational data:', error);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   const getAlertColor = (type: string) => {

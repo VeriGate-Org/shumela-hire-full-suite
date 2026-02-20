@@ -1,84 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-
-// Mock data
-const mockMetrics = {
-  totalApplications: 1284,
-  activeJobPostings: 23,
-  newApplicants: 187,
-  applicationsByStatus: {
-    Applied: 412,
-    Screening: 298,
-    Interview: 186,
-    Offer: 47,
-    Hired: 34,
-    Rejected: 307,
-  },
-  conversionRates: {
-    screeningRate: 72.3,
-    interviewRate: 45.6,
-    hireRate: 8.2,
-  },
-  dailyTrends: {},
-};
-
-const mockApplicationsPerVacancy = [
-  { vacancy: 'Senior Software Engineer', applications: 142, jobId: 1 },
-  { vacancy: 'Product Manager', applications: 98, jobId: 2 },
-  { vacancy: 'UX Designer', applications: 87, jobId: 3 },
-  { vacancy: 'Data Analyst', applications: 76, jobId: 4 },
-  { vacancy: 'DevOps Engineer', applications: 63, jobId: 5 },
-  { vacancy: 'Marketing Coordinator', applications: 51, jobId: 6 },
-];
-
-const mockPipelineFunnel = {
-  funnel: {
-    Applied: 1284,
-    Screening: 926,
-    'Phone Interview': 584,
-    'On-site Interview': 312,
-    'Final Round': 128,
-    Offer: 47,
-    Hired: 34,
-  },
-  department: 'All Departments',
-  period: 'Last 30 days',
-};
-
-const mockTimeToFill = {
-  averageDays: 32.4,
-  positions: [
-    { jobTitle: 'Senior Software Engineer', department: 'Engineering', daysToFill: 45, hiredDate: '2026-02-03' },
-    { jobTitle: 'Product Manager', department: 'Product', daysToFill: 38, hiredDate: '2026-01-28' },
-    { jobTitle: 'UX Designer', department: 'Design', daysToFill: 29, hiredDate: '2026-02-10' },
-    { jobTitle: 'Data Analyst', department: 'Engineering', daysToFill: 22, hiredDate: '2026-02-12' },
-    { jobTitle: 'Marketing Coordinator', department: 'Marketing', daysToFill: 18, hiredDate: '2026-01-20' },
-  ],
-  department: 'All Departments',
-};
-
-const mockRecentActivity = [
-  { id: 1, applicantName: 'Thabo Mokoena', jobTitle: 'Senior Software Engineer', status: 'interview_scheduled', action: 'Interview scheduled', timestamp: '2026-02-17T09:30:00', department: 'Engineering' },
-  { id: 2, applicantName: 'Naledi Dlamini', jobTitle: 'Product Manager', status: 'hired', action: 'Offer accepted', timestamp: '2026-02-16T14:15:00', department: 'Product' },
-  { id: 3, applicantName: 'Sipho Ndlovu', jobTitle: 'UX Designer', status: 'screening', action: 'Moved to screening', timestamp: '2026-02-16T11:00:00', department: 'Design' },
-  { id: 4, applicantName: 'Lerato Mahlangu', jobTitle: 'Data Analyst', status: 'rejected', action: 'Application rejected', timestamp: '2026-02-15T16:45:00', department: 'Engineering' },
-  { id: 5, applicantName: 'Kamogelo Sithole', jobTitle: 'DevOps Engineer', status: 'interview_scheduled', action: 'Final round scheduled', timestamp: '2026-02-15T10:20:00', department: 'Engineering' },
-  { id: 6, applicantName: 'Zanele Khumalo', jobTitle: 'Marketing Coordinator', status: 'hired', action: 'Offer accepted', timestamp: '2026-02-14T13:00:00', department: 'Marketing' },
-  { id: 7, applicantName: 'Bongani Mthembu', jobTitle: 'Senior Software Engineer', status: 'screening', action: 'CV reviewed', timestamp: '2026-02-14T09:10:00', department: 'Engineering' },
-];
-
-const mockDepartmentStats = {
-  departments: {
-    Engineering: { totalApplications: 486, uniqueApplicants: 312, hired: 14, averageTimeToFill: 38.2 },
-    Product: { totalApplications: 198, uniqueApplicants: 145, hired: 6, averageTimeToFill: 34.5 },
-    Design: { totalApplications: 164, uniqueApplicants: 118, hired: 4, averageTimeToFill: 28.1 },
-    Marketing: { totalApplications: 152, uniqueApplicants: 110, hired: 5, averageTimeToFill: 21.3 },
-    Sales: { totalApplications: 178, uniqueApplicants: 134, hired: 3, averageTimeToFill: 25.7 },
-    Operations: { totalApplications: 106, uniqueApplicants: 82, hired: 2, averageTimeToFill: 30.9 },
-  },
-  period: 'Last 30 days',
-};
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 
 const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
 
@@ -124,12 +47,75 @@ const getStatusBadgeColor = (status: string) => {
 };
 
 const RecruiterDashboard: React.FC = () => {
-  const metrics = mockMetrics;
-  const applicationsPerVacancy = mockApplicationsPerVacancy;
-  const pipelineFunnel = mockPipelineFunnel;
-  const timeToFill = mockTimeToFill;
-  const recentActivity = mockRecentActivity;
-  const departmentStats = mockDepartmentStats;
+  const [metrics, setMetrics] = useState<any>({
+    totalApplications: 0,
+    activeJobPostings: 0,
+    newApplicants: 0,
+    conversionRates: { interviewRate: 0, hireRate: 0 },
+  });
+  const [applicationsPerVacancy, setApplicationsPerVacancy] = useState<any[]>([]);
+  const [pipelineFunnel, setPipelineFunnel] = useState<any>({
+    department: '',
+    period: '',
+    funnel: {},
+  });
+  const [timeToFill, setTimeToFill] = useState<any>({
+    averageDays: 0,
+    department: '',
+    positions: [],
+  });
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [departmentStats, setDepartmentStats] = useState<any>({
+    period: '',
+    departments: {},
+  });
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      const [dashboardRes, kpisRes, pipelineRes, deptRes] = await Promise.allSettled([
+        apiFetch('/api/analytics/dashboard'),
+        apiFetch('/api/analytics/kpis'),
+        apiFetch('/api/pipeline/analytics'),
+        apiFetch('/api/pipeline/analytics/departments'),
+      ]);
+
+      if (dashboardRes.status === 'fulfilled' && dashboardRes.value.ok) {
+        const data = await dashboardRes.value.json();
+        setMetrics({
+          totalApplications: data.totalApplications || 0,
+          activeJobPostings: data.activeJobPostings || data.openPositions || 0,
+          newApplicants: data.newApplicants || 0,
+          conversionRates: {
+            interviewRate: data.interviewRate || data.conversionRates?.interviewRate || 0,
+            hireRate: data.hireRate || data.conversionRates?.hireRate || 0,
+          },
+        });
+        if (data.recentActivity) setRecentActivity(data.recentActivity);
+        if (data.timeToFill) setTimeToFill(data.timeToFill);
+        if (data.applicationsPerVacancy) setApplicationsPerVacancy(data.applicationsPerVacancy);
+      }
+
+      if (pipelineRes.status === 'fulfilled' && pipelineRes.value.ok) {
+        const data = await pipelineRes.value.json();
+        if (data.funnel || data.stages) {
+          setPipelineFunnel({
+            department: data.department || 'All',
+            period: data.period || 'Current',
+            funnel: data.funnel || data.stages || {},
+          });
+        }
+      }
+
+      if (deptRes.status === 'fulfilled' && deptRes.value.ok) {
+        const data = await deptRes.value.json();
+        setDepartmentStats({
+          period: data.period || 'Current',
+          departments: data.departments || data || {},
+        });
+      }
+    }
+    loadDashboardData();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -202,9 +188,10 @@ const RecruiterDashboard: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
           <p className="text-sm text-gray-600 mb-6">{pipelineFunnel.department} - {pipelineFunnel.period}</p>
             <div className="space-y-4">
-              {Object.entries(pipelineFunnel.funnel).map(([stage, count]) => {
-                const percentage = Object.values(pipelineFunnel.funnel)[0] > 0 
-                  ? (count / Object.values(pipelineFunnel.funnel)[0]) * 100 
+              {(Object.entries(pipelineFunnel.funnel) as [string, number][]).map(([stage, count]) => {
+                const firstVal = (Object.values(pipelineFunnel.funnel) as number[])[0] ?? 0;
+                const percentage = firstVal > 0
+                  ? (count / firstVal) * 100
                   : 0;
                 return (
                   <div key={stage} className="flex items-center justify-between">
@@ -261,7 +248,7 @@ const RecruiterDashboard: React.FC = () => {
             Average: {timeToFill.averageDays.toFixed(1)} days ({timeToFill.department})
             </p>
             <div className="space-y-4">
-              {timeToFill.positions.slice(0, 5).map((position, index) => (
+              {timeToFill.positions.slice(0, 5).map((position: any, index: number) => (
                 <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-3">
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{position.jobTitle}</p>
@@ -317,7 +304,7 @@ const RecruiterDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(departmentStats.departments).map(([dept, stats]) => (
+                {(Object.entries(departmentStats.departments) as [string, any][]).map(([dept, stats]) => (
                   <tr key={dept} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-gray-900">{dept}</td>
                     <td className="text-right py-3 px-4 text-gray-900">{stats.totalApplications}</td>

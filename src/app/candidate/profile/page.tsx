@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { 
+import { useAuth } from '@/contexts/AuthContext';
+import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications } from '@/services/candidateService';
+import {
   UserIcon,
   DocumentTextIcon,
   BriefcaseIcon,
@@ -104,6 +106,7 @@ interface Application {
 }
 
 export default function CandidateProfilePage() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
@@ -116,176 +119,81 @@ export default function CandidateProfilePage() {
 
   useEffect(() => {
     loadCandidateData();
-  }, []);
+  }, [user]);
 
   const loadCandidateData = async () => {
+    if (!user?.email) { setLoading(false); return; }
     setLoading(true);
-    
-    // Mock data - replace with actual API calls
-    const mockProfile: CandidateProfile = {
-      id: 'candidate_001',
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '+1 (555) 123-4567',
-      location: 'San Francisco, CA',
-      profileImage: null,
-      headline: 'Senior Software Engineer | Full-Stack Developer | React & Node.js Expert',
-      summary: 'Passionate software engineer with 7+ years of experience building scalable web applications. Expertise in React, Node.js, and cloud technologies. Led teams of 5+ developers and delivered products used by millions of users.',
-      dateOfBirth: '1990-05-15',
-      nationality: 'United States',
-      workAuthorization: 'authorized',
-      salaryExpectation: {
-        min: 120000,
-        max: 160000,
-        currency: 'ZAR'
-      },
-      availability: 'two_weeks',
-      noticePeriod: '2 weeks',
-      preferredJobTypes: ['Full-time', 'Contract'],
-      willingToRelocate: true,
-      remoteWork: 'hybrid'
-    };
+    try {
+      const applicantId = await getApplicantId(user.email);
+      if (!applicantId) { setLoading(false); return; }
 
-    const mockExperiences: Experience[] = [
-      {
-        id: 'exp_001',
-        company: 'TechCorp Inc.',
-        position: 'Senior Software Engineer',
-        startDate: '2020-03-01',
-        endDate: null,
-        isCurrent: true,
-        description: 'Lead full-stack development of customer-facing web applications serving 2M+ users.',
-        location: 'San Francisco, CA',
-        achievements: [
-          'Reduced page load times by 40% through performance optimization',
-          'Led migration from monolith to microservices architecture',
-          'Mentored 3 junior developers and conducted technical interviews'
-        ]
-      },
-      {
-        id: 'exp_002',
-        company: 'StartupXYZ',
-        position: 'Software Engineer',
-        startDate: '2018-01-01',
-        endDate: '2020-02-28',
-        isCurrent: false,
-        description: 'Developed and maintained React-based SaaS platform for project management.',
-        location: 'Remote',
-        achievements: [
-          'Built real-time collaboration features using WebSockets',
-          'Implemented automated testing pipeline reducing bugs by 60%',
-          'Contributed to product roadmap and technical architecture decisions'
-        ]
+      const [applicantData, docs, apps] = await Promise.all([
+        getApplicant(applicantId),
+        fetchDocuments(applicantId),
+        fetchApplications(applicantId),
+      ]);
+
+      if (applicantData) {
+        setProfile({
+          id: applicantData.id,
+          firstName: applicantData.name || applicantData.firstName || '',
+          lastName: applicantData.surname || applicantData.lastName || '',
+          email: applicantData.email || user.email,
+          phone: applicantData.phone || applicantData.phoneNumber || '',
+          location: applicantData.address || applicantData.location || '',
+          profileImage: null,
+          headline: applicantData.headline || '',
+          summary: applicantData.summary || '',
+          dateOfBirth: applicantData.dateOfBirth || '',
+          nationality: applicantData.nationality || '',
+          workAuthorization: 'authorized',
+          salaryExpectation: { min: 0, max: 0, currency: 'ZAR' },
+          availability: 'two_weeks',
+          noticePeriod: '',
+          preferredJobTypes: [],
+          willingToRelocate: false,
+          remoteWork: 'no_preference',
+        });
+
+        // Parse skills from comma-separated string if available
+        if (applicantData.skills) {
+          const skillNames = typeof applicantData.skills === 'string'
+            ? applicantData.skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : applicantData.skills;
+          setSkills(skillNames.map((name: string, idx: number) => ({
+            id: `skill-${idx}`,
+            name,
+            level: 'intermediate' as const,
+            years: 0,
+            category: 'technical' as const,
+          })));
+        }
       }
-    ];
 
-    const mockEducation: Education[] = [
-      {
-        id: 'edu_001',
-        institution: 'Stanford University',
-        degree: 'Master of Science',
-        field: 'Computer Science',
-        startYear: '2015',
-        endYear: '2017',
-        isCurrent: false,
-        gpa: '3.8',
-        description: 'Focused on distributed systems and machine learning',
-        honors: ['Dean\'s List', 'Graduate Fellowship Recipient']
-      },
-      {
-        id: 'edu_002',
-        institution: 'UC Berkeley',
-        degree: 'Bachelor of Science',
-        field: 'Computer Science',
-        startYear: '2011',
-        endYear: '2015',
-        isCurrent: false,
-        gpa: '3.7',
-        description: 'Concentration in software engineering and algorithms',
-        honors: ['Magna Cum Laude', 'Phi Beta Kappa']
-      }
-    ];
+      setDocuments(docs.map((d: any) => ({
+        id: d.id,
+        name: d.fileName || d.name || 'Document',
+        type: (d.documentType || d.type || 'other').toLowerCase() as Document['type'],
+        url: d.downloadUrl || d.url || '',
+        uploadedAt: d.uploadedAt || d.createdAt || new Date().toISOString(),
+        size: d.fileSize || d.size || 0,
+      })));
 
-    const mockSkills: Skill[] = [
-      { id: 'skill_001', name: 'React', level: 'expert', years: 6, category: 'technical' },
-      { id: 'skill_002', name: 'Node.js', level: 'expert', years: 5, category: 'technical' },
-      { id: 'skill_003', name: 'TypeScript', level: 'advanced', years: 4, category: 'technical' },
-      { id: 'skill_004', name: 'AWS', level: 'advanced', years: 3, category: 'technical' },
-      { id: 'skill_005', name: 'Python', level: 'intermediate', years: 3, category: 'technical' },
-      { id: 'skill_006', name: 'Leadership', level: 'advanced', years: 4, category: 'soft' },
-      { id: 'skill_007', name: 'Spanish', level: 'intermediate', years: 10, category: 'language' },
-      { id: 'skill_008', name: 'AWS Solutions Architect', level: 'expert', years: 2, category: 'certification' }
-    ];
-
-    const mockDocuments: Document[] = [
-      {
-        id: 'doc_001',
-        name: 'Sarah_Johnson_Resume_2025.pdf',
-        type: 'resume',
-        url: '/documents/sarah_resume.pdf',
-        uploadedAt: '2025-01-15T10:30:00Z',
-        size: 245760
-      },
-      {
-        id: 'doc_002',
-        name: 'Portfolio_Projects.pdf',
-        type: 'portfolio',
-        url: '/documents/sarah_portfolio.pdf',
-        uploadedAt: '2025-01-10T14:20:00Z',
-        size: 1024000
-      },
-      {
-        id: 'doc_003',
-        name: 'AWS_Certification.pdf',
-        type: 'certification',
-        url: '/documents/aws_cert.pdf',
-        uploadedAt: '2024-12-01T09:15:00Z',
-        size: 512000
-      }
-    ];
-
-    const mockApplications: Application[] = [
-      {
-        id: 'app_001',
-        jobTitle: 'Senior Full Stack Engineer',
-        company: 'Google',
-        appliedDate: '2025-01-20T09:00:00Z',
-        status: 'interview_scheduled',
-        currentStage: 'Technical Interview',
-        interviewDate: '2025-01-25T14:00:00Z',
-        notes: 'Initial phone screening completed. Technical interview scheduled.'
-      },
-      {
-        id: 'app_002',
-        jobTitle: 'Staff Software Engineer',
-        company: 'Meta',
-        appliedDate: '2025-01-18T11:30:00Z',
-        status: 'reviewing',
-        currentStage: 'Application Review',
-        notes: 'Application submitted and under review by hiring team.'
-      },
-      {
-        id: 'app_003',
-        jobTitle: 'Principal Engineer',
-        company: 'Netflix',
-        appliedDate: '2025-01-15T16:45:00Z',
-        status: 'offer_extended',
-        currentStage: 'Offer Negotiation',
-        notes: 'Offer received. Negotiating terms and start date.'
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setProfile(mockProfile);
-      setExperiences(mockExperiences);
-      setEducation(mockEducation);
-      setSkills(mockSkills);
-      setDocuments(mockDocuments);
-      setApplications(mockApplications);
+      setApplications(apps.map((a: any) => ({
+        id: a.id,
+        jobTitle: a.jobTitle || '',
+        company: 'ShumelaHire',
+        appliedDate: a.submittedAt || a.createdAt || new Date().toISOString(),
+        status: (a.status || 'applied').toLowerCase().replace(/ /g, '_') as Application['status'],
+        currentStage: a.statusDisplayName || a.status || '',
+        notes: a.notes || '',
+      })));
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -352,6 +260,18 @@ export default function CandidateProfilePage() {
       <PageWrapper title="My Profile" subtitle="Loading your profile..." actions={actions}>
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <PageWrapper title="My Profile" subtitle="Manage your professional profile" actions={actions}>
+        <div className="bg-white rounded-sm shadow p-12 text-center">
+          <UserIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No profile data</h3>
+          <p className="text-sm text-gray-500">Your profile information will appear here once connected to the system.</p>
         </div>
       </PageWrapper>
     );

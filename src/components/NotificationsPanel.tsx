@@ -40,64 +40,7 @@ export default function NotificationsPanel({
     try {
       // For demo purposes, create mock notifications
       // In real implementation, this would call /api/notifications/applicant/${applicantId}
-      const mockNotifications: Notification[] = [
-        {
-          id: 1,
-          title: 'Application Submitted Successfully',
-          message: 'Your application for Software Developer has been submitted and is under review. We will contact you soon with updates.',
-          type: 'APPLICATION_SUBMITTED',
-          channel: 'EMAIL',
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          isRead: false,
-          applicationId: 101,
-          jobTitle: 'Software Developer',
-        },
-        {
-          id: 2,
-          title: 'Application Status Updated',
-          message: 'Your application for Software Developer has moved to the screening stage. Our team is reviewing your qualifications.',
-          type: 'PIPELINE_STAGE_CHANGED',
-          channel: 'IN_APP',
-          createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          isRead: true,
-          readAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          applicationId: 101,
-          jobTitle: 'Software Developer',
-        },
-        {
-          id: 3,
-          title: 'Interview Scheduled',
-          message: 'Congratulations! We would like to schedule an interview for the Data Analyst position. Please check your email for details.',
-          type: 'INTERVIEW_SCHEDULED',
-          channel: 'EMAIL',
-          createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          isRead: false,
-          applicationId: 102,
-          jobTitle: 'Data Analyst',
-        },
-        {
-          id: 4,
-          title: 'Document Uploaded',
-          message: 'Your CV has been successfully uploaded and attached to your application for Project Manager.',
-          type: 'DOCUMENT_SHARED',
-          channel: 'IN_APP',
-          createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          isRead: true,
-          readAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          applicationId: 103,
-          jobTitle: 'Project Manager',
-        },
-        {
-          id: 5,
-          title: 'Welcome to Our Platform',
-          message: 'Welcome to our recruitment platform! Your profile has been created successfully. You can now browse and apply for positions.',
-          type: 'SYSTEM_UPDATE',
-          channel: 'IN_APP',
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          isRead: true,
-          readAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-      ];
+      const mockNotifications: Notification[] = [];
 
       // Apply limit
       const limitedNotifications = mockNotifications.slice(0, limit);

@@ -5,29 +5,7 @@ import {
   BiasCheckResult,
 } from '@/types/ai';
 
-const mockJobDescription: JobDescriptionResult = {
-  title: 'Senior Software Engineer',
-  intro: 'We are seeking a talented Senior Software Engineer to join our growing team and drive technical excellence across our platform.',
-  responsibilities: [
-    'Design and implement scalable software solutions',
-    'Collaborate with cross-functional teams to define requirements',
-    'Mentor junior developers and conduct code reviews',
-    'Participate in architectural decisions and technical planning',
-  ],
-  requirements: [
-    '5+ years of professional software development experience',
-    'Strong proficiency in Java or similar languages',
-    'Experience with cloud platforms (AWS, Azure, or GCP)',
-    'Excellent communication and collaboration skills',
-  ],
-  benefits: [
-    'Competitive salary and equity package',
-    'Flexible working arrangements',
-    'Professional development budget',
-    'Comprehensive health benefits',
-  ],
-  biasWarnings: [],
-};
+const mockJobDescription: any = {}; // TODO: Remove mock fallback
 
 export const aiJobDescriptionService = {
   async generate(request: JobDescriptionRequest): Promise<JobDescriptionResult> {

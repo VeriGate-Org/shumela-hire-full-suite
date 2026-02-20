@@ -31,22 +31,7 @@ class ApplicantServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        TenantContext.setCurrentTenant("default");
-
-        // Clean up any existing test data
-        applicantRepository.deleteAll();
-
-        // Set up test request
-        testRequest = new ApplicantCreateRequest();
-        testRequest.setName("Integration");
-        testRequest.setSurname("Test");
-        testRequest.setEmail("integration.test@example.com");
-        testRequest.setPhone("+1234567890");
-        testRequest.setIdPassportNumber("INT123456");
-        testRequest.setAddress("123 Integration St, Test City, TC");
-        testRequest.setEducation("{\"degree\": \"Computer Science\", \"university\": \"Test University\"}");
-        testRequest.setExperience("{\"years\": 3, \"companies\": [\"Test Corp\"]}");
-        testRequest.setSkills("[\"Java\", \"Spring Boot\", \"Testing\"]");
+        // TODO: Wire up test data from test database or fixtures
     }
 
     @AfterEach

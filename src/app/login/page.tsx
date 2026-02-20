@@ -50,16 +50,8 @@ function LoginContent() {
   };
 
   const handleMockLogin = (role: UserRole) => {
-    const mockUser = {
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@company.com',
-      role,
-      permissions: rolePermissions[role],
-    };
-
-    login(mockUser);
-    router.push('/dashboard');
+    // TODO: Replace with actual authentication
+    console.warn("Mock login not available - configure Cognito");
   };
 
   // Cognito login form

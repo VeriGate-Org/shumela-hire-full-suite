@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { 
+import { apiFetch } from '@/lib/api-fetch';
+import {
   ChartBarIcon,
   DocumentChartBarIcon,
   PresentationChartLineIcon,
@@ -140,365 +141,101 @@ export default function ExecutiveReportsPage() {
 
   const loadExecutiveData = async () => {
     setLoading(true);
+    try {
+      const [dashboardRes, kpisRes, deptRes, alertsRes, reportsRes] = await Promise.allSettled([
+        apiFetch('/api/analytics/dashboard'),
+        apiFetch('/api/analytics/kpis'),
+        apiFetch('/api/pipeline/analytics/departments'),
+        apiFetch('/api/analytics/alerts'),
+        apiFetch('/api/reports/types'),
+      ]);
 
-    // Mock executive metrics
-    const mockExecutiveMetrics: ExecutiveMetrics = {
-      totalHires: 247,
-      totalRequisitions: 89,
-      averageTimeToHire: 28,
-      costPerHire: 12500,
-      offerAcceptanceRate: 87.3,
-      candidateSatisfaction: 4.2,
-      diversityScore: 73.5,
-      retentionRate: 91.8,
-      monthlyTrend: 8.5,
-      quarterlyTrend: 15.2,
-      yearlyTrend: 23.7
-    };
-
-    // Mock department metrics
-    const mockDepartmentMetrics: DepartmentMetrics[] = [
-      {
-        department: 'Engineering',
-        openRequisitions: 23,
-        filledPositions: 67,
-        averageTimeToFill: 32,
-        costPerHire: 18500,
-        offerAcceptanceRate: 89.2,
-        candidateQualityScore: 4.3,
-        urgentPositions: 8,
-        projectedNeed: 45
-      },
-      {
-        department: 'Product',
-        openRequisitions: 12,
-        filledPositions: 34,
-        averageTimeToFill: 25,
-        costPerHire: 15200,
-        offerAcceptanceRate: 92.1,
-        candidateQualityScore: 4.5,
-        urgentPositions: 3,
-        projectedNeed: 28
-      },
-      {
-        department: 'Sales',
-        openRequisitions: 18,
-        filledPositions: 45,
-        averageTimeToFill: 21,
-        costPerHire: 9800,
-        offerAcceptanceRate: 84.7,
-        candidateQualityScore: 4.1,
-        urgentPositions: 6,
-        projectedNeed: 35
-      },
-      {
-        department: 'Marketing',
-        openRequisitions: 8,
-        filledPositions: 22,
-        averageTimeToFill: 19,
-        costPerHire: 11200,
-        offerAcceptanceRate: 88.9,
-        candidateQualityScore: 4.4,
-        urgentPositions: 2,
-        projectedNeed: 15
-      },
-      {
-        department: 'Operations',
-        openRequisitions: 15,
-        filledPositions: 38,
-        averageTimeToFill: 26,
-        costPerHire: 8900,
-        offerAcceptanceRate: 85.3,
-        candidateQualityScore: 4.0,
-        urgentPositions: 4,
-        projectedNeed: 22
-      },
-      {
-        department: 'Customer Success',
-        openRequisitions: 13,
-        filledPositions: 41,
-        averageTimeToFill: 23,
-        costPerHire: 10500,
-        offerAcceptanceRate: 90.8,
-        candidateQualityScore: 4.2,
-        urgentPositions: 5,
-        projectedNeed: 19
+      // Map to ExecutiveMetrics
+      let dashData: any = {};
+      if (dashboardRes.status === 'fulfilled' && dashboardRes.value.ok) {
+        dashData = await dashboardRes.value.json();
       }
-    ];
-
-    // Mock report templates
-    const mockReportTemplates: ReportTemplate[] = [
-      {
-        id: 'report_001',
-        name: 'Executive Quarterly Review',
-        description: 'Comprehensive quarterly talent acquisition and organizational health report for board presentation',
-        category: 'executive',
-        frequency: 'quarterly',
-        lastGenerated: '2025-01-15T09:00:00Z',
-        nextScheduled: '2025-04-15T09:00:00Z',
-        status: 'active',
-        recipients: ['ceo@company.com', 'board@company.com', 'investors@company.com'],
-        format: 'presentation',
-        automated: true,
-        criticalMetrics: ['Cost per Hire', 'Time to Fill', 'Diversity Score', 'Retention Rate'],
-        insights: ['Market competitiveness analysis', 'Talent pipeline health', 'Organizational scaling readiness']
-      },
-      {
-        id: 'report_002',
-        name: 'Monthly Talent Dashboard',
-        description: 'Executive summary of key recruitment metrics and department performance',
-        category: 'operational',
-        frequency: 'monthly',
-        lastGenerated: '2025-01-20T08:00:00Z',
-        nextScheduled: '2025-02-20T08:00:00Z',
-        status: 'active',
-        recipients: ['ceo@company.com', 'cmo@company.com', 'cto@company.com'],
-        format: 'dashboard',
-        automated: true,
-        criticalMetrics: ['Total Hires', 'Open Requisitions', 'Offer Acceptance Rate'],
-        insights: ['Department hiring velocity', 'Budget utilization', 'Candidate pipeline strength']
-      },
-      {
-        id: 'report_003',
-        name: 'Strategic Workforce Planning',
-        description: 'Annual strategic analysis of workforce needs and talent market trends',
-        category: 'strategic',
-        frequency: 'annual',
-        lastGenerated: '2024-12-01T10:00:00Z',
-        nextScheduled: '2025-12-01T10:00:00Z',
-        status: 'active',
-        recipients: ['executive-team@company.com', 'board-directors@company.com'],
-        format: 'pdf',
-        automated: false,
-        criticalMetrics: ['Projected Headcount Growth', 'Skills Gap Analysis', 'Market Salary Trends'],
-        insights: ['Future skill requirements', 'Competitive positioning', 'Investment priorities']
-      },
-      {
-        id: 'report_004',
-        name: 'Diversity & Inclusion Report',
-        description: 'Quarterly analysis of D&I metrics and progress against organizational goals',
-        category: 'compliance',
-        frequency: 'quarterly',
-        lastGenerated: '2025-01-10T11:00:00Z',
-        nextScheduled: '2025-04-10T11:00:00Z',
-        status: 'active',
-        recipients: ['chief-diversity-officer@company.com', 'hr-leadership@company.com'],
-        format: 'pdf',
-        automated: true,
-        criticalMetrics: ['Diversity Score', 'Inclusive Hiring Rate', 'Pay Equity Index'],
-        insights: ['Progress against D&I goals', 'Pipeline diversity analysis', 'Retention by demographic']
-      },
-      {
-        id: 'report_005',
-        name: 'Recruitment ROI Analysis',
-        description: 'Monthly analysis of recruitment investment returns and cost optimization opportunities',
-        category: 'performance',
-        frequency: 'monthly',
-        lastGenerated: '2025-01-18T14:00:00Z',
-        nextScheduled: '2025-02-18T14:00:00Z',
-        status: 'active',
-        recipients: ['cfo@company.com', 'vp-talent@company.com'],
-        format: 'excel',
-        automated: true,
-        criticalMetrics: ['Cost per Hire', 'Source ROI', 'Time to Productivity'],
-        insights: ['Channel effectiveness', 'Budget allocation optimization', 'Productivity forecasting']
-      },
-      {
-        id: 'report_006',
-        name: 'Competitive Intelligence Brief',
-        description: 'Weekly intelligence on competitor hiring activities and market movements',
-        category: 'strategic',
-        frequency: 'weekly',
-        lastGenerated: '2025-01-21T16:00:00Z',
-        nextScheduled: '2025-01-28T16:00:00Z',
-        status: 'active',
-        recipients: ['ceo@company.com', 'chief-strategy-officer@company.com'],
-        format: 'pdf',
-        automated: false,
-        criticalMetrics: ['Competitor Hiring Volume', 'Salary Benchmarking', 'Talent Movement'],
-        insights: ['Market positioning', 'Competitive threats', 'Talent acquisition opportunities']
+      let kpiData: any = {};
+      if (kpisRes.status === 'fulfilled' && kpisRes.value.ok) {
+        kpiData = await kpisRes.value.json();
       }
-    ];
 
-    // Mock performance alerts
-    const mockPerformanceAlerts: PerformanceAlert[] = [
-      {
-        id: 'alert_001',
-        type: 'critical',
-        title: 'Engineering Time-to-Fill Exceeding Target',
-        description: 'Average time to fill engineering positions has exceeded 30-day target by 6.7%',
-        metric: 'Average Time to Fill',
-        value: 32,
-        threshold: 30,
-        trend: 'up',
-        department: 'Engineering',
-        recommendedAction: 'Review sourcing strategy and consider increasing recruiter capacity or external agency support',
-        timestamp: '2025-01-22T10:30:00Z'
-      },
-      {
-        id: 'alert_002',
-        type: 'warning',
-        title: 'Q1 Budget Utilization High',
-        description: 'Recruitment budget utilization at 78% with 5 weeks remaining in quarter',
-        metric: 'Budget Utilization',
-        value: 78,
-        threshold: 70,
-        trend: 'up',
-        recommendedAction: 'Monitor spending velocity and consider budget reallocation or approval for overage',
-        timestamp: '2025-01-22T09:15:00Z'
-      },
-      {
-        id: 'alert_003',
-        type: 'info',
-        title: 'Customer Success Exceeding Targets',
-        description: 'Customer Success department achieving 127% of quarterly hiring targets',
-        metric: 'Hiring Target Achievement',
-        value: 127,
-        threshold: 100,
-        trend: 'up',
-        department: 'Customer Success',
-        recommendedAction: 'Leverage successful practices across other departments',
-        timestamp: '2025-01-22T08:45:00Z'
-      },
-      {
-        id: 'alert_004',
-        type: 'warning',
-        title: 'Candidate Pipeline Thinning',
-        description: 'Overall candidate pipeline volume down 15% compared to previous month',
-        metric: 'Pipeline Volume',
-        value: 85,
-        threshold: 100,
-        trend: 'down',
-        recommendedAction: 'Increase sourcing activities and review job posting optimization',
-        timestamp: '2025-01-21T16:20:00Z'
-      },
-      {
-        id: 'alert_005',
-        type: 'critical',
-        title: 'Diversity Hiring Below Target',
-        description: 'Q1 diversity hiring rate at 62% vs 75% organizational target',
-        metric: 'Diversity Hiring Rate',
-        value: 62,
-        threshold: 75,
-        trend: 'down',
-        recommendedAction: 'Review sourcing channels and implement targeted diversity initiatives',
-        timestamp: '2025-01-21T14:10:00Z'
+      setExecutiveMetrics({
+        totalHires: dashData.totalHires || kpiData.totalHires || 0,
+        totalRequisitions: dashData.totalRequisitions || kpiData.totalRequisitions || 0,
+        averageTimeToHire: dashData.averageTimeToHire || kpiData.averageTimeToHire || 0,
+        costPerHire: dashData.costPerHire || kpiData.costPerHire || 0,
+        offerAcceptanceRate: dashData.offerAcceptanceRate || kpiData.offerAcceptanceRate || 0,
+        candidateSatisfaction: dashData.candidateSatisfaction || kpiData.candidateSatisfaction || 0,
+        diversityScore: dashData.diversityScore || kpiData.diversityScore || 0,
+        retentionRate: dashData.retentionRate || kpiData.retentionRate || 0,
+        monthlyTrend: dashData.monthlyTrend || 0,
+        quarterlyTrend: dashData.quarterlyTrend || 0,
+        yearlyTrend: dashData.yearlyTrend || 0,
+      });
+
+      // Map department metrics
+      if (deptRes.status === 'fulfilled' && deptRes.value.ok) {
+        const deptData = await deptRes.value.json();
+        const depts = deptData.departments || deptData || {};
+        const mappedDepts: DepartmentMetrics[] = Object.entries(depts).map(([name, stats]: [string, any]) => ({
+          department: name,
+          openRequisitions: stats.openPositions || stats.openRequisitions || 0,
+          filledPositions: stats.hired || stats.filledPositions || 0,
+          averageTimeToFill: stats.averageTimeToFill || 0,
+          costPerHire: stats.costPerHire || 0,
+          offerAcceptanceRate: stats.offerAcceptanceRate || 0,
+          candidateQualityScore: stats.candidateQualityScore || 0,
+          urgentPositions: stats.urgentPositions || 0,
+          projectedNeed: stats.projectedNeed || 0,
+        }));
+        setDepartmentMetrics(mappedDepts);
       }
-    ];
 
-    // Mock strategic insights
-    const mockStrategicInsights: StrategicInsight[] = [
-      {
-        id: 'insight_001',
-        category: 'market_trends',
-        title: 'AI/ML Talent Market Acceleration',
-        description: 'Demand for AI/ML professionals has increased 340% year-over-year with salary premiums averaging 28% above market rate',
-        impact: 'high',
-        confidence: 89,
-        dataPoints: [
-          { metric: 'Market Demand Increase', value: '340%', change: 45 },
-          { metric: 'Salary Premium', value: '28%', change: 8 },
-          { metric: 'Available Candidates', value: '15,000', change: -12 }
-        ],
-        recommendations: [
-          'Establish AI Center of Excellence to attract top talent',
-          'Create specialized compensation packages for AI roles',
-          'Partner with universities for talent pipeline development',
-          'Consider acquiring AI-focused teams from other companies'
-        ],
-        timeframe: 'Next 6-12 months'
-      },
-      {
-        id: 'insight_002',
-        category: 'competitive_analysis',
-        title: 'Competitor Aggressive Hiring in Product',
-        description: 'Three major competitors have increased product hiring by 60%+ in past quarter, indicating strategic product investments',
-        impact: 'medium',
-        confidence: 82,
-        dataPoints: [
-          { metric: 'Competitor Hiring Increase', value: '60%', change: 25 },
-          { metric: 'Average Salary Offers', value: 'R185K', change: 15 },
-          { metric: 'Time to Close Offers', value: '5 days', change: -30 }
-        ],
-        recommendations: [
-          'Accelerate product team expansion timeline',
-          'Review and adjust compensation benchmarks',
-          'Streamline offer approval process',
-          'Strengthen employee retention programs'
-        ],
-        timeframe: 'Immediate (next 30 days)'
-      },
-      {
-        id: 'insight_003',
-        category: 'talent_pipeline',
-        title: 'Remote Work Preference Shift',
-        description: 'Candidate preference for remote work options has stabilized at 85%, with hybrid models becoming the new baseline expectation',
-        impact: 'high',
-        confidence: 94,
-        dataPoints: [
-          { metric: 'Remote Work Preference', value: '85%', change: 2 },
-          { metric: 'Hybrid Model Acceptance', value: '92%', change: 5 },
-          { metric: 'Fully On-Site Acceptance', value: '23%', change: -8 }
-        ],
-        recommendations: [
-          'Formalize flexible work policies',
-          'Invest in remote collaboration technology',
-          'Redesign office spaces for hybrid work',
-          'Adjust job postings to highlight flexibility'
-        ],
-        timeframe: 'Next 3-6 months'
-      },
-      {
-        id: 'insight_004',
-        category: 'cost_optimization',
-        title: 'Recruitment Channel ROI Analysis',
-        description: 'Employee referrals show 3.2x higher ROI than external agencies, with 40% faster time-to-hire and 60% better retention rates',
-        impact: 'medium',
-        confidence: 91,
-        dataPoints: [
-          { metric: 'Referral ROI Multiple', value: '3.2x', change: 18 },
-          { metric: 'Time to Hire Improvement', value: '40%', change: 5 },
-          { metric: 'Retention Rate Bonus', value: '60%', change: 12 }
-        ],
-        recommendations: [
-          'Expand employee referral program incentives',
-          'Reduce dependency on external agencies by 30%',
-          'Implement gamification for referral programs',
-          'Create department-specific referral competitions'
-        ],
-        timeframe: 'Next 2-4 months'
-      },
-      {
-        id: 'insight_005',
-        category: 'risk_assessment',
-        title: 'Key Person Dependency Risk',
-        description: 'Analysis reveals 23% of critical roles have single-person dependencies, creating significant organizational risk',
-        impact: 'high',
-        confidence: 87,
-        dataPoints: [
-          { metric: 'Single-Person Dependencies', value: '23%', change: 7 },
-          { metric: 'Average Replacement Time', value: '4.3 months', change: 15 },
-          { metric: 'Business Impact Risk Score', value: '7.2/10', change: 8 }
-        ],
-        recommendations: [
-          'Implement succession planning for critical roles',
-          'Cross-train team members in essential functions',
-          'Document institutional knowledge systematically',
-          'Create emergency replacement protocols'
-        ],
-        timeframe: 'Next 1-3 months'
+      // Map performance alerts
+      if (alertsRes.status === 'fulfilled' && alertsRes.value.ok) {
+        const alertData = await alertsRes.value.json();
+        const alertItems = alertData.content || alertData.data || alertData || [];
+        setPerformanceAlerts(Array.isArray(alertItems) ? alertItems.map((a: any) => ({
+          id: a.id || `alert-${Math.random()}`,
+          type: (a.type || a.severity || 'info').toLowerCase() as PerformanceAlert['type'],
+          title: a.title || a.message || '',
+          description: a.description || '',
+          metric: a.metric || '',
+          value: a.value || 0,
+          threshold: a.threshold || 0,
+          trend: (a.trend || 'stable') as PerformanceAlert['trend'],
+          department: a.department,
+          recommendedAction: a.recommendedAction || a.recommendation || '',
+          timestamp: a.timestamp || a.createdAt || new Date().toISOString(),
+        })) : []);
       }
-    ];
 
-    // Simulate loading delay
-    setTimeout(() => {
-      setExecutiveMetrics(mockExecutiveMetrics);
-      setDepartmentMetrics(mockDepartmentMetrics);
-      setReportTemplates(mockReportTemplates);
-      setPerformanceAlerts(mockPerformanceAlerts);
-      setStrategicInsights(mockStrategicInsights);
+      // Map report templates
+      if (reportsRes.status === 'fulfilled' && reportsRes.value.ok) {
+        const reportsData = await reportsRes.value.json();
+        const reportItems = reportsData.content || reportsData.data || reportsData || [];
+        setReportTemplates(Array.isArray(reportItems) ? reportItems.map((r: any) => ({
+          id: r.id || `report-${Math.random()}`,
+          name: r.name || r.title || '',
+          description: r.description || '',
+          category: (r.category || 'operational') as ReportTemplate['category'],
+          frequency: (r.frequency || 'on_demand') as ReportTemplate['frequency'],
+          lastGenerated: r.lastGenerated || r.updatedAt || new Date().toISOString(),
+          nextScheduled: r.nextScheduled,
+          status: (r.status || 'active') as ReportTemplate['status'],
+          recipients: r.recipients || [],
+          format: (r.format || 'pdf') as ReportTemplate['format'],
+          automated: r.automated || false,
+          criticalMetrics: r.criticalMetrics || r.metrics || [],
+          insights: r.insights || [],
+        })) : []);
+      }
+    } catch (error) {
+      console.error('Failed to load executive data:', error);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   const handleReportGeneration = (reportId: string) => {

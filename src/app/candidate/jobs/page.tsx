@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import { apiFetch } from '@/lib/api-fetch';
 import { 
   BriefcaseIcon,
   MapPinIcon,
@@ -93,436 +94,43 @@ export default function BrowseJobsPage() {
 
   const loadJobs = async () => {
     setLoading(true);
-    
-    // Mock job data
-    const mockJobs: Job[] = [
-      {
-        id: 'job_001',
-        title: 'Senior Software Engineer',
-        company: 'Google',
-        department: 'Engineering',
-        location: 'Mountain View, CA',
-        jobType: 'full_time',
-        experienceLevel: 'senior',
-        postedDate: '2025-01-22T10:00:00Z',
-        applicationDeadline: '2025-02-15T23:59:59Z',
-        salaryRange: { min: 180000, max: 250000, currency: 'ZAR' },
-        description: 'Join our world-class engineering team to build products that impact billions of users. Work on cutting-edge technology and solve complex technical challenges at scale.',
-        responsibilities: [
-          'Design and implement scalable distributed systems',
-          'Lead technical architecture decisions',
-          'Mentor junior engineers and drive best practices',
-          'Collaborate with product teams to deliver features'
-        ],
-        requirements: [
-          'BS/MS in Computer Science or equivalent',
-          '5+ years of software development experience',
-          'Expertise in Python, Java, or C++',
-          'Experience with distributed systems and databases'
-        ],
-        qualifications: [
-          'Strong problem-solving and analytical skills',
-          'Experience with cloud platforms (GCP, AWS)',
-          'Leadership experience preferred',
-          'Open source contributions a plus'
-        ],
-        benefits: [
-          'Competitive salary and equity',
-          'Comprehensive health insurance',
-          '20% time for personal projects',
-          'Free meals and snacks',
-          'Gym membership and wellness programs'
-        ],
-        skills: ['Python', 'Java', 'Distributed Systems', 'Cloud Computing', 'Leadership'],
-        tags: ['Tech', 'Senior Level', 'Growth', 'Innovation'],
-        companySize: '50,000+ employees',
-        industry: 'Technology',
-        rating: 4.5,
-        reviewCount: 12000,
-        applicantCount: 234,
-        isRemote: false,
-        isNew: true,
-        isFeatured: true,
-        isEasyApply: true,
-        matchScore: 95,
-        contactPerson: {
-          name: 'Sarah Chen',
-          title: 'Senior Technical Recruiter',
-          email: 'sarah.chen@google.com'
-        }
-      },
-      {
-        id: 'job_002',
-        title: 'Product Manager',
-        company: 'Meta',
-        department: 'Product',
-        location: 'Menlo Park, CA',
-        jobType: 'full_time',
-        experienceLevel: 'senior',
-        postedDate: '2025-01-21T14:30:00Z',
-        applicationDeadline: '2025-02-20T23:59:59Z',
-        salaryRange: { min: 160000, max: 220000, currency: 'ZAR' },
-        description: 'Lead product strategy for our social platform serving billions of users worldwide. Drive innovation and user experience across web and mobile platforms.',
-        responsibilities: [
-          'Define product roadmap and strategy',
-          'Work with engineering teams to deliver features',
-          'Analyze user data and market trends',
-          'Collaborate with design and research teams'
-        ],
-        requirements: [
-          'MBA or equivalent experience',
-          '5+ years in product management',
-          'Experience with social platforms or consumer products',
-          'Strong analytical and communication skills'
-        ],
-        qualifications: [
-          'Technical background preferred',
-          'Experience with A/B testing and analytics',
-          'Leadership and cross-functional collaboration',
-          'Passion for user experience'
-        ],
-        benefits: [
-          'Competitive compensation package',
-          'Stock options',
-          'Unlimited PTO',
-          'Health and wellness benefits',
-          'Remote work flexibility'
-        ],
-        skills: ['Product Strategy', 'Analytics', 'Leadership', 'A/B Testing', 'User Research'],
-        tags: ['Product', 'Strategy', 'Social Media', 'Growth'],
-        companySize: '10,000+ employees',
-        industry: 'Social Media',
-        rating: 4.2,
-        reviewCount: 8500,
-        applicantCount: 167,
-        isRemote: true,
-        isFeatured: true,
-        isEasyApply: false,
-        matchScore: 88,
-        contactPerson: {
-          name: 'Mike Rodriguez',
-          title: 'Product Recruitment Lead',
-          email: 'mike.rodriguez@meta.com'
-        }
-      },
-      {
-        id: 'job_003',
-        title: 'DevOps Engineer',
-        company: 'Netflix',
-        department: 'Infrastructure',
-        location: 'Los Gatos, CA',
-        jobType: 'full_time',
-        experienceLevel: 'mid',
-        postedDate: '2025-01-20T09:15:00Z',
-        salaryRange: { min: 140000, max: 180000, currency: 'ZAR' },
-        description: 'Build and maintain the infrastructure that powers our global streaming platform. Work with cutting-edge cloud technologies and automation tools.',
-        responsibilities: [
-          'Manage cloud infrastructure and deployments',
-          'Implement CI/CD pipelines and automation',
-          'Monitor system performance and reliability',
-          'Collaborate with development teams'
-        ],
-        requirements: [
-          'BS in Computer Science or related field',
-          '3+ years of DevOps/Infrastructure experience',
-          'Experience with AWS, Docker, Kubernetes',
-          'Proficiency in Python or Go'
-        ],
-        qualifications: [
-          'Experience with monitoring and logging tools',
-          'Knowledge of security best practices',
-          'Experience with Infrastructure as Code',
-          'Strong troubleshooting skills'
-        ],
-        benefits: [
-          'Competitive salary and bonuses',
-          'Stock options',
-          'Flexible PTO',
-          'Professional development budget',
-          'Free Netflix subscription'
-        ],
-        skills: ['AWS', 'Docker', 'Kubernetes', 'Python', 'CI/CD'],
-        tags: ['DevOps', 'Cloud', 'Infrastructure', 'Automation'],
-        companySize: '5,000-10,000 employees',
-        industry: 'Streaming Media',
-        rating: 4.4,
-        reviewCount: 3200,
-        applicantCount: 89,
-        isRemote: true,
-        isEasyApply: true,
-        matchScore: 82,
-        contactPerson: {
-          name: 'Lisa Park',
-          title: 'Infrastructure Recruiter',
-          email: 'lisa.park@netflix.com'
-        }
-      },
-      {
-        id: 'job_004',
-        title: 'UX Designer',
-        company: 'Airbnb',
-        department: 'Design',
-        location: 'San Francisco, CA',
-        jobType: 'full_time',
-        experienceLevel: 'mid',
-        postedDate: '2025-01-19T16:45:00Z',
-        salaryRange: { min: 120000, max: 160000, currency: 'ZAR' },
-        description: 'Create exceptional user experiences for millions of travelers and hosts worldwide. Join our design team to shape the future of travel and hospitality.',
-        responsibilities: [
-          'Design user interfaces for web and mobile',
-          'Conduct user research and testing',
-          'Create wireframes, prototypes, and design systems',
-          'Collaborate with product and engineering teams'
-        ],
-        requirements: [
-          'Bachelor\'s degree in Design or related field',
-          '3+ years of UX/UI design experience',
-          'Proficiency in Figma, Sketch, or similar tools',
-          'Strong portfolio demonstrating design thinking'
-        ],
-        qualifications: [
-          'Experience with user research methodologies',
-          'Knowledge of accessibility best practices',
-          'Experience with design systems',
-          'Strong communication skills'
-        ],
-        benefits: [
-          'Competitive salary',
-          'Annual travel stipend',
-          'Health and wellness benefits',
-          'Professional development opportunities',
-          'Flexible work arrangements'
-        ],
-        skills: ['Figma', 'User Research', 'Prototyping', 'Design Systems', 'Accessibility'],
-        tags: ['Design', 'UX', 'Travel', 'Mobile'],
-        companySize: '1,000-5,000 employees',
-        industry: 'Travel & Hospitality',
-        rating: 4.3,
-        reviewCount: 2800,
-        applicantCount: 156,
-        isRemote: false,
-        isEasyApply: false,
-        matchScore: 79,
-        contactPerson: {
-          name: 'Jennifer Wu',
-          title: 'Design Recruiter',
-          email: 'jennifer.wu@airbnb.com'
-        }
-      },
-      {
-        id: 'job_005',
-        title: 'Data Scientist',
-        company: 'Tesla',
-        department: 'AI & Robotics',
-        location: 'Palo Alto, CA',
-        jobType: 'full_time',
-        experienceLevel: 'senior',
-        postedDate: '2025-01-18T11:20:00Z',
-        applicationDeadline: '2025-02-10T23:59:59Z',
-        salaryRange: { min: 170000, max: 230000, currency: 'ZAR' },
-        description: 'Drive the future of autonomous vehicles through advanced machine learning and data science. Work on cutting-edge AI technologies that will revolutionize transportation.',
-        responsibilities: [
-          'Develop machine learning models for autonomous driving',
-          'Analyze large datasets from vehicle sensors',
-          'Implement computer vision algorithms',
-          'Collaborate with robotics and AI teams'
-        ],
-        requirements: [
-          'PhD in Computer Science, AI, or related field',
-          '5+ years in data science or machine learning',
-          'Experience with Python, TensorFlow, PyTorch',
-          'Strong background in computer vision and deep learning'
-        ],
-        qualifications: [
-          'Experience with autonomous systems',
-          'Publications in top-tier conferences',
-          'Experience with large-scale data processing',
-          'Strong mathematical and statistical background'
-        ],
-        benefits: [
-          'Stock options',
-          'Comprehensive health benefits',
-          'Free Tesla charging',
-          'Professional development budget',
-          'Cutting-edge research opportunities'
-        ],
-        skills: ['Python', 'Machine Learning', 'Computer Vision', 'Deep Learning', 'AI'],
-        tags: ['AI', 'Machine Learning', 'Autonomous Vehicles', 'Research'],
-        companySize: '10,000+ employees',
-        industry: 'Automotive/Technology',
-        rating: 4.1,
-        reviewCount: 5600,
-        applicantCount: 78,
-        isRemote: false,
-        isUrgent: true,
-        isFeatured: true,
-        isEasyApply: true,
-        matchScore: 92,
-        contactPerson: {
-          name: 'Dr. Amanda Zhang',
-          title: 'AI Talent Acquisition Lead',
-          email: 'amanda.zhang@tesla.com'
-        }
-      },
-      {
-        id: 'job_006',
-        title: 'Frontend Developer',
-        company: 'Stripe',
-        department: 'Engineering',
-        location: 'Remote',
-        jobType: 'remote',
-        experienceLevel: 'mid',
-        postedDate: '2025-01-17T13:30:00Z',
-        salaryRange: { min: 130000, max: 170000, currency: 'ZAR' },
-        description: 'Build beautiful and intuitive user interfaces for our payment platform used by millions of businesses worldwide. Work remotely with a world-class engineering team.',
-        responsibilities: [
-          'Develop responsive web applications',
-          'Build reusable UI components',
-          'Optimize application performance',
-          'Collaborate with design and backend teams'
-        ],
-        requirements: [
-          'BS in Computer Science or related field',
-          '3+ years of frontend development experience',
-          'Expertise in React, TypeScript, and CSS',
-          'Experience with modern build tools and workflows'
-        ],
-        qualifications: [
-          'Experience with payment systems preferred',
-          'Knowledge of accessibility standards',
-          'Experience with testing frameworks',
-          'Strong attention to detail'
-        ],
-        benefits: [
-          'Competitive remote salary',
-          'Equity package',
-          'Health and dental insurance',
-          'Home office stipend',
-          'Unlimited PTO'
-        ],
-        skills: ['React', 'TypeScript', 'CSS', 'JavaScript', 'Testing'],
-        tags: ['Frontend', 'Remote', 'React', 'Payments'],
-        companySize: '1,000-5,000 employees',
-        industry: 'Fintech',
-        rating: 4.6,
-        reviewCount: 1200,
-        applicantCount: 203,
-        isRemote: true,
-        isEasyApply: true,
-        matchScore: 85,
-        contactPerson: {
-          name: 'Tom Wilson',
-          title: 'Engineering Recruiter',
-          email: 'tom.wilson@stripe.com'
-        }
-      },
-      {
-        id: 'job_007',
-        title: 'Marketing Manager',
-        company: 'Spotify',
-        department: 'Marketing',
-        location: 'New York, NY',
-        jobType: 'full_time',
-        experienceLevel: 'mid',
-        postedDate: '2025-01-16T10:00:00Z',
-        salaryRange: { min: 90000, max: 120000, currency: 'ZAR' },
-        description: 'Lead marketing campaigns for our music streaming platform. Drive user acquisition and engagement through creative marketing strategies and data-driven insights.',
-        responsibilities: [
-          'Develop and execute marketing campaigns',
-          'Analyze campaign performance and ROI',
-          'Manage social media and content strategy',
-          'Coordinate with creative and product teams'
-        ],
-        requirements: [
-          'Bachelor\'s degree in Marketing or related field',
-          '4+ years of digital marketing experience',
-          'Experience with marketing analytics tools',
-          'Strong project management skills'
-        ],
-        qualifications: [
-          'Experience in entertainment or music industry',
-          'Knowledge of social media advertising',
-          'Creative thinking and problem solving',
-          'Excellent communication skills'
-        ],
-        benefits: [
-          'Competitive salary',
-          'Spotify Premium subscription',
-          'Health benefits',
-          'Professional development budget',
-          'Flexible work schedule'
-        ],
-        skills: ['Digital Marketing', 'Analytics', 'Social Media', 'Campaign Management', 'Creative Strategy'],
-        tags: ['Marketing', 'Music', 'Creative', 'Analytics'],
-        companySize: '5,000-10,000 employees',
-        industry: 'Music Streaming',
-        rating: 4.2,
-        reviewCount: 2100,
-        applicantCount: 127,
-        isRemote: false,
-        isEasyApply: false,
-        matchScore: 73,
-        contactPerson: {
-          name: 'Maria Gonzalez',
-          title: 'Marketing Recruiter',
-          email: 'maria.gonzalez@spotify.com'
-        }
-      },
-      {
-        id: 'job_008',
-        title: 'Junior Software Developer',
-        company: 'Slack',
-        department: 'Engineering',
-        location: 'San Francisco, CA',
-        jobType: 'full_time',
-        experienceLevel: 'entry',
-        postedDate: '2025-01-15T14:15:00Z',
-        salaryRange: { min: 110000, max: 140000, currency: 'ZAR' },
-        description: 'Start your career with us and help build the collaboration tools that connect teams around the world. Perfect opportunity for new graduates or junior developers.',
-        responsibilities: [
-          'Write clean, maintainable code',
-          'Participate in code reviews',
-          'Learn from senior team members',
-          'Contribute to feature development'
-        ],
-        requirements: [
-          'BS in Computer Science or bootcamp graduate',
-          '1-2 years of programming experience',
-          'Knowledge of modern web technologies',
-          'Strong willingness to learn'
-        ],
-        qualifications: [
-          'Experience with JavaScript or Python',
-          'Understanding of software development lifecycle',
-          'Good problem-solving skills',
-          'Team player attitude'
-        ],
-        benefits: [
-          'Competitive entry-level salary',
-          'Comprehensive mentorship program',
-          'Health and wellness benefits',
-          'Learning and development budget',
-          'Stock options'
-        ],
-        skills: ['JavaScript', 'Python', 'Web Development', 'Git', 'Agile'],
-        tags: ['Entry Level', 'Mentorship', 'Growth', 'Collaboration'],
-        companySize: '1,000-5,000 employees',
-        industry: 'Collaboration Software',
-        rating: 4.4,
-        reviewCount: 1800,
-        applicantCount: 312,
-        isRemote: false,
-        isNew: true,
-        isEasyApply: true,
-        matchScore: 68
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setJobs(mockJobs);
+    try {
+      const response = await apiFetch('/api/job-postings/published?size=50');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      const postings = result.content || result.data || result || [];
+      const mapped: Job[] = postings.map((p: any) => ({
+        id: p.id,
+        title: p.title || '',
+        company: 'ShumelaHire',
+        department: p.department || '',
+        location: p.location || '',
+        jobType: (p.employmentType || 'full_time').toLowerCase().replace('-', '_') as Job['jobType'],
+        experienceLevel: (p.experienceLevel || 'mid').toLowerCase() as Job['experienceLevel'],
+        postedDate: p.publishedAt || p.createdAt || new Date().toISOString(),
+        applicationDeadline: p.applicationDeadline,
+        salaryRange: p.salaryMin != null ? { min: p.salaryMin, max: p.salaryMax, currency: 'ZAR' } : undefined,
+        description: p.description || '',
+        responsibilities: p.responsibilities ? (typeof p.responsibilities === 'string' ? p.responsibilities.split('\n').filter(Boolean) : p.responsibilities) : [],
+        requirements: p.requirements ? (typeof p.requirements === 'string' ? p.requirements.split('\n').filter(Boolean) : p.requirements) : [],
+        qualifications: p.qualifications ? (typeof p.qualifications === 'string' ? p.qualifications.split('\n').filter(Boolean) : p.qualifications) : [],
+        benefits: p.benefits ? (typeof p.benefits === 'string' ? p.benefits.split('\n').filter(Boolean) : p.benefits) : [],
+        skills: p.skills || p.requiredSkills || [],
+        tags: p.tags || [],
+        companySize: '',
+        industry: '',
+        applicantCount: p.applicationsCount || 0,
+        isRemote: p.remoteWorkAllowed || false,
+        isUrgent: p.urgent || false,
+        isFeatured: p.featured || false,
+        isNew: p.publishedAt ? (Date.now() - new Date(p.publishedAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false,
+      }));
+      setJobs(mapped);
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const filterJobs = () => {

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import { useAuth } from '@/contexts/AuthContext';
+import { getApplicantId, getApplications as fetchApplications } from '@/services/candidateService';
 import { 
   BriefcaseIcon,
   MapPinIcon,
@@ -69,7 +71,24 @@ interface Application {
   priority: 'high' | 'medium' | 'low';
 }
 
+function mapApplicationStatus(status: string): Application['status'] {
+  const statusMap: Record<string, Application['status']> = {
+    SUBMITTED: 'applied',
+    UNDER_REVIEW: 'under_review',
+    SCREENING: 'under_review',
+    PHONE_INTERVIEW: 'phone_screening',
+    TECHNICAL_INTERVIEW: 'technical_interview',
+    FINAL_INTERVIEW: 'final_interview',
+    OFFER_EXTENDED: 'offer_extended',
+    HIRED: 'hired',
+    REJECTED: 'rejected',
+    WITHDRAWN: 'withdrawn',
+  };
+  return statusMap[status] || 'applied';
+}
+
 export default function MyApplicationsPage() {
+  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -79,363 +98,46 @@ export default function MyApplicationsPage() {
 
   useEffect(() => {
     loadApplications();
-  }, []);
+  }, [user]);
 
   const loadApplications = async () => {
+    if (!user?.email) { setLoading(false); return; }
     setLoading(true);
-    
-    // Mock application data
-    const mockApplications: Application[] = [
-      {
-        id: 'app_001',
-        jobTitle: 'Senior Software Engineer',
-        company: 'Google',
-        department: 'Engineering',
-        location: 'Mountain View, CA',
-        jobType: 'full_time',
-        appliedDate: '2025-01-20T09:00:00Z',
-        lastUpdated: '2025-01-22T14:30:00Z',
-        status: 'technical_interview',
-        currentStage: 'Technical Interview Scheduled',
-        applicationSource: 'company_website',
-        salaryRange: {
-          min: 180000,
-          max: 250000,
-          currency: 'ZAR'
-        },
-        priority: 'high',
-        timeline: [
-          {
-            id: 'timeline_001',
-            date: '2025-01-20T09:00:00Z',
-            stage: 'Applied',
-            description: 'Application submitted successfully'
-          },
-          {
-            id: 'timeline_002',
-            date: '2025-01-21T11:30:00Z',
-            stage: 'Under Review',
-            description: 'Application is being reviewed by hiring team'
-          },
-          {
-            id: 'timeline_003',
-            date: '2025-01-22T14:30:00Z',
-            stage: 'Phone Screening Completed',
-            description: 'Initial phone screening with recruiter completed',
-            notes: 'Great conversation about background and interest in the role'
-          },
-          {
-            id: 'timeline_004',
-            date: '2025-01-22T16:00:00Z',
-            stage: 'Technical Interview Scheduled',
-            description: 'Technical interview scheduled for January 25th'
-          }
-        ],
-        documents: [
-          { name: 'Resume_Sarah_Johnson.pdf', type: 'Resume', uploadedDate: '2025-01-20T09:00:00Z' },
-          { name: 'Cover_Letter_Google.pdf', type: 'Cover Letter', uploadedDate: '2025-01-20T09:00:00Z' }
-        ],
-        jobDescription: 'We are looking for a Senior Software Engineer to join our team working on next-generation search technologies. You will be responsible for designing and implementing scalable systems that serve billions of users worldwide.',
-        requirements: [
-          '5+ years of software development experience',
-          'Strong proficiency in Python, Java, or C++',
-          'Experience with distributed systems',
-          'BS/MS in Computer Science or related field'
-        ],
-        benefits: [
-          'Comprehensive health insurance',
-          'Stock options',
-          '20% time for personal projects',
-          'Free meals and snacks',
-          'Gym membership'
-        ],
-        contactPerson: {
-          name: 'Alex Chen',
-          title: 'Senior Technical Recruiter',
-          email: 'alex.chen@google.com'
-        },
-        interviewScheduled: {
-          date: '2025-01-25',
-          time: '14:00',
-          type: 'video',
-          interviewers: ['Sarah Martinez - Engineering Manager', 'Mike Wilson - Senior Engineer']
-        },
-        nextSteps: 'Technical interview scheduled for January 25th. Prepare for coding questions and system design.'
-      },
-      {
-        id: 'app_002',
-        jobTitle: 'Principal Software Engineer',
-        company: 'Meta',
-        department: 'Infrastructure',
-        location: 'Menlo Park, CA',
-        jobType: 'full_time',
-        appliedDate: '2025-01-18T11:30:00Z',
-        lastUpdated: '2025-01-19T10:15:00Z',
-        status: 'under_review',
-        currentStage: 'Application Review',
-        applicationSource: 'linkedin',
-        salaryRange: {
-          min: 200000,
-          max: 280000,
-          currency: 'ZAR'
-        },
-        priority: 'high',
-        timeline: [
-          {
-            id: 'timeline_005',
-            date: '2025-01-18T11:30:00Z',
-            stage: 'Applied',
-            description: 'Application submitted via LinkedIn'
-          },
-          {
-            id: 'timeline_006',
-            date: '2025-01-19T10:15:00Z',
-            stage: 'Under Review',
-            description: 'Application is being reviewed by hiring team'
-          }
-        ],
-        documents: [
-          { name: 'Resume_Sarah_Johnson.pdf', type: 'Resume', uploadedDate: '2025-01-18T11:30:00Z' },
-          { name: 'Portfolio_Link.txt', type: 'Portfolio', uploadedDate: '2025-01-18T11:30:00Z' }
-        ],
-        jobDescription: 'Join our Infrastructure team to build and scale systems that support billions of users. You will work on distributed systems, data infrastructure, and performance optimization.',
-        requirements: [
-          '8+ years of software engineering experience',
-          'Experience with large-scale distributed systems',
-          'Strong background in system design',
-          'Leadership experience preferred'
-        ],
-        benefits: [
-          'Comprehensive health coverage',
-          'Equity compensation',
-          'Unlimited PTO',
-          'Professional development budget',
-          'Remote work options'
-        ],
-        contactPerson: {
-          name: 'Jennifer Liu',
-          title: 'Engineering Recruiter',
-          email: 'jennifer.liu@meta.com'
-        }
-      },
-      {
-        id: 'app_003',
-        jobTitle: 'Staff Software Engineer',
-        company: 'Netflix',
-        department: 'Platform Engineering',
-        location: 'Los Gatos, CA',
-        jobType: 'full_time',
-        appliedDate: '2025-01-15T16:45:00Z',
-        lastUpdated: '2025-01-21T09:20:00Z',
-        status: 'offer_extended',
-        currentStage: 'Offer Extended',
-        applicationSource: 'referral',
-        salaryRange: {
-          min: 220000,
-          max: 300000,
-          currency: 'ZAR'
-        },
-        priority: 'high',
-        timeline: [
-          {
-            id: 'timeline_007',
-            date: '2025-01-15T16:45:00Z',
-            stage: 'Applied',
-            description: 'Application submitted through employee referral'
-          },
-          {
-            id: 'timeline_008',
-            date: '2025-01-16T10:30:00Z',
-            stage: 'Phone Screening',
-            description: 'Initial phone screening completed'
-          },
-          {
-            id: 'timeline_009',
-            date: '2025-01-18T14:00:00Z',
-            stage: 'Technical Interview',
-            description: 'Technical interview completed successfully'
-          },
-          {
-            id: 'timeline_010',
-            date: '2025-01-20T11:00:00Z',
-            stage: 'Final Interview',
-            description: 'Final interview with VP of Engineering completed'
-          },
-          {
-            id: 'timeline_011',
-            date: '2025-01-21T09:20:00Z',
-            stage: 'Offer Extended',
-            description: 'Offer letter sent with competitive compensation package'
-          }
-        ],
-        documents: [
-          { name: 'Resume_Sarah_Johnson.pdf', type: 'Resume', uploadedDate: '2025-01-15T16:45:00Z' },
-          { name: 'Technical_Portfolio.pdf', type: 'Portfolio', uploadedDate: '2025-01-15T16:45:00Z' }
-        ],
-        jobDescription: 'Lead the development of our streaming platform infrastructure. Work on cutting-edge technologies that deliver content to millions of users globally.',
-        requirements: [
-          '10+ years of software engineering experience',
-          'Expertise in streaming technologies',
-          'Strong leadership and mentoring skills',
-          'Experience with microservices architecture'
-        ],
-        benefits: [
-          'Top-tier health insurance',
-          'Significant equity package',
-          'Flexible PTO',
-          'Learning and development budget',
-          'Free Netflix subscription'
-        ],
-        feedback: 'Excellent technical skills and leadership experience. Strong cultural fit. All interviewers recommend moving forward.',
-        nextSteps: 'Offer extended. Please review and let us know your decision by January 28th.',
-        contactPerson: {
-          name: 'David Park',
-          title: 'VP of Engineering',
-          email: 'david.park@netflix.com'
-        }
-      },
-      {
-        id: 'app_004',
-        jobTitle: 'Software Engineer II',
-        company: 'Spotify',
-        department: 'Music Discovery',
-        location: 'New York, NY',
-        jobType: 'full_time',
-        appliedDate: '2025-01-10T14:20:00Z',
-        lastUpdated: '2025-01-16T13:45:00Z',
-        status: 'rejected',
-        currentStage: 'Application Rejected',
-        applicationSource: 'indeed',
-        salaryRange: {
-          min: 120000,
-          max: 160000,
-          currency: 'ZAR'
-        },
-        priority: 'medium',
-        timeline: [
-          {
-            id: 'timeline_012',
-            date: '2025-01-10T14:20:00Z',
-            stage: 'Applied',
-            description: 'Application submitted via Indeed'
-          },
-          {
-            id: 'timeline_013',
-            date: '2025-01-12T09:15:00Z',
-            stage: 'Under Review',
-            description: 'Application under review by hiring team'
-          },
-          {
-            id: 'timeline_014',
-            date: '2025-01-14T11:30:00Z',
-            stage: 'Phone Screening',
-            description: 'Phone screening with recruiter'
-          },
-          {
-            id: 'timeline_015',
-            date: '2025-01-16T13:45:00Z',
-            stage: 'Application Rejected',
-            description: 'Application was not selected to move forward'
-          }
-        ],
-        documents: [
-          { name: 'Resume_Sarah_Johnson.pdf', type: 'Resume', uploadedDate: '2025-01-10T14:20:00Z' }
-        ],
-        jobDescription: 'Join our Music Discovery team to build recommendation algorithms that help users find their next favorite song.',
-        requirements: [
-          '3+ years of software development experience',
-          'Experience with recommendation systems',
-          'Strong Python and machine learning skills',
-          'Passion for music and technology'
-        ],
-        benefits: [
-          'Health insurance',
-          'Spotify Premium',
-          'Flexible working hours',
-          'Professional development opportunities'
-        ],
-        rejectionReason: 'While your background is impressive, we decided to move forward with candidates who have more specific experience in music recommendation algorithms.',
-        contactPerson: {
-          name: 'Emma Rodriguez',
-          title: 'Technical Recruiter',
-          email: 'emma.rodriguez@spotify.com'
-        }
-      },
-      {
-        id: 'app_005',
-        jobTitle: 'Senior Full Stack Developer',
-        company: 'Airbnb',
-        department: 'Host Platform',
-        location: 'San Francisco, CA',
-        jobType: 'full_time',
-        appliedDate: '2025-01-08T10:00:00Z',
-        lastUpdated: '2025-01-12T15:30:00Z',
-        status: 'phone_screening',
-        currentStage: 'Phone Screening Scheduled',
-        applicationSource: 'direct_application',
-        salaryRange: {
-          min: 150000,
-          max: 200000,
-          currency: 'ZAR'
-        },
-        priority: 'medium',
-        timeline: [
-          {
-            id: 'timeline_016',
-            date: '2025-01-08T10:00:00Z',
-            stage: 'Applied',
-            description: 'Direct application submitted'
-          },
-          {
-            id: 'timeline_017',
-            date: '2025-01-10T14:20:00Z',
-            stage: 'Under Review',
-            description: 'Application being reviewed'
-          },
-          {
-            id: 'timeline_018',
-            date: '2025-01-12T15:30:00Z',
-            stage: 'Phone Screening Scheduled',
-            description: 'Phone screening scheduled for January 26th'
-          }
-        ],
-        documents: [
-          { name: 'Resume_Sarah_Johnson.pdf', type: 'Resume', uploadedDate: '2025-01-08T10:00:00Z' },
-          { name: 'Cover_Letter_Airbnb.pdf', type: 'Cover Letter', uploadedDate: '2025-01-08T10:00:00Z' }
-        ],
-        jobDescription: 'Help build the platform that connects millions of hosts with guests around the world. Work on full-stack features that impact the host experience.',
-        requirements: [
-          '5+ years of full-stack development experience',
-          'React and Node.js expertise',
-          'Experience with scalable web applications',
-          'Strong problem-solving skills'
-        ],
-        benefits: [
-          'Health, dental, and vision insurance',
-          'Annual travel stipend',
-          'Equity participation',
-          'Flexible work arrangements',
-          'Professional development budget'
-        ],
-        interviewScheduled: {
-          date: '2025-01-26',
-          time: '10:00',
-          type: 'phone',
-          interviewers: ['Lisa Chen - Engineering Manager']
-        },
-        contactPerson: {
-          name: 'Michael Torres',
-          title: 'Senior Recruiter',
-          email: 'michael.torres@airbnb.com'
-        }
-      }
-    ];
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setApplications(mockApplications);
+    try {
+      const applicantId = await getApplicantId(user.email);
+      if (!applicantId) { setApplications([]); return; }
+      const apps = await fetchApplications(applicantId);
+      const mapped: Application[] = apps.map((a: any) => ({
+        id: a.id,
+        jobTitle: a.jobTitle || '',
+        company: 'ShumelaHire',
+        department: a.department || '',
+        location: a.location || '',
+        jobType: 'full_time' as const,
+        appliedDate: a.submittedAt || a.createdAt || new Date().toISOString(),
+        lastUpdated: a.updatedAt || a.submittedAt || new Date().toISOString(),
+        status: mapApplicationStatus(a.status),
+        currentStage: a.statusDisplayName || a.status || '',
+        applicationSource: 'direct_application' as const,
+        timeline: [],
+        documents: (a.applicationDocuments || []).map((d: any) => ({
+          name: d.fileName || d.name || 'Document',
+          type: d.documentType || d.type || 'other',
+          uploadedDate: d.uploadedAt || d.createdAt || new Date().toISOString(),
+        })),
+        jobDescription: '',
+        requirements: [],
+        benefits: [],
+        feedback: a.feedback || undefined,
+        rejectionReason: a.rejectionReason || undefined,
+        priority: 'medium' as const,
+      }));
+      setApplications(mapped);
+    } catch (error) {
+      console.error('Failed to load applications:', error);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const filteredApplications = applications.filter(app => {

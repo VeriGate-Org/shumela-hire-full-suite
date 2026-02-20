@@ -96,18 +96,7 @@ export default function IntegrationDemo() {
 
   const simulateNewApplication = () => {
     // Simulate a new application WebSocket event
-    const mockEvent = {
-      type: 'new_application_received',
-      data: {
-        applicationId: Math.floor(Math.random() * 1000),
-        candidateName: 'John Smith',
-        jobId: 1,
-        jobTitle: 'Senior Developer',
-        source: 'LinkedIn',
-        submittedAt: new Date().toISOString(),
-      },
-      timestamp: new Date().toISOString(),
-    };
+    const mockEvent: any = {}; // TODO: Replace with real event data
 
     // Trigger the event handler manually for demo
     webSocketService.emit('new_application_received', mockEvent);

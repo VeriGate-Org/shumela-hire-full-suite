@@ -15,35 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Mock saved reports
-const mockSavedReports = [
-  {
-    id: '1',
-    name: 'Weekly Hiring Report',
-    description: 'Weekly summary of hiring activities by department',
-    lastRun: '2024-01-15',
-    frequency: 'Weekly',
-    recipients: 3,
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Source Effectiveness Analysis',
-    description: 'Conversion rates and ROI analysis by recruitment source',
-    lastRun: '2024-01-14',
-    frequency: 'Monthly',
-    recipients: 5,
-    status: 'active',
-  },
-  {
-    id: '3',
-    name: 'Pipeline Performance Metrics',
-    description: 'Time-to-hire and pipeline conversion metrics',
-    lastRun: '2024-01-12',
-    frequency: 'Daily',
-    recipients: 2,
-    status: 'paused',
-  },
-];
+const mockSavedReports: any[] = [];
 
 export default function CustomReportsPage() {
   const [showBuilder, setShowBuilder] = useState(false);

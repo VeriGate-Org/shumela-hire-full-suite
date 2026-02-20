@@ -1,12 +1,7 @@
 import { tryApi } from '@/services/aiService';
 import { SmartSearchResult } from '@/types/ai';
 
-const mockResult: SmartSearchResult = {
-  interpretedQuery: 'Find candidates with Java experience applied in the last 30 days',
-  parsedFilters: { skills: ['Java'], dateRange: 'LAST_30_DAYS', status: 'ACTIVE' },
-  results: [],
-  totalResults: 0,
-};
+const mockResult: any = {}; // TODO: Remove mock fallback
 
 export const aiSmartSearchService = {
   async search(query: string): Promise<SmartSearchResult> {

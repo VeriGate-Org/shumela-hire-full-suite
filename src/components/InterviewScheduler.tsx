@@ -76,13 +76,7 @@ const INTERVIEW_ROUNDS = [
   { value: 'OFFER', label: 'Offer Discussion' },
 ];
 
-const MOCK_INTERVIEWERS = [
-  { id: 1, name: 'Sarah Johnson', role: 'Senior Recruiter' },
-  { id: 2, name: 'Michael Chen', role: 'Engineering Manager' },
-  { id: 3, name: 'Emily Rodriguez', role: 'HR Director' },
-  { id: 4, name: 'David Kim', role: 'Technical Lead' },
-  { id: 5, name: 'Lisa Thompson', role: 'Product Manager' },
-];
+const MOCK_INTERVIEWERS: any[] = [];
 
 export default function InterviewScheduler({ interviewId, onSuccess, onCancel }: InterviewSchedulerProps) {
   const { user } = useAuth();
