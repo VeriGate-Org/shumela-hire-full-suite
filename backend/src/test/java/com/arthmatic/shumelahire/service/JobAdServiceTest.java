@@ -30,7 +30,11 @@ class JobAdServiceTest {
 
     @BeforeEach
     void setUp() {
-        // TODO: Wire up test data from test database or fixtures
+        mockJobAd = new JobAd();
+        mockJobAd.setId(1L);
+        mockJobAd.setTitle("Senior Frontend Developer");
+        mockJobAd.setStatus(JobAdStatus.DRAFT);
+        mockJobAd.setCreatedAt(LocalDateTime.now());
     }
 
     @Test

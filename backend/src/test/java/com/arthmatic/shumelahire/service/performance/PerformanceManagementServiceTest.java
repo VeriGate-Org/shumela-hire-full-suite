@@ -46,7 +46,30 @@ class PerformanceManagementServiceTest {
     
     @BeforeEach
     void setUp() {
-        // TODO: Wire up test data from test database or fixtures
+        LocalDate now = LocalDate.now();
+        testCycle = new PerformanceCycle();
+        testCycle.setId(1L);
+        testCycle.setName("Performance Cycle");
+        testCycle.setStartDate(now.minusMonths(6));
+        testCycle.setEndDate(now.plusMonths(6));
+        testCycle.setMidYearDeadline(now.plusMonths(1));
+        testCycle.setFinalReviewDeadline(now.plusMonths(5));
+        testCycle.setStatus(CycleStatus.ACTIVE);
+        testCycle.setTenantId(tenantId);
+
+        testContract = new PerformanceContract();
+        testContract.setId(1L);
+        testContract.setCycle(testCycle);
+        testContract.setEmployeeId("EMP001");
+        testContract.setEmployeeName("John Doe");
+        testContract.setManagerId("MGR001");
+        testContract.setManagerName("Jane Smith");
+        testContract.setTenantId(tenantId);
+        testContract.setStatus(ContractStatus.DRAFT);
+        PerformanceGoal goal = new PerformanceGoal();
+        goal.setTitle("Deliver project on time");
+        goal.setContract(testContract);
+        testContract.setGoals(new ArrayList<>(List.of(goal)));
     }
 
     @Test

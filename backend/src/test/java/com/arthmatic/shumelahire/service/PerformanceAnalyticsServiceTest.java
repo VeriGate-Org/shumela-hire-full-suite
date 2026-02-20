@@ -39,7 +39,6 @@ class PerformanceAnalyticsServiceTest {
 
     @BeforeEach
     void setUp() {
-        // TODO: Wire up test data from test database or fixtures
     }
 
     @Test

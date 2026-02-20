@@ -43,7 +43,32 @@ class ApplicantServiceTest {
 
     @BeforeEach
     void setUp() {
-        // TODO: Wire up test data from test database or fixtures
+        // Set up test applicant
+        testApplicant = new Applicant();
+        testApplicant.setId(1L);
+        testApplicant.setName("John");
+        testApplicant.setSurname("Doe");
+        testApplicant.setEmail("john.doe@example.com");
+        testApplicant.setPhone("+1234567890");
+        testApplicant.setIdPassportNumber("ID123456");
+        testApplicant.setAddress("123 Main St, San Francisco, CA");
+        testApplicant.setEducation("{\"degree\": \"Computer Science\", \"university\": \"MIT\"}");
+        testApplicant.setExperience("{\"years\": 5, \"companies\": [\"Google\", \"Microsoft\"]}");
+        testApplicant.setSkills("[\"Java\", \"Spring Boot\", \"React\"]");
+        testApplicant.setCreatedAt(LocalDateTime.now());
+        testApplicant.setUpdatedAt(LocalDateTime.now());
+
+        // Set up test request
+        testRequest = new ApplicantCreateRequest();
+        testRequest.setName("John");
+        testRequest.setSurname("Doe");
+        testRequest.setEmail("john.doe@example.com");
+        testRequest.setPhone("+1234567890");
+        testRequest.setIdPassportNumber("ID123456");
+        testRequest.setAddress("123 Main St, San Francisco, CA");
+        testRequest.setEducation("{\"degree\": \"Computer Science\", \"university\": \"MIT\"}");
+        testRequest.setExperience("{\"years\": 5, \"companies\": [\"Google\", \"Microsoft\"]}");
+        testRequest.setSkills("[\"Java\", \"Spring Boot\", \"React\"]");
     }
 
     @Test
