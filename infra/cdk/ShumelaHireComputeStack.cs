@@ -252,14 +252,8 @@ public class ShumelaHireComputeStack : Stack
             {
                 new PortMapping { ContainerPort = 3000, Protocol = Amazon.CDK.AWS.ECS.Protocol.TCP }
             },
-            HealthCheck = new Amazon.CDK.AWS.ECS.HealthCheck
-            {
-                Command = new[] { "CMD-SHELL", "node -e \"const http=require('http');const r=http.request({host:'localhost',port:3000,path:'/api/health'},res=>{process.exit(res.statusCode===200?0:1)});r.on('error',()=>process.exit(1));r.end()\"" },
-                Interval = Duration.Seconds(30),
-                Timeout = Duration.Seconds(5),
-                Retries = 3,
-                StartPeriod = Duration.Seconds(60)
-            }
+            // No container-level health check — ALB health check handles this.
+            // Container health checks with node/wget are unreliable on low-CPU Fargate tasks.
         });
 
         // ── Frontend Fargate Service ─────────────────────────────────────────
