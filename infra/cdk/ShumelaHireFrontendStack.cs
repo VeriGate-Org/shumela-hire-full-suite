@@ -70,11 +70,12 @@ public class ShumelaHireFrontendStack : Stack
         {
             var domainNames = new List<string> { frontendDomain };
 
-            // Add wildcard subdomain for multi-tenancy (*.shumelahire.co.za or *.sbx.shumelahire.co.za)
-            var wildcardDomain = config.EnvironmentName == "prod"
-                ? $"*.{config.DomainName}"
-                : $"*.{config.EnvironmentName}.{config.DomainName}";
-            domainNames.Add(wildcardDomain);
+            // Add wildcard subdomain for multi-tenancy only in prod where cert covers *.domain
+            // Non-prod wildcard (*.sbx.domain) requires a separate cert
+            if (config.EnvironmentName == "prod")
+            {
+                domainNames.Add($"*.{config.DomainName}");
+            }
 
             distributionProps.DomainNames = domainNames.ToArray();
 
@@ -104,16 +105,16 @@ public class ShumelaHireFrontendStack : Stack
             });
 
             // Wildcard A record for tenant subdomains (*.shumelahire.co.za → CloudFront)
-            var wildcardRecordName = config.EnvironmentName == "prod"
-                ? $"*.{config.DomainName}"
-                : $"*.{config.EnvironmentName}.{config.DomainName}";
-
-            new ARecord(this, "WildcardDnsRecord", new ARecordProps
+            // Only in prod where the cert covers *.domain
+            if (config.EnvironmentName == "prod")
             {
-                Zone = hostedZone,
-                RecordName = wildcardRecordName,
-                Target = RecordTarget.FromAlias(new CloudFrontTarget(distribution))
-            });
+                new ARecord(this, "WildcardDnsRecord", new ARecordProps
+                {
+                    Zone = hostedZone,
+                    RecordName = $"*.{config.DomainName}",
+                    Target = RecordTarget.FromAlias(new CloudFrontTarget(distribution))
+                });
+            }
         }
 
         // ── CfnOutputs ──────────────────────────────────────────────────────
