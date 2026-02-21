@@ -7,10 +7,7 @@ export const aiScreeningNotesService = {
       method: 'POST',
       body: JSON.stringify(request),
     });
-    return data ?? {
-      draftNotes: `Screening notes for ${request.candidateName} — ${request.jobTitle}:\n\n` +
-        (request.bulletPoints || []).map(p => `- ${p}`).join('\n') +
-        '\n\nOverall: Candidate demonstrates alignment with role requirements. Recommended for further evaluation.',
-    };
+    if (!data) throw new Error('AI service unavailable');
+    return data;
   },
 };

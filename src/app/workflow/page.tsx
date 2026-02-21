@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '../../components/PageWrapper';
 import { 
   WorkflowBuilder,
@@ -26,8 +27,29 @@ export default function WorkflowPage() {
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
   const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
   const [approvalRequests, setApprovalRequests] = useState<ApprovalRequest[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<{ id: string; name: string; email: string; role: string }[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const response = await apiFetch('/api/auth/interviewers');
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableUsers(data.map((u: any) => ({
+            id: String(u.id),
+            name: u.name,
+            email: u.email,
+            role: u.role,
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      }
+    };
+    void loadUsers();
+  }, []);
 
   // Workflow actions
   const handleCreateWorkflow = () => {
@@ -283,11 +305,7 @@ export default function WorkflowPage() {
                 { id: 'experience_years', name: 'Years of Experience', type: 'number' },
                 { id: 'skill_match', name: 'Skill Match %', type: 'number' },
               ]}
-              availableUsers={[
-                { id: 'user-001', name: 'John Doe', email: 'john.doe@company.com', role: 'HR_MANAGER' },
-                { id: 'user-002', name: 'Sarah Wilson', email: 'sarah.wilson@company.com', role: 'RECRUITER' },
-                { id: 'user-003', name: 'Mike Johnson', email: 'mike.johnson@company.com', role: 'Team Lead' },
-              ]}
+              availableUsers={availableUsers}
             />
           )}
 

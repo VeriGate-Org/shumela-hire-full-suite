@@ -1,8 +1,6 @@
 import { tryApi } from '@/services/aiService';
 import { ReportNarrativeRequest, ReportNarrativeResult } from '@/types/ai';
 
-const mockResult: any = {}; // TODO: Remove mock fallback
-
 export const aiReportNarrativeService = {
   async generate(request: ReportNarrativeRequest): Promise<ReportNarrativeResult> {
     const path = request.jobId
@@ -12,6 +10,7 @@ export const aiReportNarrativeService = {
       method: 'POST',
       body: JSON.stringify(request),
     });
-    return data ?? mockResult;
+    if (!data) throw new Error('AI service unavailable');
+    return data;
   },
 };

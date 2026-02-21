@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import AdvancedReportBuilder from './AdvancedReportBuilder';
 
 interface ReportType {
@@ -49,7 +50,7 @@ const ReportingDashboard: React.FC = () => {
 
   const fetchReportTypes = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports/types');
+      const response = await apiFetch('/api/reports/types');
       const data = await response.json();
       setReportTypes(data);
     } catch (error) {
@@ -59,7 +60,7 @@ const ReportingDashboard: React.FC = () => {
 
   const fetchScheduledReports = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports/scheduled');
+      const response = await apiFetch('/api/reports/scheduled');
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
@@ -70,43 +71,35 @@ const ReportingDashboard: React.FC = () => {
   const handleGenerateReport = async (reportType: string, format: string = 'csv') => {
     setIsGenerating(true);
     try {
-      let url = '';
       const params = new URLSearchParams();
-      
       if (reportConfig.startDate) params.append('startDate', reportConfig.startDate);
       if (reportConfig.endDate) params.append('endDate', reportConfig.endDate);
       if (reportConfig.status) params.append('status', reportConfig.status);
 
-      switch (reportType) {
-        case 'applications':
-          url = `http://localhost:8080/api/reports/applications/csv?${params}`;
-          break;
-        case 'interviews':
-          url = `http://localhost:8080/api/reports/interviews/csv?${params}`;
-          break;
-        case 'applicants':
-          url = 'http://localhost:8080/api/reports/applicants/csv';
-          break;
-        case 'performance':
-          url = `http://localhost:8080/api/reports/performance/csv?${params}`;
-          break;
-        case 'trends':
-          url = 'http://localhost:8080/api/reports/hiring-trends/csv';
-          break;
-        case 'executive':
-          url = `http://localhost:8080/api/reports/executive-summary/csv?${params}`;
-          break;
-        default:
-          throw new Error('Unknown report type');
-      }
+      const pathMap: Record<string, string> = {
+        applications: `/api/reports/applications/csv?${params}`,
+        interviews: `/api/reports/interviews/csv?${params}`,
+        applicants: '/api/reports/applicants/csv',
+        performance: `/api/reports/performance/csv?${params}`,
+        trends: '/api/reports/hiring-trends/csv',
+        executive: `/api/reports/executive-summary/csv?${params}`,
+      };
 
-      // Create a download link
+      const path = pathMap[reportType];
+      if (!path) throw new Error('Unknown report type');
+
+      const response = await apiFetch(path);
+      if (!response.ok) throw new Error('Failed to generate report');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `${reportType}_report.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error('Error generating report:', error);
@@ -119,7 +112,7 @@ const ReportingDashboard: React.FC = () => {
   const handleAdvancedReport = async (advancedConfig: any) => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://localhost:8080/api/reports/custom/csv', {
+      const response = await apiFetch('/api/reports/custom/csv', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -151,7 +144,7 @@ const ReportingDashboard: React.FC = () => {
   const handleCustomReport = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://localhost:8080/api/reports/custom/csv', {
+      const response = await apiFetch('/api/reports/custom/csv', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +176,7 @@ const ReportingDashboard: React.FC = () => {
   const handleBulkExport = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://localhost:8080/api/reports/bulk/zip', {
+      const response = await apiFetch('/api/reports/bulk/zip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,7 +212,7 @@ const ReportingDashboard: React.FC = () => {
       if (reportConfig.endDate) params.append('endDate', reportConfig.endDate);
       params.append('limit', '5');
 
-      const response = await fetch(`http://localhost:8080/api/reports/preview/${reportType}?${params}`);
+      const response = await apiFetch(`/api/reports/preview/${reportType}?${params}`);
       const data = await response.json();
       setPreviewData(data);
     } catch (error) {

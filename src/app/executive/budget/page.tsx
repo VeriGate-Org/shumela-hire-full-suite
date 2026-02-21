@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import { formatCurrency } from '@/utils/currency';
 import { 
@@ -122,11 +123,26 @@ export default function BudgetApprovalsPage() {
     loadBudgetData();
   }, []);
 
-  const loadBudgetData = async () => {
+  const loadBudgetData = useCallback(async () => {
     setLoading(true);
-    // TODO: Replace with actual API calls
-    setLoading(false);
-  };
+    try {
+      const [budgetRes, analyticsRes] = await Promise.allSettled([
+        apiFetch('/api/executive/budget'),
+        apiFetch('/api/executive/budget/analytics'),
+      ]);
+
+      if (budgetRes.status === 'fulfilled' && budgetRes.value.ok) {
+        const data = await budgetRes.value.json();
+        if (Array.isArray(data.budgetItems) && data.budgetItems.length > 0) {
+          setBudgetItems(data.budgetItems);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load budget data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleApprovalAction = (requestId: string, action: 'approve' | 'reject' | 'request_info') => {
     setApprovalRequests(prev => 

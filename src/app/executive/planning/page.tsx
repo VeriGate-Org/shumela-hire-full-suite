@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import { 
   ChartBarIcon,
@@ -108,11 +109,26 @@ export default function StrategicPlanningPage() {
     loadStrategicData();
   }, []);
 
-  const loadStrategicData = async () => {
+  const loadStrategicData = useCallback(async () => {
     setLoading(true);
-    // TODO: Replace with actual API calls
-    setLoading(false);
-  };
+    try {
+      const [goalsRes, capacityRes] = await Promise.allSettled([
+        apiFetch('/api/executive/planning/goals'),
+        apiFetch('/api/executive/planning/capacity'),
+      ]);
+
+      if (goalsRes.status === 'fulfilled' && goalsRes.value.ok) {
+        const data = await goalsRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setGoals(data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load strategic data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {

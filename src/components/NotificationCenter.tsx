@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BellSlashIcon } from '@heroicons/react/24/outline';
 import EmptyState from '@/components/EmptyState';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface Notification {
   id: string;
@@ -12,6 +13,38 @@ interface Notification {
   action?: {
     label: string;
     href: string;
+  };
+}
+
+function mapNotificationType(type: string): 'success' | 'warning' | 'error' | 'info' {
+  switch (type) {
+    case 'APPLICATION_APPROVED':
+    case 'OFFER_ACCEPTED':
+    case 'APPLICATION_SUBMITTED':
+      return 'success';
+    case 'INTERVIEW_SCHEDULED':
+    case 'INTERVIEW_REMINDER':
+    case 'PIPELINE_STAGE_CHANGED':
+      return 'warning';
+    case 'APPLICATION_REJECTED':
+    case 'INTERVIEW_CANCELLED':
+    case 'SYSTEM_ALERT':
+      return 'error';
+    default:
+      return 'info';
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapBackendNotification(n: any): Notification {
+  return {
+    id: String(n.id),
+    type: mapNotificationType(n.type),
+    title: n.title,
+    message: n.message,
+    timestamp: new Date(n.createdAt),
+    read: n.isRead ?? n.read ?? false,
+    action: n.actionUrl ? { label: n.actionLabel || 'View', href: n.actionUrl } : undefined,
   };
 }
 
@@ -42,59 +75,40 @@ const NotificationCenter: React.FC = () => {
   };
 
   useEffect(() => {
-    // Initialize with sample notifications
-    const sampleNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'info',
-        title: 'New Application',
-        message: 'Sarah Johnson applied for Senior Developer position',
-        timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-        read: false,
-        action: {
-          label: 'Review Application',
-          href: '/applications'
-        }
-      },
-      {
-        id: '2',
-        type: 'warning',
-        title: 'Interview Reminder',
-        message: 'Interview with Michael Chen starts in 30 minutes',
-        timestamp: new Date(Date.now() - 900000), // 15 minutes ago
-        read: false,
-        action: {
-          label: 'View Schedule',
-          href: '/interviews'
-        }
-      },
-      {
-        id: '3',
-        type: 'success',
-        title: 'Offer Accepted',
-        message: 'Lisa Wang accepted the Product Manager offer',
-        timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-        read: true,
-        action: {
-          label: 'View Offers',
-          href: '/offers'
-        }
-      },
-      {
-        id: '4',
-        type: 'error',
-        title: 'System Alert',
-        message: 'Report generation service experiencing delays',
-        timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-        read: false
-      }
-    ];
+    let cancelled = false;
 
-    setNotifications(sampleNotifications);
-    setUnreadCount(sampleNotifications.filter(n => !n.read).length);
+    async function fetchNotifications() {
+      try {
+        const [notifRes, countRes] = await Promise.all([
+          apiFetch('/api/notifications?size=20&sort=createdAt,desc'),
+          apiFetch('/api/notifications/unread-count'),
+        ]);
+        if (cancelled) return;
+        if (notifRes.ok) {
+          const result = await notifRes.json();
+          const content = result.content || [];
+          setNotifications(content.map(mapBackendNotification));
+        }
+        if (countRes.ok) {
+          const countData = await countRes.json();
+          setUnreadCount(countData.count ?? 0);
+        }
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+      }
+    }
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
-  const markAsRead = (notificationId: string) => {
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await apiFetch(`/api/notifications/${notificationId}/read`, { method: 'POST' });
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
     setNotifications(prev =>
       prev.map(notification =>
         notification.id === notificationId
@@ -105,18 +119,28 @@ const NotificationCenter: React.FC = () => {
     setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
+    try {
+      await apiFetch('/api/notifications/mark-all-read', { method: 'POST' });
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err);
+    }
     setNotifications(prev =>
       prev.map(notification => ({ ...notification, read: true }))
     );
     setUnreadCount(0);
   };
 
-  const deleteNotification = (notificationId: string) => {
+  const deleteNotification = async (notificationId: string) => {
+    const deletedNotification = notifications.find(n => n.id === notificationId);
+    try {
+      await apiFetch(`/api/notifications/${notificationId}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error('Error deleting notification:', err);
+    }
     setNotifications(prev =>
       prev.filter(notification => notification.id !== notificationId)
     );
-    const deletedNotification = notifications.find(n => n.id === notificationId);
     if (deletedNotification && !deletedNotification.read) {
       setUnreadCount(prev => Math.max(0, prev - 1));
     }

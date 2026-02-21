@@ -53,12 +53,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       href: '/help',
       icon: '❓',
       description: 'Get help and support'
-    },
-    {
-      label: 'Keyboard Shortcuts',
-      href: '/shortcuts',
-      icon: '⌨️',
-      description: 'View available shortcuts'
     }
   ];
 

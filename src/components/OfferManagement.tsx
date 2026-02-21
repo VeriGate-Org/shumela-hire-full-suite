@@ -152,18 +152,15 @@ export default function OfferManagement() {
 
     try {
       const endpoint = `/api/offers/${selectedOffer.id}/${actionType}`;
-      const method = 'POST';
-      const headers: any = {
-        'Content-Type': 'application/json',
-        'X-User-ID': '1' // Mock user ID
-      };
-
       let body = null;
       if (['approve', 'reject', 'withdraw', 'decline', 'negotiate', 'escalate'].includes(actionType)) {
         body = JSON.stringify(actionData);
       }
 
-      const response = await fetch(endpoint, { method, headers, body });
+      const response = await apiFetch(endpoint, {
+        method: 'POST',
+        body: body ?? undefined,
+      });
       
       if (response.ok) {
         setShowActionModal(false);

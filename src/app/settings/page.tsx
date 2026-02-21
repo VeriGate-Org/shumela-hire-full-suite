@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import { apiFetch } from '@/lib/api-fetch';
 import {
   BellIcon,
   ShieldCheckIcon,
@@ -9,8 +10,6 @@ import {
   TrashIcon,
   ArrowDownTrayIcon,
   ComputerDesktopIcon,
-  DevicePhoneMobileIcon,
-  GlobeAltIcon,
   ExclamationTriangleIcon,
   EyeSlashIcon,
   DocumentArrowDownIcon,
@@ -105,38 +104,71 @@ export default function SettingsPage() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const sessions = [
+  const savePreferences = useCallback(async (prefs: Record<string, unknown>) => {
+    try {
+      await apiFetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefs),
+      });
+    } catch (error) {
+      console.error('Failed to save preferences:', error);
+    }
+  }, []);
+
+  const getAllPrefs = useCallback(() => ({
+    emailNotifs,
+    pushNotifs,
+    profileVisibility,
+    showEmailToTeam,
+    showActivityStatus,
+    dataSharing,
+    twoFactorEnabled,
+  }), [emailNotifs, pushNotifs, profileVisibility, showEmailToTeam, showActivityStatus, dataSharing, twoFactorEnabled]);
+
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const response = await apiFetch('/api/user/preferences');
+        if (response.ok) {
+          const text = await response.text();
+          const data = text ? JSON.parse(text) : {};
+          if (data.emailNotifs) setEmailNotifs(data.emailNotifs);
+          if (data.pushNotifs) setPushNotifs(data.pushNotifs);
+          if (data.profileVisibility) setProfileVisibility(data.profileVisibility);
+          if (data.showEmailToTeam !== undefined) setShowEmailToTeam(data.showEmailToTeam);
+          if (data.showActivityStatus !== undefined) setShowActivityStatus(data.showActivityStatus);
+          if (data.dataSharing !== undefined) setDataSharing(data.dataSharing);
+          if (data.twoFactorEnabled !== undefined) setTwoFactorEnabled(data.twoFactorEnabled);
+        }
+      } catch (error) {
+        console.error('Failed to load preferences:', error);
+      }
+    };
+    loadPreferences();
+  }, []);
+
+  // Auto-save when preferences change (debounced)
+  const prefsRef = React.useRef(false);
+  useEffect(() => {
+    if (!prefsRef.current) {
+      prefsRef.current = true;
+      return;
+    }
+    const timeout = setTimeout(() => savePreferences(getAllPrefs()), 500);
+    return () => clearTimeout(timeout);
+  }, [emailNotifs, pushNotifs, profileVisibility, showEmailToTeam, showActivityStatus, dataSharing, twoFactorEnabled, savePreferences, getAllPrefs]);
+
+  const activeSessions = [
     {
       id: '1',
-      device: 'Chrome on macOS',
+      device: 'Current Session',
       icon: <ComputerDesktopIcon className="h-5 w-5 text-muted-foreground" />,
-      location: 'Cape Town, ZA',
+      location: 'Active now',
       lastActive: 'Now',
       current: true,
     },
-    {
-      id: '2',
-      device: 'Safari on iPhone',
-      icon: <DevicePhoneMobileIcon className="h-5 w-5 text-muted-foreground" />,
-      location: 'Cape Town, ZA',
-      lastActive: '2 hours ago',
-      current: false,
-    },
-    {
-      id: '3',
-      device: 'Firefox on Windows',
-      icon: <GlobeAltIcon className="h-5 w-5 text-muted-foreground" />,
-      location: 'Johannesburg, ZA',
-      lastActive: '3 days ago',
-      current: false,
-    },
   ];
-
-  const [activeSessions, setActiveSessions] = useState(sessions);
-
-  const revokeSession = (id: string) => {
-    setActiveSessions((prev) => prev.filter((s) => s.id !== id));
-  };
 
   /* Render tab content */
   const renderContent = () => {
@@ -312,13 +344,10 @@ export default function SettingsPage() {
                         </p>
                       </div>
                     </div>
-                    {!session.current && (
-                      <button
-                        onClick={() => revokeSession(session.id)}
-                        className="text-xs font-semibold uppercase tracking-[0.05em] text-red-600 hover:text-red-700 transition-colors"
-                      >
-                        Revoke
-                      </button>
+                    {session.current && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] rounded-full bg-green-50 text-green-700 border border-green-200">
+                        Active
+                      </span>
                     )}
                   </div>
                 ))}

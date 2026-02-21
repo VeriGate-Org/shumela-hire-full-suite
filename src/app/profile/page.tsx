@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { useAuth, ROLE_DISPLAY_NAMES, UserRole } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api-fetch';
 import {
   PencilIcon,
   CheckIcon,
@@ -35,17 +36,22 @@ interface PasswordFormData {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const [profileData, setProfileData] = useState<ProfileFormData>({
-    fullName: user?.name || 'John Doe',
-    email: user?.email || 'john.doe@company.com',
-    phone: '+27 82 345 6789',
-    location: 'Cape Town, South Africa',
-    jobTitle: 'HR Manager',
-    department: 'Human Resources',
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    jobTitle: '',
+    department: '',
   });
 
   const [editData, setEditData] = useState<ProfileFormData>(profileData);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [lastLogin, setLastLogin] = useState<string | null>(null);
 
   const [passwordData, setPasswordData] = useState<PasswordFormData>({
     currentPassword: '',
@@ -55,6 +61,39 @@ export default function ProfilePage() {
 
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const response = await apiFetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        const firstName = data.firstName || '';
+        const lastName = data.lastName || '';
+        const fullName = [firstName, lastName].filter(Boolean).join(' ');
+        const loaded: ProfileFormData = {
+          fullName: fullName || user?.name || '',
+          email: data.email || user?.email || '',
+          phone: data.phone || '',
+          location: data.location || '',
+          jobTitle: data.jobTitle || '',
+          department: data.department || '',
+        };
+        setProfileData(loaded);
+        setEditData(loaded);
+        setCreatedAt(data.createdAt || null);
+        setLastLogin(data.lastLogin || null);
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getInitials = (name: string) =>
     name
@@ -62,25 +101,55 @@ export default function ProfilePage() {
       .map((n) => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2);
+      .slice(0, 2) || '??';
 
   const handleEditToggle = () => {
-    if (isEditing) {
-      setEditData(profileData);
-    } else {
+    if (!isEditing) {
       setEditData(profileData);
     }
     setIsEditing(!isEditing);
+    setSaveError('');
   };
 
-  const handleSave = () => {
-    setProfileData(editData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      const nameParts = editData.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      const response = await apiFetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          phone: editData.phone,
+          location: editData.location,
+          jobTitle: editData.jobTitle,
+          department: editData.department,
+        }),
+      });
+
+      if (response.ok) {
+        setProfileData(editData);
+        setIsEditing(false);
+      } else {
+        const err = await response.json().catch(() => null);
+        setSaveError(err?.error || 'Failed to save profile');
+      }
+    } catch {
+      setSaveError('Failed to save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
     setEditData(profileData);
     setIsEditing(false);
+    setSaveError('');
   };
 
   const handleEditChange = (field: keyof ProfileFormData, value: string) => {
@@ -104,18 +173,74 @@ export default function ProfilePage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handlePasswordUpdate = () => {
-    if (validatePassword()) {
-      setPasswordSuccess(true);
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setPasswordErrors({});
-      setTimeout(() => setPasswordSuccess(false), 3000);
+  const handlePasswordUpdate = async () => {
+    if (!validatePassword()) return;
+
+    setPasswordLoading(true);
+    setPasswordErrors({});
+    try {
+      const response = await apiFetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      if (response.ok) {
+        setPasswordSuccess(true);
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setTimeout(() => setPasswordSuccess(false), 3000);
+      } else {
+        const err = await response.json().catch(() => null);
+        setPasswordErrors({ currentPassword: err?.error || 'Failed to update password' });
+      }
+    } catch {
+      setPasswordErrors({ currentPassword: 'Failed to update password' });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const formatDateTime = (isoString: string | null): string => {
+    if (!isoString) return 'Not available';
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleDateString('en-ZA', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }) + ', ' + date.toLocaleTimeString('en-ZA', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return isoString;
     }
   };
 
   const roleName = user?.role
     ? ROLE_DISPLAY_NAMES[user.role as UserRole] || user.role
     : 'User';
+
+  if (loading) {
+    return (
+      <PageWrapper title="Profile" subtitle="View and manage your personal information">
+        <div className="space-y-6">
+          <div className="enterprise-card p-6 animate-pulse">
+            <div className="flex items-center gap-5">
+              <div className="h-20 w-20 bg-gray-200 rounded-full" />
+              <div className="space-y-2">
+                <div className="h-5 w-40 bg-gray-200 rounded" />
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper
@@ -149,7 +274,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0">
               <h2 className="text-xl font-bold tracking-[-0.03em] text-foreground">
-                {profileData.fullName}
+                {profileData.fullName || 'Not set'}
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">{roleName}</p>
               <p className="text-sm text-muted-foreground">{profileData.email}</p>
@@ -166,6 +291,12 @@ export default function ProfilePage() {
             </h3>
           </div>
 
+          {saveError && (
+            <div className="mb-4 p-3 rounded-control bg-red-50 border border-red-200 text-red-700 text-sm">
+              {saveError}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <ProfileField
               icon={<UserCircleIcon className="h-4 w-4 text-muted-foreground" />}
@@ -177,15 +308,15 @@ export default function ProfilePage() {
             <ProfileField
               icon={<EnvelopeIcon className="h-4 w-4 text-muted-foreground" />}
               label="Email Address"
-              value={isEditing ? editData.email : profileData.email}
-              isEditing={isEditing}
-              onChange={(v) => handleEditChange('email', v)}
+              value={profileData.email}
+              isEditing={false}
+              onChange={() => {}}
               type="email"
             />
             <ProfileField
               icon={<PhoneIcon className="h-4 w-4 text-muted-foreground" />}
               label="Phone Number"
-              value={isEditing ? editData.phone : profileData.phone}
+              value={isEditing ? editData.phone : (profileData.phone || 'Not set')}
               isEditing={isEditing}
               onChange={(v) => handleEditChange('phone', v)}
               type="tel"
@@ -193,21 +324,21 @@ export default function ProfilePage() {
             <ProfileField
               icon={<MapPinIcon className="h-4 w-4 text-muted-foreground" />}
               label="Location"
-              value={isEditing ? editData.location : profileData.location}
+              value={isEditing ? editData.location : (profileData.location || 'Not set')}
               isEditing={isEditing}
               onChange={(v) => handleEditChange('location', v)}
             />
             <ProfileField
               icon={<BriefcaseIcon className="h-4 w-4 text-muted-foreground" />}
               label="Job Title"
-              value={isEditing ? editData.jobTitle : profileData.jobTitle}
+              value={isEditing ? editData.jobTitle : (profileData.jobTitle || 'Not set')}
               isEditing={isEditing}
               onChange={(v) => handleEditChange('jobTitle', v)}
             />
             <ProfileField
               icon={<BuildingOfficeIcon className="h-4 w-4 text-muted-foreground" />}
               label="Department"
-              value={isEditing ? editData.department : profileData.department}
+              value={isEditing ? editData.department : (profileData.department || 'Not set')}
               isEditing={isEditing}
               onChange={(v) => handleEditChange('department', v)}
             />
@@ -215,9 +346,9 @@ export default function ProfilePage() {
 
           {isEditing && (
             <div className="flex items-center gap-3 mt-6 pt-5 border-t border-border">
-              <button onClick={handleSave} className="btn-cta">
+              <button onClick={handleSave} className="btn-cta" disabled={saving}>
                 <CheckIcon className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
-                Save Changes
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
               <button onClick={handleCancel} className="btn-secondary">
                 Cancel
@@ -242,11 +373,11 @@ export default function ProfilePage() {
             </div>
             <div>
               <span className="form-label">Member Since</span>
-              <p className="text-sm text-foreground">15 January 2024</p>
+              <p className="text-sm text-foreground">{formatDateTime(createdAt)}</p>
             </div>
             <div>
               <span className="form-label">Last Login</span>
-              <p className="text-sm text-foreground">17 February 2026, 09:32</p>
+              <p className="text-sm text-foreground">{formatDateTime(lastLogin)}</p>
             </div>
             <div>
               <span className="form-label">Account Status</span>
@@ -322,8 +453,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-5">
-            <button onClick={handlePasswordUpdate} className="btn-primary">
-              Update Password
+            <button onClick={handlePasswordUpdate} className="btn-primary" disabled={passwordLoading}>
+              {passwordLoading ? 'Updating...' : 'Update Password'}
             </button>
           </div>
         </div>

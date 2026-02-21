@@ -26,10 +26,6 @@ export default function SecurityPageContent() {
     try {
       const response = await apiFetch('/api/auth/change-password', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           currentPassword: passwordForm.currentPassword,
           newPassword: passwordForm.newPassword,
@@ -260,7 +256,7 @@ export default function SecurityPageContent() {
                   <div className="flex items-center justify-between p-3 border border-gray-200 rounded-sm">
                     <div>
                       <p className="text-sm font-medium text-gray-900">Current Session</p>
-                      <p className="text-sm text-gray-500">Chrome on macOS - Last active now</p>
+                      <p className="text-sm text-gray-500">Active now</p>
                     </div>
                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                       Active

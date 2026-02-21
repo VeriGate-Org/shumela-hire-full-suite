@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface SystemStatus {
   backend: 'online' | 'offline' | 'degraded';
@@ -28,15 +29,15 @@ const SystemStatusWidget: React.FC = () => {
     const checkSystemStatus = async () => {
       try {
         // Check backend health
-        const backendResponse = await fetch('http://localhost:8080/actuator/health');
+        const backendResponse = await apiFetch('/actuator/health');
         const backendHealth = backendResponse.ok ? 'online' : 'degraded';
 
         // Check analytics endpoint
-        const analyticsResponse = await fetch('http://localhost:8080/api/analytics/dashboard');
+        const analyticsResponse = await apiFetch('/api/analytics/dashboard');
         const analyticsHealth = analyticsResponse.ok ? 'online' : 'degraded';
 
         // Check reports endpoint
-        const reportsResponse = await fetch('http://localhost:8080/api/reports/types');
+        const reportsResponse = await apiFetch('/api/reports/types');
         const reportsHealth = reportsResponse.ok ? 'online' : 'degraded';
 
         setStatus(prev => ({

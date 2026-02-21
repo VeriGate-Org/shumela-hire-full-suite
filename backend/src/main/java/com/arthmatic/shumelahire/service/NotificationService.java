@@ -22,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -306,9 +309,28 @@ public class NotificationService {
     public void markNotificationAsRead(Long notificationId) {
         notificationRepository.findById(notificationId)
                 .ifPresent(notification -> {
-                    notification.setReadAt(LocalDateTime.now());
+                    notification.markAsRead();
                     notificationRepository.save(notification);
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Notification> getNotificationsForUser(Long userId, Pageable pageable) {
+        return notificationRepository.searchNotifications(
+                userId, null, null, null, null, null, null, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUnreadCount(Long userId) {
+        return notificationRepository.countUnreadByRecipient(userId);
+    }
+
+    public void markAllAsRead(Long userId) {
+        notificationRepository.markAllAsReadForRecipient(userId, LocalDateTime.now());
+    }
+
+    public void deleteNotification(Long notificationId) {
+        notificationRepository.deleteById(notificationId);
     }
 
     private NotificationType mapEventTypeToNotificationType(String eventType) {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface Notification {
   id: number;
@@ -27,7 +27,6 @@ export default function NotificationsPanel({
   limit = 5, 
   showHeader = true 
 }: NotificationsPanelProps) {
-  const { token } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -38,14 +37,14 @@ export default function NotificationsPanel({
 
   const loadNotifications = async () => {
     try {
-      // For demo purposes, create mock notifications
-      // In real implementation, this would call /api/notifications/applicant/${applicantId}
-      const mockNotifications: Notification[] = [];
-
-      // Apply limit
-      const limitedNotifications = mockNotifications.slice(0, limit);
-      setNotifications(limitedNotifications);
-      setUnreadCount(limitedNotifications.filter(n => !n.isRead).length);
+      setLoading(true);
+      const params = new URLSearchParams({ size: String(limit), sort: 'createdAt,desc' });
+      const response = await apiFetch(`/api/notifications?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      const content: Notification[] = result.content || [];
+      setNotifications(content);
+      setUnreadCount(content.filter((n) => !n.isRead).length);
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -55,13 +54,10 @@ export default function NotificationsPanel({
 
   const handleMarkAsRead = async (notificationId: number) => {
     try {
-      // In real implementation, this would call the API
-      // await fetch(`/api/notifications/${notificationId}/read`, { method: 'POST', ... });
-      
-      // For demo, just update local state
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
+      await apiFetch(`/api/notifications/${notificationId}/read`, { method: 'POST' });
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId
             ? { ...notification, isRead: true, readAt: new Date().toISOString() }
             : notification
         )

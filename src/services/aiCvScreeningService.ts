@@ -1,17 +1,14 @@
 import { tryApi } from '@/services/aiService';
 import { CvScreeningResult, CvRankingEntry } from '@/types/ai';
 
-const mockScreeningResult: any = {}; // TODO: Remove mock fallback
-
-const mockRankingResult: any[] = []; // TODO: Remove mock fallback
-
 export const aiCvScreeningService = {
   async screenCandidate(applicationId: string, jobRequirements: string[]): Promise<CvScreeningResult> {
     const data = await tryApi<CvScreeningResult>(`/api/ai/cv-screening/screen/${applicationId}`, {
       method: 'POST',
       body: JSON.stringify({ applicationId, jobRequirements }),
     });
-    return data ?? mockScreeningResult;
+    if (!data) throw new Error('AI service unavailable');
+    return data;
   },
 
   async rankCandidates(jobId: string, jobRequirements: string[]): Promise<CvRankingEntry[]> {
@@ -19,6 +16,7 @@ export const aiCvScreeningService = {
       method: 'POST',
       body: JSON.stringify({ jobId, jobRequirements }),
     });
-    return data?.rankings ?? mockRankingResult;
+    if (!data) throw new Error('AI service unavailable');
+    return data.rankings;
   },
 };

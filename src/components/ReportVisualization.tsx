@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 
 interface ChartData {
   type: string;
@@ -31,7 +32,7 @@ const ReportVisualization: React.FC = () => {
     setLoading(true);
     try {
       // Fetch KPIs
-      const kpiResponse = await fetch('http://localhost:8080/api/visualization/kpis');
+      const kpiResponse = await apiFetch('/api/visualization/kpis');
       const kpiData = await kpiResponse.json();
       setKPIs(kpiData);
 
@@ -49,7 +50,7 @@ const ReportVisualization: React.FC = () => {
       
       for (const endpoint of chartEndpoints) {
         try {
-          const response = await fetch(`http://localhost:8080/api/visualization/charts/${endpoint}${getDateParam()}`);
+          const response = await apiFetch(`/api/visualization/charts/${endpoint}${getDateParam()}`);
           const data = await response.json();
           chartData[endpoint] = data;
         } catch (error) {

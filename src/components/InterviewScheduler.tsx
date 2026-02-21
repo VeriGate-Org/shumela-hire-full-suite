@@ -76,10 +76,16 @@ const INTERVIEW_ROUNDS = [
   { value: 'OFFER', label: 'Offer Discussion' },
 ];
 
-const MOCK_INTERVIEWERS: any[] = [];
+interface Interviewer {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 
 export default function InterviewScheduler({ interviewId, onSuccess, onCancel }: InterviewSchedulerProps) {
   const { user } = useAuth();
+  const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [formData, setFormData] = useState<InterviewData>({
     title: '',
     type: 'VIDEO',
@@ -144,12 +150,28 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     }
   }, [interviewId]);
 
+  const loadInterviewers = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/auth/interviewers');
+      if (response.ok) {
+        const data = await response.json();
+        setInterviewers(data);
+        if (data.length > 0 && formData.interviewerId === 1) {
+          setFormData((prev) => ({ ...prev, interviewerId: data[0].id }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading interviewers:', error);
+    }
+  }, []);
+
   useEffect(() => {
     void loadApplications();
+    void loadInterviewers();
     if (interviewId) {
       void loadInterview();
     }
-  }, [interviewId, loadApplications, loadInterview]);
+  }, [interviewId, loadApplications, loadInterview, loadInterviewers]);
 
   useEffect(() => {
     if (formData.applicationId > 0 && formData.round) {
@@ -275,7 +297,7 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
 
       const method = interviewId ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -424,7 +446,7 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
                 aria-required="true"
                 className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
               >
-                {MOCK_INTERVIEWERS.map((interviewer) => (
+                {interviewers.map((interviewer) => (
                   <option key={interviewer.id} value={interviewer.id}>
                     {interviewer.name} ({interviewer.role})
                   </option>

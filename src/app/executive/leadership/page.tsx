@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import { 
   UserGroupIcon,
@@ -143,11 +144,26 @@ export default function LeadershipTeamPage() {
     loadLeadershipData();
   }, []);
 
-  const loadLeadershipData = async () => {
+  const loadLeadershipData = useCallback(async () => {
     setLoading(true);
-    // TODO: Replace with actual API calls
-    setLoading(false);
-  };
+    try {
+      const [teamRes, metricsRes] = await Promise.allSettled([
+        apiFetch('/api/executive/leadership/team'),
+        apiFetch('/api/executive/leadership/metrics'),
+      ]);
+
+      if (teamRes.status === 'fulfilled' && teamRes.value.ok) {
+        const data = await teamRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setLeaders(data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load leadership data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const getAlertColor = (type: string) => {
     switch (type) {

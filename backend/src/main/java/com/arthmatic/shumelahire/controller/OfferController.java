@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.*;
+import com.arthmatic.shumelahire.repository.UserRepository;
 import com.arthmatic.shumelahire.service.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -28,13 +31,17 @@ public class OfferController {
     @Autowired
     private OfferService offerService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // Create new offer
     @PostMapping("/applications/{applicationId}")
     public ResponseEntity<Offer> createOffer(
             @PathVariable Long applicationId,
             @Valid @RequestBody Offer offer,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer createdOffer = offerService.createOffer(applicationId, offer, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
         } catch (RuntimeException e) {
@@ -62,8 +69,9 @@ public class OfferController {
     public ResponseEntity<Offer> updateOffer(
             @PathVariable Long id,
             @Valid @RequestBody Offer offer,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer updatedOffer = offerService.updateOffer(id, offer, userId);
             return ResponseEntity.ok(updatedOffer);
         } catch (RuntimeException e) {
@@ -75,8 +83,9 @@ public class OfferController {
     @PostMapping("/{id}/submit-for-approval")
     public ResponseEntity<Offer> submitForApproval(
             @PathVariable Long id,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer offer = offerService.submitForApproval(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -89,8 +98,9 @@ public class OfferController {
     public ResponseEntity<Offer> approveOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String approvalNotes = request.get("approvalNotes");
             Offer offer = offerService.approveOffer(id, approvalNotes, userId);
             return ResponseEntity.ok(offer);
@@ -104,8 +114,9 @@ public class OfferController {
     public ResponseEntity<Offer> rejectOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String rejectionReason = request.get("rejectionReason");
             Offer offer = offerService.rejectOffer(id, rejectionReason, userId);
             return ResponseEntity.ok(offer);
@@ -118,8 +129,9 @@ public class OfferController {
     @PostMapping("/{id}/send")
     public ResponseEntity<Offer> sendOffer(
             @PathVariable Long id,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer offer = offerService.sendOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -132,8 +144,9 @@ public class OfferController {
     public ResponseEntity<Offer> withdrawOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String withdrawalReason = request.get("withdrawalReason");
             Offer offer = offerService.withdrawOffer(id, withdrawalReason, userId);
             return ResponseEntity.ok(offer);
@@ -157,8 +170,9 @@ public class OfferController {
     @PostMapping("/{id}/accept")
     public ResponseEntity<Offer> acceptOffer(
             @PathVariable Long id,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer offer = offerService.acceptOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -171,8 +185,9 @@ public class OfferController {
     public ResponseEntity<Offer> declineOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String declineReason = request.get("declineReason");
             Offer offer = offerService.declineOffer(id, declineReason, userId);
             return ResponseEntity.ok(offer);
@@ -186,8 +201,9 @@ public class OfferController {
     public ResponseEntity<Offer> startNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String candidateCounterOffer = request.get("candidateCounterOffer");
             Offer offer = offerService.startNegotiation(id, candidateCounterOffer, userId);
             return ResponseEntity.ok(offer);
@@ -201,12 +217,13 @@ public class OfferController {
     public ResponseEntity<Offer> respondToNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String companyResponse = (String) request.get("companyResponse");
             String statusStr = (String) request.get("negotiationStatus");
             NegotiationStatus status = NegotiationStatus.valueOf(statusStr);
-            
+
             Offer offer = offerService.respondToNegotiation(id, companyResponse, status, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -219,8 +236,9 @@ public class OfferController {
     public ResponseEntity<Offer> escalateNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             String escalationReason = request.get("escalationReason");
             Offer offer = offerService.escalateNegotiation(id, escalationReason, userId);
             return ResponseEntity.ok(offer);
@@ -234,8 +252,9 @@ public class OfferController {
     public ResponseEntity<Offer> createNewVersion(
             @PathVariable Long id,
             @Valid @RequestBody Offer updatedOfferData,
-            @RequestHeader("X-User-ID") Long userId) {
+            Authentication authentication) {
         try {
+            Long userId = resolveUserId(authentication);
             Offer newVersion = offerService.createNewVersion(id, updatedOfferData, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(newVersion);
         } catch (RuntimeException e) {
@@ -259,18 +278,18 @@ public class OfferController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
-        
-        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
-                   Sort.by(sortBy).descending() : 
+
+        Sort sort = sortDir.equalsIgnoreCase("desc") ?
+                   Sort.by(sortBy).descending() :
                    Sort.by(sortBy).ascending();
-        
+
         Pageable pageable = PageRequest.of(page, size, sort);
-        
+
         Page<Offer> offers = offerService.searchOffers(
             status, offerType, negotiationStatus, department, jobTitle,
             minSalary, maxSalary, startDate, endDate, pageable
         );
-        
+
         return ResponseEntity.ok(offers);
     }
 
@@ -279,7 +298,7 @@ public class OfferController {
     public ResponseEntity<Map<String, Object>> getOfferAnalytics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        
+
         Map<String, Object> analytics = offerService.getOfferAnalytics(startDate, endDate);
         return ResponseEntity.ok(analytics);
     }
@@ -308,8 +327,7 @@ public class OfferController {
 
     // Process expired offers (admin/system endpoint)
     @PostMapping("/process-expired")
-    public ResponseEntity<String> processExpiredOffers(
-            @RequestHeader("X-User-ID") Long userId) {
+    public ResponseEntity<String> processExpiredOffers() {
         try {
             offerService.processExpiredOffers();
             return ResponseEntity.ok("Expired offers processed successfully");
@@ -342,5 +360,19 @@ public class OfferController {
     public ResponseEntity<Map<String, String>> handleException(Exception e) {
         return ResponseEntity.badRequest()
                            .body(Map.of("error", e.getMessage()));
+    }
+
+    private Long resolveUserId(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            String email = jwt.getClaimAsString("email");
+            if (email != null) {
+                return userRepository.findByEmail(email)
+                        .map(User::getId)
+                        .orElseThrow(() -> new RuntimeException("User not found for email: " + email));
+            }
+        } else if (authentication.getPrincipal() instanceof User user) {
+            return user.getId();
+        }
+        throw new RuntimeException("Unable to resolve user from authentication");
     }
 }

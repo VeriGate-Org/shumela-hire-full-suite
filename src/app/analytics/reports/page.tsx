@@ -1,25 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import { CustomReportBuilder } from '../../../components/analytics';
-import { 
-  DocumentChartBarIcon, 
-  PlusIcon, 
-  EyeIcon, 
-  PencilIcon, 
+import { apiFetch } from '@/lib/api-fetch';
+import {
+  DocumentChartBarIcon,
+  PlusIcon,
+  EyeIcon,
+  PencilIcon,
   TrashIcon,
   CalendarIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
 
-// Mock saved reports
-const mockSavedReports: any[] = [];
-
 export default function CustomReportsPage() {
   const [showBuilder, setShowBuilder] = useState(false);
-  const [savedReports, setSavedReports] = useState(mockSavedReports);
+  const [savedReports, setSavedReports] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadReports();
+  }, []);
+
+  const loadReports = async () => {
+    try {
+      const response = await apiFetch('/api/reports/scheduled');
+      if (response.ok) {
+        const data = await response.json();
+        setSavedReports(Array.isArray(data) ? data : data.content || []);
+      }
+    } catch (error) {
+      console.error('Failed to load reports:', error);
+    }
+  };
 
   const handleSaveReport = (reportConfig: any) => {
     console.log('Saving report:', reportConfig);

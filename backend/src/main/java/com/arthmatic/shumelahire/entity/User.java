@@ -98,6 +98,18 @@ public class User implements UserDetails {
     @Column(name = "two_factor_secret")
     private String twoFactorSecret;
 
+    @Column(name = "phone", length = 30)
+    private String phone;
+
+    @Column(name = "location", length = 100)
+    private String location;
+
+    @Column(name = "job_title", length = 100)
+    private String jobTitle;
+
+    @Column(name = "department", length = 100)
+    private String department;
+
     @Column(name = "sso_provider")
     private String ssoProvider; // "AZURE_AD", "SAML2", null for local
 
@@ -241,6 +253,18 @@ public class User implements UserDetails {
 
     public String getTwoFactorSecret() { return twoFactorSecret; }
     public void setTwoFactorSecret(String twoFactorSecret) { this.twoFactorSecret = twoFactorSecret; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
 
     public String getSsoProvider() { return ssoProvider; }
     public void setSsoProvider(String ssoProvider) { this.ssoProvider = ssoProvider; }

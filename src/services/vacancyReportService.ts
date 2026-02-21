@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+import { apiFetch } from '@/lib/api-fetch';
 
 export interface VacancySummaryData {
   jobId: string;
@@ -17,45 +17,29 @@ export interface VacancySummaryData {
   };
 }
 
-function getAuthHeaders(): Record<string, string> {
-  const token = sessionStorage.getItem('jwt_token');
-  return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
-}
-
 export const vacancyReportService = {
   async getVacancySummary(jobId: string): Promise<VacancySummaryData> {
-    const response = await fetch(`${API_BASE}/api/vacancy-reports/${jobId}/summary`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await apiFetch(`/api/vacancy-reports/${jobId}/summary`);
     if (!response.ok) throw new Error('Failed to fetch vacancy summary');
     return response.json();
   },
 
   async downloadVacancySummaryPdf(jobId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/api/vacancy-reports/${jobId}/summary/pdf`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await apiFetch(`/api/vacancy-reports/${jobId}/summary/pdf`);
     if (!response.ok) throw new Error('Failed to download vacancy summary PDF');
     const blob = await response.blob();
     downloadBlob(blob, `vacancy-summary-${jobId}.pdf`);
   },
 
   async downloadShortlistPackPdf(jobId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/api/vacancy-reports/${jobId}/shortlist-pack/pdf`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await apiFetch(`/api/vacancy-reports/${jobId}/shortlist-pack/pdf`);
     if (!response.ok) throw new Error('Failed to download shortlist pack PDF');
     const blob = await response.blob();
     downloadBlob(blob, `shortlist-pack-${jobId}.pdf`);
   },
 
   async downloadDemographicsReportPdf(jobId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/api/vacancy-reports/${jobId}/demographics/pdf`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await apiFetch(`/api/vacancy-reports/${jobId}/demographics/pdf`);
     if (!response.ok) throw new Error('Failed to download demographics report PDF');
     const blob = await response.blob();
     downloadBlob(blob, `demographics-report-${jobId}.pdf`);
