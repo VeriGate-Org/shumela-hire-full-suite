@@ -158,7 +158,7 @@ public class ShumelaHireComputeStack : Stack
             },
             Environment = new Dictionary<string, string>
             {
-                ["SPRING_PROFILES_ACTIVE"] = config.EnvironmentName,
+                ["SPRING_PROFILES_ACTIVE"] = config.SpringProfile,
                 ["DATABASE_URL"] = $"jdbc:postgresql://{foundation.Database.ClusterEndpoint.Hostname}:5432/shumelahire",
                 ["REDIS_HOST"] = foundation.RedisEndpointAddress,
                 ["REDIS_PORT"] = "6379",

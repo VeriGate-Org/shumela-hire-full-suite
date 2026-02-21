@@ -38,6 +38,12 @@ public sealed class EnvironmentConfig
 
     public string Prefix => $"shumelahire-{EnvironmentName}";
 
+    /// <summary>
+    /// Spring Boot profile. The dev AWS environment uses the sbx profile
+    /// because deployed environments authenticate via Cognito, not local JWTs.
+    /// </summary>
+    public string SpringProfile => EnvironmentName == "dev" ? "sbx" : EnvironmentName;
+
     public static EnvironmentConfig FromContext(App app)
     {
         var env = (string?)app.Node.TryGetContext("env")
