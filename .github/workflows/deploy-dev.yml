@@ -3,6 +3,10 @@ name: Deploy to Dev
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
