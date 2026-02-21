@@ -277,8 +277,9 @@ public class ShumelaHireComputeStack : Stack
 
         if (!string.IsNullOrEmpty(config.ApiCertificateArn))
         {
-            // HTTPS with certificate (sbx/ppe/prod)
-            alb.AddListener("HttpRedirect", new BaseApplicationListenerProps
+            // HTTPS mode: port 80 redirects to HTTPS, port 443 serves traffic.
+            // Reuse "Http" logical ID for port 80 so CloudFormation updates in-place.
+            alb.AddListener("Http", new BaseApplicationListenerProps
             {
                 Port = 80,
                 DefaultAction = ListenerAction.Redirect(new RedirectOptions
