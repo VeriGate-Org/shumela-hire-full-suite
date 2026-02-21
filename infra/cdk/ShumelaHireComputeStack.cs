@@ -277,19 +277,7 @@ public class ShumelaHireComputeStack : Stack
 
         if (!string.IsNullOrEmpty(config.ApiCertificateArn))
         {
-            // HTTPS mode: port 80 redirects to HTTPS, port 443 serves traffic.
-            // Reuse "Http" logical ID for port 80 so CloudFormation updates in-place.
-            alb.AddListener("Http", new BaseApplicationListenerProps
-            {
-                Port = 80,
-                DefaultAction = ListenerAction.Redirect(new RedirectOptions
-                {
-                    Protocol = "HTTPS",
-                    Port = "443",
-                    Permanent = true
-                })
-            });
-
+            // HTTPS listener is the primary target for target groups.
             primaryListener = alb.AddListener("Https", new BaseApplicationListenerProps
             {
                 Port = 443,
@@ -307,7 +295,7 @@ public class ShumelaHireComputeStack : Stack
         }
 
         // API traffic → backend (priority rule)
-        primaryListener.AddTargets("BackendTarget", new AddApplicationTargetsProps
+        var backendTg = primaryListener.AddTargets("BackendTarget", new AddApplicationTargetsProps
         {
             Port = 8080,
             Protocol = ApplicationProtocol.HTTP,
@@ -329,7 +317,7 @@ public class ShumelaHireComputeStack : Stack
         });
 
         // Default → frontend
-        primaryListener.AddTargets("FrontendTarget", new AddApplicationTargetsProps
+        var frontendTg = primaryListener.AddTargets("FrontendTarget", new AddApplicationTargetsProps
         {
             Port = 3000,
             Protocol = ApplicationProtocol.HTTP,
@@ -344,6 +332,26 @@ public class ShumelaHireComputeStack : Stack
             },
             DeregistrationDelay = Duration.Seconds(30)
         });
+
+        // Port 80: forward to same target groups (CloudFront connects via HTTP_ONLY).
+        // CloudFront handles viewer-level HTTPS redirect, so no HTTP→HTTPS redirect here.
+        if (!string.IsNullOrEmpty(config.ApiCertificateArn))
+        {
+            var httpListener = alb.AddListener("Http", new BaseApplicationListenerProps
+            {
+                Port = 80,
+                DefaultAction = ListenerAction.Forward(new[] { frontendTg })
+            });
+            httpListener.AddAction("BackendRouteHttp", new AddApplicationActionProps
+            {
+                Priority = 10,
+                Conditions = new[]
+                {
+                    ListenerCondition.PathPatterns(new[] { "/api/*", "/actuator/*", "/v3/api-docs*", "/swagger-ui*" })
+                },
+                Action = ListenerAction.Forward(new[] { backendTg })
+            });
+        }
 
         // ── Auto Scaling ─────────────────────────────────────────────────────
         var scaling = service.AutoScaleTaskCount(new Amazon.CDK.AWS.ApplicationAutoScaling.EnableScalingProps
