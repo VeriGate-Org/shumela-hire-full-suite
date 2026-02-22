@@ -39,8 +39,8 @@ public interface JobAdRepository extends JpaRepository<JobAd, Long> {
            "(:status IS NULL OR j.status = :status) AND " +
            "(:channelInternal IS NULL OR j.channelInternal = :channelInternal) AND " +
            "(:channelExternal IS NULL OR j.channelExternal = :channelExternal) AND " +
-           "(:q IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
-           " LOWER(j.htmlBody) LIKE LOWER(CONCAT('%', :q, '%')))")
+           "(:q IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) OR " +
+           " LOWER(j.htmlBody) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')))")
     Page<JobAd> findWithFilters(
         @Param("status") JobAdStatus status,
         @Param("channelInternal") Boolean channelInternal,

@@ -42,10 +42,10 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
                                           @Param("startDate") LocalDateTime startDate,
                                           @Param("endDate") LocalDateTime endDate);
 
-    // Conflict checking (native query for H2-compatible DATEADD)
+    // Conflict checking (PostgreSQL-compatible interval arithmetic)
     @Query(value = "SELECT * FROM interviews i WHERE i.interviewer_id = :interviewerId " +
            "AND i.status IN ('SCHEDULED', 'RESCHEDULED') " +
-           "AND i.scheduled_at <= :endTime AND DATEADD(MINUTE, i.duration_minutes, i.scheduled_at) >= :startTime",
+           "AND i.scheduled_at <= :endTime AND (i.scheduled_at + i.duration_minutes * INTERVAL '1 minute') >= :startTime",
            nativeQuery = true)
     List<Interview> findConflictingInterviews(@Param("interviewerId") Long interviewerId,
                                              @Param("startTime") LocalDateTime startTime,
@@ -53,7 +53,7 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 
     @Query(value = "SELECT * FROM interviews i WHERE i.meeting_room = :meetingRoom " +
            "AND i.status IN ('SCHEDULED', 'RESCHEDULED') " +
-           "AND i.scheduled_at <= :endTime AND DATEADD(MINUTE, i.duration_minutes, i.scheduled_at) >= :startTime",
+           "AND i.scheduled_at <= :endTime AND (i.scheduled_at + i.duration_minutes * INTERVAL '1 minute') >= :startTime",
            nativeQuery = true)
     List<Interview> findMeetingRoomConflicts(@Param("meetingRoom") String meetingRoom,
                                            @Param("startTime") LocalDateTime startTime,
@@ -77,9 +77,9 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
     // Search functionality
     @Query("SELECT i FROM Interview i JOIN i.application a JOIN a.jobPosting jp " +
            "WHERE (:searchTerm IS NULL OR " +
-           "LOWER(i.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(jp.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(jp.department) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
+           "LOWER(i.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(jp.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(jp.department) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))) " +
            "AND (:status IS NULL OR i.status = :status) " +
            "AND (:type IS NULL OR i.type = :type) " +
            "AND (:round IS NULL OR i.round = :round) " +

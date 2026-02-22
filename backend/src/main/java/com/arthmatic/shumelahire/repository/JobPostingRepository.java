@@ -74,23 +74,23 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     
     // Search functionality
     @Query("SELECT j FROM JobPosting j WHERE " +
-           "LOWER(j.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(j.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(j.department) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(j.location) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+           "LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(j.description) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(j.department) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(j.location) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))")
     Page<JobPosting> searchJobPostings(@Param("searchTerm") String searchTerm, Pageable pageable);
     
     // Advanced search with filters
     @Query("SELECT j FROM JobPosting j WHERE " +
            "(:searchTerm IS NULL OR " +
-           " LOWER(j.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           " LOWER(j.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           " LOWER(j.department) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           " LOWER(j.location) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+           " LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           " LOWER(j.description) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           " LOWER(j.department) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           " LOWER(j.location) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))) AND " +
            "(:department IS NULL OR j.department = :department) AND " +
            "(:employmentType IS NULL OR j.employmentType = :employmentType) AND " +
            "(:experienceLevel IS NULL OR j.experienceLevel = :experienceLevel) AND " +
-           "(:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
+           "(:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', CAST(:location AS string), '%'))) AND " +
            "(:remoteWork IS NULL OR j.remoteWorkAllowed = :remoteWork) AND " +
            "(:status IS NULL OR j.status = :status)")
     Page<JobPosting> findJobsWithFilters(

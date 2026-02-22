@@ -21,9 +21,9 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
     
     // Find by name patterns
     @Query("SELECT a FROM Applicant a WHERE " +
-           "LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(a.surname) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(a.email) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+           "LOWER(a.name) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(a.surname) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(a.email) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))")
     Page<Applicant> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
     
     // Find by ID/Passport number

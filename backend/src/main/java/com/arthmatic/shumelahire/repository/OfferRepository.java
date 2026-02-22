@@ -101,13 +101,13 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
            "GROUP BY o.offerType")
     List<Object[]> getAcceptanceRateByOfferType(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // Time to acceptance/decision metrics (uses DATEDIFF for H2 compatibility)
-    @Query(value = "SELECT AVG(DATEDIFF(HOUR, o.offer_sent_at, o.accepted_at)) " +
+    // Time to acceptance/decision metrics (PostgreSQL-compatible EXTRACT)
+    @Query(value = "SELECT AVG(EXTRACT(EPOCH FROM (o.accepted_at - o.offer_sent_at)) / 3600) " +
            "FROM offers o WHERE o.status = 'ACCEPTED' AND o.offer_sent_at IS NOT NULL AND o.accepted_at IS NOT NULL " +
            "AND o.created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
     Double getAverageTimeToAcceptanceHours(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "SELECT AVG(DATEDIFF(HOUR, o.offer_sent_at, COALESCE(o.accepted_at, o.declined_at))) " +
+    @Query(value = "SELECT AVG(EXTRACT(EPOCH FROM (COALESCE(o.accepted_at, o.declined_at) - o.offer_sent_at)) / 3600) " +
            "FROM offers o WHERE o.status IN ('ACCEPTED', 'DECLINED') AND o.offer_sent_at IS NOT NULL " +
            "AND o.created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
     Double getAverageTimeToDecisionHours(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -152,8 +152,8 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
            "(:status IS NULL OR o.status = :status) AND " +
            "(:offerType IS NULL OR o.offerType = :offerType) AND " +
            "(:negotiationStatus IS NULL OR o.negotiationStatus = :negotiationStatus) AND " +
-           "(:departmentFilter IS NULL OR LOWER(o.department) LIKE LOWER(CONCAT('%', :departmentFilter, '%'))) AND " +
-           "(:jobTitleFilter IS NULL OR LOWER(o.jobTitle) LIKE LOWER(CONCAT('%', :jobTitleFilter, '%'))) AND " +
+           "(:departmentFilter IS NULL OR LOWER(o.department) LIKE LOWER(CONCAT('%', CAST(:departmentFilter AS string), '%'))) AND " +
+           "(:jobTitleFilter IS NULL OR LOWER(o.jobTitle) LIKE LOWER(CONCAT('%', CAST(:jobTitleFilter AS string), '%'))) AND " +
            "(:minSalary IS NULL OR o.baseSalary >= :minSalary) AND " +
            "(:maxSalary IS NULL OR o.baseSalary <= :maxSalary) AND " +
            "(:startDate IS NULL OR o.createdAt >= :startDate) AND " +

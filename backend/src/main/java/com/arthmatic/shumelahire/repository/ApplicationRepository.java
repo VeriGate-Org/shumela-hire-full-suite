@@ -45,8 +45,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     
     // Search applications by applicant name or job title
     @Query("SELECT a FROM Application a JOIN a.applicant ap WHERE " +
-           "LOWER(CONCAT(ap.name, ' ', ap.surname)) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(a.jobTitle) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+           "LOWER(CONCAT(ap.name, ' ', ap.surname)) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(a.jobTitle) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))")
     Page<Application> searchApplications(@Param("searchTerm") String searchTerm, Pageable pageable);
     
     // Find applications pending review (submitted or screening)
