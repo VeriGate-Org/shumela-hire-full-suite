@@ -8,6 +8,7 @@ import {
   ChevronRightIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import ThemeToggle from './ThemeToggle';
 
 interface ModernSidebarProps {
   isCollapsed?: boolean;
@@ -166,7 +167,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       </div>
 
       {onToggleCollapse && (
-        <div className="sticky bottom-0 border-t border-border bg-card p-2">
+        <div className="sticky bottom-0 border-t border-border bg-card p-2 space-y-1">
+          <ThemeToggle collapsed={isCollapsed} />
           <button
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}

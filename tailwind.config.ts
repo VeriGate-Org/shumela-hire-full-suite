@@ -32,6 +32,7 @@ const idcTeal = {
 };
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -115,6 +116,33 @@ const config: Config = {
       'cta-border': 'var(--cta-border)',
       link: 'var(--link)',
       'link-hover': 'var(--link-hover)',
+      // Gray/slate via CSS variables for dark mode auto-flip
+      gray: {
+        50:  'var(--tw-gray-50)',
+        100: 'var(--tw-gray-100)',
+        200: 'var(--tw-gray-200)',
+        300: 'var(--tw-gray-300)',
+        400: 'var(--tw-gray-400)',
+        500: 'var(--tw-gray-500)',
+        600: 'var(--tw-gray-600)',
+        700: 'var(--tw-gray-700)',
+        800: 'var(--tw-gray-800)',
+        900: 'var(--tw-gray-900)',
+        950: 'var(--tw-gray-950)',
+      },
+      slate: {
+        50:  'var(--tw-slate-50)',
+        100: 'var(--tw-slate-100)',
+        200: 'var(--tw-slate-200)',
+        300: 'var(--tw-slate-300)',
+        400: 'var(--tw-slate-400)',
+        500: 'var(--tw-slate-500)',
+        600: 'var(--tw-slate-600)',
+        700: 'var(--tw-slate-700)',
+        800: 'var(--tw-slate-800)',
+        900: 'var(--tw-slate-900)',
+        950: 'var(--tw-slate-950)',
+      },
     },
     extend: {
       fontFamily: {

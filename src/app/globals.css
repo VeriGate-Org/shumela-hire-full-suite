@@ -56,6 +56,97 @@
   --density-gap: 1rem;
   --density-text: 0.875rem;
   --density-row-height: 3rem;
+
+  /* Gray scale (CSS variable layer for dark mode) */
+  --tw-gray-50: #F9FAFB;
+  --tw-gray-100: #F3F4F6;
+  --tw-gray-200: #E5E7EB;
+  --tw-gray-300: #D1D5DB;
+  --tw-gray-400: #9CA3AF;
+  --tw-gray-500: #6B7280;
+  --tw-gray-600: #4B5563;
+  --tw-gray-700: #374151;
+  --tw-gray-800: #1F2937;
+  --tw-gray-900: #111827;
+  --tw-gray-950: #030712;
+
+  /* Slate scale (CSS variable layer for dark mode) */
+  --tw-slate-50: #F8FAFC;
+  --tw-slate-100: #F1F5F9;
+  --tw-slate-200: #E2E8F0;
+  --tw-slate-300: #CBD5E1;
+  --tw-slate-400: #94A3B8;
+  --tw-slate-500: #64748B;
+  --tw-slate-600: #475569;
+  --tw-slate-700: #334155;
+  --tw-slate-800: #1E293B;
+  --tw-slate-900: #0F172A;
+  --tw-slate-950: #020617;
+}
+
+/* Dark mode */
+.dark {
+  --background: #0B1120;
+  --foreground: #E2E8F0;
+  --card: #152035;
+  --card-foreground: #E2E8F0;
+  --popover: #152035;
+  --popover-foreground: #E2E8F0;
+  --primary: #4CA6D0;
+  --primary-foreground: #0B1120;
+  --secondary: #1A2744;
+  --secondary-foreground: #E2E8F0;
+  --muted: #1A2744;
+  --muted-foreground: #94A3B8;
+  --accent: #1A2744;
+  --accent-foreground: #E2E8F0;
+  --destructive: #F87171;
+  --destructive-foreground: #0B1120;
+  --border: #1E3A5F;
+  --input: #1E3A5F;
+  --ring: #4CA6D0;
+
+  --cta: #F6CE5E;
+  --cta-foreground: #032E49;
+  --cta-hover: #F1C54B;
+  --cta-border: #F6CE5E;
+  --link: #38BDF8;
+  --link-hover: #7DD3FC;
+  --divider-accent: #F6CE5E;
+  --divider-secondary: #21D4C4;
+
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.15);
+
+  /* Gray scale inverted */
+  --tw-gray-50: #0B1120;
+  --tw-gray-100: #152035;
+  --tw-gray-200: #1E3A5F;
+  --tw-gray-300: #2D4A6F;
+  --tw-gray-400: #64748B;
+  --tw-gray-500: #94A3B8;
+  --tw-gray-600: #CBD5E1;
+  --tw-gray-700: #E2E8F0;
+  --tw-gray-800: #F1F5F9;
+  --tw-gray-900: #F8FAFC;
+  --tw-gray-950: #FFFFFF;
+
+  /* Slate scale inverted */
+  --tw-slate-50: #0B1120;
+  --tw-slate-100: #152035;
+  --tw-slate-200: #1E3A5F;
+  --tw-slate-300: #2D4A6F;
+  --tw-slate-400: #64748B;
+  --tw-slate-500: #94A3B8;
+  --tw-slate-600: #CBD5E1;
+  --tw-slate-700: #E2E8F0;
+  --tw-slate-800: #F1F5F9;
+  --tw-slate-900: #F8FAFC;
+  --tw-slate-950: #FFFFFF;
+
+  color-scheme: dark;
 }
 
 /* Density overrides */
@@ -80,6 +171,19 @@
   --primary-foreground: #FFFFFF;
   --border: #000000;
   --ring: #000000;
+}
+
+.dark.high-contrast {
+  --foreground: #FFFFFF;
+  --background: #000000;
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
+  --primary: #FFFFFF;
+  --primary-foreground: #000000;
+  --border: #FFFFFF;
+  --ring: #FFFFFF;
+  --muted: #1A1A1A;
+  --muted-foreground: #D4D4D4;
 }
 
 /* Base Layer */
@@ -406,6 +510,10 @@
     --ring: #000000;
   }
 
+  .dark {
+    --border: #FFFFFF;
+    --ring: #FFFFFF;
+  }
 }
 
 /* Print Styles */
@@ -427,4 +535,37 @@
     border: 1px solid rgb(0, 0, 0) !important;
     box-shadow: none !important;
   }
+}
+
+/* Dark scrollbar */
+.dark {
+  scrollbar-color: #1E3A5F #0B1120;
+}
+
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0B1120;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1E3A5F;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #2D4A6F;
+}
+
+/* Dark mode: flip bg-white containers to card background.
+   text-white / border-white are unaffected (different CSS properties). */
+.dark .bg-white {
+  background-color: var(--card);
+}
+
+.dark .bg-opacity-50 {
+  --tw-bg-opacity: 0.5;
 }

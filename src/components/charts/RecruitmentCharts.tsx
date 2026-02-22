@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   LineChart,
   Line,
@@ -48,6 +51,47 @@ export const CHART_COLOR_PALETTE = [
 
 const CHART_GRID = '#E2E8F0';
 const CHART_AXIS = '#64748B';
+
+const DARK_CHART_COLORS = {
+  primary: '#4CA6D0',
+  secondary: '#21D4C4',
+  success: '#34D399',
+  warning: '#F6CE5E',
+  danger: '#F87171',
+  info: '#38BDF8',
+  gray: '#94A3B8',
+  light: '#1E3A5F',
+  dark: '#F8FAFC',
+} as const;
+
+const DARK_CHART_COLOR_PALETTE = [
+  DARK_CHART_COLORS.primary,
+  DARK_CHART_COLORS.secondary,
+  DARK_CHART_COLORS.success,
+  DARK_CHART_COLORS.warning,
+  DARK_CHART_COLORS.danger,
+  DARK_CHART_COLORS.info,
+  '#83C3E2', // navy-300
+  '#53EBDA', // teal-300
+  '#F6CE5E', // gold-400
+  '#B5DCEF', // navy-200
+];
+
+const DARK_CHART_GRID = '#1E3A5F';
+const DARK_CHART_AXIS = '#94A3B8';
+
+export function useChartColors() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
+  return {
+    colors: isDark ? DARK_CHART_COLORS : CHART_COLORS,
+    palette: isDark ? DARK_CHART_COLOR_PALETTE : CHART_COLOR_PALETTE,
+    grid: isDark ? DARK_CHART_GRID : CHART_GRID,
+    axis: isDark ? DARK_CHART_AXIS : CHART_AXIS,
+  };
+}
+
 const CHART_TOOLTIP_STYLE = {
   backgroundColor: 'var(--card)',
   border: '1px solid var(--border)',
@@ -89,18 +133,20 @@ export const RecruitmentLineChart: React.FC<LineChartProps> = ({
   animated = true,
   className = '',
 }) => {
+  const { grid, axis } = useChartColors();
+
   return (
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
-          <XAxis 
-            dataKey={xKey} 
-            stroke={CHART_AXIS}
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={grid} />}
+          <XAxis
+            dataKey={xKey}
+            stroke={axis}
             fontSize={12}
           />
-          <YAxis 
-            stroke={CHART_AXIS}
+          <YAxis
+            stroke={axis}
             fontSize={12}
           />
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
@@ -140,13 +186,15 @@ export const RecruitmentAreaChart: React.FC<AreaChartProps> = ({
   animated = true,
   className = '',
 }) => {
+  const { grid, axis } = useChartColors();
+
   return (
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
-          <XAxis dataKey={xKey} stroke={CHART_AXIS} fontSize={12} />
-          <YAxis stroke={CHART_AXIS} fontSize={12} />
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={grid} />}
+          <XAxis dataKey={xKey} stroke={axis} fontSize={12} />
+          <YAxis stroke={axis} fontSize={12} />
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           <Area
@@ -183,27 +231,28 @@ export const RecruitmentBarChart: React.FC<BarChartProps> = ({
   animated = true,
   className = '',
 }) => {
+  const { grid, axis } = useChartColors();
   const ChartComponent = horizontal ? BarChart : BarChart;
-  
+
   return (
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
-        <ChartComponent 
-          data={data} 
+        <ChartComponent
+          data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           layout={horizontal ? 'horizontal' : 'vertical'}
         >
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
-          <XAxis 
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={grid} />}
+          <XAxis
             dataKey={horizontal ? yKey : xKey}
             type={horizontal ? 'number' : 'category'}
-            stroke={CHART_AXIS}
+            stroke={axis}
             fontSize={12}
           />
-          <YAxis 
+          <YAxis
             dataKey={horizontal ? xKey : undefined}
             type={horizontal ? 'category' : 'number'}
-            stroke={CHART_AXIS}
+            stroke={axis}
             fontSize={12}
           />
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
@@ -233,13 +282,16 @@ export const RecruitmentPieChart: React.FC<PieChartProps> = ({
   data,
   dataKey,
   height = 300,
-  colors = CHART_COLOR_PALETTE,
+  colors,
   innerRadius = 0,
   showLabels = true,
   showLegend = true,
   animated = true,
   className = '',
 }) => {
+  const { palette } = useChartColors();
+  const resolvedColors = colors || palette;
+
   return (
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
@@ -256,7 +308,7 @@ export const RecruitmentPieChart: React.FC<PieChartProps> = ({
             label={showLabels ? ({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%` : false}
           >
             {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              <Cell key={`cell-${index}`} fill={resolvedColors[index % resolvedColors.length]} />
             ))}
           </Pie>
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
@@ -316,20 +368,22 @@ export const RecruitmentComposedChart: React.FC<ComposedChartProps> = ({
   animated = true,
   className = '',
 }) => {
+  const { grid, axis, palette } = useChartColors();
+
   return (
     <div className={`w-full ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
         <ComposedChart data={data} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
-          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />}
-          <XAxis dataKey={xKey} stroke={CHART_AXIS} fontSize={12} />
-          <YAxis stroke={CHART_AXIS} fontSize={12} />
+          {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={grid} />}
+          <XAxis dataKey={xKey} stroke={axis} fontSize={12} />
+          <YAxis stroke={axis} fontSize={12} />
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
           {showLegend && <Legend />}
           {barData.map((bar, index) => (
             <Bar
               key={bar.key}
               dataKey={bar.key}
-              fill={bar.color || CHART_COLOR_PALETTE[index % CHART_COLOR_PALETTE.length]}
+              fill={bar.color || palette[index % palette.length]}
               animationDuration={animated ? 1500 : 0}
             />
           ))}
@@ -338,7 +392,7 @@ export const RecruitmentComposedChart: React.FC<ComposedChartProps> = ({
               key={line.key}
               type="monotone"
               dataKey={line.key}
-              stroke={line.color || CHART_COLOR_PALETTE[(index + barData.length) % CHART_COLOR_PALETTE.length]}
+              stroke={line.color || palette[(index + barData.length) % palette.length]}
               strokeWidth={2}
               dot={{ r: 4 }}
               animationDuration={animated ? 1500 : 0}
