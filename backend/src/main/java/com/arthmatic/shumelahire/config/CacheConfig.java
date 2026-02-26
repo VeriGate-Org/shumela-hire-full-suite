@@ -32,7 +32,7 @@ public class CacheConfig {
     public static final String NOTIFICATIONS_CACHE = "notifications";
 
     @Configuration
-    @Profile("dev")
+    @Profile({"dev", "test"})
     static class DevCacheConfig {
         @Bean
         @Primary

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Active only in dev profile — deployed environments use Cognito.
  */
 @Service
-@Profile("dev")
+@Profile({"dev", "test"})
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired

@@ -32,6 +32,9 @@ spring:
   cache:
     type: simple
 
+background-check:
+  provider: dots-africa
+
 logging:
   level:
     com.arthmatic.shumelahire: INFO

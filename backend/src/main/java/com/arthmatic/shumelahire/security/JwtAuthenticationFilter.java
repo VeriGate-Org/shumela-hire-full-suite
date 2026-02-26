@@ -24,7 +24,7 @@ import java.io.IOException;
  * Active only in dev profile — deployed environments use Spring Security oauth2ResourceServer.
  */
 @Component
-@Profile("dev")
+@Profile({"dev", "test"})
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);

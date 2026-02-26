@@ -63,8 +63,8 @@ export default function UnifiedLifecycleTimeline({ applicationId, onClose }: Uni
 
   const loadLifecycle = useCallback(async () => {
     try {
-      const data = await apiFetch(`/api/lifecycle/applications/${applicationId}`);
-      setLifecycle(data);
+      const response = await apiFetch(`/api/lifecycle/applications/${applicationId}`);
+      setLifecycle(await response.json());
     } catch (err) {
       console.error('Failed to load lifecycle:', err);
     } finally {

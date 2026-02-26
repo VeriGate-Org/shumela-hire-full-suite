@@ -24,7 +24,7 @@ import java.util.function.Function;
  * Active only in dev profile — deployed environments use Cognito JWTs.
  */
 @Component
-@Profile("dev")
+@Profile({"dev", "test"})
 public class JwtUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);

@@ -72,8 +72,8 @@ export default function BackgroundCheckPanel({
 
   const loadChecks = useCallback(async () => {
     try {
-      const data = await apiFetch(`/api/background-checks/applications/${applicationId}`);
-      setChecks(data);
+      const response = await apiFetch(`/api/background-checks/applications/${applicationId}`);
+      setChecks(await response.json());
     } catch (err) {
       console.error('Failed to load background checks:', err);
     }
@@ -81,8 +81,8 @@ export default function BackgroundCheckPanel({
 
   const loadCheckTypes = useCallback(async () => {
     try {
-      const data = await apiFetch('/api/background-checks/check-types');
-      setCheckTypes(data);
+      const response = await apiFetch('/api/background-checks/check-types');
+      setCheckTypes(await response.json());
     } catch (err) {
       console.error('Failed to load check types:', err);
     }
