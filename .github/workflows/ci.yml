@@ -33,6 +33,7 @@ jobs:
         run: mvn package -DskipTests -q
 
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: backend-jar
           path: backend/target/*.jar
@@ -59,6 +60,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
         with:
           name: dependency-check-report
           path: backend/target/dependency-check-report.html
