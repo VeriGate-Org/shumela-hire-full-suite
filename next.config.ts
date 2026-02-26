@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://api.shumelahire.co.za",
-              "connect-src 'self' https://api.shumelahire.co.za https://cognito-idp.af-south-1.amazonaws.com",
+              "connect-src 'self' https://api.shumelahire.co.za https://cognito-idp.af-south-1.amazonaws.com https://*.amazoncognito.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

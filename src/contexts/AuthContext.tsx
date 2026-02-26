@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { signIn, signOut, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { signIn, signOut, signInWithRedirect, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 import { rolePermissions } from '@/config/permissions';
-import { isCognitoConfigured, configureAmplify } from '@/lib/amplify-config';
+import { isCognitoConfigured, isOAuthConfigured, configureAmplify } from '@/lib/amplify-config';
 
 export type UserRole =
   | 'ADMIN'
@@ -44,6 +45,7 @@ interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;
   loginWithCredentials: (email: string, password: string) => Promise<void>;
+  loginWithLinkedIn: () => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
   hasPermission: (permission: string) => boolean;
@@ -95,6 +97,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       checkMockSession();
     }
+  }, []);
+
+  // Listen for OAuth redirect completion (LinkedIn sign-in)
+  useEffect(() => {
+    if (!isCognitoConfigured) return;
+
+    const unsubscribe = Hub.listen('auth', ({ payload }) => {
+      if (payload.event === 'signInWithRedirect') {
+        checkCognitoSession();
+      }
+      if (payload.event === 'signInWithRedirect_failure') {
+        setIsLoading(false);
+      }
+    });
+
+    return unsubscribe;
   }, []);
 
   async function checkCognitoSession() {
@@ -179,6 +197,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const loginWithLinkedIn = useCallback(async () => {
+    if (!isOAuthConfigured) {
+      throw new Error('OAuth is not configured. Ensure NEXT_PUBLIC_COGNITO_DOMAIN is set.');
+    }
+    await signInWithRedirect({ provider: { custom: 'LinkedIn' } });
+  }, []);
+
   // Mock login for dev
   const login = useCallback((userData: User) => {
     setUser(userData);
@@ -243,6 +268,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       user,
       login,
       loginWithCredentials,
+      loginWithLinkedIn,
       logout,
       switchRole,
       hasPermission,

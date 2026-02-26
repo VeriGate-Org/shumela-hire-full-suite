@@ -10,6 +10,7 @@ using Amazon.CDK.AWS.SecretsManager;
 using Amazon.CDK.AWS.Cognito;
 using Constructs;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ShumelaHire.Infra;
 
@@ -295,6 +296,69 @@ public class ShumelaHireFoundationStack : Stack
             });
         }
 
+        // ── Cognito Hosted UI Domain ───────────────────────────────────────
+        UserPool.AddDomain("Domain", new UserPoolDomainOptions
+        {
+            CognitoDomain = new CognitoDomainOptions
+            {
+                DomainPrefix = config.CognitoDomainPrefix
+            }
+        });
+
+        // ── LinkedIn OIDC Identity Provider (optional) ─────────────────────
+        // Pass LinkedIn credentials via CDK context from GitHub environment secrets.
+        // When not provided, the IdP is skipped and only email/password login is available.
+        var linkedInClientId = (string?)this.Node.TryGetContext("linkedInClientId");
+        var linkedInClientSecret = (string?)this.Node.TryGetContext("linkedInClientSecret");
+        var hasLinkedIn = !string.IsNullOrEmpty(linkedInClientId) && !string.IsNullOrEmpty(linkedInClientSecret);
+
+        CfnUserPoolIdentityProvider? linkedInIdp = null;
+        if (hasLinkedIn)
+        {
+            linkedInIdp = new CfnUserPoolIdentityProvider(this, "LinkedInIdp", new CfnUserPoolIdentityProviderProps
+            {
+                UserPoolId = UserPool.UserPoolId,
+                ProviderName = "LinkedIn",
+                ProviderType = "OIDC",
+                ProviderDetails = new Dictionary<string, string>
+                {
+                    ["client_id"] = linkedInClientId!,
+                    ["client_secret"] = linkedInClientSecret!,
+                    ["attributes_request_method"] = "GET",
+                    ["oidc_issuer"] = "https://www.linkedin.com/oauth",
+                    ["authorize_scopes"] = "openid profile email",
+                    ["authorize_url"] = "https://www.linkedin.com/oauth/v2/authorization",
+                    ["token_url"] = "https://www.linkedin.com/oauth/v2/accessToken",
+                    ["attributes_url"] = "https://api.linkedin.com/v2/userinfo",
+                    ["jwks_uri"] = "https://www.linkedin.com/oauth/openid/jwks",
+                },
+                AttributeMapping = new Dictionary<string, string>
+                {
+                    ["email"] = "email",
+                    ["given_name"] = "given_name",
+                    ["family_name"] = "family_name",
+                    ["name"] = "name",
+                    ["username"] = "sub"
+                }
+            });
+        }
+
+        new Secret(this, "LinkedInOAuthSecret", new SecretProps
+        {
+            SecretName = $"shumelahire/{config.EnvironmentName}/linkedin-oauth",
+            Description = "LinkedIn OAuth credentials (client_id, client_secret) for OIDC sign-in"
+        });
+
+        // ── App Client (with OAuth) ────────────────────────────────────────
+        var supportedProviders = new List<UserPoolClientIdentityProvider>
+        {
+            UserPoolClientIdentityProvider.COGNITO
+        };
+        if (hasLinkedIn)
+        {
+            supportedProviders.Add(UserPoolClientIdentityProvider.Custom("LinkedIn"));
+        }
+
         AppClient = UserPool.AddClient("WebAppClient", new UserPoolClientOptions
         {
             UserPoolClientName = $"{config.Prefix}-web",
@@ -307,8 +371,30 @@ public class ShumelaHireFoundationStack : Stack
             AccessTokenValidity = Duration.Hours(1),
             IdTokenValidity = Duration.Hours(1),
             RefreshTokenValidity = Duration.Days(30),
-            GenerateSecret = false
+            GenerateSecret = false,
+            OAuth = new OAuthSettings
+            {
+                Flows = new OAuthFlows
+                {
+                    AuthorizationCodeGrant = true
+                },
+                CallbackUrls = config.OAuthCallbackUrls,
+                LogoutUrls = config.OAuthSignOutUrls,
+                Scopes = new[]
+                {
+                    OAuthScope.OPENID,
+                    OAuthScope.EMAIL,
+                    OAuthScope.PROFILE
+                }
+            },
+            SupportedIdentityProviders = supportedProviders.ToArray()
         });
+
+        // Ensure LinkedIn IdP is created before the app client references it
+        if (linkedInIdp != null)
+        {
+            (AppClient.Node.DefaultChild as CfnUserPoolClient)?.AddDependency(linkedInIdp);
+        }
 
         // ── ECR Repositories ───────────────────────────────────────────────
         BackendEcrRepo = new Repository(this, "BackendRepo", new RepositoryProps
@@ -356,6 +442,10 @@ public class ShumelaHireFoundationStack : Stack
         new CfnOutput(this, "NotificationQueueUrl", new CfnOutputProps { Value = NotificationQueue.QueueUrl });
         new CfnOutput(this, "UserPoolId", new CfnOutputProps { Value = UserPool.UserPoolId });
         new CfnOutput(this, "UserPoolClientId", new CfnOutputProps { Value = AppClient.UserPoolClientId });
+        new CfnOutput(this, "CognitoDomain", new CfnOutputProps
+        {
+            Value = $"{config.CognitoDomainPrefix}.auth.{config.Region}.amazoncognito.com"
+        });
         new CfnOutput(this, "BackendEcrRepoUri", new CfnOutputProps { Value = BackendEcrRepo.RepositoryUri });
         new CfnOutput(this, "FrontendEcrRepoUri", new CfnOutputProps { Value = FrontendEcrRepo.RepositoryUri });
     }

@@ -38,6 +38,22 @@ public sealed class EnvironmentConfig
 
     public string Prefix => $"shumelahire-{EnvironmentName}";
 
+    public string CognitoDomainPrefix => EnvironmentName == "prod" ? "shumelahire" : $"shumelahire-{EnvironmentName}";
+
+    public string[] OAuthCallbackUrls => EnvironmentName switch
+    {
+        "prod" => new[] { $"https://{DomainName}/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
+        _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
+    };
+
+    public string[] OAuthSignOutUrls => EnvironmentName switch
+    {
+        "prod" => new[] { $"https://{DomainName}/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
+        _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
+    };
+
     /// <summary>
     /// Spring Boot profile. The dev AWS environment uses the sbx profile
     /// because deployed environments authenticate via Cognito, not local JWTs.

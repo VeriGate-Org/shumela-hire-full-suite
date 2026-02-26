@@ -27,6 +27,10 @@ on:
         required: false
       WILDCARD_CERTIFICATE_ARN:
         required: false
+      LINKEDIN_CLIENT_ID:
+        required: false
+      LINKEDIN_CLIENT_SECRET:
+        required: false
 
 permissions:
   id-token: write
@@ -89,6 +93,16 @@ jobs:
           fi
           echo "name=$ZONE" >> $GITHUB_OUTPUT
 
+      # ── Compute environment URLs ─────────────────────────────────────
+      - name: Compute frontend URL
+        id: urls
+        run: |
+          if [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "app_url=https://${{ inputs.domain-name }}" >> $GITHUB_OUTPUT
+          else
+            echo "app_url=https://${{ inputs.environment }}.${{ inputs.domain-name }}" >> $GITHUB_OUTPUT
+          fi
+
       # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
       - name: CDK Deploy Foundation
         working-directory: infra/cdk
@@ -98,6 +112,8 @@ jobs:
           CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
           API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
           WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
         run: |
           cdk deploy shumelahire-${{ inputs.environment }}-foundation --require-approval never \
             -c env=${{ inputs.environment }} \
@@ -105,7 +121,9 @@ jobs:
             -c hostedZoneName=${{ steps.zone.outputs.name }} \
             -c certificateArn="${CERTIFICATE_ARN}" \
             -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
-            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}"
+            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
+            -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
+            -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
       # ── Get CDK outputs (Cognito IDs for frontend build) ────────────────
       - name: Get CDK outputs
@@ -114,6 +132,7 @@ jobs:
           PREFIX="shumelahire-${{ inputs.environment }}"
           echo "user_pool_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "user_pool_client_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
+          echo "cognito_domain=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`CognitoDomain`].OutputValue' --output text)" >> $GITHUB_OUTPUT
 
       # ── Phase 2: Push Docker images (ECR repos now exist) ──────────────
       - name: Login to ECR
@@ -146,8 +165,10 @@ jobs:
         run: |
           docker build \
             --build-arg NEXT_PUBLIC_API_URL="" \
+            --build-arg NEXT_PUBLIC_APP_URL=${{ steps.urls.outputs.app_url }} \
             --build-arg NEXT_PUBLIC_COGNITO_USER_POOL_ID=${{ steps.cdk-outputs.outputs.user_pool_id }} \
             --build-arg NEXT_PUBLIC_COGNITO_CLIENT_ID=${{ steps.cdk-outputs.outputs.user_pool_client_id }} \
+            --build-arg NEXT_PUBLIC_COGNITO_DOMAIN=${{ steps.cdk-outputs.outputs.cognito_domain }} \
             --build-arg NEXT_PUBLIC_REGION=${{ inputs.aws-region }} \
             -t $ECR_REGISTRY/shumelahire-frontend:$IMAGE_TAG \
             -t $ECR_REGISTRY/shumelahire-frontend:latest \
@@ -163,6 +184,8 @@ jobs:
           CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
           API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
           WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
         run: |
           cdk deploy --all --require-approval never \
             -c env=${{ inputs.environment }} \
@@ -170,7 +193,9 @@ jobs:
             -c hostedZoneName=${{ steps.zone.outputs.name }} \
             -c certificateArn="${CERTIFICATE_ARN}" \
             -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
-            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}"
+            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
+            -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
+            -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
       # ── Force ECS Redeployment ──────────────────────────────────────────
       - name: Force ECS redeployment
