@@ -36,7 +36,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "hybrid"})
 public class SecurityConfig {
 
     @Autowired

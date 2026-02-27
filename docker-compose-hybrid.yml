@@ -1,0 +1,57 @@
+version: "3.8"
+
+# Hybrid/on-premises deployment with SQL Server
+# For Hyper-V VM running ShumelaHire with local SQL Server
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DATABASE_PASS}
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${DATABASE_PASS}" -C -Q "SELECT 1" -b -o /dev/null
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.hybrid
+    environment:
+      SPRING_PROFILES_ACTIVE: hybrid
+      DATABASE_URL: jdbc:sqlserver://sqlserver:1433;databaseName=shumelahire;encrypt=true;trustServerCertificate=true
+      DATABASE_USER: sa
+      DATABASE_PASS: ${DATABASE_PASS}
+      UPLOAD_DIR: /opt/shumelahire/uploads
+    volumes:
+      - upload_data:/opt/shumelahire/uploads
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  sqlserver_data:
+  upload_data:
