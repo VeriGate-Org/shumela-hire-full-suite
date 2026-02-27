@@ -30,6 +30,7 @@ public class CacheConfig {
     public static final String REPORTS_CACHE = "reports";
     public static final String SEARCH_CACHE = "search";
     public static final String NOTIFICATIONS_CACHE = "notifications";
+    public static final String EMPLOYEES_CACHE = "employees";
 
     @Configuration
     @Profile({"dev", "test"})
@@ -40,7 +41,8 @@ public class CacheConfig {
             ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
             cacheManager.setCacheNames(Arrays.asList(
                 JOB_ADS_CACHE, APPLICATIONS_CACHE, USERS_CACHE, TEMPLATES_CACHE,
-                ANALYTICS_CACHE, REPORTS_CACHE, SEARCH_CACHE, NOTIFICATIONS_CACHE
+                ANALYTICS_CACHE, REPORTS_CACHE, SEARCH_CACHE, NOTIFICATIONS_CACHE,
+                EMPLOYEES_CACHE
             ));
             cacheManager.setAllowNullValues(false);
             return cacheManager;
@@ -71,6 +73,7 @@ public class CacheConfig {
             cacheConfigs.put(REPORTS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
             cacheConfigs.put(SEARCH_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
             cacheConfigs.put(NOTIFICATIONS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+            cacheConfigs.put(EMPLOYEES_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
 
             return RedisCacheManager.builder(connectionFactory)
                     .cacheDefaults(defaultConfig)
