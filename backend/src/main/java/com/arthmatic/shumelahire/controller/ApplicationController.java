@@ -3,12 +3,13 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ApplicationCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicationResponse;
 import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
+import com.arthmatic.shumelahire.dto.CanApplyResponse;
+import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,22 +23,25 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
 public class ApplicationController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
-    
-    @Autowired
-    private ApplicationService applicationService;
-    
+
+    private final ApplicationService applicationService;
+
+    public ApplicationController(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
+
     /**
      * Submit new application
      * POST /api/applications
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> submitApplication(@Valid @RequestBody ApplicationCreateRequest request) {
         try {
-            logger.info("Submitting application for applicant {} to job {}", 
+            logger.info("Submitting application for applicant {} to job {}",
                        request.getApplicantId(), request.getJobAdId());
             ApplicationResponse response = applicationService.submitApplication(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -50,12 +54,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get application by ID
      * GET /api/applications/{id}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplication(@PathVariable Long id) {
         try {
             ApplicationResponse response = applicationService.getApplication(id);
@@ -69,14 +74,16 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Search applications with pagination
-     * GET /api/applications?search={term}&page={page}&size={size}&sort={field}
+     * GET /api/applications?search={term}&page={page}&size={size}&sort={field}&status={status}
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplications(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) ApplicationStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "submittedAt") String sort,
@@ -84,8 +91,8 @@ public class ApplicationController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
-            Page<ApplicationResponse> results = applicationService.searchApplications(search, pageable);
+
+            Page<ApplicationResponse> results = applicationService.searchApplications(search, status, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error searching applications", e);
@@ -93,12 +100,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get applications by applicant
      * GET /api/applications/applicant/{applicantId}
      */
     @GetMapping("/applicant/{applicantId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> getApplicationsByApplicant(@PathVariable Long applicantId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByApplicant(applicantId);
@@ -109,12 +117,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get applications by job ad
      * GET /api/applications/job/{jobAdId}
      */
     @GetMapping("/job/{jobAdId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationsByJobAd(@PathVariable Long jobAdId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByJobAd(jobAdId);
@@ -125,12 +134,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get applications by status
      * GET /api/applications/status/{status}
      */
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getApplicationsByStatus(@PathVariable ApplicationStatus status) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByStatus(status);
@@ -141,12 +151,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Update application status
      * PUT /api/applications/{id}/status
      */
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> updateApplicationStatus(
             @PathVariable Long id,
             @RequestParam ApplicationStatus status,
@@ -164,12 +175,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Withdraw application
      * POST /api/applications/{id}/withdraw
      */
     @PostMapping("/{id}/withdraw")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> withdrawApplication(
             @PathVariable Long id,
             @Valid @RequestBody ApplicationWithdrawRequest request) {
@@ -186,12 +198,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Rate application
      * POST /api/applications/{id}/rate
      */
     @PostMapping("/{id}/rate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> rateApplication(
             @PathVariable Long id,
             @RequestParam Integer rating,
@@ -209,12 +222,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Check if applicant can apply for job
      * GET /api/applications/can-apply?applicantId={id}&jobAdId={id}
      */
     @GetMapping("/can-apply")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> canApplicantApplyForJob(
             @RequestParam Long applicantId,
             @RequestParam Long jobAdId) {
@@ -227,12 +241,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get applications requiring action
      * GET /api/applications/requiring-action
      */
     @GetMapping("/requiring-action")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getApplicationsRequiringAction() {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsRequiringAction();
@@ -243,12 +258,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get recent applications
      * GET /api/applications/recent?days={days}
      */
     @GetMapping("/recent")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getRecentApplications(@RequestParam(defaultValue = "7") int days) {
         try {
             List<ApplicationResponse> applications = applicationService.getRecentApplications(days);
@@ -259,12 +275,13 @@ public class ApplicationController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Delete application
      * DELETE /api/applications/{id}
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> deleteApplication(@PathVariable Long id) {
         try {
             logger.info("Deleting application {}", id);
@@ -285,6 +302,7 @@ public class ApplicationController {
      * GET /api/applications/statistics
      */
     @GetMapping("/statistics")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getApplicationStatistics() {
         try {
             List<Object[]> statistics = applicationService.getApplicationStatusStatistics();
@@ -293,49 +311,6 @@ public class ApplicationController {
             logger.error("Error getting application statistics", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
-        }
-    }
-    
-    // Response DTOs
-    public static class ErrorResponse {
-        private String message;
-        private long timestamp;
-        
-        public ErrorResponse(String message) {
-            this.message = message;
-            this.timestamp = System.currentTimeMillis();
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public void setMessage(String message) {
-            this.message = message;
-        }
-        
-        public long getTimestamp() {
-            return timestamp;
-        }
-        
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-    }
-    
-    public static class CanApplyResponse {
-        private boolean canApply;
-        
-        public CanApplyResponse(boolean canApply) {
-            this.canApply = canApply;
-        }
-        
-        public boolean isCanApply() {
-            return canApply;
-        }
-        
-        public void setCanApply(boolean canApply) {
-            this.canApply = canApply;
         }
     }
 }

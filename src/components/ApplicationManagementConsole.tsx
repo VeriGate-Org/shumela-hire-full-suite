@@ -78,7 +78,8 @@ export default function ApplicationManagementConsole() {
     averageRating: 0
   });
 
-  const statusOptions = ['APPLIED', 'UNDER_REVIEW', 'INTERVIEWED', 'OFFERED', 'HIRED', 'REJECTED'];
+  const statusOptions = ['SUBMITTED', 'SCREENING', 'INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED', 'REFERENCE_CHECK', 'OFFER_PENDING', 'OFFERED', 'OFFER_ACCEPTED', 'OFFER_DECLINED', 'REJECTED', 'WITHDRAWN', 'HIRED'];
+  // TODO: Replace with data from GET /api/applications/manage/filter-options
   const departmentOptions = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'];
   const stageOptions = ['APPLICATION', 'SCREENING', 'INTERVIEW', 'TECHNICAL', 'FINAL', 'OFFER'];
 
@@ -171,17 +172,12 @@ export default function ApplicationManagementConsole() {
 
   const handleReviewApplication = async (applicationId: number) => {
     try {
-      const response = await apiFetch(`/api/applications/${applicationId}/status`, {
+      const response = await apiFetch(`/api/applications/${applicationId}/status?status=SCREENING`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'UNDER_REVIEW' }),
       });
       if (response.ok) {
-        setApplications(prev => prev.map(app =>
-          app.id === applicationId
-            ? { ...app, status: 'UNDER_REVIEW', lastUpdated: new Date().toISOString() }
-            : app
-        ));
+        searchApplications();
+        fetchStatistics();
       }
     } catch (err) {
       console.error('Error updating application status:', err);
@@ -191,17 +187,12 @@ export default function ApplicationManagementConsole() {
   const handleRejectApplication = async (applicationId: number) => {
     if (!confirm('Are you sure you want to reject this application?')) return;
     try {
-      const response = await apiFetch(`/api/applications/${applicationId}/status`, {
+      const response = await apiFetch(`/api/applications/${applicationId}/status?status=REJECTED`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REJECTED' }),
       });
       if (response.ok) {
-        setApplications(prev => prev.map(app =>
-          app.id === applicationId
-            ? { ...app, status: 'REJECTED', lastUpdated: new Date().toISOString() }
-            : app
-        ));
+        searchApplications();
+        fetchStatistics();
       }
     } catch (err) {
       console.error('Error rejecting application:', err);
@@ -282,6 +273,7 @@ export default function ApplicationManagementConsole() {
     });
   };
 
+  // TODO: Consolidate with backend-provided statusCssClass from ApplicationResponse
   const getStatusColor = (status: string) => {
     const colors = {
       APPLIED: 'bg-gold-100 text-gold-800',

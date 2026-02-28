@@ -5,7 +5,6 @@ import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.PipelineStage;
 import com.arthmatic.shumelahire.repository.ApplicationRepository;
 import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,14 +26,17 @@ import java.util.stream.Collectors;
 @Transactional
 public class ApplicationManagementService {
 
-    @Autowired
-    private ApplicationRepository applicationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final ApplicantRepository applicantRepository;
+    private final NotificationService notificationService;
 
-    @Autowired
-    private ApplicantRepository applicantRepository;
-
-    @Autowired
-    private NotificationService notificationService;
+    public ApplicationManagementService(ApplicationRepository applicationRepository,
+                                       ApplicantRepository applicantRepository,
+                                       NotificationService notificationService) {
+        this.applicationRepository = applicationRepository;
+        this.applicantRepository = applicantRepository;
+        this.notificationService = notificationService;
+    }
 
     /**
      * Advanced search and filtering for applications
@@ -51,7 +53,7 @@ public class ApplicationManagementService {
             String sortBy,
             String sortDirection,
             Pageable pageable) {
-        
+
         Specification<Application> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -65,7 +67,7 @@ public class ApplicationManagementService {
                                 criteriaBuilder.concat(root.get("applicant").get("name"), " "),
                                 root.get("applicant").get("surname")
                             )
-                        ), 
+                        ),
                         likePattern
                     ),
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("jobTitle")), likePattern),
@@ -88,7 +90,7 @@ public class ApplicationManagementService {
             // Job title filtering
             if (jobTitle != null && !jobTitle.trim().isEmpty()) {
                 predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("jobTitle")), 
+                    criteriaBuilder.lower(root.get("jobTitle")),
                     "%" + jobTitle.toLowerCase() + "%"
                 ));
             }
@@ -120,10 +122,10 @@ public class ApplicationManagementService {
      */
     @Transactional
     public Map<String, Object> bulkUpdateStatus(
-            List<Long> applicationIds, 
-            ApplicationStatus newStatus, 
+            List<Long> applicationIds,
+            ApplicationStatus newStatus,
             String reason) {
-        
+
         List<Application> applications = applicationRepository.findAllById(applicationIds);
         List<Long> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
@@ -139,20 +141,20 @@ public class ApplicationManagementService {
                         application.setRejectionReason(reason);
                     } else {
                         // Add to screening notes for other status changes
-                        String notes = application.getScreeningNotes() != null ? 
+                        String notes = application.getScreeningNotes() != null ?
                             application.getScreeningNotes() + "\n\n" : "";
-                        application.setScreeningNotes(notes + "Status changed to " + 
+                        application.setScreeningNotes(notes + "Status changed to " +
                             newStatus.getDisplayName() + ": " + reason);
                     }
                 }
 
                 applicationRepository.save(application);
-                
+
                 // Send notification
                 notificationService.notifyStatusChange(application, newStatus);
-                
+
                 updatedIds.add(application.getId());
-                
+
             } catch (Exception e) {
                 errors.add("Failed to update application " + application.getId() + ": " + e.getMessage());
             }
@@ -163,7 +165,7 @@ public class ApplicationManagementService {
         result.put("updatedIds", updatedIds);
         result.put("errors", errors);
         result.put("totalRequested", applicationIds.size());
-        
+
         return result;
     }
 
@@ -172,9 +174,9 @@ public class ApplicationManagementService {
      */
     @Transactional
     public Map<String, Object> bulkAssignPipelineStage(
-            List<Long> applicationIds, 
+            List<Long> applicationIds,
             PipelineStage pipelineStage) {
-        
+
         List<Application> applications = applicationRepository.findAllById(applicationIds);
         List<Long> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
@@ -187,7 +189,7 @@ public class ApplicationManagementService {
 
                 applicationRepository.save(application);
                 updatedIds.add(application.getId());
-                
+
             } catch (Exception e) {
                 errors.add("Failed to update application " + application.getId() + ": " + e.getMessage());
             }
@@ -198,7 +200,7 @@ public class ApplicationManagementService {
         result.put("updatedIds", updatedIds);
         result.put("errors", errors);
         result.put("totalRequested", applicationIds.size());
-        
+
         return result;
     }
 
@@ -214,7 +216,7 @@ public class ApplicationManagementService {
             try {
                 Long applicationId = entry.getKey();
                 Integer rating = entry.getValue();
-                
+
                 if (rating < 1 || rating > 5) {
                     errors.add("Invalid rating for application " + applicationId + ": " + rating);
                     continue;
@@ -222,13 +224,13 @@ public class ApplicationManagementService {
 
                 Application application = applicationRepository.findById(applicationId)
                     .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
-                
+
                 application.setRating(rating);
                 application.setUpdatedAt(LocalDateTime.now());
-                
+
                 applicationRepository.save(application);
                 updatedIds.add(applicationId);
-                
+
             } catch (Exception e) {
                 errors.add("Failed to rate application " + entry.getKey() + ": " + e.getMessage());
             }
@@ -239,7 +241,7 @@ public class ApplicationManagementService {
         result.put("updatedIds", updatedIds);
         result.put("errors", errors);
         result.put("totalRequested", applicationRatings.size());
-        
+
         return result;
     }
 
@@ -254,14 +256,21 @@ public class ApplicationManagementService {
 
         for (Application application : applications) {
             try {
-                String existingNotes = application.getScreeningNotes() != null ? 
+                String existingNotes = application.getScreeningNotes() != null ?
                     application.getScreeningNotes() + "\n\n" : "";
-                application.setScreeningNotes(existingNotes + "[" + LocalDateTime.now() + "] " + notes);
+                String newNotes = existingNotes + "[" + LocalDateTime.now() + "] " + notes;
+
+                if (newNotes.length() > 10000) {
+                    errors.add("Screening notes for application " + application.getId() + " would exceed 10000 characters; skipped");
+                    continue;
+                }
+
+                application.setScreeningNotes(newNotes);
                 application.setUpdatedAt(LocalDateTime.now());
 
                 applicationRepository.save(application);
                 updatedIds.add(application.getId());
-                
+
             } catch (Exception e) {
                 errors.add("Failed to update application " + application.getId() + ": " + e.getMessage());
             }
@@ -272,7 +281,7 @@ public class ApplicationManagementService {
         result.put("updatedIds", updatedIds);
         result.put("errors", errors);
         result.put("totalRequested", applicationIds.size());
-        
+
         return result;
     }
 
@@ -281,7 +290,7 @@ public class ApplicationManagementService {
      */
     public Map<String, Object> getApplicationStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         // Status distribution
         Map<String, Long> statusCounts = new HashMap<>();
         for (ApplicationStatus status : ApplicationStatus.values()) {
@@ -324,14 +333,14 @@ public class ApplicationManagementService {
      */
     public List<Application> getApplicationsRequiringAttention(int daysThreshold) {
         LocalDateTime threshold = LocalDateTime.now().minusDays(daysThreshold);
-        
+
         // Find applications that haven't been updated recently and are in active statuses
         List<ApplicationStatus> activeStatuses = List.of(
             ApplicationStatus.SUBMITTED,
             ApplicationStatus.SCREENING,
             ApplicationStatus.INTERVIEW_SCHEDULED
         );
-        
+
         return applicationRepository.findByStatusInAndUpdatedAtBeforeOrderBySubmittedAtAsc(
             activeStatuses, threshold);
     }
@@ -340,16 +349,16 @@ public class ApplicationManagementService {
      * Export applications data for reporting
      */
     public List<Map<String, Object>> exportApplications(
-            List<Long> applicationIds, 
+            List<Long> applicationIds,
             List<String> fields) {
-        
+
         List<Application> applications = applicationIds != null && !applicationIds.isEmpty() ?
             applicationRepository.findAllById(applicationIds) :
             applicationRepository.findAll();
 
         return applications.stream().map(app -> {
             Map<String, Object> record = new HashMap<>();
-            
+
             if (fields == null || fields.contains("id")) {
                 record.put("id", app.getId());
             }
@@ -383,7 +392,7 @@ public class ApplicationManagementService {
             if (fields == null || fields.contains("screeningNotes")) {
                 record.put("screeningNotes", app.getScreeningNotes());
             }
-            
+
             return record;
         }).collect(Collectors.toList());
     }

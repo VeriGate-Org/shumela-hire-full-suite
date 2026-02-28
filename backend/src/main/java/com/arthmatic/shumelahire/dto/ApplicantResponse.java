@@ -31,7 +31,7 @@ public class ApplicantResponse {
         this.surname = applicant.getSurname();
         this.email = applicant.getEmail();
         this.phone = applicant.getPhone();
-        this.idPassportNumber = applicant.getIdPassportNumber();
+        this.idPassportNumber = maskIdNumber(applicant.getIdPassportNumber());
         this.address = applicant.getAddress();
         this.education = applicant.getEducation();
         this.experience = applicant.getExperience();
@@ -159,5 +159,12 @@ public class ApplicantResponse {
     // Helper methods
     public String getFullName() {
         return name + " " + surname;
+    }
+
+    private static String maskIdNumber(String idNumber) {
+        if (idNumber == null || idNumber.length() <= 4) {
+            return idNumber;
+        }
+        return "*".repeat(idNumber.length() - 4) + idNumber.substring(idNumber.length() - 4);
     }
 }

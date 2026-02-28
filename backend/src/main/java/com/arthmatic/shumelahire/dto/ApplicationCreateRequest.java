@@ -1,22 +1,26 @@
 package com.arthmatic.shumelahire.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class ApplicationCreateRequest {
-    
+
     @NotNull(message = "Applicant ID is required")
     private Long applicantId;
-    
+
     @NotNull(message = "Job ad ID is required")
     private Long jobAdId;
-    
+
     private String jobTitle;
-    
+
     private String department;
-    
+
+    @Size(max = 5000, message = "Cover letter must not exceed 5000 characters")
     private String coverLetter;
-    
-    private String applicationSource = "EXTERNAL"; // INTERNAL, EXTERNAL, REFERRAL
+
+    @Pattern(regexp = "^(INTERNAL|EXTERNAL|REFERRAL|AGENCY|JOB_BOARD)$", message = "Invalid application source")
+    private String applicationSource = "EXTERNAL";
     
     // Constructors
     public ApplicationCreateRequest() {}

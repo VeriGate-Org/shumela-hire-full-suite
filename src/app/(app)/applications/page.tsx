@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import ApplicationStatusTracker from '@/components/ApplicationStatusTracker';
@@ -62,6 +62,7 @@ const DEPARTMENT_OPTIONS = [
   'Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations', 'Legal', 'Product',
 ];
 
+// TODO: Consolidate with backend-provided statusCssClass from ApplicationResponse
 function getStatusColor(status: string): string {
   switch (status) {
     case 'SUBMITTED': return 'bg-slate-100 text-slate-700 border-slate-300';
@@ -97,6 +98,8 @@ function renderStars(rating: number) {
   ));
 }
 
+const PAGE_SIZE = 20;
+
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,72 +109,82 @@ export default function ApplicationsPage() {
   const [sortBy, setSortBy] = useState<'submittedAt' | 'status' | 'rating'>('submittedAt');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
-  const [page, setPage] = useState(0);
-  const pageSize = 20;
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  useEffect(() => {
-    loadApplications();
-  }, []);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const loadApplications = async () => {
+  const loadApplications = useCallback(async (page: number, search: string, status: string, sort: string, direction: string) => {
     setLoading(true);
     try {
-      const response = await apiFetch('/api/applications');
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('size', String(PAGE_SIZE));
+      params.append('sort', sort);
+      params.append('direction', direction);
+      if (search) params.append('search', search);
+      if (status !== 'ALL') params.append('status', status);
+
+      const response = await apiFetch(`/api/applications?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        const list = data.content || data;
-        setApplications(Array.isArray(list) ? list : []);
+        if (data.content) {
+          setApplications(data.content);
+          setTotalPages(data.totalPages ?? 0);
+          setTotalElements(data.totalElements ?? 0);
+        } else {
+          const list = Array.isArray(data) ? data : [];
+          setApplications(list);
+          setTotalPages(1);
+          setTotalElements(list.length);
+        }
       } else {
         setApplications([]);
+        setTotalPages(0);
+        setTotalElements(0);
       }
     } catch {
       setApplications([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
+  }, [currentPage, statusFilter, sortBy, sortDir, loadApplications]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setCurrentPage(0);
+      loadApplications(0, value, statusFilter, sortBy, sortDir);
+    }, 400);
   };
 
-  const filteredApplications = useMemo(() => {
-    const result = applications.filter(app => {
-      const matchesSearch = !searchTerm ||
-        app.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.applicantEmail.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'ALL' || app.status === statusFilter;
-      const matchesDepartment = departmentFilter === 'ALL' || app.department === departmentFilter;
-      return matchesSearch && matchesStatus && matchesDepartment;
-    });
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(0);
+  };
 
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === 'submittedAt') {
-        cmp = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
-      } else if (sortBy === 'status') {
-        cmp = a.status.localeCompare(b.status);
-      } else if (sortBy === 'rating') {
-        cmp = (a.rating || 0) - (b.rating || 0);
-      }
-      return sortDir === 'desc' ? -cmp : cmp;
-    });
+  const handleDepartmentFilterChange = (value: string) => {
+    setDepartmentFilter(value);
+  };
 
-    return result;
-  }, [applications, searchTerm, statusFilter, departmentFilter, sortBy, sortDir]);
+  const handleSortChange = (value: string) => {
+    const [field, dir] = value.split('-');
+    setSortBy(field as typeof sortBy);
+    setSortDir(dir as typeof sortDir);
+    setCurrentPage(0);
+  };
 
-  const paginatedApplications = useMemo(() => {
-    const start = page * pageSize;
-    return filteredApplications.slice(start, start + pageSize);
-  }, [filteredApplications, page]);
-
-  const totalPages = Math.ceil(filteredApplications.length / pageSize);
-
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    applications.forEach(app => {
-      counts[app.status] = (counts[app.status] || 0) + 1;
-    });
-    return counts;
-  }, [applications]);
+  const filteredByDepartment = departmentFilter === 'ALL'
+    ? applications
+    : applications.filter(app => app.department === departmentFilter);
 
   const handleWithdraw = async (applicationId: number, reason: string) => {
     try {
@@ -181,7 +194,7 @@ export default function ApplicationsPage() {
         body: JSON.stringify({ reason }),
       });
       if (response.ok) {
-        loadApplications();
+        loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
         setSelectedApplication(null);
       }
     } catch (error) {
@@ -189,15 +202,10 @@ export default function ApplicationsPage() {
     }
   };
 
-  const _activeCount = applications.filter(a => !['WITHDRAWN', 'REJECTED', 'HIRED', 'OFFER_DECLINED'].includes(a.status)).length;
-  const pendingReview = (statusCounts['SUBMITTED'] || 0) + (statusCounts['SCREENING'] || 0);
-  const interviewStage = (statusCounts['INTERVIEW_SCHEDULED'] || 0) + (statusCounts['INTERVIEW_COMPLETED'] || 0);
-  const offerStage = (statusCounts['OFFER_PENDING'] || 0) + (statusCounts['OFFERED'] || 0) + (statusCounts['OFFER_ACCEPTED'] || 0);
-
   const actions = (
     <div className="flex items-center gap-3">
       <button
-        onClick={loadApplications}
+        onClick={() => loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir)}
         className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
       >
         <ArrowPathIcon className="w-4 h-4 mr-1.5" />
@@ -212,7 +220,7 @@ export default function ApplicationsPage() {
     </div>
   );
 
-  if (loading) {
+  if (loading && applications.length === 0) {
     return (
       <PageWrapper title="Applications" subtitle="Loading applications..." actions={actions}>
         <div className="flex items-center justify-center h-96">
@@ -229,46 +237,6 @@ export default function ApplicationsPage() {
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-[10px] border border-gray-200 p-5">
-            <div className="flex items-center">
-              <DocumentTextIcon className="w-8 h-8 text-violet-500 flex-shrink-0" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-[10px] border border-gray-200 p-5">
-            <div className="flex items-center">
-              <ClockIcon className="w-8 h-8 text-amber-500 flex-shrink-0" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending Review</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingReview}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-[10px] border border-gray-200 p-5">
-            <div className="flex items-center">
-              <EyeIcon className="w-8 h-8 text-purple-500 flex-shrink-0" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Interview Stage</p>
-                <p className="text-2xl font-bold text-gray-900">{interviewStage}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-[10px] border border-gray-200 p-5">
-            <div className="flex items-center">
-              <CheckCircleIcon className="w-8 h-8 text-green-500 flex-shrink-0" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Offer Stage</p>
-                <p className="text-2xl font-bold text-gray-900">{offerStage}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Search and Filters */}
         <div className="bg-white rounded-[10px] border border-gray-200 p-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -279,7 +247,7 @@ export default function ApplicationsPage() {
                   type="text"
                   placeholder="Search by name, job title, department, or email..."
                   value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                 />
               </div>
@@ -287,12 +255,12 @@ export default function ApplicationsPage() {
             <div>
               <select
                 value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+                onChange={(e) => handleStatusFilterChange(e.target.value)}
                 className="w-full py-2 px-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>
-                    {opt.label} {opt.value !== 'ALL' && statusCounts[opt.value] ? `(${statusCounts[opt.value]})` : ''}
+                    {opt.label}
                   </option>
                 ))}
               </select>
@@ -300,7 +268,7 @@ export default function ApplicationsPage() {
             <div>
               <select
                 value={departmentFilter}
-                onChange={(e) => { setDepartmentFilter(e.target.value); setPage(0); }}
+                onChange={(e) => handleDepartmentFilterChange(e.target.value)}
                 className="w-full py-2 px-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               >
                 <option value="ALL">All Departments</option>
@@ -313,18 +281,14 @@ export default function ApplicationsPage() {
 
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-500">
-              {filteredApplications.length} of {applications.length} applications
+              {totalElements} application{totalElements !== 1 ? 's' : ''}
+              {loading && <span className="ml-2 text-gray-400">(loading...)</span>}
             </p>
             <div className="flex items-center gap-2 text-sm">
               <span className="text-gray-500">Sort by:</span>
               <select
                 value={`${sortBy}-${sortDir}`}
-                onChange={(e) => {
-                  const [field, dir] = e.target.value.split('-');
-                  setSortBy(field as typeof sortBy);
-                  setSortDir(dir as typeof sortDir);
-                  setPage(0);
-                }}
+                onChange={(e) => handleSortChange(e.target.value)}
                 className="py-1 px-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               >
                 <option value="submittedAt-desc">Newest first</option>
@@ -340,7 +304,7 @@ export default function ApplicationsPage() {
 
         {/* Applications Table */}
         <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden">
-          {paginatedApplications.length === 0 ? (
+          {filteredByDepartment.length === 0 ? (
             <EmptyState
               icon={FunnelIcon}
               title="No applications"
@@ -375,7 +339,7 @@ export default function ApplicationsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedApplications.map((app) => (
+                  {filteredByDepartment.map((app) => (
                     <tr key={app.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -430,12 +394,12 @@ export default function ApplicationsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
               <p className="text-sm text-gray-500">
-                Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, filteredApplications.length)} of {filteredApplications.length}
+                Showing {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, totalElements)} of {totalElements}
               </p>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={page === 0}
+                  onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                  disabled={currentPage === 0}
                   className="p-1.5 rounded-full text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronLeftIcon className="w-5 h-5" />
@@ -444,19 +408,19 @@ export default function ApplicationsPage() {
                   let pageNum: number;
                   if (totalPages <= 7) {
                     pageNum = i;
-                  } else if (page < 4) {
+                  } else if (currentPage < 4) {
                     pageNum = i;
-                  } else if (page > totalPages - 4) {
+                  } else if (currentPage > totalPages - 4) {
                     pageNum = totalPages - 7 + i;
                   } else {
-                    pageNum = page - 3 + i;
+                    pageNum = currentPage - 3 + i;
                   }
                   return (
                     <button
                       key={pageNum}
-                      onClick={() => setPage(pageNum)}
+                      onClick={() => setCurrentPage(pageNum)}
                       className={`w-8 h-8 rounded-full text-sm font-medium ${
-                        page === pageNum
+                        currentPage === pageNum
                           ? 'bg-gold-500 text-violet-950'
                           : 'text-gray-600 hover:bg-gray-200'
                       }`}
@@ -466,8 +430,8 @@ export default function ApplicationsPage() {
                   );
                 })}
                 <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={currentPage >= totalPages - 1}
                   className="p-1.5 rounded-full text-gray-500 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronRightIcon className="w-5 h-5" />

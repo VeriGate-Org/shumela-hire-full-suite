@@ -1,3 +1,5 @@
+// This typed API service is not currently used by pages — applications/page.tsx and
+// ApplicationManagementConsole.tsx use apiFetch directly.
 import { apiClient, PaginatedResponse, PaginationParams } from './apiClient';
 
 // Application Management API Service

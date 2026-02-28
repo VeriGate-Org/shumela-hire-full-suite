@@ -3,13 +3,13 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ApplicantCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import com.arthmatic.shumelahire.dto.DocumentResponse;
+import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
 import com.arthmatic.shumelahire.service.ApplicantService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,19 +27,22 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/applicants")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
 public class ApplicantController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ApplicantController.class);
-    
-    @Autowired
-    private ApplicantService applicantService;
-    
+
+    private final ApplicantService applicantService;
+
+    public ApplicantController(ApplicantService applicantService) {
+        this.applicantService = applicantService;
+    }
+
     /**
      * Create new applicant
      * POST /api/applicants
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> createApplicant(@Valid @RequestBody ApplicantCreateRequest request) {
         try {
             logger.info("Creating applicant: {}", request.getEmail());
@@ -54,13 +57,14 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Update existing applicant
      * PUT /api/applicants/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateApplicant(@PathVariable Long id, 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    public ResponseEntity<?> updateApplicant(@PathVariable Long id,
                                            @Valid @RequestBody ApplicantCreateRequest request) {
         try {
             logger.info("Updating applicant: {}", id);
@@ -75,12 +79,13 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get applicant by ID
      * GET /api/applicants/{id}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicant(@PathVariable Long id) {
         try {
             ApplicantResponse response = applicantService.getApplicant(id);
@@ -94,12 +99,13 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Search applicants with pagination
      * GET /api/applicants?search={term}&page={page}&size={size}&sort={field}
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplicants(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -109,7 +115,7 @@ public class ApplicantController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
+
             Page<ApplicantResponse> results = applicantService.searchApplicants(search, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
@@ -118,12 +124,13 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Upload document for applicant
      * POST /api/applicants/{id}/documents
      */
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> uploadDocument(
             @PathVariable Long id,
             @RequestParam(required = false) Long applicationId,
@@ -147,12 +154,13 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get documents for applicant
      * GET /api/applicants/{id}/documents
      */
     @GetMapping("/{id}/documents")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicantDocuments(@PathVariable Long id) {
         try {
             List<Document> documents = applicantService.getApplicantDocuments(id);
@@ -166,53 +174,27 @@ public class ApplicantController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Delete document
      * DELETE /api/applicants/{applicantId}/documents/{documentId}
      */
     @DeleteMapping("/{applicantId}/documents/{documentId}")
-    public ResponseEntity<?> deleteDocument(@PathVariable Long applicantId, 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    public ResponseEntity<?> deleteDocument(@PathVariable Long applicantId,
                                           @PathVariable Long documentId) {
         try {
             logger.info("Deleting document {} for applicant: {}", documentId, applicantId);
             applicantService.deleteDocument(applicantId, documentId);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to delete document {} for applicant {}: {}", 
+            logger.warn("Failed to delete document {} for applicant {}: {}",
                        documentId, applicantId, e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Error deleting document {} for applicant {}", documentId, applicantId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
-        }
-    }
-    
-    // Error response DTO
-    public static class ErrorResponse {
-        private String message;
-        private long timestamp;
-        
-        public ErrorResponse(String message) {
-            this.message = message;
-            this.timestamp = System.currentTimeMillis();
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public void setMessage(String message) {
-            this.message = message;
-        }
-        
-        public long getTimestamp() {
-            return timestamp;
-        }
-        
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
         }
     }
 }
