@@ -4,15 +4,6 @@
 export { apiClient } from './api/apiClient';
 export type { ApiError, PaginatedResponse, PaginationParams } from './api/apiClient';
 
-// Application API
-export { applicationApi } from './api/applicationApi';
-export type {
-  Application,
-  ApplicationFilters,
-  ApplicationStatistics,
-  ApplicationNote,
-} from './api/applicationApi';
-
 // Job API — DEPRECATED: jobApi uses /api/jobs/* endpoints which don't exist on backend.
 // Backend uses /api/job-postings/* (JobPostingController). analyticsApi/workflowApi retained.
 export { jobApi, analyticsApi, workflowApi } from './api/jobApi';

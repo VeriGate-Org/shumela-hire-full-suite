@@ -28,10 +28,14 @@ public enum InterviewStatus {
     }
 
     public boolean canBeRescheduled() {
-        return this == SCHEDULED;
+        return this == SCHEDULED || this == POSTPONED;
     }
 
     public boolean canBeCancelled() {
+        return this == SCHEDULED || this == RESCHEDULED || this == POSTPONED;
+    }
+
+    public boolean canBePostponed() {
         return this == SCHEDULED || this == RESCHEDULED;
     }
 

@@ -147,6 +147,15 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
     @Query("SELECT o FROM Offer o WHERE o.supersededByOfferId = :supersedingOfferId")
     Optional<Offer> findSupersededOffer(@Param("supersedingOfferId") Long supersedingOfferId);
     
+    // Applicant-based query (O6: eliminates N+1)
+    @Query("SELECT o FROM Offer o " +
+           "JOIN FETCH o.application a " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE a.applicant.id = :applicantId " +
+           "AND o.supersededByOfferId IS NULL " +
+           "ORDER BY o.createdAt DESC")
+    List<Offer> findActiveOffersByApplicantId(@Param("applicantId") Long applicantId);
+
     // Pagination and search
     @Query("SELECT o FROM Offer o WHERE " +
            "(:status IS NULL OR o.status = :status) AND " +

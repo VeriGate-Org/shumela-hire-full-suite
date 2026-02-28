@@ -64,6 +64,7 @@ export const pipelineApplicationStatusConfig: Record<string, StatusConfig> = {
   hired: { color: 'bg-green-100 text-green-800', icon: CheckCircleIcon, label: 'Hired' },
   rejected: { color: 'bg-red-100 text-red-800', icon: XCircleIcon, label: 'Rejected' },
   withdrawn: { color: 'bg-gray-100 text-gray-800', icon: ArrowUturnLeftIcon, label: 'Withdrawn' },
+  offer_declined: { color: 'bg-orange-100 text-orange-800', icon: HandThumbDownIcon, label: 'Offer Declined' },
 };
 
 // Interview status icons

@@ -64,6 +64,13 @@ public class OfferController {
         return ResponseEntity.ok(offers);
     }
 
+    // Get offers for applicant (O6: single call, eliminates N+1)
+    @GetMapping("/applicant/{applicantId}")
+    public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable Long applicantId) {
+        List<Offer> offers = offerService.getOffersByApplicant(applicantId);
+        return ResponseEntity.ok(offers);
+    }
+
     // Update offer
     @PutMapping("/{id}")
     public ResponseEntity<Offer> updateOffer(

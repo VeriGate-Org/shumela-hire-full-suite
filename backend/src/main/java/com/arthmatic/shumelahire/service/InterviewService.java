@@ -199,6 +199,28 @@ public class InterviewService {
         return savedInterview;
     }
 
+    public Interview postponeInterview(Long id, String reason, Long postponedBy) {
+        Interview interview = getInterviewById(id);
+
+        if (!interview.getStatus().canBePostponed()) {
+            throw new IllegalStateException("Interview cannot be postponed in current status: " + interview.getStatus());
+        }
+
+        interview.setStatus(InterviewStatus.POSTPONED);
+        interview.setUpdatedAt(LocalDateTime.now());
+
+        Interview savedInterview = interviewRepository.save(interview);
+
+        auditLogService.logUserAction(
+            postponedBy,
+            "INTERVIEW_POSTPONED",
+            "Interview",
+            String.format("Interview postponed. Reason: %s", reason)
+        );
+
+        return savedInterview;
+    }
+
     public Interview startInterview(Long id, Long startedBy) {
         Interview interview = getInterviewById(id);
         
@@ -312,17 +334,19 @@ public class InterviewService {
         return interviewRepository.findOverdueInterviews(LocalDateTime.now());
     }
 
-    // Availability and conflict checking
+    // Availability and conflict checking (uses JPQL + Java filtering for DB portability)
     public boolean isInterviewerAvailable(Long interviewerId, LocalDateTime startTime, int durationMinutes) {
         LocalDateTime endTime = startTime.plusMinutes(durationMinutes);
-        List<Interview> conflicts = interviewRepository.findConflictingInterviews(interviewerId, startTime, endTime);
-        return conflicts.isEmpty();
+        List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(interviewerId, endTime);
+        return potentialConflicts.stream()
+                .noneMatch(i -> i.hasConflictWith(startTime, endTime));
     }
 
     public boolean isMeetingRoomAvailable(String meetingRoom, LocalDateTime startTime, int durationMinutes) {
         LocalDateTime endTime = startTime.plusMinutes(durationMinutes);
-        List<Interview> conflicts = interviewRepository.findMeetingRoomConflicts(meetingRoom, startTime, endTime);
-        return conflicts.isEmpty();
+        List<Interview> potentialConflicts = interviewRepository.findPotentialMeetingRoomConflicts(meetingRoom, endTime);
+        return potentialConflicts.stream()
+                .noneMatch(i -> i.hasConflictWith(startTime, endTime));
     }
 
     public List<LocalDateTime> getSuggestedTimeSlots(Long interviewerId, LocalDateTime preferredDate, 

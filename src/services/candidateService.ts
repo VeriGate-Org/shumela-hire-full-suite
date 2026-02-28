@@ -56,3 +56,10 @@ export async function getOffersForApplication(applicationId: string) {
   const result = await response.json();
   return result.content || result.data || result || [];
 }
+
+export async function getOffersForApplicant(applicantId: string) {
+  const response = await apiFetch(`/api/offers/applicant/${applicantId}`);
+  if (!response.ok) throw new Error(`Failed to fetch offers: HTTP ${response.status}`);
+  const result = await response.json();
+  return result.content || result.data || result || [];
+}

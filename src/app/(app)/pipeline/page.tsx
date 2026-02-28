@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
+import { useToast } from '@/components/Toast';
 import {
   FunnelIcon,
   ChartBarIcon,
@@ -16,19 +17,92 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   CalendarIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 
-interface PipelineStage {
-  id: string;
-  name: string;
-  displayName: string;
-  order: number;
-  color: string;
-  icon: React.ComponentType<any>;
-  description: string;
-}
+// --- Stage grouping: maps 16 backend PipelineStage enum values into 7 display columns ---
+
+const STAGE_GROUPS = [
+  {
+    id: 'applied',
+    displayName: 'Applied',
+    order: 1,
+    color: 'bg-gray-100 text-gray-800 border-gray-300',
+    icon: UserIcon,
+    description: 'Initial application submitted',
+    backendStages: ['APPLICATION_RECEIVED'],
+  },
+  {
+    id: 'screening',
+    displayName: 'Screening',
+    order: 2,
+    color: 'bg-gold-100 text-gold-800 border-violet-300',
+    icon: EyeIcon,
+    description: 'Resume and initial screening',
+    backendStages: ['INITIAL_SCREENING', 'PHONE_SCREENING'],
+  },
+  {
+    id: 'interviews',
+    displayName: 'Interviews',
+    order: 3,
+    color: 'bg-purple-100 text-purple-800 border-purple-300',
+    icon: CalendarIcon,
+    description: 'Interview rounds',
+    backendStages: [
+      'FIRST_INTERVIEW', 'TECHNICAL_ASSESSMENT', 'SECOND_INTERVIEW',
+      'PANEL_INTERVIEW', 'MANAGER_INTERVIEW', 'FINAL_INTERVIEW',
+    ],
+  },
+  {
+    id: 'checks',
+    displayName: 'Checks',
+    order: 4,
+    color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    icon: ShieldCheckIcon,
+    description: 'Reference and background checks',
+    backendStages: ['REFERENCE_CHECK', 'BACKGROUND_CHECK'],
+  },
+  {
+    id: 'offer',
+    displayName: 'Offer',
+    order: 5,
+    color: 'bg-green-100 text-green-800 border-green-300',
+    icon: BriefcaseIcon,
+    description: 'Offer extended to candidate',
+    backendStages: ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION'],
+  },
+  {
+    id: 'accepted',
+    displayName: 'Accepted',
+    order: 6,
+    color: 'bg-green-200 text-green-900 border-green-400',
+    icon: CheckCircleIcon,
+    description: 'Offer accepted by candidate',
+    backendStages: ['OFFER_ACCEPTED'],
+  },
+  {
+    id: 'hired',
+    displayName: 'Hired',
+    order: 7,
+    color: 'bg-green-600 text-white border-green-600',
+    icon: CheckCircleIcon,
+    description: 'Successfully hired',
+    backendStages: ['HIRED'],
+  },
+] as const;
+
+// Reverse lookup: backend enum value -> group id
+const BACKEND_STAGE_TO_GROUP: Record<string, string> = {};
+STAGE_GROUPS.forEach(group => {
+  group.backendStages.forEach(bs => {
+    BACKEND_STAGE_TO_GROUP[bs] = group.id;
+  });
+});
+
+// Terminal stages excluded from kanban, visible in list view only
+const TERMINAL_STAGES = new Set(['WITHDRAWN', 'REJECTED', 'OFFER_DECLINED', 'NO_SHOW', 'DUPLICATE']);
 
 interface Candidate {
   id: string;
@@ -51,11 +125,12 @@ interface Application {
   candidate: Candidate;
   job: Job;
   currentStage: string;
+  backendStage: string;
   submittedAt: string;
   lastActivity: string;
   daysInStage: number;
   progress: number;
-  status: 'active' | 'hired' | 'rejected' | 'withdrawn';
+  status: 'active' | 'hired' | 'rejected' | 'withdrawn' | 'offer_declined';
   priority: 'low' | 'medium' | 'high';
   notes: string[];
   timeline: Array<{
@@ -80,6 +155,7 @@ interface PipelineMetrics {
 }
 
 export default function PipelinePage() {
+  const { toast } = useToast();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedStage, setSelectedStage] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,72 +163,32 @@ export default function PipelinePage() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'funnel'>('kanban');
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineEntries, setTimelineEntries] = useState<Array<{
+    fromStage: string;
+    toStage: string;
+    createdAt: string;
+    reason?: string;
+    notes?: string;
+    performedBy?: string;
+  }>>([]);
+  const [backendMetrics, setBackendMetrics] = useState<PipelineMetrics | null>(null);
 
-  const pipelineStages: PipelineStage[] = useMemo(() => [
-    {
-      id: 'applied',
-      name: 'applied',
-      displayName: 'Applied',
-      order: 1,
-      color: 'bg-gray-100 text-gray-800 border-gray-300',
-      icon: UserIcon,
-      description: 'Initial application submitted'
-    },
-    {
-      id: 'screening',
-      name: 'screening',
-      displayName: 'Screening',
-      order: 2,
-      color: 'bg-gold-100 text-gold-800 border-violet-300',
-      icon: EyeIcon,
-      description: 'Resume and initial screening'
-    },
-    {
-      id: 'phone_interview',
-      name: 'phone_interview',
-      displayName: 'Phone Interview',
-      order: 3,
-      color: 'bg-purple-100 text-purple-800 border-purple-300',
-      icon: CalendarIcon,
-      description: 'Initial phone/video screening'
-    },
-    {
-      id: 'technical_interview',
-      name: 'technical_interview',
-      displayName: 'Technical Interview',
-      order: 4,
-      color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      icon: BriefcaseIcon,
-      description: 'Technical assessment and interview'
-    },
-    {
-      id: 'final_interview',
-      name: 'final_interview',
-      displayName: 'Final Interview',
-      order: 5,
-      color: 'bg-orange-100 text-orange-800 border-orange-300',
-      icon: UserGroupIcon,
-      description: 'Final round with hiring manager'
-    },
-    {
-      id: 'offer',
-      name: 'offer',
-      displayName: 'Offer',
-      order: 6,
-      color: 'bg-green-100 text-green-800 border-green-300',
-      icon: CheckCircleIcon,
-      description: 'Offer extended to candidate'
-    },
-    {
-      id: 'hired',
-      name: 'hired',
-      displayName: 'Hired',
-      order: 7,
-      color: 'bg-green-600 text-white border-green-600',
-      icon: CheckCircleIcon,
-      description: 'Successfully hired'
-    }
-  ], []);
+  // --- Status mapping covering all 12 ApplicationStatus enum values ---
+  const statusMap: Record<string, Application['status']> = {
+    SUBMITTED: 'active',
+    SCREENING: 'active',
+    INTERVIEW_SCHEDULED: 'active',
+    INTERVIEW_COMPLETED: 'active',
+    REFERENCE_CHECK: 'active',
+    OFFER_PENDING: 'active',
+    OFFERED: 'active',
+    OFFER_ACCEPTED: 'active',
+    OFFER_DECLINED: 'offer_declined',
+    REJECTED: 'rejected',
+    WITHDRAWN: 'withdrawn',
+    HIRED: 'hired',
+  };
 
   const loadPipelineData = useCallback(async () => {
     setLoading(true);
@@ -165,20 +201,12 @@ export default function PipelinePage() {
         const nameParts = (a.applicantName || '').split(' ');
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
-        const stageMap: Record<string, string> = {
-          SUBMITTED: 'applied', SCREENING: 'screening',
-          PHONE_INTERVIEW: 'phone_interview', TECHNICAL_INTERVIEW: 'technical_interview',
-          FINAL_INTERVIEW: 'final_interview', OFFER: 'offer',
-          HIRED: 'hired', REJECTED: 'rejected',
-        };
-        const currentStage = stageMap[a.pipelineStage || a.status] || stageMap[a.status] || 'applied';
-        const stageIndex = pipelineStages.findIndex(s => s.id === currentStage);
+        const backendStage = a.pipelineStage || a.status || 'APPLICATION_RECEIVED';
+        const currentStage = BACKEND_STAGE_TO_GROUP[backendStage] || 'applied';
+        const stageIndex = STAGE_GROUPS.findIndex(s => s.id === currentStage);
         const daysInStage = a.updatedAt
           ? Math.floor((Date.now() - new Date(a.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
           : 0;
-        const statusMap: Record<string, Application['status']> = {
-          HIRED: 'hired', REJECTED: 'rejected', WITHDRAWN: 'withdrawn',
-        };
         return {
           id: a.id,
           candidate: {
@@ -196,10 +224,11 @@ export default function PipelinePage() {
             type: '',
           },
           currentStage,
+          backendStage,
           submittedAt: a.submittedAt || a.createdAt || new Date().toISOString(),
           lastActivity: a.updatedAt || a.submittedAt || new Date().toISOString(),
           daysInStage,
-          progress: stageIndex >= 0 ? (stageIndex / Math.max(pipelineStages.length - 1, 1)) * 100 : 0,
+          progress: stageIndex >= 0 ? (stageIndex / Math.max(STAGE_GROUPS.length - 1, 1)) * 100 : 0,
           status: statusMap[a.status] || 'active',
           priority: (a.priority || 'medium').toLowerCase() as Application['priority'],
           notes: [],
@@ -209,33 +238,93 @@ export default function PipelinePage() {
       setApplications(mapped);
     } catch (error) {
       console.error('Failed to load pipeline data:', error);
+      toast('Failed to load pipeline data', 'error');
     } finally {
       setLoading(false);
     }
-  }, [pipelineStages]);
+  }, []);
+
+  // P5: Fetch backend analytics
+  const loadAnalytics = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/pipeline/analytics');
+      if (response.ok) {
+        const data = await response.json();
+        setBackendMetrics({
+          totalApplications: data.totalApplications ?? 0,
+          activeApplications: data.activeApplications ?? 0,
+          averageTimeToHire: data.averageTimeToHire ?? 0,
+          conversionRate: data.conversionRate ?? 0,
+          stageMetrics: data.stageMetrics ?? {},
+        });
+      }
+    } catch {
+      // Fall back to client-side computation
+    }
+  }, []);
 
   useEffect(() => {
     loadPipelineData();
-  }, [loadPipelineData]);
+    loadAnalytics();
+  }, [loadPipelineData, loadAnalytics]);
+
+  // P4: Fetch timeline when selectedApplication changes
+  useEffect(() => {
+    if (!selectedApplication) {
+      setTimelineEntries([]);
+      return;
+    }
+    let cancelled = false;
+    setTimelineLoading(true);
+    apiFetch(`/api/pipeline/applications/${selectedApplication.id}/timeline`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (cancelled) return;
+        const entries = (Array.isArray(data) ? data : data.content || data.data || []).map((t: any) => ({
+          fromStage: t.fromStage || '',
+          toStage: t.toStage || '',
+          createdAt: t.createdAt || t.transitionDate || '',
+          reason: t.reason || t.notes || '',
+          notes: t.notes || '',
+          performedBy: t.performedBy || t.performedByName || '',
+        }));
+        setTimelineEntries(entries);
+      })
+      .catch(() => {
+        if (!cancelled) setTimelineEntries([]);
+      })
+      .finally(() => {
+        if (!cancelled) setTimelineLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedApplication]);
 
   const filteredApplications = useMemo(() => {
     return applications.filter(app => {
+      // In kanban view, exclude terminal stages
+      if (viewMode === 'kanban' && TERMINAL_STAGES.has(app.backendStage)) return false;
       const matchesStage = selectedStage === 'all' || app.currentStage === selectedStage;
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         app.candidate.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.candidate.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.job.department.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       return matchesStage && matchesSearch;
     });
-  }, [applications, selectedStage, searchTerm]);
+  }, [applications, selectedStage, searchTerm, viewMode]);
 
+  // P5: Use backend metrics with client-side fallback
   const pipelineMetrics = useMemo((): PipelineMetrics => {
+    if (backendMetrics) return backendMetrics;
+
     const totalApplications = applications.length;
     const activeApplications = applications.filter(app => app.status === 'active').length;
     const hiredApplications = applications.filter(app => app.status === 'hired').length;
-    
+
     const averageTimeToHire = applications
       .filter(app => app.status === 'hired')
       .reduce((sum, app) => {
@@ -246,11 +335,11 @@ export default function PipelinePage() {
     const conversionRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
 
     const stageMetrics: Record<string, { count: number; averageDays: number; conversionRate: number }> = {};
-    
-    pipelineStages.forEach(stage => {
+
+    STAGE_GROUPS.forEach(stage => {
       const stageApplications = applications.filter(app => app.currentStage === stage.id);
       const averageDays = stageApplications.reduce((sum, app) => sum + app.daysInStage, 0) / Math.max(stageApplications.length, 1);
-      
+
       stageMetrics[stage.id] = {
         count: stageApplications.length,
         averageDays: Math.round(averageDays),
@@ -265,47 +354,80 @@ export default function PipelinePage() {
       conversionRate: Math.round(conversionRate * 10) / 10,
       stageMetrics
     };
-  }, [applications, pipelineStages]);
+  }, [applications, backendMetrics]);
 
-  const handleStageTransition = (applicationId: string, newStage: string, notes?: string) => {
-    setApplications(prev => prev.map(app => {
-      if (app.id === applicationId) {
-        const newStageIndex = pipelineStages.findIndex(s => s.id === newStage);
-        return {
-          ...app,
-          currentStage: newStage,
-          progress: (newStageIndex / (pipelineStages.length - 1)) * 100,
-          lastActivity: new Date().toISOString(),
-          daysInStage: 0,
-          timeline: [
-            ...app.timeline,
-            {
-              stage: pipelineStages[newStageIndex]?.displayName || newStage,
-              date: new Date().toISOString(),
-              action: `Progressed to ${pipelineStages[newStageIndex]?.displayName || newStage}`,
-              actor: 'Current User',
-              notes
-            }
-          ]
-        };
+  // P1: Persist stage transitions via backend
+  const handleStageTransition = async (applicationId: string, targetBackendStage: string, notes?: string) => {
+    try {
+      const response = await apiFetch(
+        `/api/pipeline/applications/${applicationId}/move?targetStage=${encodeURIComponent(targetBackendStage)}&performedBy=1`,
+        { method: 'POST' }
+      );
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || `HTTP ${response.status}`);
       }
-      return app;
-    }));
+      toast('Stage transition saved', 'success');
+      await loadPipelineData();
+    } catch (error: any) {
+      toast(`Failed to move candidate: ${error.message || 'Unknown error'}`, 'error');
+    }
   };
 
-  const handleBulkMove = (targetStageId: string) => {
-    selectedIds.forEach(id => {
-      handleStageTransition(id, targetStageId);
-    });
-    setSelectedIds(new Set());
+  // P1: Progress to next stage via backend
+  const handleProgressToNext = async (applicationId: string) => {
+    try {
+      const response = await apiFetch(
+        `/api/pipeline/applications/${applicationId}/progress?performedBy=1`,
+        { method: 'POST' }
+      );
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || `HTTP ${response.status}`);
+      }
+      toast('Candidate progressed to next stage', 'success');
+      await loadPipelineData();
+    } catch (error: any) {
+      toast(`Failed to progress candidate: ${error.message || 'Unknown error'}`, 'error');
+    }
   };
 
-  const handleBulkReject = () => {
-    if (confirm(`Reject ${selectedIds.size} selected candidates?`)) {
-      selectedIds.forEach(id => {
-        handleStageTransition(id, 'rejected', 'Bulk rejection');
+  // P3: Persist bulk move via backend
+  const handleBulkMove = async (targetStageId: string) => {
+    // Find the first backend stage for the target group
+    const group = STAGE_GROUPS.find(g => g.id === targetStageId);
+    if (!group) return;
+    const targetBackendStage = group.backendStages[0];
+    const ids = Array.from(selectedIds);
+    try {
+      const response = await apiFetch('/api/applications/manage/bulk/pipeline-stage', {
+        method: 'PUT',
+        body: JSON.stringify({ applicationIds: ids, pipelineStage: targetBackendStage }),
       });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      toast(`Moved ${ids.length} candidates to ${group.displayName}`, 'success');
       setSelectedIds(new Set());
+      await loadPipelineData();
+    } catch (error: any) {
+      toast(`Bulk move failed: ${error.message || 'Unknown error'}`, 'error');
+    }
+  };
+
+  // P3: Persist bulk reject via backend
+  const handleBulkReject = async () => {
+    if (!confirm(`Reject ${selectedIds.size} selected candidates?`)) return;
+    const ids = Array.from(selectedIds);
+    try {
+      const response = await apiFetch('/api/applications/manage/bulk/status', {
+        method: 'PUT',
+        body: JSON.stringify({ applicationIds: ids, status: 'REJECTED' }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      toast(`Rejected ${ids.length} candidates`, 'success');
+      setSelectedIds(new Set());
+      await loadPipelineData();
+    } catch (error: any) {
+      toast(`Bulk reject failed: ${error.message || 'Unknown error'}`, 'error');
     }
   };
 
@@ -387,7 +509,7 @@ export default function PipelinePage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -399,7 +521,7 @@ export default function PipelinePage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -411,7 +533,7 @@ export default function PipelinePage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -440,7 +562,7 @@ export default function PipelinePage() {
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <select
                 value={selectedStage}
@@ -448,13 +570,13 @@ export default function PipelinePage() {
                 className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               >
                 <option value="all">All Stages</option>
-                {pipelineStages.map(stage => (
+                {STAGE_GROUPS.map(stage => (
                   <option key={stage.id} value={stage.id}>
                     {stage.displayName} ({pipelineMetrics.stageMetrics[stage.id]?.count || 0})
                   </option>
                 ))}
               </select>
-              
+
               <div className="text-sm text-gray-600">
                 {filteredApplications.length} of {applications.length} applications
               </div>
@@ -467,18 +589,18 @@ export default function PipelinePage() {
           <div className="bg-white rounded-sm shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Pipeline Funnel</h3>
             <div className="space-y-4">
-              {pipelineStages.map((stage) => {
+              {STAGE_GROUPS.map((stage) => {
                 const metrics = pipelineMetrics.stageMetrics[stage.id] || { count: 0, averageDays: 0, conversionRate: 0 };
-                const maxCount = Math.max(...Object.values(pipelineMetrics.stageMetrics).map(m => m.count));
+                const maxCount = Math.max(...Object.values(pipelineMetrics.stageMetrics).map(m => m.count), 1);
                 const width = maxCount > 0 ? (metrics.count / maxCount) * 100 : 0;
-                
+
                 return (
                   <div key={stage.id} className="flex items-center space-x-4">
                     <div className="w-32 text-sm font-medium text-gray-900 text-right">
                       {stage.displayName}
                     </div>
                     <div className="flex-1 bg-gray-200 rounded-full h-8 relative">
-                      <div 
+                      <div
                         className="h-8 rounded-full flex items-center justify-between px-4 text-white text-sm font-medium transition-all bg-gold-500"
                         style={{ width: `${Math.max(width, 10)}%` }}
                       >
@@ -499,9 +621,9 @@ export default function PipelinePage() {
         {viewMode === 'kanban' && (
           <div className="bg-white rounded-sm shadow p-6">
             <div className="flex space-x-6 overflow-x-auto pb-4">
-              {pipelineStages.map((stage, stageIndex) => {
+              {STAGE_GROUPS.map((stage, stageIndex) => {
                 const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
-                const nextStage = pipelineStages[stageIndex + 1];
+                const nextStage = STAGE_GROUPS[stageIndex + 1];
                 const nextStageCount = nextStage
                   ? filteredApplications.filter(app => app.currentStage === nextStage.id).length
                   : 0;
@@ -530,7 +652,7 @@ export default function PipelinePage() {
                         </div>
                         <span className="text-sm font-medium">
                           {stageApplications.length}
-                          {stageIndex < pipelineStages.length - 1 && stageApplications.length > 0 && (
+                          {stageIndex < STAGE_GROUPS.length - 1 && stageApplications.length > 0 && (
                             <span className="text-[10px] text-gray-400 font-normal ml-2">
                               &rarr; {Math.round((nextStageCount / stageApplications.length) * 100)}%
                             </span>
@@ -539,7 +661,7 @@ export default function PipelinePage() {
                       </div>
                       <p className="text-xs mt-1 opacity-75">{stage.description}</p>
                     </div>
-                    
+
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {stageApplications.map(application => (
                         <div key={application.id} className="bg-gray-50 rounded-sm p-4 border border-gray-200 hover:border-gray-300 transition-colors">
@@ -574,7 +696,7 @@ export default function PipelinePage() {
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                             <span className={`inline-flex items-center gap-1 ${
                               application.daysInStage <= 3 ? 'text-green-600' :
@@ -586,14 +708,14 @@ export default function PipelinePage() {
                             </span>
                             <span>{new Date(application.lastActivity).toLocaleDateString()}</span>
                           </div>
-                          
+
                           <div className="bg-gray-200 rounded-full h-2 mb-3">
-                            <div 
-                              className="bg-gold-500 h-2 rounded-full transition-all" 
+                            <div
+                              className="bg-gold-500 h-2 rounded-full transition-all"
                               style={{ width: `${Math.min(application.progress, 100)}%` }}
                             ></div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center">
                             <button
                               onClick={() => setSelectedApplication(application)}
@@ -602,18 +724,10 @@ export default function PipelinePage() {
                               <EyeIcon className="w-4 h-4 inline mr-1" />
                               View Details
                             </button>
-                            
-                            {application.status === 'active' && stage.order < pipelineStages.length && (
+
+                            {application.status === 'active' && stage.order < STAGE_GROUPS.length && (
                               <button
-                                onClick={() => {
-                                  const nextStage = pipelineStages[stage.order];
-                                  if (nextStage) {
-                                    const reason = prompt(`Move to ${nextStage.displayName}. Add notes (optional):`);
-                                    if (reason !== null) {
-                                      handleStageTransition(application.id, nextStage.id, reason || undefined);
-                                    }
-                                  }
-                                }}
+                                onClick={() => handleProgressToNext(application.id)}
                                 className="text-green-600 hover:text-green-800 text-xs font-medium"
                               >
                                 <ArrowRightIcon className="w-4 h-4 inline mr-1" />
@@ -665,8 +779,8 @@ export default function PipelinePage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredApplications.slice(0, 50).map((application) => {
-                    const currentStage = pipelineStages.find(s => s.id === application.currentStage);
-                    
+                    const currentStageGroup = STAGE_GROUPS.find(s => s.id === application.currentStage);
+
                     return (
                       <tr key={application.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -689,16 +803,16 @@ export default function PipelinePage() {
                           <div className="text-sm text-gray-500">{application.job.department}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {currentStage && (
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${currentStage.color}`}>
-                              <currentStage.icon className="w-4 h-4 mr-1" />
-                              {currentStage.displayName}
+                          {currentStageGroup && (
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${currentStageGroup.color}`}>
+                              <currentStageGroup.icon className="w-4 h-4 mr-1" />
+                              {currentStageGroup.displayName}
                             </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
+                            <div
                               className="bg-gold-500 h-2 rounded-full"
                               style={{ width: `${Math.min(application.progress, 100)}%` }}
                             ></div>
@@ -729,16 +843,7 @@ export default function PipelinePage() {
                             </button>
                             {application.status === 'active' && (
                               <button
-                                onClick={() => {
-                                  const nextStageIndex = pipelineStages.findIndex(s => s.id === application.currentStage) + 1;
-                                  const nextStage = pipelineStages[nextStageIndex];
-                                  if (nextStage) {
-                                    const reason = prompt(`Move to ${nextStage.displayName}. Add notes (optional):`);
-                                    if (reason !== null) {
-                                      handleStageTransition(application.id, nextStage.id, reason || undefined);
-                                    }
-                                  }
-                                }}
+                                onClick={() => handleProgressToNext(application.id)}
                                 className="text-green-600 hover:text-green-900"
                               >
                                 <ArrowRightIcon className="w-4 h-4" />
@@ -773,7 +878,7 @@ export default function PipelinePage() {
               defaultValue=""
             >
               <option value="" disabled>Move to...</option>
-              {pipelineStages.map(s => (
+              {STAGE_GROUPS.map(s => (
                 <option key={s.id} value={s.id}>{s.displayName}</option>
               ))}
             </select>
@@ -826,23 +931,35 @@ export default function PipelinePage() {
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900">Application Timeline</h3>
                     <div className="space-y-4">
-                      {selectedApplication.timeline.map((event, index) => (
-                        <div key={index} className="flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <div className="w-8 h-8 bg-gold-100 rounded-full flex items-center justify-center">
-                              <div className="w-3 h-3 bg-gold-500 rounded-full"></div>
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-gray-900">
-                              <strong>{event.action}</strong> by {event.actor}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString()}
-                            </div>
-                          </div>
+                      {timelineLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
                         </div>
-                      ))}
+                      ) : timelineEntries.length === 0 ? (
+                        <p className="text-sm text-gray-500 py-4">No timeline entries recorded yet.</p>
+                      ) : (
+                        timelineEntries.map((event, index) => (
+                          <div key={index} className="flex space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 bg-gold-100 rounded-full flex items-center justify-center">
+                                <div className="w-3 h-3 bg-gold-500 rounded-full"></div>
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm text-gray-900">
+                                <strong>{event.fromStage ? `${event.fromStage} → ${event.toStage}` : event.toStage}</strong>
+                                {event.performedBy && <span className="text-gray-500"> by {event.performedBy}</span>}
+                              </div>
+                              {event.reason && (
+                                <div className="text-xs text-gray-600 mt-0.5">{event.reason}</div>
+                              )}
+                              <div className="text-sm text-gray-500">
+                                {new Date(event.createdAt).toLocaleDateString()} at {new Date(event.createdAt).toLocaleTimeString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

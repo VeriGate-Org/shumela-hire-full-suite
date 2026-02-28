@@ -119,12 +119,7 @@ export default function OfferManagement() {
     }
   }, [filters, currentPage]);
 
-  useEffect(() => {
-    loadOffers();
-    loadDashboardCounts();
-  }, [filters, currentPage, loadOffers]);
-
-  const loadDashboardCounts = async () => {
+  const loadDashboardCounts = useCallback(async () => {
     try {
       const response = await apiFetch('/api/offers/dashboard');
       if (response.ok) {
@@ -134,7 +129,12 @@ export default function OfferManagement() {
     } catch (error) {
       console.error('Error loading dashboard counts:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadOffers();
+    loadDashboardCounts();
+  }, [loadOffers, loadDashboardCounts]);
 
   const handleOfferAction = async (offer: Offer, action: string) => {
     setSelectedOffer(offer);
@@ -353,7 +353,7 @@ export default function OfferManagement() {
             Clear Filters
           </button>
           <button
-            onClick={() => {setCurrentPage(0); loadOffers();}}
+            onClick={() => setCurrentPage(0)}
             className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
           >
             Apply Filters

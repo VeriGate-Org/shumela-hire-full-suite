@@ -104,10 +104,12 @@ export default function InterviewSchedulePage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadInterviews = useCallback(async () => {
     if (!user?.email) { setLoading(false); return; }
     setLoading(true);
+    setError(null);
     try {
       const applicantId = await getApplicantId(user.email);
       if (!applicantId) { setInterviews([]); return; }
@@ -153,8 +155,9 @@ export default function InterviewSchedulePage() {
         });
       });
       setInterviews(allInterviews);
-    } catch (error) {
-      console.error('Failed to load interviews:', error);
+    } catch (err) {
+      console.error('Failed to load interviews:', err);
+      setError('Failed to load interviews. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -354,6 +357,21 @@ export default function InterviewSchedulePage() {
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-sm p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <ExclamationTriangleIcon className="w-5 h-5 text-red-500 mr-3" />
+              <span className="text-sm text-red-800">{error}</span>
+            </div>
+            <button
+              onClick={() => { setError(null); loadInterviews(); }}
+              className="px-3 py-1 text-sm font-medium text-red-700 border border-red-300 rounded-full hover:bg-red-100"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {viewMode === 'list' && (
           <div className="space-y-4">

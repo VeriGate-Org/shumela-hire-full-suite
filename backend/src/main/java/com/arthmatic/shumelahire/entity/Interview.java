@@ -16,6 +16,9 @@ public class Interview extends TenantAwareEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id", nullable = false)
     @NotNull(message = "Application is required")
@@ -287,6 +290,9 @@ public class Interview extends TenantAwareEntity {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
+
     public Application getApplication() { return application; }
     public void setApplication(Application application) {
         this.application = application;
@@ -301,7 +307,7 @@ public class Interview extends TenantAwareEntity {
     public InterviewType getType() { return type; }
     public void setType(InterviewType type) { this.type = type; }
 
-    public String getInterviewType() { return type != null ? type.name() : null; }
+    public InterviewType getInterviewType() { return type; }
     public void setInterviewType(String interviewType) {
         if (interviewType != null) {
             this.type = InterviewType.valueOf(interviewType);

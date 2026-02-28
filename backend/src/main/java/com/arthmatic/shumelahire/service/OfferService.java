@@ -91,6 +91,11 @@ public class OfferService {
         return offerRepository.findActiveOffersByApplication(applicationId);
     }
 
+    @Transactional(readOnly = true)
+    public List<Offer> getOffersByApplicant(Long applicantId) {
+        return offerRepository.findActiveOffersByApplicantId(applicantId);
+    }
+
     public Offer updateOffer(Long id, Offer updateData, Long updatedBy) {
         Offer existingOffer = offerRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Offer not found"));

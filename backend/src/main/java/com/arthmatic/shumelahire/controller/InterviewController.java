@@ -14,10 +14,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/api/interviews")
 @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER')")
@@ -186,6 +189,21 @@ public class InterviewController {
         }
     }
 
+    // Postpone interview
+    @PostMapping("/{id}/postpone")
+    public ResponseEntity<Interview> postponeInterview(@PathVariable Long id,
+                                                      @RequestParam String reason,
+                                                      @RequestParam Long postponedBy) {
+        try {
+            Interview postponedInterview = interviewService.postponeInterview(id, reason, postponedBy);
+            return ResponseEntity.ok(postponedInterview);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // Start interview
     @PostMapping("/{id}/start")
     public ResponseEntity<Interview> startInterview(@PathVariable Long id,
@@ -217,7 +235,7 @@ public class InterviewController {
     // Submit feedback
     @PostMapping("/{id}/feedback")
     public ResponseEntity<Interview> submitFeedback(@PathVariable Long id,
-                                                   @RequestParam String feedback,
+                                                   @RequestParam @NotBlank(message = "Feedback text is required") String feedback,
                                                    @RequestParam(required = false) Integer rating,
                                                    @RequestParam(required = false) Integer communicationSkills,
                                                    @RequestParam(required = false) Integer technicalSkills,
@@ -385,6 +403,13 @@ public class InterviewController {
     }
 
     // Error handling
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, String>> handleOptimisticLockingFailure(
+            org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "Interview was modified by another user. Please refresh and try again."));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
