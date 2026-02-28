@@ -37,6 +37,7 @@ interface User {
   name: string;
   email: string;
   role: UserRole;
+  originalRole?: UserRole;
   permissions: string[];
   tenantId?: string;
 }
@@ -233,11 +234,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const switchRole = useCallback((role: UserRole) => {
     if (user) {
-      const updated = { ...user, role, permissions: rolePermissions[role] };
+      const effectiveOriginalRole = user.originalRole || user.role;
+      if (effectiveOriginalRole !== 'ADMIN') return;
+
+      const updated = {
+        ...user,
+        role,
+        permissions: rolePermissions[role],
+        originalRole: user.originalRole || user.role,
+      };
       setUser(updated);
       if (!isCognitoConfigured && typeof window !== 'undefined') {
         sessionStorage.setItem('mock_user', JSON.stringify(updated));
       }
+
+      // Log role switch (non-blocking)
+      import('@/services/auditLogService').then(({ auditLogService }) => {
+        auditLogService.logRoleSwitch(user.id, user.role, role).catch(() => {});
+      });
     }
   }, [user]);
 

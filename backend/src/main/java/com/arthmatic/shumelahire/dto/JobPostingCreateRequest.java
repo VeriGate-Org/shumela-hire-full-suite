@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.entity.ExperienceLevel;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class JobPostingCreateRequest {
     private ExperienceLevel experienceLevel;
     
     @NotBlank(message = "Job description is required")
+    @Size(min = 100, message = "Job description must be at least 100 characters")
     private String description;
     
     private String requirements;

@@ -87,13 +87,6 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           color: 'text-red-600',
           bgColor: 'bg-red-50'
         };
-      case 'UNPUBLISHED':
-        return {
-          title: 'Job Posting Unpublished',
-          description: 'Job posting was temporarily unpublished',
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-50'
-        };
       default:
         return null;
     }
@@ -250,39 +243,54 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         </div>
       )}
 
-      {/* Workflow Progress - Only show for active job postings */}
-      {!isTerminalStatus() && jobPosting.status !== 'UNPUBLISHED' && (
+      {/* Workflow Progress - Only show for active (non-terminal) job postings */}
+      {!isTerminalStatus() && (
         <div className="mb-6">
           <h4 className="font-medium text-gray-900 mb-4">Workflow Progress</h4>
           <div className="space-y-4">
-            {workflowSteps.map((step, index) => (
-              <div key={step.key} className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    isStepCompleted(index) ? 'bg-green-500 text-white' :
-                    isStepCurrent(index) ? 'bg-gold-500 text-white' :
-                    'bg-gray-200 text-gray-600'
-                  }`}>
-                    {isStepCompleted(index) ? '✓' : step.marker}
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm font-medium ${
-                      isStepCompleted(index) || isStepCurrent(index) ? 'text-gray-900' : 'text-gray-500'
+            {workflowSteps.map((step, index) => {
+              const isUnpublishedAtPublishStep = jobPosting.status === 'UNPUBLISHED' && step.key === 'PUBLISHED';
+              const completed = isStepCompleted(index) && !isUnpublishedAtPublishStep;
+              const current = isStepCurrent(index);
+
+              return (
+                <div key={step.key} className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                      isUnpublishedAtPublishStep ? 'bg-orange-500 text-white' :
+                      completed ? 'bg-green-500 text-white' :
+                      current ? 'bg-gold-500 text-white' :
+                      'bg-gray-200 text-gray-600'
                     }`}>
-                      {step.label}
-                    </p>
-                    {isStepCurrent(index) && (
-                      <span className="text-xs bg-gold-100 text-gold-800 px-2 py-1 rounded">
-                        Current
-                      </span>
-                    )}
+                      {isUnpublishedAtPublishStep ? '!' :
+                       completed ? '\u2713' : step.marker}
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-600">{step.description}</p>
+                  <div className="ml-4 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className={`text-sm font-medium ${
+                        isUnpublishedAtPublishStep || completed || current ? 'text-gray-900' : 'text-gray-500'
+                      }`}>
+                        {isUnpublishedAtPublishStep ? 'Unpublished' : step.label}
+                      </p>
+                      {isUnpublishedAtPublishStep && (
+                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                          Unpublished
+                        </span>
+                      )}
+                      {current && (
+                        <span className="text-xs bg-gold-100 text-gold-800 px-2 py-1 rounded">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      {isUnpublishedAtPublishStep ? 'Can be republished or closed' : step.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

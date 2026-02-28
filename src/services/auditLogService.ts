@@ -1,6 +1,14 @@
 import { AuditLogEntry } from '../types/workflow';
 import { apiFetch } from '@/lib/api-fetch';
 
+export interface PaginatedAuditLogs {
+  logs: AuditLogEntry[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
 function parseAuditLog(raw: any): AuditLogEntry {
   return {
     id: raw.id || '',
@@ -154,11 +162,25 @@ export class AuditLogService {
   }
 
   async getRecentAuditLogs(limit: number = 50): Promise<AuditLogEntry[]> {
-    return fetchAuditLogs(`/api/audit/all?size=${limit}`);
+    return fetchAuditLogs(`/api/audit/all?size=${limit}&sort=timestamp&direction=DESC`);
   }
 
-  async getAllAuditLogs(): Promise<AuditLogEntry[]> {
-    return fetchAuditLogs('/api/audit/all');
+  async getAllAuditLogs(page: number = 0, size: number = 50): Promise<PaginatedAuditLogs> {
+    const response = await apiFetch(`/api/audit/all?page=${page}&size=${size}&sort=timestamp&direction=DESC`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+
+    // Parse Spring Data Page response format
+    const items = result.content || result.data || result || [];
+    const logs = Array.isArray(items) ? items.map(parseAuditLog) : [];
+
+    return {
+      logs,
+      totalElements: result.totalElements ?? logs.length,
+      totalPages: result.totalPages ?? 1,
+      currentPage: result.number ?? page,
+      pageSize: result.size ?? size,
+    };
   }
 }
 

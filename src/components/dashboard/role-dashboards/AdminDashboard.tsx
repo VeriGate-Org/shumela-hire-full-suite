@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api-fetch';
+import { auditLogService } from '@/services/auditLogService';
+import { AuditLogEntry } from '@/types/workflow';
 import {
   AreaChart,
   Area,
@@ -68,9 +71,47 @@ const defaultAdminMetrics: MetricItem[] = [
   },
 ];
 
+function getRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60) return 'just now';
+  if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+}
+
+function getEventColor(action: string): string {
+  if (action.includes('delete') || action.includes('reject')) return 'bg-red-600';
+  if (action.includes('create') || action.includes('approve')) return 'bg-green-600';
+  if (action.includes('auth') || action.includes('login')) return 'bg-purple-600';
+  return 'bg-gold-500';
+}
+
+interface QuickAction {
+  label: string;
+  color: string;
+  route?: string;
+  disabled?: boolean;
+}
+
+const quickActions: QuickAction[] = [
+  { label: 'User Management', color: 'bg-gold-500 text-violet-950', route: '/admin/permissions' },
+  { label: 'Audit Logs', color: 'bg-orange-600 text-white', route: '/admin/audit-logs' },
+  { label: 'System Settings', color: 'bg-gold-500 text-violet-950', route: '/settings' },
+  { label: 'Security Center', color: 'bg-red-600 text-white', route: '/admin/permissions' },
+  { label: 'Backup Database', color: 'bg-green-600 text-white', disabled: true },
+];
+
 export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange }: AdminDashboardProps) {
+  const router = useRouter();
   const [systemHealthData, setSystemHealthData] = useState<SystemHealthPoint[]>(defaultSystemHealthData);
   const [adminMetrics, setAdminMetrics] = useState<MetricItem[]>(defaultAdminMetrics);
+  const [recentEvents, setRecentEvents] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -80,22 +121,27 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
       setLoading(true);
 
       try {
-        const response = await apiFetch('/api/analytics/dashboard?role=ADMIN');
+        const [dashboardResponse, events] = await Promise.allSettled([
+          apiFetch('/api/analytics/dashboard?role=ADMIN'),
+          auditLogService.getRecentAuditLogs(10),
+        ]);
 
         if (cancelled) return;
 
-        if (response.ok) {
-          const data = await response.json();
+        if (dashboardResponse.status === 'fulfilled' && dashboardResponse.value.ok) {
+          const data = await dashboardResponse.value.json();
 
-          // Process system health data
           if (Array.isArray(data?.systemHealth) && data.systemHealth.length > 0) {
             setSystemHealthData(data.systemHealth);
           }
 
-          // Process admin metrics
           if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
             setAdminMetrics(data.metrics);
           }
+        }
+
+        if (events.status === 'fulfilled') {
+          setRecentEvents(events.value);
         }
       } catch {
         // Keep default values on error
@@ -201,48 +247,21 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
               size="small"
             >
               <div className="space-y-3 max-h-60 overflow-y-auto">
-                {[
-                  {
-                    id: '1',
-                    type: 'security',
-                    message: 'Failed login attempt from unknown IP',
-                    time: '5 minutes ago',
-                    severity: 'high',
-                    color: 'text-red-600',
-                  },
-                  {
-                    id: '2',
-                    type: 'user',
-                    message: 'New user registration: jane.smith@company.com',
-                    time: '12 minutes ago',
-                    severity: 'medium',
-                    color: 'text-gold-600',
-                  },
-                  {
-                    id: '3',
-                    type: 'system',
-                    message: 'Database backup completed successfully',
-                    time: '1 hour ago',
-                    severity: 'low',
-                    color: 'text-green-600',
-                  },
-                  {
-                    id: '4',
-                    type: 'maintenance',
-                    message: 'Scheduled maintenance window started',
-                    time: '2 hours ago',
-                    severity: 'medium',
-                    color: 'text-orange-600',
-                  },
-                ].map((event) => (
-                  <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
-                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${event.color.replace('text-', 'bg-')}`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900 truncate">{event.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{event.time}</p>
+                {recentEvents.length > 0 ? (
+                  recentEvents.map((event) => (
+                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
+                      <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getEventColor(event.action)}`}></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900 truncate">
+                          {event.action.replace(/_/g, ' ')} — {event.entityType}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">{getRelativeTime(event.timestamp)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-500 text-center py-4">No recent events</div>
+                )}
               </div>
             </DashboardWidget>
           </div>
@@ -256,16 +275,14 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
               size="small"
             >
               <div className="grid grid-cols-1 gap-2">
-                {[
-                  { label: 'User Management', color: 'bg-gold-500 text-violet-950' },
-                  { label: 'System Settings', color: 'bg-gold-500 text-violet-950' },
-                  { label: 'Backup Database', color: 'bg-green-600 text-white' },
-                  { label: 'Audit Logs', color: 'bg-orange-600 text-white' },
-                  { label: 'Security Center', color: 'bg-red-600 text-white' },
-                ].map((action) => (
+                {quickActions.map((action) => (
                   <button
                     key={action.label}
-                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full`}
+                    onClick={() => action.route && router.push(action.route)}
+                    disabled={action.disabled}
+                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full ${
+                      action.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     {action.label}
                   </button>

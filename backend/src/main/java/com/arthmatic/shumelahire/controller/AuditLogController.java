@@ -4,6 +4,9 @@ import com.arthmatic.shumelahire.entity.AuditLog;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +35,25 @@ public class AuditLogController {
     @PostMapping("/audit")
     public ResponseEntity<AuditLogResponse> createAuditLog(@Valid @RequestBody AuditLogRequest request) {
         try {
-            AuditLog savedLog = auditLogService.saveLog(
-                request.getUserId(),
-                request.getAction(),
-                request.getEntityType(),
-                request.getEntityId(),
-                request.getDetails()
-            );
+            AuditLog savedLog;
+            if (request.getUserRole() != null && !request.getUserRole().isEmpty()) {
+                savedLog = auditLogService.saveLog(
+                    request.getUserId(),
+                    request.getAction(),
+                    request.getEntityType(),
+                    request.getEntityId(),
+                    request.getDetails(),
+                    request.getUserRole()
+                );
+            } else {
+                savedLog = auditLogService.saveLog(
+                    request.getUserId(),
+                    request.getAction(),
+                    request.getEntityType(),
+                    request.getEntityId(),
+                    request.getDetails()
+                );
+            }
 
             AuditLogResponse response = new AuditLogResponse(
                 savedLog.getId(),
@@ -48,13 +63,14 @@ public class AuditLogController {
                 savedLog.getEntityType(),
                 savedLog.getEntityId(),
                 savedLog.getDetails(),
+                savedLog.getUserRole(),
                 "Audit log created successfully"
             );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             AuditLogResponse errorResponse = new AuditLogResponse(
-                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null,
                 "Failed to create audit log: " + e.getMessage()
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -106,12 +122,18 @@ public class AuditLogController {
     }
 
     /**
-     * Get all audit logs (admin endpoint)
-     * GET /api/audit/all
+     * Get all audit logs with pagination (admin endpoint)
+     * GET /api/audit/all?page=0&size=50&sort=timestamp&direction=DESC
      */
     @GetMapping("/audit/all")
-    public ResponseEntity<List<AuditLog>> getAllAuditLogs() {
-        List<AuditLog> logs = auditLogService.getAllLogs();
+    public ResponseEntity<Page<AuditLog>> getAllAuditLogs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "timestamp") String sort,
+            @RequestParam(defaultValue = "DESC") String direction) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+        Page<AuditLog> logs = auditLogService.getAllLogs(pageRequest);
         return ResponseEntity.ok(logs);
     }
 
@@ -131,16 +153,18 @@ public class AuditLogController {
         private String entityType;
         private String entityId;
         private String details;
+        private String userRole;
 
         // Constructors
         public AuditLogRequest() {}
 
-        public AuditLogRequest(String userId, String action, String entityType, String entityId, String details) {
+        public AuditLogRequest(String userId, String action, String entityType, String entityId, String details, String userRole) {
             this.userId = userId;
             this.action = action;
             this.entityType = entityType;
             this.entityId = entityId;
             this.details = details;
+            this.userRole = userRole;
         }
 
         // Getters and Setters
@@ -158,6 +182,9 @@ public class AuditLogController {
 
         public String getDetails() { return details; }
         public void setDetails(String details) { this.details = details; }
+
+        public String getUserRole() { return userRole; }
+        public void setUserRole(String userRole) { this.userRole = userRole; }
     }
 
     public static class AuditLogResponse {
@@ -168,13 +195,14 @@ public class AuditLogController {
         private String entityType;
         private String entityId;
         private String details;
+        private String userRole;
         private String message;
 
         // Constructors
         public AuditLogResponse() {}
 
-        public AuditLogResponse(Long id, LocalDateTime timestamp, String userId, String action, 
-                               String entityType, String entityId, String details, String message) {
+        public AuditLogResponse(Long id, LocalDateTime timestamp, String userId, String action,
+                               String entityType, String entityId, String details, String userRole, String message) {
             this.id = id;
             this.timestamp = timestamp;
             this.userId = userId;
@@ -182,6 +210,7 @@ public class AuditLogController {
             this.entityType = entityType;
             this.entityId = entityId;
             this.details = details;
+            this.userRole = userRole;
             this.message = message;
         }
 
@@ -206,6 +235,9 @@ public class AuditLogController {
 
         public String getDetails() { return details; }
         public void setDetails(String details) { this.details = details; }
+
+        public String getUserRole() { return userRole; }
+        public void setUserRole(String userRole) { this.userRole = userRole; }
 
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }

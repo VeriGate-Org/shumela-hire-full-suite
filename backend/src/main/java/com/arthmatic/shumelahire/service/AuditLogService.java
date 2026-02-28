@@ -5,6 +5,8 @@ import com.arthmatic.shumelahire.repository.AuditLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,6 +118,33 @@ public class AuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAllLogs() {
         return auditLogRepository.findAll();
+    }
+
+    /**
+     * Get all audit logs with pagination
+     */
+    @Transactional(readOnly = true)
+    public Page<AuditLog> getAllLogs(Pageable pageable) {
+        return auditLogRepository.findAll(pageable);
+    }
+
+    /**
+     * Save an audit log entry with userRole
+     */
+    public AuditLog saveLog(String userId, String action, String entityType, String entityId, String details, String userRole) {
+        try {
+            AuditLog auditLog = new AuditLog(userId, action, entityType, entityId, details, userRole);
+            AuditLog savedLog = auditLogRepository.save(auditLog);
+
+            logger.info("Audit log saved: User {} ({}) performed {} on {} with ID {}",
+                       userId, userRole, action, entityType, entityId);
+
+            return savedLog;
+        } catch (Exception e) {
+            logger.error("Failed to save audit log: User {} performed {} on {} with ID {}",
+                        userId, action, entityType, entityId, e);
+            throw new RuntimeException("Failed to save audit log", e);
+        }
     }
 
     /**

@@ -35,6 +35,9 @@ public class AuditLog extends TenantAwareEntity {
     @Column(columnDefinition = "TEXT")
     private String details;
 
+    @Column(name = "user_role", length = 30)
+    private String userRole;
+
     // Constructors
     public AuditLog() {
         this.timestamp = LocalDateTime.now();
@@ -47,6 +50,11 @@ public class AuditLog extends TenantAwareEntity {
         this.entityType = entityType;
         this.entityId = entityId;
         this.details = details;
+    }
+
+    public AuditLog(String userId, String action, String entityType, String entityId, String details, String userRole) {
+        this(userId, action, entityType, entityId, details);
+        this.userRole = userRole;
     }
 
     // Getters and Setters
@@ -104,6 +112,14 @@ public class AuditLog extends TenantAwareEntity {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 
     @Override

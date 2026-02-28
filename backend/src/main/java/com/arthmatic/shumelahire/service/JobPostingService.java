@@ -6,7 +6,6 @@ import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.JobPostingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,14 @@ import java.util.stream.Collectors;
 public class JobPostingService {
     
     private static final Logger logger = LoggerFactory.getLogger(JobPostingService.class);
-    
-    @Autowired
-    private JobPostingRepository jobPostingRepository;
-    
-    @Autowired
-    private AuditLogService auditLogService;
+
+    private final JobPostingRepository jobPostingRepository;
+    private final AuditLogService auditLogService;
+
+    public JobPostingService(JobPostingRepository jobPostingRepository, AuditLogService auditLogService) {
+        this.jobPostingRepository = jobPostingRepository;
+        this.auditLogService = auditLogService;
+    }
     
     /**
      * Create a new job posting
@@ -103,6 +104,7 @@ public class JobPostingService {
         JobPosting jobPosting = jobPostingRepository.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Job posting not found with slug: " + slug));
         
+        // TODO: Add rate-limiting/deduplication (session/IP-based) to prevent view inflation
         // Increment view count for published jobs
         if (jobPosting.getStatus() == JobPostingStatus.PUBLISHED) {
             jobPostingRepository.incrementViewCount(jobPosting.getId());
