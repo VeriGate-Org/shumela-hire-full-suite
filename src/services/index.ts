@@ -13,7 +13,8 @@ export type {
   ApplicationNote,
 } from './api/applicationApi';
 
-// Job API
+// Job API — DEPRECATED: jobApi uses /api/jobs/* endpoints which don't exist on backend.
+// Backend uses /api/job-postings/* (JobPostingController). analyticsApi/workflowApi retained.
 export { jobApi, analyticsApi, workflowApi } from './api/jobApi';
 export type {
   JobPosting,

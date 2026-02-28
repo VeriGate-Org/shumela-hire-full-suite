@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
 import com.arthmatic.shumelahire.entity.EmploymentType;
@@ -9,7 +10,6 @@ import com.arthmatic.shumelahire.service.JobPostingService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,19 +23,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/job-postings")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
 public class JobPostingController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JobPostingController.class);
-    
-    @Autowired
-    private JobPostingService jobPostingService;
-    
+
+    private final JobPostingService jobPostingService;
+
+    public JobPostingController(JobPostingService jobPostingService) {
+        this.jobPostingService = jobPostingService;
+    }
+
     /**
      * Create new job posting
      * POST /api/job-postings
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> createJobPosting(@Valid @RequestBody JobPostingCreateRequest request,
                                               @RequestParam Long createdBy) {
         try {
@@ -51,12 +54,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Update job posting
      * PUT /api/job-postings/{id}
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> updateJobPosting(@PathVariable Long id,
                                               @Valid @RequestBody JobPostingCreateRequest request,
                                               @RequestParam Long updatedBy) {
@@ -73,12 +77,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get job posting by ID
      * GET /api/job-postings/{id}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getJobPosting(@PathVariable Long id) {
         try {
             JobPostingResponse response = jobPostingService.getJobPosting(id);
@@ -92,12 +97,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get job posting by slug
      * GET /api/job-postings/slug/{slug}
      */
     @GetMapping("/slug/{slug}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getJobPostingBySlug(@PathVariable String slug) {
         try {
             JobPostingResponse response = jobPostingService.getJobPostingBySlug(slug);
@@ -111,12 +117,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Search job postings with pagination
      * GET /api/job-postings?search={term}&page={page}&size={size}&sort={field}
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchJobPostings(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -126,7 +133,7 @@ public class JobPostingController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
+
             Page<JobPostingResponse> results = jobPostingService.searchJobPostings(search, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
@@ -135,12 +142,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Advanced search with filters
      * GET /api/job-postings/search
      */
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchJobPostingsWithFilters(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String department,
@@ -156,9 +164,9 @@ public class JobPostingController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
+
             Page<JobPostingResponse> results = jobPostingService.searchJobPostingsWithFilters(
-                    search, department, employmentType, experienceLevel, 
+                    search, department, employmentType, experienceLevel,
                     location, remoteWork, status, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
@@ -167,12 +175,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get published jobs for public viewing
      * GET /api/job-postings/published
      */
     @GetMapping("/published")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getPublishedJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -181,7 +190,7 @@ public class JobPostingController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
+
             Page<JobPostingResponse> results = jobPostingService.getPublishedJobs(pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
@@ -190,12 +199,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get job postings by status
      * GET /api/job-postings/status/{status}
      */
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getJobPostingsByStatus(@PathVariable JobPostingStatus status) {
         try {
             List<JobPostingResponse> results = jobPostingService.getJobPostingsByStatus(status);
@@ -206,12 +216,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get job postings by creator
      * GET /api/job-postings/creator/{createdBy}
      */
     @GetMapping("/creator/{createdBy}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getJobPostingsByCreator(
             @PathVariable Long createdBy,
             @RequestParam(defaultValue = "0") int page,
@@ -221,7 +232,7 @@ public class JobPostingController {
         try {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            
+
             Page<JobPostingResponse> results = jobPostingService.getJobPostingsByCreator(createdBy, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
@@ -230,12 +241,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Submit job posting for approval
      * POST /api/job-postings/{id}/submit-for-approval
      */
     @PostMapping("/{id}/submit-for-approval")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> submitForApproval(@PathVariable Long id,
                                                @RequestParam Long submittedBy) {
         try {
@@ -250,12 +262,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Approve job posting
      * POST /api/job-postings/{id}/approve
      */
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> approveJobPosting(@PathVariable Long id,
                                                @RequestParam Long approvedBy,
                                                @RequestParam(required = false) String approvalNotes) {
@@ -271,12 +284,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Reject job posting
      * POST /api/job-postings/{id}/reject
      */
     @PostMapping("/{id}/reject")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> rejectJobPosting(@PathVariable Long id,
                                               @RequestParam Long rejectedBy,
                                               @RequestParam String rejectionReason) {
@@ -292,12 +306,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Publish job posting
      * POST /api/job-postings/{id}/publish
      */
     @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> publishJobPosting(@PathVariable Long id,
                                                @RequestParam Long publishedBy) {
         try {
@@ -312,12 +327,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Unpublish job posting
      * POST /api/job-postings/{id}/unpublish
      */
     @PostMapping("/{id}/unpublish")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> unpublishJobPosting(@PathVariable Long id,
                                                  @RequestParam Long unpublishedBy) {
         try {
@@ -332,12 +348,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Close job posting
      * POST /api/job-postings/{id}/close
      */
     @PostMapping("/{id}/close")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> closeJobPosting(@PathVariable Long id,
                                              @RequestParam Long closedBy) {
         try {
@@ -352,12 +369,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Delete job posting
      * DELETE /api/job-postings/{id}
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> deleteJobPosting(@PathVariable Long id,
                                               @RequestParam Long deletedBy) {
         try {
@@ -372,12 +390,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get jobs requiring approval
      * GET /api/job-postings/requiring-approval
      */
     @GetMapping("/requiring-approval")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> getJobsRequiringApproval() {
         try {
             List<JobPostingResponse> results = jobPostingService.getJobsRequiringApproval();
@@ -388,12 +407,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get featured jobs
      * GET /api/job-postings/featured
      */
     @GetMapping("/featured")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getFeaturedJobs() {
         try {
             List<JobPostingResponse> results = jobPostingService.getFeaturedJobs();
@@ -404,12 +424,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get urgent jobs
      * GET /api/job-postings/urgent
      */
     @GetMapping("/urgent")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getUrgentJobs() {
         try {
             List<JobPostingResponse> results = jobPostingService.getUrgentJobs();
@@ -420,12 +441,13 @@ public class JobPostingController {
                     .body(new ErrorResponse("Internal server error"));
         }
     }
-    
+
     /**
      * Get job posting statistics
      * GET /api/job-postings/statistics
      */
     @GetMapping("/statistics")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> getJobPostingStatistics() {
         try {
             List<Object[]> statistics = jobPostingService.getJobPostingStatistics();
@@ -434,33 +456,6 @@ public class JobPostingController {
             logger.error("Error getting job posting statistics", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
-        }
-    }
-    
-    // Error response DTO
-    public static class ErrorResponse {
-        private String message;
-        private long timestamp;
-        
-        public ErrorResponse(String message) {
-            this.message = message;
-            this.timestamp = System.currentTimeMillis();
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public void setMessage(String message) {
-            this.message = message;
-        }
-        
-        public long getTimestamp() {
-            return timestamp;
-        }
-        
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
         }
     }
 }

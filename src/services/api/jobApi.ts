@@ -1,5 +1,11 @@
 import { apiClient, PaginatedResponse, PaginationParams } from './apiClient';
 
+// DEPRECATED: This file uses /api/jobs/* endpoints which do not exist on the backend.
+// The backend uses /api/job-postings/* (see JobPostingController.java).
+// The JobPosting type below diverges from the backend enum — it uses lowercase statuses
+// and includes 'paused'/'archived' which do not exist on the backend.
+// The analyticsApi and workflowApi exports are retained for now as they are re-exported by services/index.ts.
+
 // Job Management API Service
 export interface JobPosting {
   id: number;

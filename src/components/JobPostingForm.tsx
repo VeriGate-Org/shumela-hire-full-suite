@@ -59,6 +59,7 @@ const EXPERIENCE_LEVELS = [
   { value: 'EXPERT', label: 'Expert (15+ years)' }
 ];
 
+// TODO: Replace hardcoded departments with data from GET /api/employees/departments
 const DEPARTMENTS = [
   'Engineering',
   'Marketing',

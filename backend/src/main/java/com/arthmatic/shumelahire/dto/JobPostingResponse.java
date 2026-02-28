@@ -135,9 +135,33 @@ public class JobPostingResponse {
         this.isDeadlinePassed = jobPosting.isDeadlinePassed();
     }
     
-    // Static factory method
+    // Static factory methods
     public static JobPostingResponse fromEntity(JobPosting jobPosting) {
         return new JobPostingResponse(jobPosting);
+    }
+
+    public static JobPostingResponse fromEntityPublic(JobPosting jobPosting) {
+        return new JobPostingResponse(jobPosting).toPublicView();
+    }
+
+    /**
+     * Strips sensitive/internal fields for public consumption.
+     */
+    public JobPostingResponse toPublicView() {
+        this.internalNotes = null;
+        this.approvalNotes = null;
+        this.rejectionReason = null;
+        this.createdBy = null;
+        this.approvedBy = null;
+        this.publishedBy = null;
+        this.canBeEdited = false;
+        this.canBeSubmittedForApproval = false;
+        this.canBeApproved = false;
+        this.canBeRejected = false;
+        this.canBePublished = false;
+        this.canBeUnpublished = false;
+        this.canBeClosed = false;
+        return this;
     }
     
     // Getters and Setters
