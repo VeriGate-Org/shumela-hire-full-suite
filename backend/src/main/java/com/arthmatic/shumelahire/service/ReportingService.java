@@ -406,7 +406,7 @@ public class ReportingService {
         // Apply additional filters
         if (filters.get("interviewType") != null) {
             interviews = interviews.stream()
-                .filter(i -> i.getInterviewType().equals(filters.get("interviewType")))
+                .filter(i -> i.getInterviewType().name().equals(filters.get("interviewType")))
                 .collect(Collectors.toList());
         }
         
@@ -424,7 +424,7 @@ public class ReportingService {
                         values.add(interview.getApplication().getJobTitle());
                         break;
                     case "interview_type":
-                        values.add(interview.getInterviewType());
+                        values.add(interview.getInterviewType().name());
                         break;
                     case "status":
                         values.add(interview.getStatus().name());
