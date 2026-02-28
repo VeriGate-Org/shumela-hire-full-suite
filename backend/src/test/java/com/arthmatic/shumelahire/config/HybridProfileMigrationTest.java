@@ -17,7 +17,7 @@ class HybridProfileMigrationTest {
     @Test
     void sqlServerMigrations_ExistAndAreNotEmpty() throws IOException {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:db/migration/sqlserver/V*.sql");
+        Resource[] resources = resolver.getResources("classpath:db/migration-sqlserver/V*.sql");
 
         assertThat(resources).isNotEmpty();
         assertThat(resources.length).isGreaterThanOrEqualTo(12);
@@ -26,7 +26,7 @@ class HybridProfileMigrationTest {
     @Test
     void sqlServerMigrations_DoNotContainPostgresSpecificSyntax() throws IOException {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:db/migration/sqlserver/V*.sql");
+        Resource[] resources = resolver.getResources("classpath:db/migration-sqlserver/V*.sql");
 
         for (Resource resource : resources) {
             String content = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -53,7 +53,7 @@ class HybridProfileMigrationTest {
     @Test
     void sqlServerMigrations_UseSqlServerSyntax() throws IOException {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:db/migration/sqlserver/V001*.sql");
+        Resource[] resources = resolver.getResources("classpath:db/migration-sqlserver/V001*.sql");
 
         assertThat(resources).hasSize(1);
         String content = new String(resources[0].getInputStream().readAllBytes(), StandardCharsets.UTF_8);
