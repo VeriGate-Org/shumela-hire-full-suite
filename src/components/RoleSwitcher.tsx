@@ -14,6 +14,7 @@ export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!user) return null;
+  if (user.role !== 'ADMIN' && !(user as any).originalRole) return null;
 
   const roles = ALL_ROLES;
   const currentRoleConfig = roleConfigurations[user.role];

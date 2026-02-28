@@ -52,6 +52,10 @@ export default function AuditLogsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLog, setSelectedLog] = useState<AuditLogEntry | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(50);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
   const [filters, setFilters] = useState<AuditLogFilter>({
     dateRange: 'week',
     entityType: 'all',
@@ -63,6 +67,7 @@ export default function AuditLogsPage() {
 
   useEffect(() => {
     loadAuditLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const applyFilters = useCallback(() => {
@@ -144,11 +149,14 @@ export default function AuditLogsPage() {
     applyFilters();
   }, [auditLogs, filters, searchTerm, applyFilters]);
 
-  const loadAuditLogs = async () => {
+  const loadAuditLogs = async (page: number = 0) => {
     setLoading(true);
     try {
-      const logs = await auditLogService.getAllAuditLogs();
-      setAuditLogs(logs);
+      const result = await auditLogService.getAllAuditLogs(page, pageSize);
+      setAuditLogs(result.logs);
+      setCurrentPage(result.currentPage);
+      setTotalPages(result.totalPages);
+      setTotalElements(result.totalElements);
     } catch (error) {
       console.error('Failed to load audit logs:', error);
     } finally {
@@ -236,21 +244,28 @@ export default function AuditLogsPage() {
     return 'info';
   };
 
-  const handleExportLogs = () => {
-    const csvContent = [
-      ['Timestamp', 'Entity Type', 'Entity ID', 'Action', 'User ID', 'User Role', 'Details'].join(','),
-      ...filteredLogs.map(log => [
-        log.timestamp.toISOString(),
-        log.entityType,
-        log.entityId,
-        log.action,
-        log.userId,
-        log.userRole,
-        JSON.stringify(log.details).replace(/,/g, ';')
-      ].join(','))
-    ].join('\n');
+  const csvEscapeField = (value: string): string => {
+    if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
+      return '"' + value.replace(/"/g, '""') + '"';
+    }
+    return value;
+  };
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+  const handleExportLogs = () => {
+    const header = ['Timestamp', 'Entity Type', 'Entity ID', 'Action', 'User ID', 'User Role', 'Details'].map(csvEscapeField).join(',');
+    const rows = filteredLogs.map(log => [
+      log.timestamp.toISOString(),
+      log.entityType,
+      log.entityId,
+      log.action,
+      log.userId,
+      log.userRole,
+      JSON.stringify(log.details),
+    ].map(csvEscapeField).join(','));
+
+    const csvContent = '\ufeff' + [header, ...rows].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -396,7 +411,7 @@ export default function AuditLogsPage() {
             </div>
             
             <div className="text-sm text-gray-600">
-              Showing {filteredLogs.length.toLocaleString()} of {auditLogs.length.toLocaleString()} logs
+              Showing {filteredLogs.length.toLocaleString()} of {totalElements.toLocaleString()} logs
             </div>
           </div>
 
@@ -526,7 +541,7 @@ export default function AuditLogsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredLogs.slice(0, 100).map((log) => {
+                {filteredLogs.map((log) => {
                   const ActionIcon = getActionIcon(log.action);
                   const actionColor = getActionColor(log.action);
                   const severity = getSeverityLevel(log);
@@ -598,11 +613,60 @@ export default function AuditLogsPage() {
             </table>
           </div>
 
-          {filteredLogs.length > 100 && (
-            <div className="px-6 py-4 bg-gray-50 border-t">
+          {totalPages > 1 && (
+            <div className="px-6 py-4 bg-gray-50 border-t flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Showing first 100 results. Use filters to narrow down the search.
+                Page {currentPage + 1} of {totalPages} ({totalElements.toLocaleString()} total logs)
               </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loadAuditLogs(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                    currentPage === 0
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Previous
+                </button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i;
+                  } else if (currentPage < 3) {
+                    pageNum = i;
+                  } else if (currentPage > totalPages - 4) {
+                    pageNum = totalPages - 5 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => loadAuditLogs(pageNum)}
+                      className={`w-10 h-10 text-sm font-medium rounded-full transition-colors ${
+                        pageNum === currentPage
+                          ? 'bg-gold-500 text-violet-950'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum + 1}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => loadAuditLogs(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                    currentPage >= totalPages - 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>

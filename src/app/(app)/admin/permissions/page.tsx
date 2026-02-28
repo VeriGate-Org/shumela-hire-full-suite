@@ -57,9 +57,9 @@ export default function AdminPermissionsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedView, setSelectedView] = useState<'roles' | 'permissions' | 'users'>('roles');
-  const [_showRoleModal, setShowRoleModal] = useState(false);
-  const [_editingRole, setEditingRole] = useState<Role | null>(null);
-  const [_loading, setLoading] = useState(true);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -186,6 +186,42 @@ export default function AdminPermissionsPage() {
       </button>
     </div>
   );
+
+  if (loading) {
+    return (
+      <PageWrapper
+        title="Role & Permission Management"
+        subtitle="Manage user roles, permissions, and access control across the recruitment platform"
+        actions={actions}
+      >
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white rounded-sm shadow p-6">
+                <div className="animate-pulse flex items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                  <div className="ml-4 flex-1">
+                    <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-sm shadow p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-48 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper
@@ -486,6 +522,47 @@ export default function AdminPermissionsPage() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create/Edit Role Modal */}
+        {showRoleModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-sm shadow-xl max-w-lg w-full">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      {editingRole ? 'Edit Role' : 'Create Role'}
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      Custom role management will be available in a future release
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setShowRoleModal(false); setEditingRole(null); }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XMarkIcon className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="bg-gray-50 rounded-sm p-8 text-center">
+                  <CogIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-sm text-gray-600">
+                    Custom role management will be available in a future release.
+                    System roles are currently read-only.
+                  </p>
+                </div>
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={() => { setShowRoleModal(false); setEditingRole(null); }}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
