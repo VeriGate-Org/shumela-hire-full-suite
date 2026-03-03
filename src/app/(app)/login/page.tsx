@@ -1,18 +1,22 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth, ALL_ROLES, ROLE_DISPLAY_NAMES, UserRole } from '@/contexts/AuthContext';
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured } from '@/lib/amplify-config';
+import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
 import { useEffect, useState, Suspense } from 'react';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, login, loginWithCredentials, loginWithLinkedIn } = useAuth();
+  const { user, login, loginWithCredentials, loginWithLinkedIn, confirmNewPassword, pendingNewPasswordChallenge } = useAuth();
   const [selectedRole, setSelectedRole] = useState<UserRole>('ADMIN');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPwd, setConfirmNewPwd] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +53,32 @@ function LoginContent() {
     }
   };
 
+  const handleNewPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (newPassword !== confirmNewPwd) {
+      setError('Passwords do not match.');
+      return;
+    }
+    const validationError = validatePassword(newPassword);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await confirmNewPassword(newPassword);
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      const errObj = err as { name?: string; message?: string };
+      setError(errObj.message || 'Failed to set new password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLinkedInLogin = async () => {
     setError(null);
     setLoading(true);
@@ -73,6 +103,92 @@ function LoginContent() {
     login(mockUser);
     router.push('/dashboard');
   };
+
+  // NEW_PASSWORD_REQUIRED challenge (invited users on first login)
+  if (isCognitoConfigured && pendingNewPasswordChallenge) {
+    const strength = getPasswordStrength(newPassword);
+    const strengthColor =
+      strength.label === 'Strong' ? 'bg-green-500' :
+      strength.label === 'Good' ? 'bg-gold-500' :
+      strength.label === 'Fair' ? 'bg-yellow-500' :
+      'bg-red-400';
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+              Set a new password
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-500">
+              Your account requires a new password before you can continue.
+            </p>
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleNewPasswordSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="new-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+                New Password
+              </label>
+              <input
+                id="new-password"
+                type="password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                placeholder="Enter new password"
+                autoComplete="new-password"
+              />
+              {newPassword && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${strengthColor}`}
+                        style={{ width: `${strength.score}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 w-12">{strength.label}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="confirm-new-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+                Confirm Password
+              </label>
+              <input
+                id="confirm-new-password"
+                type="password"
+                required
+                value={confirmNewPwd}
+                onChange={(e) => setConfirmNewPwd(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                placeholder="Confirm new password"
+                autoComplete="new-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
+            >
+              {loading ? 'Setting password...' : 'Set Password'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // Cognito login form
   if (isCognitoConfigured) {
@@ -123,6 +239,12 @@ function LoginContent() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Enter your password"
               />
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </Link>
             </div>
 
             <button

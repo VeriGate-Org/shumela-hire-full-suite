@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
+import InviteUserModal from '@/components/InviteUserModal';
 import {
   ShieldCheckIcon,
   UsersIcon,
@@ -68,6 +69,7 @@ export default function AdminPermissionsPage() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserRole, setEditingUserRole] = useState<string>('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -291,8 +293,15 @@ export default function AdminPermissionsPage() {
         Export Permissions
       </button>
       <button
-        onClick={handleCreateRole}
+        onClick={() => setShowInviteModal(true)}
         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+      >
+        <PlusIcon className="w-4 h-4 mr-2" />
+        Invite User
+      </button>
+      <button
+        onClick={handleCreateRole}
+        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
       >
         <PlusIcon className="w-4 h-4 mr-2" />
         Create Role
@@ -764,6 +773,13 @@ export default function AdminPermissionsPage() {
             </div>
           </div>
         )}
+
+        {/* Invite User Modal */}
+        <InviteUserModal
+          open={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          onSuccess={loadPermissionData}
+        />
 
         {/* Role Details Modal */}
         {selectedRole && (
