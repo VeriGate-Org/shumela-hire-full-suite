@@ -91,7 +91,12 @@ public class ShumelaHireComputeStack : Stack
         taskRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
         {
             Effect = Effect.ALLOW,
-            Actions = new[] { "cognito-idp:GetUser", "cognito-idp:AdminGetUser", "cognito-idp:ListUsers" },
+            Actions = new[]
+            {
+                "cognito-idp:GetUser", "cognito-idp:AdminGetUser", "cognito-idp:ListUsers",
+                "cognito-idp:AdminCreateUser", "cognito-idp:AdminAddUserToGroup",
+                "cognito-idp:GetGroup", "cognito-idp:CreateGroup"
+            },
             Resources = new[] { foundation.UserPool.UserPoolArn }
         }));
 
