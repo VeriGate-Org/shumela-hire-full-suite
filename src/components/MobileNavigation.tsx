@@ -163,9 +163,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) 
 
           {/* Sign Out */}
           <button
-            onClick={() => {
+            onClick={async () => {
               onClose();
-              logout();
+              await logout();
               router.push('/login');
             }}
             className="w-full mt-2 flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-control hover:bg-red-100 transition-colors"

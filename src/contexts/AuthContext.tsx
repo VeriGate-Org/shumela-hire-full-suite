@@ -231,6 +231,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('jwt_token');
       sessionStorage.removeItem('mock_user');
+      sessionStorage.removeItem('dev_user');
     }
   }, []);
 

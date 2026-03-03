@@ -183,9 +183,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
             {/* Sign Out */}
             <div className="py-1">
               <button
-                onClick={() => {
+                onClick={async () => {
                   setIsOpen(false);
-                  logout();
+                  await logout();
                   router.push('/login');
                 }}
                 role="menuitem"

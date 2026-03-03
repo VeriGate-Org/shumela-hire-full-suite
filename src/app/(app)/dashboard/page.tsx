@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
 import RoleDashboard from '@/components/dashboard/RoleDashboard';
@@ -9,11 +9,16 @@ import { useToast } from '@/components/Toast';
 
 export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30days');
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
-  // Default to Hiring Manager if no user role is available
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
   const userRole = user?.role || 'HIRING_MANAGER';
 
   const handleExportData = () => {
