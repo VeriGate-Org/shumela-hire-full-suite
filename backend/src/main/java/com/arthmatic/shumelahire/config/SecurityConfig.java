@@ -150,8 +150,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/integrations/ms-teams/webhook").permitAll()
                 .requestMatchers("/api/integrations/**").hasAnyRole("ADMIN", "HR_MANAGER")
 
+                // Offer endpoints
+                .requestMatchers("/api/offers/**").hasAnyRole("ADMIN", "HR_MANAGER")
+
                 // Agency endpoints
                 .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/approve").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/suspend").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/submissions").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers("/api/agencies/submissions/*/review").hasAnyRole("ADMIN", "HR_MANAGER")
                 .requestMatchers("/api/agencies/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // AI endpoints

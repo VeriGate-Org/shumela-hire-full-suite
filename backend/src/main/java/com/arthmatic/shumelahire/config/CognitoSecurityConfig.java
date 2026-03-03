@@ -141,8 +141,15 @@ public class CognitoSecurityConfig {
                 .requestMatchers("/api/integrations/ms-teams/webhook").permitAll()
                 .requestMatchers("/api/integrations/**").hasAnyRole("ADMIN", "HR_MANAGER")
 
+                // Offer endpoints
+                .requestMatchers("/api/offers/**").hasAnyRole("ADMIN", "HR_MANAGER")
+
                 // Agency endpoints
                 .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/approve").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/suspend").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers("/api/agencies/*/submissions").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers("/api/agencies/submissions/*/review").hasAnyRole("ADMIN", "HR_MANAGER")
                 .requestMatchers("/api/agencies/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // AI endpoints
@@ -199,6 +206,21 @@ public class CognitoSecurityConfig {
     public FilterRegistrationBean<CognitoUserProvisioningFilter> disableCognitoFilterAutoRegistration(
             CognitoUserProvisioningFilter filter) {
         FilterRegistrationBean<CognitoUserProvisioningFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    /**
+     * Prevent RateLimitFilter from being auto-registered as a servlet filter.
+     * Same reason as above — it is already in the Spring Security filter chain
+     * via addFilterBefore(). Auto-registration as a servlet filter causes it to
+     * run before the security chain, and OncePerRequestFilter then skips it
+     * inside the security chain, changing the intended filter execution order.
+     */
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> disableRateLimitFilterAutoRegistration(
+            RateLimitFilter filter) {
+        FilterRegistrationBean<RateLimitFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }

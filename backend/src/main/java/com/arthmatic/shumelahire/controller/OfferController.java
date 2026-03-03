@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +30,8 @@ import java.util.Optional;
 @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
 public class OfferController {
 
+    private static final Logger log = LoggerFactory.getLogger(OfferController.class);
+
     @Autowired
     private OfferService offerService;
 
@@ -36,7 +40,7 @@ public class OfferController {
 
     // Create new offer
     @PostMapping("/applications/{applicationId}")
-    public ResponseEntity<Offer> createOffer(
+    public ResponseEntity<?> createOffer(
             @PathVariable Long applicationId,
             @Valid @RequestBody Offer offer,
             Authentication authentication) {
@@ -45,7 +49,8 @@ public class OfferController {
             Offer createdOffer = offerService.createOffer(applicationId, offer, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to create offer for application {}: {}", applicationId, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -73,7 +78,7 @@ public class OfferController {
 
     // Update offer
     @PutMapping("/{id}")
-    public ResponseEntity<Offer> updateOffer(
+    public ResponseEntity<?> updateOffer(
             @PathVariable Long id,
             @Valid @RequestBody Offer offer,
             Authentication authentication) {
@@ -82,13 +87,14 @@ public class OfferController {
             Offer updatedOffer = offerService.updateOffer(id, offer, userId);
             return ResponseEntity.ok(updatedOffer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to update offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Submit for approval
     @PostMapping("/{id}/submit-for-approval")
-    public ResponseEntity<Offer> submitForApproval(
+    public ResponseEntity<?> submitForApproval(
             @PathVariable Long id,
             Authentication authentication) {
         try {
@@ -96,13 +102,14 @@ public class OfferController {
             Offer offer = offerService.submitForApproval(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to submit offer {} for approval: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Approve offer
     @PostMapping("/{id}/approve")
-    public ResponseEntity<Offer> approveOffer(
+    public ResponseEntity<?> approveOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -112,13 +119,14 @@ public class OfferController {
             Offer offer = offerService.approveOffer(id, approvalNotes, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to approve offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Reject offer
     @PostMapping("/{id}/reject")
-    public ResponseEntity<Offer> rejectOffer(
+    public ResponseEntity<?> rejectOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -128,13 +136,14 @@ public class OfferController {
             Offer offer = offerService.rejectOffer(id, rejectionReason, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to reject offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Send offer
     @PostMapping("/{id}/send")
-    public ResponseEntity<Offer> sendOffer(
+    public ResponseEntity<?> sendOffer(
             @PathVariable Long id,
             Authentication authentication) {
         try {
@@ -142,13 +151,14 @@ public class OfferController {
             Offer offer = offerService.sendOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to send offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Withdraw offer
     @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Offer> withdrawOffer(
+    public ResponseEntity<?> withdrawOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -158,24 +168,26 @@ public class OfferController {
             Offer offer = offerService.withdrawOffer(id, withdrawalReason, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to withdraw offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Record candidate viewed
     @PostMapping("/{id}/viewed")
-    public ResponseEntity<Offer> recordCandidateViewed(@PathVariable Long id) {
+    public ResponseEntity<?> recordCandidateViewed(@PathVariable Long id) {
         try {
             Offer offer = offerService.recordCandidateViewed(id);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to record offer {} viewed: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Accept offer
     @PostMapping("/{id}/accept")
-    public ResponseEntity<Offer> acceptOffer(
+    public ResponseEntity<?> acceptOffer(
             @PathVariable Long id,
             Authentication authentication) {
         try {
@@ -183,13 +195,14 @@ public class OfferController {
             Offer offer = offerService.acceptOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to accept offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Decline offer
     @PostMapping("/{id}/decline")
-    public ResponseEntity<Offer> declineOffer(
+    public ResponseEntity<?> declineOffer(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -199,13 +212,14 @@ public class OfferController {
             Offer offer = offerService.declineOffer(id, declineReason, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to decline offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Start negotiation
     @PostMapping("/{id}/negotiate")
-    public ResponseEntity<Offer> startNegotiation(
+    public ResponseEntity<?> startNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -215,13 +229,14 @@ public class OfferController {
             Offer offer = offerService.startNegotiation(id, candidateCounterOffer, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to start negotiation for offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Respond to negotiation
     @PostMapping("/{id}/negotiate/respond")
-    public ResponseEntity<Offer> respondToNegotiation(
+    public ResponseEntity<?> respondToNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request,
             Authentication authentication) {
@@ -234,13 +249,14 @@ public class OfferController {
             Offer offer = offerService.respondToNegotiation(id, companyResponse, status, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to respond to negotiation for offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Escalate negotiation
     @PostMapping("/{id}/negotiate/escalate")
-    public ResponseEntity<Offer> escalateNegotiation(
+    public ResponseEntity<?> escalateNegotiation(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -250,13 +266,14 @@ public class OfferController {
             Offer offer = offerService.escalateNegotiation(id, escalationReason, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to escalate negotiation for offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // Create new version
     @PostMapping("/{id}/new-version")
-    public ResponseEntity<Offer> createNewVersion(
+    public ResponseEntity<?> createNewVersion(
             @PathVariable Long id,
             @Valid @RequestBody Offer updatedOfferData,
             Authentication authentication) {
@@ -265,7 +282,8 @@ public class OfferController {
             Offer newVersion = offerService.createNewVersion(id, updatedOfferData, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(newVersion);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            log.error("Failed to create new version for offer {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
