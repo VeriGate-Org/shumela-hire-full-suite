@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.config;
 import com.arthmatic.shumelahire.config.tenant.TenantResolutionFilter;
 import com.arthmatic.shumelahire.repository.TenantRepository;
 import com.arthmatic.shumelahire.security.CognitoJwtConverter;
+import com.arthmatic.shumelahire.security.CognitoUserProvisioningFilter;
 import com.arthmatic.shumelahire.security.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,6 +37,9 @@ public class CognitoSecurityConfig {
 
     @Autowired
     private RateLimitFilter rateLimitFilter;
+
+    @Autowired
+    private CognitoUserProvisioningFilter cognitoUserProvisioningFilter;
 
     @Autowired
     private TenantRepository tenantRepository;
@@ -177,6 +182,7 @@ public class CognitoSecurityConfig {
 
         http.addFilterBefore(new TenantResolutionFilter(tenantRepository, environment), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(cognitoUserProvisioningFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }

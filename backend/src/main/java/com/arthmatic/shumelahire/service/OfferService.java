@@ -534,7 +534,7 @@ public class OfferService {
         Map<String, Long> counts = new HashMap<>();
         
         counts.put("pendingApproval", offerRepository.countPendingApproval());
-        counts.put("nearExpiry", offerRepository.countNearExpiry(LocalDateTime.now().plusHours(24)));
+        counts.put("nearExpiry", offerRepository.countNearExpiry(LocalDateTime.now().plusDays(7)));
         counts.put("activeNegotiations", offerRepository.countActiveNegotiations());
         counts.put("recentAcceptances", offerRepository.countRecentAcceptances(LocalDateTime.now().minusDays(7)));
         

@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,25 @@ public class JobAdController {
     @Autowired
     private UserRepository userRepository;
     
+    /**
+     * GET /ads/internal - List published internal job ads (any authenticated user)
+     */
+    @GetMapping("/internal")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Page<JobAdResponse>>> getInternalJobAds(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+            Page<JobAdResponse> ads = jobAdService.getPublishedInternalAds(pageable);
+            return ResponseEntity.ok(ApiResponse.success(ads, "Internal job ads retrieved successfully"));
+        } catch (Exception e) {
+            logger.error("Error fetching internal job ads", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Internal server error"));
+        }
+    }
+
     /**
      * POST /ads - Create job ad (draft or publish)
      */

@@ -62,6 +62,13 @@ public interface JobAdRepository extends JpaRepository<JobAd, Long> {
            "j.channelInternal = true AND " +
            "(j.closingDate IS NULL OR j.closingDate >= :currentDate)")
     List<JobAd> findActiveInternalAds(@Param("currentDate") LocalDate currentDate);
+
+    // Paginated version for internal job board endpoint
+    @Query("SELECT j FROM JobAd j WHERE " +
+           "j.status = 'PUBLISHED' AND " +
+           "j.channelInternal = true AND " +
+           "(j.closingDate IS NULL OR j.closingDate >= :currentDate)")
+    Page<JobAd> findActiveInternalAdsPaged(@Param("currentDate") LocalDate currentDate, Pageable pageable);
     
     // Find ads that should be expired
     @Query("SELECT j FROM JobAd j WHERE " +

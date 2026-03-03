@@ -31,11 +31,19 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
     List<Interview> findByRound(InterviewRound round);
 
     // Date and time queries
-    @Query("SELECT i FROM Interview i WHERE i.scheduledAt >= :startDate AND i.scheduledAt < :endDate")
-    List<Interview> findByScheduledAtBetween(@Param("startDate") LocalDateTime startDate, 
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.scheduledAt >= :startDate AND i.scheduledAt < :endDate")
+    List<Interview> findByScheduledAtBetween(@Param("startDate") LocalDateTime startDate,
                                            @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT i FROM Interview i WHERE i.interviewerId = :interviewerId " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.interviewerId = :interviewerId " +
            "AND i.scheduledAt >= :startDate AND i.scheduledAt < :endDate " +
            "AND i.status IN ('SCHEDULED', 'RESCHEDULED')")
     List<Interview> findInterviewerSchedule(@Param("interviewerId") Long interviewerId,
@@ -56,22 +64,54 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
                                                      @Param("endTime") LocalDateTime endTime);
 
     // Status-based queries
-    @Query("SELECT i FROM Interview i WHERE i.status = 'SCHEDULED' AND i.scheduledAt <= :now")
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.status = 'SCHEDULED' AND i.scheduledAt <= :now")
     List<Interview> findOverdueInterviews(@Param("now") LocalDateTime now);
 
-    @Query("SELECT i FROM Interview i WHERE i.status = 'SCHEDULED' " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.status = 'SCHEDULED' " +
            "AND i.scheduledAt BETWEEN :now AND :futureTime")
-    List<Interview> findUpcomingInterviews(@Param("now") LocalDateTime now, 
+    List<Interview> findUpcomingInterviews(@Param("now") LocalDateTime now,
                                          @Param("futureTime") LocalDateTime futureTime);
 
-    @Query("SELECT i FROM Interview i WHERE i.status = 'COMPLETED' AND i.feedback IS NULL")
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.status = 'COMPLETED' AND i.feedback IS NULL")
     List<Interview> findInterviewsRequiringFeedback();
 
-    @Query("SELECT i FROM Interview i WHERE i.status = 'COMPLETED' AND i.recommendation IS NULL")
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "WHERE i.status = 'COMPLETED' AND i.recommendation IS NULL")
     List<Interview> findInterviewsRequiringRecommendation();
 
     // Search functionality
-    @Query("SELECT i FROM Interview i JOIN i.application a JOIN a.jobPosting jp " +
+    @Query(value = "SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE (:searchTerm IS NULL OR " +
+           "LOWER(i.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(jp.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
+           "LOWER(jp.department) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))) " +
+           "AND (:status IS NULL OR i.status = :status) " +
+           "AND (:type IS NULL OR i.type = :type) " +
+           "AND (:round IS NULL OR i.round = :round) " +
+           "AND (:interviewerId IS NULL OR i.interviewerId = :interviewerId) " +
+           "AND (CAST(:startDate AS LocalDateTime) IS NULL OR i.scheduledAt >= :startDate) " +
+           "AND (CAST(:endDate AS LocalDateTime) IS NULL OR i.scheduledAt <= :endDate)",
+           countQuery = "SELECT COUNT(i) FROM Interview i " +
+           "JOIN i.application a " +
+           "JOIN a.applicant ap " +
+           "JOIN a.jobPosting jp " +
            "WHERE (:searchTerm IS NULL OR " +
            "LOWER(i.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
            "LOWER(jp.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
@@ -92,13 +132,21 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
                                    Pageable pageable);
 
     // Calendar queries
-    @Query("SELECT i FROM Interview i WHERE i.interviewerId = :interviewerId " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE i.interviewerId = :interviewerId " +
            "AND YEAR(i.scheduledAt) = :year AND MONTH(i.scheduledAt) = :month")
     List<Interview> findByInterviewerAndMonth(@Param("interviewerId") Long interviewerId,
                                             @Param("year") int year,
                                             @Param("month") int month);
 
-    @Query("SELECT i FROM Interview i WHERE DATE(i.scheduledAt) = DATE(:date)")
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE DATE(i.scheduledAt) = DATE(:date)")
     List<Interview> findByDate(@Param("date") LocalDateTime date);
 
     // Analytics queries
@@ -128,11 +176,17 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
     // Recommendation-based queries
     List<Interview> findByRecommendation(InterviewRecommendation recommendation);
 
-    @Query("SELECT i FROM Interview i WHERE i.status = 'COMPLETED' " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "WHERE i.status = 'COMPLETED' " +
            "AND i.recommendation IN ('HIRE', 'CONSIDER')")
     List<Interview> findPositiveRecommendations();
 
-    @Query("SELECT i FROM Interview i WHERE i.status = 'COMPLETED' " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "WHERE i.status = 'COMPLETED' " +
            "AND i.recommendation = 'ANOTHER_ROUND'")
     List<Interview> findRequiringAdditionalRounds();
 
@@ -149,11 +203,18 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
     List<Interview> findInterviewsNeedingFeedbackRequest(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     // Application-specific queries
-    @Query("SELECT i FROM Interview i WHERE i.application.id = :applicationId " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "JOIN FETCH a.jobPosting jp " +
+           "WHERE a.id = :applicationId " +
            "ORDER BY i.scheduledAt DESC")
     List<Interview> findByApplicationIdOrderByScheduledAtDesc(@Param("applicationId") Long applicationId);
 
-    @Query("SELECT i FROM Interview i WHERE i.application.id = :applicationId " +
+    @Query("SELECT i FROM Interview i " +
+           "JOIN FETCH i.application a " +
+           "JOIN FETCH a.applicant ap " +
+           "WHERE a.id = :applicationId " +
            "AND i.status = 'COMPLETED' AND i.recommendation = 'HIRE'")
     List<Interview> findHireRecommendationsByApplication(@Param("applicationId") Long applicationId);
 

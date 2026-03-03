@@ -273,6 +273,15 @@ public class JobAdService {
     }
     
     /**
+     * Get published internal job ads (for all authenticated employees)
+     */
+    @Transactional(readOnly = true)
+    public Page<JobAdResponse> getPublishedInternalAds(Pageable pageable) {
+        Page<JobAd> jobAds = jobAdRepository.findActiveInternalAdsPaged(LocalDate.now(), pageable);
+        return jobAds.map(JobAdResponse::fromEntity);
+    }
+
+    /**
      * Search job ads with filters
      */
     @Transactional(readOnly = true)
