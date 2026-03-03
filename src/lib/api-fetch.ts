@@ -41,3 +41,15 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
 
   return fetch(url, { ...init, headers });
 }
+
+/**
+ * Like apiFetch but parses JSON and throws on non-2xx responses.
+ */
+export async function apiFetchJson<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  const res = await apiFetch(path, init);
+  if (!res.ok) {
+    const message = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${message}`);
+  }
+  return res.json() as Promise<T>;
+}

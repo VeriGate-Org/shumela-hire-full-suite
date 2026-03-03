@@ -11,6 +11,7 @@ import {
   GlobeAltIcon,
   ShieldCheckIcon,
   BuildingOfficeIcon,
+  BuildingOffice2Icon,
   CurrencyDollarIcon,
   EnvelopeIcon,
   PresentationChartBarIcon,
@@ -20,6 +21,7 @@ import {
   Cog6ToothIcon,
   ServerStackIcon,
   QuestionMarkCircleIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -58,6 +60,8 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'recruitment', requiredPermissions: ['manage_applications'] },
   { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'recruitment', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },
   { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['view_salary_data'] },
+  { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'recruitment', requiredPermissions: ['view_applications'] },
+  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applications'] },
 
   // Analytics
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },

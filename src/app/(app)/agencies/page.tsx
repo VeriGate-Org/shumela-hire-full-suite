@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { useToast } from '@/components/Toast';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, apiFetchJson } from '@/lib/api-fetch';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ export default function AgenciesPage() {
   const loadAgencies = useCallback(async () => {
     try {
       setAgenciesLoading(true);
-      const data = await apiFetch('/api/agencies').then((r) => r.json());
+      const data = await apiFetchJson<Agency[] | { content: Agency[] }>('/api/agencies');
       setAgencies(Array.isArray(data) ? data : data.content ?? []);
     } catch {
       toast('Failed to load agencies', 'error');
@@ -137,7 +137,7 @@ export default function AgenciesPage() {
       setSubmissionsLoading(true);
       setDashboard(null);
       try {
-        const dashboardData = await apiFetch(`/api/agencies/${agency.id}/dashboard`).then((r) => r.json());
+        const dashboardData = await apiFetchJson<AgencyDashboard>(`/api/agencies/${agency.id}/dashboard`);
         setDashboard(dashboardData);
         // Submissions list is not a separate endpoint — we derive counts from dashboard
         // and show submission form separately
@@ -220,7 +220,7 @@ export default function AgenciesPage() {
   const handleApprove = async (agency: Agency) => {
     try {
       setStatusActionLoading(agency.id);
-      const updated: Agency = await apiFetch(`/api/agencies/${agency.id}/approve`, { method: 'POST' }).then((r) => r.json());
+      const updated = await apiFetchJson<Agency>(`/api/agencies/${agency.id}/approve`, { method: 'POST' });
       toast('Agency approved', 'success');
       setAgencies((prev) => prev.map((a) => (a.id === agency.id ? updated : a)));
       if (selectedAgency?.id === agency.id) {
@@ -237,7 +237,7 @@ export default function AgenciesPage() {
   const handleSuspend = async (agency: Agency) => {
     try {
       setStatusActionLoading(agency.id);
-      const updated: Agency = await apiFetch(`/api/agencies/${agency.id}/suspend`, { method: 'POST' }).then((r) => r.json());
+      const updated = await apiFetchJson<Agency>(`/api/agencies/${agency.id}/suspend`, { method: 'POST' });
       toast('Agency suspended', 'success');
       setAgencies((prev) => prev.map((a) => (a.id === agency.id ? updated : a)));
       if (selectedAgency?.id === agency.id) {

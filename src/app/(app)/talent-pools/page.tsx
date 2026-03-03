@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { useToast } from '@/components/Toast';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, apiFetchJson } from '@/lib/api-fetch';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -127,7 +127,7 @@ export default function TalentPoolsPage() {
   const loadPools = useCallback(async () => {
     try {
       setPoolsLoading(true);
-      const data = await apiFetch('/api/talent-pools').then((r) => r.json());
+      const data = await apiFetchJson<TalentPool[] | { content: TalentPool[] }>('/api/talent-pools');
       setPools(Array.isArray(data) ? data : data.content ?? []);
     } catch {
       toast('Failed to load talent pools', 'error');
@@ -143,8 +143,8 @@ export default function TalentPoolsPage() {
       setAnalytics(null);
       try {
         const [entriesData, analyticsData] = await Promise.all([
-          apiFetch(`/api/talent-pools/${pool.id}/entries`).then((r) => r.json()),
-          apiFetch(`/api/talent-pools/${pool.id}/analytics`).then((r) => r.json()),
+          apiFetchJson<TalentPoolEntry[] | { content: TalentPoolEntry[] }>(`/api/talent-pools/${pool.id}/entries`),
+          apiFetchJson<PoolAnalytics>(`/api/talent-pools/${pool.id}/analytics`),
         ]);
         setEntries(Array.isArray(entriesData) ? entriesData : entriesData.content ?? []);
         setAnalytics(analyticsData);
