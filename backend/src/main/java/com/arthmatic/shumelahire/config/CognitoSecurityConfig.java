@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -95,85 +96,85 @@ public class CognitoSecurityConfig {
             )
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
-                .requestMatchers("/api/auth/me").authenticated()
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/api/health").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/auth/me")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/public/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/health")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"), new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                 // Actuator
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).hasRole("ADMIN")
 
                 // Platform admin endpoints
-                .requestMatchers("/api/platform/**").hasRole("PLATFORM_OWNER")
+                .requestMatchers(new AntPathRequestMatcher("/api/platform/**")).hasRole("PLATFORM_OWNER")
 
                 // Admin endpoints
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "HR_MANAGER")
-                .requestMatchers("/api/users/manage/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasRole("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/audit/**")).hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/users/manage/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Executive endpoints
-                .requestMatchers("/api/executive/**").hasAnyRole("ADMIN", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/executive/**")).hasAnyRole("ADMIN", "EXECUTIVE")
 
                 // HR Manager endpoints
-                .requestMatchers("/api/requisitions/approve/**").hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER")
-                .requestMatchers("/api/job-postings/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
-                .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/requisitions/approve/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/job-postings/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/analytics/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "EXECUTIVE")
 
                 // Interview endpoints
-                .requestMatchers("/api/interviews/assigned/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
-                .requestMatchers("/api/interviews/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+                .requestMatchers(new AntPathRequestMatcher("/api/interviews/assigned/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+                .requestMatchers(new AntPathRequestMatcher("/api/interviews/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
 
                 // Application management endpoints
-                .requestMatchers("/api/applications/manage/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
-                .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT")
-                .requestMatchers("/api/applicants/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/applications/manage/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/applications/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT")
+                .requestMatchers(new AntPathRequestMatcher("/api/applicants/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
 
                 // Internal jobs
-                .requestMatchers("/api/internal/jobs/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "EMPLOYEE", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/internal/jobs/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "EMPLOYEE", "EXECUTIVE")
 
                 // E-Signature endpoints
-                .requestMatchers("/api/esignature/webhook").permitAll()
-                .requestMatchers("/api/esignature/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/esignature/webhook")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/esignature/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Integration endpoints
-                .requestMatchers("/api/integrations/ms-teams/webhook").permitAll()
-                .requestMatchers("/api/integrations/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/integrations/ms-teams/webhook")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/integrations/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Offer endpoints
-                .requestMatchers("/api/offers/**").hasAnyRole("ADMIN", "HR_MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Agency endpoints — method-level @PreAuthorize handles fine-grained access
-                .requestMatchers("/api/agencies/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/agencies/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // AI endpoints
-                .requestMatchers("/api/ai/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+                .requestMatchers(new AntPathRequestMatcher("/api/ai/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
 
                 // LinkedIn Social endpoints
-                .requestMatchers("/api/linkedin/social/auth/callback").permitAll()
-                .requestMatchers("/api/linkedin/social/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/linkedin/social/auth/callback")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/linkedin/social/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Job board endpoints
-                .requestMatchers("/api/job-boards/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/job-boards/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Salary recommendation endpoints
-                .requestMatchers("/api/salary-recommendations/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/salary-recommendations/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Vacancy report endpoints
-                .requestMatchers("/api/vacancy-reports/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/vacancy-reports/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Shortlisting endpoints
-                .requestMatchers("/api/shortlisting/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/shortlisting/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Talent pool endpoints
-                .requestMatchers("/api/talent-pools/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                .requestMatchers(new AntPathRequestMatcher("/api/talent-pools/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Compliance endpoints
-                .requestMatchers("/api/compliance/**").hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/compliance/**")).hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
 
                 // General authenticated endpoints
-                .requestMatchers("/api/**").authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
 
                 .anyRequest().denyAll()
             )
