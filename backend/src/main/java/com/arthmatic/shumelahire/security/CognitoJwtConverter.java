@@ -57,10 +57,13 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
 
         // Map cognito:groups to ROLE_* authorities
         List<String> groups = jwt.getClaimAsStringList("cognito:groups");
-        if (groups != null) {
+        if (groups != null && !groups.isEmpty()) {
             for (String group : groups) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + group.toUpperCase()));
             }
+        } else {
+            // Federated users (e.g. LinkedIn) have no Cognito groups — default to APPLICANT
+            authorities.add(new SimpleGrantedAuthority("ROLE_APPLICANT"));
         }
 
         // Add default authenticated authority

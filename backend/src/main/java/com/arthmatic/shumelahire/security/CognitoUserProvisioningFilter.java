@@ -88,7 +88,7 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
                 .filter(a -> a.startsWith("ROLE_") && !a.equals("ROLE_USER"))
                 .map(a -> a.substring(5))
                 .findFirst()
-                .orElse("EMPLOYEE");
+                .orElse("APPLICANT");
 
         try {
             return User.Role.valueOf(roleName);
