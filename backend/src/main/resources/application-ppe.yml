@@ -34,6 +34,12 @@ spring:
         jwt:
           issuer-uri: ${COGNITO_ISSUER_URI}
 
+cognito:
+  admin:
+    enabled: true
+    user-pool-id: ${COGNITO_USER_POOL_ID}
+    region: af-south-1
+
 # Disable Swagger in PPE
 springdoc:
   api-docs:

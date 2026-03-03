@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { signIn, signOut, signInWithRedirect, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { signIn, signOut, signInWithRedirect, confirmSignIn, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured, configureAmplify } from '@/lib/amplify-config';
@@ -49,11 +49,13 @@ interface AuthContextType {
   login: (userData: User) => void;
   loginWithCredentials: (email: string, password: string) => Promise<void>;
   loginWithLinkedIn: () => Promise<void>;
+  confirmNewPassword: (newPassword: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
   hasPermission: (permission: string) => boolean;
   isAuthenticated: boolean;
   isLoading: boolean;
+  pendingNewPasswordChallenge: boolean;
   token: string | null;
   getAccessToken: () => Promise<string | null>;
 }
@@ -92,6 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingNewPasswordChallenge, setPendingNewPasswordChallenge] = useState(false);
 
   // Check for existing Cognito session on mount
   useEffect(() => {
@@ -118,28 +121,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  async function refreshSessionState() {
+    const authUser = await getCurrentUser();
+    const session = await fetchAuthSession();
+    const idToken = session.tokens?.idToken;
+
+    if (idToken) {
+      const groups = (idToken.payload['cognito:groups'] as string[] | undefined) || [];
+      const role = extractRoleFromGroups(groups);
+      const attrs = await fetchUserAttributes();
+
+      const tenantId = (idToken.payload['custom:tenant_id'] as string) || undefined;
+      const userData: User = {
+        id: authUser.userId,
+        name: attrs.name || attrs.email || authUser.username,
+        email: attrs.email || '',
+        role,
+        permissions: rolePermissions[role],
+        tenantId,
+      };
+      setUser(userData);
+      setToken(idToken.toString());
+    }
+  }
+
   async function checkCognitoSession() {
     try {
-      const authUser = await getCurrentUser();
-      const session = await fetchAuthSession();
-      const idToken = session.tokens?.idToken;
-
-      if (idToken) {
-        const groups = (idToken.payload['cognito:groups'] as string[] | undefined) || [];
-        const role = extractRoleFromGroups(groups);
-        const attrs = await fetchUserAttributes();
-
-        const tenantId = (idToken.payload['custom:tenant_id'] as string) || undefined;
-        setUser({
-          id: authUser.userId,
-          name: attrs.name || attrs.email || authUser.username,
-          email: attrs.email || '',
-          role,
-          permissions: rolePermissions[role],
-          tenantId,
-        });
-        setToken(idToken.toString());
-      }
+      await refreshSessionState();
     } catch {
       // No active session
     } finally {
@@ -175,28 +183,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password,
       options: { authFlowType: 'USER_PASSWORD_AUTH' },
     });
+
+    if (result.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+      setPendingNewPasswordChallenge(true);
+      return;
+    }
+
     if (result.isSignedIn) {
-      const session = await fetchAuthSession();
-      const idToken = session.tokens?.idToken;
-      const authUser = await getCurrentUser();
-
-      if (idToken) {
-        const groups = (idToken.payload['cognito:groups'] as string[] | undefined) || [];
-        const role = extractRoleFromGroups(groups);
-        const attrs = await fetchUserAttributes();
-
-        const tenantId = (idToken.payload['custom:tenant_id'] as string) || undefined;
-        const userData: User = {
-          id: authUser.userId,
-          name: attrs.name || attrs.email || authUser.username,
-          email: attrs.email || '',
-          role,
-          permissions: rolePermissions[role],
-          tenantId,
-        };
-        setUser(userData);
-        setToken(idToken.toString());
-      }
+      await refreshSessionState();
     }
   }, []);
 
@@ -205,6 +199,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw new Error('OAuth is not configured. Ensure NEXT_PUBLIC_COGNITO_DOMAIN is set.');
     }
     await signInWithRedirect({ provider: { custom: 'LinkedIn' } });
+  }, []);
+
+  const confirmNewPassword = useCallback(async (newPassword: string) => {
+    const result = await confirmSignIn({ challengeResponse: newPassword });
+    if (result.isSignedIn) {
+      setPendingNewPasswordChallenge(false);
+      await refreshSessionState();
+    }
   }, []);
 
   // Mock login for dev
@@ -286,11 +288,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       login,
       loginWithCredentials,
       loginWithLinkedIn,
+      confirmNewPassword,
       logout,
       switchRole,
       hasPermission,
       isAuthenticated,
       isLoading,
+      pendingNewPasswordChallenge,
       token,
       getAccessToken,
     }}>
