@@ -130,6 +130,20 @@ const DashboardNavigation: React.FC = () => {
       description: 'Review and approve salary recommendations'
     },
     {
+      id: 'talent-pools',
+      label: 'Talent Pools',
+      href: '/talent-pools',
+      icon: '🎯',
+      description: 'Manage candidate talent pools'
+    },
+    {
+      id: 'agencies',
+      label: 'Agencies',
+      href: '/agencies',
+      icon: '🤝',
+      description: 'Manage recruitment agency partners'
+    },
+    {
       id: 'analytics',
       label: 'Analytics & Reports',
       href: '/analytics',
