@@ -144,12 +144,7 @@ public class CognitoSecurityConfig {
                 // Offer endpoints
                 .requestMatchers("/api/offers/**").hasAnyRole("ADMIN", "HR_MANAGER")
 
-                // Agency endpoints
-                .requestMatchers("/api/agencies/register").hasAnyRole("ADMIN", "HR_MANAGER")
-                .requestMatchers("/api/agencies/*/approve").hasAnyRole("ADMIN", "HR_MANAGER")
-                .requestMatchers("/api/agencies/*/suspend").hasAnyRole("ADMIN", "HR_MANAGER")
-                .requestMatchers("/api/agencies/*/submissions").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
-                .requestMatchers("/api/agencies/submissions/*/review").hasAnyRole("ADMIN", "HR_MANAGER")
+                // Agency endpoints — method-level @PreAuthorize handles fine-grained access
                 .requestMatchers("/api/agencies/**").hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // AI endpoints
