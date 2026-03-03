@@ -50,8 +50,8 @@ public class OfferService {
         // Set application and basic data
         offerData.setApplication(application);
         offerData.setCreatedBy(createdBy);
-        offerData.setJobTitle(application.getJobPosting().getTitle());
-        offerData.setDepartment(application.getJobPosting().getDepartment());
+        offerData.setJobTitle(application.getJobTitle());
+        offerData.setDepartment(application.getDepartment());
         
         // Set default expiry
         if (offerData.getOfferExpiryDate() == null) {

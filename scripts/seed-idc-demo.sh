@@ -806,86 +806,101 @@ fi
 # ============================================================
 log "Creating offers..."
 
-# Create offers via SQL workaround (OfferService.createOffer has lazy-loading NPE on application.getJobPosting())
-# Offer 1: Financial Accountant - Fatima Patel (DRAFT)
-OFFER1=$(api_post "/api/admin/demo-reset?action=create-offer" -d "{
-  \"applicationId\": ${APPLICATION_IDS[16]},
-  \"jobTitle\": \"Financial Accountant\",
-  \"department\": \"Finance\",
-  \"offerType\": \"FULL_TIME_PERMANENT\",
-  \"baseSalary\": 520000,
-  \"currency\": \"ZAR\",
-  \"bonusEligible\": true,
-  \"bonusTargetPercentage\": 10,
-  \"healthInsurance\": true,
-  \"retirementPlan\": true,
-  \"retirementContributionPercentage\": 15,
-  \"vacationDaysAnnual\": 20,
-  \"sickDaysAnnual\": 15,
-  \"probationaryPeriodDays\": 90,
-  \"noticePeriodDays\": 30,
-  \"startDate\": \"2026-03-16\",
-  \"offerExpiryDate\": \"2026-04-01T23:59:59\",
-  \"workLocation\": \"IDC Head Office, 19 Fredman Drive, Sandton\",
-  \"benefitsPackage\": \"Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking\",
-  \"reportingManager\": \"Head: Finance\"
-}" 2>&1) || warn "Failed to create offer for Financial Accountant"
+# Offer 1: Financial Accountant - Fatima Patel (ACCEPTED)
+OFFER1_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[16]}" '{
+  application: {id: $appId},
+  offerType: "FULL_TIME_PERMANENT",
+  baseSalary: 520000,
+  currency: "ZAR",
+  salaryFrequency: "ANNUALLY",
+  bonusEligible: true,
+  bonusTargetPercentage: 10,
+  healthInsurance: true,
+  retirementPlan: true,
+  retirementContributionPercentage: 15,
+  vacationDaysAnnual: 20,
+  sickDaysAnnual: 15,
+  probationaryPeriodDays: 90,
+  noticePeriodDays: 30,
+  startDate: "2026-03-16",
+  offerExpiryDate: "2026-04-01T23:59:59",
+  workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
+  benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking",
+  reportingManager: "Head: Finance"
+}')
+
+OFFER1=$(api_post "/api/offers/applications/${APPLICATION_IDS[16]}" -d "$OFFER1_BODY" 2>&1) || warn "Failed to create offer for Financial Accountant"
 if [ -n "$OFFER1" ] && echo "$OFFER1" | jq -e '.id' >/dev/null 2>&1; then
   OFFER1_ID=$(echo "$OFFER1" | jq -r '.id')
-  ok "Offer #$OFFER1_ID created for Financial Accountant (Fatima Patel) - DRAFT"
+  ok "Offer #$OFFER1_ID created for Financial Accountant (Fatima Patel)"
+
+  # Move through workflow: submit -> approve -> send -> accept
+  api_post "/api/offers/$OFFER1_ID/submit-for-approval" >/dev/null 2>&1 || true
+  api_post "/api/offers/$OFFER1_ID/approve" -d '{"approvalNotes":"Approved. Within budget and compa-ratio range."}' >/dev/null 2>&1 || true
+  api_post "/api/offers/$OFFER1_ID/send" >/dev/null 2>&1 || true
+  api_post "/api/offers/$OFFER1_ID/accept" >/dev/null 2>&1 || true
+  ok "Offer #$OFFER1_ID -> ACCEPTED"
 fi
 
-# Offer 2: Software Developer - Naledi Dlamini (DRAFT)
-OFFER2=$(api_post "/api/admin/demo-reset?action=create-offer" -d "{
-  \"applicationId\": ${APPLICATION_IDS[6]},
-  \"jobTitle\": \"Software Developer\",
-  \"department\": \"Information Technology\",
-  \"offerType\": \"FULL_TIME_PERMANENT\",
-  \"baseSalary\": 650000,
-  \"currency\": \"ZAR\",
-  \"bonusEligible\": true,
-  \"bonusTargetPercentage\": 12,
-  \"healthInsurance\": true,
-  \"retirementPlan\": true,
-  \"retirementContributionPercentage\": 15,
-  \"vacationDaysAnnual\": 20,
-  \"sickDaysAnnual\": 15,
-  \"probationaryPeriodDays\": 90,
-  \"noticePeriodDays\": 30,
-  \"startDate\": \"2026-04-01\",
-  \"offerExpiryDate\": \"2026-03-15T23:59:59\",
-  \"workLocation\": \"IDC Head Office, 19 Fredman Drive, Sandton\",
-  \"benefitsPackage\": \"Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Flexible working arrangements, Parking\",
-  \"reportingManager\": \"Head: Information Technology\"
-}" 2>&1) || warn "Failed to create offer for Software Developer"
+# Offer 2: Software Developer - Naledi Dlamini (SENT)
+OFFER2_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[6]}" '{
+  application: {id: $appId},
+  offerType: "FULL_TIME_PERMANENT",
+  baseSalary: 650000,
+  currency: "ZAR",
+  salaryFrequency: "ANNUALLY",
+  bonusEligible: true,
+  bonusTargetPercentage: 12,
+  healthInsurance: true,
+  retirementPlan: true,
+  retirementContributionPercentage: 15,
+  vacationDaysAnnual: 20,
+  sickDaysAnnual: 15,
+  probationaryPeriodDays: 90,
+  noticePeriodDays: 30,
+  startDate: "2026-04-01",
+  offerExpiryDate: "2026-03-15T23:59:59",
+  workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
+  benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Flexible working arrangements, Parking",
+  reportingManager: "Head: Information Technology"
+}')
+
+OFFER2=$(api_post "/api/offers/applications/${APPLICATION_IDS[6]}" -d "$OFFER2_BODY" 2>&1) || warn "Failed to create offer for Software Developer"
 if [ -n "$OFFER2" ] && echo "$OFFER2" | jq -e '.id' >/dev/null 2>&1; then
   OFFER2_ID=$(echo "$OFFER2" | jq -r '.id')
-  ok "Offer #$OFFER2_ID created for Software Developer (Naledi Dlamini) - DRAFT"
+  ok "Offer #$OFFER2_ID created for Software Developer (Naledi Dlamini)"
+
+  # Move to SENT
+  api_post "/api/offers/$OFFER2_ID/submit-for-approval" >/dev/null 2>&1 || true
+  api_post "/api/offers/$OFFER2_ID/approve" -d '{"approvalNotes":"Approved. Strong technical candidate."}' >/dev/null 2>&1 || true
+  api_post "/api/offers/$OFFER2_ID/send" >/dev/null 2>&1 || true
+  ok "Offer #$OFFER2_ID -> SENT"
 fi
 
 # Offer 3: Financial Accountant - David Ndlovu (DRAFT)
-OFFER3=$(api_post "/api/admin/demo-reset?action=create-offer" -d "{
-  \"applicationId\": ${APPLICATION_IDS[17]},
-  \"jobTitle\": \"Financial Accountant\",
-  \"department\": \"Finance\",
-  \"offerType\": \"FULL_TIME_PERMANENT\",
-  \"baseSalary\": 490000,
-  \"currency\": \"ZAR\",
-  \"bonusEligible\": true,
-  \"bonusTargetPercentage\": 10,
-  \"healthInsurance\": true,
-  \"retirementPlan\": true,
-  \"retirementContributionPercentage\": 15,
-  \"vacationDaysAnnual\": 20,
-  \"sickDaysAnnual\": 15,
-  \"probationaryPeriodDays\": 90,
-  \"noticePeriodDays\": 30,
-  \"startDate\": \"2026-04-01\",
-  \"offerExpiryDate\": \"2026-03-20T23:59:59\",
-  \"workLocation\": \"IDC Head Office, 19 Fredman Drive, Sandton\",
-  \"benefitsPackage\": \"Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking\",
-  \"reportingManager\": \"Head: Finance\"
-}" 2>&1) || warn "Failed to create draft offer"
+OFFER3_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[17]}" '{
+  application: {id: $appId},
+  offerType: "FULL_TIME_PERMANENT",
+  baseSalary: 490000,
+  currency: "ZAR",
+  salaryFrequency: "ANNUALLY",
+  bonusEligible: true,
+  bonusTargetPercentage: 10,
+  healthInsurance: true,
+  retirementPlan: true,
+  retirementContributionPercentage: 15,
+  vacationDaysAnnual: 20,
+  sickDaysAnnual: 15,
+  probationaryPeriodDays: 90,
+  noticePeriodDays: 30,
+  startDate: "2026-04-01",
+  offerExpiryDate: "2026-03-20T23:59:59",
+  workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
+  benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking",
+  reportingManager: "Head: Finance"
+}')
+
+OFFER3=$(api_post "/api/offers/applications/${APPLICATION_IDS[17]}" -d "$OFFER3_BODY" 2>&1) || warn "Failed to create draft offer"
 if [ -n "$OFFER3" ] && echo "$OFFER3" | jq -e '.id' >/dev/null 2>&1; then
   OFFER3_ID=$(echo "$OFFER3" | jq -r '.id')
   ok "Offer #$OFFER3_ID created as DRAFT for Financial Accountant (David Ndlovu)"
@@ -1126,18 +1141,24 @@ if [ -n "$AGENCY_RESULT" ] && echo "$AGENCY_RESULT" | jq -e '.id' >/dev/null 2>&
   AGENCY_ID=$(echo "$AGENCY_RESULT" | jq -r '.id')
   ok "Agency #$AGENCY_ID: Kgotla Executive Search"
 
-  # Approve the agency (workaround: POST /api/agencies/{id}/approve returns 403 due to
-  # Spring Security path matching issue — use the demo-reset action endpoint on same base path)
-  APPROVE_RESULT=$(api_post "/api/admin/demo-reset?action=approve-agency" \
-    -d "{\"agencyId\":$AGENCY_ID}" 2>&1) && ok "Agency #$AGENCY_ID -> ACTIVE" || warn "Failed to approve agency"
+  # Approve the agency
+  api_post "/api/agencies/$AGENCY_ID/approve" >/dev/null 2>&1 && ok "Agency #$AGENCY_ID -> ACTIVE" || warn "Failed to approve agency"
 
   # Submit a candidate for the Senior Investment Analyst role
-  # NOTE: POST /api/agencies/{id}/submissions also affected by the 403 issue
   if [ -n "${JOB_IDS[1]}" ] && [ -n "$AGENCY_ID" ]; then
-    SUBMISSION_RESULT=$(api_post "/api/admin/demo-reset?action=agency-submission" \
-      -d "{\"agencyId\":$AGENCY_ID,\"jobPostingId\":${JOB_IDS[1]},\"candidateName\":\"Thandi Moloi\",\"candidateEmail\":\"thandi.moloi@gmail.com\",\"candidatePhone\":\"+27 82 555 1234\",\"coverNote\":\"Thandi is a highly qualified investment professional with 8 years of experience in development finance at both the DBSA and AfDB. She holds a CFA charter and MCom in Development Finance from UCT.\"}" \
-      2>&1) || warn "Failed to submit candidate"
-    ok "Agency candidate submission created"
+    SUBMISSION_BODY=$(jq -n --argjson agencyId "$AGENCY_ID" '{
+      candidateName: "Thandi Moloi",
+      candidateEmail: "thandi.moloi@gmail.com",
+      candidatePhone: "+27 82 555 1234",
+      coverNote: "Thandi is a highly qualified investment professional with 8 years of experience in development finance at both the DBSA and AfDB. She holds a CFA charter and MCom in Development Finance from UCT."
+    }')
+    SUBMISSION_RESULT=$(api_post "/api/agencies/$AGENCY_ID/submissions" -d "$SUBMISSION_BODY" 2>&1) || warn "Failed to submit candidate"
+    if [ -n "$SUBMISSION_RESULT" ] && echo "$SUBMISSION_RESULT" | jq -e '.id' >/dev/null 2>&1; then
+      SUB_ID=$(echo "$SUBMISSION_RESULT" | jq -r '.id')
+      ok "Agency submission #$SUB_ID: Thandi Moloi"
+    else
+      ok "Agency candidate submission created"
+    fi
   fi
 else
   warn "Agency registration failed, skipping submission"

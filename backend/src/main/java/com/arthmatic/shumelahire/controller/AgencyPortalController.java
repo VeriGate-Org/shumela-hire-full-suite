@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/agencies")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
 public class AgencyPortalController {
 
     @Autowired
@@ -27,11 +26,13 @@ public class AgencyPortalController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getAllAgencies() {
         return ResponseEntity.ok(agencyPortalService.getAllAgencies());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getAgency(@PathVariable Long id) {
         return ResponseEntity.ok(agencyPortalService.getAgency(id));
     }
@@ -49,6 +50,7 @@ public class AgencyPortalController {
     }
 
     @PostMapping("/{agencyId}/submissions")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> submitCandidate(
             @PathVariable Long agencyId,
             @RequestBody AgencySubmission submission) {
@@ -68,6 +70,7 @@ public class AgencyPortalController {
     }
 
     @GetMapping("/{agencyId}/dashboard")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getAgencyDashboard(@PathVariable Long agencyId) {
         return ResponseEntity.ok(agencyPortalService.getAgencyDashboard(agencyId));
     }
