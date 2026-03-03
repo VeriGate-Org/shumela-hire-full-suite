@@ -10,6 +10,16 @@ import java.time.temporal.ChronoUnit;
 @Entity
 @Table(name = "interviews")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NamedEntityGraph(
+    name = "Interview.withApplicationDetails",
+    attributeNodes = @NamedAttributeNode(value = "application", subgraph = "application-details"),
+    subgraphs = {
+        @NamedSubgraph(name = "application-details", attributeNodes = {
+            @NamedAttributeNode("applicant"),
+            @NamedAttributeNode("jobPosting")
+        })
+    }
+)
 public class Interview extends TenantAwareEntity {
 
     @Id

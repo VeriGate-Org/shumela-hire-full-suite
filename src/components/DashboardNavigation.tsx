@@ -123,6 +123,13 @@ const DashboardNavigation: React.FC = () => {
       description: 'Offer management and tracking'
     },
     {
+      id: 'salary-reviews',
+      label: 'Salary Reviews',
+      href: '/salary-reviews',
+      icon: '💰',
+      description: 'Review and approve salary recommendations'
+    },
+    {
       id: 'analytics',
       label: 'Analytics & Reports',
       href: '/analytics',

@@ -7,6 +7,7 @@ import com.arthmatic.shumelahire.entity.InterviewRound;
 import com.arthmatic.shumelahire.entity.InterviewRecommendation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -93,11 +94,12 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
            "WHERE i.status = 'COMPLETED' AND i.recommendation IS NULL")
     List<Interview> findInterviewsRequiringRecommendation();
 
-    // Search functionality
+    // Search functionality — uses @EntityGraph for pagination-safe eager loading
+    @EntityGraph(value = "Interview.withApplicationDetails")
     @Query(value = "SELECT i FROM Interview i " +
-           "JOIN FETCH i.application a " +
-           "JOIN FETCH a.applicant ap " +
-           "JOIN FETCH a.jobPosting jp " +
+           "JOIN i.application a " +
+           "JOIN a.applicant ap " +
+           "JOIN a.jobPosting jp " +
            "WHERE (:searchTerm IS NULL OR " +
            "LOWER(i.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +
            "LOWER(jp.title) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%')) OR " +

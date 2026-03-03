@@ -100,30 +100,6 @@ export default function OfferManagement() {
   const [eSignLoading, setESignLoading] = useState(false);
   const [eSignStatuses, setESignStatuses] = useState<Record<number, string>>({});
 
-  const loadOffers = useCallback(async () => {
-    try {
-      setLoading(true);
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        size: '10',
-        ...Object.fromEntries(
-          Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
-        )
-      });
-
-      const response = await apiFetch(`/api/offers/search?${queryParams}`);
-      if (response.ok) {
-        const data = await response.json();
-        setOffers(data.content || []);
-        setTotalPages(data.totalPages || 0);
-      }
-    } catch (error) {
-      console.error('Error loading offers:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, currentPage]);
-
   const computeClientSideCounts = useCallback((offersList: Offer[]): DashboardCounts => {
     const now = new Date();
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -138,7 +114,7 @@ export default function OfferManagement() {
     };
   }, []);
 
-  const loadDashboardCounts = useCallback(async () => {
+  const loadDashboardCounts = useCallback(async (fallbackOffers: Offer[]) => {
     try {
       const response = await apiFetch('/api/offers/dashboard');
       if (response.ok) {
@@ -153,10 +129,36 @@ export default function OfferManagement() {
       console.error('Error loading dashboard counts:', error);
     }
     // Fallback: compute from loaded offers
-    if (offers.length > 0) {
-      setDashboardCounts(computeClientSideCounts(offers));
+    if (fallbackOffers.length > 0) {
+      setDashboardCounts(computeClientSideCounts(fallbackOffers));
     }
-  }, [offers, computeClientSideCounts]);
+  }, [computeClientSideCounts]);
+
+  const loadOffers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        size: '10',
+        ...Object.fromEntries(
+          Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
+        )
+      });
+
+      const response = await apiFetch(`/api/offers/search?${queryParams}`);
+      if (response.ok) {
+        const data = await response.json();
+        const loadedOffers = data.content || [];
+        setOffers(loadedOffers);
+        setTotalPages(data.totalPages || 0);
+        loadDashboardCounts(loadedOffers);
+      }
+    } catch (error) {
+      console.error('Error loading offers:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, currentPage, loadDashboardCounts]);
 
   const loadESignStatuses = useCallback(async (offersList: Offer[]) => {
     const relevantOffers = offersList.filter(o =>
@@ -178,8 +180,7 @@ export default function OfferManagement() {
 
   useEffect(() => {
     loadOffers();
-    loadDashboardCounts();
-  }, [loadOffers, loadDashboardCounts]);
+  }, [loadOffers]);
 
   useEffect(() => {
     if (offers.length > 0) {
@@ -212,7 +213,6 @@ export default function OfferManagement() {
       if (response.ok) {
         setShowActionModal(false);
         loadOffers();
-        loadDashboardCounts();
       } else {
         toast('Action failed. Please try again.', 'error');
       }

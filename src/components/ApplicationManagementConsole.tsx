@@ -18,6 +18,35 @@ interface Application {
   lastUpdated: string;
 }
 
+/** Map raw backend Application entity or DTO to the frontend Application shape */
+function mapApplication(raw: any): Application {
+  // Build candidate name from DTO field or nested applicant entity
+  let candidateName = raw.candidateName || raw.applicantName || '';
+  if (!candidateName && raw.applicant) {
+    const first = raw.applicant.firstName || raw.applicant.given_name || '';
+    const last = raw.applicant.lastName || raw.applicant.family_name || '';
+    candidateName = `${first} ${last}`.trim();
+  }
+
+  const email = raw.email || raw.applicantEmail || raw.applicant?.email || '';
+  const jobTitle = raw.jobTitle || raw.jobPosting?.title || '';
+  const department = raw.department || raw.jobPosting?.department || '';
+  const pipelineStage = raw.pipelineStage || raw.pipelineStageDisplayName || '';
+
+  return {
+    id: raw.id,
+    candidateName,
+    email,
+    jobTitle,
+    department,
+    status: raw.status || '',
+    pipelineStage,
+    rating: raw.rating ?? 0,
+    submittedAt: raw.submittedAt || raw.createdAt || '',
+    lastUpdated: raw.lastUpdated || raw.updatedAt || '',
+  };
+}
+
 interface SearchFilters {
   searchTerm: string;
   statuses: string[];
@@ -120,7 +149,8 @@ export default function ApplicationManagementConsole() {
       const response = await apiFetch(`/api/applications/manage/search?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setApplications(data.content || data.applications || []);
+        const rawList = data.content || data.applications || [];
+        setApplications(rawList.map(mapApplication));
         setTotalElements(data.totalElements || data.total || 0);
       } else {
         setError('Failed to load applications');
