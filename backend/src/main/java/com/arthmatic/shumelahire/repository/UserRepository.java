@@ -104,6 +104,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
 
     /**
+     * Find user by username within a tenant
+     */
+    Optional<User> findByUsernameAndTenantId(String username, String tenantId);
+
+    /**
      * Check if username exists within a tenant
      */
     boolean existsByUsernameAndTenantId(String username, String tenantId);

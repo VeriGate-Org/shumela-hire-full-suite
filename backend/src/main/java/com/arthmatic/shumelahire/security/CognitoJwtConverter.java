@@ -146,15 +146,74 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
     }
 
     private Optional<String> resolveRoleFromDatabase(Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
-        String tenantId = jwt.getClaimAsString("custom:tenant_id");
-        if (email == null || email.isBlank() || tenantId == null || tenantId.isBlank()) {
+        String tenantId = resolveTenantId(jwt);
+        if (tenantId == null || tenantId.isBlank()) {
             return Optional.empty();
         }
 
-        return userRepository.findByEmailAndTenantId(email, tenantId)
-                .map(User::getRole)
-                .map(Enum::name);
+        String email = jwt.getClaimAsString("email");
+        if (email != null && !email.isBlank()) {
+            Optional<String> role = userRepository.findByEmailAndTenantId(email, tenantId)
+                    .map(User::getRole)
+                    .map(Enum::name);
+            if (role.isPresent()) {
+                return role;
+            }
+        }
+
+        for (String username : extractUsernames(jwt)) {
+            if (username == null || username.isBlank()) {
+                continue;
+            }
+            Optional<String> role = userRepository.findByUsernameAndTenantId(username, tenantId)
+                    .map(User::getRole)
+                    .map(Enum::name);
+            if (role.isPresent()) {
+                return role;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private String resolveTenantId(Jwt jwt) {
+        String tenantId = jwt.getClaimAsString("custom:tenant_id");
+        if (tenantId != null && !tenantId.isBlank()) {
+            return tenantId;
+        }
+        String currentTenant = TenantContext.getCurrentTenant();
+        if (currentTenant != null && !currentTenant.isBlank()) {
+            return currentTenant;
+        }
+        return null;
+    }
+
+    private List<String> extractUsernames(Jwt jwt) {
+        List<String> usernames = new ArrayList<>();
+
+        String cognitoUsername = jwt.getClaimAsString("cognito:username");
+        if (cognitoUsername != null && !cognitoUsername.isBlank()) {
+            usernames.add(cognitoUsername);
+        }
+
+        String username = jwt.getClaimAsString("username");
+        if (username != null && !username.isBlank()) {
+            usernames.add(username);
+        }
+
+        String preferredUsername = jwt.getClaimAsString("preferred_username");
+        if (preferredUsername != null && !preferredUsername.isBlank()) {
+            usernames.add(preferredUsername);
+        }
+
+        if (usernames.isEmpty()) {
+            String subject = jwt.getSubject();
+            if (subject != null && !subject.isBlank()) {
+                usernames.add(subject);
+            }
+        }
+
+        return usernames;
     }
 
     private Optional<String> normalizeRole(String rawRole) {
