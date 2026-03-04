@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { aiJobDescriptionService } from '@/services/aiJobDescriptionService';
 import AiDisclaimer from './AiDisclaimer';
+import { useDepartments } from '@/hooks/useDepartments';
 import { JobDescriptionRequest, JobDescriptionResult, BiasCheckResult } from '@/types/ai';
 
 interface AiJobDescriptionWriterProps {
@@ -27,6 +28,7 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
   const [biasResult, setBiasResult] = useState<BiasCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [biasLoading, setBiasLoading] = useState(false);
+  const { departments } = useDepartments();
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -75,8 +77,13 @@ export default function AiJobDescriptionWriter({ onApply, initialTitle, initialD
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Department</label>
-          <input type="text" value={form.department} onChange={e => setForm(prev => ({ ...prev, department: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" placeholder="e.g. Engineering" />
+          <select value={form.department} onChange={e => setForm(prev => ({ ...prev, department: e.target.value }))}
+            className="w-full text-sm p-2 border border-gray-300 rounded-sm">
+            <option value="">Select department</option>
+            {departments.map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Level</label>

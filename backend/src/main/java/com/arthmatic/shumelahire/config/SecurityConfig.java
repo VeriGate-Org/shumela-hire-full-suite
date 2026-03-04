@@ -129,8 +129,12 @@ public class SecurityConfig {
                 // Executive endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/executive/**")).hasAnyRole("ADMIN", "EXECUTIVE")
 
+                // Requisition endpoints
+                .requestMatchers(new AntPathRequestMatcher("/api/requisitions/*/approve")).hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/requisitions/*/reject")).hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
+                .requestMatchers(new AntPathRequestMatcher("/api/requisitions/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "EXECUTIVE")
+
                 // HR Manager endpoints
-                .requestMatchers(new AntPathRequestMatcher("/api/requisitions/approve/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER")
                 .requestMatchers(new AntPathRequestMatcher("/api/job-postings/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
                 .requestMatchers(new AntPathRequestMatcher("/api/analytics/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "EXECUTIVE")
 
