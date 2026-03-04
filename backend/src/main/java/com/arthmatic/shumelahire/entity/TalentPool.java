@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "talent_pools")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TalentPool extends TenantAwareEntity {
 
     @Id

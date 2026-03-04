@@ -31,6 +31,7 @@ public class ShumelaHireFoundationStack : Stack
     public ILogGroup EcsLogGroup { get; }
     public Secret JwtSecret { get; }
     public Secret EncryptionKeySecret { get; }
+    public Secret AiKeysSecret { get; }
 
     public ShumelaHireFoundationStack(Construct scope, string id, EnvironmentConfig config,
         IStackProps? props = null) : base(scope, id, props)
@@ -217,7 +218,7 @@ public class ShumelaHireFoundationStack : Stack
         });
 
         // ── Secrets Manager ──────────────────────────────────────────────────
-        new Secret(this, "AiKeysSecret", new SecretProps
+        AiKeysSecret = new Secret(this, "AiKeysSecret", new SecretProps
         {
             SecretName = $"shumelahire/{config.EnvironmentName}/ai-keys",
             Description = "AI service API keys (Claude, OpenAI)"

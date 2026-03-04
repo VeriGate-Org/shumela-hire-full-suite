@@ -636,7 +636,7 @@ export default function PipelinePage() {
           if (jobIds.size === 1) {
             const jobId = [...jobIds][0];
             return (
-              <AiAssistPanel title="AI Candidate Ranking" feature="AI_SCREENING_RANKING">
+              <AiAssistPanel title="AI Candidate Ranking" feature="AI_SCREENING_RANKING" description="Rank and compare candidates for this position based on qualifications and fit">
                 <AiCandidateRanking jobId={jobId} />
               </AiAssistPanel>
             );
@@ -1036,7 +1036,7 @@ export default function PipelinePage() {
                   />
 
                   {selectedApplication.backendStage.includes('OFFER') && (
-                    <AiAssistPanel title="AI Offer Prediction" feature="AI_OFFER_PREDICTION">
+                    <AiAssistPanel title="AI Offer Prediction" feature="AI_OFFER_PREDICTION" description="Predict offer acceptance likelihood based on candidate and market signals">
                       <AiOfferPrediction applicationId={selectedApplication.id} />
                     </AiAssistPanel>
                   )}

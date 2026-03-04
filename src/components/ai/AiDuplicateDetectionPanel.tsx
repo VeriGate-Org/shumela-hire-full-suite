@@ -52,19 +52,14 @@ export default function AiDuplicateDetectionPanel({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-teal-500" />
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Duplicate Detection</h3>
-          <span className="text-[10px] font-medium bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">AI-generated</span>
-        </div>
-        {!autoCheck && (
+      {!autoCheck && (
+        <div className="flex justify-end">
           <button onClick={handleCheck} disabled={loading}
-            className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50">
+            className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 disabled:opacity-50">
             {loading ? 'Checking...' : 'Check Duplicates'}
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex items-center gap-2 text-xs text-gray-500">

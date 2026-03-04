@@ -637,7 +637,7 @@ export default function ExecutiveReportsPage() {
         {/* Strategic Insights */}
         {activeView === 'insights' && (
           <div className="space-y-6">
-            <AiAssistPanel title="AI Executive Narrative" feature="AI_REPORT_NARRATIVE">
+            <AiAssistPanel title="AI Executive Narrative" feature="AI_REPORT_NARRATIVE" description="Generate an executive-level narrative from your recruitment metrics">
               <AiReportNarrative
                 reportType="Executive Summary"
                 reportData={executiveMetrics ? {

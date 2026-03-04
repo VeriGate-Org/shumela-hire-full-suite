@@ -316,8 +316,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public Page<Notification> getNotificationsForUser(Long userId, Pageable pageable) {
-        return notificationRepository.searchNotifications(
-                userId, null, null, null, null, null, null, pageable);
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId, pageable);
     }
 
     @Transactional(readOnly = true)

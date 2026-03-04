@@ -188,8 +188,8 @@ public class ShumelaHireComputeStack : Stack
                 ["INDEED_ENABLED"] = "false",
                 ["PNET_ENABLED"] = "false",
                 ["CAREER_JUNCTION_ENABLED"] = "false",
-                ["AI_ENABLED"] = "false",
-                ["AI_PROVIDER"] = "mock",
+                ["AI_ENABLED"] = "true",
+                ["AI_PROVIDER"] = "claude",
                 // LinkedIn Social Posting
                 ["LINKEDIN_SOCIAL_ENABLED"] = "false",
                 ["LINKEDIN_SOCIAL_REDIRECT_URI"] = $"https://api.{config.DomainName}/api/linkedin/social/auth/callback"
@@ -204,9 +204,9 @@ public class ShumelaHireComputeStack : Stack
                 ["DATABASE_PASS"] = Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbSecret, "password"),
                 // Security
                 ["JWT_SECRET"] = Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(jwtSecret),
-                ["ENCRYPTION_KEY"] = Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(encryptionSecret)
-                // Non-essential secrets (AI, DocuSign, Microsoft, Job Boards) omitted —
-                // all features are disabled via environment variables. Add back when enabling.
+                ["ENCRYPTION_KEY"] = Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(encryptionSecret),
+                // AI
+                ["CLAUDE_API_KEY"] = Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(foundation.AiKeysSecret)
             }
         });
 

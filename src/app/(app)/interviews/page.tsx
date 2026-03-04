@@ -302,7 +302,7 @@ export default function InterviewsPage() {
               }}
             />
 
-            <AiAssistPanel title="AI Interview Questions" feature="AI_INTERVIEW_QUESTIONS">
+            <AiAssistPanel title="AI Interview Questions" feature="AI_INTERVIEW_QUESTIONS" description="Generate tailored interview questions based on the role and requirements">
               <AiInterviewQuestionGenerator
                 jobTitle={selectedInterview?.application?.jobPosting?.title}
               />

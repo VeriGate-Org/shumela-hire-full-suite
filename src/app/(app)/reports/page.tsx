@@ -404,7 +404,7 @@ export default function ReportsPage() {
                     onEdit={handleEditFromViewer}
                   />
 
-                  <AiAssistPanel title="AI Report Narrative" feature="AI_REPORT_NARRATIVE">
+                  <AiAssistPanel title="AI Report Narrative" feature="AI_REPORT_NARRATIVE" description="Generate a written summary and key insights from your report data">
                     <AiReportNarrative
                       reportType={currentResult.config.name}
                       reportData={currentResult.data ? { rows: currentResult.data, rowCount: currentResult.rowCount } : undefined}

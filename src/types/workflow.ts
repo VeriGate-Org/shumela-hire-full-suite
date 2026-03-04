@@ -65,6 +65,6 @@ export interface AuditLogEntry {
   action: string;
   userId: string;
   userRole: string;
-  details: Record<string, unknown>;
+  details: string | null;
   timestamp: Date;
 }

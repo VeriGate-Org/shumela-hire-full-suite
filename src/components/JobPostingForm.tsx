@@ -467,7 +467,7 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
         {/* Job Details Tab */}
         {activeTab === 'details' && (
           <div className="space-y-6">
-            <AiAssistPanel title="Generate with AI" feature="AI_JOB_DESCRIPTION">
+            <AiAssistPanel title="Generate with AI" feature="AI_JOB_DESCRIPTION" description="Auto-generate description, responsibilities, requirements, and benefits from the job title and department">
               <AiJobDescriptionWriter
                 initialTitle={formData.title}
                 initialDepartment={formData.department}
