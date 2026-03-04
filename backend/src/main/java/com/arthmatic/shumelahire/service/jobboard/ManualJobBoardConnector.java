@@ -65,6 +65,8 @@ public class ManualJobBoardConnector {
 
     private String getEmployerPortalUrl(JobBoardType boardType) {
         return switch (boardType) {
+            case INTERNAL_PORTAL -> "/internal/jobs";
+            case PUBLIC_WEBSITE -> "/jobs";
             case PNET -> "https://www.pnet.co.za/employers/post-a-job";
             case CAREER_JUNCTION -> "https://www.careerjunction.co.za/employers/post-job";
             case INDEED -> "https://employers.indeed.com/jobs";

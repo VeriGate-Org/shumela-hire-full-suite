@@ -1,6 +1,8 @@
 package com.arthmatic.shumelahire.entity;
 
 public enum JobBoardType {
+    INTERNAL_PORTAL("Internal Portal", false),
+    PUBLIC_WEBSITE("Public Website", false),
     LINKEDIN("LinkedIn", true),
     INDEED("Indeed", true),
     PNET("PNet", true),

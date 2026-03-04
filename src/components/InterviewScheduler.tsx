@@ -34,8 +34,11 @@ interface Application {
   id: number;
   applicant: {
     id: number;
-    firstName: string;
-    lastName: string;
+    name?: string;
+    surname?: string;
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
   };
   jobPosting: {
@@ -140,29 +143,39 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     return actorId;
   }, [user]);
 
-  const interviewerOptions: DropdownOption[] = useMemo(
-    () => interviewers.length > 0
-      ? interviewers.map((i) => ({ value: String(i.id), label: i.name, description: i.role }))
-      : HARDCODED_INTERVIEWERS,
-    [interviewers],
-  );
+  const interviewerOptions: DropdownOption[] = useMemo(() => {
+    const apiOptions = interviewers.map((i) => ({ value: String(i.id), label: i.name, description: i.role }));
+    // Merge API interviewers with hardcoded list, avoiding duplicate names
+    const apiNames = new Set(apiOptions.map((o) => o.label.toLowerCase()));
+    const additional = HARDCODED_INTERVIEWERS.filter((h) => !apiNames.has(h.label.toLowerCase()));
+    return [...apiOptions, ...additional];
+  }, [interviewers]);
 
   const applicationOptions: DropdownOption[] = useMemo(
-    () => applications.map((app) => ({
-      value: String(app.id),
-      label: `${((app.applicant?.firstName ?? '') + ' ' + (app.applicant?.lastName ?? '')).trim() || 'Unknown'} - ${app.jobPosting?.title || 'Unknown'}`,
-      description: app.jobPosting?.department ? `Department: ${app.jobPosting.department}` : undefined,
-    })),
+    () => applications.map((app) => {
+      const a = app.applicant;
+      const name = a?.fullName
+        || `${a?.firstName || a?.name || ''} ${a?.lastName || a?.surname || ''}`.trim()
+        || 'Unknown';
+      return {
+        value: String(app.id),
+        label: `${name} - ${app.jobPosting?.title || 'Unknown'}`,
+        description: app.jobPosting?.department ? `Department: ${app.jobPosting.department}` : undefined,
+      };
+    }),
     [applications],
   );
 
   const loadApplications = useCallback(async () => {
     try {
       setApplicationsLoading(true);
-      const response = await apiFetch('/api/applications?status=SCREENING,PHONE_INTERVIEW,FIRST_INTERVIEW,SECOND_INTERVIEW,TECHNICAL_ASSESSMENT,FINAL_INTERVIEW');
+      const response = await apiFetch('/api/applications?size=200');
       if (response.ok) {
         const data = await response.json();
-        setApplications(data.content || data);
+        const all: Application[] = data.content || data;
+        // Filter out terminal statuses so only schedulable applications remain
+        const terminal = new Set(['REJECTED', 'WITHDRAWN', 'HIRED', 'OFFER_DECLINED']);
+        setApplications(all.filter((app) => !terminal.has(app.status)));
       }
     } catch (error) {
       console.error('Error loading applications:', error);

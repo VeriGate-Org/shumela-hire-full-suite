@@ -1,4 +1,6 @@
 export enum JobBoardType {
+  INTERNAL_PORTAL = 'INTERNAL_PORTAL',
+  PUBLIC_WEBSITE = 'PUBLIC_WEBSITE',
   LINKEDIN = 'LINKEDIN',
   INDEED = 'INDEED',
   PNET = 'PNET',
@@ -49,6 +51,8 @@ export interface BatchPostResult {
 
 export function getBoardDisplayName(type: JobBoardType): string {
   switch (type) {
+    case JobBoardType.INTERNAL_PORTAL: return 'Internal Portal';
+    case JobBoardType.PUBLIC_WEBSITE: return 'Public Website';
     case JobBoardType.LINKEDIN: return 'LinkedIn';
     case JobBoardType.INDEED: return 'Indeed';
     case JobBoardType.PNET: return 'PNet';
