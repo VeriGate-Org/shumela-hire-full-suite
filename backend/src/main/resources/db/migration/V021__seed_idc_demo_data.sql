@@ -4,7 +4,7 @@
 
 DO $$
 DECLARE
-    v_tenant_id     VARCHAR(50) := 'idc-demo';
+    v_tenant_id     VARCHAR(50);
     v_existing      INTEGER;
 
     -- department IDs
@@ -61,6 +61,18 @@ DECLARE
 
 BEGIN
     -- ============================================================
+    -- RESOLVE TENANT BY SUBDOMAIN
+    -- ============================================================
+    SELECT id INTO v_tenant_id FROM tenants WHERE subdomain = 'idc-demo';
+
+    IF v_tenant_id IS NULL THEN
+        RAISE NOTICE 'Tenant with subdomain idc-demo not found. Skipping.';
+        RETURN;
+    END IF;
+
+    RAISE NOTICE 'Resolved idc-demo tenant ID: %', v_tenant_id;
+
+    -- ============================================================
     -- IDEMPOTENCY CHECK
     -- ============================================================
     SELECT COUNT(*) INTO v_existing
@@ -80,14 +92,6 @@ BEGIN
     DELETE FROM talent_pools WHERE tenant_id = v_tenant_id;
     DELETE FROM agency_profiles WHERE tenant_id = v_tenant_id;
     RAISE NOTICE 'Cleared talent_pool_entries, talent_pools, and agency_profiles for %', v_tenant_id;
-
-    -- ============================================================
-    -- ENSURE TENANT EXISTS
-    -- ============================================================
-    INSERT INTO tenants (id, name, subdomain, status, plan, contact_email, contact_name, max_users)
-    VALUES (v_tenant_id, 'Industrial Development Corporation', 'idc-demo', 'ACTIVE', 'ENTERPRISE',
-            'admin@idc.co.za', 'IDC Admin', 100)
-    ON CONFLICT (id) DO NOTHING;
 
     -- ============================================================
     -- TIER 1: DEPARTMENTS (12)
