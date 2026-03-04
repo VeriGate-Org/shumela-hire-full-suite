@@ -1,8 +1,28 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import SearchableDropdown from '@/components/SearchableDropdown';
+import type { DropdownOption } from '@/components/SearchableDropdown';
+
+const HARDCODED_INTERVIEWERS: DropdownOption[] = [
+  { value: '1', label: 'Thabo Mokoena', description: 'Engineering Manager' },
+  { value: '2', label: 'Naledi Sithole', description: 'Senior Developer' },
+  { value: '3', label: 'Pieter van der Merwe', description: 'HR Manager' },
+  { value: '4', label: 'Ayanda Dlamini', description: 'Technical Lead' },
+  { value: '5', label: 'Fatima Patel', description: 'Head of Product' },
+  { value: '6', label: 'Johan Botha', description: 'CTO' },
+  { value: '7', label: 'Zanele Mthembu', description: 'Senior Recruiter' },
+  { value: '8', label: 'David Naidoo', description: 'Software Architect' },
+  { value: '9', label: 'Lerato Molefe', description: 'QA Lead' },
+  { value: '10', label: 'Sarah Jacobs', description: 'Operations Director' },
+  { value: '11', label: 'Sipho Ndaba', description: 'DevOps Engineer' },
+  { value: '12', label: 'Amahle Zulu', description: 'UX Designer' },
+  { value: '13', label: 'Rudi Erasmus', description: 'Finance Manager' },
+  { value: '14', label: 'Nomsa Khumalo', description: 'People & Culture Lead' },
+  { value: '15', label: 'Raj Govender', description: 'Data Science Manager' },
+];
 
 interface InterviewSchedulerProps {
   interviewId?: number;
@@ -40,6 +60,7 @@ interface InterviewData {
   instructions: string;
   agenda: string;
   interviewerId: number;
+  interviewerIds: string[];
   applicationId: number;
 }
 
@@ -99,10 +120,12 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     instructions: '',
     agenda: '',
     interviewerId: 1,
+    interviewerIds: [],
     applicationId: 0,
   });
 
   const [applications, setApplications] = useState<Application[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [availability, setAvailability] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -117,8 +140,25 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     return actorId;
   }, [user]);
 
+  const interviewerOptions: DropdownOption[] = useMemo(
+    () => interviewers.length > 0
+      ? interviewers.map((i) => ({ value: String(i.id), label: i.name, description: i.role }))
+      : HARDCODED_INTERVIEWERS,
+    [interviewers],
+  );
+
+  const applicationOptions: DropdownOption[] = useMemo(
+    () => applications.map((app) => ({
+      value: String(app.id),
+      label: `${((app.applicant?.firstName ?? '') + ' ' + (app.applicant?.lastName ?? '')).trim() || 'Unknown'} - ${app.jobPosting?.title || 'Unknown'}`,
+      description: app.jobPosting?.department ? `Department: ${app.jobPosting.department}` : undefined,
+    })),
+    [applications],
+  );
+
   const loadApplications = useCallback(async () => {
     try {
+      setApplicationsLoading(true);
       const response = await apiFetch('/api/applications?status=SCREENING,PHONE_INTERVIEW,FIRST_INTERVIEW,SECOND_INTERVIEW,TECHNICAL_ASSESSMENT,FINAL_INTERVIEW');
       if (response.ok) {
         const data = await response.json();
@@ -126,6 +166,8 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       }
     } catch (error) {
       console.error('Error loading applications:', error);
+    } finally {
+      setApplicationsLoading(false);
     }
   }, []);
 
@@ -156,14 +198,11 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       if (response.ok) {
         const data = await response.json();
         setInterviewers(data);
-        if (data.length > 0 && formData.interviewerId === 1) {
-          setFormData((prev) => ({ ...prev, interviewerId: data[0].id }));
-        }
       }
     } catch (error) {
       console.error('Error loading interviewers:', error);
     }
-  }, [formData.interviewerId]);
+  }, []);
 
   useEffect(() => {
     void loadApplications();
@@ -194,14 +233,15 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
   };
 
   const checkAvailability = async () => {
-    if (!formData.scheduledAt || !formData.interviewerId) return;
+    const primaryInterviewerId = formData.interviewerIds.length > 0 ? Number(formData.interviewerIds[0]) : formData.interviewerId;
+    if (!formData.scheduledAt || !primaryInterviewerId) return;
 
     try {
       setCheckingAvailability(true);
       const startTime = new Date(formData.scheduledAt).toISOString();
 
       const availabilityResponse = await apiFetch(
-        `/api/interviews/availability/interviewer/${formData.interviewerId}?startTime=${startTime}&durationMinutes=${formData.durationMinutes}`,
+        `/api/interviews/availability/interviewer/${primaryInterviewerId}?startTime=${startTime}&durationMinutes=${formData.durationMinutes}`,
       );
 
       if (availabilityResponse.ok) {
@@ -214,7 +254,7 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
       }
 
       const suggestionsResponse = await apiFetch(
-        `/api/interviews/suggestions/interviewer/${formData.interviewerId}?preferredDate=${startTime}&durationMinutes=${formData.durationMinutes}&numberOfSuggestions=5`,
+        `/api/interviews/suggestions/interviewer/${primaryInterviewerId}?preferredDate=${startTime}&durationMinutes=${formData.durationMinutes}&numberOfSuggestions=5`,
       );
 
       if (suggestionsResponse.ok) {
@@ -288,6 +328,7 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
 
       const submitData: InterviewData = {
         ...formData,
+        interviewerId: formData.interviewerIds.length > 0 ? Number(formData.interviewerIds[0]) : formData.interviewerId,
         scheduledAt: new Date(formData.scheduledAt).toISOString(),
       };
 
@@ -359,25 +400,17 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
         <div className="space-y-6">
           {!interviewId && (
             <div>
-              <label htmlFor="application-id" className="block text-sm font-medium text-foreground mb-1">
-                Select Application *
-              </label>
-              <select
-                id="application-id"
-                value={formData.applicationId}
-                onChange={(event) => handleInputChange('applicationId', Number(event.target.value))}
-                aria-required="true"
-                aria-invalid={!!errors.applicationId}
-                aria-describedby={errors.applicationId ? 'application-id-error' : undefined}
-                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.applicationId ? 'border-red-500' : 'border-border'}`}
-              >
-                <option value={0}>Select an application...</option>
-                {applications.map((application) => (
-                  <option key={application.id} value={application.id}>
-                    {((application.applicant?.firstName ?? '') + ' ' + (application.applicant?.lastName ?? '')).trim() || 'Unknown'} - {application.jobPosting?.title || 'Unknown'} ({application.jobPosting?.department || 'Unknown'})
-                  </option>
-                ))}
-              </select>
+              <SearchableDropdown
+                label="Select Application"
+                required
+                options={applicationOptions}
+                value={formData.applicationId > 0 ? [String(formData.applicationId)] : []}
+                onChange={(vals) => handleInputChange('applicationId', vals.length > 0 ? Number(vals[0]) : 0)}
+                multi={false}
+                loading={applicationsLoading}
+                placeholder="Search for an application..."
+                searchPlaceholder="Search by candidate name or job title..."
+              />
               {errors.applicationId && <p id="application-id-error" role="alert" className="text-red-500 text-sm mt-1">{errors.applicationId}</p>}
             </div>
           )}
@@ -436,22 +469,16 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
             </div>
 
             <div>
-              <label htmlFor="interviewer-id" className="block text-sm font-medium text-foreground mb-1">
-                Interviewer *
-              </label>
-              <select
-                id="interviewer-id"
-                value={formData.interviewerId}
-                onChange={(event) => handleInputChange('interviewerId', Number(event.target.value))}
-                aria-required="true"
-                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
-              >
-                {interviewers.map((interviewer) => (
-                  <option key={interviewer.id} value={interviewer.id}>
-                    {interviewer.name} ({interviewer.role})
-                  </option>
-                ))}
-              </select>
+              <SearchableDropdown
+                label="Interviewer(s)"
+                required
+                options={interviewerOptions}
+                value={formData.interviewerIds}
+                onChange={(vals) => handleInputChange('interviewerIds', vals as unknown as string[])}
+                multi={true}
+                placeholder="Select interviewers..."
+                searchPlaceholder="Search by name or role..."
+              />
             </div>
           </div>
 

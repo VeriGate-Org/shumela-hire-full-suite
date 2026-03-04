@@ -33,8 +33,11 @@ interface Offer {
   application: {
     id: number;
     applicant: {
-      firstName: string;
-      lastName: string;
+      name?: string;
+      surname?: string;
+      fullName?: string;
+      firstName?: string;
+      lastName?: string;
       email: string;
     };
     jobPosting: {
@@ -44,6 +47,14 @@ interface Offer {
   };
   createdAt: string;
   createdBy: number;
+}
+
+function getApplicantName(applicant?: { name?: string; surname?: string; fullName?: string; firstName?: string; lastName?: string } | null): string {
+  if (!applicant) return 'Unknown Candidate';
+  if (applicant.fullName) return applicant.fullName;
+  const first = applicant.firstName || applicant.name || '';
+  const last = applicant.lastName || applicant.surname || '';
+  return `${first} ${last}`.trim() || 'Unknown Candidate';
 }
 
 interface OfferSearchFilters {
@@ -292,7 +303,7 @@ export default function OfferManagement() {
     try {
       await eSignatureService.sendForSignature(eSignOffer.id, {
         signerEmail: eSignOffer.application?.applicant?.email || '',
-        signerName: `${eSignOffer.application?.applicant?.firstName ?? ''} ${eSignOffer.application?.applicant?.lastName ?? ''}`.trim() || 'Unknown Candidate',
+        signerName: getApplicantName(eSignOffer.application?.applicant),
       });
       toast('Offer sent for e-signature via DocuSign', 'success');
       setShowESignModal(false);
@@ -527,7 +538,7 @@ export default function OfferManagement() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {((offer.application?.applicant?.firstName ?? '') + ' ' + (offer.application?.applicant?.lastName ?? '')).trim() || 'Unknown Candidate'}
+                          {getApplicantName(offer.application?.applicant)}
                         </div>
                         <div className="text-sm text-gray-500">
                           {offer.application?.applicant?.email || ''}
@@ -707,7 +718,7 @@ export default function OfferManagement() {
                   Offer: {selectedOffer.offerNumber} - {selectedOffer.jobTitle}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Candidate: {((selectedOffer.application?.applicant?.firstName ?? '') + ' ' + (selectedOffer.application?.applicant?.lastName ?? '')).trim() || 'Unknown Candidate'}
+                  Candidate: {getApplicantName(selectedOffer.application?.applicant)}
                 </p>
               </div>
               
@@ -773,13 +784,13 @@ export default function OfferManagement() {
                   Offer: {eSignOffer.offerNumber} - {eSignOffer.jobTitle}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Candidate: {((eSignOffer.application?.applicant?.firstName ?? '') + ' ' + (eSignOffer.application?.applicant?.lastName ?? '')).trim() || 'Unknown Candidate'}
+                  Candidate: {getApplicantName(eSignOffer.application?.applicant)}
                 </p>
               </div>
 
               <div className="mb-4 rounded-sm border border-gray-200 bg-gray-50 p-4">
                 <p className="text-sm font-medium text-gray-700 mb-2">DocuSign will send to:</p>
-                <p className="text-sm text-gray-900">{((eSignOffer.application?.applicant?.firstName ?? '') + ' ' + (eSignOffer.application?.applicant?.lastName ?? '')).trim() || 'Unknown Candidate'}</p>
+                <p className="text-sm text-gray-900">{getApplicantName(eSignOffer.application?.applicant)}</p>
                 <p className="text-sm text-gray-500">{eSignOffer.application?.applicant?.email || ''}</p>
               </div>
 
