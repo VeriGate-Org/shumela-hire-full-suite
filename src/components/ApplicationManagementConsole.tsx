@@ -23,9 +23,8 @@ function mapApplication(raw: any): Application {
   // Build candidate name from DTO field or nested applicant entity
   let candidateName = raw.candidateName || raw.applicantName || '';
   if (!candidateName && raw.applicant) {
-    const first = raw.applicant.firstName || raw.applicant.given_name || '';
-    const last = raw.applicant.lastName || raw.applicant.family_name || '';
-    candidateName = `${first} ${last}`.trim();
+    candidateName = raw.applicant.fullName
+      || `${raw.applicant.firstName || raw.applicant.name || ''} ${raw.applicant.lastName || raw.applicant.surname || ''}`.trim();
   }
 
   const email = raw.email || raw.applicantEmail || raw.applicant?.email || '';
@@ -266,7 +265,11 @@ export default function ApplicationManagementConsole() {
         bulkPayload.status = bulkOperation.value;
       } else if (bulkOperation.type === 'rating') {
         endpoint = '/api/applications/manage/bulk/rating';
-        bulkPayload.rating = parseInt(bulkOperation.value);
+        const ratingsMap: Record<string, number> = {};
+        for (const appId of selectedApplications) {
+          ratingsMap[String(appId)] = parseInt(bulkOperation.value);
+        }
+        bulkPayload.ratings = ratingsMap;
       } else if (bulkOperation.type === 'stage') {
         endpoint = '/api/applications/manage/bulk/pipeline-stage';
         bulkPayload.pipelineStage = bulkOperation.value;
