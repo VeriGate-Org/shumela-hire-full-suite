@@ -49,6 +49,9 @@ public class CognitoSecurityConfig {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private CognitoJwtConverter cognitoJwtConverter;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -180,7 +183,7 @@ public class CognitoSecurityConfig {
             )
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(new CognitoJwtConverter())
+                    .jwtAuthenticationConverter(cognitoJwtConverter)
                 )
             );
 

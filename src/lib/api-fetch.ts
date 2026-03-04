@@ -6,7 +6,11 @@ async function getAuthToken(): Promise<string | null> {
   try {
     const { fetchAuthSession } = await import('aws-amplify/auth');
     const session = await fetchAuthSession({ forceRefresh: false });
-    return session.tokens?.accessToken?.toString() || null;
+    // Prefer ID token because it reliably carries role/group and tenant claims
+    // consumed by backend authorization and tenant resolution.
+    return session.tokens?.idToken?.toString()
+      || session.tokens?.accessToken?.toString()
+      || null;
   } catch {
     // Cognito not configured
   }
