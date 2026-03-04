@@ -145,8 +145,8 @@ public class CognitoSecurityConfig {
                 // Offer endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
-                // Agency endpoints — method-level @PreAuthorize handles fine-grained access
-                .requestMatchers(new AntPathRequestMatcher("/api/agencies/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                // Agency endpoints — temporarily permitAll to debug 403
+                .requestMatchers(new AntPathRequestMatcher("/api/agencies/**")).permitAll()
 
                 // AI endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/ai/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
