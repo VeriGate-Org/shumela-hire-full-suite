@@ -108,6 +108,10 @@ public class CognitoSecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/health")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"), new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
+                // Public job ads (careers portal)
+                .requestMatchers(new AntPathRequestMatcher("/ads", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/ads/*", "GET")).permitAll()
+
                 // Actuator
                 .requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).hasRole("ADMIN")

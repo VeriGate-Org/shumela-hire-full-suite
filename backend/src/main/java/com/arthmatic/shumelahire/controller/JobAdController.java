@@ -147,9 +147,10 @@ public class JobAdController {
     }
     
     /**
-     * GET /ads - List/filter job ads
+     * GET /ads - List/filter job ads (public for careers portal)
      */
     @GetMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<Page<JobAdResponse>>> getJobAds(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String channel,
@@ -181,6 +182,7 @@ public class JobAdController {
      * GET /ads/{slug} - Public fetch by slug
      */
     @GetMapping("/{slug}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<JobAdResponse>> getJobAdBySlug(@PathVariable String slug) {
         try {
             logger.info("Fetching job ad by slug: {}", slug);

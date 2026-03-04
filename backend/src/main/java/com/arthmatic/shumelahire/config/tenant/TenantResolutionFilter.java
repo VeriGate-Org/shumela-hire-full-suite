@@ -21,7 +21,8 @@ public class TenantResolutionFilter implements Filter {
             "/actuator/health",
             "/swagger-ui",
             "/v3/api-docs",
-            "/api/public/"
+            "/api/public/",
+            "/ads"
     );
 
     private final TenantRepository tenantRepository;
