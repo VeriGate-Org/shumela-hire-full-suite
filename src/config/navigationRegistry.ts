@@ -52,6 +52,7 @@ export const navigationRegistry: NavigationEntry[] = [
   // Recruitment
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: HomeIcon, iconSolid: HomeIconSolid, section: 'recruitment', requiredPermissions: ['view_dashboard'] },
   { id: 'job-postings', label: 'Job Postings', href: '/job-postings', icon: BriefcaseIcon, iconSolid: BriefcaseIconSolid, section: 'recruitment', requiredPermissions: ['manage_jobs'] },
+  { id: 'job-templates', label: 'Job Templates', href: '/job-templates', icon: DocumentTextIcon, section: 'recruitment', requiredPermissions: ['manage_jobs'] },
   { id: 'requisitions', label: 'Requisitions', href: '/requisitions', icon: ClipboardDocumentListIcon, section: 'recruitment', requiredPermissions: ['manage_requisitions'] },
   { id: 'applications', label: 'Applications', href: '/applications', icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid, section: 'recruitment', requiredPermissions: ['view_applications'] },
   { id: 'applicants', label: 'Applicants', href: '/applicants', icon: UsersIcon, iconSolid: UsersIconSolid, section: 'recruitment', requiredPermissions: ['view_applicants'] },

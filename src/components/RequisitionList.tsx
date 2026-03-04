@@ -50,9 +50,20 @@ const RequisitionList: React.FC<RequisitionListProps> = ({
       }
 
       const response = await apiFetch(url);
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => null);
+        setError(errBody?.message || `Server error (${response.status})`);
+        return;
+      }
       const data = await response.json();
 
-      if (data.success) {
+      // Backend returns a Spring Page object with `content` array,
+      // or a wrapped response with `success` + `data`.
+      if (Array.isArray(data)) {
+        setRequisitions(data);
+      } else if (data.content) {
+        setRequisitions(data.content);
+      } else if (data.success && data.data) {
         setRequisitions(data.data);
       } else {
         setError(data.message || 'Failed to fetch requisitions');
