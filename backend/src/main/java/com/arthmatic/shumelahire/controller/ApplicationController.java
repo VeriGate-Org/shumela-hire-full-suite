@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -83,7 +85,7 @@ public class ApplicationController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplications(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) ApplicationStatus status,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "submittedAt") String sort,
@@ -92,7 +94,25 @@ public class ApplicationController {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
-            Page<ApplicationResponse> results = applicationService.searchApplications(search, status, pageable);
+            // Parse status param: supports single value or comma-separated list
+            List<ApplicationStatus> statuses = null;
+            if (status != null && !status.isBlank()) {
+                statuses = Arrays.stream(status.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .map(s -> {
+                            try { return ApplicationStatus.valueOf(s); }
+                            catch (IllegalArgumentException e) {
+                                logger.warn("Ignoring unknown application status: {}", s);
+                                return null;
+                            }
+                        })
+                        .filter(s -> s != null)
+                        .collect(Collectors.toList());
+                if (statuses.isEmpty()) statuses = null;
+            }
+
+            Page<ApplicationResponse> results = applicationService.searchApplications(search, statuses, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error searching applications", e);
