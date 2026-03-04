@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 import { CurrencyDollarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { salaryRecommendationService } from '@/services/salaryRecommendationService';
+import { useDepartments } from '@/hooks/useDepartments';
 import EmptyState from './EmptyState';
 import {
   SalaryRecommendation,
@@ -22,6 +23,7 @@ const POSITION_LEVELS = ['Junior', 'Mid', 'Senior', 'Lead', 'Principal', 'Direct
 
 export default function SalaryRecommendationManager() {
   const { toast } = useToast();
+  const { departments } = useDepartments();
   const [recommendations, setRecommendations] = useState<SalaryRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -297,9 +299,14 @@ export default function SalaryRecommendationManager() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                  <input type="text" value={createForm.department || ''}
+                  <select value={createForm.department || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, department: e.target.value }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                    className="w-full p-2 border border-gray-300 rounded-sm text-sm">
+                    <option value="">Select department</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Job Grade</label>

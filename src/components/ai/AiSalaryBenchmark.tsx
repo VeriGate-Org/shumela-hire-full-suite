@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { aiSalaryBenchmarkService } from '@/services/aiSalaryBenchmarkService';
 import AiDisclaimer from './AiDisclaimer';
+import { useDepartments } from '@/hooks/useDepartments';
 import { SalaryBenchmarkRequest, SalaryBenchmarkResult } from '@/types/ai';
 
 interface AiSalaryBenchmarkProps {
@@ -26,6 +27,7 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
   });
   const [result, setResult] = useState<SalaryBenchmarkResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const { departments } = useDepartments();
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -49,8 +51,13 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Department</label>
-          <input type="text" value={form.department} onChange={e => setForm(prev => ({ ...prev, department: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+          <select value={form.department} onChange={e => setForm(prev => ({ ...prev, department: e.target.value }))}
+            className="w-full text-sm p-2 border border-gray-300 rounded-sm">
+            <option value="">Select department</option>
+            {departments.map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Level</label>

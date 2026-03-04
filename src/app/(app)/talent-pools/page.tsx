@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { useToast } from '@/components/Toast';
 import { apiFetchJson } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDepartments } from '@/hooks/useDepartments';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ function StarRating({
 export default function TalentPoolsPage() {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
+  const { departments } = useDepartments();
   const hasAccess = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER' || user?.role === 'RECRUITER';
 
   // Pool list state
@@ -619,13 +621,16 @@ export default function TalentPoolsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                  <input
-                    type="text"
+                  <select
                     value={poolForm.department}
                     onChange={(e) => setPoolForm((f) => ({ ...f, department: e.target.value }))}
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
-                    placeholder="Engineering"
-                  />
+                  >
+                    <option value="">Select department</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>

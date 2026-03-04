@@ -1,9 +1,11 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.ApplicationRepository;
 import com.arthmatic.shumelahire.repository.AuditLogRepository;
 import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
+import com.arthmatic.shumelahire.repository.TenantRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -13,6 +15,7 @@ import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +34,22 @@ public class VacancyReportService {
     private static final String POPIA_NOTICE = "This report contains personal information processed in accordance with the Protection of Personal Information Act (POPIA). Distribution is restricted to authorised personnel only.";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
+    private static final String DEMO_TENANT_SUBDOMAIN = "idc-demo";
+
     private final ApplicationRepository applicationRepository;
     private final JobBoardPostingRepository jobBoardPostingRepository;
     private final AuditLogRepository auditLogRepository;
+    private final TenantRepository tenantRepository;
 
     @Autowired
     public VacancyReportService(ApplicationRepository applicationRepository,
                                 JobBoardPostingRepository jobBoardPostingRepository,
-                                AuditLogRepository auditLogRepository) {
+                                AuditLogRepository auditLogRepository,
+                                TenantRepository tenantRepository) {
         this.applicationRepository = applicationRepository;
         this.jobBoardPostingRepository = jobBoardPostingRepository;
         this.auditLogRepository = auditLogRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     public Map<String, Object> getVacancySummaryData(String jobId) {
@@ -79,6 +87,9 @@ public class VacancyReportService {
     }
 
     public byte[] generateVacancySummaryPdf(String jobId) throws IOException {
+        byte[] demoReport = loadDemoReport("ShumelaHire-IDC-Vacancy-Summary-Report.pdf");
+        if (demoReport != null) return demoReport;
+
         Map<String, Object> data = getVacancySummaryData(jobId);
         List<Application> applications = applicationRepository.findByJobId(jobId);
         String jobTitle = applications.isEmpty() ? "Unknown Position" : applications.get(0).getJobTitle();
@@ -197,6 +208,9 @@ public class VacancyReportService {
     }
 
     public byte[] generateShortlistPackPdf(String jobId) throws IOException {
+        byte[] demoReport = loadDemoReport("ShumelaHire-IDC-Shortlist-Pack.pdf");
+        if (demoReport != null) return demoReport;
+
         List<Application> applications = applicationRepository.findByJobId(jobId);
         String jobTitle = applications.isEmpty() ? "Unknown Position" : applications.get(0).getJobTitle();
 
@@ -404,6 +418,9 @@ public class VacancyReportService {
     }
 
     public byte[] generateResponseHandlingPdf(String jobId) throws IOException {
+        byte[] demoReport = loadDemoReport("ShumelaHire-IDC-Response-Handling-Report.pdf");
+        if (demoReport != null) return demoReport;
+
         List<Application> applications = applicationRepository.findByJobId(jobId);
         String jobTitle = applications.isEmpty() ? "Unknown Position" : applications.get(0).getJobTitle();
         List<JobBoardPosting> boardPostings = jobBoardPostingRepository.findByJobPostingId(jobId);
@@ -818,6 +835,25 @@ public class VacancyReportService {
             }
         }
         return y;
+    }
+
+    private boolean isDemoTenant() {
+        String tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || tenantId.isBlank()) return false;
+        return tenantRepository.findById(tenantId)
+                .map(tenant -> DEMO_TENANT_SUBDOMAIN.equals(tenant.getSubdomain()))
+                .orElse(false);
+    }
+
+    private byte[] loadDemoReport(String filename) {
+        if (!isDemoTenant()) return null;
+        try {
+            ClassPathResource resource = new ClassPathResource("demo-reports/" + filename);
+            return resource.getInputStream().readAllBytes();
+        } catch (IOException e) {
+            logger.debug("Demo report not found: {}", filename);
+            return null;
+        }
     }
 
     private Map<String, Object> getDemographicsBreakdown(List<Application> applications) {
