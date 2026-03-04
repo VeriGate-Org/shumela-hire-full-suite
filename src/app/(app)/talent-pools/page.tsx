@@ -29,7 +29,8 @@ interface TalentPool {
 interface TalentPoolEntry {
   id: number;
   poolId: number;
-  applicantId: number;
+  applicant?: { id: number; name?: string; surname?: string; fullName?: string };
+  applicantId?: number;
   applicantName?: string;
   sourceType: 'MANUAL' | 'AUTO_REJECTED' | 'AGENCY';
   notes?: string;
@@ -549,7 +550,7 @@ export default function TalentPoolsPage() {
                             <td className="px-4 py-3">
                               <div>
                                 <p className="font-medium text-gray-900">
-                                  {entry.applicantName ?? `Applicant #${entry.applicantId}`}
+                                  {entry.applicant?.fullName ?? entry.applicantName ?? `Applicant #${entry.applicant?.id ?? entry.applicantId ?? entry.id}`}
                                 </p>
                                 {entry.notes && (
                                   <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[160px]">
@@ -790,7 +791,7 @@ export default function TalentPoolsPage() {
             <p className="text-sm text-gray-500 mb-4">
               Remove{' '}
               <span className="font-medium text-gray-700">
-                {removingEntry.applicantName ?? `Applicant #${removingEntry.applicantId}`}
+                {removingEntry.applicant?.fullName ?? removingEntry.applicantName ?? `Applicant #${removingEntry.applicant?.id ?? removingEntry.applicantId ?? removingEntry.id}`}
               </span>{' '}
               from this pool?
             </p>

@@ -5,6 +5,29 @@ import PageWrapper from '@/components/PageWrapper';
 import { useToast } from '@/components/Toast';
 import { apiFetchJson } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
+import SearchableDropdown from '@/components/SearchableDropdown';
+import type { DropdownOption } from '@/components/SearchableDropdown';
+
+const SPECIALIZATION_OPTIONS: DropdownOption[] = [
+  { value: 'IT & Software Development', label: 'IT & Software Development' },
+  { value: 'Finance & Accounting', label: 'Finance & Accounting' },
+  { value: 'Engineering', label: 'Engineering' },
+  { value: 'Healthcare & Medical', label: 'Healthcare & Medical' },
+  { value: 'Sales & Marketing', label: 'Sales & Marketing' },
+  { value: 'Human Resources', label: 'Human Resources' },
+  { value: 'Legal & Compliance', label: 'Legal & Compliance' },
+  { value: 'Manufacturing & Operations', label: 'Manufacturing & Operations' },
+  { value: 'Construction & Mining', label: 'Construction & Mining' },
+  { value: 'Education & Training', label: 'Education & Training' },
+  { value: 'Logistics & Supply Chain', label: 'Logistics & Supply Chain' },
+  { value: 'Retail & Hospitality', label: 'Retail & Hospitality' },
+  { value: 'Media & Communications', label: 'Media & Communications' },
+  { value: 'Agriculture', label: 'Agriculture' },
+  { value: 'Government & Public Sector', label: 'Government & Public Sector' },
+  { value: 'Executive Search', label: 'Executive Search' },
+  { value: 'Temporary Staffing', label: 'Temporary Staffing' },
+  { value: 'General Recruitment', label: 'General Recruitment' },
+];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -121,7 +144,33 @@ export default function AgenciesPage() {
   const [agencyForm, setAgencyForm] = useState(EMPTY_AGENCY_FORM);
   const [submissionForm, setSubmissionForm] = useState(EMPTY_SUBMISSION_FORM);
 
+  // Job postings for submission dropdown
+  const [jobPostings, setJobPostings] = useState<{ id: number; title: string; department?: string }[]>([]);
+  const [jobPostingsLoading, setJobPostingsLoading] = useState(false);
+
+  const jobPostingOptions: DropdownOption[] = jobPostings.map((jp) => ({
+    value: String(jp.id),
+    label: jp.title,
+    description: jp.department ? `Department: ${jp.department}` : undefined,
+  }));
+
   // ─── Data loading ───────────────────────────────────────────────────────────
+
+  const loadJobPostings = useCallback(async () => {
+    try {
+      setJobPostingsLoading(true);
+      const data = await apiFetchJson<{ id: number; title: string; department?: string }[] | { content: { id: number; title: string; department?: string }[] }>('/api/job-postings?size=200');
+      setJobPostings(Array.isArray(data) ? data : data.content ?? []);
+    } catch {
+      // silently fail - dropdown will just be empty
+    } finally {
+      setJobPostingsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadJobPostings();
+  }, [loadJobPostings]);
 
   const loadAgencies = useCallback(async () => {
     try {
@@ -656,16 +705,15 @@ export default function AgenciesPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Specializations</label>
-                <textarea
-                  value={agencyForm.specializations}
-                  onChange={(e) => setAgencyForm((f) => ({ ...f, specializations: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
-                  rows={2}
-                  placeholder="IT, Finance, Engineering..."
-                />
-              </div>
+              <SearchableDropdown
+                label="Specializations"
+                options={SPECIALIZATION_OPTIONS}
+                value={agencyForm.specializations ? agencyForm.specializations.split(',').map((s) => s.trim()).filter(Boolean) : []}
+                onChange={(vals) => setAgencyForm((f) => ({ ...f, specializations: vals.join(', ') }))}
+                multi={true}
+                placeholder="Select specializations..."
+                searchPlaceholder="Search specializations..."
+              />
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
@@ -748,18 +796,17 @@ export default function AgenciesPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-1">Submit Candidate</h3>
             <p className="text-sm text-gray-500 mb-4">Via {selectedAgency.agencyName}</p>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Posting ID <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  value={submissionForm.jobPostingId}
-                  onChange={(e) => setSubmissionForm((f) => ({ ...f, jobPostingId: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
-                  placeholder="Enter job posting ID"
-                />
-              </div>
+              <SearchableDropdown
+                label="Job Posting"
+                required
+                options={jobPostingOptions}
+                value={submissionForm.jobPostingId ? [submissionForm.jobPostingId] : []}
+                onChange={(vals) => setSubmissionForm((f) => ({ ...f, jobPostingId: vals[0] ?? '' }))}
+                multi={false}
+                loading={jobPostingsLoading}
+                placeholder="Select a job posting..."
+                searchPlaceholder="Search job postings..."
+              />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
