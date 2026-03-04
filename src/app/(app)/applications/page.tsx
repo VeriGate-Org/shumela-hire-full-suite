@@ -243,7 +243,7 @@ export default function ApplicationsPage() {
       <div className="space-y-6">
         {/* AI Smart Search */}
         {aiSearchMode && (
-          <AiAssistPanel title="AI Smart Search" feature="AI_SEARCH" defaultExpanded>
+          <AiAssistPanel title="AI Smart Search" feature="AI_SEARCH" defaultExpanded description="Search candidates using natural language queries instead of manual filters">
             <AiSmartSearch />
           </AiAssistPanel>
         )}

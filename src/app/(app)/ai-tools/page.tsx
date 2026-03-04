@@ -8,34 +8,54 @@ import AiEmailDrafter from '@/components/ai/AiEmailDrafter';
 import AiJobDescriptionWriter from '@/components/ai/AiJobDescriptionWriter';
 import AiSalaryBenchmark from '@/components/ai/AiSalaryBenchmark';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
+import AiDisclaimer from '@/components/ai/AiDisclaimer';
 
 export default function AiToolsPage() {
   return (
     <FeatureGate feature="AI_ENABLED">
       <PageWrapper
         title="AI Tools"
-        subtitle="General-purpose AI tools for recruitment workflows"
+        subtitle="AI-powered tools to accelerate your recruitment workflows"
       >
-        <div className="space-y-6">
-          {/* Smart Search — full-width, primary position */}
-          <AiAssistPanel title="AI Smart Search" feature="AI_SEARCH" defaultExpanded>
+        <div className="space-y-8">
+          {/* Disclaimer banner */}
+          <AiDisclaimer level="advisory" provider="ShumelaHire AI" />
+
+          {/* Smart Search — primary, full-width */}
+          <AiAssistPanel
+            title="Smart Search"
+            feature="AI_SEARCH"
+            description="Search candidates using natural language queries instead of manual filters"
+            defaultExpanded
+          >
             <AiSmartSearch />
           </AiAssistPanel>
 
+          {/* Two-column layout for drafting tools */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Email Drafter — standalone mode */}
-            <AiAssistPanel title="AI Email Drafter" feature="AI_EMAIL_DRAFTER">
+            <AiAssistPanel
+              title="Email Drafter"
+              feature="AI_EMAIL_DRAFTER"
+              description="Draft interview invitations, rejections, offers, and follow-ups"
+            >
               <AiEmailDrafter />
             </AiAssistPanel>
 
-            {/* Job Description Writer — standalone mode */}
-            <AiAssistPanel title="AI Job Description Writer" feature="AI_JOB_DESCRIPTION">
+            <AiAssistPanel
+              title="Job Description Writer"
+              feature="AI_JOB_DESCRIPTION"
+              description="Generate complete job descriptions with built-in bias checking"
+            >
               <AiJobDescriptionWriter />
             </AiAssistPanel>
           </div>
 
-          {/* Salary Benchmark — standalone mode */}
-          <AiAssistPanel title="AI Salary Benchmark" feature="AI_SALARY_BENCHMARK">
+          {/* Salary Benchmark — full-width */}
+          <AiAssistPanel
+            title="Salary Benchmark"
+            feature="AI_SALARY_BENCHMARK"
+            description="Analyse market salary data and get recommendations for any position"
+          >
             <AiSalaryBenchmark />
           </AiAssistPanel>
         </div>

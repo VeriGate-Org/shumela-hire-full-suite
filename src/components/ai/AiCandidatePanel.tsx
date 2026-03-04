@@ -35,7 +35,7 @@ export default function AiCandidatePanel({
   ];
 
   return (
-    <AiAssistPanel title="AI Candidate Assist" feature="AI_ENABLED">
+    <AiAssistPanel title="AI Candidate Assist" feature="AI_ENABLED" description="AI-powered screening, summaries, notes, and communication for this candidate">
       <div className="space-y-4">
         {/* Tab navigation */}
         <div className="flex gap-1 border-b border-gray-200">

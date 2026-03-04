@@ -25,12 +25,6 @@ export default function AiSmartSearch() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-teal-500" />
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">AI Smart Search</h3>
-        <span className="text-[10px] font-medium bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">AI-generated</span>
-      </div>
-
       <div className="flex gap-2">
         <input type="text" value={query} onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSearch()}

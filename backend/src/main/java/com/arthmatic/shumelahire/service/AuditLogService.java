@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.AuditLog;
 import com.arthmatic.shumelahire.repository.AuditLogRepository;
 import org.slf4j.Logger;
@@ -60,9 +61,14 @@ public class AuditLogService {
     }
 
     /**
-     * Log system action
+     * Log system action — gracefully skips if no tenant context is set
+     * (e.g. from background jobs or scheduled tasks)
      */
     public AuditLog logSystemAction(String action, String entityType, String details) {
+        if (TenantContext.getCurrentTenant() == null) {
+            logger.debug("Skipping audit log for system action {} on {} — no tenant context", action, entityType);
+            return null;
+        }
         return saveLog("SYSTEM", action, entityType, null, details);
     }
 

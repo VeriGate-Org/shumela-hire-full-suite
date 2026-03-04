@@ -21,19 +21,14 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
       setLoading(true);
       setError(null);
 
-      const response = await apiFetch(`/api/audit-logs?entityType=REQUISITION&entityId=${requisitionId}`);
-      
+      const response = await apiFetch(`/api/audit/entity/REQUISITION/${requisitionId}`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch audit logs');
       }
 
       const result = await response.json();
-      
-      if (result.success) {
-        setAuditLogs(result.data || []);
-      } else {
-        throw new Error(result.message || 'Failed to fetch audit logs');
-      }
+      setAuditLogs(Array.isArray(result) ? result : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -65,36 +60,19 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
       .join(' ');
   };
 
-  const formatDetails = (details: Record<string, unknown>) => {
-    if (!details || Object.keys(details).length === 0) {
+  const formatDetails = (details: string | Record<string, unknown> | null) => {
+    if (!details) return '-';
+
+    // Backend stores details as a plain string
+    if (typeof details === 'string') {
+      return details || '-';
+    }
+
+    // Handle structured details (future-proofing)
+    if (typeof details === 'object' && Object.keys(details).length === 0) {
       return '-';
     }
 
-    // Handle workflow actions
-    if (details.action && details.fromStatus && details.toStatus) {
-      const parts = [];
-      parts.push(`${details.action}: ${details.fromStatus} → ${details.toStatus}`);
-      if (details.comment) {
-        parts.push(`Comment: "${details.comment}"`);
-      }
-      return parts.join(' | ');
-    }
-
-    // Handle creation
-    if (details.jobTitle || details.department) {
-      const parts = [];
-      if (details.jobTitle) parts.push(`Job: ${details.jobTitle}`);
-      if (details.department) parts.push(`Dept: ${details.department}`);
-      if (details.location) parts.push(`Location: ${details.location}`);
-      return parts.join(' | ');
-    }
-
-    // Handle updates
-    if (details.changes) {
-      return `Updated: ${Object.keys(details.changes as object).join(', ')}`;
-    }
-
-    // Fallback to JSON string
     return JSON.stringify(details);
   };
 

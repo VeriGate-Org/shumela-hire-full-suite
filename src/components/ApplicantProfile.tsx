@@ -354,7 +354,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
         </div>
         
         {/* AI Duplicate Detection */}
-        <AiAssistPanel title="Duplicate Detection" feature="AI_DUPLICATE_DETECTION">
+        <AiAssistPanel title="Duplicate Detection" feature="AI_DUPLICATE_DETECTION" description="Check for existing candidates with matching name, email, or ID number">
           <AiDuplicateDetectionPanel
             fullName={`${formData.name} ${formData.surname}`.trim()}
             email={formData.email}

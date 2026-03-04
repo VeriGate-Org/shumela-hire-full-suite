@@ -13,7 +13,7 @@ export default function SalaryRecommendationsPage() {
       subtitle="Request, review, and approve salary recommendations for candidates"
     >
       <div className="space-y-6">
-        <AiAssistPanel title="AI Salary Benchmark" feature="AI_SALARY_BENCHMARK">
+        <AiAssistPanel title="AI Salary Benchmark" feature="AI_SALARY_BENCHMARK" description="Analyse market salary data and get benchmark recommendations for any position">
           <AiSalaryBenchmark />
         </AiAssistPanel>
 
