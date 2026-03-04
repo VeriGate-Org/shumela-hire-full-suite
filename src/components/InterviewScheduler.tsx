@@ -169,13 +169,10 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
   const loadApplications = useCallback(async () => {
     try {
       setApplicationsLoading(true);
-      const response = await apiFetch('/api/applications?size=200');
+      const response = await apiFetch('/api/applications?status=SCREENING&size=200');
       if (response.ok) {
         const data = await response.json();
-        const all: Application[] = data.content || data;
-        // Filter out terminal statuses so only schedulable applications remain
-        const terminal = new Set(['REJECTED', 'WITHDRAWN', 'HIRED', 'OFFER_DECLINED']);
-        setApplications(all.filter((app) => !terminal.has(app.status)));
+        setApplications(data.content || data);
       }
     } catch (error) {
       console.error('Error loading applications:', error);

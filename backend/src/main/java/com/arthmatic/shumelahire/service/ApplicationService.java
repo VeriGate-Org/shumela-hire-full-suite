@@ -118,17 +118,26 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public Page<ApplicationResponse> searchApplications(String searchTerm, ApplicationStatus status, Pageable pageable) {
+        return searchApplications(searchTerm, status != null ? List.of(status) : null, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ApplicationResponse> searchApplications(String searchTerm, List<ApplicationStatus> statuses, Pageable pageable) {
         Page<Application> applications;
 
-        if ((searchTerm == null || searchTerm.trim().isEmpty()) && status == null) {
+        if ((searchTerm == null || searchTerm.trim().isEmpty()) && (statuses == null || statuses.isEmpty())) {
             applications = applicationRepository.findAll(pageable);
-        } else if (status == null) {
+        } else if (statuses == null || statuses.isEmpty()) {
             applications = applicationRepository.searchApplications(searchTerm, pageable);
         } else {
             Specification<Application> spec = (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
 
-                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+                if (statuses.size() == 1) {
+                    predicates.add(criteriaBuilder.equal(root.get("status"), statuses.get(0)));
+                } else {
+                    predicates.add(root.get("status").in(statuses));
+                }
 
                 if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                     String likePattern = "%" + searchTerm.toLowerCase() + "%";
