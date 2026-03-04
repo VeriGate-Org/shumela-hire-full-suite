@@ -1,0 +1,63 @@
+import type { BackendJobAd, BackendApiResponse, BackendPagedResponse } from '@/components/jobs/types';
+
+const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
+  try {
+    const baseUrl = getBaseUrl();
+    const url = new URL('/ads', baseUrl);
+    url.searchParams.set('status', 'PUBLISHED');
+    url.searchParams.set('channel', 'external');
+    url.searchParams.set('size', '100');
+    url.searchParams.set('sort', 'createdAt,desc');
+
+    const response = await fetch(url.toString(), {
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const apiResponse: BackendApiResponse<BackendPagedResponse> = await response.json();
+
+    if (!apiResponse.success || !apiResponse.data) {
+      return [];
+    }
+
+    const now = new Date();
+    return apiResponse.data.content.filter((job) => {
+      if (job.status !== 'PUBLISHED' || !job.channelExternal) return false;
+      if (job.closingDate && new Date(job.closingDate) < now) return false;
+      return true;
+    });
+  } catch (error) {
+    console.error('Error fetching active jobs:', error);
+    return [];
+  }
+}
+
+export async function fetchJobBySlug(slug: string): Promise<BackendJobAd | null> {
+  try {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/ads/${slug}`, {
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const apiResponse: BackendApiResponse<BackendJobAd> = await response.json();
+
+    if (!apiResponse.success || !apiResponse.data) {
+      return null;
+    }
+
+    return apiResponse.data;
+  } catch (error) {
+    console.error('Error fetching job data:', error);
+    return null;
+  }
+}

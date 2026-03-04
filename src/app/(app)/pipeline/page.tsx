@@ -105,6 +105,35 @@ STAGE_GROUPS.forEach(group => {
   });
 });
 
+// Display names for backend sub-stages (shown on kanban cards within grouped columns)
+const BACKEND_STAGE_DISPLAY: Record<string, string> = {
+  APPLICATION_RECEIVED: 'Application Received',
+  INITIAL_SCREENING: 'Initial Screening',
+  PHONE_SCREENING: 'Phone Screening',
+  FIRST_INTERVIEW: 'First Interview',
+  TECHNICAL_ASSESSMENT: 'Technical Assessment',
+  SECOND_INTERVIEW: 'Second Interview',
+  PANEL_INTERVIEW: 'Panel Interview',
+  MANAGER_INTERVIEW: 'Manager Interview',
+  FINAL_INTERVIEW: 'Final Interview',
+  REFERENCE_CHECK: 'Reference Check',
+  BACKGROUND_CHECK: 'Background Check',
+  OFFER_PREPARATION: 'Offer Preparation',
+  OFFER_EXTENDED: 'Offer Extended',
+  OFFER_NEGOTIATION: 'Offer Negotiation',
+  OFFER_ACCEPTED: 'Offer Accepted',
+  HIRED: 'Hired',
+};
+
+// Get the first backend stage of the next stage group (for cross-column progression)
+function getNextGroupFirstStage(currentBackendStage: string): string | null {
+  const currentGroupId = BACKEND_STAGE_TO_GROUP[currentBackendStage];
+  if (!currentGroupId) return null;
+  const currentGroupIndex = STAGE_GROUPS.findIndex(g => g.id === currentGroupId);
+  if (currentGroupIndex < 0 || currentGroupIndex >= STAGE_GROUPS.length - 1) return null;
+  return STAGE_GROUPS[currentGroupIndex + 1].backendStages[0];
+}
+
 // Terminal stages excluded from kanban, visible in list view only
 const TERMINAL_STAGES = new Set(['WITHDRAWN', 'REJECTED', 'OFFER_DECLINED', 'NO_SHOW', 'DUPLICATE']);
 
@@ -747,6 +776,11 @@ export default function PipelinePage() {
                               </h4>
                               <p className="text-sm text-gray-600">{application.job.title}</p>
                               <p className="text-xs text-gray-500">{application.job.department}</p>
+                              {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
+                                <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-gray-200 text-gray-600 rounded">
+                                  {BACKEND_STAGE_DISPLAY[application.backendStage]}
+                                </span>
+                              )}
                               </div>
                             </div>
                             <div className="flex flex-col items-end space-y-1">
@@ -788,15 +822,19 @@ export default function PipelinePage() {
                               View Details
                             </button>
 
-                            {application.status === 'active' && stage.order < STAGE_GROUPS.length && (
-                              <button
-                                onClick={() => handleProgressToNext(application.id)}
-                                className="text-green-600 hover:text-green-800 text-xs font-medium"
-                              >
-                                <ArrowRightIcon className="w-4 h-4 inline mr-1" />
-                                Progress
-                              </button>
-                            )}
+                            {application.status === 'active' && stage.order < STAGE_GROUPS.length && (() => {
+                              const nextGroupStage = getNextGroupFirstStage(application.backendStage);
+                              const nextGroup = nextGroupStage ? STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage)) : null;
+                              return nextGroupStage && (
+                                <button
+                                  onClick={() => handleStageTransition(application.id, nextGroupStage)}
+                                  className="text-green-600 hover:text-green-800 text-xs font-medium"
+                                >
+                                  <ArrowRightIcon className="w-4 h-4 inline mr-1" />
+                                  Move to {nextGroup?.displayName || 'Next'}
+                                </button>
+                              );
+                            })()}
                           </div>
                         </div>
                       ))}
@@ -867,10 +905,15 @@ export default function PipelinePage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {currentStageGroup && (
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${currentStageGroup.color}`}>
-                              <currentStageGroup.icon className="w-4 h-4 mr-1" />
-                              {currentStageGroup.displayName}
-                            </span>
+                            <div>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${currentStageGroup.color}`}>
+                                <currentStageGroup.icon className="w-4 h-4 mr-1" />
+                                {currentStageGroup.displayName}
+                              </span>
+                              {currentStageGroup.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
+                                <div className="text-[10px] text-gray-500 mt-0.5">{BACKEND_STAGE_DISPLAY[application.backendStage]}</div>
+                              )}
+                            </div>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -904,14 +947,18 @@ export default function PipelinePage() {
                             >
                               <EyeIcon className="w-4 h-4" />
                             </button>
-                            {application.status === 'active' && (
-                              <button
-                                onClick={() => handleProgressToNext(application.id)}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                <ArrowRightIcon className="w-4 h-4" />
-                              </button>
-                            )}
+                            {application.status === 'active' && (() => {
+                              const nextGroupStage = getNextGroupFirstStage(application.backendStage);
+                              return nextGroupStage && (
+                                <button
+                                  onClick={() => handleStageTransition(application.id, nextGroupStage)}
+                                  className="text-green-600 hover:text-green-900"
+                                  title={`Move to ${STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage))?.displayName || 'next stage'}`}
+                                >
+                                  <ArrowRightIcon className="w-4 h-4" />
+                                </button>
+                              );
+                            })()}
                           </div>
                         </td>
                       </tr>
