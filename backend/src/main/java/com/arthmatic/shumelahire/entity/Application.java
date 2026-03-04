@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -105,6 +106,7 @@ public class Application extends TenantAwareEntity {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Document> applicationDocuments;
 
     // Constructors

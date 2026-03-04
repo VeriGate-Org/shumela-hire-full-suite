@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "documents")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Document extends TenantAwareEntity {
     
     @Id
@@ -18,10 +20,12 @@ public class Document extends TenantAwareEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "applicant_id", nullable = false)
     @NotNull(message = "Applicant is required")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Applicant applicant;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "applicationDocuments"})
     private Application application; // Optional - links to specific application
     
     @Column(name = "application_id", insertable = false, updatable = false)
