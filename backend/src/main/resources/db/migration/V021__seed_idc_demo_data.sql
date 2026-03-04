@@ -59,6 +59,9 @@ DECLARE
     v_pool_analysts BIGINT;
     v_pool_sbf      BIGINT;
 
+    -- admin user for created_by FK
+    v_admin_user    BIGINT;
+
 BEGIN
     -- ============================================================
     -- RESOLVE TENANT BY SUBDOMAIN
@@ -92,6 +95,16 @@ BEGIN
     DELETE FROM talent_pools WHERE tenant_id = v_tenant_id;
     DELETE FROM agency_profiles WHERE tenant_id = v_tenant_id;
     RAISE NOTICE 'Cleared talent_pool_entries, talent_pools, and agency_profiles for %', v_tenant_id;
+
+    -- ============================================================
+    -- RESOLVE ADMIN USER (for created_by NOT NULL columns)
+    -- ============================================================
+    SELECT id INTO v_admin_user FROM users WHERE tenant_id = v_tenant_id ORDER BY id LIMIT 1;
+    IF v_admin_user IS NULL THEN
+        RAISE NOTICE 'No users found for tenant %. Cannot seed without created_by user.', v_tenant_id;
+        RETURN;
+    END IF;
+    RAISE NOTICE 'Using admin user ID: %', v_admin_user;
 
     -- ============================================================
     -- TIER 1: DEPARTMENTS (12)
@@ -139,36 +152,36 @@ BEGIN
     -- ============================================================
     -- TIER 3: JOB POSTINGS (4 — PUBLISHED)
     -- ============================================================
-    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline)
+    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline, created_by)
     VALUES (v_tenant_id, 'Senior Investment Analyst', 'Mining & Metals', 'Johannesburg', 'FULL_TIME', 'SENIOR',
             'The IDC is seeking a Senior Investment Analyst to join our Mining & Metals division. You will evaluate mining sector investment portfolios and conduct due diligence on project finance proposals.',
             'CA(SA) or CFA qualification preferred. Minimum 5 years experience in investment analysis or project finance within the mining sector. Strong financial modelling skills. Knowledge of South African mining legislation.',
             'Evaluate investment proposals and prepare appraisal reports. Conduct financial due diligence and risk assessments. Present recommendations to the investment committee. Monitor portfolio performance and covenant compliance. Engage with industry stakeholders and co-investors.',
-            850000, 1200000, 'ZAR', 'PUBLISHED', 'senior-investment-analyst', 1, NOW() - INTERVAL '14 days', NOW() + INTERVAL '30 days')
+            850000, 1200000, 'ZAR', 'PUBLISHED', 'senior-investment-analyst', 1, NOW() - INTERVAL '14 days', NOW() + INTERVAL '30 days', v_admin_user)
     RETURNING id INTO v_jp_analyst;
 
-    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline)
+    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline, created_by)
     VALUES (v_tenant_id, 'Regional Business Advisor', 'Small Business Finance & Regions', 'Pretoria', 'FULL_TIME', 'MID_LEVEL',
             'Join our Small Business Finance & Regions team to support SMME development across South Africa. You will assess business proposals, develop growth plans, and facilitate access to IDC funding.',
             'B.Com or equivalent in Finance, Economics, or Business Management. Minimum 3 years experience in SMME development or commercial lending. Understanding of SMME challenges in South Africa. Valid driver''s licence.',
             'Assess SMME funding applications and creditworthiness. Develop tailored business support plans. Facilitate access to IDC funding instruments and grants. Conduct site visits and monitor funded enterprises. Build relationships with regional economic development agencies.',
-            550000, 750000, 'ZAR', 'PUBLISHED', 'regional-business-advisor', 1, NOW() - INTERVAL '10 days', NOW() + INTERVAL '45 days')
+            550000, 750000, 'ZAR', 'PUBLISHED', 'regional-business-advisor', 1, NOW() - INTERVAL '10 days', NOW() + INTERVAL '45 days', v_admin_user)
     RETURNING id INTO v_jp_advisor;
 
-    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline)
+    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline, created_by)
     VALUES (v_tenant_id, 'Film & Media Fund Manager', 'Media & Audio-Visual', 'Johannesburg', 'FULL_TIME', 'SENIOR',
             'The IDC seeks a Fund Manager for its Film and Media Fund. You will evaluate creative project proposals, negotiate funding terms, and oversee a growing portfolio of film, television, and digital media investments.',
             'Degree in Film Studies, Media Management, Finance, or related field. Minimum 5 years experience in media investment, film production, or fund management. Understanding of the South African film incentive landscape. Strong negotiation and stakeholder management skills.',
             'Evaluate film and media project funding applications. Structure and negotiate investment terms and co-production agreements. Monitor funded projects through production and distribution phases. Prepare portfolio performance reports for the investment committee. Represent the IDC at industry events and film markets.',
-            750000, 1000000, 'ZAR', 'PUBLISHED', 'film-media-fund-manager', 1, NOW() - INTERVAL '7 days', NOW() + INTERVAL '60 days')
+            750000, 1000000, 'ZAR', 'PUBLISHED', 'film-media-fund-manager', 1, NOW() - INTERVAL '7 days', NOW() + INTERVAL '60 days', v_admin_user)
     RETURNING id INTO v_jp_fund_mgr;
 
-    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline)
+    INSERT INTO job_postings (tenant_id, title, department, location, employment_type, experience_level, description, requirements, responsibilities, salary_min, salary_max, salary_currency, status, slug, positions_available, published_at, application_deadline, created_by)
     VALUES (v_tenant_id, 'Agro-Processing Development Specialist', 'Agro-Processing & Agriculture', 'Durban', 'FULL_TIME', 'MID_LEVEL',
             'Drive agro-processing investment opportunities in KwaZulu-Natal. Evaluate agricultural value chain projects and manage stakeholder relationships with farming cooperatives and agribusinesses.',
             'Degree in Agricultural Economics, Agribusiness, or related field. Minimum 3 years experience in agro-processing, agricultural development, or development finance. Knowledge of South African agricultural value chains. Willingness to travel extensively within KZN.',
             'Identify and evaluate agro-processing investment opportunities. Conduct feasibility studies and financial appraisals. Manage relationships with farming cooperatives and agribusinesses. Monitor funded agro-processing projects. Contribute to the IDC agro-processing sector strategy.',
-            600000, 850000, 'ZAR', 'PUBLISHED', 'agro-processing-development-specialist', 1, NOW() - INTERVAL '5 days', NOW() + INTERVAL '45 days')
+            600000, 850000, 'ZAR', 'PUBLISHED', 'agro-processing-development-specialist', 1, NOW() - INTERVAL '5 days', NOW() + INTERVAL '45 days', v_admin_user)
     RETURNING id INTO v_jp_agro_spec;
 
     -- ============================================================
@@ -329,17 +342,17 @@ BEGIN
     -- ============================================================
     -- TIER 7: OFFERS (2)
     -- ============================================================
-    INSERT INTO offers (tenant_id, application_id, offer_number, status, offer_type, job_title, department, base_salary, currency, salary_frequency, start_date, offer_expiry_date, work_location, probationary_period_days, notice_period_days, vacation_days_annual, health_insurance, retirement_plan, retirement_contribution_percentage, accepted_at)
+    INSERT INTO offers (tenant_id, application_id, offer_number, status, offer_type, job_title, department, base_salary, currency, salary_frequency, start_date, offer_expiry_date, work_location, probationary_period_days, notice_period_days, vacation_days_annual, health_insurance, retirement_plan, retirement_contribution_percentage, accepted_at, created_by)
     VALUES (v_tenant_id, v_app_pieter_analyst, 'IDC-2026-001', 'ACCEPTED', 'FULL_TIME_PERMANENT',
             'Senior Investment Analyst', 'Mining & Metals', 1050000, 'ZAR', 'ANNUALLY',
             (NOW() + INTERVAL '30 days')::DATE, NOW() + INTERVAL '7 days', 'IDC Head Office, Sandton',
-            90, 30, 20, TRUE, TRUE, 15.00, NOW() - INTERVAL '2 days');
+            90, 30, 20, TRUE, TRUE, 15.00, NOW() - INTERVAL '2 days', v_admin_user);
 
-    INSERT INTO offers (tenant_id, application_id, offer_number, status, offer_type, job_title, department, base_salary, currency, salary_frequency, start_date, offer_expiry_date, work_location, probationary_period_days, notice_period_days, vacation_days_annual, health_insurance, retirement_plan, retirement_contribution_percentage)
+    INSERT INTO offers (tenant_id, application_id, offer_number, status, offer_type, job_title, department, base_salary, currency, salary_frequency, start_date, offer_expiry_date, work_location, probationary_period_days, notice_period_days, vacation_days_annual, health_insurance, retirement_plan, retirement_contribution_percentage, created_by)
     VALUES (v_tenant_id, v_app_priya_advisor, 'IDC-2026-002', 'DRAFT', 'FULL_TIME_PERMANENT',
             'Regional Business Advisor', 'Small Business Finance & Regions', 650000, 'ZAR', 'ANNUALLY',
             (NOW() + INTERVAL '45 days')::DATE, NOW() + INTERVAL '14 days', 'IDC Regional Office, Pretoria',
-            90, 30, 20, TRUE, TRUE, 15.00);
+            90, 30, 20, TRUE, TRUE, 15.00, v_admin_user);
 
     -- ============================================================
     -- TIER 8: TALENT POOLS (2)
