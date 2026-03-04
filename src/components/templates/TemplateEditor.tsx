@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { JobAdTemplate, TEMPLATE_PLACEHOLDERS, DEFAULT_TEMPLATE_CONTENT } from '../../types/jobTemplate';
 import { jobTemplateService } from '../../services/jobTemplateService';
-import { 
-  EyeIcon, 
+import {
+  EyeIcon,
   CodeBracketIcon,
   InformationCircleIcon,
   XMarkIcon,
@@ -47,7 +47,6 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize form data
   useEffect(() => {
     if (template) {
       setFormData(template);
@@ -62,7 +61,6 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     }
   }, [template]);
 
-  // Initialize preview data with sample values
   useEffect(() => {
     setPreviewData({
       jobTitle: 'Senior Software Engineer',
@@ -88,7 +86,6 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       setSaving(true);
       setError(null);
 
-      // Validate required fields
       if (!formData.name?.trim()) {
         throw new Error('Template name is required');
       }
@@ -102,12 +99,10 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       let savedTemplate: JobAdTemplate;
 
       if (template) {
-        // Update existing template
         const updated = await jobTemplateService.updateTemplate(template.id, formData);
         if (!updated) throw new Error('Failed to update template');
         savedTemplate = updated;
       } else {
-        // Create new template
         savedTemplate = await jobTemplateService.createTemplate(
           formData as Omit<JobAdTemplate, 'id' | 'createdAt' | 'updatedAt' | 'usageCount'>,
           formData.createdBy || 'current_user@company.com'
@@ -153,36 +148,38 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const preview = renderPreview();
 
+  const inputClasses = "w-full border border-border rounded-control px-3 py-2 bg-background text-foreground text-sm focus:ring-2 focus:ring-cta/40 focus:border-primary";
+
   return (
-    <div className={`bg-white rounded-sm shadow-lg ${className}`}>
+    <div className={`bg-card rounded-card ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-4 md:px-5 py-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {template ? 'Edit Template' : 'Create New Template'}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {template ? `Editing: ${template.name}` : 'Create a reusable job ad template'}
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowPlaceholders(!showPlaceholders)}
-              className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+              className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-full text-muted-foreground hover:bg-accent transition-colors"
             >
-              <CodeBracketIcon className="w-4 h-4 mr-1" />
+              <CodeBracketIcon className="w-3.5 h-3.5 mr-1" />
               Placeholders
             </button>
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className={`inline-flex items-center px-3 py-1 text-sm border rounded transition-colors ${
-                showPreview 
-                  ? 'bg-gold-500 text-violet-950 border-gold-500' 
-                  : 'border-gray-300 hover:bg-gray-50'
+              className={`inline-flex items-center px-3 py-1.5 text-xs rounded-full transition-colors ${
+                showPreview
+                  ? 'border-2 border-cta text-cta'
+                  : 'border border-border text-muted-foreground hover:bg-accent'
               }`}
             >
-              <EyeIcon className="w-4 h-4 mr-1" />
+              <EyeIcon className="w-3.5 h-3.5 mr-1" />
               Preview
             </button>
           </div>
@@ -192,51 +189,49 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       <div className="flex h-[calc(100vh-200px)]">
         {/* Main Editor */}
         <div className={`${showPreview ? 'w-1/2' : 'w-full'} overflow-y-auto`}>
-          <div className="p-6">
-            {/* Error Display */}
+          <div className="p-4 md:p-5">
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-sm">
-                <div className="text-red-800">{error}</div>
+              <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-card">
+                <div className="text-red-800 text-sm">{error}</div>
               </div>
             )}
 
-            {/* Basic Info */}
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Template Name *
                 </label>
                 <input
                   type="text"
                   value={formData.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className={inputClasses}
                   placeholder="e.g., Software Engineer Template"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Description
                 </label>
                 <input
                   type="text"
                   value={formData.description || ''}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className={inputClasses}
                   placeholder="Brief description of this template"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Employment Type
                   </label>
                   <select
                     value={formData.employmentType || 'Full-time'}
                     onChange={(e) => handleInputChange('employmentType', e.target.value)}
-                    className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className={inputClasses}
                   >
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
@@ -246,48 +241,45 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Contact Email *
                   </label>
                   <input
                     type="email"
                     value={formData.contactEmail || ''}
                     onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                    className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className={inputClasses}
                     placeholder="careers@company.com"
                   />
                 </div>
               </div>
 
-              {/* Job Title Template */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Job Title Template *
                 </label>
                 <input
                   type="text"
                   value={formData.title || ''}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className={inputClasses}
                   placeholder="{{jobTitle}} - {{department}}"
                 />
               </div>
 
-              {/* Location Template */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Location Template
                 </label>
                 <input
                   type="text"
                   value={formData.location || ''}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className={inputClasses}
                   placeholder="{{location}}"
                 />
               </div>
 
-              {/* Rich Text Content Fields */}
               {[
                 { key: 'intro', label: 'Introduction', placeholder: 'Write an engaging introduction...' },
                 { key: 'responsibilities', label: 'Responsibilities', placeholder: 'List key responsibilities...' },
@@ -295,80 +287,74 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 { key: 'benefits', label: 'Benefits', placeholder: 'Describe benefits and perks...' }
               ].map(({ key, label, placeholder }) => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     {label}
                   </label>
                   <textarea
                     value={(formData[key as keyof JobAdTemplate] as string) || ''}
                     onChange={(e) => handleInputChange(key as keyof JobAdTemplate, e.target.value)}
                     rows={6}
-                    className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 font-mono text-sm"
+                    className={`${inputClasses} font-mono`}
                     placeholder={placeholder}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Supports HTML formatting and placeholders like {`{{jobTitle}}`}
                   </p>
                 </div>
               ))}
 
-              {/* Salary Range */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Salary Range (Optional)
                 </label>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="number"
-                      value={formData.salaryRangeMin || ''}
-                      onChange={(e) => handleInputChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                      placeholder="Min salary"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="number"
-                      value={formData.salaryRangeMax || ''}
-                      onChange={(e) => handleInputChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                      placeholder="Max salary"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    value={formData.salaryRangeMin || ''}
+                    onChange={(e) => handleInputChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
+                    className={inputClasses}
+                    placeholder="Min salary"
+                  />
+                  <input
+                    type="number"
+                    value={formData.salaryRangeMax || ''}
+                    onChange={(e) => handleInputChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
+                    className={inputClasses}
+                    placeholder="Max salary"
+                  />
                 </div>
               </div>
 
-              {/* Closing Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                   Default Closing Date (Optional)
                 </label>
                 <input
                   type="date"
                   value={formData.closingDate ? formData.closingDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => handleInputChange('closingDate', e.target.value ? new Date(e.target.value) : undefined)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className={inputClasses}
                 />
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <div className="px-4 md:px-5 py-4 border-t border-border flex justify-end space-x-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+              className="px-4 py-2 border border-border text-muted-foreground text-sm rounded-full hover:bg-accent transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 flex items-center"
+              className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground disabled:opacity-50 uppercase tracking-wider transition-colors"
             >
               {saving ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
                   Saving...
                 </>
               ) : (
@@ -383,70 +369,56 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
         {/* Preview Panel */}
         {showPreview && (
-          <div className="w-1/2 border-l border-gray-200 bg-gray-50">
-            <div className="p-6 h-full overflow-y-auto">
-              <div className="bg-white rounded-sm p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <EyeIcon className="w-5 h-5 mr-2" />
+          <div className="w-1/2 border-l border-border bg-background">
+            <div className="p-4 md:p-5 h-full overflow-y-auto">
+              <div className="bg-card rounded-card p-5 border border-border">
+                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center">
+                  <EyeIcon className="w-4 h-4 mr-2" />
                   Preview
                 </h3>
-                
-                <div className="space-y-6">
-                  {/* Job Title */}
+
+                <div className="space-y-5">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
+                    <h1 className="text-xl font-bold text-foreground">
                       {preview.title || 'Job Title Preview'}
                     </h1>
-                    <p className="text-gray-600 mt-1">
-                      {preview.location} • {preview.employmentType}
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {preview.location} &middot; {preview.employmentType}
                     </p>
                   </div>
 
-                  {/* Introduction */}
                   {preview.intro && (
-                    <div>
-                      <div
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: preview.intro }}
-                      />
-                    </div>
+                    <div
+                      className="prose prose-sm max-w-none text-foreground"
+                      dangerouslySetInnerHTML={{ __html: preview.intro }}
+                    />
                   )}
 
-                  {/* Responsibilities */}
                   {preview.responsibilities && (
-                    <div>
-                      <div
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: preview.responsibilities }}
-                      />
-                    </div>
+                    <div
+                      className="prose prose-sm max-w-none text-foreground"
+                      dangerouslySetInnerHTML={{ __html: preview.responsibilities }}
+                    />
                   )}
 
-                  {/* Requirements */}
                   {preview.requirements && (
-                    <div>
-                      <div
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: preview.requirements }}
-                      />
-                    </div>
+                    <div
+                      className="prose prose-sm max-w-none text-foreground"
+                      dangerouslySetInnerHTML={{ __html: preview.requirements }}
+                    />
                   )}
 
-                  {/* Benefits */}
                   {preview.benefits && (
-                    <div>
-                      <div
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: preview.benefits }}
-                      />
-                    </div>
+                    <div
+                      className="prose prose-sm max-w-none text-foreground"
+                      dangerouslySetInnerHTML={{ __html: preview.benefits }}
+                    />
                   )}
 
-                  {/* Contact */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm text-gray-600">
+                  <div className="border-t border-border pt-4">
+                    <p className="text-xs text-muted-foreground">
                       To apply, please send your resume to:{' '}
-                      <strong>{preview.contactEmail}</strong>
+                      <strong className="text-foreground">{preview.contactEmail}</strong>
                     </p>
                   </div>
                 </div>
@@ -458,36 +430,36 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
       {/* Placeholders Panel */}
       {showPlaceholders && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-sm max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-card max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-border shadow-xl">
+            <div className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Available Placeholders</h3>
+                <h3 className="text-sm font-semibold text-foreground">Available Placeholders</h3>
                 <button
                   onClick={() => setShowPlaceholders(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <XMarkIcon className="w-6 h-6" />
+                  <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {TEMPLATE_PLACEHOLDERS.map((placeholder) => (
-                  <div key={placeholder.key} className="border border-gray-200 rounded-sm p-4">
+                  <div key={placeholder.key} className="border border-border rounded-card p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center">
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
+                          <code className="text-xs bg-muted px-2 py-0.5 rounded-control font-mono text-foreground">
                             {placeholder.key}
                           </code>
-                          <span className="ml-2 font-medium text-gray-900">
+                          <span className="ml-2 text-sm font-medium text-foreground">
                             {placeholder.label}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           {placeholder.description}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           Example: {placeholder.example}
                         </p>
                       </div>
@@ -496,12 +468,12 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 ))}
               </div>
 
-              <div className="mt-6 p-4 bg-gold-50 rounded-sm">
+              <div className="mt-5 p-3 bg-cta/10 rounded-card">
                 <div className="flex">
-                  <InformationCircleIcon className="w-5 h-5 text-violet-400 mt-0.5" />
-                  <div className="ml-3">
-                    <p className="text-sm text-violet-800">
-                      <strong>Tip:</strong> Copy and paste placeholders into your template content. 
+                  <InformationCircleIcon className="w-4 h-4 text-primary mt-0.5" />
+                  <div className="ml-2">
+                    <p className="text-xs text-foreground">
+                      <strong>Tip:</strong> Copy and paste placeholders into your template content.
                       They will be automatically replaced with actual values when generating job ads.
                     </p>
                   </div>

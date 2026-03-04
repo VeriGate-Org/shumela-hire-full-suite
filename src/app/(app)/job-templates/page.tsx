@@ -6,6 +6,7 @@ import { jobTemplateService } from '@/services/jobTemplateService';
 import TemplateList from '@/components/templates/TemplateList';
 import TemplateEditor from '@/components/templates/TemplateEditor';
 import GenerateFromTemplate from '@/components/templates/GenerateFromTemplate';
+import PageWrapper from '@/components/PageWrapper';
 import { useToast } from '@/components/Toast';
 import {
   DocumentTextIcon,
@@ -23,7 +24,6 @@ const JobTemplatesPage: React.FC = () => {
   useEffect(() => {
     const initializeData = async () => {
       try {
-        // Load stats
         const templateStats = await jobTemplateService.getTemplateStats();
         setStats(templateStats);
       } catch (error) {
@@ -53,15 +53,14 @@ const JobTemplatesPage: React.FC = () => {
     console.log('Template saved:', template);
     setActiveView('list');
     setSelectedTemplate(null);
-    
-    // Refresh stats
+
     const templateStats = await jobTemplateService.getTemplateStats();
     setStats(templateStats);
   };
 
   const handleGenerated = (draft: JobAdDraft) => {
     console.log('Job ad generated:', draft);
-    toast('Job ad draft created successfully! In a real app, this would redirect to the draft editor.', 'success');
+    toast('Job ad draft created successfully. In a real app, this would redirect to the draft editor.', 'success');
     setActiveView('list');
     setSelectedTemplate(null);
   };
@@ -71,163 +70,124 @@ const JobTemplatesPage: React.FC = () => {
     setSelectedTemplate(null);
   };
 
-  const renderHeader = () => (
-    <div className="bg-white shadow border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <DocumentTextIcon className="w-8 h-8 mr-3" />
-              Job Ad Template Manager
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Create, manage, and generate job advertisements from reusable templates
-            </p>
+  const actions = (
+    <div className="flex items-center space-x-2">
+      {stats && (
+        <div className="hidden md:flex items-center space-x-4 mr-4 text-sm">
+          <div className="text-center">
+            <div className="text-lg font-bold text-cta">{stats.activeTemplates}</div>
+            <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Active</div>
           </div>
-
-          <div className="flex items-center space-x-4">
-            {/* Stats Overview */}
-            {stats && (
-              <div className="hidden md:flex items-center space-x-6 text-sm">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gold-600">{stats.activeTemplates}</div>
-                  <div className="text-gray-500">Active</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-600">{stats.totalTemplates}</div>
-                  <div className="text-gray-500">Total</div>
-                </div>
-                {stats.mostUsedTemplate && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{stats.mostUsedTemplate.usageCount}</div>
-                    <div className="text-gray-500">Most Used</div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setActiveView('list')}
-                className={`px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
-                  activeView === 'list'
-                    ? 'bg-gold-500 text-violet-950'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <DocumentTextIcon className="w-4 h-4 inline mr-2" />
-                Templates
-              </button>
-              
-              <button
-                onClick={handleCreateNew}
-                className={`px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
-                  activeView === 'editor'
-                    ? 'bg-gold-500 text-violet-950'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <PlusIcon className="w-4 h-4 inline mr-2" />
-                Create
-              </button>
-              
-              <button
-                onClick={() => setActiveView('generate')}
-                className={`px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
-                  activeView === 'generate'
-                    ? 'bg-gold-500 text-violet-950'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <SparklesIcon className="w-4 h-4 inline mr-2" />
-                Generate
-              </button>
+          <div className="text-center">
+            <div className="text-lg font-bold text-foreground">{stats.totalTemplates}</div>
+            <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Total</div>
+          </div>
+          {stats.mostUsedTemplate && (
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">{stats.mostUsedTemplate.usageCount}</div>
+              <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Most Used</div>
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
+
+      <button
+        onClick={() => setActiveView('list')}
+        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+          activeView === 'list'
+            ? 'border-2 border-cta text-cta bg-transparent'
+            : 'border border-border text-muted-foreground hover:bg-accent'
+        }`}
+      >
+        <DocumentTextIcon className="w-4 h-4 mr-2" />
+        Templates
+      </button>
+
+      <button
+        onClick={handleCreateNew}
+        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+          activeView === 'editor'
+            ? 'border-2 border-cta text-cta bg-transparent'
+            : 'border border-border text-muted-foreground hover:bg-accent'
+        }`}
+      >
+        <PlusIcon className="w-4 h-4 mr-2" />
+        Create
+      </button>
+
+      <button
+        onClick={() => setActiveView('generate')}
+        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+          activeView === 'generate'
+            ? 'border-2 border-cta text-cta bg-transparent'
+            : 'border border-border text-muted-foreground hover:bg-accent'
+        }`}
+      >
+        <SparklesIcon className="w-4 h-4 mr-2" />
+        Generate
+      </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {renderHeader()}
+    <PageWrapper
+      title="Job Ad Templates"
+      subtitle="Create, manage, and generate job advertisements from reusable templates"
+      actions={actions}
+    >
+      {/* Main Content */}
+      <div className="enterprise-card min-h-[600px]">
+        {activeView === 'list' && (
+          <TemplateList
+            onEdit={handleEdit}
+            onGenerate={handleGenerate}
+            onCreateNew={handleCreateNew}
+            className="p-4 md:p-5"
+          />
+        )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Features Banner */}
-        <div className="mb-8 bg-violet-600 rounded-sm p-6 text-white">
-          <h2 className="text-xl font-semibold mb-2">Job Ad Template Manager Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <h3 className="font-medium mb-1">📝 Rich Template Editor</h3>
-              <p className="opacity-90">Create templates with placeholders, rich text formatting, and live preview</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">🔄 Smart Generation</h3>
-              <p className="opacity-90">Generate job ads from templates + requisition data with automatic placeholder replacement</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">📊 Template Management</h3>
-              <p className="opacity-90">Full CRUD operations, archiving, duplication, search, and usage analytics</p>
-            </div>
-          </div>
-        </div>
+        {activeView === 'editor' && (
+          <TemplateEditor
+            template={selectedTemplate || undefined}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            className="h-full"
+          />
+        )}
 
-        {/* Main Content */}
-        <div className="bg-white rounded-sm shadow-lg min-h-[600px]">
-          {activeView === 'list' && (
-            <TemplateList
-              onEdit={handleEdit}
-              onGenerate={handleGenerate}
-              onCreateNew={handleCreateNew}
-              className="p-6"
-            />
-          )}
-
-          {activeView === 'editor' && (
-            <TemplateEditor
-              template={selectedTemplate || undefined}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              className="h-full"
-            />
-          )}
-
-          {activeView === 'generate' && (
-            <GenerateFromTemplate
-              template={selectedTemplate || undefined}
-              onGenerated={handleGenerated}
-              onCancel={handleCancel}
-              className="p-6"
-            />
-          )}
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-8 bg-white rounded-sm shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <ChartBarIcon className="w-5 h-5 mr-2" />
-            Available Placeholders
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            {[
-              '{{jobTitle}}', '{{department}}', '{{location}}', '{{employmentType}}',
-              '{{salaryRange}}', '{{companyName}}', '{{contactEmail}}', '{{applicationDeadline}}'
-            ].map((placeholder) => (
-              <div key={placeholder} className="flex items-center">
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">
-                  {placeholder}
-                </code>
-              </div>
-            ))}
-          </div>
-          <p className="text-gray-600 mt-4 text-sm">
-            Use these placeholders in your templates to automatically populate job-specific information when generating ads.
-          </p>
-        </div>
+        {activeView === 'generate' && (
+          <GenerateFromTemplate
+            template={selectedTemplate || undefined}
+            onGenerated={handleGenerated}
+            onCancel={handleCancel}
+            className="p-4 md:p-5"
+          />
+        )}
       </div>
-    </div>
+
+      {/* Available Placeholders */}
+      <div className="enterprise-card p-4 md:p-5">
+        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center">
+          <ChartBarIcon className="w-4 h-4 mr-2" />
+          Available Placeholders
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          {[
+            '{{jobTitle}}', '{{department}}', '{{location}}', '{{employmentType}}',
+            '{{salaryRange}}', '{{companyName}}', '{{contactEmail}}', '{{applicationDeadline}}'
+          ].map((placeholder) => (
+            <div key={placeholder} className="flex items-center">
+              <code className="bg-muted px-2 py-1 rounded-control text-xs font-mono text-foreground">
+                {placeholder}
+              </code>
+            </div>
+          ))}
+        </div>
+        <p className="text-muted-foreground mt-3 text-xs">
+          Use these placeholders in your templates to automatically populate job-specific information when generating ads.
+        </p>
+      </div>
+    </PageWrapper>
   );
 };
 

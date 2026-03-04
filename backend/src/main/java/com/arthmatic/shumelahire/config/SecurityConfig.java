@@ -193,6 +193,9 @@ public class SecurityConfig {
                 // Compliance endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/compliance/**")).hasAnyRole("ADMIN", "HR_MANAGER", "EXECUTIVE")
 
+                // Job ad template endpoints
+                .requestMatchers(new AntPathRequestMatcher("/api/job-templates/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+
                 // General authenticated endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
 

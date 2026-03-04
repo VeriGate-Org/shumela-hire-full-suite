@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { JobAdTemplate, TemplateFilters } from '../../types/jobTemplate';
 import { jobTemplateService } from '../../services/jobTemplateService';
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon, 
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
   ArchiveBoxIcon,
   ArchiveBoxXMarkIcon,
   DocumentDuplicateIcon,
@@ -111,7 +111,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
   const handleBulkAction = async (action: 'archive' | 'unarchive' | 'delete') => {
     if (selectedTemplates.size === 0) return;
 
-    const confirmed = action === 'delete' 
+    const confirmed = action === 'delete'
       ? window.confirm(`Are you sure you want to delete ${selectedTemplates.size} template(s)? This action cannot be undone.`)
       : window.confirm(`Are you sure you want to ${action} ${selectedTemplates.size} template(s)?`);
 
@@ -152,15 +152,15 @@ const TemplateList: React.FC<TemplateListProps> = ({
       'Part-time': 'bg-gold-100 text-gold-800',
       'Contract': 'bg-purple-100 text-purple-800',
       'Internship': 'bg-orange-100 text-orange-800',
-      'Remote': 'bg-gray-100 text-gray-800'
+      'Remote': 'bg-muted text-muted-foreground'
     };
-    return colors[employmentType] || 'bg-gray-100 text-gray-800';
+    return colors[employmentType] || 'bg-muted text-muted-foreground';
   };
 
   if (loading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
-        <div className="text-gray-500">Loading templates...</div>
+        <div className="text-muted-foreground">Loading templates...</div>
       </div>
     );
   }
@@ -168,58 +168,54 @@ const TemplateList: React.FC<TemplateListProps> = ({
   return (
     <div className={className}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Job Ad Templates</h2>
-          <p className="text-gray-600 mt-1">Create and manage reusable job posting templates</p>
+          <h2 className="text-lg font-bold text-foreground">Job Ad Templates</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Create and manage reusable job posting templates</p>
         </div>
         <button
           onClick={onCreateNew}
-          className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 transition-colors"
+          className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
         >
-          <PlusIcon className="w-5 h-5 mr-2" />
+          <PlusIcon className="w-4 h-4 mr-2" />
           New Template
         </button>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-sm shadow mb-6">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
+      <div className="border border-border rounded-card mb-5">
+        <div className="p-4 border-b border-border">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={filters.search || ''}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-control bg-background text-foreground text-sm focus:ring-2 focus:ring-cta/40 focus:border-primary"
               />
             </div>
-
-            {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50"
+              className="inline-flex items-center px-3 py-2 border border-border rounded-control text-sm text-muted-foreground hover:bg-accent transition-colors"
             >
-              <FunnelIcon className="w-5 h-5 mr-2" />
+              <FunnelIcon className="w-4 h-4 mr-2" />
               Filters
             </button>
           </div>
 
-          {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-border">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Employment Type
                   </label>
                   <select
                     value={filters.employmentType || ''}
                     onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                    className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className="w-full border border-border rounded-control px-3 py-2 bg-background text-foreground text-sm focus:ring-2 focus:ring-cta/40 focus:border-primary"
                   >
                     <option value="">All Types</option>
                     <option value="Full-time">Full-time</option>
@@ -230,7 +226,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Location
                   </label>
                   <input
@@ -238,7 +234,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                     placeholder="Filter by location..."
                     value={filters.location || ''}
                     onChange={(e) => handleFilterChange('location', e.target.value)}
-                    className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className="w-full border border-border rounded-control px-3 py-2 bg-background text-foreground text-sm focus:ring-2 focus:ring-cta/40 focus:border-primary"
                   />
                 </div>
 
@@ -248,9 +244,9 @@ const TemplateList: React.FC<TemplateListProps> = ({
                       type="checkbox"
                       checked={filters.showArchived || false}
                       onChange={(e) => handleFilterChange('showArchived', e.target.checked)}
-                      className="rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
+                      className="rounded-control border-border text-cta focus:ring-cta/40"
                     />
-                    <span className="ml-2 text-sm text-gray-700">Show archived</span>
+                    <span className="ml-2 text-sm text-foreground">Show archived</span>
                   </label>
                 </div>
               </div>
@@ -260,27 +256,27 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
         {/* Bulk Actions */}
         {selectedTemplates.size > 0 && (
-          <div className="p-4 bg-gold-50 border-b border-gray-200">
+          <div className="p-4 bg-cta/10 border-b border-border">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-violet-800">
+              <span className="text-sm text-foreground">
                 {selectedTemplates.size} template(s) selected
               </span>
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleBulkAction('archive')}
-                  className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                  className="px-3 py-1 text-sm border border-border rounded-full text-muted-foreground hover:bg-accent transition-colors"
                 >
                   Archive
                 </button>
                 <button
                   onClick={() => handleBulkAction('unarchive')}
-                  className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                  className="px-3 py-1 text-sm border border-border rounded-full text-muted-foreground hover:bg-accent transition-colors"
                 >
                   Unarchive
                 </button>
                 <button
                   onClick={() => handleBulkAction('delete')}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                  className="px-3 py-1 text-sm bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
                 >
                   Delete
                 </button>
@@ -292,11 +288,11 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-sm">
-          <div className="text-red-800">{error}</div>
-          <button 
+        <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-card">
+          <div className="text-red-800 text-sm">{error}</div>
+          <button
             onClick={() => setError(null)}
-            className="mt-2 text-sm text-red-600 hover:text-red-800"
+            className="mt-2 text-xs text-red-600 hover:text-red-800"
           >
             Dismiss
           </button>
@@ -306,26 +302,26 @@ const TemplateList: React.FC<TemplateListProps> = ({
       {/* Templates Grid */}
       {templates.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-500 mb-4">No templates found</div>
+          <div className="text-muted-foreground mb-4">No templates found</div>
           <button
             onClick={onCreateNew}
-            className="inline-flex items-center px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+            className="inline-flex items-center px-4 py-2 border-2 border-cta text-sm font-medium rounded-full text-cta bg-transparent hover:bg-cta hover:text-foreground uppercase tracking-wider transition-colors"
           >
-            <PlusIcon className="w-5 h-5 mr-2" />
+            <PlusIcon className="w-4 h-4 mr-2" />
             Create Your First Template
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
             <div
               key={template.id}
-              className={`bg-white rounded-sm shadow border ${
-                template.isArchived ? 'opacity-60 border-gray-300' : 'border-gray-200 hover:shadow-md'
-              } transition-shadow`}
+              className={`rounded-card border ${
+                template.isArchived ? 'opacity-60 border-border' : 'border-border hover:shadow-md'
+              } transition-shadow bg-card`}
             >
               {/* Card Header */}
-              <div className="p-4 border-b border-gray-200">
+              <div className="p-4 border-b border-border">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center">
@@ -333,19 +329,19 @@ const TemplateList: React.FC<TemplateListProps> = ({
                         type="checkbox"
                         checked={selectedTemplates.has(template.id)}
                         onChange={() => toggleSelectTemplate(template.id)}
-                        className="mr-3 rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
+                        className="mr-3 rounded-control border-border text-cta focus:ring-cta/40"
                       />
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      <h3 className="text-sm font-semibold text-foreground truncate">
                         {template.name}
                       </h3>
                       {template.isArchived && (
-                        <span className="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                        <span className="ml-2 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full">
                           Archived
                         </span>
                       )}
                     </div>
                     {template.description && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2 pl-8">
                         {template.description}
                       </p>
                     )}
@@ -355,67 +351,67 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
               {/* Card Content */}
               <div className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Usage Count:</span>
-                    <span className="font-medium">{template.usageCount}</span>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Usage Count</span>
+                    <span className="font-medium text-foreground">{template.usageCount}</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Employment Type:</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getTemplateTypeColor(template.employmentType)}`}>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Employment Type</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${getTemplateTypeColor(template.employmentType)}`}>
                       {template.employmentType}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Location:</span>
-                    <span className="font-medium truncate ml-2">{template.location}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Location</span>
+                    <span className="font-medium text-foreground truncate ml-2">{template.location}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Created:</span>
-                    <span className="font-medium">{formatDate(template.createdAt)}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Created</span>
+                    <span className="font-medium text-foreground">{formatDate(template.createdAt)}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Updated:</span>
-                    <span className="font-medium">{formatDate(template.updatedAt)}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Updated</span>
+                    <span className="font-medium text-foreground">{formatDate(template.updatedAt)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Card Actions */}
-              <div className="p-4 border-t border-gray-200">
+              <div className="p-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1">
                     <button
                       onClick={() => onView?.(template)}
-                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-control hover:bg-accent"
                       title="Preview"
                     >
                       <EyeIcon className="w-4 h-4" />
                     </button>
-                    
+
                     <button
                       onClick={() => onEdit?.(template)}
-                      className="p-2 text-gray-400 hover:text-gold-600 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-cta transition-colors rounded-control hover:bg-accent"
                       title="Edit"
                     >
                       <PencilIcon className="w-4 h-4" />
                     </button>
-                    
+
                     <button
                       onClick={() => handleDuplicate(template)}
-                      className="p-2 text-gray-400 hover:text-green-600 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-green-600 transition-colors rounded-control hover:bg-accent"
                       title="Duplicate"
                     >
                       <DocumentDuplicateIcon className="w-4 h-4" />
                     </button>
-                    
+
                     <button
                       onClick={() => handleArchive(template)}
-                      className="p-2 text-gray-400 hover:text-orange-600 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-orange-600 transition-colors rounded-control hover:bg-accent"
                       title={template.isArchived ? "Unarchive" : "Archive"}
                     >
                       {template.isArchived ? (
@@ -424,10 +420,10 @@ const TemplateList: React.FC<TemplateListProps> = ({
                         <ArchiveBoxIcon className="w-4 h-4" />
                       )}
                     </button>
-                    
+
                     <button
                       onClick={() => handleDelete(template)}
-                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-red-600 transition-colors rounded-control hover:bg-accent"
                       title="Delete"
                     >
                       <TrashIcon className="w-4 h-4" />
@@ -437,7 +433,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
                   {!template.isArchived && (
                     <button
                       onClick={() => onGenerate?.(template)}
-                      className="px-3 py-1 text-sm bg-gold-500 text-violet-950 rounded hover:bg-gold-600 transition-colors"
+                      className="px-3 py-1 text-xs border-2 border-cta text-cta rounded-full hover:bg-cta hover:text-foreground transition-colors font-medium uppercase tracking-wider"
                     >
                       Generate Ad
                     </button>
