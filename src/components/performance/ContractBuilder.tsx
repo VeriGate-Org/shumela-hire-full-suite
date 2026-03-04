@@ -387,7 +387,7 @@ export default function ContractBuilder({
                       </button>
                       <button
                         onClick={addGoal}
-                        className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                        className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                       >
                         Add Goal
                       </button>

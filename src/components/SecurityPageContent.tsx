@@ -211,7 +211,7 @@ export default function SecurityPageContent() {
                   <div className="flex justify-end">
                     <button
                       type="submit"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                     >
                       Change Password
                     </button>

@@ -199,7 +199,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
+                className="px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
               >
                 {loading ? 'Sending...' : 'Send Invitation'}
               </button>

@@ -162,7 +162,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           <p className="text-gray-600">Failed to load performance metrics</p>
           <button
             onClick={fetchPerformanceMetrics}
-            className="mt-4 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-sm"
+            className="mt-4 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-sm"
           >
             Retry
           </button>

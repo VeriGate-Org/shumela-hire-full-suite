@@ -245,7 +245,7 @@ export default function CandidateProfilePage() {
         className={`inline-flex items-center px-4 py-2 border text-sm font-medium rounded-full shadow-sm ${
           isEditing
             ? 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-            : 'bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
+            : 'bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
         }`}
       >
         <PencilIcon className="w-4 h-4 mr-2" />
@@ -653,7 +653,7 @@ export default function CandidateProfilePage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">Documents & Portfolio</h3>
                   {isEditing && (
-                    <button className="inline-flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium">
+                    <button className="inline-flex items-center px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full text-sm font-medium">
                       <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
                       Upload Document
                     </button>

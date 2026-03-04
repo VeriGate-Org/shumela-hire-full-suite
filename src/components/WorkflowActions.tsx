@@ -71,7 +71,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
             key={action}
             onClick={() => handleAction(action)}
             disabled={disabled || isLoading}
-            className={`${baseClasses} bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider`}
+            className={`${baseClasses} bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider`}
           >
             {isLoading ? 'Submitting...' : 'Submit for Approval'}
           </button>
@@ -156,7 +156,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
                 className={`px-4 py-2 rounded-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                   pendingAction === WorkflowAction.REJECT 
                     ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : 'bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
+                    : 'bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
                 }`}
               >
                 {isLoading ? 'Processing...' : (pendingAction === WorkflowAction.REJECT ? 'Reject' : 'Submit')}

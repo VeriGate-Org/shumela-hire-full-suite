@@ -120,7 +120,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
           </div>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
           >
             Create New Cycle
           </button>
@@ -232,7 +232,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                      className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                     >
                       Create Cycle
                     </button>

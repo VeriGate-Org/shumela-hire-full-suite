@@ -472,7 +472,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
       </p>
       <button
         onClick={handleComplete}
-        className="mt-8 inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-colors"
+        className="mt-8 inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-colors"
       >
         Go to Dashboard
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -586,7 +586,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
             )}
             <button
               onClick={handleNext}
-              className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-medium text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-colors"
             >
               Next
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">

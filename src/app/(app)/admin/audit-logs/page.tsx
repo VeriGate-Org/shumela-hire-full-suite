@@ -323,7 +323,7 @@ export default function AuditLogsPage() {
         className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full shadow-sm uppercase tracking-wider transition-colors ${
           realTimeMode
             ? 'bg-gold-500 text-violet-950 border-2 border-gold-500'
-            : 'text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950'
+            : 'text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950'
         }`}
       >
         {realTimeMode && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2" />}

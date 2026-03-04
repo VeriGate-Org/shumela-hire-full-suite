@@ -50,7 +50,7 @@ export default function DashboardPage() {
       </button>
       <button
         onClick={() => router.push('/job-postings?action=create')}
-        className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full shadow-sm bg-transparent text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
+        className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full shadow-sm bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
       >
         Create Position
       </button>

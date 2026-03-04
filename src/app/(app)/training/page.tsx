@@ -198,7 +198,7 @@ export default function TrainingPage() {
         <CalendarIcon className="w-4 h-4 mr-2" />
         Schedule Training
       </button>
-      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
+      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
         <PlusIcon className="w-4 h-4 mr-2" />
         Create Module
       </button>

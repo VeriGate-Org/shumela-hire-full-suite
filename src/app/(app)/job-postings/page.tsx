@@ -246,7 +246,7 @@ export default function JobPostingsPage() {
   const pageActions = view === 'list' ? (
     <button
       onClick={() => setView('create')}
-      className="px-4 py-2 bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
+      className="px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
     >
       Create Job Posting
     </button>

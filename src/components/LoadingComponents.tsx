@@ -220,7 +220,7 @@ export function ErrorFallback({ error, resetError }: { error: Error; resetError:
         </p>
         <button 
           onClick={resetError}
-          className="bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-sm transition-colors"
+          className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-sm transition-colors"
         >
           Try again
         </button>

@@ -288,7 +288,7 @@ export default function InternalJobsBoard() {
           {daysLeft > 0 && (
             <button
               onClick={() => handleApply(job)}
-              className="bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-full text-sm font-medium transition-colors"
             >
               Apply Now
             </button>

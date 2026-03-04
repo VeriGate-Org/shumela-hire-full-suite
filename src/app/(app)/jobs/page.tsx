@@ -343,7 +343,7 @@ const JobsPortalPage: React.FC = () => {
 
                       <div className="ml-6">
                         <Link href={`/jobs/${job.slug}`}>
-                          <button className="bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-full font-medium transition-colors">
+                          <button className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-full font-medium transition-colors">
                             Apply Now
                           </button>
                         </Link>

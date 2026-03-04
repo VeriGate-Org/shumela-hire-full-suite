@@ -114,7 +114,7 @@ const JobAdPreview: React.FC<JobAdPreviewProps> = ({
 
           {/* Apply button */}
           <div className="ml-6">
-            <button className="bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-3 rounded-full font-medium transition-colors">
+            <button className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-3 rounded-full font-medium transition-colors">
               Apply Now
             </button>
           </div>
@@ -178,7 +178,7 @@ const JobAdPreview: React.FC<JobAdPreviewProps> = ({
               <span>Send applications to: <strong>{data.contactEmail}</strong></span>
             </div>
             
-            <button className="bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-full font-medium transition-colors">
+            <button className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-full font-medium transition-colors">
               Apply Now
             </button>
           </div>

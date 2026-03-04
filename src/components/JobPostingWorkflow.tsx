@@ -313,7 +313,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           <button
             onClick={() => handleWorkflowAction('submit-for-approval')}
             disabled={loading === 'submit-for-approval'}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-violet-900 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
           >
             {loading === 'submit-for-approval' ? 'Submitting...' : 'Submit for Approval'}
           </button>

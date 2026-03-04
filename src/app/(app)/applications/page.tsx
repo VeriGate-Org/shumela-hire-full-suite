@@ -217,7 +217,7 @@ export default function ApplicationsPage() {
       </button>
       <Link
         href="/applications/manage"
-        className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+        className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
       >
         Advanced Management
       </Link>

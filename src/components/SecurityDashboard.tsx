@@ -190,7 +190,7 @@ const SecurityDashboard: React.FC = () => {
           <div className="mt-4 flex flex-wrap gap-4">
             <button
               onClick={loadSecurityReport}
-              className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full text-violet-900 bg-transparent hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+              className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full text-gold-500 bg-transparent hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
             >
               Refresh Report
             </button>

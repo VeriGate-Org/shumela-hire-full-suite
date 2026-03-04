@@ -358,7 +358,7 @@ export default function WorkflowPage() {
       {activeView !== 'builder' && (
         <button
           onClick={handleCreateWorkflow}
-          className="px-4 py-2 text-sm font-medium bg-transparent border-2 border-gold-500 text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full flex items-center gap-2"
+          className="px-4 py-2 text-sm font-medium bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full flex items-center gap-2"
         >
           <PlusIcon className="h-4 w-4" />
           Create Workflow

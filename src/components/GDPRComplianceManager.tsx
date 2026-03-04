@@ -257,7 +257,7 @@ const GDPRComplianceManager: React.FC = () => {
                   <p className="text-sm text-gray-600 mt-2">{item.description}</p>
                   <button
                     onClick={item.action}
-                    className="mt-3 inline-flex items-center px-3 py-2 border-2 border-gold-500 text-sm leading-4 font-medium rounded-full text-violet-900 bg-transparent hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                    className="mt-3 inline-flex items-center px-3 py-2 border-2 border-gold-500 text-sm leading-4 font-medium rounded-full text-gold-500 bg-transparent hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                   >
                     Submit Request
                   </button>

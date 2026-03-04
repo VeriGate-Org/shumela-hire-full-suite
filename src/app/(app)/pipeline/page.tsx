@@ -518,7 +518,7 @@ export default function PipelinePage() {
           </button>
         ))}
       </div>
-      <button className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full shadow-sm bg-transparent text-violet-900 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
+      <button className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full shadow-sm bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
         <PlusIcon className="w-4 h-4 mr-2" />
         Add Application
       </button>
