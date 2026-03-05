@@ -18,33 +18,36 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   SparklesIcon,
-  EyeIcon,
-  UserGroupIcon
 } from '@heroicons/react/24/outline';
-import { formatSalaryRange } from '@/utils/currency';
 
-// Types for internal job data
+// Types for internal job data (maps to JobPostingResponse from backend)
 interface InternalJobAd {
   id: number;
-  requisitionId?: number;
   title: string;
-  htmlBody: string;
-  channelInternal: boolean;
-  channelExternal: boolean;
-  status: 'DRAFT' | 'PUBLISHED' | 'UNPUBLISHED' | 'EXPIRED';
-  closingDate?: string;
+  description: string;
+  requirements?: string;
+  responsibilities?: string;
+  status: string;
   slug: string;
-  createdBy: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  applicationDeadline?: string;
   department?: string;
   location?: string;
   employmentType?: string;
-  salaryRangeMin?: number;
-  salaryRangeMax?: number;
-  companyName?: string;
-  applicationCount?: number;
-  viewCount?: number;
+  employmentTypeDisplayName?: string;
+  experienceLevel?: string;
+  experienceLevelDisplayName?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  salaryRange?: string;
+  positionsAvailable?: number;
+  viewsCount?: number;
+  applicationsCount?: number;
+  featured?: boolean;
+  urgent?: boolean;
 }
 
 interface JobFilters {
@@ -56,10 +59,10 @@ interface JobFilters {
 }
 
 // Utility functions
-const getDaysUntilExpiry = (closingDate?: string): number => {
-  if (!closingDate) return Infinity;
+const getDaysUntilExpiry = (deadline?: string): number => {
+  if (!deadline) return Infinity;
   const today = new Date();
-  const expiry = new Date(closingDate);
+  const expiry = new Date(deadline);
   const diffTime = expiry.getTime() - today.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
@@ -71,9 +74,9 @@ const isJobNew = (createdAt: string): boolean => {
   return created > threeDaysAgo;
 };
 
-const isJobClosingSoon = (closingDate?: string): boolean => {
-  if (!closingDate) return false;
-  const daysLeft = getDaysUntilExpiry(closingDate);
+const isJobClosingSoon = (deadline?: string): boolean => {
+  if (!deadline) return false;
+  const daysLeft = getDaysUntilExpiry(deadline);
   return daysLeft > 0 && daysLeft <= 7;
 };
 
@@ -125,15 +128,11 @@ export default function InternalJobsBoard() {
     setError(null);
 
     try {
-      const params = new URLSearchParams({
-        size: '50',
-      });
-
-      const response = await apiFetch(`/api/ads/internal?${params}`);
+      const response = await apiFetch(`/api/public/job-postings/published?size=50`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const result = await response.json();
-      const content = result.data?.content || result.content || [];
+      const content = result.content || [];
 
       // Apply client-side filters since the internal endpoint doesn't support them
       let filtered = content;
@@ -150,7 +149,9 @@ export default function InternalJobsBoard() {
         filtered = filtered.filter((j: InternalJobAd) => j.location === filters.location);
       }
       if (filters.employmentType) {
-        filtered = filtered.filter((j: InternalJobAd) => j.employmentType === filters.employmentType);
+        filtered = filtered.filter((j: InternalJobAd) =>
+          (j.employmentTypeDisplayName || j.employmentType) === filters.employmentType
+        );
       }
 
       setJobs(filtered);
@@ -159,7 +160,7 @@ export default function InternalJobsBoard() {
       setFilterOptions({
         departments: [...new Set(content.map((j: InternalJobAd) => j.department).filter(Boolean))] as string[],
         locations: [...new Set(content.map((j: InternalJobAd) => j.location).filter(Boolean))] as string[],
-        employmentTypes: [...new Set(content.map((j: InternalJobAd) => j.employmentType).filter(Boolean))] as string[],
+        employmentTypes: [...new Set(content.map((j: InternalJobAd) => j.employmentTypeDisplayName || j.employmentType).filter(Boolean))] as string[],
       });
     } catch (err) {
       console.error('Error fetching internal jobs:', err);
@@ -191,20 +192,13 @@ export default function InternalJobsBoard() {
   };
 
   const handleApply = (job: InternalJobAd) => {
-    // Route to internal application flow with pre-authenticated context
-    if (job.requisitionId) {
-      router.push(`/internal/apply/${job.requisitionId}?jobId=${job.id}&source=internal`);
-    } else {
-      // Fallback to general application
-      router.push(`/internal/apply/general?jobId=${job.id}&title=${encodeURIComponent(job.title)}`);
-    }
+    router.push(`/internal/apply/general?jobId=${job.id}&title=${encodeURIComponent(job.title)}`);
   };
 
   const JobBadges = ({ job }: { job: InternalJobAd }) => {
     const isNew = isJobNew(job.createdAt);
-    const isClosingSoon = isJobClosingSoon(job.closingDate);
-    const isInternal = job.channelInternal;
-    
+    const isClosingSoon = isJobClosingSoon(job.applicationDeadline);
+
     return (
       <div className="flex flex-wrap gap-2 mb-3">
         {isNew && (
@@ -219,16 +213,16 @@ export default function InternalJobsBoard() {
             Closing Soon
           </span>
         )}
-        {isInternal && (
+        {job.featured && (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
-            <UserGroupIcon className="w-3 h-3 mr-1" />
-            Internal
+            <SparklesIcon className="w-3 h-3 mr-1" />
+            Featured
           </span>
         )}
-        {job.channelExternal && (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-            <EyeIcon className="w-3 h-3 mr-1" />
-            External
+        {job.urgent && (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
+            Urgent
           </span>
         )}
       </div>
@@ -236,17 +230,17 @@ export default function InternalJobsBoard() {
   };
 
   const JobCard = ({ job }: { job: InternalJobAd }) => {
-    const daysLeft = getDaysUntilExpiry(job.closingDate);
-    const description = stripHtmlTags(job.htmlBody).substring(0, 120) + '...';
-    
+    const daysLeft = getDaysUntilExpiry(job.applicationDeadline);
+    const description = stripHtmlTags(job.description).substring(0, 120) + '...';
+
     return (
       <div className="bg-white rounded-sm shadow-md hover:shadow-lg transition-shadow border border-gray-200 p-6">
         <JobBadges job={job} />
-        
+
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">{job.title}</h3>
           <p className="text-gray-600 text-sm mb-3">{description}</p>
-          
+
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-3">
             {job.department && (
               <div className="flex items-center">
@@ -260,40 +254,40 @@ export default function InternalJobsBoard() {
                 {job.location}
               </div>
             )}
-            {job.employmentType && (
+            {(job.employmentTypeDisplayName || job.employmentType) && (
               <div className="flex items-center">
                 <BriefcaseIcon className="w-4 h-4 mr-1" />
-                {job.employmentType}
+                {job.employmentTypeDisplayName || job.employmentType}
               </div>
             )}
           </div>
-          
-          {(job.salaryRangeMin || job.salaryRangeMax) && (
+
+          {job.salaryRange && (
             <div className="flex items-center text-green-600 font-medium mb-3">
               <CurrencyDollarIcon className="w-4 h-4 mr-1" />
-              {formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax)}
+              {job.salaryRange}
             </div>
           )}
-          
-          {job.closingDate && (
+
+          {job.applicationDeadline && (
             <div className="flex items-center text-sm text-gray-500 mb-4">
               <CalendarIcon className="w-4 h-4 mr-1" />
               {daysLeft > 0 ? (
-                <span>Closes in {daysLeft} days ({new Date(job.closingDate).toLocaleDateString()})</span>
+                <span>Closes in {daysLeft} days ({new Date(job.applicationDeadline).toLocaleDateString()})</span>
               ) : (
                 <span className="text-red-600">Closing date passed</span>
               )}
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between">
-          <Link href={`/internal/jobs/${job.id}`}>
+          <Link href={`/internal/jobs/${job.slug || job.id}`}>
             <button className="text-gold-600 hover:text-gold-800 text-sm font-medium rounded-full">
               View Details
             </button>
           </Link>
-          
+
           {daysLeft > 0 && (
             <button
               onClick={() => handleApply(job)}
@@ -303,11 +297,11 @@ export default function InternalJobsBoard() {
             </button>
           )}
         </div>
-        
-        {(job.applicationCount !== undefined || job.viewCount !== undefined) && (
+
+        {(job.applicationsCount !== undefined || job.viewsCount !== undefined) && (
           <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between text-xs text-gray-500">
-            {job.viewCount !== undefined && <span>{job.viewCount} views</span>}
-            {job.applicationCount !== undefined && <span>{job.applicationCount} applications</span>}
+            {job.viewsCount !== undefined && <span>{job.viewsCount} views</span>}
+            {job.applicationsCount !== undefined && <span>{job.applicationsCount} applications</span>}
           </div>
         )}
       </div>
