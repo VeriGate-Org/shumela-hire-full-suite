@@ -26,7 +26,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ads")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
 public class JobAdController {
     
     private static final Logger logger = LoggerFactory.getLogger(JobAdController.class);
@@ -60,6 +59,7 @@ public class JobAdController {
      * POST /ads - Create job ad (draft or publish)
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> createJobAd(@Valid @RequestBody JobAdCreateRequest request) {
         try {
             logger.info("Creating job ad: {}", request.getTitle());
@@ -81,6 +81,7 @@ public class JobAdController {
      * PUT /ads/{id} - Update job ad
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> updateJobAd(
             @PathVariable Long id,
             @Valid @RequestBody JobAdUpdateRequest request,
@@ -105,6 +106,7 @@ public class JobAdController {
      * POST /ads/{id}/publish - Publish job ad
      */
     @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> publishJobAd(
             @PathVariable Long id, 
             @Valid @RequestBody JobAdPublishRequest request) {
@@ -127,6 +129,7 @@ public class JobAdController {
      * POST /ads/{id}/unpublish - Unpublish job ad
      */
     @PostMapping("/{id}/unpublish")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> unpublishJobAd(
             @PathVariable Long id,
             Authentication authentication) {
@@ -211,6 +214,7 @@ public class JobAdController {
      * GET /ads/{id}/history - Get job ad history
      */
     @GetMapping("/{id}/history")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<List<JobAdHistory>>> getJobAdHistory(@PathVariable Long id) {
         try {
             logger.info("Fetching history for job ad: {}", id);
@@ -230,6 +234,7 @@ public class JobAdController {
      * POST /ads/expire - Manual trigger for expiring ads (admin only)
      */
     @PostMapping("/expire")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<String>> expireAds(Authentication authentication) {
         try {
             String userId = resolveActorId(authentication);
