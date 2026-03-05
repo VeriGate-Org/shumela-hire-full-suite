@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { signIn, signOut, signInWithRedirect, confirmSignIn, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { apiFetch } from '@/lib/api-fetch';
 import { Hub } from 'aws-amplify/utils';
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured, configureAmplify } from '@/lib/amplify-config';
@@ -132,8 +133,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const attrs = await fetchUserAttributes();
 
       const tenantId = (idToken.payload['custom:tenant_id'] as string) || undefined;
+      const tokenStr = idToken.toString();
+      setToken(tokenStr);
+
+      // Fetch the numeric DB user ID from the backend
+      let dbUserId: string = authUser.userId;
+      try {
+        const meRes = await apiFetch('/api/auth/me');
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          if (meData.id != null) {
+            dbUserId = String(meData.id);
+          }
+        }
+      } catch {
+        // Fall back to Cognito UUID if backend is unreachable
+      }
+
       const userData: User = {
-        id: authUser.userId,
+        id: dbUserId,
         name: attrs.name || attrs.email || authUser.username,
         email: attrs.email || '',
         role,
@@ -141,7 +159,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         tenantId,
       };
       setUser(userData);
-      setToken(idToken.toString());
     }
   }
 
