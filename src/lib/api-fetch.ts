@@ -29,8 +29,10 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
 
   const token = await getAuthToken();
   const tenantSubdomain = getTenantSubdomain();
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    // Let the browser set Content-Type (with boundary) for FormData uploads
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(init?.headers as Record<string, string> || {}),
   };
 

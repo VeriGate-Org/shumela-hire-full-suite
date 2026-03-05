@@ -7,13 +7,13 @@ import { apiFetch } from '@/lib/api-fetch';
 interface ScreeningQuestion {
   id: number;
   jobPostingId: number;
-  questionType: 'TEXT' | 'DROPDOWN' | 'YES_NO' | 'MULTIPLE_CHOICE' | 'FILE_UPLOAD';
+  questionType: 'TEXT' | 'DROPDOWN' | 'YES_NO' | 'MULTIPLE_CHOICE' | 'FILE_UPLOAD' | 'CHECKBOX' | 'NUMBER' | 'DATE' | 'EMAIL' | 'PHONE';
   questionText: string;
   isRequired: boolean;
   displayOrder: number;
-  possibleAnswers?: string;
-  validationRule?: string;
-  maxLength?: number;
+  questionOptions?: string;
+  validationRules?: string;
+  helpText?: string;
   isActive: boolean;
 }
 
@@ -32,13 +32,23 @@ interface ScreeningQuestionsProps {
   readonly?: boolean;
 }
 
-export default function ScreeningQuestions({ 
-  applicationId, 
-  jobPostingId, 
-  onComplete, 
-  readonly = false 
+function parseOptions(optionsJson?: string): string[] {
+  if (!optionsJson) return [];
+  try {
+    const parsed = JSON.parse(optionsJson);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return optionsJson.split(',').map(s => s.trim()).filter(Boolean);
+  }
+}
+
+export default function ScreeningQuestions({
+  applicationId,
+  jobPostingId,
+  onComplete,
+  readonly = false
 }: ScreeningQuestionsProps) {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [questions, setQuestions] = useState<ScreeningQuestion[]>([]);
   const [answers, setAnswers] = useState<{ [key: number]: ScreeningAnswer }>({});
   const [loading, setLoading] = useState(true);
@@ -48,16 +58,11 @@ export default function ScreeningQuestions({
 
   const loadQuestions = useCallback(async () => {
     try {
-      const response = await apiFetch(`/api/screening/questions/job-posting/${jobPostingId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiFetch(`/api/screening/questions/job-posting/${jobPostingId}`);
 
       if (response.ok) {
-        const result = await response.json();
-        setQuestions(result.data || []);
+        const data = await response.json();
+        setQuestions(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to load questions');
       }
@@ -66,27 +71,22 @@ export default function ScreeningQuestions({
     } finally {
       setLoading(false);
     }
-  }, [jobPostingId, token]);
+  }, [jobPostingId]);
 
   const loadExistingAnswers = useCallback(async () => {
     try {
-      const response = await apiFetch(`/api/screening/answers/application/${applicationId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiFetch(`/api/screening/answers/application/${applicationId}`);
 
       if (response.ok) {
-        const result = await response.json();
-        const existingAnswers = result.data || [];
+        const data = await response.json();
+        const existingAnswers = Array.isArray(data) ? data : [];
 
         const answerMap: { [key: number]: ScreeningAnswer } = {};
         const savedMap: { [key: number]: boolean } = {};
 
         existingAnswers.forEach((answer: ScreeningAnswer & { screeningQuestion: { id: number } }) => {
           const questionId = answer.screeningQuestion.id;
-          answerMap[questionId] = answer;
+          answerMap[questionId] = { ...answer, questionId };
           savedMap[questionId] = true;
         });
 
@@ -96,7 +96,7 @@ export default function ScreeningQuestions({
     } catch (error) {
       console.error('Error loading existing answers:', error);
     }
-  }, [applicationId, token]);
+  }, [applicationId]);
 
   useEffect(() => {
     loadQuestions();
@@ -148,9 +148,6 @@ export default function ScreeningQuestions({
       // Upload to document service (assuming similar to applicant documents)
       const response = await apiFetch(`/api/applicants/${user?.id}/documents`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -185,10 +182,6 @@ export default function ScreeningQuestions({
     try {
       const response = await apiFetch('/api/screening/answers', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           applicationId,
           questionId,
@@ -234,10 +227,6 @@ export default function ScreeningQuestions({
       
       const response = await apiFetch('/api/screening/answers/bulk', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           applicationId,
           answers: answersArray.map(answer => ({
@@ -273,18 +262,16 @@ export default function ScreeningQuestions({
               value={answer?.answerValue || ''}
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               disabled={readonly}
-              maxLength={question.maxLength || 500}
+              maxLength={500}
               className={`w-full p-3 border rounded-sm ${
                 hasError ? 'border-red-500' : 'border-gray-300'
               } ${readonly ? 'bg-gray-50' : ''}`}
               placeholder="Enter your answer..."
               rows={3}
             />
-            {question.maxLength && (
-              <div className="text-sm text-gray-500 mt-1">
-                {(answer?.answerValue || '').length} / {question.maxLength}
-              </div>
-            )}
+            <div className="text-sm text-gray-500 mt-1">
+              {(answer?.answerValue || '').length} / 500
+            </div>
             {isSaved && !readonly && (
               <div className="absolute top-2 right-2 text-green-500 text-sm">
                 ✓ Saved
@@ -294,7 +281,7 @@ export default function ScreeningQuestions({
         );
 
       case 'DROPDOWN':
-        const options = question.possibleAnswers?.split(',') || [];
+        const options = parseOptions(question.questionOptions);
         return (
           <div className="relative">
             <select
@@ -359,7 +346,7 @@ export default function ScreeningQuestions({
         );
 
       case 'MULTIPLE_CHOICE':
-        const mcOptions = question.possibleAnswers?.split(',') || [];
+        const mcOptions = parseOptions(question.questionOptions);
         return (
           <div className="space-y-2">
             {mcOptions.map((option, index) => (
