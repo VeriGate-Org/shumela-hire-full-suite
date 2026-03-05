@@ -311,29 +311,29 @@ BEGIN
     -- TIER 6: INTERVIEWS (5)
     -- ============================================================
     INSERT INTO interviews (tenant_id, application_id, title, type, round, status, scheduled_at, duration_minutes, meeting_link, interviewer_name, interviewer_email)
-    VALUES (v_tenant_id, v_app_ayanda_advisor, 'First Interview - Ayanda Nkosi', 'VIDEO', 'FIRST', 'SCHEDULED',
+    VALUES (v_tenant_id, v_app_ayanda_advisor, 'First Interview - Ayanda Nkosi', 'VIDEO', 'FIRST_ROUND', 'SCHEDULED',
             NOW() + INTERVAL '3 days', 60, 'https://teams.microsoft.com/meet/idc-interview-001',
             'Sipho Mabaso', 'sipho.mabaso@idc.co.za');
 
     INSERT INTO interviews (tenant_id, application_id, title, type, round, status, scheduled_at, duration_minutes, phone_number, interviewer_name, interviewer_email)
-    VALUES (v_tenant_id, v_app_fatima_advisor, 'Phone Screen - Fatima Patel', 'PHONE', 'FIRST', 'SCHEDULED',
+    VALUES (v_tenant_id, v_app_fatima_advisor, 'Phone Screen - Fatima Patel', 'PHONE', 'SCREENING', 'SCHEDULED',
             NOW() + INTERVAL '2 days', 45, '+27 12 313 3911',
             'Sipho Mabaso', 'sipho.mabaso@idc.co.za');
 
     INSERT INTO interviews (tenant_id, application_id, title, type, round, status, scheduled_at, duration_minutes, meeting_link, interviewer_name, interviewer_email)
-    VALUES (v_tenant_id, v_app_thabo_analyst, 'Technical Assessment - Thabo Sithole', 'TECHNICAL', 'FIRST', 'SCHEDULED',
+    VALUES (v_tenant_id, v_app_thabo_analyst, 'Technical Assessment - Thabo Sithole', 'TECHNICAL', 'TECHNICAL', 'SCHEDULED',
             NOW() + INTERVAL '4 days', 90, 'https://teams.microsoft.com/meet/idc-interview-003',
             'Dr. Nthato Moagi', 'nthato.moagi@idc.co.za');
 
     INSERT INTO interviews (tenant_id, application_id, title, type, round, status, scheduled_at, duration_minutes, meeting_link, interviewer_name, interviewer_email, feedback, rating, recommendation, completed_at)
-    VALUES (v_tenant_id, v_app_lerato_analyst, 'Video Interview - Lerato Mokoena', 'VIDEO', 'SECOND', 'COMPLETED',
+    VALUES (v_tenant_id, v_app_lerato_analyst, 'Video Interview - Lerato Mokoena', 'VIDEO', 'SECOND_ROUND', 'COMPLETED',
             NOW() - INTERVAL '5 days', 60, 'https://teams.microsoft.com/meet/idc-interview-004',
             'Dr. Nthato Moagi', 'nthato.moagi@idc.co.za',
             'Strong candidate with excellent financial modelling skills. Demonstrated deep knowledge of mining sector dynamics. Communication was clear and confident. Recommended for final round.',
             4, 'HIRE', NOW() - INTERVAL '5 days');
 
     INSERT INTO interviews (tenant_id, application_id, title, type, round, status, scheduled_at, duration_minutes, location, interviewer_name, interviewer_email, feedback, rating, recommendation, completed_at)
-    VALUES (v_tenant_id, v_app_pieter_analyst, 'In-Person Panel Interview - Pieter van der Merwe', 'IN_PERSON', 'SECOND', 'COMPLETED',
+    VALUES (v_tenant_id, v_app_pieter_analyst, 'In-Person Panel Interview - Pieter van der Merwe', 'IN_PERSON', 'SECOND_ROUND', 'COMPLETED',
             NOW() - INTERVAL '8 days', 90, 'IDC Head Office, 19 Fredman Drive, Sandton',
             'Dr. Nthato Moagi', 'nthato.moagi@idc.co.za',
             'Exceptional candidate. CA(SA) with robust mining finance background from Anglo American. Impressed the panel with technical depth and strategic thinking. Unanimous recommendation to extend offer.',

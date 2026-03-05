@@ -67,7 +67,7 @@ CREATE TABLE interviews (
         'BEHAVIOURAL', 'COMPETENCY', 'GROUP', 'PRESENTATION', 'CASE_STUDY'
     )),
     CONSTRAINT chk_interviews_round CHECK (round IN (
-        'SCREENING', 'FIRST', 'SECOND', 'THIRD', 'FINAL', 'TECHNICAL', 'PANEL', 'EXECUTIVE'
+        'SCREENING', 'FIRST_ROUND', 'TECHNICAL', 'SECOND_ROUND', 'PANEL', 'MANAGER', 'FINAL', 'OFFER'
     )),
     CONSTRAINT chk_interviews_status CHECK (status IN (
         'SCHEDULED', 'RESCHEDULED', 'IN_PROGRESS', 'COMPLETED',
