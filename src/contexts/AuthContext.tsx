@@ -97,27 +97,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [pendingNewPasswordChallenge, setPendingNewPasswordChallenge] = useState(false);
 
-  // Check for existing Cognito session on mount
+  // Listen for OAuth redirect completion AND check existing session on mount.
+  // Hub listener must be registered BEFORE the initial session check to avoid
+  // missing the signInWithRedirect event that fires when Amplify exchanges the
+  // authorization code from the URL.
   useEffect(() => {
-    if (isCognitoConfigured) {
-      checkCognitoSession();
-    } else {
+    if (!isCognitoConfigured) {
       checkMockSession();
+      return;
     }
-  }, []);
-
-  // Listen for OAuth redirect completion (LinkedIn sign-in)
-  useEffect(() => {
-    if (!isCognitoConfigured) return;
 
     const unsubscribe = Hub.listen('auth', ({ payload }) => {
       if (payload.event === 'signInWithRedirect') {
         checkCognitoSession();
       }
       if (payload.event === 'signInWithRedirect_failure') {
+        console.error('OAuth redirect failed:', payload.data);
         setIsLoading(false);
       }
     });
+
+    // If the URL contains an OAuth authorization code, Amplify will exchange it
+    // automatically. Wait briefly for the exchange to complete before checking
+    // the session, so we don't prematurely conclude there's no session.
+    const hasOAuthCode = typeof window !== 'undefined' &&
+      (window.location.search.includes('code=') || window.location.hash.includes('access_token'));
+
+    if (hasOAuthCode) {
+      // Amplify processes the code asynchronously; the Hub event will trigger
+      // checkCognitoSession. Set a fallback timeout in case the event doesn't fire.
+      const fallbackTimer = setTimeout(() => {
+        checkCognitoSession();
+      }, 3000);
+      return () => {
+        unsubscribe();
+        clearTimeout(fallbackTimer);
+      };
+    }
+
+    checkCognitoSession();
 
     return unsubscribe;
   }, []);
