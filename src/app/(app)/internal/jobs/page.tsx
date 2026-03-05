@@ -127,7 +127,7 @@ export default function InternalJobsBoard() {
     try {
       const params = new URLSearchParams({
         status: 'PUBLISHED',
-        channels: 'internal',
+        channel: 'internal',
         size: '50',
         sort: 'createdAt,desc',
       });
@@ -137,7 +137,7 @@ export default function InternalJobsBoard() {
       if (filters.employmentType) params.set('employmentType', filters.employmentType);
       if (filters.closingDate) params.set('closingDate', filters.closingDate);
 
-      const response = await apiFetch(`/api/job-ads?${params}`);
+      const response = await apiFetch(`/api/ads?${params}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const result = await response.json();

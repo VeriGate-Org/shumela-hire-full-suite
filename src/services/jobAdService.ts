@@ -33,7 +33,7 @@ export class JobAdService {
       throw new Error(`Expiry date cannot be more than ${DEFAULT_PUBLISHING_SETTINGS.maxExpiryDays} days in the future`);
     }
 
-    const response = await apiFetch('/api/job-ads', {
+    const response = await apiFetch('/api/ads', {
       method: 'POST',
       body: JSON.stringify({
         draft,
@@ -51,14 +51,14 @@ export class JobAdService {
   }
 
   async getJobAd(id: string): Promise<JobAd | null> {
-    const response = await apiFetch(`/api/job-ads/${id}`);
+    const response = await apiFetch(`/api/ads/${id}`);
     if (!response.ok) return null;
     const result = await response.json();
     return result.data || result;
   }
 
   async getJobAdBySlug(slug: string): Promise<JobAd | null> {
-    const response = await apiFetch(`/api/job-ads/slug/${slug}`);
+    const response = await apiFetch(`/api/ads/slug/${slug}`);
     if (!response.ok) return null;
     const result = await response.json();
     return result.data || result;
@@ -75,7 +75,7 @@ export class JobAdService {
     if (filters?.search) params.set('search', filters.search);
 
     const query = params.toString();
-    const response = await apiFetch(`/api/job-ads${query ? `?${query}` : ''}`);
+    const response = await apiFetch(`/api/ads${query ? `?${query}` : ''}`);
     if (!response.ok) return [];
     const result = await response.json();
     return result.data || result || [];
@@ -90,7 +90,7 @@ export class JobAdService {
   }
 
   async updateJobAd(id: string, updates: Partial<JobAd>): Promise<JobAd | null> {
-    const response = await apiFetch(`/api/job-ads/${id}`, {
+    const response = await apiFetch(`/api/ads/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
@@ -100,7 +100,7 @@ export class JobAdService {
   }
 
   async unpublishJobAd(id: string, performedBy: string, reason?: string): Promise<JobAd | null> {
-    const response = await apiFetch(`/api/job-ads/${id}/unpublish`, {
+    const response = await apiFetch(`/api/ads/${id}/unpublish`, {
       method: 'POST',
       body: JSON.stringify({ performedBy, reason }),
     });
@@ -115,7 +115,7 @@ export class JobAdService {
     expiresAt: Date,
     performedBy: string
   ): Promise<JobAd | null> {
-    const response = await apiFetch(`/api/job-ads/${id}/republish`, {
+    const response = await apiFetch(`/api/ads/${id}/republish`, {
       method: 'POST',
       body: JSON.stringify({ channels, expiresAt, performedBy }),
     });
@@ -125,29 +125,29 @@ export class JobAdService {
   }
 
   async deleteJobAd(id: string): Promise<boolean> {
-    const response = await apiFetch(`/api/job-ads/${id}`, {
+    const response = await apiFetch(`/api/ads/${id}`, {
       method: 'DELETE',
     });
     return response.ok;
   }
 
   async recordView(id: string): Promise<void> {
-    await apiFetch(`/api/job-ads/${id}/view`, { method: 'POST' });
+    await apiFetch(`/api/ads/${id}/view`, { method: 'POST' });
   }
 
   async recordApplication(id: string): Promise<void> {
-    await apiFetch(`/api/job-ads/${id}/apply`, { method: 'POST' });
+    await apiFetch(`/api/ads/${id}/apply`, { method: 'POST' });
   }
 
   async getPublishingHistory(jobAdId: string): Promise<PublishingHistoryEntry[]> {
-    const response = await apiFetch(`/api/job-ads/${jobAdId}/history`);
+    const response = await apiFetch(`/api/ads/${jobAdId}/history`);
     if (!response.ok) return [];
     const result = await response.json();
     return result.data || result || [];
   }
 
   async getStats(): Promise<JobAdStats> {
-    const response = await apiFetch('/api/job-ads/stats');
+    const response = await apiFetch('/api/ads/stats');
     if (!response.ok) {
       return {
         totalAds: 0,
@@ -167,7 +167,7 @@ export class JobAdService {
   }
 
   async checkAndExpireJobAds(): Promise<void> {
-    await apiFetch('/api/job-ads/expire-check', { method: 'POST' });
+    await apiFetch('/api/ads/expire-check', { method: 'POST' });
   }
 
   generateSlug(title: string, id?: string): string {
@@ -181,7 +181,7 @@ export class JobAdService {
   async isSlugAvailable(slug: string, excludeId?: string): Promise<boolean> {
     const params = new URLSearchParams({ slug });
     if (excludeId) params.set('excludeId', excludeId);
-    const response = await apiFetch(`/api/job-ads/slug-available?${params}`);
+    const response = await apiFetch(`/api/ads/slug-available?${params}`);
     if (!response.ok) return false;
     const result = await response.json();
     return result.data ?? result ?? false;

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ads")
+@RequestMapping("/api/ads")
 @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
 public class JobAdController {
     

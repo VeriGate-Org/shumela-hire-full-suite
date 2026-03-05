@@ -337,7 +337,7 @@ BEGIN
             NOW() - INTERVAL '8 days', 90, 'IDC Head Office, 19 Fredman Drive, Sandton',
             'Dr. Nthato Moagi', 'nthato.moagi@idc.co.za',
             'Exceptional candidate. CA(SA) with robust mining finance background from Anglo American. Impressed the panel with technical depth and strategic thinking. Unanimous recommendation to extend offer.',
-            5, 'STRONG_HIRE', NOW() - INTERVAL '8 days');
+            5, 'HIRE', NOW() - INTERVAL '8 days');
 
     -- ============================================================
     -- TIER 7: OFFERS (2)

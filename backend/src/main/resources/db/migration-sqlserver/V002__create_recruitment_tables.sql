@@ -74,7 +74,7 @@ CREATE TABLE interviews (
         'CANCELLED', 'NO_SHOW', 'POSTPONED'
     )),
     CONSTRAINT chk_interviews_recommendation CHECK (recommendation IS NULL OR recommendation IN (
-        'STRONG_HIRE', 'HIRE', 'MAYBE', 'NO_HIRE', 'STRONG_NO_HIRE'
+        'HIRE', 'CONSIDER', 'REJECT', 'ANOTHER_ROUND', 'ON_HOLD', 'SECOND_OPINION'
     )),
     CONSTRAINT chk_interviews_rating CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5))
 );
