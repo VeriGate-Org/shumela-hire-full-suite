@@ -220,22 +220,22 @@ export class ApiMutations {
 
   // Job mutations
   static async createJob(data: any) {
-    const result = await this.mutateEndpoint('/ads', 'POST', data);
-    mutate('/api/ads');
+    const result = await this.mutateEndpoint('/job-ads', 'POST', data);
+    mutate('/api/job-ads');
     return result;
   }
 
   static async updateJob(id: string, data: any) {
-    const result = await this.mutateEndpoint(`/ads/${id}`, 'PUT', data);
-    mutate(`/api/ads/${id}`);
-    mutate('/api/ads');
+    const result = await this.mutateEndpoint(`/job-ads/${id}`, 'PUT', data);
+    mutate(`/api/job-ads/${id}`);
+    mutate('/api/job-ads');
     return result;
   }
 
   static async publishJob(id: string) {
-    const result = await this.mutateEndpoint(`/ads/${id}/publish`, 'POST');
-    mutate(`/api/ads/${id}`);
-    mutate('/api/ads');
+    const result = await this.mutateEndpoint(`/job-ads/${id}/publish`, 'POST');
+    mutate(`/api/job-ads/${id}`);
+    mutate('/api/job-ads');
     return result;
   }
 
