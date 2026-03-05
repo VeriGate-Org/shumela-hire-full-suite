@@ -13,44 +13,28 @@ import { RequisitionStatus, WorkflowAction, ApprovalRole, WorkflowTransition } f
  * - requiresComment: whether comment is mandatory
  */
 export const REQUISITION_WORKFLOW_TRANSITIONS: WorkflowTransition[] = [
-  // Initial submission
+  // Initial submission (Hiring Manager or HR creates and submits)
   {
     from: RequisitionStatus.DRAFT,
-    to: RequisitionStatus.SUBMITTED,
+    to: RequisitionStatus.PENDING_HR_APPROVAL,
     action: WorkflowAction.SUBMIT,
-    allowedRoles: [ApprovalRole.HR, ApprovalRole.HIRING_MANAGER], // Creators can submit
+    allowedRoles: [ApprovalRole.HR, ApprovalRole.HIRING_MANAGER],
     requiresComment: false
   },
 
-  // HR Approval Stage  
+  // HR Approval Stage
   {
-    from: RequisitionStatus.SUBMITTED,
-    to: RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL,
-    action: WorkflowAction.APPROVE,
-    allowedRoles: [ApprovalRole.HR],
-    requiresComment: false
-  },
-  {
-    from: RequisitionStatus.SUBMITTED,
-    to: RequisitionStatus.REJECTED,
-    action: WorkflowAction.REJECT,
-    allowedRoles: [ApprovalRole.HR],
-    requiresComment: true
-  },
-
-  // Hiring Manager Approval Stage  
-  {
-    from: RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL,
+    from: RequisitionStatus.PENDING_HR_APPROVAL,
     to: RequisitionStatus.PENDING_EXECUTIVE_APPROVAL,
     action: WorkflowAction.APPROVE,
-    allowedRoles: [ApprovalRole.HIRING_MANAGER],
+    allowedRoles: [ApprovalRole.HR],
     requiresComment: false
   },
   {
-    from: RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL,
+    from: RequisitionStatus.PENDING_HR_APPROVAL,
     to: RequisitionStatus.REJECTED,
     action: WorkflowAction.REJECT,
-    allowedRoles: [ApprovalRole.HIRING_MANAGER],
+    allowedRoles: [ApprovalRole.HR],
     requiresComment: true
   },
 
@@ -138,10 +122,8 @@ export const WORKFLOW_STATES = {
  */
 export function getNextApprovalRole(currentStatus: RequisitionStatus): ApprovalRole | null {
   switch (currentStatus) {
-    case RequisitionStatus.SUBMITTED:
+    case RequisitionStatus.PENDING_HR_APPROVAL:
       return ApprovalRole.HR;
-    case RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL:
-      return ApprovalRole.HIRING_MANAGER;
     case RequisitionStatus.PENDING_EXECUTIVE_APPROVAL:
       return ApprovalRole.EXECUTIVE;
     default:
@@ -185,12 +167,12 @@ export function isTransitionAllowed(
  * Get workflow progress percentage
  */
 export function getWorkflowProgress(status: RequisitionStatus): number {
-  const progressMap = {
+  const progressMap: Record<string, number> = {
     [RequisitionStatus.DRAFT]: 0,
     [RequisitionStatus.SUBMITTED]: 20,
-    [RequisitionStatus.PENDING_HR_APPROVAL]: 20,
-    [RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL]: 40,
-    [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]: 60,
+    [RequisitionStatus.PENDING_HR_APPROVAL]: 33,
+    [RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL]: 50,
+    [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]: 66,
     [RequisitionStatus.APPROVED]: 100,
     [RequisitionStatus.REJECTED]: 100
   };

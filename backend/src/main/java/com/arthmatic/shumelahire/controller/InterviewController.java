@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
@@ -31,9 +30,15 @@ public class InterviewController {
 
     // Create interview
     @PostMapping
-    public ResponseEntity<Interview> createInterview(@Valid @RequestBody Interview interview,
+    public ResponseEntity<Interview> createInterview(@RequestBody Interview interview,
                                                    @RequestParam Long createdBy) {
         try {
+            // Resolve applicationId to Application entity when sent as a flat ID from the frontend
+            if (interview.getApplication() == null && interview.getApplicationId() != null) {
+                Application application = new Application();
+                application.setId(interview.getApplicationId());
+                interview.setApplication(application);
+            }
             Interview createdInterview = interviewService.createInterview(interview, createdBy);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdInterview);
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -90,7 +95,7 @@ public class InterviewController {
     // Update interview
     @PutMapping("/{id}")
     public ResponseEntity<Interview> updateInterview(@PathVariable Long id,
-                                                   @Valid @RequestBody Interview interview,
+                                                   @RequestBody Interview interview,
                                                    @RequestParam Long updatedBy) {
         try {
             Interview updatedInterview = interviewService.updateInterview(id, interview, updatedBy);

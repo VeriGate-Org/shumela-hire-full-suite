@@ -31,9 +31,11 @@ public class Interview extends TenantAwareEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id", nullable = false)
-    @NotNull(message = "Application is required")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application application;
+
+    @Transient
+    private Long applicationId;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -310,6 +312,12 @@ public class Interview extends TenantAwareEntity {
             this.title = generateDefaultTitle();
         }
     }
+
+    public Long getApplicationId() {
+        if (applicationId != null) return applicationId;
+        return application != null ? application.getId() : null;
+    }
+    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
