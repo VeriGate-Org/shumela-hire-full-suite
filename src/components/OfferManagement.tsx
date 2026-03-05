@@ -946,7 +946,7 @@ export default function OfferManagement() {
               </div>
 
               <p className="text-xs text-gray-500">
-                This action will transmit the candidate's details to the connected payroll system. Ensure all details are correct before proceeding.
+                This action will transmit the candidate&apos;s details to the connected payroll system. Ensure all details are correct before proceeding.
               </p>
             </div>
 
