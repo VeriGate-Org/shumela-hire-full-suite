@@ -155,12 +155,13 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
           })
         });
 
-        const result = await response.json();
-        if (result.success) {
+        if (response.ok) {
+          const result = await response.json();
           toast('Draft saved successfully', 'success');
-          if (onSuccess) onSuccess(result.data);
+          if (onSuccess) onSuccess(result);
         } else {
-          toast(`Error: ${result.message}`, 'error');
+          const err = await response.json().catch(() => null);
+          toast(`Error: ${err?.message || 'Failed to save draft'}`, 'error');
         }
       }
     } catch (error) {
@@ -194,26 +195,27 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
           })
         });
 
-        const createResult = await createResponse.json();
-        if (!createResult.success) {
-          toast(`Error creating requisition: ${createResult.message}`, 'error');
+        if (!createResponse.ok) {
+          const err = await createResponse.json().catch(() => null);
+          toast(`Error creating requisition: ${err?.message || 'Failed to create'}`, 'error');
           setIsSubmitting(false);
           return;
         }
 
+        const created = await createResponse.json();
+
         // Submit for approval
-        const submitResponse = await apiFetch(`/api/requisitions/${createResult.data.id}/submit`, {
+        const submitResponse = await apiFetch(`/api/requisitions/${created.id}/submit`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: 'demo_user', userRole: 'HR_MANAGER' })
         });
 
-        const submitResult = await submitResponse.json();
-        if (submitResult.success) {
+        if (submitResponse.ok) {
+          const submitted = await submitResponse.json();
           toast('Requisition submitted for approval successfully', 'success');
-          if (onSuccess) onSuccess(submitResult.data);
+          if (onSuccess) onSuccess(submitted);
         } else {
-          toast(`Error submitting for approval: ${submitResult.message}`, 'error');
+          const err = await submitResponse.json().catch(() => null);
+          toast(`Error submitting for approval: ${err?.message || 'Submit failed'}`, 'error');
         }
       }
     } catch (error) {
@@ -329,11 +331,14 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
             }`}
           >
             <option value="">Select Employment Type</option>
-            <option value="Full-time">Full-time</option>
-            <option value="Part-time">Part-time</option>
-            <option value="Contract">Contract</option>
-            <option value="Temporary">Temporary</option>
-            <option value="Internship">Internship</option>
+            <option value="FULL_TIME">Full-time</option>
+            <option value="PART_TIME">Part-time</option>
+            <option value="CONTRACT">Contract</option>
+            <option value="TEMPORARY">Temporary</option>
+            <option value="FREELANCE">Freelance</option>
+            <option value="INTERNSHIP">Internship</option>
+            <option value="APPRENTICESHIP">Apprenticeship</option>
+            <option value="VOLUNTEER">Volunteer</option>
           </select>
           {errors.employmentType && (
             <p id="employment-type-error" role="alert" className="mt-1 text-sm text-red-600">{errors.employmentType}</p>
