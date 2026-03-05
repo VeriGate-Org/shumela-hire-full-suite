@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@PreAuthorize("hasRole('ADMIN')")
 public class AuditLogController {
 
     private final AuditLogService auditLogService;
@@ -33,6 +32,7 @@ public class AuditLogController {
      * POST /api/audit
      */
     @PostMapping("/audit")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AuditLogResponse> createAuditLog(@Valid @RequestBody AuditLogRequest request) {
         try {
             AuditLog savedLog;
@@ -82,6 +82,7 @@ public class AuditLogController {
      * GET /api/audit/user/{userId}
      */
     @GetMapping("/audit/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AuditLog>> getAuditLogsByUser(@PathVariable String userId) {
         List<AuditLog> logs = auditLogService.getLogsByUser(userId);
         return ResponseEntity.ok(logs);
@@ -92,6 +93,7 @@ public class AuditLogController {
      * GET /api/audit/entity/{entityType}/{entityId}
      */
     @GetMapping("/audit/entity/{entityType}/{entityId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<List<AuditLog>> getAuditLogsByEntity(
             @PathVariable String entityType,
             @PathVariable String entityId) {
@@ -104,6 +106,7 @@ public class AuditLogController {
      * GET /api/audit/action/{action}
      */
     @GetMapping("/audit/action/{action}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AuditLog>> getAuditLogsByAction(@PathVariable String action) {
         List<AuditLog> logs = auditLogService.getLogsByAction(action);
         return ResponseEntity.ok(logs);
@@ -114,6 +117,7 @@ public class AuditLogController {
      * GET /api/audit/range?start=2023-12-01T00:00:00&end=2023-12-31T23:59:59
      */
     @GetMapping("/audit/range")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AuditLog>> getAuditLogsByTimeRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
@@ -126,6 +130,7 @@ public class AuditLogController {
      * GET /api/audit/all?page=0&size=50&sort=timestamp&direction=DESC
      */
     @GetMapping("/audit/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AuditLog>> getAllAuditLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,

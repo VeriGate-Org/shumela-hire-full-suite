@@ -111,6 +111,13 @@ export default function OfferManagement() {
   const [eSignOffer, setESignOffer] = useState<Offer | null>(null);
   const [eSignLoading, setESignLoading] = useState(false);
   const [eSignStatuses, setESignStatuses] = useState<Record<number, string>>({});
+  const [showLetterModal, setShowLetterModal] = useState(false);
+  const [letterOffer, setLetterOffer] = useState<Offer | null>(null);
+  const [letterGenerated, setLetterGenerated] = useState<Record<number, boolean>>({});
+  const [showPayrollModal, setShowPayrollModal] = useState(false);
+  const [payrollOffer, setPayrollOffer] = useState<Offer | null>(null);
+  const [payrollSending, setPayrollSending] = useState(false);
+  const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
 
   const computeClientSideCounts = useCallback((offersList: Offer[]): DashboardCounts => {
     const now = new Date();
@@ -226,6 +233,15 @@ export default function OfferManagement() {
       
       if (response.ok) {
         setShowActionModal(false);
+        if (actionType === 'approve' && selectedOffer) {
+          setLetterGenerated(prev => ({ ...prev, [selectedOffer.id]: true }));
+          toast('Offer approved — letter generated automatically', 'success');
+          window.open('/reports/offer-letter-sample.pdf', '_blank');
+        }
+        if (actionType === 'accept' && selectedOffer) {
+          setPayrollOffer(selectedOffer);
+          setShowPayrollModal(true);
+        }
         loadOffers();
       } else {
         toast('Action failed. Please try again.', 'error');
@@ -651,6 +667,24 @@ export default function OfferManagement() {
                             Withdraw
                           </button>
                         )}
+                        {['DRAFT', 'APPROVED'].includes(offer.status) && !letterGenerated[offer.id] && (
+                          <button
+                            onClick={() => { setLetterOffer(offer); setShowLetterModal(true); }}
+                            className="text-[#05527E] hover:text-[#033d5e]"
+                          >
+                            Generate Letter
+                          </button>
+                        )}
+                        {letterGenerated[offer.id] && (
+                          <a
+                            href="/reports/offer-letter-sample.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#05527E] hover:text-[#033d5e]"
+                          >
+                            View Letter
+                          </a>
+                        )}
                         {offer.status === 'SENT' && (!eSignStatuses[offer.id] || eSignStatuses[offer.id] === 'not_sent') && (
                           <button
                             onClick={() => { setESignOffer(offer); setShowESignModal(true); }}
@@ -666,6 +700,19 @@ export default function OfferManagement() {
                           >
                             Download Signed
                           </button>
+                        )}
+                        {offer.status === 'ACCEPTED' && !payrollSent[offer.id] && (
+                          <button
+                            onClick={() => { setPayrollOffer(offer); setShowPayrollModal(true); }}
+                            className="text-[#05527E] hover:text-[#033d5e]"
+                          >
+                            Send to Payroll
+                          </button>
+                        )}
+                        {payrollSent[offer.id] && (
+                          <span className="text-green-600 text-xs font-medium">
+                            Payroll Sent
+                          </span>
                         )}
                       </div>
                     </td>
@@ -768,6 +815,180 @@ export default function OfferManagement() {
           </div>
         </div>
       )}
+      {/* Generate Offer Letter Modal */}
+      {showLetterModal && letterOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full m-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Generate Offer Letter
+              </h3>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="rounded-sm border border-gray-200 bg-gray-50 p-4 space-y-1">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-700">Offer:</span> {letterOffer.offerNumber}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-700">Position:</span> {letterOffer.jobTitle} — {letterOffer.department}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-700">Candidate:</span> {getApplicantName(letterOffer.application?.applicant)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-700">Compensation:</span> {formatCurrency(letterOffer.baseSalary, letterOffer.currency)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-700">Start Date:</span> {letterOffer.startDate ? formatDate(letterOffer.startDate) : 'TBD'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Generation Mode</label>
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input type="radio" name="letterMode" value="automatic" defaultChecked className="text-[#05527E]" />
+                    Automatic — use standard template
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input type="radio" name="letterMode" value="manual" className="text-[#05527E]" />
+                    Manual — review before finalising
+                  </label>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                The offer letter will be generated using company templates and the offer details above. You can preview and download the letter once generated.
+              </p>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={() => { setShowLetterModal(false); setLetterOffer(null); }}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setLetterGenerated(prev => ({ ...prev, [letterOffer.id]: true }));
+                  toast('Offer letter generated successfully', 'success');
+                  setShowLetterModal(false);
+                  setLetterOffer(null);
+                  window.open('/reports/offer-letter-sample.pdf', '_blank');
+                }}
+                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+              >
+                Generate Letter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send to Payroll Modal */}
+      {showPayrollModal && payrollOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full m-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Send to Payroll
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Register this new employee in the payroll system
+              </p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="rounded-sm border border-gray-200 bg-gray-50 p-4 space-y-2">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Employee Details</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Name:</span> {getApplicantName(payrollOffer.application?.applicant)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Email:</span> {payrollOffer.application?.applicant?.email || '—'}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Position:</span> {payrollOffer.jobTitle}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Department:</span> {payrollOffer.department}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Base Salary:</span> {formatCurrency(payrollOffer.baseSalary, payrollOffer.currency)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Total Comp:</span> {formatCurrency(payrollOffer.totalCompensation, payrollOffer.currency)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Start Date:</span> {payrollOffer.startDate ? formatDate(payrollOffer.startDate) : 'TBD'}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Offer Type:</span> {payrollOffer.offerType?.replace(/_/g, ' ') || '—'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-sm border border-[#05527E]/20 bg-[#05527E]/5 p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-[#05527E] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-[#05527E]">Sage 300 People</p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      The employee record will be created in Sage with the details above. Payroll processing, tax setup, and benefits enrolment will be configured based on the offer type and department defaults.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                This action will transmit the candidate's details to the connected payroll system. Ensure all details are correct before proceeding.
+              </p>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 flex justify-between items-center">
+              <button
+                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                disabled={payrollSending}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                  disabled={payrollSending}
+                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-sm hover:bg-gray-50"
+                >
+                  Skip for Now
+                </button>
+                <button
+                  onClick={() => {
+                    setPayrollSending(true);
+                    // Mock: simulate API call delay
+                    setTimeout(() => {
+                      setPayrollSent(prev => ({ ...prev, [payrollOffer.id]: true }));
+                      toast('Employee details sent to Sage 300 People successfully', 'success');
+                      setShowPayrollModal(false);
+                      setPayrollOffer(null);
+                      setPayrollSending(false);
+                    }, 1500);
+                  }}
+                  disabled={payrollSending}
+                  className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+                >
+                  {payrollSending ? 'Sending...' : 'Send to Payroll'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* E-Sign Modal */}
       {showESignModal && eSignOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

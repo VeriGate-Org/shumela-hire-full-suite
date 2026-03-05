@@ -70,13 +70,14 @@ export default function VacancyReportActions({ jobId, showDemographics = false }
         </button>
 
         {showDemographics && (
-          <button
-            onClick={() => handleDownload('demographics')}
-            disabled={downloading !== null}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          <a
+            href="/reports/demographics-ee-report.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100"
           >
-            {downloading === 'demographics' ? 'Generating...' : 'Demographics / EE'}
-          </button>
+            Demographics / EE
+          </a>
         )}
       </div>
 
