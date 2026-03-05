@@ -16,6 +16,8 @@ export interface BackendJobAd {
   employmentType?: string;
   salaryRangeMin?: number;
   salaryRangeMax?: number;
+  salaryCurrency?: string;
+  jobPostingId?: number;
   companyName?: string;
 }
 

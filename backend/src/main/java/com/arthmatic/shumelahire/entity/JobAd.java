@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,7 +22,10 @@ public class JobAd extends TenantAwareEntity {
     
     @Column(name = "requisition_id")
     private Long requisitionId;
-    
+
+    @Column(name = "job_posting_id")
+    private Long jobPostingId;
+
     @NotBlank(message = "Title is required")
     @Column(nullable = false, length = 500)
     private String title;
@@ -58,6 +62,24 @@ public class JobAd extends TenantAwareEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
+    @Column(name = "department", length = 100)
+    private String department;
+
+    @Column(name = "location", length = 100)
+    private String location;
+
+    @Column(name = "employment_type", length = 50)
+    private String employmentType;
+
+    @Column(name = "salary_range_min", precision = 12, scale = 2)
+    private BigDecimal salaryRangeMin;
+
+    @Column(name = "salary_range_max", precision = 12, scale = 2)
+    private BigDecimal salaryRangeMax;
+
+    @Column(name = "salary_currency", length = 3)
+    private String salaryCurrency;
+
     @OneToMany(mappedBy = "jobAd", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<JobAdHistory> history = new ArrayList<>();
     
@@ -175,6 +197,27 @@ public class JobAd extends TenantAwareEntity {
         this.history = history;
     }
     
+    public Long getJobPostingId() { return jobPostingId; }
+    public void setJobPostingId(Long jobPostingId) { this.jobPostingId = jobPostingId; }
+
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getEmploymentType() { return employmentType; }
+    public void setEmploymentType(String employmentType) { this.employmentType = employmentType; }
+
+    public BigDecimal getSalaryRangeMin() { return salaryRangeMin; }
+    public void setSalaryRangeMin(BigDecimal salaryRangeMin) { this.salaryRangeMin = salaryRangeMin; }
+
+    public BigDecimal getSalaryRangeMax() { return salaryRangeMax; }
+    public void setSalaryRangeMax(BigDecimal salaryRangeMax) { this.salaryRangeMax = salaryRangeMax; }
+
+    public String getSalaryCurrency() { return salaryCurrency; }
+    public void setSalaryCurrency(String salaryCurrency) { this.salaryCurrency = salaryCurrency; }
+
     // Helper methods
     public boolean isPublished() {
         return status == JobAdStatus.PUBLISHED;

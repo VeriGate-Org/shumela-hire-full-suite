@@ -33,6 +33,9 @@ public interface JobAdRepository extends JpaRepository<JobAd, Long> {
     
     // Find by requisition
     List<JobAd> findByRequisitionId(Long requisitionId);
+
+    // Find by job posting (for sync)
+    Optional<JobAd> findByJobPostingId(Long jobPostingId);
     
     // Search with filters
     @Query("SELECT j FROM JobAd j WHERE " +

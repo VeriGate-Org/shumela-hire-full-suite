@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.dto;
 import com.arthmatic.shumelahire.entity.JobAd;
 import com.arthmatic.shumelahire.entity.JobAdStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,10 +21,17 @@ public class JobAdResponse {
     private String createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+    private Long jobPostingId;
+    private String department;
+    private String location;
+    private String employmentType;
+    private BigDecimal salaryRangeMin;
+    private BigDecimal salaryRangeMax;
+    private String salaryCurrency;
+
     // Constructors
     public JobAdResponse() {}
-    
+
     public JobAdResponse(JobAd jobAd) {
         this.id = jobAd.getId();
         this.requisitionId = jobAd.getRequisitionId();
@@ -37,6 +45,13 @@ public class JobAdResponse {
         this.createdBy = jobAd.getCreatedBy();
         this.createdAt = jobAd.getCreatedAt();
         this.updatedAt = jobAd.getUpdatedAt();
+        this.jobPostingId = jobAd.getJobPostingId();
+        this.department = jobAd.getDepartment();
+        this.location = jobAd.getLocation();
+        this.employmentType = jobAd.getEmploymentType();
+        this.salaryRangeMin = jobAd.getSalaryRangeMin();
+        this.salaryRangeMax = jobAd.getSalaryRangeMax();
+        this.salaryCurrency = jobAd.getSalaryCurrency();
     }
     
     // Static factory method
@@ -140,4 +155,25 @@ public class JobAdResponse {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public Long getJobPostingId() { return jobPostingId; }
+    public void setJobPostingId(Long jobPostingId) { this.jobPostingId = jobPostingId; }
+
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getEmploymentType() { return employmentType; }
+    public void setEmploymentType(String employmentType) { this.employmentType = employmentType; }
+
+    public BigDecimal getSalaryRangeMin() { return salaryRangeMin; }
+    public void setSalaryRangeMin(BigDecimal salaryRangeMin) { this.salaryRangeMin = salaryRangeMin; }
+
+    public BigDecimal getSalaryRangeMax() { return salaryRangeMax; }
+    public void setSalaryRangeMax(BigDecimal salaryRangeMax) { this.salaryRangeMax = salaryRangeMax; }
+
+    public String getSalaryCurrency() { return salaryCurrency; }
+    public void setSalaryCurrency(String salaryCurrency) { this.salaryCurrency = salaryCurrency; }
 }

@@ -98,7 +98,7 @@ export default function InternalJobDetailPage() {
         setLoading(true);
         setError(null);
         
-        const response = await apiFetch(`/ads/${jobId}`);
+        const response = await apiFetch(`/api/ads/${jobId}`);
 
         if (!response.ok) {
           if (response.status === 404) {

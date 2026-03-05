@@ -23,10 +23,14 @@ public class JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final AuditLogService auditLogService;
+    private final JobAdSyncService jobAdSyncService;
 
-    public JobPostingService(JobPostingRepository jobPostingRepository, AuditLogService auditLogService) {
+    public JobPostingService(JobPostingRepository jobPostingRepository,
+                             AuditLogService auditLogService,
+                             JobAdSyncService jobAdSyncService) {
         this.jobPostingRepository = jobPostingRepository;
         this.auditLogService = auditLogService;
+        this.jobAdSyncService = jobAdSyncService;
     }
     
     /**
@@ -271,13 +275,16 @@ public class JobPostingService {
         jobPosting.setPublishedAt(LocalDateTime.now());
         
         JobPosting publishedJobPosting = jobPostingRepository.save(jobPosting);
-        
+
+        // Sync: auto-create or update the corresponding JobAd
+        jobAdSyncService.onJobPostingPublished(publishedJobPosting);
+
         // Log to audit
-        auditLogService.logUserAction(publishedBy, "JOB_POSTING_PUBLISHED", "JOB_POSTING", 
+        auditLogService.logUserAction(publishedBy, "JOB_POSTING_PUBLISHED", "JOB_POSTING",
                                      publishedJobPosting.getTitle() + " (ID: " + publishedJobPosting.getId() + ")");
-        
+
         logger.info("Job posting {} published", id);
-        
+
         return JobPostingResponse.fromEntity(publishedJobPosting);
     }
     
@@ -297,13 +304,16 @@ public class JobPostingService {
         jobPosting.setUnpublishedAt(LocalDateTime.now());
         
         JobPosting unpublishedJobPosting = jobPostingRepository.save(jobPosting);
-        
+
+        // Sync: unpublish the corresponding JobAd
+        jobAdSyncService.onJobPostingUnpublished(unpublishedJobPosting);
+
         // Log to audit
-        auditLogService.logUserAction(unpublishedBy, "JOB_POSTING_UNPUBLISHED", "JOB_POSTING", 
+        auditLogService.logUserAction(unpublishedBy, "JOB_POSTING_UNPUBLISHED", "JOB_POSTING",
                                      unpublishedJobPosting.getTitle() + " (ID: " + unpublishedJobPosting.getId() + ")");
-        
+
         logger.info("Job posting {} unpublished", id);
-        
+
         return JobPostingResponse.fromEntity(unpublishedJobPosting);
     }
     
@@ -323,13 +333,16 @@ public class JobPostingService {
         jobPosting.setClosedAt(LocalDateTime.now());
         
         JobPosting closedJobPosting = jobPostingRepository.save(jobPosting);
-        
+
+        // Sync: unpublish the corresponding JobAd
+        jobAdSyncService.onJobPostingClosed(closedJobPosting);
+
         // Log to audit
-        auditLogService.logUserAction(closedBy, "JOB_POSTING_CLOSED", "JOB_POSTING", 
+        auditLogService.logUserAction(closedBy, "JOB_POSTING_CLOSED", "JOB_POSTING",
                                      closedJobPosting.getTitle() + " (ID: " + closedJobPosting.getId() + ")");
-        
+
         logger.info("Job posting {} closed", id);
-        
+
         return JobPostingResponse.fromEntity(closedJobPosting);
     }
     
