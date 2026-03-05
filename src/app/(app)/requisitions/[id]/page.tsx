@@ -34,17 +34,12 @@ const RequisitionDetailPage: React.FC = () => {
         throw new Error('Failed to fetch requisition details');
       }
 
-      const result = await response.json();
-      
-      if (result.success) {
-        setRequisition(result.data);
-        
-        // Fetch approval timeline steps
-        const steps = await approvalTimelineService.getApprovalTimelineForRequisition(requisitionId);
-        setTimelineSteps(steps);
-      } else {
-        throw new Error(result.message || 'Failed to fetch requisition details');
-      }
+      const data = await response.json();
+      setRequisition(data);
+
+      // Fetch approval timeline steps
+      const steps = await approvalTimelineService.getApprovalTimelineForRequisition(requisitionId);
+      setTimelineSteps(steps);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

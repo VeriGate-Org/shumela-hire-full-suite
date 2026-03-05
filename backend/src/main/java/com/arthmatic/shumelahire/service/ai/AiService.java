@@ -6,10 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Service
 public class AiService {
 
     private static final Logger logger = LoggerFactory.getLogger(AiService.class);
+    private static final Pattern MARKDOWN_CODE_FENCE = Pattern.compile(
+            "^\\s*```(?:json)?\\s*\\n?(.*?)\\n?\\s*```\\s*$", Pattern.DOTALL);
 
     private final AiProvider aiProvider;
     private final AuditLogService auditLogService;
@@ -31,6 +36,7 @@ public class AiService {
 
         AiCompletionRequest request = new AiCompletionRequest(systemPrompt, userPrompt);
         AiCompletionResponse response = aiProvider.complete(request);
+        response.setContent(stripMarkdownFences(response.getContent()));
 
         try {
             auditLogService.saveLog(userId, "AI_" + featureName.toUpperCase(),
@@ -54,6 +60,7 @@ public class AiService {
 
         AiCompletionRequest request = new AiCompletionRequest(systemPrompt, userPrompt, temperature, maxTokens);
         AiCompletionResponse response = aiProvider.complete(request);
+        response.setContent(stripMarkdownFences(response.getContent()));
 
         try {
             auditLogService.saveLog(userId, "AI_" + featureName.toUpperCase(),
@@ -66,6 +73,12 @@ public class AiService {
         }
 
         return response;
+    }
+
+    static String stripMarkdownFences(String content) {
+        if (content == null) return null;
+        Matcher m = MARKDOWN_CODE_FENCE.matcher(content);
+        return m.matches() ? m.group(1).trim() : content.trim();
     }
 
     public boolean isEnabled() {
