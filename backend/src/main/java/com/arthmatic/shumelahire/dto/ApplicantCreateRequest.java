@@ -26,7 +26,13 @@ public class ApplicantCreateRequest {
     private String experience; // JSON string
     
     private String skills; // JSON string
-    
+
+    private String gender;
+    private String race;
+    private String disabilityStatus;
+    private String citizenshipStatus;
+    private Boolean demographicsConsent;
+
     // Constructors
     public ApplicantCreateRequest() {}
     
@@ -102,4 +108,19 @@ public class ApplicantCreateRequest {
     public void setSkills(String skills) {
         this.skills = skills;
     }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getRace() { return race; }
+    public void setRace(String race) { this.race = race; }
+
+    public String getDisabilityStatus() { return disabilityStatus; }
+    public void setDisabilityStatus(String disabilityStatus) { this.disabilityStatus = disabilityStatus; }
+
+    public String getCitizenshipStatus() { return citizenshipStatus; }
+    public void setCitizenshipStatus(String citizenshipStatus) { this.citizenshipStatus = citizenshipStatus; }
+
+    public Boolean getDemographicsConsent() { return demographicsConsent; }
+    public void setDemographicsConsent(Boolean demographicsConsent) { this.demographicsConsent = demographicsConsent; }
 }

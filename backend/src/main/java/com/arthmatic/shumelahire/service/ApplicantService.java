@@ -62,6 +62,11 @@ public class ApplicantService {
         applicant.setEducation(request.getEducation());
         applicant.setExperience(request.getExperience());
         applicant.setSkills(request.getSkills());
+        applicant.setGender(request.getGender());
+        applicant.setRace(request.getRace());
+        applicant.setDisabilityStatus(request.getDisabilityStatus());
+        applicant.setCitizenshipStatus(request.getCitizenshipStatus());
+        applicant.setDemographicsConsent(request.getDemographicsConsent());
 
         Applicant savedApplicant = applicantRepository.save(applicant);
 
@@ -98,6 +103,11 @@ public class ApplicantService {
         applicant.setEducation(request.getEducation());
         applicant.setExperience(request.getExperience());
         applicant.setSkills(request.getSkills());
+        applicant.setGender(request.getGender());
+        applicant.setRace(request.getRace());
+        applicant.setDisabilityStatus(request.getDisabilityStatus());
+        applicant.setCitizenshipStatus(request.getCitizenshipStatus());
+        applicant.setDemographicsConsent(request.getDemographicsConsent());
 
         Applicant updatedApplicant = applicantRepository.save(applicant);
 

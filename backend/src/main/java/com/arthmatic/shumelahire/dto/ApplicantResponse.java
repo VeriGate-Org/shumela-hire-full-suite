@@ -18,6 +18,11 @@ public class ApplicantResponse {
     private String education;
     private String experience;
     private String skills;
+    private String gender;
+    private String race;
+    private String disabilityStatus;
+    private String citizenshipStatus;
+    private Boolean demographicsConsent;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<DocumentResponse> documents;
@@ -36,6 +41,11 @@ public class ApplicantResponse {
         this.education = applicant.getEducation();
         this.experience = applicant.getExperience();
         this.skills = applicant.getSkills();
+        this.gender = applicant.getGender();
+        this.race = applicant.getRace();
+        this.disabilityStatus = applicant.getDisabilityStatus();
+        this.citizenshipStatus = applicant.getCitizenshipStatus();
+        this.demographicsConsent = applicant.getDemographicsConsent();
         this.createdAt = applicant.getCreatedAt();
         this.updatedAt = applicant.getUpdatedAt();
         
@@ -132,6 +142,21 @@ public class ApplicantResponse {
         this.skills = skills;
     }
     
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getRace() { return race; }
+    public void setRace(String race) { this.race = race; }
+
+    public String getDisabilityStatus() { return disabilityStatus; }
+    public void setDisabilityStatus(String disabilityStatus) { this.disabilityStatus = disabilityStatus; }
+
+    public String getCitizenshipStatus() { return citizenshipStatus; }
+    public void setCitizenshipStatus(String citizenshipStatus) { this.citizenshipStatus = citizenshipStatus; }
+
+    public Boolean getDemographicsConsent() { return demographicsConsent; }
+    public void setDemographicsConsent(Boolean demographicsConsent) { this.demographicsConsent = demographicsConsent; }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
