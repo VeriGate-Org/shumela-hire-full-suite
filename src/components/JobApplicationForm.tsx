@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import ScreeningQuestions from '@/components/ScreeningQuestions';
 
 interface JobApplicationFormProps {
   jobAdId: number;
@@ -37,6 +38,8 @@ export default function JobApplicationForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [canApply, setCanApply] = useState(true);
   const [checkingEligibility, setCheckingEligibility] = useState(true);
+  const [createdApplication, setCreatedApplication] = useState<{ id: number; jobTitle: string; status: string } | null>(null);
+  const [hasScreeningQuestions, setHasScreeningQuestions] = useState(false);
 
   const loadApplicantInfo = useCallback(async () => {
     try {
@@ -72,14 +75,27 @@ export default function JobApplicationForm({
     }
   }, [applicantId, jobAdId]);
 
+  const checkScreeningQuestions = useCallback(async () => {
+    try {
+      const response = await apiFetch(`/api/screening/questions/job-posting/${jobAdId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setHasScreeningQuestions(Array.isArray(data) && data.length > 0);
+      }
+    } catch (error) {
+      console.error('Error checking screening questions:', error);
+    }
+  }, [jobAdId]);
+
   useEffect(() => {
+    checkScreeningQuestions();
     if (applicantId) {
       loadApplicantInfo();
       checkApplicationEligibility();
     } else {
       setCheckingEligibility(false);
     }
-  }, [applicantId, jobAdId, loadApplicantInfo, checkApplicationEligibility]);
+  }, [applicantId, jobAdId, loadApplicantInfo, checkApplicationEligibility, checkScreeningQuestions]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -125,7 +141,9 @@ export default function JobApplicationForm({
 
       if (response.ok) {
         const result = await response.json();
-        if (onSuccess) {
+        if (hasScreeningQuestions) {
+          setCreatedApplication(result);
+        } else if (onSuccess) {
           onSuccess(result);
         }
       } else {
@@ -169,6 +187,32 @@ export default function JobApplicationForm({
             Go Back
           </button>
         )}
+      </div>
+    );
+  }
+
+  if (createdApplication) {
+    return (
+      <div className="max-w-2xl mx-auto bg-white rounded-sm shadow-lg p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Screening Questions</h2>
+          <div className="bg-gold-50 border border-violet-200 rounded-sm p-4">
+            <h3 className="font-medium text-violet-900">{jobTitle}</h3>
+            {department && <p className="text-violet-700 text-sm">{department}</p>}
+          </div>
+          <p className="text-sm text-gray-600 mt-3">
+            Your application has been submitted. Please complete the screening questions below to finalise your application.
+          </p>
+        </div>
+        <ScreeningQuestions
+          applicationId={createdApplication.id}
+          jobPostingId={jobAdId}
+          onComplete={() => {
+            if (onSuccess) {
+              onSuccess(createdApplication);
+            }
+          }}
+        />
       </div>
     );
   }

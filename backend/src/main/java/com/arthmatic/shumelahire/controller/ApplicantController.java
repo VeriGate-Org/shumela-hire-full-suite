@@ -42,7 +42,7 @@ public class ApplicantController {
      * POST /api/applicants
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> createApplicant(@Valid @RequestBody ApplicantCreateRequest request) {
         try {
             logger.info("Creating applicant: {}", request.getEmail());
@@ -63,7 +63,7 @@ public class ApplicantController {
      * PUT /api/applicants/{id}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> updateApplicant(@PathVariable Long id,
                                            @Valid @RequestBody ApplicantCreateRequest request) {
         try {
@@ -85,7 +85,7 @@ public class ApplicantController {
      * GET /api/applicants/{id}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> getApplicant(@PathVariable Long id) {
         try {
             ApplicantResponse response = applicantService.getApplicant(id);
@@ -130,7 +130,7 @@ public class ApplicantController {
      * POST /api/applicants/{id}/documents
      */
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> uploadDocument(
             @PathVariable Long id,
             @RequestParam(required = false) Long applicationId,
@@ -160,7 +160,7 @@ public class ApplicantController {
      * GET /api/applicants/{id}/documents
      */
     @GetMapping("/{id}/documents")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> getApplicantDocuments(@PathVariable Long id) {
         try {
             List<Document> documents = applicantService.getApplicantDocuments(id);
@@ -180,7 +180,7 @@ public class ApplicantController {
      * DELETE /api/applicants/{applicantId}/documents/{documentId}
      */
     @DeleteMapping("/{applicantId}/documents/{documentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> deleteDocument(@PathVariable Long applicantId,
                                           @PathVariable Long documentId) {
         try {

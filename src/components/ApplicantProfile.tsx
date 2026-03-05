@@ -81,11 +81,20 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
       const response = await apiFetch(`/api/applicants/${applicantId}`);
       if (response.ok) {
         const data = await response.json();
+        const parseJsonField = (value: string | null | undefined, fallback: unknown[] = []) => {
+          if (!value) return fallback;
+          try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : fallback;
+          } catch {
+            return fallback;
+          }
+        };
         setFormData({
           ...data,
-          education: data.education ? JSON.parse(data.education) : [],
-          experience: data.experience ? JSON.parse(data.experience) : [],
-          skills: data.skills ? JSON.parse(data.skills) : []
+          education: parseJsonField(data.education),
+          experience: parseJsonField(data.experience),
+          skills: parseJsonField(data.skills),
         });
       }
     } catch (error) {
@@ -202,8 +211,15 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       } else {
-        const errorData = await response.json();
-        toast(errorData.message || 'Failed to upload document', 'error');
+        const text = await response.text();
+        let message = 'Failed to upload document';
+        try {
+          const errorData = JSON.parse(text);
+          message = errorData.message || message;
+        } catch {
+          // Response is not JSON (e.g. HTML error page)
+        }
+        toast(message, 'error');
       }
     } catch (error) {
       console.error('Error uploading document:', error);
