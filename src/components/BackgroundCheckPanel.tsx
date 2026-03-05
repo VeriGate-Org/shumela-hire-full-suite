@@ -31,7 +31,7 @@ interface BackgroundCheck {
 }
 
 interface BackgroundCheckPanelProps {
-  applicationId: number;
+  applicationId: number | string;
   candidateName: string;
   candidateEmail: string;
   onClose: () => void;
@@ -69,6 +69,8 @@ export default function BackgroundCheckPanel({
   const [candidateIdNumber, setCandidateIdNumber] = useState('');
   const [consentObtained, setConsentObtained] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadedReports, setUploadedReports] = useState<Record<string, { name: string; url: string }>>({});
+  const [uploading, setUploading] = useState<string | null>(null);
 
   const loadChecks = useCallback(async () => {
     try {
@@ -161,6 +163,26 @@ export default function BackgroundCheckPanel({
     } catch (err) {
       console.error('Failed to download report:', err);
     }
+  };
+
+  const handleUploadReport = (referenceId: string, file: File) => {
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are accepted');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be under 10 MB');
+      return;
+    }
+    setUploading(referenceId);
+    setError(null);
+
+    // Mock upload — simulate a delay then store locally
+    setTimeout(() => {
+      const url = URL.createObjectURL(file);
+      setUploadedReports(prev => ({ ...prev, [referenceId]: { name: file.name, url } }));
+      setUploading(null);
+    }, 1200);
   };
 
   const toggleCheckType = (code: string) => {
@@ -436,6 +458,81 @@ export default function BackgroundCheckPanel({
                       {check.errorMessage}
                     </div>
                   )}
+
+                  {/* Upload / View Screening Results PDF */}
+                  <div className="mt-3 pt-3 border-t border-gray-200/60">
+                    {uploadedReports[check.referenceId] ? (
+                      <div className="flex items-center justify-between bg-white rounded-md border border-gray-200 px-3 py-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <svg className="w-4 h-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 18h10V6H7v12zm2-10h2v4h1.5L10 15.5 7.5 12H9V8zm12-4h-3.17L14.17 2H9.83L8.17 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+                          </svg>
+                          <span className="text-xs font-medium text-gray-700 truncate">
+                            {uploadedReports[check.referenceId].name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <a
+                            href={uploadedReports[check.referenceId].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs px-2 py-1 text-[#05527E] hover:text-[#033d5e] font-medium"
+                          >
+                            View PDF
+                          </a>
+                          <button
+                            onClick={() => setUploadedReports(prev => {
+                              const next = { ...prev };
+                              URL.revokeObjectURL(next[check.referenceId].url);
+                              delete next[check.referenceId];
+                              return next;
+                            })}
+                            className="text-xs px-2 py-1 text-red-500 hover:text-red-700 font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label
+                        className={`flex items-center justify-center gap-2 px-3 py-3 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+                          uploading === check.referenceId
+                            ? 'border-gold-300 bg-gold-50'
+                            : 'border-gray-300 hover:border-[#05527E] hover:bg-gray-50'
+                        }`}
+                      >
+                        {uploading === check.referenceId ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4 text-gold-500" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            <span className="text-xs text-gold-700 font-medium">Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                            <span className="text-xs text-gray-500">
+                              Upload screening results PDF <span className="text-gray-400">(max 10 MB)</span>
+                            </span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleUploadReport(check.referenceId, file);
+                            e.target.value = '';
+                          }}
+                          disabled={uploading !== null}
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
               );
             })}

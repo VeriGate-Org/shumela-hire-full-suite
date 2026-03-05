@@ -18,13 +18,16 @@ import {
   UserIcon,
   CalendarIcon,
   BriefcaseIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  DocumentTextIcon,
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiCandidateRanking from '@/components/ai/AiCandidateRanking';
 import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
+import BackgroundCheckPanel from '@/components/BackgroundCheckPanel';
 
 // --- Stage grouping: maps 16 backend PipelineStage enum values into 7 display columns ---
 
@@ -947,6 +950,35 @@ export default function PipelinePage() {
                             >
                               <EyeIcon className="w-4 h-4" />
                             </button>
+                            {application.status === 'active' && ['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(application.backendStage) && (
+                              <button
+                                onClick={() => setSelectedApplication(application)}
+                                className="text-yellow-600 hover:text-yellow-800"
+                                title="Background Screening"
+                              >
+                                <ShieldCheckIcon className="w-4 h-4" />
+                              </button>
+                            )}
+                            {application.status === 'active' && ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION'].includes(application.backendStage) && (
+                              <a
+                                href="/reports/offer-letter-sample.pdf"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#05527E] hover:text-[#033d5e]"
+                                title="Generate Offer Letter"
+                              >
+                                <DocumentTextIcon className="w-4 h-4" />
+                              </a>
+                            )}
+                            {['OFFER_ACCEPTED', 'HIRED'].includes(application.backendStage) && (
+                              <a
+                                href="/offers"
+                                className="text-[#05527E] hover:text-[#033d5e]"
+                                title="Send to Payroll"
+                              >
+                                <BanknotesIcon className="w-4 h-4" />
+                              </a>
+                            )}
                             {application.status === 'active' && (() => {
                               const nextGroupStage = getNextGroupFirstStage(application.backendStage);
                               return nextGroupStage && (
@@ -1073,6 +1105,18 @@ export default function PipelinePage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Background Screening */}
+                {['REFERENCE_CHECK', 'BACKGROUND_CHECK', 'OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'].includes(selectedApplication.backendStage) && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <BackgroundCheckPanel
+                      applicationId={selectedApplication.id}
+                      candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
+                      candidateEmail={selectedApplication.candidate.email}
+                      onClose={() => {}}
+                    />
+                  </div>
+                )}
 
                 {/* AI Candidate Assist */}
                 <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">

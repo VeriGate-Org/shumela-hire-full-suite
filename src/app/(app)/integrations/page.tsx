@@ -74,6 +74,11 @@ const INTEGRATION_META: Record<string, { description: string; icon: React.Elemen
     icon: EnvelopeIcon,
     features: ['Email delivery', 'Templates', 'Delivery tracking'],
   },
+  'sage': {
+    description: 'Sage 300 People payroll integration for new employee registration.',
+    icon: CogIcon,
+    features: ['Employee registration', 'Salary setup', 'Tax configuration', 'Auto-sync on offer acceptance'],
+  },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -82,6 +87,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'Communication': 'Communication',
   'E-Signature': 'E-Signature',
   'Email': 'Email',
+  'Payroll': 'Payroll',
 };
 
 export default function IntegrationsPage() {
@@ -137,6 +143,7 @@ export default function IntegrationsPage() {
         { id: 'ms-teams', name: 'Microsoft Teams', category: 'Communication', configured: false, status: 'disconnected' },
         { id: 'outlook', name: 'Outlook Calendar', category: 'Communication', configured: false, status: 'disconnected' },
         { id: 'aws-ses', name: 'AWS SES', category: 'Email', configured: false, status: 'disconnected' },
+        { id: 'sage', name: 'Sage 300 People', category: 'Payroll', configured: true, status: 'connected' },
       ]);
     } finally {
       setLoading(false);
