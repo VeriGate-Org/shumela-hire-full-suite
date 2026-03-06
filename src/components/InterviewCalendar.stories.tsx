@@ -61,8 +61,8 @@ const lightSchedule = [
       id: 5,
       applicant: {
         id: 5,
-        firstName: 'Michael',
-        lastName: 'Chen',
+        name: 'Michael',
+        surname: 'Chen',
         email: 'michael.chen@email.com',
       },
       jobPosting: {
@@ -120,8 +120,8 @@ export const BusyWeek: Story = {
           id: 6,
           applicant: {
             id: 6,
-            firstName: 'Lisa',
-            lastName: 'Thompson',
+            name: 'Lisa',
+            surname: 'Thompson',
             email: 'lisa.thompson@email.com',
           },
           jobPosting: {
@@ -162,8 +162,8 @@ export const MixedStatuses: Story = {
           id: 1,
           applicant: {
             id: 1,
-            firstName: 'John',
-            lastName: 'Smith',
+            name: 'John',
+            surname: 'Smith',
             email: 'john.smith@email.com',
           },
           jobPosting: {
@@ -197,8 +197,8 @@ export const MixedStatuses: Story = {
           id: 2,
           applicant: {
             id: 2,
-            firstName: 'Emily',
-            lastName: 'Davis',
+            name: 'Emily',
+            surname: 'Davis',
             email: 'emily.davis@email.com',
           },
           jobPosting: {

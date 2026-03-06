@@ -8,8 +8,8 @@ interface Application {
   id: number;
   applicant: {
     id: number;
-    firstName: string;
-    lastName: string;
+    name: string;
+    surname: string;
     email: string;
   };
   jobPosting: {
