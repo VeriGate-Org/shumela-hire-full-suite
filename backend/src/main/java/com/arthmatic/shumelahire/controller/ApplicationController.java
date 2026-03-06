@@ -4,8 +4,10 @@ import com.arthmatic.shumelahire.dto.ApplicationCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicationResponse;
 import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
 import com.arthmatic.shumelahire.dto.CanApplyResponse;
+import com.arthmatic.shumelahire.dto.DocumentResponse;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
+import com.arthmatic.shumelahire.repository.DocumentRepository;
 import com.arthmatic.shumelahire.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -30,9 +32,11 @@ public class ApplicationController {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
 
     private final ApplicationService applicationService;
+    private final DocumentRepository documentRepository;
 
-    public ApplicationController(ApplicationService applicationService) {
+    public ApplicationController(ApplicationService applicationService, DocumentRepository documentRepository) {
         this.applicationService = applicationService;
+        this.documentRepository = documentRepository;
     }
 
     /**
@@ -238,6 +242,26 @@ public class ApplicationController {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Error rating application {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
+     * Get documents for an application
+     * GET /api/applications/{id}/documents
+     */
+    @GetMapping("/{id}/documents")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> getApplicationDocuments(@PathVariable Long id) {
+        try {
+            List<DocumentResponse> documents = documentRepository.findByApplicationId(id)
+                    .stream()
+                    .map(DocumentResponse::fromEntity)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(documents);
+        } catch (Exception e) {
+            logger.error("Error getting documents for application {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
         }

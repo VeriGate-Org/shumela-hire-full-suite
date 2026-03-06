@@ -38,6 +38,7 @@ interface BackgroundCheckPanelProps {
   jobPostingId?: number | string;
   onClose: () => void;
   onChecksUpdated?: () => void;
+  readOnly?: boolean;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: string }> = {
@@ -64,6 +65,7 @@ export default function BackgroundCheckPanel({
   jobPostingId,
   onClose,
   onChecksUpdated,
+  readOnly = false,
 }: BackgroundCheckPanelProps) {
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
   const [checkTypes, setCheckTypes] = useState<CheckType[]>([]);
@@ -273,7 +275,7 @@ export default function BackgroundCheckPanel({
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          {!showInitForm && (
+          {!readOnly && !showInitForm && (
             <button
               onClick={() => setShowInitForm(true)}
               className="px-4 py-2 bg-gold-500 text-white text-sm font-medium rounded-lg hover:bg-gold-600 transition-colors"
@@ -293,7 +295,7 @@ export default function BackgroundCheckPanel({
       </div>
 
       {/* Initiate Form */}
-      {showInitForm && (
+      {!readOnly && showInitForm && (
         <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
           <h3 className="text-sm font-semibold text-violet-950 mb-4">Initiate Verification Check</h3>
 
@@ -458,7 +460,7 @@ export default function BackgroundCheckPanel({
                           Download Report
                         </button>
                       )}
-                      {['INITIATED', 'PENDING_CONSENT', 'IN_PROGRESS'].includes(check.status) && (
+                      {!readOnly && ['INITIATED', 'PENDING_CONSENT', 'IN_PROGRESS'].includes(check.status) && (
                         <button
                           onClick={() => handleCancel(check.referenceId)}
                           className="text-xs px-3 py-1 bg-white border border-red-200 rounded-md hover:bg-red-50 text-red-600 transition-colors"

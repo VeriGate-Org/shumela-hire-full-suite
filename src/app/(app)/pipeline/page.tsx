@@ -20,8 +20,13 @@ import {
   BriefcaseIcon,
   ShieldCheckIcon,
   DocumentTextIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  StarIcon,
+  ArrowDownTrayIcon,
+  PaperClipIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
@@ -29,6 +34,8 @@ import AiCandidateRanking from '@/components/ai/AiCandidateRanking';
 import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
 import BackgroundCheckPanel from '@/components/BackgroundCheckPanel';
 import VerificationStatusSummary, { VerificationSummary } from '@/components/VerificationStatusSummary';
+import OfferSummaryPanel from '@/components/OfferSummaryPanel';
+import StatusPill from '@/components/StatusPill';
 
 // --- Stage grouping: maps 16 backend PipelineStage enum values into 7 display columns ---
 
@@ -167,6 +174,9 @@ interface Application {
   lastActivity: string;
   daysInStage: number;
   progress: number;
+  rating: number;
+  screeningNotes: string;
+  jobPostingId: string;
   status: 'active' | 'hired' | 'rejected' | 'withdrawn' | 'offer_declined';
   priority: 'low' | 'medium' | 'high';
   notes: string[];
@@ -211,6 +221,12 @@ export default function PipelinePage() {
   }>>([]);
   const [backendMetrics, setBackendMetrics] = useState<PipelineMetrics | null>(null);
   const [verificationSummaries, setVerificationSummaries] = useState<Record<string, VerificationSummary>>({});
+  const [offers, setOffers] = useState<Record<string, any>>({});
+  const [offerLoading, setOfferLoading] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [ratingUpdating, setRatingUpdating] = useState(false);
+  const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
 
   // --- Status mapping covering all 12 ApplicationStatus enum values ---
   const statusMap: Record<string, Application['status']> = {
@@ -288,9 +304,9 @@ export default function PipelinePage() {
         const statusKey = typeof a.status === 'string' ? a.status : '';
 
         return {
-          id: a.id,
+          id: String(a.id),
           candidate: {
-            id: applicantId,
+            id: String(applicantId),
             firstName,
             lastName,
             email,
@@ -309,6 +325,9 @@ export default function PipelinePage() {
           lastActivity: updatedAt || a.submittedAt || new Date().toISOString(),
           daysInStage,
           progress: stageIndex >= 0 ? (stageIndex / Math.max(STAGE_GROUPS.length - 1, 1)) * 100 : 0,
+          rating: a.rating || 0,
+          screeningNotes: a.screeningNotes || '',
+          jobPostingId: a.jobPosting?.id || a.jobPostingId || '',
           status: statusMap[statusKey] || 'active',
           priority: (a.priority || 'medium').toLowerCase() as Application['priority'],
           notes: [],
@@ -317,6 +336,21 @@ export default function PipelinePage() {
       });
       setApplications(mapped);
       loadVerificationSummaries(mapped);
+      // Preload offers for offer/accepted stage cards (for status badges)
+      const offerApps = mapped.filter(a =>
+        ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED'].includes(a.backendStage)
+      );
+      offerApps.forEach(a => {
+        apiFetch(`/api/offers/applications/${a.id}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) {
+              const offer = Array.isArray(data) ? data[0] : data;
+              if (offer) setOffers(prev => ({ ...prev, [a.id]: offer }));
+            }
+          })
+          .catch(() => {});
+      });
     } catch (error) {
       console.error('Failed to load pipeline data:', error);
       toast('Failed to load pipeline data', 'error');
@@ -389,6 +423,71 @@ export default function PipelinePage() {
       });
     return () => { cancelled = true; };
   }, [selectedApplication]);
+
+  // Load offer data and documents when modal opens
+  useEffect(() => {
+    if (!selectedApplication) {
+      setDocuments([]);
+      setScreeningNotesOpen(false);
+      return;
+    }
+    // Load documents
+    let cancelled = false;
+    setDocumentsLoading(true);
+    apiFetch(`/api/applications/${selectedApplication.id}/documents`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => { if (!cancelled) setDocuments(Array.isArray(data) ? data : []); })
+      .catch(() => { if (!cancelled) setDocuments([]); })
+      .finally(() => { if (!cancelled) setDocumentsLoading(false); });
+
+    // Load offer for offer/accepted/hired stages
+    const offerStages = ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'];
+    if (offerStages.includes(selectedApplication.backendStage)) {
+      if (!offers[selectedApplication.id]) {
+        setOfferLoading(true);
+        apiFetch(`/api/offers/applications/${selectedApplication.id}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (cancelled) return;
+            if (data) {
+              // API may return array or single object
+              const offer = Array.isArray(data) ? data[0] : data;
+              if (offer) setOffers(prev => ({ ...prev, [selectedApplication.id]: offer }));
+            }
+          })
+          .catch(() => {})
+          .finally(() => { if (!cancelled) setOfferLoading(false); });
+      }
+    }
+    return () => { cancelled = true; };
+  }, [selectedApplication]);
+
+  // Rate application
+  const handleRate = async (applicationId: string, rating: number) => {
+    setRatingUpdating(true);
+    try {
+      const response = await apiFetch(`/api/applications/${applicationId}/rate?rating=${rating}`, { method: 'POST' });
+      if (response.ok) {
+        setApplications(prev => prev.map(a => a.id === applicationId ? { ...a, rating } : a));
+        if (selectedApplication?.id === applicationId) {
+          setSelectedApplication(prev => prev ? { ...prev, rating } : prev);
+        }
+      }
+    } catch {}
+    setRatingUpdating(false);
+  };
+
+  // Refresh offer data
+  const refreshOffer = async (applicationId: string) => {
+    try {
+      const res = await apiFetch(`/api/offers/applications/${applicationId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const offer = Array.isArray(data) ? data[0] : data;
+        if (offer) setOffers(prev => ({ ...prev, [applicationId]: offer }));
+      }
+    } catch {}
+  };
 
   const filteredApplications = useMemo(() => {
     return applications.filter(app => {
@@ -803,6 +902,15 @@ export default function PipelinePage() {
                               </h4>
                               <p className="text-sm text-gray-600">{application.job.title}</p>
                               <p className="text-xs text-gray-500">{application.job.department}</p>
+                              {application.rating > 0 && (
+                                <div className="flex items-center gap-0.5 mt-0.5">
+                                  {[1, 2, 3, 4, 5].map(s => (
+                                    s <= application.rating
+                                      ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
+                                      : <StarIcon key={s} className="w-3 h-3 text-gray-300" />
+                                  ))}
+                                </div>
+                              )}
                               {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
                                 <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-gray-200 text-gray-600 rounded">
                                   {BACKEND_STAGE_DISPLAY[application.backendStage]}
@@ -832,6 +940,13 @@ export default function PipelinePage() {
                             </span>
                             <span>{new Date(application.lastActivity).toLocaleDateString()}</span>
                           </div>
+
+                          {/* Offer status badge on offer/accepted cards */}
+                          {['offer', 'accepted'].includes(stage.id) && offers[application.id] && (
+                            <div className="mb-2">
+                              <StatusPill value={offers[application.id].status} domain="offerStatus" size="sm" />
+                            </div>
+                          )}
 
                           {/* Verification summary for checks-column apps */}
                           {stage.id === 'checks' && verificationSummaries[application.id] && (
@@ -1081,23 +1196,79 @@ export default function PipelinePage() {
         )}
 
         {/* Application Detail Modal */}
-        {selectedApplication && (
+        {selectedApplication && (() => {
+          const currentGroupId = selectedApplication.currentStage;
+          const currentGroup = STAGE_GROUPS.find(g => g.id === currentGroupId);
+          const nextGroupStage = getNextGroupFirstStage(selectedApplication.backendStage);
+          const nextGroup = nextGroupStage ? STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage)) : null;
+          const summary = verificationSummaries[selectedApplication.id];
+          const checksBlocked = currentGroupId === 'checks' && summary?.enforceCheckCompletion && !summary?.allClear;
+          const isChecksStage = ['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(selectedApplication.backendStage);
+          const isHiredStage = selectedApplication.backendStage === 'HIRED';
+          const isOfferRelated = ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'].includes(selectedApplication.backendStage);
+          const showAiPanels = !isChecksStage && !isHiredStage;
+
+          return (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
+              {/* Modal Header with stage badge and move button */}
+              <div className="px-6 py-4 border-b border-gray-200 flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
                     <h2 className="text-2xl font-bold text-gray-900">
                       {selectedApplication.candidate.firstName} {selectedApplication.candidate.lastName}
                     </h2>
-                    <p className="text-gray-600 mt-1">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
+                    <StatusPill value={selectedApplication.backendStage} domain="pipelineStage" size="sm" />
                   </div>
+                  <p className="text-gray-600">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedApplication.status === 'active' && nextGroupStage && (
+                    <button
+                      onClick={() => { handleStageTransition(selectedApplication.id, nextGroupStage); setSelectedApplication(null); }}
+                      disabled={checksBlocked}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                        checksBlocked
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-cta text-cta-foreground hover:opacity-90'
+                      }`}
+                      title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${nextGroup?.displayName || 'Next'}`}
+                    >
+                      <ArrowRightIcon className="w-3.5 h-3.5" />
+                      Move to {nextGroup?.displayName || 'Next'}
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedApplication(null)}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     <XCircleIcon className="w-6 h-6" />
                   </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Rating */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-700">Rating</span>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <button
+                        key={s}
+                        onClick={() => handleRate(selectedApplication.id, s === selectedApplication.rating ? 0 : s)}
+                        disabled={ratingUpdating}
+                        className="disabled:opacity-50"
+                      >
+                        {s <= selectedApplication.rating
+                          ? <StarIconSolid className="w-5 h-5 text-yellow-400 hover:text-yellow-500" />
+                          : <StarIcon className="w-5 h-5 text-gray-300 hover:text-yellow-300" />
+                        }
+                      </button>
+                    ))}
+                  </div>
+                  {selectedApplication.rating > 0 && (
+                    <span className="text-xs text-muted-foreground">{selectedApplication.rating}/5</span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1108,12 +1279,75 @@ export default function PipelinePage() {
                       <p><strong>Phone:</strong> {selectedApplication.candidate.phone}</p>
                       <p><strong>Applied:</strong> {new Date(selectedApplication.submittedAt).toLocaleDateString()}</p>
                       <p><strong>Last Activity:</strong> {new Date(selectedApplication.lastActivity).toLocaleDateString()}</p>
+                      <p><strong>Days in Stage:</strong> {selectedApplication.daysInStage}</p>
+                    </div>
+
+                    {/* Screening Notes */}
+                    {selectedApplication.screeningNotes && (
+                      <div>
+                        <button
+                          onClick={() => setScreeningNotesOpen(!screeningNotesOpen)}
+                          className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900"
+                        >
+                          <ChevronDownIcon className={`w-4 h-4 transition-transform ${screeningNotesOpen ? 'rotate-180' : ''}`} />
+                          Screening Notes
+                        </button>
+                        {screeningNotesOpen && (
+                          <div className="mt-2 bg-gray-50 rounded-sm p-3 text-sm text-gray-700">
+                            {selectedApplication.screeningNotes}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Documents / CV Section */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5">
+                        <PaperClipIcon className="w-4 h-4" />
+                        Documents
+                      </h4>
+                      {documentsLoading ? (
+                        <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-500"></div>
+                          Loading documents...
+                        </div>
+                      ) : documents.length === 0 ? (
+                        <p className="text-sm text-gray-500">No documents attached.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {documents.map((doc: any) => (
+                            <div key={doc.id} className="flex items-center justify-between bg-gray-50 rounded-sm p-2.5 border border-gray-200">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <DocumentTextIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">{doc.filename}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : doc.type}
+                                    {doc.fileSizeFormatted && ` - ${doc.fileSizeFormatted}`}
+                                  </p>
+                                </div>
+                              </div>
+                              {doc.url && (
+                                <a
+                                  href={doc.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary hover:underline"
+                                >
+                                  <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                                  Download
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900">Application Timeline</h3>
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-64 overflow-y-auto">
                       {timelineLoading ? (
                         <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
@@ -1147,9 +1381,28 @@ export default function PipelinePage() {
                   </div>
                 </div>
 
+                {/* Offer Summary Panel (Offer/Accepted/Hired) */}
+                {isOfferRelated && (
+                  <div className="pt-6 border-t border-gray-200">
+                    {offerLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-500"></div>
+                        Loading offer data...
+                      </div>
+                    ) : (
+                      <OfferSummaryPanel
+                        offer={offers[selectedApplication.id] || null}
+                        applicationId={selectedApplication.id}
+                        readOnly={isHiredStage}
+                        onAction={() => refreshOffer(selectedApplication.id)}
+                      />
+                    )}
+                  </div>
+                )}
+
                 {/* Verification Summary (for checks stage) */}
-                {['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(selectedApplication.backendStage) && verificationSummaries[selectedApplication.id] && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
+                {isChecksStage && verificationSummaries[selectedApplication.id] && (
+                  <div className="pt-6 border-t border-gray-200">
                     <VerificationStatusSummary
                       summary={verificationSummaries[selectedApplication.id]}
                     />
@@ -1157,8 +1410,8 @@ export default function PipelinePage() {
                 )}
 
                 {/* Background Screening */}
-                {['REFERENCE_CHECK', 'BACKGROUND_CHECK', 'OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED', 'HIRED'].includes(selectedApplication.backendStage) && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
+                {(isChecksStage || isHiredStage) && (
+                  <div className="pt-6 border-t border-gray-200">
                     <BackgroundCheckPanel
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
@@ -1166,13 +1419,14 @@ export default function PipelinePage() {
                       jobPostingId={selectedApplication.job?.id}
                       onClose={() => {}}
                       onChecksUpdated={() => loadVerificationSummaries(applications)}
+                      readOnly={isHiredStage}
                     />
                   </div>
                 )}
 
-                {/* AI Candidate Assist — hidden for REFERENCE_CHECK / BACKGROUND_CHECK stages */}
-                {!['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(selectedApplication.backendStage) && (
-                  <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+                {/* AI Candidate Assist — hidden for Checks and Hired stages */}
+                {showAiPanels && (
+                  <div className="pt-6 border-t border-gray-200 space-y-4">
                     <AiCandidatePanel
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
@@ -1187,7 +1441,7 @@ export default function PipelinePage() {
                   </div>
                 )}
 
-                <div className="flex justify-end mt-6 pt-6 border-t">
+                <div className="flex justify-end pt-6 border-t">
                   <button
                     onClick={() => setSelectedApplication(null)}
                     className="px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
@@ -1198,7 +1452,8 @@ export default function PipelinePage() {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
     </PageWrapper>
   );
