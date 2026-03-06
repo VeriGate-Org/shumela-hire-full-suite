@@ -1,6 +1,22 @@
 import type { BackendJobAd, BackendApiResponse, BackendPagedResponse } from '@/components/jobs/types';
 
-const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+/**
+ * Server-side base URL for the backend API.
+ * NEXT_PUBLIC_API_URL is intentionally empty in prod so client-side fetches
+ * use relative paths. For SSR we derive the backend URL from NEXT_PUBLIC_APP_URL
+ * (e.g. https://shumelahire.co.za → https://api.shumelahire.co.za).
+ */
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) {
+    try {
+      const u = new URL(appUrl);
+      return `${u.protocol}//api.${u.host}`;
+    } catch { /* fall through */ }
+  }
+  return 'http://localhost:8080';
+};
 
 export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
   try {
