@@ -37,6 +37,7 @@ import {
 } from '@heroicons/react/24/solid';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiReportNarrative from '@/components/ai/AiReportNarrative';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import StatusPill from '@/components/StatusPill';
 import { getEnumLabel } from '@/utils/enumLabels';
 
@@ -448,31 +449,27 @@ export default function ExecutiveReportsPage() {
             </div>
 
             {/* Performance Alerts */}
-            <div className="bg-card rounded-sm shadow">
-              <div className="p-6 border-b border-border">
-                <h3 className="text-lg font-medium text-foreground">Performance Alerts</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {performanceAlerts.slice(0, 4).map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-sm border ${getAlertColor(alert.type)}`}>
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        {getAlertIcon(alert.type)}
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <h4 className="text-sm font-medium">{alert.title}</h4>
-                        <p className="text-sm mt-1">{alert.description}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs">
-                          <span>Value: {alert.value}{alert.metric.includes('Rate') ? '%' : alert.metric.includes('Cost') ? '$' : ''}</span>
-                          <span>Threshold: {alert.threshold}{alert.metric.includes('Rate') ? '%' : alert.metric.includes('Cost') ? '$' : ''}</span>
-                          {alert.department && <span>Department: {alert.department}</span>}
-                        </div>
-                        <p className="text-xs mt-2 font-medium">Recommendation: {alert.recommendedAction}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Performance Alerts"
+                variant="alert"
+                maxItems={4}
+                items={performanceAlerts.map((alert): TimelineItem => ({
+                  id: alert.id,
+                  title: alert.title,
+                  description: alert.description,
+                  timestamp: alert.timestamp,
+                  severity: alert.type as TimelineItem['severity'],
+                  meta: {
+                    metric: alert.metric,
+                    value: `${alert.value}${alert.metric.includes('Rate') ? '%' : alert.metric.includes('Cost') ? '$' : ''}`,
+                    threshold: `${alert.threshold}${alert.metric.includes('Rate') ? '%' : alert.metric.includes('Cost') ? '$' : ''}`,
+                    ...(alert.department ? { department: alert.department } : {}),
+                    ...(alert.recommendedAction ? { recommendation: alert.recommendedAction } : {}),
+                  },
+                }))}
+                emptyMessage="No performance alerts at this time."
+              />
             </div>
 
             {/* Department Performance */}

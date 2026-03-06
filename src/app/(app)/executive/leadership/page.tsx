@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import StatusPill from '@/components/StatusPill';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import { getEnumLabel } from '@/utils/enumLabels';
 import {
   UserGroupIcon,
@@ -312,35 +313,24 @@ export default function LeadershipTeamPage() {
             </div>
 
             {/* Leadership Alerts */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Leadership Alerts</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {alerts.map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-sm border ${getAlertColor(alert.type)}`}>
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        {getAlertIcon(alert.type)}
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <h4 className="text-sm font-medium">{alert.title}</h4>
-                        <p className="text-sm mt-1">{alert.description}</p>
-                        <p className="text-sm mt-2 text-gray-600">Impact: {alert.impact}</p>
-                        <p className="text-xs mt-2 font-medium">Recommended Action: {alert.recommendedAction}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">
-                            Leader: {leaders.find(l => l.id === alert.leaderId)?.name}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(alert.timestamp).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Leadership Alerts"
+                variant="alert"
+                items={alerts.map((alert): TimelineItem => ({
+                  id: alert.id,
+                  title: alert.title,
+                  description: alert.description,
+                  timestamp: alert.timestamp,
+                  severity: alert.type as TimelineItem['severity'],
+                  meta: {
+                    ...(alert.impact ? { impact: alert.impact } : {}),
+                    leader: leaders.find(l => l.id === alert.leaderId)?.name ?? 'Unknown',
+                    ...(alert.recommendedAction ? { recommendation: alert.recommendedAction } : {}),
+                  },
+                }))}
+                emptyMessage="No leadership alerts at this time."
+              />
             </div>
 
             {/* Executive Team Summary */}

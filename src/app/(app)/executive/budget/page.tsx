@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import StatusPill from '@/components/StatusPill';
 import { formatCurrency } from '@/utils/currency';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import {
   CurrencyDollarIcon,
   ChartBarIcon,
@@ -341,76 +342,57 @@ export default function BudgetApprovalsPage() {
             </div>
 
             {/* Budget Status Overview */}
-            <div className="bg-card rounded-sm shadow">
-              <div className="p-6 border-b border-border">
-                <h3 className="text-lg font-medium text-foreground">Budget Status by Category</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {budgetItems.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        {getCategoryIcon(item.category)}
-                        <div>
-                          <h4 className="text-sm font-medium text-foreground">{item.subcategory}</h4>
-                          <p className="text-sm text-muted-foreground">{item.department}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-foreground">
-                            {formatCurrency(item.spentAmount)} / {formatCurrency(item.allocatedBudget)}
-                          </p>
-                          <div className="w-32 bg-border rounded-full h-2 mt-1">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                item.status === 'over_budget' ? 'bg-red-500' :
-                                item.status === 'on_track' ? 'bg-green-500' :
-                                item.status === 'under_utilized' ? 'bg-gold-500' : 'bg-yellow-500'
-                              }`}
-                              style={{ width: `${Math.min((item.spentAmount / item.allocatedBudget) * 100, 100)}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                        
-                        <StatusPill value={item.status} domain="budgetStatus" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Budget Status by Category"
+                variant="goal"
+                showTimestamps={false}
+                items={budgetItems.map((item): TimelineItem => ({
+                  id: item.id,
+                  title: item.subcategory,
+                  description: item.department,
+                  status: item.status,
+                  statusDomain: 'budgetStatus',
+                  progress: Math.round((item.spentAmount / item.allocatedBudget) * 100),
+                  // variant default icon is used
+                  meta: {
+                    allocated: formatCurrency(item.allocatedBudget),
+                    spent: formatCurrency(item.spentAmount),
+                    remaining: formatCurrency(item.remainingAmount),
+                    owner: item.owner,
+                  },
+                }))}
+                emptyMessage="No budget data available."
+              />
             </div>
 
             {/* Critical Approvals */}
-            <div className="bg-card rounded-sm shadow">
-              <div className="p-6 border-b border-border">
-                <h3 className="text-lg font-medium text-foreground">Critical Approvals Required</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {approvalRequests.filter(r => r.status === 'pending' && (r.urgency === 'critical' || r.urgency === 'high')).slice(0, 3).map((request) => (
-                  <div key={request.id} className="border-l-4 border-l-orange-400 pl-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-foreground">{request.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{request.description}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                          <span>{request.requestedBy.name}</span>
-                          <span>{formatCurrency(request.amount)}</span>
-                          <StatusPill value={request.urgency} domain="urgency" size="sm" />
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setSelectedRequest(request)}
-                        className="flex items-center px-3 py-1 text-xs font-medium text-gold-600 bg-gold-50 rounded-full hover:bg-gold-100"
-                      >
-                        <EyeIcon className="w-3 h-3 mr-1" />
-                        Review
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Critical Approvals Required"
+                variant="approval"
+                maxItems={3}
+                items={approvalRequests
+                  .filter(r => r.status === 'pending' && (r.urgency === 'critical' || r.urgency === 'high'))
+                  .map((request): TimelineItem => ({
+                    id: request.id,
+                    title: request.title,
+                    description: request.description,
+                    timestamp: request.requestedDate,
+                    severity: request.urgency === 'critical' ? 'critical' : 'warning',
+                    status: request.urgency,
+                    statusDomain: 'urgency',
+                    meta: {
+                      'requested by': request.requestedBy.name,
+                      amount: formatCurrency(request.amount),
+                      department: request.requestedBy.department,
+                    },
+                    actions: [
+                      { label: 'Review', onClick: () => setSelectedRequest(request), variant: 'primary' },
+                    ],
+                  }))}
+                emptyMessage="No critical approvals pending."
+              />
             </div>
           </div>
         )}

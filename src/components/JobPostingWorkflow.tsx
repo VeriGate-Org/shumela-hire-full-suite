@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 
 interface JobPostingWorkflowProps {
   jobPosting: {
@@ -428,25 +429,23 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
       {/* Timeline Information */}
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <h4 className="font-medium text-gray-900 mb-2">Timeline</h4>
-        <div className="text-sm text-gray-600 space-y-1">
-          <p>Created: {new Date(jobPosting.createdAt).toLocaleDateString()}</p>
-          {jobPosting.submittedForApprovalAt && (
-            <p>Submitted for approval: {new Date(jobPosting.submittedForApprovalAt).toLocaleDateString()}</p>
-          )}
-          {jobPosting.approvedAt && (
-            <p>Approved: {new Date(jobPosting.approvedAt).toLocaleDateString()}</p>
-          )}
-          {jobPosting.publishedAt && (
-            <p>Published: {new Date(jobPosting.publishedAt).toLocaleDateString()}</p>
-          )}
-          {jobPosting.unpublishedAt && (
-            <p>Unpublished: {new Date(jobPosting.unpublishedAt).toLocaleDateString()}</p>
-          )}
-          {jobPosting.closedAt && (
-            <p>Closed: {new Date(jobPosting.closedAt).toLocaleDateString()}</p>
-          )}
-        </div>
+        <ExecutiveTimeline
+          title="Timeline"
+          variant="workflow"
+          expandable={false}
+          showTimestamps={false}
+          items={([
+            { id: 'created', title: 'Created', timestamp: jobPosting.createdAt },
+            jobPosting.submittedForApprovalAt ? { id: 'submitted', title: 'Submitted for Approval', timestamp: jobPosting.submittedForApprovalAt } : null,
+            jobPosting.approvedAt ? { id: 'approved', title: 'Approved', timestamp: jobPosting.approvedAt } : null,
+            jobPosting.publishedAt ? { id: 'published', title: 'Published', timestamp: jobPosting.publishedAt } : null,
+            jobPosting.unpublishedAt ? { id: 'unpublished', title: 'Unpublished', timestamp: jobPosting.unpublishedAt } : null,
+            jobPosting.closedAt ? { id: 'closed', title: 'Closed', timestamp: jobPosting.closedAt } : null,
+          ].filter(Boolean) as TimelineItem[]).map(item => ({
+            ...item,
+            description: new Date(item.timestamp!).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }),
+          }))}
+        />
       </div>
     </div>
   );

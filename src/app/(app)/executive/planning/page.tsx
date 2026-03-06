@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import StatusPill from '@/components/StatusPill';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import {
   ChartBarIcon,
   ArrowTrendingUpIcon,
@@ -279,56 +280,63 @@ export default function StrategicPlanningPage() {
             </div>
 
             {/* Strategic Goals Progress */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Strategic Goals Progress</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {goals.slice(0, 3).map((goal) => (
-                  <div key={goal.id} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="text-sm font-medium text-gray-900">{goal.title}</h4>
-                        <StatusPill value={goal.status} domain="goalStatus" />
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-gold-500 h-2 rounded-full transition-all"
-                          style={{ width: `${goal.progress}%` }}
-                        ></div>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{goal.progress}% complete</span>
-                        <span>Target: {new Date(goal.targetDate).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Strategic Goals Progress"
+                variant="goal"
+                maxItems={3}
+                items={goals.map((goal): TimelineItem => ({
+                  id: goal.id,
+                  title: goal.title,
+                  timestamp: goal.targetDate,
+                  status: goal.status,
+                  statusDomain: 'goalStatus',
+                  progress: goal.progress,
+                  meta: {
+                    owner: goal.owner,
+                    department: goal.department,
+                    target: new Date(goal.targetDate).toLocaleDateString(),
+                  },
+                  actions: [
+                    { label: 'View Details', onClick: () => setSelectedGoal(goal), variant: 'primary' },
+                  ],
+                }))}
+                emptyMessage="No strategic goals defined yet."
+              />
             </div>
 
             {/* Recent Market Insights */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Recent Market Insights</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {insights.slice(0, 3).map((insight) => (
-                  <div key={insight.id} className="border-l-4 border-violet-400 pl-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">{insight.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{insight.summary}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                          <span>{insight.source}</span>
-                          <span>{new Date(insight.date).toLocaleDateString()}</span>
-                          <StatusPill value={insight.impact} domain="impact" />
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Recent Market Insights"
+                variant="insight"
+                maxItems={3}
+                items={insights.map((insight): TimelineItem => ({
+                  id: insight.id,
+                  title: insight.title,
+                  description: insight.summary,
+                  timestamp: insight.date,
+                  severity: insight.impact === 'positive' ? 'opportunity' : insight.impact === 'negative' ? 'warning' : 'info',
+                  status: insight.impact,
+                  statusDomain: 'impact',
+                  meta: {
+                    source: insight.source,
+                    urgency: insight.urgency.replace(/_/g, ' '),
+                  },
+                  expandedContent: insight.recommendations.length > 0 ? (
+                    <div className="space-y-1 mb-2">
+                      <p className="text-xs font-medium text-foreground">Recommendations</p>
+                      {insight.recommendations.map((rec, i) => (
+                        <div key={i} className="flex items-start text-xs text-muted-foreground">
+                          <CheckCircleIcon className="w-3.5 h-3.5 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
+                          {rec}
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ) : undefined,
+                }))}
+                emptyMessage="No market insights available."
+              />
             </div>
           </div>
         )}

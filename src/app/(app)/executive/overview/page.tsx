@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import StatusPill from '@/components/StatusPill';
 import { apiFetch } from '@/lib/api-fetch';
+import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 import {
   BuildingOfficeIcon,
   UserGroupIcon,
@@ -406,65 +407,64 @@ export default function OrganizationalOverviewPage() {
             </div>
 
             {/* Critical Alerts */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Critical Organizational Alerts</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {alerts.filter(alert => alert.urgency === 'high' || alert.type === 'critical').slice(0, 3).map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-sm border ${getAlertColor(alert.type)}`}>
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        {getAlertIcon(alert.type)}
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <h4 className="text-sm font-medium">{alert.title}</h4>
-                        <p className="text-sm mt-1">{alert.description}</p>
-                        <p className="text-sm mt-2 text-gray-600">Impact: {alert.impact}</p>
-                        <p className="text-xs mt-2 font-medium">Action Required: {alert.recommendedAction}</p>
-                        {alert.dueDate && (
-                          <p className="text-xs mt-1 text-red-600">
-                            Due: {new Date(alert.dueDate).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Critical Organizational Alerts"
+                variant="alert"
+                maxItems={3}
+                items={alerts
+                  .filter(alert => alert.urgency === 'high' || alert.type === 'critical')
+                  .map((alert): TimelineItem => ({
+                    id: alert.id,
+                    title: alert.title,
+                    description: alert.description,
+                    timestamp: alert.timestamp,
+                    severity: alert.type as TimelineItem['severity'],
+                    status: alert.urgency,
+                    statusDomain: 'urgency',
+                    meta: {
+                      ...(alert.impact ? { impact: alert.impact } : {}),
+                      ...(alert.department ? { department: alert.department } : {}),
+                      ...(alert.recommendedAction ? { recommendation: alert.recommendedAction } : {}),
+                      ...(alert.dueDate ? { due: new Date(alert.dueDate).toLocaleDateString() } : {}),
+                    },
+                  }))}
+                emptyMessage="No critical alerts at this time."
+              />
             </div>
 
             {/* Company Milestones */}
-            <div className="bg-white rounded-sm shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Strategic Milestones</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {milestones.slice(0, 4).map((milestone) => (
-                    <div key={milestone.id} className="border border-gray-200 rounded-sm p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900">{milestone.title}</h4>
-                            <StatusPill value={milestone.status} domain="goalStatus" />
-                          </div>
-                          <p className="text-sm text-gray-600 mb-3">{milestone.description}</p>
-                          <div className="flex items-center space-x-6 text-sm text-gray-500">
-                            <span>Target Date: {new Date(milestone.date).toLocaleDateString()}</span>
-                            {milestone.metrics && (
-                              <>
-                                <span>Employees Impacted: {milestone.metrics.employeesImpacted.toLocaleString()}</span>
-                                <span>Budget: R{(milestone.metrics.budgetImpact / 1000000).toFixed(0)}M</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="Strategic Milestones"
+                variant="milestone"
+                maxItems={4}
+                items={milestones.map((milestone): TimelineItem => ({
+                  id: milestone.id,
+                  title: milestone.title,
+                  description: milestone.description,
+                  timestamp: milestone.date,
+                  status: milestone.status,
+                  statusDomain: 'goalStatus',
+                  meta: {
+                    ...(milestone.metrics ? {
+                      'employees impacted': milestone.metrics.employeesImpacted.toLocaleString(),
+                      budget: `R${(milestone.metrics.budgetImpact / 1000000).toFixed(0)}M`,
+                      timeline: `${milestone.metrics.timelineWeeks} weeks`,
+                    } : {}),
+                  },
+                  expandedContent: milestone.departments.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {milestone.departments.map((dept, i) => (
+                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+                          {dept}
+                        </span>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  ) : undefined,
+                }))}
+                emptyMessage="No milestones recorded yet."
+              />
             </div>
           </div>
         )}
@@ -710,44 +710,28 @@ export default function OrganizationalOverviewPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-6">All Organizational Alerts</h3>
-              <div className="space-y-4">
-                {alerts.map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-sm border ${getAlertColor(alert.type)}`}>
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        {getAlertIcon(alert.type)}
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="text-sm font-medium">{alert.title}</h4>
-                          <StatusPill value={alert.category} domain="category" />
-                        </div>
-                        <p className="text-sm">{alert.description}</p>
-                        <p className="text-sm mt-1 text-gray-600">Impact: {alert.impact}</p>
-                        {(alert.department || alert.location) && (
-                          <p className="text-xs mt-1">
-                            {alert.department && `Department: ${alert.department}`}
-                            {alert.location && `Location: ${alert.location}`}
-                          </p>
-                        )}
-                        <p className="text-xs mt-2 font-medium">Recommended Action: {alert.recommendedAction}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">
-                            {new Date(alert.timestamp).toLocaleDateString()}
-                          </span>
-                          {alert.dueDate && (
-                            <span className="text-xs text-red-600 font-medium">
-                              Due: {new Date(alert.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-card rounded-sm shadow p-6">
+              <ExecutiveTimeline
+                title="All Organizational Alerts"
+                variant="alert"
+                items={alerts.map((alert): TimelineItem => ({
+                  id: alert.id,
+                  title: alert.title,
+                  description: alert.description,
+                  timestamp: alert.timestamp,
+                  severity: alert.type as TimelineItem['severity'],
+                  status: alert.category,
+                  statusDomain: 'category',
+                  meta: {
+                    ...(alert.impact ? { impact: alert.impact } : {}),
+                    ...(alert.department ? { department: alert.department } : {}),
+                    ...(alert.location ? { location: alert.location } : {}),
+                    ...(alert.recommendedAction ? { recommendation: alert.recommendedAction } : {}),
+                    ...(alert.dueDate ? { due: new Date(alert.dueDate).toLocaleDateString() } : {}),
+                  },
+                }))}
+                emptyMessage="No organizational alerts."
+              />
             </div>
           </div>
         )}
