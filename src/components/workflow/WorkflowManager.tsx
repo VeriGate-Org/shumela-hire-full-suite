@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import StatusPill from '@/components/StatusPill';
 import {
   PlayIcon,
   PauseIcon,
@@ -118,23 +119,6 @@ export default function WorkflowManager({
         return <StopIcon className="h-4 w-4 text-muted-foreground" />;
       default:
         return <ClockIcon className="h-4 w-4 text-muted-foreground" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'running':
-        return 'bg-gold-100 text-primary';
-      case 'completed':
-        return 'bg-green-100 text-green-700';
-      case 'failed':
-        return 'bg-red-100 text-red-700';
-      case 'paused':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'cancelled':
-        return 'bg-muted text-foreground';
-      default:
-        return 'bg-muted text-foreground';
     }
   };
 
@@ -429,9 +413,7 @@ export default function WorkflowManager({
                         <div className="flex items-center gap-3 mb-2">
                           {getStatusIcon(execution.status)}
                           <h4 className="font-medium text-foreground">{execution.workflowName}</h4>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(execution.status)}`}>
-                            {execution.status}
-                          </span>
+                          <StatusPill value={execution.status} domain="goalStatus" size="sm" />
                         </div>
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-3">

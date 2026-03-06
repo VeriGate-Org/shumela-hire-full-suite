@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import { eSignatureService } from '@/services/eSignatureService';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface Offer {
   id: number;
@@ -421,7 +422,7 @@ export default function OfferManagement() {
               <option value="">All Statuses</option>
               {OFFER_STATUSES.map(status => (
                 <option key={status} value={status}>
-                  {status.replace('_', ' ')}
+                  {getEnumLabel('offerStatus', status)}
                 </option>
               ))}
             </select>
@@ -437,7 +438,7 @@ export default function OfferManagement() {
               <option value="">All Types</option>
               {OFFER_TYPES.map(type => (
                 <option key={type} value={type}>
-                  {type.replace('_', ' ')}
+                  {getEnumLabel('offerType', type)}
                 </option>
               ))}
             </select>
@@ -926,7 +927,7 @@ export default function OfferManagement() {
                     <span className="font-medium text-gray-700">Start Date:</span> {payrollOffer.startDate ? formatDate(payrollOffer.startDate) : 'TBD'}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Offer Type:</span> {payrollOffer.offerType?.replace(/_/g, ' ') || '—'}
+                    <span className="font-medium text-gray-700">Offer Type:</span> {payrollOffer.offerType ? getEnumLabel('offerType', payrollOffer.offerType) : '—'}
                   </p>
                 </div>
               </div>

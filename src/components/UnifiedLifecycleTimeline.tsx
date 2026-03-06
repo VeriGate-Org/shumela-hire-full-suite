@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface LifecycleEvent {
   eventId: string;
@@ -236,7 +237,7 @@ export default function UnifiedLifecycleTimeline({ applicationId, onClose }: Uni
                           </span>
                           {event.status && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-white/60 text-gray-600 font-medium">
-                              {event.status.replace(/_/g, ' ')}
+                              {getEnumLabel('applicationStatus', event.status)}
                             </span>
                           )}
                         </div>
@@ -264,9 +265,9 @@ export default function UnifiedLifecycleTimeline({ applicationId, onClose }: Uni
                       <div className="mt-3 pt-3 border-t border-gray-200/50">
                         {event.previousStatus && (
                           <div className="text-xs text-gray-500 mb-1">
-                            <span className="font-medium">From:</span> {event.previousStatus.replace(/_/g, ' ')}
+                            <span className="font-medium">From:</span> {getEnumLabel('applicationStatus', event.previousStatus)}
                             {' → '}
-                            <span className="font-medium">To:</span> {event.status?.replace(/_/g, ' ')}
+                            <span className="font-medium">To:</span> {event.status ? getEnumLabel('applicationStatus', event.status) : ''}
                           </div>
                         )}
                         {event.performedBy && (

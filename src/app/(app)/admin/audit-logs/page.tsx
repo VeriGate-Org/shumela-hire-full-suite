@@ -25,6 +25,7 @@ import { AuditLogEntry } from '@/types/workflow';
 import { auditLogService } from '@/services/auditLogService';
 import { auditSeverityConfig, getStatusConfig } from '@/utils/statusIcons';
 import { useToast } from '@/components/Toast';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface AuditLogFilter {
   dateRange: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
@@ -503,7 +504,7 @@ export default function AuditLogsPage() {
                   >
                     <option value="all">All Roles</option>
                     {uniqueRoles.map(role => (
-                      <option key={role} value={role}>{role.replace('_', ' ').toUpperCase()}</option>
+                      <option key={role} value={role}>{getEnumLabel('userRole', role)}</option>
                     ))}
                   </select>
                 </div>
@@ -616,7 +617,7 @@ export default function AuditLogsPage() {
                             <ActionIcon className="w-4 h-4" />
                           </div>
                           <span className="text-sm font-medium text-gray-900">
-                            {log.action.replace(/_/g, ' ')}
+                            {getEnumLabel('auditAction', log.action)}
                           </span>
                         </div>
                       </td>
@@ -631,7 +632,7 @@ export default function AuditLogsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                          {log.userRole.replace('_', ' ')}
+                          {getEnumLabel('userRole', log.userRole)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

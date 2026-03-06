@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 interface CheckType {
   code: string;
@@ -439,7 +440,7 @@ export default function BackgroundCheckPanel({
                           className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${resultColor}`}
                           title={result?.details || ct}
                         >
-                          {ct.replace(/_/g, ' ')}
+                          {formatEnumValue(ct)}
                           {result?.status === 'CLEAR' && ' \u2713'}
                           {result?.status === 'ADVERSE' && ' \u2717'}
                         </span>

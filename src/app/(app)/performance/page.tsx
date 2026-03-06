@@ -6,6 +6,7 @@ import ContractBuilder from '@/components/performance/ContractBuilder';
 import { PerformanceCycle } from '@/types/performance';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 export default function PerformanceDashboard() {
   const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null);
@@ -80,7 +81,7 @@ export default function PerformanceDashboard() {
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500">Status:</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {selectedCycle.status.replace('_', ' ')}
+                        {getEnumLabel('cycleStatus', selectedCycle.status)}
                       </span>
                     </div>
                     <div className="flex justify-between">

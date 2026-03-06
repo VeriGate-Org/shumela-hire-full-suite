@@ -3,6 +3,7 @@
 import React from 'react';
 import { RequisitionStatus } from '../types/workflow';
 import { WORKFLOW_STATES, getWorkflowProgress } from '../services/workflowDefinition';
+import StatusPill from '@/components/StatusPill';
 
 interface WorkflowStatusBadgeProps {
   status: RequisitionStatus;
@@ -20,32 +21,24 @@ const WorkflowStatusBadge: React.FC<WorkflowStatusBadgeProps> = ({
   const state = WORKFLOW_STATES[status];
   const progress = getWorkflowProgress(status);
 
-  const sizeClasses = {
-    sm: 'text-xs px-2 py-1',
-    md: 'text-sm px-3 py-1',
-    lg: 'text-base px-4 py-2'
-  };
-
-  const colorClasses: Record<string, string> = {
-    gray: 'bg-gray-100 text-gray-800 border-gray-200',
-    blue: 'bg-gold-100 text-gold-800 border-violet-200',
-    yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    orange: 'bg-orange-100 text-orange-800 border-orange-200',
-    purple: 'bg-purple-100 text-purple-800 border-purple-200',
-    green: 'bg-green-100 text-green-800 border-green-200',
-    red: 'bg-red-100 text-red-800 border-red-200'
+  const pillSizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
+    sm: 'sm',
+    md: 'md',
+    lg: 'lg'
   };
 
   return (
     <div className="flex flex-col items-center space-y-2">
-      <span 
-        className={`inline-flex items-center space-x-1 font-medium rounded-full border ${sizeClasses[size]} ${colorClasses[state.color]}`}
-        title={state.description}
-      >
-        {showIcon && <span>{state.icon}</span>}
-        <span>{state.name}</span>
+      <span title={state.description}>
+        <StatusPill
+          value={status}
+          label={showIcon ? `${state.icon} ${state.name}` : state.name}
+          color={state.color}
+          size={pillSizeMap[size]}
+          className="normal-case tracking-normal"
+        />
       </span>
-      
+
       {showProgress && (
         <div className="flex items-center space-x-2 w-full">
           <div className="flex-1 bg-gray-200 rounded-full h-2">

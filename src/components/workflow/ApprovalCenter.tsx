@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import StatusPill from '@/components/StatusPill';
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -122,21 +123,6 @@ export default function ApprovalCenter({
     });
 
     return filtered;
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return 'bg-red-100 text-red-700 border-red-200';
-      case 'high':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-700 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -301,9 +287,7 @@ export default function ApprovalCenter({
                     <div className="flex items-center gap-3 mb-2">
                       {getStatusIcon(request.status)}
                       <h4 className="font-medium text-gray-900">{request.title}</h4>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(request.priority)}`}>
-                        {request.priority}
-                      </span>
+                      <StatusPill value={request.priority} domain="priority" size="sm" />
                     </div>
                     
                     <p className="text-sm text-gray-600 mb-3">{request.description}</p>

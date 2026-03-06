@@ -16,6 +16,7 @@ import {
   Legend,
 } from 'recharts';
 import { DashboardWidget, PerformanceMetrics } from '../../dashboard';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 interface AdminDashboardProps {
   selectedTimeframe: string;
@@ -280,7 +281,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getEventColor(event.action)}`}></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-900 truncate">
-                          {event.action.replace(/_/g, ' ')} — {event.entityType}
+                          {formatEnumValue(event.action)} — {formatEnumValue(event.entityType)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{getRelativeTime(event.timestamp)}</p>
                       </div>

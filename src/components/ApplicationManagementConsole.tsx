@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import { apiFetch } from '@/lib/api-fetch';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 interface Application {
   id: number;
@@ -456,7 +457,7 @@ export default function ApplicationManagementConsole() {
                 className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
               >
                 {statusOptions.map(status => (
-                  <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                  <option key={status} value={status}>{formatEnumValue(status)}</option>
                 ))}
               </select>
             </div>
@@ -621,7 +622,7 @@ export default function ApplicationManagementConsole() {
                   >
                     <option value="">Select Status</option>
                     {statusOptions.map(status => (
-                      <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                      <option key={status} value={status}>{formatEnumValue(status)}</option>
                     ))}
                   </select>
                 )}
@@ -754,7 +755,7 @@ export default function ApplicationManagementConsole() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(application.status)}`}>
-                        {application.status.replace('_', ' ')}
+                        {formatEnumValue(application.status)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

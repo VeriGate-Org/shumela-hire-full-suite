@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import StatusPill from '@/components/StatusPill';
 import {
   ChartBarIcon,
   ArrowTrendingUpIcon,
@@ -119,26 +120,6 @@ export default function StrategicPlanningPage() {
     loadStrategicData();
   }, [loadStrategicData]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'on_track': return 'bg-green-100 text-green-800 border-green-300';
-      case 'at_risk': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'delayed': return 'bg-red-100 text-red-800 border-red-300';
-      case 'completed': return 'bg-gold-100 text-gold-800 border-violet-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'growth': return <ArrowTrendingUpIcon className="w-5 h-5" />;
@@ -147,15 +128,6 @@ export default function StrategicPlanningPage() {
       case 'culture': return <UserGroupIcon className="w-5 h-5" />;
       case 'financial': return <CurrencyDollarIcon className="w-5 h-5" />;
       default: return <DocumentTextIcon className="w-5 h-5" />;
-    }
-  };
-
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case 'positive': return 'text-green-600';
-      case 'negative': return 'text-red-600';
-      case 'neutral': return 'text-gray-600';
-      default: return 'text-gray-600';
     }
   };
 
@@ -317,12 +289,10 @@ export default function StrategicPlanningPage() {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
                         <h4 className="text-sm font-medium text-gray-900">{goal.title}</h4>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(goal.status)}`}>
-                          {goal.status.replace('_', ' ').toUpperCase()}
-                        </span>
+                        <StatusPill value={goal.status} domain="goalStatus" />
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-gold-500 h-2 rounded-full transition-all"
                           style={{ width: `${goal.progress}%` }}
                         ></div>
@@ -352,9 +322,7 @@ export default function StrategicPlanningPage() {
                         <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                           <span>{insight.source}</span>
                           <span>{new Date(insight.date).toLocaleDateString()}</span>
-                          <span className={`font-medium ${getImpactColor(insight.impact)}`}>
-                            {insight.impact.toUpperCase()}
-                          </span>
+                          <StatusPill value={insight.impact} domain="impact" />
                         </div>
                       </div>
                     </div>
@@ -378,12 +346,8 @@ export default function StrategicPlanningPage() {
                         <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
                       </div>
                       <div className="flex space-x-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(goal.status)}`}>
-                          {goal.status.replace('_', ' ').toUpperCase()}
-                        </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(goal.priority)}`}>
-                          {goal.priority.toUpperCase()}
-                        </span>
+                        <StatusPill value={goal.status} domain="goalStatus" />
+                        <StatusPill value={goal.priority} domain="priority" />
                       </div>
                     </div>
 
@@ -452,20 +416,8 @@ export default function StrategicPlanningPage() {
                       <p className="text-sm text-gray-600 mt-1">{insight.summary}</p>
                     </div>
                     <div className="flex flex-col items-end space-y-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        insight.impact === 'positive' ? 'bg-green-100 text-green-800' :
-                        insight.impact === 'negative' ? 'bg-red-100 text-red-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {insight.impact.toUpperCase()}
-                      </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        insight.urgency === 'immediate' ? 'bg-red-100 text-red-800' :
-                        insight.urgency === 'short_term' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-green-100 text-green-800'
-                      }`}>
-                        {insight.urgency.replace('_', ' ').toUpperCase()}
-                      </span>
+                      <StatusPill value={insight.impact} domain="impact" />
+                      <StatusPill value={insight.urgency} domain="urgency" />
                     </div>
                   </div>
 

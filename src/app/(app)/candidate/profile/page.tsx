@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import { getEnumLabel } from '@/utils/enumLabels';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApplicantId, getApplicant, getDocuments as fetchDocuments, getApplications as fetchApplications } from '@/services/candidateService';
 import {
@@ -670,7 +671,7 @@ export default function CandidateProfilePage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
-                            <p className="text-xs text-gray-500 capitalize">{doc.type.replace('_', ' ')}</p>
+                            <p className="text-xs text-gray-500">{getEnumLabel('documentType', doc.type)}</p>
                             <p className="text-xs text-gray-500 mt-1">
                               {formatFileSize(doc.size)} • {new Date(doc.uploadedAt).toLocaleDateString()}
                             </p>
@@ -725,7 +726,7 @@ export default function CandidateProfilePage() {
                           <div className="mt-4 flex items-center space-x-4">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
                               {getStatusIcon(app.status)}
-                              <span className="ml-1 capitalize">{app.status.replace('_', ' ')}</span>
+                              <span className="ml-1">{getEnumLabel('applicationStatus', app.status)}</span>
                             </span>
                             <span className="text-sm text-gray-600">Current Stage: {app.currentStage}</span>
                             {app.interviewDate && (

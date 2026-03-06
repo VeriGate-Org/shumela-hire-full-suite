@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import StatusPill from '@/components/StatusPill';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface InterviewerDashboardProps {
   selectedTimeframe: string;
@@ -156,9 +158,7 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">{new Date(interview.date).toLocaleDateString()} at {interview.time}</p>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
-                    {interview.type}
-                  </span>
+                  <StatusPill value={interview.type} domain="interviewType" size="sm" />
                 </div>
               </div>
             ))}
@@ -177,7 +177,7 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
               <div key={item.id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-sm border border-yellow-200">
                 <div>
                   <p className="font-medium text-gray-900">{item.candidate}</p>
-                  <p className="text-sm text-gray-500">{item.position} — {item.type} Interview</p>
+                  <p className="text-sm text-gray-500">{item.position} — {getEnumLabel('interviewType', item.type)}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Interviewed {new Date(item.interviewDate ?? '').toLocaleDateString()}</p>

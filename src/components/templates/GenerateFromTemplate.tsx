@@ -12,6 +12,7 @@ import {
   XMarkIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface GenerateFromTemplateProps {
   template?: JobAdTemplate;
@@ -114,7 +115,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
               {generatedDraft.title}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {generatedDraft.location} &middot; {generatedDraft.employmentType}
+              {generatedDraft.location} &middot; {getEnumLabel('employmentType', generatedDraft.employmentType)}
             </p>
             {(generatedDraft.salaryRangeMin || generatedDraft.salaryRangeMax) && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -285,7 +286,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                         Used {template.usageCount} times
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {template.employmentType}
+                        {getEnumLabel('employmentType', template.employmentType)}
                       </span>
                     </div>
                   </div>
@@ -322,7 +323,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                   >
                     <h3 className="text-sm font-semibold text-foreground">{requisition.jobTitle}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {requisition.department} &middot; {requisition.location} &middot; {requisition.employmentType}
+                      {requisition.department} &middot; {requisition.location} &middot; {getEnumLabel('employmentType', requisition.employmentType)}
                     </p>
                     {(requisition.salaryMin || requisition.salaryMax) && (
                       <p className="text-xs text-muted-foreground mt-1">
@@ -370,7 +371,7 @@ const GenerateFromTemplate: React.FC<GenerateFromTemplateProps> = ({
                     <span className="text-green-700">Location:</span> {selectedRequisition.location}
                   </div>
                   <div>
-                    <span className="text-green-700">Employment Type:</span> {selectedRequisition.employmentType}
+                    <span className="text-green-700">Employment Type:</span> {getEnumLabel('employmentType', selectedRequisition.employmentType)}
                   </div>
                 </div>
               </div>

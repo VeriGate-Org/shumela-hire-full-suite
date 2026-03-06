@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import { apiFetch } from '@/lib/api-fetch';
-import { 
+import StatusPill from '@/components/StatusPill';
+import { getEnumLabel } from '@/utils/enumLabels';
+import {
   BriefcaseIcon,
   MapPinIcon,
   CalendarIcon,
@@ -192,28 +194,6 @@ export default function BrowseJobsPage() {
     return `${diffDays} days ago`;
   };
 
-  const getJobTypeColor = (jobType: string) => {
-    switch (jobType) {
-      case 'full_time': return 'bg-gold-100 text-gold-800';
-      case 'part_time': return 'bg-green-100 text-green-800';
-      case 'contract': return 'bg-purple-100 text-purple-800';
-      case 'internship': return 'bg-orange-100 text-orange-800';
-      case 'remote': return 'bg-teal-100 text-teal-800';
-      case 'hybrid': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getExperienceLevelColor = (level: string) => {
-    switch (level) {
-      case 'entry': return 'bg-green-100 text-green-800';
-      case 'mid': return 'bg-gold-100 text-gold-800';
-      case 'senior': return 'bg-purple-100 text-purple-800';
-      case 'executive': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const actions = (
     <div className="flex items-center gap-3">
       <div className="relative">
@@ -376,12 +356,8 @@ export default function BrowseJobsPage() {
                         </div>
                         
                         <div className="flex flex-wrap gap-2 mt-3">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getJobTypeColor(job.jobType)}`}>
-                            {job.jobType.replace('_', ' ').toUpperCase()}
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExperienceLevelColor(job.experienceLevel)}`}>
-                            {job.experienceLevel.toUpperCase()}
-                          </span>
+                          <StatusPill value={job.jobType} domain="employmentType" size="sm" />
+                          <StatusPill value={job.experienceLevel} domain="experienceLevel" size="sm" />
                           {job.isNew && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               NEW
@@ -582,7 +558,7 @@ export default function BrowseJobsPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Job Type:</span>
-                          <span className="capitalize">{selectedJob.jobType.replace('_', ' ')}</span>
+                          <span>{getEnumLabel('employmentType', selectedJob.jobType)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Experience Level:</span>

@@ -7,7 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { apiFetch } from '@/lib/api-fetch';
 import { getApplicantId, getApplications as fetchApplications } from '@/services/candidateService';
-import { 
+import StatusPill from '@/components/StatusPill';
+import { getEnumLabel } from '@/utils/enumLabels';
+import {
   BriefcaseIcon,
   MapPinIcon,
   CalendarIcon,
@@ -222,25 +224,6 @@ export default function MyApplicationsPage() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getJobTypeColor = (jobType: string) => {
-    switch (jobType) {
-      case 'full_time': return 'bg-gold-100 text-gold-800';
-      case 'part_time': return 'bg-green-100 text-green-800';
-      case 'contract': return 'bg-purple-100 text-purple-800';
-      case 'internship': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getDaysAgo = (date: string) => {
     const today = new Date();
     const applicationDate = new Date(date);
@@ -379,14 +362,10 @@ export default function MyApplicationsPage() {
                           <h3 className="text-xl font-semibold text-gray-900">{application.jobTitle}</h3>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(application.status)}`}>
                             {getStatusIcon(application.status)}
-                            <span className="ml-1 capitalize">{application.status.replace('_', ' ')}</span>
+                            <span className="ml-1">{getEnumLabel('applicationStatus', application.status)}</span>
                           </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getJobTypeColor(application.jobType)}`}>
-                            {application.jobType.replace('_', ' ').toUpperCase()}
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(application.priority)}`}>
-                            {application.priority.toUpperCase()}
-                          </span>
+                          <StatusPill value={application.jobType} domain="employmentType" size="sm" />
+                          <StatusPill value={application.priority} domain="priority" size="sm" />
                         </div>
                         
                         <p className="text-lg text-gold-600 font-medium">{application.company}</p>
@@ -439,7 +418,7 @@ export default function MyApplicationsPage() {
                           <CalendarIcon className="w-5 h-5 text-gold-600 mr-2" />
                           <div>
                             <p className="text-sm font-medium text-violet-800">
-                              {application.interviewScheduled.type.toUpperCase()} Interview Scheduled
+                              {getEnumLabel('interviewType', application.interviewScheduled.type)} Scheduled
                             </p>
                             <p className="text-sm text-gold-600">
                               {new Date(application.interviewScheduled.date).toLocaleDateString()} at {application.interviewScheduled.time}
@@ -609,7 +588,7 @@ export default function MyApplicationsPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Job Type:</span>
-                          <span className="capitalize">{selectedApplication.jobType.replace('_', ' ')}</span>
+                          <span>{getEnumLabel('employmentType', selectedApplication.jobType)}</span>
                         </div>
                         {selectedApplication.salaryRange && (
                           <div className="flex justify-between">

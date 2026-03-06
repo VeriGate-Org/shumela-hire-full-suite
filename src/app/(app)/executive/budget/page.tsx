@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import StatusPill from '@/components/StatusPill';
 import { formatCurrency } from '@/utils/currency';
 import {
   CurrencyDollarIcon,
@@ -176,27 +177,6 @@ export default function BudgetApprovalsPage() {
       setSelectedRequest(prev =>
         prev ? { ...prev, comments: [...prev.comments, newComment] } : null
       );
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'on_track': case 'approved': return 'bg-green-100 text-green-800 border-green-300';
-      case 'over_budget': case 'rejected': return 'bg-red-100 text-red-800 border-red-300';
-      case 'under_utilized': return 'bg-gold-100 text-gold-800 border-primary/40';
-      case 'needs_attention': case 'needs_info': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'pending': return 'bg-orange-100 text-orange-800 border-orange-300';
-      default: return 'bg-muted text-foreground border-border';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -394,9 +374,7 @@ export default function BudgetApprovalsPage() {
                           </div>
                         </div>
                         
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
-                          {item.status.replace('_', ' ').toUpperCase()}
-                        </span>
+                        <StatusPill value={item.status} domain="budgetStatus" />
                       </div>
                     </div>
                   ))}
@@ -419,9 +397,7 @@ export default function BudgetApprovalsPage() {
                         <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
                           <span>{request.requestedBy.name}</span>
                           <span>{formatCurrency(request.amount)}</span>
-                          <span className={`px-2 py-1 rounded-full ${getUrgencyColor(request.urgency)}`}>
-                            {request.urgency.toUpperCase()}
-                          </span>
+                          <StatusPill value={request.urgency} domain="urgency" size="sm" />
                         </div>
                       </div>
                       <button
@@ -454,9 +430,7 @@ export default function BudgetApprovalsPage() {
                           <p className="text-sm text-muted-foreground">{item.description}</p>
                         </div>
                       </div>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
-                        {item.status.replace('_', ' ').toUpperCase()}
-                      </span>
+                      <StatusPill value={item.status} domain="budgetStatus" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
@@ -537,12 +511,8 @@ export default function BudgetApprovalsPage() {
                     </div>
                     
                     <div className="flex flex-col items-end space-y-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(request.status)}`}>
-                        {request.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getUrgencyColor(request.urgency)}`}>
-                        {request.urgency.toUpperCase()}
-                      </span>
+                      <StatusPill value={request.status} domain="budgetStatus" />
+                      <StatusPill value={request.urgency} domain="urgency" />
                       {request.deadline && (
                         <span className="text-xs text-red-600">
                           Deadline: {new Date(request.deadline).toLocaleDateString()}
@@ -667,12 +637,8 @@ export default function BudgetApprovalsPage() {
                     <h2 className="text-2xl font-bold text-foreground">{selectedRequest.title}</h2>
                     <p className="text-muted-foreground mt-1">{selectedRequest.description}</p>
                     <div className="flex items-center space-x-4 mt-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedRequest.status)}`}>
-                        {selectedRequest.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getUrgencyColor(selectedRequest.urgency)}`}>
-                        {selectedRequest.urgency.toUpperCase()}
-                      </span>
+                      <StatusPill value={selectedRequest.status} domain="budgetStatus" />
+                      <StatusPill value={selectedRequest.urgency} domain="urgency" />
                       <span className="text-sm text-muted-foreground">
                         Amount: <span className="font-semibold text-green-600">{formatCurrency(selectedRequest.amount)}</span>
                       </span>

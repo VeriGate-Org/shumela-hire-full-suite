@@ -6,6 +6,7 @@ import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiDuplicateDetectionPanel from '@/components/ai/AiDuplicateDetectionPanel';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface Education {
   institution: string;
@@ -628,7 +629,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         doc.type === 'CV' ? 'bg-gold-100 text-gold-800' : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {doc.type}
+                        {getEnumLabel('documentType', doc.type)}
                       </span>
                       <span className="font-medium">{doc.filename}</span>
                       <span className="text-sm text-gray-500">{doc.fileSizeFormatted}</span>

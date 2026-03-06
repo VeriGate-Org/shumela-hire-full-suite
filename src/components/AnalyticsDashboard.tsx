@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 interface KPI {
   value: number;
@@ -193,7 +194,7 @@ export default function AnalyticsDashboard() {
     <div key={name} className="bg-white rounded-sm shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-gray-700 capitalize">
-          {name.replace(/_/g, ' ')}
+          {formatEnumValue(name)}
         </h3>
         <span className={`text-lg ${getTrendColor(kpi.trend)}`}>
           {getTrendIcon(kpi.trend)}
@@ -211,7 +212,7 @@ export default function AnalyticsDashboard() {
         </div>
         
         <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(kpi.status)}`}>
-          {kpi.status.replace('_', ' ')}
+          {formatEnumValue(kpi.status)}
         </span>
       </div>
     </div>
@@ -304,7 +305,7 @@ export default function AnalyticsDashboard() {
             {dashboardData.alerts.slice(0, 3).map((alert, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
                 <span className="text-yellow-700">
-                  {alert.metric.replace(/_/g, ' ')} in {alert.department}
+                  {formatEnumValue(alert.metric)} in {alert.department}
                 </span>
                 <span className="font-medium text-yellow-800">
                   {formatNumber(alert.value)} (Target: {formatNumber(alert.target)})
@@ -353,7 +354,7 @@ export default function AnalyticsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trends Chart */}
               {detailedData?.trends && Object.entries(detailedData.trends).map(([metric, data]) => 
-                renderSimpleChart(data as TrendData[], metric.replace(/_/g, ' '))
+                renderSimpleChart(data as TrendData[], formatEnumValue(metric))
               )}
               
               {/* Statistics */}

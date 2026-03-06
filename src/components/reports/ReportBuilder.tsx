@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
+import { formatEnumValue } from '@/utils/enumLabels';
 import {
   ChartBarIcon,
   TableCellsIcon,
@@ -327,7 +328,7 @@ export default function ReportBuilder({
             {Object.entries(fieldsByCategory).map(([category, fields]) => (
               <div key={category} className="space-y-3">
                 <h4 className="text-sm font-medium text-gray-700 capitalize">
-                  {category.replace('_', ' ')} Fields
+                  {formatEnumValue(category)} Fields
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {fields.map((field) => (

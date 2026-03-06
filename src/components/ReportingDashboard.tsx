@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
+import StatusPill from '@/components/StatusPill';
+import { formatEnumValue } from '@/utils/enumLabels';
 import AdvancedReportBuilder from './AdvancedReportBuilder';
 
 interface ReportType {
@@ -314,7 +316,7 @@ const ReportingDashboard: React.FC = () => {
                       }}
                       className="mr-2"
                     />
-                    <span className="text-sm text-gray-700 capitalize">{field.replace('_', ' ')}</span>
+                    <span className="text-sm text-gray-700 capitalize">{formatEnumValue(field)}</span>
                   </label>
                 ))}
               </div>
@@ -357,7 +359,7 @@ const ReportingDashboard: React.FC = () => {
                       <tr>
                         {Object.keys(previewData.sampleData[0]).map((key) => (
                           <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 capitalize">
-                            {key.replace('_', ' ')}
+                            {formatEnumValue(key)}
                           </th>
                         ))}
                       </tr>
@@ -492,13 +494,7 @@ const ReportingDashboard: React.FC = () => {
                   <td className="px-4 py-2 text-sm text-gray-600 capitalize">{report.frequency}</td>
                   <td className="px-4 py-2 text-sm text-gray-600">{new Date(report.nextRun).toLocaleString()}</td>
                   <td className="px-4 py-2">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      report.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {report.status}
-                    </span>
+                    <StatusPill value={report.status} domain="postingStatus" size="sm" />
                   </td>
                   <td className="px-4 py-2 text-sm">
                     <button className="text-gold-600 hover:text-gold-800 mr-2 rounded-full">Edit</button>

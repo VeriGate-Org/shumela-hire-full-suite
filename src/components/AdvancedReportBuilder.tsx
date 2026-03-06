@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 interface AdvancedReportConfig {
   reportType: string;
@@ -229,7 +230,7 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
                   className="rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
                 />
                 <span className="text-sm text-gray-700 capitalize">
-                  {field.replace(/_/g, ' ')}
+                  {formatEnumValue(field)}
                 </span>
               </label>
             ))}
@@ -246,7 +247,7 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
                 key={field}
                 className="inline-flex items-center px-2 py-1 bg-gold-100 text-gold-800 text-xs rounded-full"
               >
-                {field.replace(/_/g, ' ')}
+                {formatEnumValue(field)}
                 <button
                   onClick={() => toggleField(field)}
                   className="ml-1 text-gold-600 hover:text-gold-800"
@@ -277,7 +278,7 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
                     className="rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
                   />
                   <span className="text-sm text-gray-700 capitalize">
-                    {status.replace(/_/g, ' ').toLowerCase()}
+                    {formatEnumValue(status)}
                   </span>
                 </label>
               ))}

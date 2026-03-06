@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
+import { formatEnumValue } from '@/utils/enumLabels';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface Application {
@@ -235,7 +236,7 @@ export default function ApplicationTimeline({ application, onClose, onStageTrans
                                   }
                                 </h4>
                                 <p className={`text-sm font-medium ${style.color}`}>
-                                  {transition.transitionType.replace('_', ' ')}
+                                  {formatEnumValue(transition.transitionType)}
                                 </p>
                               </div>
                               <div className="text-right text-sm text-gray-500">

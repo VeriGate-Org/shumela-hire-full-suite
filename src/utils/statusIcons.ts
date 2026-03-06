@@ -21,6 +21,7 @@ import {
   HandThumbDownIcon,
 } from '@heroicons/react/24/outline';
 import { ComponentType, SVGProps } from 'react';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -104,6 +105,6 @@ export function getStatusConfig(
   return configMap[status] || {
     color: 'bg-gray-100 text-gray-800 border-gray-300',
     icon: InformationCircleIcon,
-    label: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    label: formatEnumValue(status),
   };
 }

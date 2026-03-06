@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { getApplicantId, getOffersForApplicant } from '@/services/candidateService';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEnumLabel } from '@/utils/enumLabels';
 import {
   CurrencyDollarIcon,
   CalendarIcon,
@@ -480,7 +481,7 @@ export default function MyOffersPage() {
                             <h3 className="text-xl font-semibold text-gray-900">{offer.jobTitle}</h3>
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(offer.status)}`}>
                               {getStatusIcon(offer.status)}
-                              <span className="ml-1 capitalize">{offer.status.replace('_', ' ')}</span>
+                              <span className="ml-1">{getEnumLabel('offerStatus', offer.status)}</span>
                             </span>
                             {isExpiringSoon && (
                               <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
@@ -558,7 +559,7 @@ export default function MyOffersPage() {
                           <div className="space-y-2">
                             {offer.negotiations.filter(n => n.status === 'pending').map((negotiation) => (
                               <div key={negotiation.id} className="text-xs text-yellow-700">
-                                <strong>{negotiation.type.replace('_', ' ').toUpperCase()}:</strong> {negotiation.details}
+                                <strong>{getEnumLabel('category', negotiation.type)}:</strong> {negotiation.details}
                               </div>
                             ))}
                           </div>
@@ -698,7 +699,7 @@ export default function MyOffersPage() {
                       <div className="bg-gray-50 rounded-sm p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="font-medium">Schedule:</span>
-                          <span className="capitalize">{selectedOffer.workSchedule.type.replace(/_/g, ' ')}</span>
+                          <span>{getEnumLabel('workSchedule', selectedOffer.workSchedule.type)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Hours/Week:</span>
@@ -706,7 +707,7 @@ export default function MyOffersPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Remote Work:</span>
-                          <span className="capitalize">{selectedOffer.workSchedule.remote.replace(/_/g, ' ')}</span>
+                          <span>{getEnumLabel('remotePolicy', selectedOffer.workSchedule.remote)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Start Date:</span>

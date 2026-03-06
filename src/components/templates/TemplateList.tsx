@@ -14,6 +14,7 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+import StatusPill from '@/components/StatusPill';
 
 interface TemplateListProps {
   onEdit?: (template: JobAdTemplate) => void;
@@ -146,16 +147,6 @@ const TemplateList: React.FC<TemplateListProps> = ({
     });
   };
 
-  const getTemplateTypeColor = (employmentType: string) => {
-    const colors: Record<string, string> = {
-      'Full-time': 'bg-green-100 text-green-800',
-      'Part-time': 'bg-gold-100 text-gold-800',
-      'Contract': 'bg-purple-100 text-purple-800',
-      'Internship': 'bg-orange-100 text-orange-800',
-      'Remote': 'bg-muted text-muted-foreground'
-    };
-    return colors[employmentType] || 'bg-muted text-muted-foreground';
-  };
 
   if (loading) {
     return (
@@ -359,9 +350,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
 
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Employment Type</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${getTemplateTypeColor(template.employmentType)}`}>
-                      {template.employmentType}
-                    </span>
+                    <StatusPill value={template.employmentType} domain="employmentType" size="sm" />
                   </div>
 
                   <div className="flex items-center justify-between text-xs">

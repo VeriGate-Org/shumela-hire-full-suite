@@ -37,6 +37,8 @@ import {
 } from '@heroicons/react/24/solid';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiReportNarrative from '@/components/ai/AiReportNarrative';
+import StatusPill from '@/components/StatusPill';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface ExecutiveMetrics {
   totalHires: number;
@@ -261,15 +263,6 @@ export default function ExecutiveReportsPage() {
       case 'warning': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'info': return 'bg-gold-50 border-primary/30 text-primary';
       default: return 'bg-muted border-border text-foreground';
-    }
-  };
-
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -546,19 +539,13 @@ export default function ExecutiveReportsPage() {
                           <div className="flex items-center space-x-4 mt-3 text-sm text-muted-foreground">
                             <span>Category: <span className="font-medium text-foreground">{report.category}</span></span>
                             <span>Frequency: <span className="font-medium text-foreground">{report.frequency}</span></span>
-                            <span>Format: <span className="font-medium text-foreground">{report.format.toUpperCase()}</span></span>
+                            <span>Format: <span className="font-medium text-foreground">{getEnumLabel('format', report.format)}</span></span>
                           </div>
                         </div>
                       </div>
                       
                       <div className="flex flex-col items-end space-y-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          report.status === 'active' ? 'bg-green-100 text-green-800' :
-                          report.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-muted text-foreground'
-                        }`}>
-                          {report.status.toUpperCase()}
-                        </span>
+                        <StatusPill value={report.status} domain="postingStatus" />
                         {report.automated && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
                             AUTOMATED
@@ -658,9 +645,7 @@ export default function ExecutiveReportsPage() {
                       <h3 className="text-xl font-semibold text-foreground">{insight.title}</h3>
                       <p className="text-muted-foreground mt-2">{insight.description}</p>
                       <div className="flex items-center space-x-4 mt-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getImpactColor(insight.impact)}`}>
-                          {insight.impact.toUpperCase()} IMPACT
-                        </span>
+                        <StatusPill value={insight.impact} domain="impact" label={`${getEnumLabel('impact', insight.impact)} Impact`} />
                         <span className="text-sm text-muted-foreground">Confidence: {insight.confidence}%</span>
                         <span className="text-sm text-muted-foreground">Timeline: {insight.timeframe}</span>
                       </div>
@@ -749,14 +734,12 @@ export default function ExecutiveReportsPage() {
                     <h2 className="text-2xl font-bold text-foreground">{selectedReport.name}</h2>
                     <p className="text-muted-foreground mt-2">{selectedReport.description}</p>
                     <div className="flex items-center space-x-4 mt-3">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gold-100 text-gold-800">
-                        {selectedReport.category.toUpperCase()}
+                      <StatusPill value={selectedReport.category} domain="category" />
+                      <span className="text-sm text-muted-foreground">
+                        {getEnumLabel('frequency', selectedReport.frequency)} Report
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {selectedReport.frequency.charAt(0).toUpperCase() + selectedReport.frequency.slice(1)} Report
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        Format: {selectedReport.format.toUpperCase()}
+                        Format: {getEnumLabel('format', selectedReport.format)}
                       </span>
                     </div>
                   </div>

@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ReportConfig } from './ReportBuilder';
 import EmptyState from '@/components/EmptyState';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 export interface ReportResult {
   id: string;
@@ -162,7 +163,7 @@ export default function ReportViewer({
                       key={column}
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      {column.replace(/_/g, ' ')}
+                      {formatEnumValue(column)}
                     </th>
                   ))}
                 </tr>

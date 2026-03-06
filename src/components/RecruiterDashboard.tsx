@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
+import StatusPill from '@/components/StatusPill';
 
 const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
 
@@ -35,16 +36,6 @@ export function RecruiterDashboardFilters() {
   );
 }
 
-const getStatusBadgeColor = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'hired': return 'bg-green-100 text-green-800';
-    case 'interview_scheduled': return 'bg-gold-100 text-gold-800';
-    case 'screening': return 'bg-yellow-100 text-yellow-800';
-    case 'rejected': return 'bg-red-100 text-red-800';
-    case 'withdrawn': return 'bg-gray-100 text-gray-800';
-    default: return 'bg-gray-100 text-gray-800';
-  }
-};
 
 const RecruiterDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<any>({
@@ -275,9 +266,7 @@ const RecruiterDashboard: React.FC = () => {
                   <p className="text-sm text-gray-600">{activity.jobTitle}</p>
                 </div>
                 <div className="text-right">
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(activity.status)}`}>
-                    {activity.status.replace('_', ' ')}
-                  </span>
+                  <StatusPill value={activity.status} domain="applicationStatus" size="sm" />
                   <p className="text-xs text-gray-500 mt-1">
                     {new Date(activity.timestamp).toLocaleDateString()}
                   </p>

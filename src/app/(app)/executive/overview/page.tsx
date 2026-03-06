@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
+import StatusPill from '@/components/StatusPill';
 import { apiFetch } from '@/lib/api-fetch';
 import {
   BuildingOfficeIcon,
@@ -255,14 +256,6 @@ export default function OrganizationalOverviewPage() {
     }
   };
 
-  const getMilestoneStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-300';
-      case 'in_progress': return 'bg-gold-100 text-gold-800 border-violet-300';
-      case 'planned': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
 
   const getLocationIcon = (type: string) => {
     switch (type) {
@@ -454,9 +447,7 @@ export default function OrganizationalOverviewPage() {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h4 className="text-lg font-semibold text-gray-900">{milestone.title}</h4>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getMilestoneStatusColor(milestone.status)}`}>
-                              {milestone.status.replace('_', ' ').toUpperCase()}
-                            </span>
+                            <StatusPill value={milestone.status} domain="goalStatus" />
                           </div>
                           <p className="text-sm text-gray-600 mb-3">{milestone.description}</p>
                           <div className="flex items-center space-x-6 text-sm text-gray-500">
@@ -731,9 +722,7 @@ export default function OrganizationalOverviewPage() {
                       <div className="ml-3 flex-1">
                         <div className="flex items-center space-x-2 mb-1">
                           <h4 className="text-sm font-medium">{alert.title}</h4>
-                          <span className="text-xs px-2 py-1 rounded-full bg-white bg-opacity-50">
-                            {alert.category.replace('_', ' ').toUpperCase()}
-                          </span>
+                          <StatusPill value={alert.category} domain="category" />
                         </div>
                         <p className="text-sm">{alert.description}</p>
                         <p className="text-sm mt-1 text-gray-600">Impact: {alert.impact}</p>

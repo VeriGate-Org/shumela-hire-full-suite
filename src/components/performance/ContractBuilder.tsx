@@ -7,8 +7,8 @@ import {
   CreateContractRequest,
   CreateGoalRequest,
   GoalType,
-  getGoalTypeColor
 } from '@/types/performance';
+import StatusPill from '@/components/StatusPill';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface ContractBuilderProps {
@@ -262,9 +262,7 @@ export default function ContractBuilder({
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
                         <h5 className="font-medium text-gray-900">{goal.title}</h5>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getGoalTypeColor(goal.type)}`}>
-                          {goal.type}
-                        </span>
+                        <StatusPill value={goal.type} domain="goalType" size="sm" />
                         <span className="text-sm text-gray-500">{goal.weighting}%</span>
                       </div>
                       {goal.description && (

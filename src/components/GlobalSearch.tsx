@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { getEnumLabel } from '@/utils/enumLabels';
 import EmptyState from '@/components/EmptyState';
 
 interface SearchResult {
@@ -293,7 +294,7 @@ const GlobalSearch: React.FC = () => {
                           </p>
                           {result.metadata?.status && (
                             <p className="text-xs text-gray-500 mt-1">
-                              Status: {result.metadata.status}
+                              Status: {getEnumLabel('applicationStatus', result.metadata.status)}
                             </p>
                           )}
                         </div>

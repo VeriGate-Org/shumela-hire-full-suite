@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { PerformanceCycle, CycleStatus, CreateCycleRequest, getCycleStatusColor, formatDate } from '@/types/performance';
+import { PerformanceCycle, CycleStatus, CreateCycleRequest, formatDate } from '@/types/performance';
+import StatusPill from '@/components/StatusPill';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface CycleManagementProps {
@@ -260,9 +261,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
                       <h4 className="text-lg font-medium text-gray-900">{cycle.name}</h4>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCycleStatusColor(cycle.status)}`}>
-                        {cycle.status.replace('_', ' ')}
-                      </span>
+                      <StatusPill value={cycle.status} domain="cycleStatus" size="sm" />
                     </div>
                     {cycle.description && (
                       <p className="text-sm text-gray-600 mt-1">{cycle.description}</p>

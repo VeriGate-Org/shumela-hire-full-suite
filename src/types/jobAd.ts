@@ -164,36 +164,6 @@ export const getChannelDisplayName = (channel: PublishingChannel): string => {
   }
 };
 
-export const getStatusDisplayName = (status: JobAdStatus): string => {
-  switch (status) {
-    case JobAdStatus.DRAFT:
-      return 'Draft';
-    case JobAdStatus.PUBLISHED:
-      return 'Published';
-    case JobAdStatus.EXPIRED:
-      return 'Expired';
-    case JobAdStatus.UNPUBLISHED:
-      return 'Unpublished';
-    default:
-      return status;
-  }
-};
-
-export const getStatusColor = (status: JobAdStatus): string => {
-  switch (status) {
-    case JobAdStatus.DRAFT:
-      return 'bg-gray-100 text-gray-800';
-    case JobAdStatus.PUBLISHED:
-      return 'bg-green-100 text-green-800';
-    case JobAdStatus.EXPIRED:
-      return 'bg-red-100 text-red-800';
-    case JobAdStatus.UNPUBLISHED:
-      return 'bg-yellow-100 text-yellow-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
 // Default publishing settings
 export const DEFAULT_PUBLISHING_SETTINGS = {
   defaultExpiryDays: 30,

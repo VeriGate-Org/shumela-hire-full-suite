@@ -223,56 +223,6 @@ export interface CreateTemplateRequest {
   kpiTemplate?: string;
 }
 
-// Utility functions
-export const getCycleStatusColor = (status: CycleStatus): string => {
-  switch (status) {
-    case CycleStatus.PLANNING:
-      return 'bg-gray-100 text-gray-800';
-    case CycleStatus.ACTIVE:
-      return 'bg-green-100 text-green-800';
-    case CycleStatus.MID_YEAR:
-      return 'bg-blue-100 text-blue-800';
-    case CycleStatus.FINAL_REVIEW:
-      return 'bg-purple-100 text-purple-800';
-    case CycleStatus.CLOSED:
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
-export const getContractStatusColor = (status: ContractStatus): string => {
-  switch (status) {
-    case ContractStatus.DRAFT:
-      return 'bg-gray-100 text-gray-800';
-    case ContractStatus.SUBMITTED:
-      return 'bg-yellow-100 text-yellow-800';
-    case ContractStatus.APPROVED:
-      return 'bg-green-100 text-green-800';
-    case ContractStatus.REJECTED:
-      return 'bg-red-100 text-red-800';
-    case ContractStatus.ACTIVE:
-      return 'bg-blue-100 text-blue-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
-export const getGoalTypeColor = (type: GoalType): string => {
-  switch (type) {
-    case GoalType.STRATEGIC:
-      return 'bg-purple-100 text-purple-800';
-    case GoalType.OPERATIONAL:
-      return 'bg-blue-100 text-blue-800';
-    case GoalType.DEVELOPMENT:
-      return 'bg-green-100 text-green-800';
-    case GoalType.BEHAVIORAL:
-      return 'bg-orange-100 text-orange-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
 export const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString();
 };

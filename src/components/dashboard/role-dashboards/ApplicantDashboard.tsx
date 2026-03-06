@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardWidget } from '../../dashboard';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface ApplicantDashboardProps {
   selectedTimeframe: string;
@@ -346,7 +347,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
                         <p className="text-sm font-medium text-gray-900 truncate">{interview.company}</p>
                         <p className="text-xs text-gray-500 truncate">{interview.position}</p>
                         <p className="text-xs text-gray-600 mt-1">{interview.date} at {interview.time}</p>
-                        <p className="text-xs text-gray-500">{interview.type}</p>
+                        <p className="text-xs text-gray-500">{getEnumLabel('interviewType', interview.type)}</p>
                       </div>
                     </div>
                   ))

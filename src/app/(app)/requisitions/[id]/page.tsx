@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { approvalTimelineService } from '@/services/approvalTimelineService';
 import { formatSalaryRange } from '@/utils/currency';
+import { getEnumLabel } from '@/utils/enumLabels';
 import { RequisitionData, ApprovalRole, WorkflowAction } from '@/types/workflow';
 import { apiFetch } from '@/lib/api-fetch';
 import {
@@ -241,7 +242,7 @@ export default function RequisitionDetailPage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Employment Type</p>
-                <p className="text-sm text-gray-900 mt-0.5">{requisition.employmentType?.replace(/_/g, ' ') || 'N/A'}</p>
+                <p className="text-sm text-gray-900 mt-0.5">{requisition.employmentType ? getEnumLabel('employmentType', requisition.employmentType) : 'N/A'}</p>
               </div>
             </div>
 

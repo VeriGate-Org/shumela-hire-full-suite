@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
 import { jobBoardService } from '@/services/jobBoardService';
+import StatusPill from '@/components/StatusPill';
 import {
   JobBoardPosting,
   JobBoardType,
   AvailableBoard,
   getBoardDisplayName,
-  getPostingStatusColor,
 } from '@/types/jobBoard';
 
 interface JobBoardManagerProps {
@@ -135,9 +135,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
                 <span className="font-medium text-sm text-gray-900">
                   {getBoardDisplayName(posting.boardType)}
                 </span>
-                <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${getPostingStatusColor(posting.status)}`}>
-                  {posting.status}
-                </span>
+                <StatusPill value={posting.status} domain="postingStatus" size="sm" />
               </div>
 
               <div className="flex items-center gap-4">

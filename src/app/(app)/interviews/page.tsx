@@ -20,6 +20,7 @@ import InterviewCalendar, { type Interview as CalendarInterview } from '@/compon
 import InterviewFeedbackForm from '@/components/InterviewFeedbackForm';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiInterviewQuestionGenerator from '@/components/ai/AiInterviewQuestionGenerator';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface InterviewFeedbackEntry {
   id: number;
@@ -405,7 +406,7 @@ export default function InterviewsPage() {
                   >
                     <option value="ALL">All Statuses</option>
                     {statusOptions.map((status) => (
-                      <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                      <option key={status} value={status}>{getEnumLabel('interviewStatus', status)}</option>
                     ))}
                   </select>
                 </div>
@@ -418,7 +419,7 @@ export default function InterviewsPage() {
                   >
                     <option value="ALL">All Types</option>
                     {typeOptions.map((type) => (
-                      <option key={type} value={type}>{type.replace('_', ' ')}</option>
+                      <option key={type} value={type}>{getEnumLabel('interviewType', type)}</option>
                     ))}
                   </select>
                 </div>

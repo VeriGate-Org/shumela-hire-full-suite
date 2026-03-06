@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
+import StatusPill from '@/components/StatusPill';
+import { getEnumLabel } from '@/utils/enumLabels';
 import {
   UserGroupIcon,
   EnvelopeIcon,
@@ -167,24 +169,6 @@ export default function LeadershipTeamPage() {
     }
   };
 
-  const getReadinessColor = (readiness: string) => {
-    switch (readiness) {
-      case 'ready': return 'bg-green-100 text-green-800 border-green-300';
-      case 'developing': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'not_ready': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'on_track': return 'bg-green-100 text-green-800 border-green-300';
-      case 'at_risk': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'completed': return 'bg-gold-100 text-gold-800 border-violet-300';
-      case 'delayed': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
 
   const filteredLeaders = leaders.filter(leader => {
     const matchesSearch = searchTerm === '' || 
@@ -444,9 +428,7 @@ export default function LeadershipTeamPage() {
                         {leader.currentFocus.slice(0, 2).map((focus, index) => (
                           <div key={index} className="flex items-center justify-between text-xs">
                             <span className="text-gray-700">{focus.initiative}</span>
-                            <span className={`px-2 py-1 rounded-full border ${getStatusColor(focus.status)}`}>
-                              {focus.status.replace('_', ' ').toUpperCase()}
-                            </span>
+                            <StatusPill value={focus.status} domain="goalStatus" />
                           </div>
                         ))}
                         {leader.currentFocus.length > 2 && (
@@ -578,15 +560,13 @@ export default function LeadershipTeamPage() {
                             <p className="text-sm text-gray-600">{leader.title}</p>
                           </div>
                         </div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getReadinessColor(leader.successionPlan.readiness)}`}>
-                          {leader.successionPlan.readiness.replace('_', ' ').toUpperCase()}
-                        </span>
+                        <StatusPill value={leader.successionPlan.readiness} domain="readiness" />
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-sm text-gray-500 mb-2">Succession Readiness</p>
-                          <p className="text-sm text-gray-900">{leader.successionPlan.readiness.replace('_', ' ')}</p>
+                          <p className="text-sm text-gray-900">{getEnumLabel('readiness', leader.successionPlan.readiness)}</p>
                           <p className="text-xs text-gray-500">Time to replace: {leader.successionPlan.timeToReplace} months</p>
                         </div>
                         
@@ -677,16 +657,8 @@ export default function LeadershipTeamPage() {
                               <p className="text-sm text-gray-600">Timeline: {focus.timeline}</p>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                focus.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                focus.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-green-100 text-green-800'
-                              }`}>
-                                {focus.priority.toUpperCase()}
-                              </span>
-                              <span className={`px-2 py-1 text-xs rounded-full border ${getStatusColor(focus.status)}`}>
-                                {focus.status.replace('_', ' ').toUpperCase()}
-                              </span>
+                              <StatusPill value={focus.priority} domain="priority" />
+                              <StatusPill value={focus.status} domain="goalStatus" />
                             </div>
                           </div>
                         ))}
