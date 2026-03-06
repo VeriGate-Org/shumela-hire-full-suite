@@ -115,8 +115,8 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"), new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                 // Public job ads (careers portal)
-                .requestMatchers(new AntPathRequestMatcher("/ads", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/ads/*", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/ads", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/ads/*", "GET")).permitAll()
 
                 // Actuator
                 .requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()

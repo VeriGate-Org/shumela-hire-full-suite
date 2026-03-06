@@ -5,7 +5,7 @@ const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:80
 export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
   try {
     const baseUrl = getBaseUrl();
-    const url = new URL('/ads', baseUrl);
+    const url = new URL('/api/ads', baseUrl);
     url.searchParams.set('status', 'PUBLISHED');
     url.searchParams.set('channel', 'external');
     url.searchParams.set('size', '100');
@@ -40,7 +40,7 @@ export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
 export async function fetchJobBySlug(slug: string): Promise<BackendJobAd | null> {
   try {
     const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/ads/${slug}`, {
+    const response = await fetch(`${baseUrl}/api/ads/${slug}`, {
       next: { revalidate: 300 },
     });
 

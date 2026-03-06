@@ -22,7 +22,7 @@ public class TenantResolutionFilter implements Filter {
             "/swagger-ui",
             "/v3/api-docs",
             "/api/public/",
-            "/ads"
+            "/api/ads"
     );
 
     private final TenantRepository tenantRepository;
