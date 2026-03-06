@@ -42,6 +42,8 @@ public class JobPostingResponse {
     private String rejectionReason;
     private String internalNotes;
     private String externalJobBoards;
+    private String requiredCheckTypes;
+    private Boolean enforceCheckCompletion;
     private String seoTitle;
     private String seoDescription;
     private String seoKeywords;
@@ -106,6 +108,8 @@ public class JobPostingResponse {
         this.rejectionReason = jobPosting.getRejectionReason();
         this.internalNotes = jobPosting.getInternalNotes();
         this.externalJobBoards = jobPosting.getExternalJobBoards();
+        this.requiredCheckTypes = jobPosting.getRequiredCheckTypes();
+        this.enforceCheckCompletion = jobPosting.getEnforceCheckCompletion();
         this.seoTitle = jobPosting.getSeoTitle();
         this.seoDescription = jobPosting.getSeoDescription();
         this.seoKeywords = jobPosting.getSeoKeywords();
@@ -151,6 +155,8 @@ public class JobPostingResponse {
         this.internalNotes = null;
         this.approvalNotes = null;
         this.rejectionReason = null;
+        this.requiredCheckTypes = null;
+        this.enforceCheckCompletion = null;
         this.createdBy = null;
         this.approvedBy = null;
         this.publishedBy = null;
@@ -420,7 +426,23 @@ public class JobPostingResponse {
     public void setExternalJobBoards(String externalJobBoards) {
         this.externalJobBoards = externalJobBoards;
     }
-    
+
+    public String getRequiredCheckTypes() {
+        return requiredCheckTypes;
+    }
+
+    public void setRequiredCheckTypes(String requiredCheckTypes) {
+        this.requiredCheckTypes = requiredCheckTypes;
+    }
+
+    public Boolean getEnforceCheckCompletion() {
+        return enforceCheckCompletion;
+    }
+
+    public void setEnforceCheckCompletion(Boolean enforceCheckCompletion) {
+        this.enforceCheckCompletion = enforceCheckCompletion;
+    }
+
     public String getSeoTitle() {
         return seoTitle;
     }

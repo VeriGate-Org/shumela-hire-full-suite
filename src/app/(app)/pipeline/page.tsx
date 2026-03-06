@@ -1113,6 +1113,7 @@ export default function PipelinePage() {
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
                       candidateEmail={selectedApplication.candidate.email}
+                      jobPostingId={selectedApplication.job?.id}
                       onClose={() => {}}
                     />
                   </div>

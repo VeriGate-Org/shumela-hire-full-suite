@@ -15,6 +15,15 @@ interface JobPostingFormProps {
   onCancel?: () => void;
 }
 
+interface CheckType {
+  code: string;
+  name: string;
+  description: string;
+  turnaround: string;
+  price: number;
+  currency: string;
+}
+
 interface JobPostingData {
   id?: number;
   title: string;
@@ -40,6 +49,8 @@ interface JobPostingData {
   seoKeywords: string;
   featured: boolean;
   urgent: boolean;
+  requiredCheckTypes: string[];
+  enforceCheckCompletion: boolean;
 }
 
 const EMPLOYMENT_TYPES = [
@@ -87,10 +98,14 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     seoDescription: '',
     seoKeywords: '',
     featured: false,
-    urgent: false
+    urgent: false,
+    requiredCheckTypes: [],
+    enforceCheckCompletion: false
   });
 
   const [loading, setLoading] = useState(false);
+  const [availableCheckTypes, setAvailableCheckTypes] = useState<CheckType[]>([]);
+  const [checkTypesLoading, setCheckTypesLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('basic');
   const actorId = useMemo(() => {
@@ -114,12 +129,18 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
       const response = await apiFetch(`/api/job-postings/${jobPostingId}`);
       if (response.ok) {
         const data = await response.json();
+        let parsedCheckTypes: string[] = [];
+        if (data.requiredCheckTypes) {
+          try { parsedCheckTypes = JSON.parse(data.requiredCheckTypes); } catch { /* ignore */ }
+        }
         setFormData({
           ...data,
-          applicationDeadline: data.applicationDeadline ? 
+          applicationDeadline: data.applicationDeadline ?
             new Date(data.applicationDeadline).toISOString().slice(0, 16) : '',
           salaryMin: data.salaryMin || undefined,
-          salaryMax: data.salaryMax || undefined
+          salaryMax: data.salaryMax || undefined,
+          requiredCheckTypes: parsedCheckTypes,
+          enforceCheckCompletion: data.enforceCheckCompletion || false
         });
       }
     } catch (error) {
@@ -135,6 +156,25 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
       loadJobPosting();
     }
   }, [jobPostingId, loadJobPosting]);
+
+  // Load available check types for verification tab
+  useEffect(() => {
+    async function loadCheckTypes() {
+      setCheckTypesLoading(true);
+      try {
+        const response = await apiFetch('/api/background-checks/check-types');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) setAvailableCheckTypes(data);
+        }
+      } catch {
+        // Feature gate may block this — gracefully ignore
+      } finally {
+        setCheckTypesLoading(false);
+      }
+    }
+    loadCheckTypes();
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -178,8 +218,10 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
 
       const submitData = {
         ...formData,
-        applicationDeadline: formData.applicationDeadline ? 
-          new Date(formData.applicationDeadline).toISOString() : null
+        applicationDeadline: formData.applicationDeadline ?
+          new Date(formData.applicationDeadline).toISOString() : null,
+        requiredCheckTypes: formData.requiredCheckTypes.length > 0
+          ? JSON.stringify(formData.requiredCheckTypes) : null
       };
 
       const actorParam = jobPostingId ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
@@ -237,6 +279,7 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     { id: 'basic', label: 'Basic Information' },
     { id: 'details', label: 'Job Details' },
     { id: 'compensation', label: 'Compensation' },
+    { id: 'verification', label: 'Verification' },
     { id: 'seo', label: 'SEO & Settings' }
   ];
 
@@ -627,6 +670,99 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
                 )}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Verification Tab */}
+        {activeTab === 'verification' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Required Verification Checks</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Select the background checks that must be completed for candidates applying to this role.
+              </p>
+            </div>
+
+            {checkTypesLoading ? (
+              <div className="flex items-center justify-center py-8 text-gray-500 text-sm">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold-500 mr-2" />
+                Loading check types...
+              </div>
+            ) : availableCheckTypes.length === 0 ? (
+              <div className="rounded-md border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+                Background checks feature is not available for your account.
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {availableCheckTypes.map(ct => {
+                    const isSelected = formData.requiredCheckTypes.includes(ct.code);
+                    return (
+                      <label
+                        key={ct.code}
+                        className={`flex items-start p-3 rounded-lg border cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-gold-50 border-gold-300'
+                            : 'bg-white border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              requiredCheckTypes: isSelected
+                                ? prev.requiredCheckTypes.filter(c => c !== ct.code)
+                                : [...prev.requiredCheckTypes, ct.code]
+                            }));
+                          }}
+                          className="mt-0.5 h-4 w-4 text-gold-500 border-gray-300 rounded focus:ring-gold-500"
+                        />
+                        <div className="ml-3 flex-1">
+                          <span className="text-sm font-medium text-gray-900">{ct.name}</span>
+                          <p className="text-xs text-gray-500 mt-0.5">{ct.description}</p>
+                          <div className="flex items-center space-x-3 mt-1">
+                            <span className="text-xs text-gray-400">{ct.turnaround}</span>
+                            <span className="text-xs font-medium text-gray-600">
+                              R{ct.price.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {formData.requiredCheckTypes.length > 0 && (
+                  <div className="rounded-md border border-violet-200 bg-violet-50 px-4 py-3">
+                    <span className="text-sm text-violet-700">
+                      {formData.requiredCheckTypes.length} check{formData.requiredCheckTypes.length > 1 ? 's' : ''} required for this role
+                    </span>
+                  </div>
+                )}
+
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={formData.enforceCheckCompletion}
+                      onChange={(e) => handleInputChange('enforceCheckCompletion', e.target.checked)}
+                      className="mt-0.5 h-4 w-4 text-gold-500 border-gray-300 rounded focus:ring-gold-500"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">
+                        Enforce check completion
+                      </span>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        When enabled, candidates cannot progress past the Background Check pipeline stage
+                        until all required checks are completed with a CLEAR result.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </>
+            )}
           </div>
         )}
 

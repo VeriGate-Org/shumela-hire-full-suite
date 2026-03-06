@@ -1,6 +1,9 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.BackgroundCheck;
+import com.arthmatic.shumelahire.entity.JobPosting;
+import com.arthmatic.shumelahire.repository.ApplicationRepository;
 import com.arthmatic.shumelahire.repository.BackgroundCheckRepository;
 import com.arthmatic.shumelahire.service.BackgroundCheckService;
 import org.slf4j.Logger;
@@ -26,6 +29,9 @@ public class BackgroundCheckController {
 
     @Autowired
     private BackgroundCheckRepository backgroundCheckRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     /**
      * Initiate a background check for an application.
@@ -126,6 +132,22 @@ public class BackgroundCheckController {
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
     public ResponseEntity<List<Map<String, Object>>> getCheckTypes() {
         return ResponseEntity.ok(backgroundCheckService.getAvailableCheckTypes());
+    }
+
+    /**
+     * Get required check types for an application's job posting.
+     */
+    @GetMapping("/applications/{applicationId}/required-check-types")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    public ResponseEntity<Map<String, Object>> getRequiredCheckTypes(@PathVariable Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
+
+        JobPosting jobPosting = application.getJobPosting();
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("requiredCheckTypes", jobPosting.getRequiredCheckTypes());
+        result.put("enforceCheckCompletion", jobPosting.getEnforceCheckCompletion());
+        return ResponseEntity.ok(result);
     }
 
     /**

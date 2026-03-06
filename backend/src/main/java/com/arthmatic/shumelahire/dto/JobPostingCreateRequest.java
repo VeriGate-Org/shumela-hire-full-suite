@@ -56,7 +56,11 @@ public class JobPostingCreateRequest {
     private String internalNotes;
     
     private String externalJobBoards;
-    
+
+    private String requiredCheckTypes;
+
+    private Boolean enforceCheckCompletion = false;
+
     private String seoTitle;
     
     private String seoDescription;
@@ -222,7 +226,23 @@ public class JobPostingCreateRequest {
     public void setExternalJobBoards(String externalJobBoards) {
         this.externalJobBoards = externalJobBoards;
     }
-    
+
+    public String getRequiredCheckTypes() {
+        return requiredCheckTypes;
+    }
+
+    public void setRequiredCheckTypes(String requiredCheckTypes) {
+        this.requiredCheckTypes = requiredCheckTypes;
+    }
+
+    public Boolean getEnforceCheckCompletion() {
+        return enforceCheckCompletion;
+    }
+
+    public void setEnforceCheckCompletion(Boolean enforceCheckCompletion) {
+        this.enforceCheckCompletion = enforceCheckCompletion;
+    }
+
     public String getSeoTitle() {
         return seoTitle;
     }

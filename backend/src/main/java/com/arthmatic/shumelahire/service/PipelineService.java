@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
+import com.arthmatic.shumelahire.repository.BackgroundCheckRepository;
 import com.arthmatic.shumelahire.repository.PipelineTransitionRepository;
 import com.arthmatic.shumelahire.repository.ApplicationRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +25,9 @@ public class PipelineService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private BackgroundCheckRepository backgroundCheckRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -50,11 +54,16 @@ public class PipelineService {
         // Validate transition
         if (!application.canProgressToStage(targetStage)) {
             throw new IllegalStateException(
-                String.format("Cannot move application from %s to %s", 
+                String.format("Cannot move application from %s to %s",
                     application.getPipelineStage(), targetStage));
         }
 
         PipelineStage currentStage = application.getPipelineStage();
+
+        // Enforce required background check completion when moving from BACKGROUND_CHECK
+        if (currentStage == PipelineStage.BACKGROUND_CHECK && targetStage.getOrder() > currentStage.getOrder()) {
+            enforceBackgroundCheckCompletion(application);
+        }
         
         // Calculate duration in previous stage
         Long durationHours = null;
@@ -427,6 +436,58 @@ public class PipelineService {
 
     public List<PipelineTransition> getRegressionAnalysis(LocalDateTime startDate, LocalDateTime endDate) {
         return pipelineTransitionRepository.findRegressions(startDate, endDate);
+    }
+
+    private void enforceBackgroundCheckCompletion(Application application) {
+        JobPosting jobPosting = application.getJobPosting();
+        if (jobPosting == null || !Boolean.TRUE.equals(jobPosting.getEnforceCheckCompletion())) {
+            return;
+        }
+
+        String requiredCheckTypesJson = jobPosting.getRequiredCheckTypes();
+        if (requiredCheckTypesJson == null || requiredCheckTypesJson.isBlank()) {
+            return;
+        }
+
+        List<String> requiredTypes;
+        try {
+            requiredTypes = objectMapper.readValue(requiredCheckTypesJson,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+        } catch (JsonProcessingException e) {
+            return;
+        }
+
+        if (requiredTypes.isEmpty()) {
+            return;
+        }
+
+        List<BackgroundCheck> checks = backgroundCheckRepository
+                .findByApplicationIdOrderByCreatedAtDesc(application.getId());
+
+        Set<String> completedClearTypes = new HashSet<>();
+        for (BackgroundCheck check : checks) {
+            if (check.getStatus() == BackgroundCheckStatus.COMPLETED
+                    && check.getOverallResult() == BackgroundCheckResult.CLEAR) {
+                try {
+                    List<String> checkTypes = objectMapper.readValue(
+                            check.getCheckTypes() != null ? check.getCheckTypes() : "[]",
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+                    completedClearTypes.addAll(checkTypes);
+                } catch (JsonProcessingException e) {
+                    // skip malformed entries
+                }
+            }
+        }
+
+        List<String> missing = requiredTypes.stream()
+                .filter(t -> !completedClearTypes.contains(t))
+                .toList();
+
+        if (!missing.isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot progress past Background Check stage. The following required verification checks " +
+                    "are not completed with CLEAR result: " + String.join(", ", missing));
+        }
     }
 
     public Map<String, Object> getUserActivityStatistics(LocalDateTime startDate, LocalDateTime endDate) {

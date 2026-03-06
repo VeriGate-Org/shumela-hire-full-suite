@@ -102,6 +102,12 @@ public class JobPosting extends TenantAwareEntity {
     
     @Column(name = "external_job_boards")
     private String externalJobBoards; // JSON array of job board names
+
+    @Column(name = "required_check_types", columnDefinition = "TEXT")
+    private String requiredCheckTypes; // JSON array of check type codes
+
+    @Column(name = "enforce_check_completion")
+    private Boolean enforceCheckCompletion = false;
     
     @Column(name = "seo_title", length = 60)
     private String seoTitle;
@@ -448,7 +454,23 @@ public class JobPosting extends TenantAwareEntity {
     public void setExternalJobBoards(String externalJobBoards) {
         this.externalJobBoards = externalJobBoards;
     }
-    
+
+    public String getRequiredCheckTypes() {
+        return requiredCheckTypes;
+    }
+
+    public void setRequiredCheckTypes(String requiredCheckTypes) {
+        this.requiredCheckTypes = requiredCheckTypes;
+    }
+
+    public Boolean getEnforceCheckCompletion() {
+        return enforceCheckCompletion;
+    }
+
+    public void setEnforceCheckCompletion(Boolean enforceCheckCompletion) {
+        this.enforceCheckCompletion = enforceCheckCompletion;
+    }
+
     public String getSeoTitle() {
         return seoTitle;
     }

@@ -34,6 +34,7 @@ interface BackgroundCheckPanelProps {
   applicationId: number | string;
   candidateName: string;
   candidateEmail: string;
+  jobPostingId?: number | string;
   onClose: () => void;
 }
 
@@ -58,6 +59,7 @@ export default function BackgroundCheckPanel({
   applicationId,
   candidateName,
   candidateEmail,
+  jobPostingId,
   onClose,
 }: BackgroundCheckPanelProps) {
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
@@ -69,6 +71,7 @@ export default function BackgroundCheckPanel({
   const [candidateIdNumber, setCandidateIdNumber] = useState('');
   const [consentObtained, setConsentObtained] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requiredCheckTypes, setRequiredCheckTypes] = useState<string[]>([]);
   const [uploadedReports, setUploadedReports] = useState<Record<string, { name: string; url: string }>>({});
   const [uploading, setUploading] = useState<string | null>(null);
 
@@ -94,9 +97,31 @@ export default function BackgroundCheckPanel({
     }
   }, []);
 
+  const loadRequiredCheckTypes = useCallback(async () => {
+    try {
+      const response = await apiFetch(`/api/background-checks/applications/${applicationId}/required-check-types`);
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.requiredCheckTypes) {
+        try {
+          const parsed = JSON.parse(data.requiredCheckTypes);
+          if (Array.isArray(parsed)) {
+            setRequiredCheckTypes(parsed);
+            setSelectedCheckTypes(prev => {
+              if (prev.length === 0) return parsed;
+              return prev;
+            });
+          }
+        } catch { /* ignore parse errors */ }
+      }
+    } catch {
+      // gracefully ignore — job posting may not have required checks
+    }
+  }, [applicationId]);
+
   useEffect(() => {
-    Promise.all([loadChecks(), loadCheckTypes()]).finally(() => setLoading(false));
-  }, [loadChecks, loadCheckTypes]);
+    Promise.all([loadChecks(), loadCheckTypes(), loadRequiredCheckTypes()]).finally(() => setLoading(false));
+  }, [loadChecks, loadCheckTypes, loadRequiredCheckTypes]);
 
   const handleInitiate = async () => {
     if (!candidateIdNumber.trim()) {
@@ -190,9 +215,16 @@ export default function BackgroundCheckPanel({
   };
 
   const toggleCheckType = (code: string) => {
-    setSelectedCheckTypes(prev =>
-      prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]
-    );
+    setSelectedCheckTypes(prev => {
+      if (prev.includes(code)) {
+        if (requiredCheckTypes.includes(code)) {
+          setError(`"${code.replace(/_/g, ' ')}" is a required check for this role. You can still deselect it, but it may block pipeline progression.`);
+        }
+        return prev.filter(c => c !== code);
+      }
+      setError(null);
+      return [...prev, code];
+    });
   };
 
   const totalCost = selectedCheckTypes.reduce((sum, code) => {
@@ -301,7 +333,14 @@ export default function BackgroundCheckPanel({
                     className="mt-0.5 h-4 w-4 text-gold-500 border-gray-300 rounded focus:ring-gold-500"
                   />
                   <div className="ml-3 flex-1">
-                    <span className="text-sm font-medium text-gray-900">{ct.name}</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {ct.name}
+                      {requiredCheckTypes.includes(ct.code) && (
+                        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-100 text-violet-700">
+                          Required
+                        </span>
+                      )}
+                    </span>
                     <p className="text-xs text-gray-500 mt-0.5">{ct.description}</p>
                     <div className="flex items-center space-x-3 mt-1">
                       <span className="text-xs text-gray-400">{ct.turnaround}</span>

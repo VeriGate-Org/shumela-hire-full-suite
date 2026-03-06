@@ -453,6 +453,8 @@ public class JobPostingService {
         jobPosting.setSeoKeywords(request.getSeoKeywords());
         jobPosting.setFeatured(request.getFeatured());
         jobPosting.setUrgent(request.getUrgent());
+        jobPosting.setRequiredCheckTypes(request.getRequiredCheckTypes());
+        jobPosting.setEnforceCheckCompletion(request.getEnforceCheckCompletion());
     }
     
     private String generateSlug(String title) {
