@@ -339,10 +339,29 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
     try {
       setLoading(true);
 
-      const submitData: InterviewData = {
-        ...formData,
-        interviewerId: formData.interviewerIds.length > 0 ? Number(formData.interviewerIds[0]) : formData.interviewerId,
+      const primaryInterviewerId = formData.interviewerIds.length > 0
+        ? Number(formData.interviewerIds[0])
+        : formData.interviewerId;
+
+      const additionalIds = formData.interviewerIds.slice(1);
+
+      const submitData = {
+        title: formData.title,
+        type: formData.type,
+        round: formData.round,
         scheduledAt: new Date(formData.scheduledAt).toISOString(),
+        durationMinutes: formData.durationMinutes,
+        location: formData.location || null,
+        meetingLink: formData.meetingLink || null,
+        phoneNumber: formData.phoneNumber || null,
+        meetingRoom: formData.meetingRoom || null,
+        instructions: formData.instructions || null,
+        agenda: formData.agenda || null,
+        interviewerId: primaryInterviewerId,
+        additionalInterviewers: additionalIds.length > 0
+          ? additionalIds.map((id) => interviewerOptions.find((o) => o.value === id)?.label).filter(Boolean).join(', ')
+          : null,
+        applicationId: formData.applicationId,
       };
 
       const url = interviewId
@@ -360,8 +379,14 @@ export default function InterviewScheduler({ interviewId, onSuccess, onCancel }:
         const result = await response.json() as InterviewSaveResponse;
         onSuccess?.(result);
       } else {
-        const errorData = await response.json();
-        setErrors({ general: errorData.message || 'Failed to save interview' });
+        let errorMessage = 'Failed to save interview';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          // Response body may be empty on 400
+        }
+        setErrors({ general: errorMessage });
       }
     } catch (error) {
       console.error('Error saving interview:', error);
