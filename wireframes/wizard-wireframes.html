@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShumelaHire - Wizard Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #05527E;
+    --cta: #F1C54B;
+    --deep-navy: #0F172A;
+    --charcoal: #1E293B;
+    --soft-grey: #64748B;
+    --off-white: #F8FAFC;
+    --green: #10B981;
+    --red: #EF4444;
+    --border: #E2E8F0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #F1F5F9;
+    color: var(--deep-navy);
+    line-height: 1.5;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    background: var(--deep-navy);
+    color: white;
+    padding: 48px 40px 40px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    color: var(--soft-grey);
+    font-size: 14px;
+  }
+
+  /* ── Nav tabs ── */
+  .wizard-nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .wizard-nav button {
+    font-family: 'Manrope', sans-serif;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--soft-grey);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .wizard-nav button:hover { color: var(--primary); }
+  .wizard-nav button.active {
+    color: var(--primary);
+    border-bottom-color: var(--cta);
+  }
+
+  /* ── Wizard panel ── */
+  .wizard-panel {
+    display: none;
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 0 24px;
+  }
+  .wizard-panel.active { display: block; }
+
+  .wizard-panel > h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .wizard-panel > .subtitle {
+    font-size: 13px;
+    color: var(--soft-grey);
+    margin-bottom: 28px;
+  }
+
+  /* ── Wizard frame (the actual mockup) ── */
+  .wizard-frame {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  /* Wizard header bar */
+  .wf-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .wf-header .wf-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .wf-header .wf-step-label {
+    font-size: 12px;
+    color: var(--soft-grey);
+  }
+
+  /* Step indicator bar */
+  .wf-steps {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--off-white);
+    border-bottom: 1px solid var(--border);
+    gap: 0;
+  }
+  .wf-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wf-step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .wf-step-circle.completed {
+    background: var(--green);
+    color: white;
+  }
+  .wf-step-circle.current {
+    background: var(--cta);
+    color: var(--deep-navy);
+    box-shadow: 0 0 0 4px rgba(241, 197, 75, 0.2);
+  }
+  .wf-step-circle.upcoming {
+    background: transparent;
+    border: 2px solid #CBD5E1;
+    color: #94A3B8;
+  }
+  .wf-step-info { min-width: 0; }
+  .wf-step-name {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .wf-step-name.completed { color: var(--green); }
+  .wf-step-name.current { color: var(--deep-navy); }
+  .wf-step-name.upcoming { color: #94A3B8; }
+  .wf-step-desc {
+    font-size: 10px;
+    color: #94A3B8;
+    white-space: nowrap;
+  }
+  .wf-connector {
+    flex: 1;
+    height: 2px;
+    margin: 0 12px;
+    min-width: 16px;
+  }
+  .wf-connector.done { background: var(--green); }
+  .wf-connector.pending { background: #E2E8F0; }
+
+  /* Content area */
+  .wf-content {
+    padding: 28px 24px;
+    min-height: 280px;
+  }
+  .wf-content h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .wf-content .step-desc {
+    font-size: 13px;
+    color: var(--soft-grey);
+    margin-bottom: 20px;
+  }
+
+  /* Field mockups */
+  .field-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--soft-grey);
+  }
+  .field .input-mock {
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: white;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #94A3B8;
+  }
+  .field .input-mock.filled {
+    color: var(--deep-navy);
+    background: var(--off-white);
+  }
+  .field .textarea-mock {
+    height: 100px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: white;
+    padding: 10px;
+    font-size: 13px;
+    color: #94A3B8;
+  }
+  .field .textarea-mock.tall { height: 160px; }
+  .field .select-mock {
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #94A3B8;
+  }
+  .field .select-mock::after {
+    content: "\25BC";
+    font-size: 8px;
+    color: #CBD5E1;
+  }
+
+  /* Special blocks */
+  .availability-block {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 2px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .availability-block .ab-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #166534;
+    margin-bottom: 6px;
+  }
+  .availability-slot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid #BBF7D0;
+    border-radius: 9999px;
+    font-size: 11px;
+    color: #166534;
+    margin: 2px 4px 2px 0;
+  }
+
+  .conditional-block {
+    border: 1px dashed var(--cta);
+    background: #FFFBEB;
+    border-radius: 2px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .conditional-block .cb-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #92400E;
+    margin-bottom: 8px;
+  }
+
+  .review-card {
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .review-card .rc-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--soft-grey);
+    margin-bottom: 4px;
+  }
+  .review-card .rc-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--deep-navy);
+  }
+  .review-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Channel cards */
+  .channel-card {
+    border: 2px solid var(--border);
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .channel-card.selected {
+    border-color: var(--cta);
+    background: #FFFBEB;
+  }
+  .channel-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .channel-card .ch-title { font-size: 13px; font-weight: 700; }
+  .channel-card .ch-desc { font-size: 12px; color: var(--soft-grey); margin-top: 2px; }
+
+  /* Tag/pill */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--soft-grey);
+    margin: 2px;
+  }
+  .tag.gold { background: #FEF9C3; border-color: #FDE047; color: #854D0E; }
+
+  /* Footer nav */
+  .wf-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--soft-grey);
+  }
+  .btn-ghost:hover { background: var(--off-white); }
+  .btn-primary {
+    background: var(--cta);
+    color: var(--deep-navy);
+    font-weight: 700;
+  }
+  .btn-outline-gold {
+    background: transparent;
+    border: 2px solid var(--cta);
+    color: var(--cta);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 12px;
+  }
+  .btn-skip {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-size: 12px;
+  }
+  .btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-green { background: #10B981; color: white; }
+
+  /* Step navigation (within wireframe) */
+  .step-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .step-tab {
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9999px;
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    color: var(--soft-grey);
+    cursor: pointer;
+  }
+  .step-tab.active {
+    background: var(--cta);
+    border-color: var(--cta);
+    color: var(--deep-navy);
+  }
+
+  /* Info callout */
+  .callout {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 2px;
+    font-size: 12px;
+    margin-top: 16px;
+  }
+  .callout.info { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
+  .callout.warning { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+  .callout.success { background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; }
+  .callout-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Progress bar */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #E2E8F0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .progress-bar .fill.gold { background: var(--cta); }
+  .progress-bar .fill.green { background: var(--green); }
+
+  /* Separator between wizards */
+  .section-divider {
+    border: none;
+    border-top: 1px dashed #CBD5E1;
+    margin: 40px 0;
+  }
+
+  /* Annotation labels */
+  .anno {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+  .anno.blue { background: #DBEAFE; color: #1E40AF; }
+  .anno.amber { background: #FEF3C7; color: #92400E; }
+  .anno.green { background: #D1FAE5; color: #065F46; }
+  .anno.red { background: #FEE2E2; color: #991B1B; }
+  .anno.purple { background: #EDE9FE; color: #5B21B6; }
+
+  /* Dual action footer */
+  .dual-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dual-footer .left { display: flex; gap: 8px; }
+  .dual-footer .right { display: flex; gap: 8px; }
+
+  /* Hybrid mode toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .mode-toggle button {
+    padding: 8px 20px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background: white;
+    color: var(--soft-grey);
+  }
+  .mode-toggle button.active {
+    background: var(--primary);
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Wizard Wireframes</h1>
+  <p>ShumelaHire — Interactive wireframes for all planned wizard conversions</p>
+</div>
+
+<div class="wizard-nav" id="nav">
+  <button class="active" onclick="show('shell')">WizardShell</button>
+  <button onclick="show('interview')">Interview Scheduler</button>
+  <button onclick="show('report-custom')">Custom Report Builder</button>
+  <button onclick="show('report-main')">Report Builder</button>
+  <button onclick="show('requisition')">Requisition Form</button>
+  <button onclick="show('job-posting')">Job Posting Form</button>
+  <button onclick="show('candidate')">Candidate Profile</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 0: WIZARD SHELL -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel active" id="panel-shell">
+  <h2>Phase 0: WizardShell Component</h2>
+  <p class="subtitle">Shared layout component used by all wizards. Handles step indicator, navigation, and content framing.</p>
+
+  <!-- Page variant -->
+  <span class="anno blue">PAGE VARIANT</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div>
+        <div class="wf-title">Wizard Title</div>
+        <div class="wf-step-label">Optional subtitle or context</div>
+      </div>
+      <div class="wf-step-label">Step 2 of 4</div>
+    </div>
+
+    <div class="wf-steps">
+      <div class="wf-step">
+        <div class="wf-step-circle completed">&#10003;</div>
+        <div class="wf-step-info">
+          <div class="wf-step-name completed">Step One</div>
+          <div class="wf-step-desc">Description</div>
+        </div>
+      </div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step">
+        <div class="wf-step-circle current">2</div>
+        <div class="wf-step-info">
+          <div class="wf-step-name current">Step Two</div>
+          <div class="wf-step-desc">Description</div>
+        </div>
+      </div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step">
+        <div class="wf-step-circle upcoming">3</div>
+        <div class="wf-step-info">
+          <div class="wf-step-name upcoming">Step Three</div>
+          <div class="wf-step-desc">Description</div>
+        </div>
+      </div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step">
+        <div class="wf-step-circle upcoming">4</div>
+        <div class="wf-step-info">
+          <div class="wf-step-name upcoming">Step Four</div>
+          <div class="wf-step-desc">Description</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-content">
+      <h3>Step Two Content</h3>
+      <p class="step-desc">Each wizard injects its own step content here via children prop.</p>
+      <div style="height:120px;border:2px dashed #E2E8F0;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:13px;">
+        {children} — step-specific form fields render here
+      </div>
+    </div>
+
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-skip">Skip</button>
+        <button class="btn btn-primary">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Modal variant -->
+  <span class="anno purple">MODAL VARIANT</span>
+  <div style="background:rgba(0,0,0,0.3);padding:40px;border-radius:2px;">
+    <div class="wizard-frame" style="max-width:640px;margin:0 auto;">
+      <div class="wf-header">
+        <div class="wf-title">Modal Wizard Title</div>
+        <div style="font-size:18px;color:#94A3B8;cursor:pointer;">&times;</div>
+      </div>
+
+      <div class="wf-steps" style="padding:12px 24px;">
+        <div class="wf-step">
+          <div class="wf-step-circle completed" style="width:28px;height:28px;font-size:11px;">&#10003;</div>
+          <div class="wf-step-name completed" style="font-size:11px;">Step 1</div>
+        </div>
+        <div class="wf-connector done"></div>
+        <div class="wf-step">
+          <div class="wf-step-circle current" style="width:28px;height:28px;font-size:11px;">2</div>
+          <div class="wf-step-name current" style="font-size:11px;">Step 2</div>
+        </div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step">
+          <div class="wf-step-circle upcoming" style="width:28px;height:28px;font-size:11px;">3</div>
+          <div class="wf-step-name upcoming" style="font-size:11px;">Step 3</div>
+        </div>
+      </div>
+
+      <div class="wf-content" style="min-height:180px;">
+        <div style="height:100px;border:2px dashed #E2E8F0;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:13px;">
+          Compact modal content
+        </div>
+      </div>
+
+      <div class="wf-footer">
+        <button class="btn btn-ghost">&larr; Back</button>
+        <button class="btn btn-primary">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <span class="anno green">COMPONENT API</span>
+  <div class="wizard-frame">
+    <div class="wf-content" style="font-size:13px;min-height:auto;">
+      <pre style="background:var(--off-white);padding:16px;border-radius:2px;overflow-x:auto;font-size:12px;line-height:1.7;color:var(--charcoal);">&lt;WizardShell
+  steps={[
+    { id: 'one', label: 'Step One', description: 'First step', skippable: false },
+    { id: 'two', label: 'Step Two', description: 'Second step', skippable: true },
+    ...
+  ]}
+  currentStep={1}
+  onNext={handleNext}
+  onBack={handleBack}
+  onSkip={handleSkip}
+  canProceed={isValid}
+  title="Wizard Title"
+  subtitle="Optional context"
+  variant="page"        {/* 'page' | 'modal' */}
+  footer={&lt;CustomFooter /&gt;}  {/* optional: replaces default nav on final step */}
+&gt;
+  &lt;StepContent /&gt;
+&lt;/WizardShell&gt;</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 1: INTERVIEW SCHEDULER -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-interview">
+  <h2>Phase 1: Interview Scheduler Wizard</h2>
+  <p class="subtitle">5 steps. Sequential flow with conditional fields and availability checking.</p>
+
+  <!-- STEP 1 -->
+  <span class="anno blue">STEP 1 — CANDIDATE</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Schedule Interview</div>
+      <div class="wf-step-label">Step 1 of 5</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle current">1</div><div class="wf-step-info"><div class="wf-step-name current">Candidate</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">2</div><div class="wf-step-info"><div class="wf-step-name upcoming">Setup</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Schedule</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Details</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Select Candidate</h3>
+      <p class="step-desc">Search for the application you want to schedule an interview for.</p>
+      <div class="field">
+        <label>Application *</label>
+        <div class="select-mock">Search by candidate name, job title, or department...</div>
+      </div>
+      <div class="callout info" style="margin-top:16px;">
+        <span class="callout-icon">i</span>
+        <span>Only applications in active pipeline stages are shown.</span>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <div></div>
+      <button class="btn btn-primary btn-disabled">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 2 -->
+  <span class="anno blue">STEP 2 — INTERVIEW SETUP</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Schedule Interview</div>
+      <div class="wf-step-label">Step 2 of 5</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Candidate</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">2</div><div class="wf-step-info"><div class="wf-step-name current">Setup</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Schedule</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Details</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Interview Setup</h3>
+      <p class="step-desc">Configure the interview round, type, and panel.</p>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Interview Round *</label>
+          <div class="select-mock">Select round...</div>
+        </div>
+        <div class="field">
+          <label>Interview Type *</label>
+          <div class="select-mock">Select type...</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Interview Title</label>
+        <div class="input-mock filled">Screening — Senior Software Engineer</div>
+      </div>
+      <div style="font-size:10px;color:#94A3B8;margin:-12px 0 16px 0;">Auto-populated from round + job title</div>
+
+      <div class="field">
+        <label>Interviewer(s) *</label>
+        <div class="select-mock">Search and select interviewers...</div>
+      </div>
+      <div style="margin-top:6px;">
+        <span class="tag">Thabo Mokoena &times;</span>
+        <span class="tag">Naledi Sithole &times;</span>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 3 -->
+  <span class="anno blue">STEP 3 — SCHEDULE</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Schedule Interview</div>
+      <div class="wf-step-label">Step 3 of 5</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Candidate</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Setup</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">3</div><div class="wf-step-info"><div class="wf-step-name current">Schedule</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Details</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Date and Time</h3>
+      <p class="step-desc">Choose when the interview will take place. Availability is checked automatically.</p>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Date &amp; Time *</label>
+          <div class="input-mock">Select date and time...</div>
+        </div>
+        <div class="field">
+          <label>Duration (minutes) *</label>
+          <div class="input-mock filled">60</div>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">!</span>
+        <span>Weekdays only, 08:00 — 18:00. Must be at least 2 hours from now.</span>
+      </div>
+
+      <div class="availability-block">
+        <div class="ab-title">Availability Check — All interviewers available</div>
+        <div style="font-size:11px;color:#166534;margin-bottom:8px;">Suggested alternative times:</div>
+        <span class="availability-slot">Mon 10 Mar, 09:00</span>
+        <span class="availability-slot">Mon 10 Mar, 14:00</span>
+        <span class="availability-slot">Tue 11 Mar, 10:00</span>
+        <span class="availability-slot">Wed 12 Mar, 11:00</span>
+        <span class="availability-slot">Thu 13 Mar, 09:00</span>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 4 -->
+  <span class="anno blue">STEP 4 — DETAILS (conditional)</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Schedule Interview</div>
+      <div class="wf-step-label">Step 4 of 5</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Candidate</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Setup</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Schedule</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">4</div><div class="wf-step-info"><div class="wf-step-name current">Details</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Interview Details</h3>
+      <p class="step-desc">Add location, agenda, and candidate instructions.</p>
+
+      <div class="conditional-block">
+        <div class="cb-label">Shown for VIDEO type</div>
+        <div class="field">
+          <label>Meeting Link *</label>
+          <div class="input-mock">https://meet.google.com/...</div>
+        </div>
+      </div>
+
+      <div class="conditional-block" style="margin-top:8px;">
+        <div class="cb-label">Shown for IN_PERSON / PANEL type</div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Location *</label>
+            <div class="input-mock">Office address or room...</div>
+          </div>
+          <div class="field">
+            <label>Meeting Room</label>
+            <div class="input-mock">Optional</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conditional-block" style="margin-top:8px;">
+        <div class="cb-label">Shown for PHONE type</div>
+        <div class="field">
+          <label>Phone Number *</label>
+          <div class="input-mock">+27 ...</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="field">
+          <label>Interview Agenda</label>
+          <div class="textarea-mock">Outline the topics and structure...</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="field">
+          <label>Instructions for Candidate</label>
+          <div class="textarea-mock">What to prepare, where to go, what to bring...</div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 5 -->
+  <span class="anno green">STEP 5 — REVIEW &amp; CONFIRM</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Schedule Interview</div>
+      <div class="wf-step-label">Step 5 of 5</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Candidate</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Setup</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Schedule</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Details</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">5</div><div class="wf-step-info"><div class="wf-step-name current">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Review Interview</h3>
+      <p class="step-desc">Confirm all details before scheduling.</p>
+
+      <div class="review-grid">
+        <div class="review-card">
+          <div class="rc-label">Candidate</div>
+          <div class="rc-value">Ayanda Dlamini</div>
+          <div style="font-size:11px;color:var(--soft-grey);">Senior Software Engineer — Engineering</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Interview</div>
+          <div class="rc-value">Screening — Video</div>
+          <div style="font-size:11px;color:var(--soft-grey);">Screening round</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Date &amp; Time</div>
+          <div class="rc-value">Mon 10 Mar 2026, 09:00</div>
+          <div style="font-size:11px;color:var(--soft-grey);">60 minutes</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Interviewers</div>
+          <div class="rc-value">Thabo Mokoena, Naledi Sithole</div>
+        </div>
+        <div class="review-card" style="grid-column:1/-1;">
+          <div class="rc-label">Meeting Link</div>
+          <div class="rc-value" style="font-size:13px;font-family:monospace;">https://meet.google.com/abc-defg-hij</div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-green">Schedule Interview</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 2a: CUSTOM REPORT BUILDER -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-report-custom">
+  <h2>Phase 2a: Custom Report Builder Wizard</h2>
+  <p class="subtitle">3 steps. Build fields, preview output, optionally schedule delivery.</p>
+
+  <!-- STEP 1 -->
+  <span class="anno blue">STEP 1 — BUILD</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Custom Report</div>
+      <div class="wf-step-label">Step 1 of 3</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle current">1</div><div class="wf-step-info"><div class="wf-step-name current">Build</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">2</div><div class="wf-step-info"><div class="wf-step-name upcoming">Preview</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Schedule</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Build Your Report</h3>
+      <p class="step-desc">Name your report, select data source, and choose the fields to include.</p>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Report Name *</label>
+          <div class="input-mock">e.g. Monthly Hiring Summary</div>
+        </div>
+        <div class="field">
+          <label>Data Source</label>
+          <div class="select-mock">Applications</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--soft-grey);display:block;margin-bottom:8px;">Selected Fields</label>
+        <div>
+          <span class="tag gold">Candidate Name</span>
+          <span class="tag gold">Position</span>
+          <span class="tag gold">Stage</span>
+          <span class="tag gold">Days in Stage</span>
+          <span class="tag" style="border-style:dashed;cursor:pointer;">+ Add Field</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--soft-grey);display:block;margin-bottom:8px;">Filters</label>
+        <div class="field-row cols-3">
+          <div class="field"><div class="select-mock">Field...</div></div>
+          <div class="field"><div class="select-mock">Operator...</div></div>
+          <div class="field"><div class="input-mock">Value...</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <div></div>
+      <button class="btn btn-primary">Preview &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 2 -->
+  <span class="anno blue">STEP 2 — PREVIEW</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Custom Report</div>
+      <div class="wf-step-label">Step 2 of 3</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Build</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">2</div><div class="wf-step-info"><div class="wf-step-name current">Preview</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Schedule</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Preview Results</h3>
+      <p class="step-desc">Review the report output. Go back to adjust fields or filters.</p>
+
+      <div style="border:1px solid var(--border);border-radius:2px;overflow:hidden;">
+        <div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;background:var(--off-white);padding:10px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--soft-grey);border-bottom:1px solid var(--border);">
+          <div>Candidate</div><div>Position</div><div>Stage</div><div>Days</div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;padding:10px 14px;font-size:13px;border-bottom:1px solid #F1F5F9;">
+          <div>Ayanda Dlamini</div><div>Senior Engineer</div><div><span class="tag" style="margin:0;">Screening</span></div><div>3</div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;padding:10px 14px;font-size:13px;border-bottom:1px solid #F1F5F9;">
+          <div>Thabo Mokoena</div><div>Product Manager</div><div><span class="tag" style="margin:0;">Interview</span></div><div>7</div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 2fr 1fr 1fr;padding:10px 14px;font-size:13px;">
+          <div>Lerato Molefe</div><div>UX Designer</div><div><span class="tag" style="margin:0;">Offer</span></div><div>2</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-ghost" style="font-size:11px;">Export CSV</button>
+        <button class="btn btn-ghost" style="font-size:11px;">Export PDF</button>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-green">Save Report</button>
+        <button class="btn btn-primary">Schedule &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 3 -->
+  <span class="anno blue">STEP 3 — SCHEDULE (optional)</span>
+  <div class="wizard-frame">
+    <div class="wf-header">
+      <div class="wf-title">Custom Report</div>
+      <div class="wf-step-label">Step 3 of 3</div>
+    </div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Build</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Preview</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">3</div><div class="wf-step-info"><div class="wf-step-name current">Schedule</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Schedule Delivery</h3>
+      <p class="step-desc">Optionally set up recurring delivery of this report.</p>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Frequency</label>
+          <div class="select-mock">Weekly</div>
+        </div>
+        <div class="field">
+          <label>Day of Week</label>
+          <div class="select-mock">Monday</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>Recipients (email)</label>
+        <div class="input-mock">hr@company.co.za, recruiting@company.co.za</div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>Format</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <span class="tag gold">CSV</span>
+          <span class="tag">PDF</span>
+          <span class="tag">Excel</span>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-skip">Skip Scheduling</button>
+        <button class="btn btn-green">Save &amp; Schedule</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 2b: REPORT BUILDER -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-report-main">
+  <h2>Phase 2b: Report Builder Wizard</h2>
+  <p class="subtitle">4 steps. Fields, Filters, Visualization, then Preview &amp; Schedule.</p>
+
+  <!-- STEP 1 -->
+  <span class="anno blue">STEP 1 — FIELDS</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">Report Builder</div><div class="wf-step-label">Step 1 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle current">1</div><div class="wf-step-info"><div class="wf-step-name current">Fields</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">2</div><div class="wf-step-info"><div class="wf-step-name upcoming">Filters</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Visualization</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Preview</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Select Fields</h3>
+      <p class="step-desc">Choose the dimensions and metrics for your report.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--soft-grey);margin-bottom:8px;">Available Fields</div>
+          <div style="border:1px solid var(--border);border-radius:2px;padding:8px;min-height:140px;">
+            <div style="padding:6px 10px;font-size:12px;border:1px solid var(--border);border-radius:2px;margin-bottom:4px;cursor:move;background:white;">Candidate Name</div>
+            <div style="padding:6px 10px;font-size:12px;border:1px solid var(--border);border-radius:2px;margin-bottom:4px;cursor:move;background:white;">Application Date</div>
+            <div style="padding:6px 10px;font-size:12px;border:1px solid var(--border);border-radius:2px;margin-bottom:4px;cursor:move;background:white;">Source Channel</div>
+            <div style="padding:6px 10px;font-size:12px;border:1px solid var(--border);border-radius:2px;margin-bottom:4px;cursor:move;background:white;">Time to Hire</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--soft-grey);margin-bottom:8px;">Selected Fields</div>
+          <div style="border:2px dashed var(--cta);border-radius:2px;padding:8px;min-height:140px;background:#FFFBEB;">
+            <div style="padding:6px 10px;font-size:12px;border:1px solid #FDE68A;border-radius:2px;margin-bottom:4px;background:#FEF9C3;">Position Title</div>
+            <div style="padding:6px 10px;font-size:12px;border:1px solid #FDE68A;border-radius:2px;margin-bottom:4px;background:#FEF9C3;">Department</div>
+            <div style="padding:6px 10px;font-size:12px;color:#94A3B8;text-align:center;margin-top:8px;">Drag fields here...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer"><div></div><button class="btn btn-primary">Next &rarr;</button></div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 2 -->
+  <span class="anno blue">STEP 2 — FILTERS</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">Report Builder</div><div class="wf-step-label">Step 2 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Fields</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">2</div><div class="wf-step-info"><div class="wf-step-name current">Filters</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Visualization</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Preview</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Add Filters</h3>
+      <p class="step-desc">Narrow down the data. Filters are optional — skip if you want all records.</p>
+
+      <div class="field-row cols-3">
+        <div class="field"><label>Field</label><div class="select-mock">Department</div></div>
+        <div class="field"><label>Operator</label><div class="select-mock">Equals</div></div>
+        <div class="field"><label>Value</label><div class="input-mock filled">Engineering</div></div>
+      </div>
+      <div class="field-row cols-3" style="opacity:0.5;">
+        <div class="field"><div class="select-mock">Select field...</div></div>
+        <div class="field"><div class="select-mock">Operator...</div></div>
+        <div class="field"><div class="input-mock">Value...</div></div>
+      </div>
+      <button class="btn btn-ghost" style="font-size:11px;margin-top:4px;">+ Add Filter</button>
+
+      <div class="field" style="margin-top:20px;">
+        <label>Date Range</label>
+        <div class="field-row cols-2" style="margin-top:4px;">
+          <div class="input-mock">Start date</div>
+          <div class="input-mock">End date</div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-skip">Skip</button>
+        <button class="btn btn-primary">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 3 -->
+  <span class="anno blue">STEP 3 — VISUALIZATION</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">Report Builder</div><div class="wf-step-label">Step 3 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Fields</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Filters</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">3</div><div class="wf-step-info"><div class="wf-step-name current">Visualization</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Preview</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Choose Visualization</h3>
+      <p class="step-desc">Select how the report data should be displayed.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="border:2px solid var(--cta);border-radius:2px;padding:16px;text-align:center;background:#FFFBEB;">
+          <div style="font-size:24px;margin-bottom:4px;">&#9776;</div>
+          <div style="font-size:11px;font-weight:700;">Table</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">&#9608;</div>
+          <div style="font-size:11px;font-weight:600;color:var(--soft-grey);">Bar Chart</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">&#10070;</div>
+          <div style="font-size:11px;font-weight:600;color:var(--soft-grey);">Line Chart</div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">&#9673;</div>
+          <div style="font-size:11px;font-weight:600;color:var(--soft-grey);">Pie Chart</div>
+        </div>
+      </div>
+
+      <div class="field-row cols-2">
+        <div class="field"><label>Group By</label><div class="select-mock">Department</div></div>
+        <div class="field"><label>Sort By</label><div class="select-mock">Count (descending)</div></div>
+      </div>
+    </div>
+    <div class="wf-footer"><button class="btn btn-ghost">&larr; Back</button><button class="btn btn-primary">Preview &rarr;</button></div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 4 -->
+  <span class="anno green">STEP 4 — PREVIEW &amp; SCHEDULE</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">Report Builder</div><div class="wf-step-label">Step 4 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Fields</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Filters</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Visualization</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">4</div><div class="wf-step-info"><div class="wf-step-name current">Preview</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Preview &amp; Save</h3>
+      <p class="step-desc">Review the final report output and optionally schedule recurring delivery.</p>
+
+      <div style="border:1px solid var(--border);border-radius:2px;height:140px;display:flex;align-items:center;justify-content:center;background:var(--off-white);color:#94A3B8;font-size:13px;margin-bottom:16px;">
+        [Live report preview renders here]
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" style="font-size:11px;">Export CSV</button>
+        <button class="btn btn-ghost" style="font-size:11px;">Export PDF</button>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-green">Save Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 3: REQUISITION FORM -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-requisition">
+  <h2>Phase 3: Requisition Form Wizard</h2>
+  <p class="subtitle">4 steps. Role details, compensation, description (dedicated space), then review with dual actions.</p>
+
+  <!-- STEP 1 -->
+  <span class="anno blue">STEP 1 — ROLE DETAILS</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Requisition</div><div class="wf-step-label">Step 1 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle current">1</div><div class="wf-step-info"><div class="wf-step-name current">Role</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">2</div><div class="wf-step-info"><div class="wf-step-name upcoming">Compensation</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Description</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Role Details</h3>
+      <p class="step-desc">Define the position you need to fill.</p>
+
+      <div class="field">
+        <label>Job Title *</label>
+        <div class="input-mock">e.g., Senior Software Engineer</div>
+      </div>
+
+      <div class="field-row cols-2" style="margin-top:16px;">
+        <div class="field">
+          <label>Department *</label>
+          <div class="select-mock">Select department...</div>
+        </div>
+        <div class="field">
+          <label>Location *</label>
+          <div class="input-mock">e.g., Johannesburg or Remote</div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Employment Type *</label>
+        <div class="select-mock">Full-time</div>
+      </div>
+    </div>
+    <div class="wf-footer"><div></div><button class="btn btn-primary">Next &rarr;</button></div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 2 -->
+  <span class="anno blue">STEP 2 — COMPENSATION</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Requisition</div><div class="wf-step-label">Step 2 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Role</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">2</div><div class="wf-step-info"><div class="wf-step-name current">Compensation</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Description</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Compensation</h3>
+      <p class="step-desc">Set the salary range for this position. This is optional for drafts.</p>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label>Minimum Salary</label>
+          <div class="input-mock">e.g., 450000</div>
+        </div>
+        <div class="field">
+          <label>Maximum Salary</label>
+          <div class="input-mock">e.g., 650000</div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">i</span>
+        <span>Salary information is only visible to HR managers and executives.</span>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 3 -->
+  <span class="anno blue">STEP 3 — DESCRIPTION (dedicated space)</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Requisition</div><div class="wf-step-label">Step 3 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Role</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Compensation</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">3</div><div class="wf-step-info"><div class="wf-step-name current">Description</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Job Description</h3>
+      <p class="step-desc">Describe the role, responsibilities, requirements, and qualifications. Required for submission.</p>
+
+      <div class="field">
+        <label>Description *</label>
+        <div class="textarea-mock tall">Describe the role, responsibilities, requirements, and qualifications...</div>
+      </div>
+
+      <div class="callout warning" style="margin-top:12px;">
+        <span class="callout-icon">!</span>
+        <span>Description is required when submitting for approval. You can skip this for drafts.</span>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Review &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- STEP 4 -->
+  <span class="anno green">STEP 4 — REVIEW &amp; SUBMIT (dual action)</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Requisition</div><div class="wf-step-label">Step 4 of 4</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Role</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Compensation</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Description</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">4</div><div class="wf-step-info"><div class="wf-step-name current">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Review Requisition</h3>
+      <p class="step-desc">Confirm the details. You can save as draft or submit for approval.</p>
+
+      <div class="review-grid">
+        <div class="review-card">
+          <div class="rc-label">Job Title</div>
+          <div class="rc-value">Senior Software Engineer</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Department</div>
+          <div class="rc-value">Engineering</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Location</div>
+          <div class="rc-value">Johannesburg</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Employment Type</div>
+          <div class="rc-value">Full-time</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Salary Range</div>
+          <div class="rc-value">R450,000 — R650,000</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Status</div>
+          <div class="rc-value" style="color:var(--cta);">Ready to Submit</div>
+        </div>
+      </div>
+
+      <div class="review-card" style="margin-top:12px;">
+        <div class="rc-label">Description</div>
+        <div style="font-size:13px;color:var(--charcoal);line-height:1.6;margin-top:4px;">
+          We are looking for a Senior Software Engineer to join our Engineering team. The role involves designing and building scalable systems...
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline-gold">Save as Draft</button>
+        <button class="btn btn-green">Submit for Approval</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 4: JOB POSTING FORM -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-job-posting">
+  <h2>Phase 4: Job Posting Form Wizard</h2>
+  <p class="subtitle">7 steps. Comprehensive job creation with AI assistance and a review step.</p>
+
+  <!-- Show all steps as mini cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 1</span>
+      <div style="font-size:13px;font-weight:700;">Basics</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Title, department, location, employment type, experience level</div>
+    </div>
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 2</span>
+      <div style="font-size:13px;font-weight:700;">Description</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Job description + responsibilities with AI generation</div>
+    </div>
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 3</span>
+      <div style="font-size:13px;font-weight:700;">Requirements</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Skills, qualifications, certifications, experience</div>
+    </div>
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 4</span>
+      <div style="font-size:13px;font-weight:700;">Compensation</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Salary range, benefits, perks</div>
+    </div>
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 5</span>
+      <div style="font-size:13px;font-weight:700;">Screening</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Background check types, screening questions</div>
+    </div>
+    <div style="background:white;border:1px solid var(--border);border-radius:2px;padding:14px;">
+      <span class="anno blue" style="margin-bottom:4px;">Step 6</span>
+      <div style="font-size:13px;font-weight:700;">SEO &amp; Publishing</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Meta description, keywords, URL slug</div>
+    </div>
+    <div style="background:white;border:1px solid var(--cta);border-radius:2px;padding:14px;background:#FFFBEB;">
+      <span class="anno green" style="margin-bottom:4px;">Step 7</span>
+      <div style="font-size:13px;font-weight:700;">Review</div>
+      <div style="font-size:11px;color:var(--soft-grey);margin-top:4px;">Full summary before save/publish</div>
+    </div>
+  </div>
+
+  <!-- Key step: Description with AI -->
+  <span class="anno amber">STEP 2 — DESCRIPTION (AI-assisted, dedicated focus)</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Job Posting</div><div class="wf-step-label">Step 2 of 7</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Basics</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">2</div><div class="wf-step-info"><div class="wf-step-name current">Description</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Requirements</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Compensation</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Screening</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">6</div><div class="wf-step-info"><div class="wf-step-name upcoming">SEO</div></div></div>
+      <div class="wf-connector pending"></div>
+      <div class="wf-step"><div class="wf-step-circle upcoming">7</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Job Description</h3>
+      <p class="step-desc">Write the description and responsibilities, or use AI to generate a draft.</p>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="btn btn-primary" style="font-size:11px;padding:6px 14px;">
+          <span style="margin-right:4px;">&#9733;</span> Generate with AI
+        </button>
+        <button class="btn btn-ghost" style="font-size:11px;padding:6px 14px;">Use Template</button>
+      </div>
+
+      <div class="field">
+        <label>Description *</label>
+        <div class="textarea-mock tall">Write a compelling description of the role, team, and what success looks like...</div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Key Responsibilities</label>
+        <div class="textarea-mock">List the main responsibilities and duties...</div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <button class="btn btn-primary">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+
+  <!-- Review step -->
+  <span class="anno green">STEP 7 — REVIEW</span>
+  <div class="wizard-frame">
+    <div class="wf-header"><div class="wf-title">New Job Posting</div><div class="wf-step-label">Step 7 of 7</div></div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Basics</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Description</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Requirements</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Compensation</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">Screening</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle completed">&#10003;</div><div class="wf-step-info"><div class="wf-step-name completed">SEO</div></div></div>
+      <div class="wf-connector done"></div>
+      <div class="wf-step"><div class="wf-step-circle current">7</div><div class="wf-step-info"><div class="wf-step-name current">Review</div></div></div>
+    </div>
+    <div class="wf-content">
+      <h3>Review Job Posting</h3>
+      <p class="step-desc">Everything looks good. Save as draft or publish directly.</p>
+
+      <div class="review-grid">
+        <div class="review-card">
+          <div class="rc-label">Title</div>
+          <div class="rc-value">Senior Software Engineer</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Department</div>
+          <div class="rc-value">Engineering</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Location</div>
+          <div class="rc-value">Johannesburg (Hybrid)</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Type</div>
+          <div class="rc-value">Full-time, Senior</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Salary</div>
+          <div class="rc-value">R450K — R650K</div>
+        </div>
+        <div class="review-card">
+          <div class="rc-label">Screening</div>
+          <div class="rc-value">Criminal, Credit, References</div>
+        </div>
+      </div>
+
+      <div class="review-card" style="margin-top:12px;">
+        <div class="rc-label">Completion</div>
+        <div class="progress-bar"><div class="fill green" style="width:100%;"></div></div>
+        <div style="font-size:11px;color:var(--green);font-weight:600;">All sections complete</div>
+      </div>
+    </div>
+    <div class="wf-footer">
+      <button class="btn btn-ghost">&larr; Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline-gold">Save as Draft</button>
+        <button class="btn btn-green">Save &amp; Publish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 5: CANDIDATE PROFILE (HYBRID) -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="wizard-panel" id="panel-candidate">
+  <h2>Phase 5: Candidate Profile (Hybrid Wizard/Tabs)</h2>
+  <p class="subtitle">Wizard for first-time setup, tabs for returning users. Detects profile completeness.</p>
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="active" onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('cand-wizard').style.display='block';document.getElementById('cand-tabs').style.display='none';">Wizard Mode (incomplete profile)</button>
+    <button onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('cand-wizard').style.display='none';document.getElementById('cand-tabs').style.display='block';">Tab Mode (complete profile)</button>
+  </div>
+
+  <!-- Wizard mode -->
+  <div id="cand-wizard">
+    <span class="anno blue">WIZARD MODE — First-time profile setup</span>
+
+    <!-- Step 1 -->
+    <div class="wizard-frame" style="margin-bottom:20px;">
+      <div class="wf-header"><div class="wf-title">Complete Your Profile</div><div class="wf-step-label">Step 1 of 6</div></div>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-step-circle current">1</div><div class="wf-step-info"><div class="wf-step-name current">Personal</div></div></div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step"><div class="wf-step-circle upcoming">2</div><div class="wf-step-info"><div class="wf-step-name upcoming">Experience</div></div></div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step"><div class="wf-step-circle upcoming">3</div><div class="wf-step-info"><div class="wf-step-name upcoming">Education</div></div></div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step"><div class="wf-step-circle upcoming">4</div><div class="wf-step-info"><div class="wf-step-name upcoming">Skills</div></div></div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step"><div class="wf-step-circle upcoming">5</div><div class="wf-step-info"><div class="wf-step-name upcoming">Documents</div></div></div>
+        <div class="wf-connector pending"></div>
+        <div class="wf-step"><div class="wf-step-circle upcoming">6</div><div class="wf-step-info"><div class="wf-step-name upcoming">Review</div></div></div>
+      </div>
+      <div class="wf-content">
+        <h3>Personal Information</h3>
+        <p class="step-desc">Let us know about you. This information appears on your applications.</p>
+
+        <div style="display:flex;gap:20px;align-items:flex-start;">
+          <div style="width:80px;height:80px;border-radius:50%;background:var(--off-white);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;color:#CBD5E1;flex-shrink:0;">&#128100;</div>
+          <div style="flex:1;">
+            <div class="field-row cols-2">
+              <div class="field"><label>First Name *</label><div class="input-mock filled">Ayanda</div></div>
+              <div class="field"><label>Last Name *</label><div class="input-mock filled">Dlamini</div></div>
+            </div>
+            <div class="field-row cols-2" style="margin-top:12px;">
+              <div class="field"><label>Email *</label><div class="input-mock filled">ayanda@email.com</div></div>
+              <div class="field"><label>Phone</label><div class="input-mock">+27...</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row cols-2" style="margin-top:16px;">
+          <div class="field"><label>Location</label><div class="input-mock">City, Province</div></div>
+          <div class="field"><label>Availability</label><div class="select-mock">Select...</div></div>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>Headline</label>
+          <div class="input-mock">e.g., Full-stack Developer with 5 years experience</div>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>Summary</label>
+          <div class="textarea-mock">Brief professional summary...</div>
+        </div>
+      </div>
+      <div class="wf-footer">
+        <div></div>
+        <button class="btn btn-primary">Next &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Step 2 (Experience) -->
+    <span class="anno blue">STEP 2 — EXPERIENCE</span>
+    <div class="wizard-frame" style="margin-bottom:20px;">
+      <div class="wf-content" style="min-height:200px;">
+        <h3>Work Experience</h3>
+        <p class="step-desc">Add your employment history. Most recent first.</p>
+
+        <div style="border:1px solid var(--border);border-radius:2px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:700;">Software Developer</div>
+            <div style="font-size:12px;color:var(--soft-grey);">TechCorp SA — Jan 2023 to Present</div>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="btn btn-ghost" style="padding:4px 8px;font-size:10px;">Edit</button>
+            <button class="btn btn-ghost" style="padding:4px 8px;font-size:10px;color:var(--red);">Remove</button>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" style="font-size:12px;">+ Add Experience</button>
+      </div>
+      <div class="wf-footer">
+        <button class="btn btn-ghost">&larr; Back</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-skip">Skip for now</button>
+          <button class="btn btn-primary">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 (Documents) -->
+    <span class="anno blue">STEP 5 — DOCUMENTS</span>
+    <div class="wizard-frame" style="margin-bottom:20px;">
+      <div class="wf-content" style="min-height:180px;">
+        <h3>Upload Documents</h3>
+        <p class="step-desc">Upload your CV and any supporting documents.</p>
+
+        <div style="border:2px dashed var(--border);border-radius:2px;padding:32px;text-align:center;margin-bottom:12px;">
+          <div style="font-size:32px;color:#CBD5E1;margin-bottom:8px;">&#128196;</div>
+          <div style="font-size:13px;font-weight:600;color:var(--charcoal);">Drop your CV here or click to upload</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:4px;">PDF, DOCX up to 5MB</div>
+        </div>
+      </div>
+      <div class="wf-footer">
+        <button class="btn btn-ghost">&larr; Back</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-skip">Skip for now</button>
+          <button class="btn btn-primary">Review &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 (Review) -->
+    <span class="anno green">STEP 6 — REVIEW</span>
+    <div class="wizard-frame">
+      <div class="wf-content">
+        <h3>Profile Summary</h3>
+        <p class="step-desc">Here is your profile at a glance. You can always edit sections later from the tabs view.</p>
+
+        <div style="display:flex;gap:16px;margin-bottom:20px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--cta);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--deep-navy);flex-shrink:0;">AD</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;">Ayanda Dlamini</div>
+            <div style="font-size:13px;color:var(--soft-grey);">Full-stack Developer with 5 years experience</div>
+            <div style="font-size:12px;color:var(--soft-grey);margin-top:2px;">Johannesburg, Gauteng</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          <div class="review-card" style="text-align:center;">
+            <div class="rc-label">Experience</div>
+            <div class="rc-value">1 entry</div>
+          </div>
+          <div class="review-card" style="text-align:center;">
+            <div class="rc-label">Education</div>
+            <div class="rc-value" style="color:#94A3B8;">Skipped</div>
+          </div>
+          <div class="review-card" style="text-align:center;">
+            <div class="rc-label">Skills</div>
+            <div class="rc-value">5 skills</div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="rc-label">Profile Completeness</div>
+          <div class="progress-bar"><div class="fill gold" style="width:72%;"></div></div>
+          <div style="font-size:11px;color:var(--soft-grey);">72% complete — add education and documents to improve</div>
+        </div>
+      </div>
+      <div class="wf-footer">
+        <button class="btn btn-ghost">&larr; Back</button>
+        <button class="btn btn-green">Complete Profile Setup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab mode -->
+  <div id="cand-tabs" style="display:none;">
+    <span class="anno purple">TAB MODE — Returning users with complete profiles</span>
+    <div class="wizard-frame">
+      <div class="wf-header">
+        <div class="wf-title">My Profile</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;">Profile Complete</div>
+      </div>
+      <div style="padding:0 24px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;gap:0;">
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--primary);border-bottom:2px solid var(--cta);">Profile</div>
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--soft-grey);">Experience</div>
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--soft-grey);">Education</div>
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--soft-grey);">Skills</div>
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--soft-grey);">Documents</div>
+          <div style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--soft-grey);">Applications</div>
+        </div>
+      </div>
+      <div class="wf-content" style="min-height:160px;">
+        <div style="text-align:center;color:#94A3B8;padding:40px 0;">
+          Standard tab-based profile editing interface (unchanged from current implementation)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.wizard-nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

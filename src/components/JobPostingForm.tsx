@@ -7,6 +7,8 @@ import { useDepartments } from '@/hooks/useDepartments';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiJobDescriptionWriter from '@/components/ai/AiJobDescriptionWriter';
 import { JobDescriptionResult } from '@/types/ai';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import WizardShell, { WizardStep } from '@/components/WizardShell';
 
 interface JobPostingFormProps {
   jobPostingId?: number;
@@ -61,7 +63,7 @@ const EMPLOYMENT_TYPES = [
   { value: 'FREELANCE', label: 'Freelance' },
   { value: 'INTERNSHIP', label: 'Internship' },
   { value: 'APPRENTICESHIP', label: 'Apprenticeship' },
-  { value: 'VOLUNTEER', label: 'Volunteer' }
+  { value: 'VOLUNTEER', label: 'Volunteer' },
 ];
 
 const EXPERIENCE_LEVELS = [
@@ -71,9 +73,26 @@ const EXPERIENCE_LEVELS = [
   { value: 'SENIOR', label: 'Senior (6-10 years)' },
   { value: 'LEAD', label: 'Lead (8+ years)' },
   { value: 'EXECUTIVE', label: 'Executive (10+ years)' },
-  { value: 'EXPERT', label: 'Expert (15+ years)' }
+  { value: 'EXPERT', label: 'Expert (15+ years)' },
 ];
 
+const WIZARD_STEPS: WizardStep[] = [
+  { id: 'basic', label: 'Basics', description: 'Position details' },
+  { id: 'details', label: 'Details', description: 'Description and requirements' },
+  { id: 'compensation', label: 'Compensation', description: 'Salary range', skippable: true },
+  { id: 'verification', label: 'Verification', description: 'Background checks', skippable: true },
+  { id: 'seo', label: 'SEO & Notes', description: 'Search and internal notes', skippable: true },
+  { id: 'review', label: 'Review', description: 'Review and submit' },
+];
+
+const inputClass =
+  'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
+
+const errorInputClass =
+  'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-300 focus:border-red-400';
+
+const labelClass =
+  'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
 
 export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
   const { user } = useAuth();
@@ -100,30 +119,26 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     featured: false,
     urgent: false,
     requiredCheckTypes: [],
-    enforceCheckCompletion: false
+    enforceCheckCompletion: false,
   });
 
+  const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [availableCheckTypes, setAvailableCheckTypes] = useState<CheckType[]>([]);
   const [checkTypesLoading, setCheckTypesLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState('basic');
+
   const actorId = useMemo(() => {
     if (typeof currentUserId === 'number' && Number.isFinite(currentUserId)) {
       return currentUserId;
     }
-    if (!user?.id) {
-      return null;
-    }
+    if (!user?.id) return null;
     const parsedId = Number.parseInt(user.id, 10);
     return Number.isFinite(parsedId) ? parsedId : null;
   }, [currentUserId, user?.id]);
 
   const loadJobPosting = useCallback(async () => {
-    if (!jobPostingId) {
-      return;
-    }
-
+    if (!jobPostingId) return;
     try {
       setLoading(true);
       const response = await apiFetch(`/api/job-postings/${jobPostingId}`);
@@ -135,12 +150,12 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
         }
         setFormData({
           ...data,
-          applicationDeadline: data.applicationDeadline ?
-            new Date(data.applicationDeadline).toISOString().slice(0, 16) : '',
+          applicationDeadline: data.applicationDeadline
+            ? new Date(data.applicationDeadline).toISOString().slice(0, 16) : '',
           salaryMin: data.salaryMin || undefined,
           salaryMax: data.salaryMax || undefined,
           requiredCheckTypes: parsedCheckTypes,
-          enforceCheckCompletion: data.enforceCheckCompletion || false
+          enforceCheckCompletion: data.enforceCheckCompletion || false,
         });
       }
     } catch (error) {
@@ -150,14 +165,10 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     }
   }, [jobPostingId]);
 
-  // Load job posting data if editing
   useEffect(() => {
-    if (jobPostingId) {
-      loadJobPosting();
-    }
+    if (jobPostingId) loadJobPosting();
   }, [jobPostingId, loadJobPosting]);
 
-  // Load available check types for verification tab
   useEffect(() => {
     async function loadCheckTypes() {
       setCheckTypesLoading(true);
@@ -168,7 +179,7 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
           if (Array.isArray(data)) setAvailableCheckTypes(data);
         }
       } catch {
-        // Feature gate may block this — gracefully ignore
+        // Feature gate may block this
       } finally {
         setCheckTypesLoading(false);
       }
@@ -176,85 +187,8 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     loadCheckTypes();
   }, []);
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) newErrors.title = 'Job title is required';
-    if (!formData.department.trim()) newErrors.department = 'Department is required';
-    if (!formData.description.trim()) newErrors.description = 'Job description is required';
-    if (formData.description.length < 100) newErrors.description = 'Job description must be at least 100 characters';
-    
-    if (formData.salaryMin && formData.salaryMax && formData.salaryMin > formData.salaryMax) {
-      newErrors.salaryMax = 'Maximum salary must be greater than minimum salary';
-    }
-
-    if (formData.positionsAvailable < 1) {
-      newErrors.positionsAvailable = 'At least one position must be available';
-    }
-
-    if (formData.seoTitle && formData.seoTitle.length > 60) {
-      newErrors.seoTitle = 'SEO title must be 60 characters or less';
-    }
-
-    if (formData.seoDescription && formData.seoDescription.length > 160) {
-      newErrors.seoDescription = 'SEO description must be 160 characters or less';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-    if (!actorId) {
-      setErrors({ general: 'Unable to determine the signed-in user for audit tracking. Please sign in again.' });
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const submitData = {
-        ...formData,
-        applicationDeadline: formData.applicationDeadline ?
-          new Date(formData.applicationDeadline).toISOString() : null,
-        requiredCheckTypes: formData.requiredCheckTypes.length > 0
-          ? JSON.stringify(formData.requiredCheckTypes) : null
-      };
-
-      const actorParam = jobPostingId ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
-      const url = jobPostingId ?
-        `/api/job-postings/${jobPostingId}?${actorParam}` :
-        `/api/job-postings?${actorParam}`;
-      const method = jobPostingId ? 'PUT' : 'POST';
-
-      const response = await apiFetch(url, {
-        method,
-        body: JSON.stringify(submitData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (onSuccess) {
-          onSuccess(result);
-        }
-      } else {
-        const errorData = await response.json();
-        setErrors({ general: errorData.message || 'Failed to save job posting' });
-      }
-    } catch (error) {
-      console.error('Error saving job posting:', error);
-      setErrors({ general: 'An error occurred while saving' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleInputChange = <K extends keyof JobPostingData>(field: K, value: JobPostingData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -275,601 +209,696 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     });
   }, []);
 
-  const tabs = [
-    { id: 'basic', label: 'Basic Information' },
-    { id: 'details', label: 'Job Details' },
-    { id: 'compensation', label: 'Compensation' },
-    { id: 'verification', label: 'Verification' },
-    { id: 'seo', label: 'SEO & Settings' }
-  ];
+  const canProceedFromStep = (step: number): boolean => {
+    switch (step) {
+      case 0: // Basic
+        return !!(formData.title.trim() && formData.department.trim());
+      case 1: // Details
+        return !!(formData.description.trim() && formData.description.length >= 100);
+      case 2: // Compensation
+        return !(formData.salaryMin && formData.salaryMax && formData.salaryMin > formData.salaryMax);
+      case 3: // Verification
+        return true;
+      case 4: // SEO
+        return !(formData.seoTitle && formData.seoTitle.length > 60) &&
+          !(formData.seoDescription && formData.seoDescription.length > 160);
+      case 5: // Review
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (currentStep < WIZARD_STEPS.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentStep < WIZARD_STEPS.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!actorId) {
+      setErrors({ general: 'Unable to determine the signed-in user for audit tracking. Please sign in again.' });
+      return;
+    }
+
+    setLoading(true);
+
+    const submitData = {
+      ...formData,
+      applicationDeadline: formData.applicationDeadline
+        ? new Date(formData.applicationDeadline).toISOString() : null,
+      requiredCheckTypes: formData.requiredCheckTypes.length > 0
+        ? JSON.stringify(formData.requiredCheckTypes) : null,
+    };
+
+    const actorParam = jobPostingId ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
+    const url = jobPostingId
+      ? `/api/job-postings/${jobPostingId}?${actorParam}`
+      : `/api/job-postings?${actorParam}`;
+    const method = jobPostingId ? 'PUT' : 'POST';
+
+    try {
+      const response = await apiFetch(url, {
+        method,
+        body: JSON.stringify(submitData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (onSuccess) onSuccess(result);
+      } else {
+        const errorData = await response.json();
+        setErrors({ general: errorData.message || 'Failed to save job posting' });
+      }
+    } catch (error) {
+      console.error('Error saving job posting:', error);
+      setErrors({ general: 'An error occurred while saving' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const employmentLabel = EMPLOYMENT_TYPES.find(t => t.value === formData.employmentType)?.label || formData.employmentType;
+  const experienceLabel = EXPERIENCE_LEVELS.find(l => l.value === formData.experienceLevel)?.label || formData.experienceLevel;
+
+  const checkboxClass =
+    'flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-[2px] cursor-pointer hover:bg-off-white dark:hover:bg-gray-800 transition-colors';
+
+  const renderBasicStep = () => (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label htmlFor="job-title" className={labelClass}>Job Title *</label>
+          <input
+            type="text"
+            id="job-title"
+            value={formData.title}
+            onChange={(e) => handleInputChange('title', e.target.value)}
+            aria-required="true"
+            aria-invalid={!!errors.title}
+            className={errors.title ? errorInputClass : inputClass}
+            placeholder="e.g. Senior Software Engineer"
+          />
+          {errors.title && <p role="alert" className="mt-1 text-xs text-red-600">{errors.title}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="job-department" className={labelClass}>Department *</label>
+          <select
+            id="job-department"
+            value={formData.department}
+            onChange={(e) => handleInputChange('department', e.target.value)}
+            aria-required="true"
+            aria-invalid={!!errors.department}
+            className={errors.department ? errorInputClass : inputClass}
+          >
+            <option value="">Select Department</option>
+            {(formData.department && !DEPARTMENTS.includes(formData.department)
+              ? [formData.department, ...DEPARTMENTS]
+              : DEPARTMENTS
+            ).map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
+          {errors.department && <p role="alert" className="mt-1 text-xs text-red-600">{errors.department}</p>}
+        </div>
+
+        <div>
+          <label className={labelClass}>Location</label>
+          <input
+            type="text"
+            value={formData.location}
+            onChange={(e) => handleInputChange('location', e.target.value)}
+            className={inputClass}
+            placeholder="e.g. Cape Town, South Africa"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="positions-available" className={labelClass}>Positions Available *</label>
+          <input
+            type="number"
+            id="positions-available"
+            min="1"
+            value={formData.positionsAvailable}
+            onChange={(e) => {
+              const parsed = Number.parseInt(e.target.value, 10);
+              handleInputChange('positionsAvailable', Number.isNaN(parsed) ? 0 : parsed);
+            }}
+            aria-required="true"
+            aria-invalid={!!errors.positionsAvailable}
+            className={errors.positionsAvailable ? errorInputClass : inputClass}
+          />
+          {errors.positionsAvailable && <p role="alert" className="mt-1 text-xs text-red-600">{errors.positionsAvailable}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="employment-type" className={labelClass}>Employment Type *</label>
+          <select
+            id="employment-type"
+            value={formData.employmentType}
+            onChange={(e) => handleInputChange('employmentType', e.target.value)}
+            aria-required="true"
+            className={inputClass}
+          >
+            {EMPLOYMENT_TYPES.map(type => (
+              <option key={type.value} value={type.value}>{type.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="experience-level" className={labelClass}>Experience Level *</label>
+          <select
+            id="experience-level"
+            value={formData.experienceLevel}
+            onChange={(e) => handleInputChange('experienceLevel', e.target.value)}
+            aria-required="true"
+            className={inputClass}
+          >
+            {EXPERIENCE_LEVELS.map(level => (
+              <option key={level.value} value={level.value}>{level.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>Application Deadline</label>
+        <input
+          type="datetime-local"
+          value={formData.applicationDeadline}
+          onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
+          className={inputClass}
+        />
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-[0.05em]">Leave empty for no deadline</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <label className={checkboxClass}>
+          <input
+            type="checkbox"
+            checked={formData.remoteWorkAllowed}
+            onChange={(e) => handleInputChange('remoteWorkAllowed', e.target.checked)}
+            className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Remote work allowed</span>
+        </label>
+
+        <label className={checkboxClass}>
+          <input
+            type="checkbox"
+            checked={formData.travelRequired}
+            onChange={(e) => handleInputChange('travelRequired', e.target.checked)}
+            className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Travel required</span>
+        </label>
+
+        <label className={checkboxClass}>
+          <input
+            type="checkbox"
+            checked={formData.featured}
+            onChange={(e) => handleInputChange('featured', e.target.checked)}
+            className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Featured position</span>
+        </label>
+
+        <label className={checkboxClass}>
+          <input
+            type="checkbox"
+            checked={formData.urgent}
+            onChange={(e) => handleInputChange('urgent', e.target.checked)}
+            className="mr-2 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Urgent hiring</span>
+        </label>
+      </div>
+    </div>
+  );
+
+  const renderDetailsStep = () => (
+    <div className="space-y-5">
+      <AiAssistPanel title="Generate with AI" feature="AI_JOB_DESCRIPTION" description="Auto-generate description, responsibilities, requirements, and benefits from the job title and department">
+        <AiJobDescriptionWriter
+          initialTitle={formData.title}
+          initialDepartment={formData.department}
+          onApply={handleAiDescriptionApply}
+        />
+      </AiAssistPanel>
+
+      <div>
+        <label htmlFor="job-description" className={labelClass}>Job Description *</label>
+        <textarea
+          id="job-description"
+          value={formData.description}
+          onChange={(e) => handleInputChange('description', e.target.value)}
+          rows={6}
+          aria-required="true"
+          aria-invalid={!!errors.description}
+          className={errors.description ? errorInputClass : inputClass}
+          placeholder="Provide a detailed description of the role..."
+        />
+        <div className="flex justify-between mt-1">
+          {errors.description && <p role="alert" className="text-xs text-red-600">{errors.description}</p>}
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+            {formData.description.length} characters (minimum 100)
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>Key Responsibilities</label>
+        <textarea
+          value={formData.responsibilities}
+          onChange={(e) => handleInputChange('responsibilities', e.target.value)}
+          rows={4}
+          className={inputClass}
+          placeholder="List the main responsibilities and duties..."
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Requirements</label>
+        <textarea
+          value={formData.requirements}
+          onChange={(e) => handleInputChange('requirements', e.target.value)}
+          rows={4}
+          className={inputClass}
+          placeholder="List the essential requirements, skills, and experience..."
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Qualifications</label>
+        <textarea
+          value={formData.qualifications}
+          onChange={(e) => handleInputChange('qualifications', e.target.value)}
+          rows={3}
+          className={inputClass}
+          placeholder="Educational qualifications, certifications..."
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Benefits & Perks</label>
+        <textarea
+          value={formData.benefits}
+          onChange={(e) => handleInputChange('benefits', e.target.value)}
+          rows={3}
+          className={inputClass}
+          placeholder="List the benefits, perks, and what makes this opportunity attractive..."
+        />
+      </div>
+    </div>
+  );
+
+  const renderCompensationStep = () => (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label htmlFor="salary-min" className={labelClass}>Minimum Salary</label>
+          <input
+            type="number"
+            id="salary-min"
+            min="0"
+            step="1000"
+            value={formData.salaryMin || ''}
+            onChange={(e) => handleInputChange('salaryMin', e.target.value ? parseFloat(e.target.value) : undefined)}
+            className={inputClass}
+            placeholder="e.g. 50000"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="salary-max" className={labelClass}>Maximum Salary</label>
+          <input
+            type="number"
+            id="salary-max"
+            min="0"
+            step="1000"
+            value={formData.salaryMax || ''}
+            onChange={(e) => handleInputChange('salaryMax', e.target.value ? parseFloat(e.target.value) : undefined)}
+            aria-invalid={!!errors.salaryMax}
+            className={errors.salaryMax ? errorInputClass : inputClass}
+            placeholder="e.g. 80000"
+          />
+          {errors.salaryMax && <p role="alert" className="mt-1 text-xs text-red-600">{errors.salaryMax}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="salary-currency" className={labelClass}>Currency</label>
+          <select
+            id="salary-currency"
+            value={formData.salaryCurrency}
+            onChange={(e) => handleInputChange('salaryCurrency', e.target.value)}
+            className={inputClass}
+          >
+            <option value="ZAR">ZAR (South African Rand)</option>
+            <option value="USD">USD (US Dollar)</option>
+            <option value="EUR">EUR (Euro)</option>
+            <option value="GBP">GBP (British Pound)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+        <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">Salary Range Preview</div>
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          {formData.salaryMin || formData.salaryMax ? (
+            <>
+              {formData.salaryMin && formData.salaryMax
+                ? `${formData.salaryCurrency} ${formData.salaryMin.toLocaleString()} – ${formData.salaryMax.toLocaleString()}`
+                : formData.salaryMin
+                  ? `${formData.salaryCurrency} ${formData.salaryMin.toLocaleString()}+`
+                  : `Up to ${formData.salaryCurrency} ${formData.salaryMax?.toLocaleString()}`
+              } per annum
+            </>
+          ) : (
+            'Salary negotiable'
+          )}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderVerificationStep = () => (
+    <div className="space-y-5">
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Required Verification Checks</h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+          Select the background checks that must be completed for candidates applying to this role.
+        </p>
+      </div>
+
+      {checkTypesLoading ? (
+        <div className="flex items-center justify-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cta mr-2" />
+          Loading check types...
+        </div>
+      ) : availableCheckTypes.length === 0 ? (
+        <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          Background checks feature is not available for your account.
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {availableCheckTypes.map(ct => {
+              const isSelected = formData.requiredCheckTypes.includes(ct.code);
+              return (
+                <label
+                  key={ct.code}
+                  className={`flex items-start p-3 rounded-[2px] border cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'bg-primary/5 border-primary/30'
+                      : 'bg-white dark:bg-charcoal border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        requiredCheckTypes: isSelected
+                          ? prev.requiredCheckTypes.filter(c => c !== ct.code)
+                          : [...prev.requiredCheckTypes, ct.code],
+                      }));
+                    }}
+                    className="mt-0.5 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+                  />
+                  <div className="ml-3 flex-1">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{ct.name}</span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ct.description}</p>
+                    <div className="flex items-center space-x-3 mt-1">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500">{ct.turnaround}</span>
+                      <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
+                        R{ct.price.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+
+          {formData.requiredCheckTypes.length > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-[2px] px-4 py-3">
+              <span className="text-sm text-primary">
+                {formData.requiredCheckTypes.length} check{formData.requiredCheckTypes.length > 1 ? 's' : ''} required for this role
+              </span>
+            </div>
+          )}
+
+          <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+            <label className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                checked={formData.enforceCheckCompletion}
+                onChange={(e) => handleInputChange('enforceCheckCompletion', e.target.checked)}
+                className="mt-0.5 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Enforce check completion
+                </span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  When enabled, candidates cannot progress past the Background Check pipeline stage
+                  until all required checks are completed with a CLEAR result.
+                </p>
+              </div>
+            </label>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderSeoStep = () => (
+    <div className="space-y-5">
+      <div>
+        <label htmlFor="seo-title" className={labelClass}>SEO Title</label>
+        <input
+          type="text"
+          id="seo-title"
+          maxLength={60}
+          value={formData.seoTitle}
+          onChange={(e) => handleInputChange('seoTitle', e.target.value)}
+          aria-invalid={!!errors.seoTitle}
+          className={errors.seoTitle ? errorInputClass : inputClass}
+          placeholder="Custom title for search engines (optional)"
+        />
+        <div className="flex justify-between mt-1">
+          {errors.seoTitle && <p role="alert" className="text-xs text-red-600">{errors.seoTitle}</p>}
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+            {formData.seoTitle.length}/60
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="seo-description" className={labelClass}>SEO Description</label>
+        <textarea
+          id="seo-description"
+          maxLength={160}
+          value={formData.seoDescription}
+          onChange={(e) => handleInputChange('seoDescription', e.target.value)}
+          rows={3}
+          aria-invalid={!!errors.seoDescription}
+          className={errors.seoDescription ? errorInputClass : inputClass}
+          placeholder="Brief description for search engines (optional)"
+        />
+        <div className="flex justify-between mt-1">
+          {errors.seoDescription && <p role="alert" className="text-xs text-red-600">{errors.seoDescription}</p>}
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto uppercase tracking-[0.05em]">
+            {formData.seoDescription.length}/160
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>SEO Keywords</label>
+        <input
+          type="text"
+          value={formData.seoKeywords}
+          onChange={(e) => handleInputChange('seoKeywords', e.target.value)}
+          className={inputClass}
+          placeholder="Comma-separated keywords for search optimization"
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Internal Notes</label>
+        <textarea
+          value={formData.internalNotes}
+          onChange={(e) => handleInputChange('internalNotes', e.target.value)}
+          rows={3}
+          className={inputClass}
+          placeholder="Internal notes for hiring team (not visible to applicants)"
+        />
+      </div>
+    </div>
+  );
+
+  const renderReviewStep = () => {
+    const flags = [
+      formData.remoteWorkAllowed && 'Remote',
+      formData.travelRequired && 'Travel Required',
+      formData.featured && 'Featured',
+      formData.urgent && 'Urgent',
+    ].filter(Boolean);
+
+    return (
+      <div className="space-y-6">
+        {errors.general && (
+          <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[2px] p-3 text-sm text-red-700 dark:text-red-400">
+            {errors.general}
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <ReviewCard label="Job Title" value={formData.title} />
+          <ReviewCard label="Department" value={formData.department} />
+          <ReviewCard label="Location" value={formData.location || 'Not specified'} />
+          <ReviewCard label="Employment Type" value={employmentLabel} />
+          <ReviewCard label="Experience Level" value={experienceLabel} />
+          <ReviewCard label="Positions" value={String(formData.positionsAvailable)} />
+          <ReviewCard
+            label="Salary"
+            value={
+              formData.salaryMin || formData.salaryMax
+                ? `${formData.salaryCurrency} ${formData.salaryMin?.toLocaleString() || '—'} – ${formData.salaryMax?.toLocaleString() || '—'}`
+                : 'Negotiable'
+            }
+          />
+          <ReviewCard label="Deadline" value={formData.applicationDeadline ? new Date(formData.applicationDeadline).toLocaleDateString() : 'No deadline'} />
+          <ReviewCard label="Checks Required" value={formData.requiredCheckTypes.length > 0 ? `${formData.requiredCheckTypes.length} check(s)` : 'None'} />
+        </div>
+
+        {flags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {flags.map(flag => (
+              <span key={flag as string} className="inline-block px-2 py-1 text-[10px] font-medium uppercase tracking-[0.05em] bg-cta/10 text-cta border border-cta/20 rounded-[2px]">
+                {flag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {formData.description && (
+          <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+            <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-2">
+              Description Preview
+            </div>
+            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+              {formData.description}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0: return renderBasicStep();
+      case 1: return renderDetailsStep();
+      case 2: return renderCompensationStep();
+      case 3: return renderVerificationStep();
+      case 4: return renderSeoStep();
+      case 5: return renderReviewStep();
+      default: return null;
+    }
+  };
+
+  const reviewFooter = currentStep === WIZARD_STEPS.length - 1 ? (
+    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+      <button
+        onClick={handleBack}
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      >
+        <ArrowLeftIcon className="w-3.5 h-3.5" />
+        Back
+      </button>
+      <div className="flex items-center gap-2">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-cta text-deep-navy rounded-full hover:bg-cta/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-deep-navy" />
+              Saving...
+            </>
+          ) : (
+            jobPostingId ? 'Update Job Posting' : 'Create Job Posting'
+          )}
+        </button>
+      </div>
+    </div>
+  ) : undefined;
 
   if (loading && jobPostingId) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job posting...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta mx-auto mb-4" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading job posting...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl rounded-md border border-gray-200 bg-white shadow-sm">
-      {/* Header */}
-      <div className="border-b border-gray-200 px-6 py-4">
-        <h2 className="text-2xl font-bold text-gray-900">
-          {jobPostingId ? 'Edit Job Posting' : 'Create Job Posting'}
-        </h2>
-        <p className="text-gray-600 mt-1">
-          {jobPostingId ? 'Update job posting details and requirements' : 'Create a new job posting with detailed requirements'}
-        </p>
+    <div className="max-w-4xl mx-auto">
+      <WizardShell
+        steps={WIZARD_STEPS}
+        currentStep={currentStep}
+        onNext={handleNext}
+        onBack={handleBack}
+        onSkip={handleSkip}
+        canProceed={canProceedFromStep(currentStep)}
+        title={jobPostingId ? 'Edit Job Posting' : 'Create Job Posting'}
+        subtitle={jobPostingId ? 'Update job posting details and requirements' : 'Create a new job posting with detailed requirements'}
+        footer={reviewFooter}
+      >
+        {renderStepContent()}
+      </WizardShell>
+    </div>
+  );
+}
+
+function ReviewCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-3">
+      <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.05em] mb-1">
+        {label}
       </div>
-
-      {/* Tab Navigation */}
-      <div className="px-6 pt-4">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`border-b-2 px-2 py-2 text-sm font-medium ${
-                  activeTab === tab.id
-                    ? 'border-gold-500 text-gold-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
+      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+        {value}
       </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="p-6">
-        {errors.general && (
-          <div className="mb-6 rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-700">
-            {errors.general}
-          </div>
-        )}
-
-        {/* Basic Information Tab */}
-        {activeTab === 'basic' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="job-title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Title *
-                </label>
-                <input
-                  type="text"
-                  id="job-title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  aria-required="true"
-                  aria-invalid={!!errors.title}
-                  aria-describedby={errors.title ? 'job-title-error' : undefined}
-                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="e.g. Senior Software Engineer"
-                />
-                {errors.title && <p id="job-title-error" role="alert" className="text-red-500 text-sm mt-1">{errors.title}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="job-department" className="block text-sm font-medium text-gray-700 mb-1">
-                  Department *
-                </label>
-                <select
-                  id="job-department"
-                  value={formData.department}
-                  onChange={(e) => handleInputChange('department', e.target.value)}
-                  aria-required="true"
-                  aria-invalid={!!errors.department}
-                  aria-describedby={errors.department ? 'job-department-error' : undefined}
-                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.department ? 'border-red-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Select Department</option>
-                  {(formData.department && !DEPARTMENTS.includes(formData.department)
-                    ? [formData.department, ...DEPARTMENTS]
-                    : DEPARTMENTS
-                  ).map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-                {errors.department && <p id="job-department-error" role="alert" className="text-red-500 text-sm mt-1">{errors.department}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                  placeholder="e.g. Cape Town, South Africa"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="positions-available" className="block text-sm font-medium text-gray-700 mb-1">
-                  Positions Available *
-                </label>
-                <input
-                  type="number"
-                  id="positions-available"
-                  min="1"
-                  value={formData.positionsAvailable}
-                  onChange={(e) => {
-                    const parsed = Number.parseInt(e.target.value, 10);
-                    handleInputChange('positionsAvailable', Number.isNaN(parsed) ? 0 : parsed);
-                  }}
-                  aria-required="true"
-                  aria-invalid={!!errors.positionsAvailable}
-                  aria-describedby={errors.positionsAvailable ? 'positions-available-error' : undefined}
-                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.positionsAvailable ? 'border-red-500' : 'border-gray-300'}`}
-                />
-                {errors.positionsAvailable && <p id="positions-available-error" role="alert" className="text-red-500 text-sm mt-1">{errors.positionsAvailable}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="employment-type" className="block text-sm font-medium text-gray-700 mb-1">
-                  Employment Type *
-                </label>
-                <select
-                  id="employment-type"
-                  value={formData.employmentType}
-                  onChange={(e) => handleInputChange('employmentType', e.target.value)}
-                  aria-required="true"
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                >
-                  {EMPLOYMENT_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="experience-level" className="block text-sm font-medium text-gray-700 mb-1">
-                  Experience Level *
-                </label>
-                <select
-                  id="experience-level"
-                  value={formData.experienceLevel}
-                  onChange={(e) => handleInputChange('experienceLevel', e.target.value)}
-                  aria-required="true"
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                >
-                  {EXPERIENCE_LEVELS.map(level => (
-                    <option key={level.value} value={level.value}>{level.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Application Deadline
-              </label>
-              <input
-                type="datetime-local"
-                value={formData.applicationDeadline}
-                onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-              />
-              <p className="text-sm text-gray-500 mt-1">Leave empty for no deadline</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
-                <input
-                  type="checkbox"
-                  checked={formData.remoteWorkAllowed}
-                  onChange={(e) => handleInputChange('remoteWorkAllowed', e.target.checked)}
-                  className="mr-2"
-                />
-                Remote work allowed
-              </label>
-
-              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
-                <input
-                  type="checkbox"
-                  checked={formData.travelRequired}
-                  onChange={(e) => handleInputChange('travelRequired', e.target.checked)}
-                  className="mr-2"
-                />
-                Travel required
-              </label>
-
-              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => handleInputChange('featured', e.target.checked)}
-                  className="mr-2"
-                />
-                Featured position
-              </label>
-
-              <label className="flex items-center rounded-md border border-gray-200 px-3 py-2">
-                <input
-                  type="checkbox"
-                  checked={formData.urgent}
-                  onChange={(e) => handleInputChange('urgent', e.target.checked)}
-                  className="mr-2"
-                />
-                Urgent hiring
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* Job Details Tab */}
-        {activeTab === 'details' && (
-          <div className="space-y-6">
-            <AiAssistPanel title="Generate with AI" feature="AI_JOB_DESCRIPTION" description="Auto-generate description, responsibilities, requirements, and benefits from the job title and department">
-              <AiJobDescriptionWriter
-                initialTitle={formData.title}
-                initialDepartment={formData.department}
-                onApply={handleAiDescriptionApply}
-              />
-            </AiAssistPanel>
-
-            <div>
-              <label htmlFor="job-description" className="block text-sm font-medium text-gray-700 mb-1">
-                Job Description *
-              </label>
-              <textarea
-                id="job-description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                rows={6}
-                aria-required="true"
-                aria-invalid={!!errors.description}
-                aria-describedby={errors.description ? 'job-description-error' : undefined}
-                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Provide a detailed description of the role, including key objectives and what the successful candidate will be responsible for..."
-              />
-              <div className="flex justify-between mt-1">
-                {errors.description && <p id="job-description-error" role="alert" className="text-red-500 text-sm">{errors.description}</p>}
-                <p className="text-gray-500 text-sm ml-auto">
-                  {formData.description.length} characters (minimum 100)
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Key Responsibilities
-              </label>
-              <textarea
-                value={formData.responsibilities}
-                onChange={(e) => handleInputChange('responsibilities', e.target.value)}
-                rows={4}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="List the main responsibilities and duties for this position..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Requirements
-              </label>
-              <textarea
-                value={formData.requirements}
-                onChange={(e) => handleInputChange('requirements', e.target.value)}
-                rows={4}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="List the essential requirements, skills, and experience needed..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Qualifications
-              </label>
-              <textarea
-                value={formData.qualifications}
-                onChange={(e) => handleInputChange('qualifications', e.target.value)}
-                rows={3}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="Educational qualifications, certifications, or preferred qualifications..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Benefits & Perks
-              </label>
-              <textarea
-                value={formData.benefits}
-                onChange={(e) => handleInputChange('benefits', e.target.value)}
-                rows={3}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="List the benefits, perks, and what makes this opportunity attractive..."
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Compensation Tab */}
-        {activeTab === 'compensation' && (
-          <div className="space-y-6">
-            <fieldset className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <legend className="sr-only">Salary Range</legend>
-              <div>
-                <label htmlFor="salary-min" className="block text-sm font-medium text-gray-700 mb-1">
-                  Minimum Salary
-                </label>
-                <input
-                  type="number"
-                  id="salary-min"
-                  min="0"
-                  step="1000"
-                  value={formData.salaryMin || ''}
-                  onChange={(e) => handleInputChange('salaryMin', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                  placeholder="e.g. 50000"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="salary-max" className="block text-sm font-medium text-gray-700 mb-1">
-                  Maximum Salary
-                </label>
-                <input
-                  type="number"
-                  id="salary-max"
-                  min="0"
-                  step="1000"
-                  value={formData.salaryMax || ''}
-                  onChange={(e) => handleInputChange('salaryMax', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  aria-invalid={!!errors.salaryMax}
-                  aria-describedby={errors.salaryMax ? 'salary-max-error' : undefined}
-                  className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.salaryMax ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="e.g. 80000"
-                />
-                {errors.salaryMax && <p id="salary-max-error" role="alert" className="text-red-500 text-sm mt-1">{errors.salaryMax}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="salary-currency" className="block text-sm font-medium text-gray-700 mb-1">
-                  Currency
-                </label>
-                <select
-                  id="salary-currency"
-                  value={formData.salaryCurrency}
-                  onChange={(e) => handleInputChange('salaryCurrency', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                >
-                  <option value="ZAR">ZAR (South African Rand)</option>
-                  <option value="USD">USD (US Dollar)</option>
-                  <option value="EUR">EUR (Euro)</option>
-                  <option value="GBP">GBP (British Pound)</option>
-                </select>
-              </div>
-            </fieldset>
-
-            <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Salary Range Preview</h4>
-              <p className="text-gray-600">
-                {formData.salaryMin || formData.salaryMax ? (
-                  <>
-                    {formData.salaryMin && formData.salaryMax ? 
-                      `${formData.salaryCurrency} ${formData.salaryMin.toLocaleString()} - ${formData.salaryMax.toLocaleString()}` :
-                      formData.salaryMin ? 
-                        `${formData.salaryCurrency} ${formData.salaryMin.toLocaleString()}+` :
-                        `Up to ${formData.salaryCurrency} ${formData.salaryMax?.toLocaleString()}`
-                    } per annum
-                  </>
-                ) : (
-                  'Salary negotiable'
-                )}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Verification Tab */}
-        {activeTab === 'verification' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">Required Verification Checks</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Select the background checks that must be completed for candidates applying to this role.
-              </p>
-            </div>
-
-            {checkTypesLoading ? (
-              <div className="flex items-center justify-center py-8 text-gray-500 text-sm">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold-500 mr-2" />
-                Loading check types...
-              </div>
-            ) : availableCheckTypes.length === 0 ? (
-              <div className="rounded-md border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                Background checks feature is not available for your account.
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {availableCheckTypes.map(ct => {
-                    const isSelected = formData.requiredCheckTypes.includes(ct.code);
-                    return (
-                      <label
-                        key={ct.code}
-                        className={`flex items-start p-3 rounded-lg border cursor-pointer transition-colors ${
-                          isSelected
-                            ? 'bg-gold-50 border-gold-300'
-                            : 'bg-white border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              requiredCheckTypes: isSelected
-                                ? prev.requiredCheckTypes.filter(c => c !== ct.code)
-                                : [...prev.requiredCheckTypes, ct.code]
-                            }));
-                          }}
-                          className="mt-0.5 h-4 w-4 text-gold-500 border-gray-300 rounded focus:ring-gold-500"
-                        />
-                        <div className="ml-3 flex-1">
-                          <span className="text-sm font-medium text-gray-900">{ct.name}</span>
-                          <p className="text-xs text-gray-500 mt-0.5">{ct.description}</p>
-                          <div className="flex items-center space-x-3 mt-1">
-                            <span className="text-xs text-gray-400">{ct.turnaround}</span>
-                            <span className="text-xs font-medium text-gray-600">
-                              R{ct.price.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                {formData.requiredCheckTypes.length > 0 && (
-                  <div className="rounded-md border border-violet-200 bg-violet-50 px-4 py-3">
-                    <span className="text-sm text-violet-700">
-                      {formData.requiredCheckTypes.length} check{formData.requiredCheckTypes.length > 1 ? 's' : ''} required for this role
-                    </span>
-                  </div>
-                )}
-
-                <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-                  <label className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={formData.enforceCheckCompletion}
-                      onChange={(e) => handleInputChange('enforceCheckCompletion', e.target.checked)}
-                      className="mt-0.5 h-4 w-4 text-gold-500 border-gray-300 rounded focus:ring-gold-500"
-                    />
-                    <div>
-                      <span className="text-sm font-medium text-gray-900">
-                        Enforce check completion
-                      </span>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        When enabled, candidates cannot progress past the Background Check pipeline stage
-                        until all required checks are completed with a CLEAR result.
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* SEO & Settings Tab */}
-        {activeTab === 'seo' && (
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="seo-title" className="block text-sm font-medium text-gray-700 mb-1">
-                SEO Title
-              </label>
-              <input
-                type="text"
-                id="seo-title"
-                maxLength={60}
-                value={formData.seoTitle}
-                onChange={(e) => handleInputChange('seoTitle', e.target.value)}
-                aria-invalid={!!errors.seoTitle}
-                aria-describedby={errors.seoTitle ? 'seo-title-error' : undefined}
-                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.seoTitle ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Custom title for search engines (optional)"
-              />
-              <div className="flex justify-between mt-1">
-                {errors.seoTitle && <p id="seo-title-error" role="alert" className="text-red-500 text-sm">{errors.seoTitle}</p>}
-                <p className="text-gray-500 text-sm ml-auto">
-                  {formData.seoTitle.length}/60 characters
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="seo-description" className="block text-sm font-medium text-gray-700 mb-1">
-                SEO Description
-              </label>
-              <textarea
-                id="seo-description"
-                maxLength={160}
-                value={formData.seoDescription}
-                onChange={(e) => handleInputChange('seoDescription', e.target.value)}
-                rows={3}
-                aria-invalid={!!errors.seoDescription}
-                aria-describedby={errors.seoDescription ? 'seo-description-error' : undefined}
-                className={`w-full rounded-md border p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60 ${errors.seoDescription ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Brief description for search engines (optional)"
-              />
-              <div className="flex justify-between mt-1">
-                {errors.seoDescription && <p id="seo-description-error" role="alert" className="text-red-500 text-sm">{errors.seoDescription}</p>}
-                <p className="text-gray-500 text-sm ml-auto">
-                  {formData.seoDescription.length}/160 characters
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                SEO Keywords
-              </label>
-              <input
-                type="text"
-                value={formData.seoKeywords}
-                onChange={(e) => handleInputChange('seoKeywords', e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="Comma-separated keywords for search optimization"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Internal Notes
-              </label>
-              <textarea
-                value={formData.internalNotes}
-                onChange={(e) => handleInputChange('internalNotes', e.target.value)}
-                rows={3}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
-                placeholder="Internal notes for hiring team (not visible to applicants)"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="mt-6 flex justify-end space-x-4 border-t border-gray-200 pt-6">
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Saving...
-              </span>
-            ) : (
-              jobPostingId ? 'Update Job Posting' : 'Create Job Posting'
-            )}
-          </button>
-        </div>
-      </form>
     </div>
   );
 }
