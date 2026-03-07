@@ -93,7 +93,7 @@ export default function BrowseJobsPage() {
   const loadJobs = async () => {
     setLoading(true);
     try {
-      const response = await apiFetch('/api/job-postings/published?size=50');
+      const response = await apiFetch('/api/public/job-postings/published?size=50');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const result = await response.json();
       const postings = result.content || result.data || result || [];

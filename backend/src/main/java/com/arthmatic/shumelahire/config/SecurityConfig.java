@@ -144,6 +144,7 @@ public class SecurityConfig {
 
                 // Interview endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/interviews/assigned/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
+                .requestMatchers(new AntPathRequestMatcher("/api/interviews/application/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "APPLICANT")
                 .requestMatchers(new AntPathRequestMatcher("/api/interviews/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER")
 
                 // Application management endpoints

@@ -43,6 +43,6 @@ export const rolePermissions: Record<UserRole, string[]> = {
   ],
   APPLICANT: [
     'browse_jobs', 'manage_own_applications', 'view_own_profile',
-    'view_own_interviews', 'view_own_offers', 'view_internal_jobs', 'send_messages',
+    'view_own_interviews', 'view_own_offers', 'view_internal_jobs',
   ],
 };

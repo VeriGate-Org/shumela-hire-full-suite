@@ -105,7 +105,7 @@ public class ApplicantController {
      * GET /api/applicants?search={term}&page={page}&size={size}&sort={field}
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> searchApplicants(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,

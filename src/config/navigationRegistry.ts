@@ -13,7 +13,6 @@ import {
   BuildingOfficeIcon,
   BuildingOffice2Icon,
   CurrencyDollarIcon,
-  EnvelopeIcon,
   PresentationChartBarIcon,
   WrenchScrewdriverIcon,
   MagnifyingGlassIcon,
@@ -91,8 +90,6 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'] },
   { id: 'interview-schedule', label: 'Interview Schedule', href: '/candidate/interviews', icon: CalendarIcon, section: 'personal', requiredPermissions: ['view_own_interviews'] },
   { id: 'my-offers', label: 'My Offers', href: '/candidate/offers', icon: CurrencyDollarIcon, section: 'personal', requiredPermissions: ['view_own_offers'] },
-  { id: 'messages', label: 'Messages', href: '/applicant/messages', icon: EnvelopeIcon, section: 'personal', requiredPermissions: ['send_messages'] },
-
   // System
   { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon, section: 'system', requiredPermissions: ['view_training'] },
   { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon, section: 'system', requiredPermissions: ['manage_integrations'] },
