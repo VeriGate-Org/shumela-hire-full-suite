@@ -28,6 +28,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
+import { formatEnumValue } from '@/utils/enumLabels';
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiCandidateRanking from '@/components/ai/AiCandidateRanking';
@@ -135,6 +136,11 @@ const BACKEND_STAGE_DISPLAY: Record<string, string> = {
   OFFER_NEGOTIATION: 'Offer Negotiation',
   OFFER_ACCEPTED: 'Offer Accepted',
   HIRED: 'Hired',
+  REJECTED: 'Rejected',
+  WITHDRAWN: 'Withdrawn',
+  OFFER_DECLINED: 'Offer Declined',
+  NO_SHOW: 'No Show',
+  DUPLICATE: 'Duplicate',
 };
 
 // Get the first backend stage of the next stage group (for cross-column progression)
@@ -951,7 +957,7 @@ export default function PipelinePage() {
                               </span>
                               <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${getStatusColor(application.status)}`}>
                                 {getStatusIcon(application.status)}
-                                {application.status}
+                                {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
                               </span>
                             </div>
                           </div>
@@ -1154,7 +1160,7 @@ export default function PipelinePage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
                             {getStatusIcon(application.status)}
-                            {application.status}
+                            {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1382,7 +1388,7 @@ export default function PipelinePage() {
                                 <div className="min-w-0">
                                   <p className="text-sm font-medium text-gray-900 truncate">{doc.filename}</p>
                                   <p className="text-xs text-gray-500">
-                                    {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : doc.type}
+                                    {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : formatEnumValue(doc.type)}
                                     {doc.fileSizeFormatted && ` - ${doc.fileSizeFormatted}`}
                                   </p>
                                 </div>
@@ -1424,7 +1430,7 @@ export default function PipelinePage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="text-sm text-gray-900">
-                                <strong>{event.fromStage ? `${event.fromStage} → ${event.toStage}` : event.toStage}</strong>
+                                <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
                                 {event.performedBy && <span className="text-gray-500"> by {event.performedBy}</span>}
                               </div>
                               {event.reason && (

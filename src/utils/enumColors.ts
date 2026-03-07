@@ -54,15 +54,22 @@ export const ENUM_COLORS: Record<string, Record<string, string>> = {
     OFFER_NEGOTIATION: 'green',
     OFFER_ACCEPTED: 'green',
     HIRED: 'greenSolid',
+    REJECTED: 'red',
+    WITHDRAWN: 'gray',
+    OFFER_DECLINED: 'orange',
+    NO_SHOW: 'red',
+    DUPLICATE: 'slate',
   },
 
   interviewStatus: {
     CONFIRMED: 'green',
     SCHEDULED: 'gold',
+    IN_PROGRESS: 'blue',
     COMPLETED: 'gray',
     CANCELLED: 'red',
     RESCHEDULED: 'yellow',
     NO_SHOW: 'red',
+    POSTPONED: 'amber',
   },
 
   interviewType: {

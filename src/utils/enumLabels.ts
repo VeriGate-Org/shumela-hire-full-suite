@@ -37,16 +37,23 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     OFFER_NEGOTIATION: 'Offer Negotiation',
     OFFER_ACCEPTED: 'Offer Accepted',
     HIRED: 'Hired',
+    REJECTED: 'Rejected',
+    WITHDRAWN: 'Withdrawn',
+    OFFER_DECLINED: 'Offer Declined',
+    NO_SHOW: 'No Show',
+    DUPLICATE: 'Duplicate',
   },
 
   // Interview
   interviewStatus: {
     CONFIRMED: 'Confirmed',
     SCHEDULED: 'Scheduled',
+    IN_PROGRESS: 'In Progress',
     COMPLETED: 'Completed',
     CANCELLED: 'Cancelled',
     RESCHEDULED: 'Rescheduled',
     NO_SHOW: 'No Show',
+    POSTPONED: 'Postponed',
   },
 
   interviewType: {
