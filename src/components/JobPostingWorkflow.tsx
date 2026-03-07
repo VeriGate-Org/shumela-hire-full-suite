@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { apiFetch } from '@/lib/api-fetch';
 import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline';
 
@@ -46,6 +47,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   const [rejectionReason, setRejectionReason] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const workflowSteps = [
     { key: 'DRAFT', label: 'Draft', marker: '1', description: 'Job posting is being created' },
@@ -398,7 +400,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
         {jobPosting.canBePublished && (
           <button
-            onClick={() => handleWorkflowAction('publish')}
+            onClick={() => setPendingAction('publish')}
             disabled={loading === 'publish'}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
@@ -408,7 +410,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
         {jobPosting.canBeUnpublished && (
           <button
-            onClick={() => handleWorkflowAction('unpublish')}
+            onClick={() => setPendingAction('unpublish')}
             disabled={loading === 'unpublish'}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-sm shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
@@ -418,13 +420,29 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
         {jobPosting.canBeClosed && (
           <button
-            onClick={() => handleWorkflowAction('close')}
+            onClick={() => setPendingAction('close')}
             disabled={loading === 'close'}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-sm shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
             {loading === 'close' ? 'Closing...' : 'Close Job Posting'}
           </button>
         )}
+
+        <ConfirmDialog
+          open={pendingAction !== null}
+          title={`${(pendingAction || '').charAt(0).toUpperCase() + (pendingAction || '').slice(1)} Job Posting`}
+          message={
+            pendingAction === 'publish'
+              ? 'This will make the job posting visible to applicants. Proceed?'
+              : pendingAction === 'unpublish'
+                ? 'This will remove the job posting from public view. Proceed?'
+                : 'This will close the job posting and stop accepting applications. Proceed?'
+          }
+          confirmLabel={pendingAction === 'publish' ? 'Publish' : pendingAction === 'unpublish' ? 'Unpublish' : 'Close'}
+          variant={pendingAction === 'close' ? 'warning' : 'default'}
+          onConfirm={() => { const action = pendingAction!; setPendingAction(null); handleWorkflowAction(action); }}
+          onCancel={() => setPendingAction(null)}
+        />
       </div>
 
       {/* Timeline Information */}

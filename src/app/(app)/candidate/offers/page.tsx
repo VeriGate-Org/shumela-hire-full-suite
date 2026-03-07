@@ -8,6 +8,7 @@ import { useToast } from '@/components/Toast';
 import { getApplicantId, getOffersForApplicant } from '@/services/candidateService';
 import { apiFetch } from '@/lib/api-fetch';
 import { getEnumLabel } from '@/utils/enumLabels';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   CurrencyDollarIcon,
   CalendarIcon,
@@ -156,6 +157,7 @@ export default function MyOffersPage() {
   const [declineOfferId, setDeclineOfferId] = useState<string | null>(null);
   const [declineReason, setDeclineReason] = useState('');
   const [declineSubmitting, setDeclineSubmitting] = useState(false);
+  const [acceptOfferId, setAcceptOfferId] = useState<string | null>(null);
 
   // --- O6: Single-call offer loading via applicant endpoint ---
   const loadOffers = useCallback(async () => {
@@ -307,7 +309,14 @@ export default function MyOffersPage() {
   };
 
   // --- O1: Accept offer via backend ---
-  const handleAcceptOffer = async (offerId: string) => {
+  const handleAcceptOffer = (offerId: string) => {
+    setAcceptOfferId(offerId);
+  };
+
+  const confirmAcceptOffer = async () => {
+    if (!acceptOfferId) return;
+    const offerId = acceptOfferId;
+    setAcceptOfferId(null);
     try {
       const response = await apiFetch(`/api/offers/${offerId}/accept`, { method: 'POST' });
       if (!response.ok) {
@@ -877,6 +886,15 @@ export default function MyOffersPage() {
             </div>
           </div>
         )}
+      <ConfirmDialog
+        open={acceptOfferId !== null}
+        title="Accept Offer"
+        message="Are you sure you want to accept this offer? This decision is binding and cannot be undone."
+        confirmLabel="Accept Offer"
+        variant="warning"
+        onConfirm={confirmAcceptOffer}
+        onCancel={() => setAcceptOfferId(null)}
+      />
       </div>
     </PageWrapper>
   );

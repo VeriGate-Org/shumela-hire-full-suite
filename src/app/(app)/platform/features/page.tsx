@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   PlusIcon,
   PencilIcon,
@@ -48,6 +49,7 @@ export default function FeaturesPage() {
     includedPlans: [] as string[],
     isActive: true,
   });
+  const [deleteFeatureId, setDeleteFeatureId] = useState<number | null>(null);
 
   const fetchFeatures = useCallback(async () => {
     setLoading(true);
@@ -114,7 +116,14 @@ export default function FeaturesPage() {
     }
   };
 
-  const deleteFeature = async (id: number) => {
+  const deleteFeature = (id: number) => {
+    setDeleteFeatureId(id);
+  };
+
+  const confirmDeleteFeature = async () => {
+    if (deleteFeatureId === null) return;
+    const id = deleteFeatureId;
+    setDeleteFeatureId(null);
     try {
       const response = await apiFetch(`/api/platform/features/${id}`, { method: 'DELETE' });
       if (response.ok) {
@@ -338,6 +347,15 @@ export default function FeaturesPage() {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteFeatureId !== null}
+        title="Delete Feature"
+        message="Are you sure you want to delete this feature? This may affect all tenants using it."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDeleteFeature}
+        onCancel={() => setDeleteFeatureId(null)}
+      />
     </PageWrapper>
   );
 }

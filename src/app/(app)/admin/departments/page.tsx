@@ -14,6 +14,7 @@ import {
 import { departmentService, Department } from '@/services/departmentService';
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AdminDepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -25,6 +26,7 @@ export default function AdminDepartmentsPage() {
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [saving, setSaving] = useState(false);
+  const [toggleDepartment, setToggleDepartment] = useState<Department | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -114,7 +116,14 @@ export default function AdminDepartmentsPage() {
     }
   };
 
-  const handleToggleActive = async (department: Department) => {
+  const handleToggleActive = (department: Department) => {
+    setToggleDepartment(department);
+  };
+
+  const confirmToggleActive = async () => {
+    if (!toggleDepartment) return;
+    const department = toggleDepartment;
+    setToggleDepartment(null);
     try {
       if (department.isActive) {
         await departmentService.deactivate(department.id);
@@ -347,6 +356,17 @@ export default function AdminDepartmentsPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={toggleDepartment !== null}
+        title={toggleDepartment?.isActive ? 'Deactivate Department' : 'Activate Department'}
+        message={toggleDepartment?.isActive
+          ? `Are you sure you want to deactivate "${toggleDepartment?.name}"? This may affect users and job postings assigned to this department.`
+          : `Are you sure you want to activate "${toggleDepartment?.name}"?`}
+        confirmLabel={toggleDepartment?.isActive ? 'Deactivate' : 'Activate'}
+        variant={toggleDepartment?.isActive ? 'warning' : 'default'}
+        onConfirm={confirmToggleActive}
+        onCancel={() => setToggleDepartment(null)}
+      />
     </PageWrapper>
   );
 }

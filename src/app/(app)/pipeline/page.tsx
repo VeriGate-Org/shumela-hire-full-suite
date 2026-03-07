@@ -233,6 +233,9 @@ export default function PipelinePage() {
   const [offerLoading, setOfferLoading] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [showBulkRejectConfirm, setShowBulkRejectConfirm] = useState(false);
+  const [stageTransitionConfirm, setStageTransitionConfirm] = useState<{ applicationId: string; targetStage: string; stageName: string } | null>(null);
+  const [progressConfirm, setProgressConfirm] = useState<string | null>(null);
+  const [bulkMoveConfirm, setBulkMoveConfirm] = useState<string | null>(null);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [ratingUpdating, setRatingUpdating] = useState(false);
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
@@ -593,10 +596,18 @@ export default function PipelinePage() {
   }, [applications, backendMetrics]);
 
   // P1: Persist stage transitions via backend
-  const handleStageTransition = async (applicationId: string, targetBackendStage: string, notes?: string) => {
+  const handleStageTransition = (applicationId: string, targetBackendStage: string, _notes?: string) => {
+    const group = STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(targetBackendStage));
+    setStageTransitionConfirm({ applicationId, targetStage: targetBackendStage, stageName: group?.displayName || targetBackendStage });
+  };
+
+  const confirmStageTransition = async () => {
+    if (!stageTransitionConfirm) return;
+    const { applicationId, targetStage } = stageTransitionConfirm;
+    setStageTransitionConfirm(null);
     try {
       const response = await apiFetch(
-        `/api/pipeline/applications/${applicationId}/move?targetStage=${encodeURIComponent(targetBackendStage)}&performedBy=1`,
+        `/api/pipeline/applications/${applicationId}/move?targetStage=${encodeURIComponent(targetStage)}&performedBy=1`,
         { method: 'POST' }
       );
       if (!response.ok) {
@@ -611,7 +622,14 @@ export default function PipelinePage() {
   };
 
   // P1: Progress to next stage via backend
-  const handleProgressToNext = async (applicationId: string) => {
+  const handleProgressToNext = (applicationId: string) => {
+    setProgressConfirm(applicationId);
+  };
+
+  const confirmProgressToNext = async () => {
+    if (!progressConfirm) return;
+    const applicationId = progressConfirm;
+    setProgressConfirm(null);
     try {
       const response = await apiFetch(
         `/api/pipeline/applications/${applicationId}/progress?performedBy=1`,
@@ -629,8 +647,14 @@ export default function PipelinePage() {
   };
 
   // P3: Persist bulk move via backend
-  const handleBulkMove = async (targetStageId: string) => {
-    // Find the first backend stage for the target group
+  const handleBulkMove = (targetStageId: string) => {
+    setBulkMoveConfirm(targetStageId);
+  };
+
+  const confirmBulkMove = async () => {
+    if (!bulkMoveConfirm) return;
+    const targetStageId = bulkMoveConfirm;
+    setBulkMoveConfirm(null);
     const group = STAGE_GROUPS.find(g => g.id === targetStageId);
     if (!group) return;
     const targetBackendStage = group.backendStages[0];
@@ -1550,6 +1574,33 @@ export default function PipelinePage() {
         variant="danger"
         onConfirm={confirmBulkReject}
         onCancel={() => setShowBulkRejectConfirm(false)}
+      />
+      <ConfirmDialog
+        open={stageTransitionConfirm !== null}
+        title="Move Candidate"
+        message={`Move this candidate to ${stageTransitionConfirm?.stageName || 'the selected stage'}?`}
+        confirmLabel="Move"
+        variant="warning"
+        onConfirm={confirmStageTransition}
+        onCancel={() => setStageTransitionConfirm(null)}
+      />
+      <ConfirmDialog
+        open={progressConfirm !== null}
+        title="Progress Candidate"
+        message="Advance this candidate to the next pipeline stage?"
+        confirmLabel="Progress"
+        variant="warning"
+        onConfirm={confirmProgressToNext}
+        onCancel={() => setProgressConfirm(null)}
+      />
+      <ConfirmDialog
+        open={bulkMoveConfirm !== null}
+        title="Bulk Move Candidates"
+        message={`Move ${selectedIds.size} selected candidates to ${STAGE_GROUPS.find(g => g.id === bulkMoveConfirm)?.displayName || 'the selected stage'}?`}
+        confirmLabel="Move All"
+        variant="warning"
+        onConfirm={confirmBulkMove}
+        onCancel={() => setBulkMoveConfirm(null)}
       />
     </PageWrapper>
   );

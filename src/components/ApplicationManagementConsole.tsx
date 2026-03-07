@@ -173,6 +173,8 @@ export default function ApplicationManagementConsole() {
 
   const [statsError, setStatsError] = useState(false);
   const [rejectAppId, setRejectAppId] = useState<number | null>(null);
+  const [showBulkConfirm, setShowBulkConfirm] = useState(false);
+  const [reviewAppId, setReviewAppId] = useState<number | null>(null);
 
   const fetchStatistics = async () => {
     try {
@@ -223,7 +225,14 @@ export default function ApplicationManagementConsole() {
     router.push(`/applications/${applicationId}`);
   };
 
-  const handleReviewApplication = async (applicationId: number) => {
+  const handleReviewApplication = (applicationId: number) => {
+    setReviewAppId(applicationId);
+  };
+
+  const confirmReviewApplication = async () => {
+    if (reviewAppId === null) return;
+    const applicationId = reviewAppId;
+    setReviewAppId(null);
     try {
       const response = await apiFetch(`/api/applications/${applicationId}/status?status=SCREENING`, {
         method: 'PUT',
@@ -258,13 +267,17 @@ export default function ApplicationManagementConsole() {
     }
   };
 
-  const executeBulkOperation = async () => {
+  const executeBulkOperation = () => {
     if (selectedApplications.length === 0) return;
     if (!bulkOperation.value) {
       toast('Please select a value for the bulk operation', 'error');
       return;
     }
+    setShowBulkConfirm(true);
+  };
 
+  const confirmBulkOperation = async () => {
+    setShowBulkConfirm(false);
     try {
       const bulkPayload: Record<string, any> = { applicationIds: selectedApplications };
       let endpoint = '';
@@ -870,6 +883,24 @@ export default function ApplicationManagementConsole() {
         variant="danger"
         onConfirm={confirmRejectApplication}
         onCancel={() => setRejectAppId(null)}
+      />
+      <ConfirmDialog
+        open={showBulkConfirm}
+        title={`Bulk ${bulkOperation.type.charAt(0).toUpperCase() + bulkOperation.type.slice(1)} Update`}
+        message={`Apply ${bulkOperation.type} change to ${selectedApplications.length} application(s)?`}
+        confirmLabel="Apply"
+        variant="warning"
+        onConfirm={confirmBulkOperation}
+        onCancel={() => setShowBulkConfirm(false)}
+      />
+      <ConfirmDialog
+        open={reviewAppId !== null}
+        title="Move to Screening"
+        message="Move this application to the Screening stage?"
+        confirmLabel="Move to Screening"
+        variant="warning"
+        onConfirm={confirmReviewApplication}
+        onCancel={() => setReviewAppId(null)}
       />
     </div>
   );

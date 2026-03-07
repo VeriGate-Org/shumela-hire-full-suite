@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSecurity } from '@/contexts/SecurityContext';
 import { useToast } from '@/components/Toast';
 import { apiFetch } from '@/lib/api-fetch';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 /**
  * GDPR Compliance Manager Component
@@ -16,6 +17,7 @@ const GDPRComplianceManager: React.FC = () => {
   const [complianceData, setComplianceData] = useState<any>(null);
   const [dataRequests, setDataRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showErasureConfirm, setShowErasureConfirm] = useState(false);
 
   useEffect(() => {
     if (hasPermission('GDPR_VIEW')) {
@@ -244,7 +246,7 @@ const GDPRComplianceManager: React.FC = () => {
                 {
                   right: 'Right to Erasure',
                   description: 'Request deletion of your data',
-                  action: () => handleDataRequest('ERASURE', 'Request for data deletion'),
+                  action: () => setShowErasureConfirm(true),
                 },
                 {
                   right: 'Right to Portability',
@@ -372,6 +374,18 @@ const GDPRComplianceManager: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={showErasureConfirm}
+        title="Request Data Erasure"
+        message="Are you sure you want to request deletion of all your personal data? This action is irreversible once processed and may result in loss of access to your account."
+        confirmLabel="Request Erasure"
+        variant="danger"
+        onConfirm={() => {
+          setShowErasureConfirm(false);
+          handleDataRequest('ERASURE', 'Request for data deletion');
+        }}
+        onCancel={() => setShowErasureConfirm(false)}
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { apiFetchJson } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import type { DropdownOption } from '@/components/SearchableDropdown';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 const SPECIALIZATION_OPTIONS: DropdownOption[] = [
   { value: 'IT & Software Development', label: 'IT & Software Development' },
@@ -139,6 +140,8 @@ export default function AgenciesPage() {
   const [reviewingSubmission, setReviewingSubmission] = useState<AgencySubmission | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [statusActionLoading, setStatusActionLoading] = useState<number | null>(null);
+  const [approveAgency, setApproveAgency] = useState<Agency | null>(null);
+  const [suspendAgency, setSuspendAgency] = useState<Agency | null>(null);
 
   // Forms
   const [agencyForm, setAgencyForm] = useState(EMPTY_AGENCY_FORM);
@@ -269,7 +272,14 @@ export default function AgenciesPage() {
 
   // ─── Approve / suspend ─────────────────────────────────────────────────────
 
-  const handleApprove = async (agency: Agency) => {
+  const handleApprove = (agency: Agency) => {
+    setApproveAgency(agency);
+  };
+
+  const confirmApprove = async () => {
+    if (!approveAgency) return;
+    const agency = approveAgency;
+    setApproveAgency(null);
     try {
       setStatusActionLoading(agency.id);
       const updated = await apiFetchJson<Agency>(`/api/agencies/${agency.id}/approve`, { method: 'POST' });
@@ -286,7 +296,14 @@ export default function AgenciesPage() {
     }
   };
 
-  const handleSuspend = async (agency: Agency) => {
+  const handleSuspend = (agency: Agency) => {
+    setSuspendAgency(agency);
+  };
+
+  const confirmSuspend = async () => {
+    if (!suspendAgency) return;
+    const agency = suspendAgency;
+    setSuspendAgency(null);
     try {
       setStatusActionLoading(agency.id);
       const updated = await apiFetchJson<Agency>(`/api/agencies/${agency.id}/suspend`, { method: 'POST' });
@@ -911,6 +928,25 @@ export default function AgenciesPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={approveAgency !== null}
+        title="Approve Agency"
+        message={`Are you sure you want to approve "${approveAgency?.agencyName}"? This will allow them to submit candidates for your job postings.`}
+        confirmLabel="Approve"
+        variant="default"
+        onConfirm={confirmApprove}
+        onCancel={() => setApproveAgency(null)}
+      />
+      <ConfirmDialog
+        open={suspendAgency !== null}
+        title="Suspend Agency"
+        message={`Are you sure you want to suspend "${suspendAgency?.agencyName}"? They will no longer be able to submit candidates.`}
+        confirmLabel="Suspend"
+        variant="warning"
+        onConfirm={confirmSuspend}
+        onCancel={() => setSuspendAgency(null)}
+      />
     </PageWrapper>
   );
 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
@@ -48,6 +49,7 @@ export default function TenantDetailPage() {
   const [features, setFeatures] = useState<FeatureSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<number | null>(null);
+  const [revertFeature, setRevertFeature] = useState<FeatureSummary | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -102,7 +104,14 @@ export default function TenantDetailPage() {
     }
   };
 
-  const revertToDefault = async (feature: FeatureSummary) => {
+  const revertToDefault = (feature: FeatureSummary) => {
+    setRevertFeature(feature);
+  };
+
+  const confirmRevertToDefault = async () => {
+    if (!revertFeature) return;
+    const feature = revertFeature;
+    setRevertFeature(null);
     setUpdating(feature.featureId);
     try {
       const response = await apiFetch(`/api/platform/tenants/${tenantId}/features/${feature.featureId}`, {
@@ -239,6 +248,15 @@ export default function TenantDetailPage() {
           </div>
         ))}
       </div>
+      <ConfirmDialog
+        open={revertFeature !== null}
+        title="Revert to Plan Default"
+        message={`Are you sure you want to revert "${revertFeature?.name}" to the plan default? The current override will be removed.`}
+        confirmLabel="Revert"
+        variant="warning"
+        onConfirm={confirmRevertToDefault}
+        onCancel={() => setRevertFeature(null)}
+      />
     </PageWrapper>
   );
 }
