@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService } from '@/services/complianceService';
+import Link from 'next/link';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface DisciplinaryCase {
@@ -153,6 +154,10 @@ export default function DisciplinaryCasesPage() {
                       )}
                     </div>
                     <div className="flex gap-2">
+                      <Link href={`/admin/labour-relations/disciplinary/${dc.id}`}
+                        className="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded hover:bg-gray-200">
+                        View Details
+                      </Link>
                       {dc.status !== 'CLOSED' && (
                         <button onClick={() => {
                           setSelectedCase(dc);

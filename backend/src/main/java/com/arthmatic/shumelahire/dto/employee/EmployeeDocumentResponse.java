@@ -24,6 +24,9 @@ public class EmployeeDocumentResponse {
     private String uploadedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean isVerified;
+    private String verifiedBy;
+    private LocalDateTime verifiedAt;
 
     public EmployeeDocumentResponse() {}
 
@@ -45,6 +48,9 @@ public class EmployeeDocumentResponse {
         response.setUploadedBy(doc.getUploadedBy());
         response.setCreatedAt(doc.getCreatedAt());
         response.setUpdatedAt(doc.getUpdatedAt());
+        response.setIsVerified(doc.getIsVerified());
+        response.setVerifiedBy(doc.getVerifiedBy());
+        response.setVerifiedAt(doc.getVerifiedAt());
         return response;
     }
 
@@ -96,4 +102,13 @@ public class EmployeeDocumentResponse {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Boolean getIsVerified() { return isVerified; }
+    public void setIsVerified(Boolean isVerified) { this.isVerified = isVerified; }
+
+    public String getVerifiedBy() { return verifiedBy; }
+    public void setVerifiedBy(String verifiedBy) { this.verifiedBy = verifiedBy; }
+
+    public LocalDateTime getVerifiedAt() { return verifiedAt; }
+    public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
 }

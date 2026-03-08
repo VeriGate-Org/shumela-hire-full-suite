@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, Pip } from '@/services/performanceEnhancementService';
@@ -64,7 +65,11 @@ export default function PipsPage() {
                 <div key={pip.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{pip.employeeName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <Link href={`/performance/pips/${pip.id}`} className="hover:text-gold-600 hover:underline">
+                          {pip.employeeName}
+                        </Link>
+                      </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Manager: {pip.managerName}</p>
                     </div>
                     <span className={`px-2 py-1 text-xs rounded-full ${statusBadge(pip.status)}`}>{pip.status}</span>

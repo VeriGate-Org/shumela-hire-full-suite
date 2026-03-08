@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService } from '@/services/complianceService';
+import Link from 'next/link';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 
 interface Grievance {
@@ -139,6 +140,10 @@ export default function GrievancesPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <Link href={`/admin/labour-relations/grievances/${grievance.id}`}
+                        className="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded hover:bg-gray-200">
+                        View Details
+                      </Link>
                       {grievance.status !== 'RESOLVED' && (
                         <button onClick={() => {
                           setSelectedGrievance(grievance);

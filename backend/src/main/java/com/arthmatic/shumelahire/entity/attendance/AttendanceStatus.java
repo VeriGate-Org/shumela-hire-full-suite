@@ -6,5 +6,6 @@ public enum AttendanceStatus {
     HALF_DAY,
     ABSENT,
     ON_LEAVE,
-    REMOTE
+    REMOTE,
+    PENDING_APPROVAL
 }

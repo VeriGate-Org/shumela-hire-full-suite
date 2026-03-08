@@ -89,4 +89,15 @@ export const shiftService = {
     if (!response.ok) return [];
     return await response.json();
   },
+
+  async swapSchedules(scheduleId1: number, scheduleId2: number): Promise<void> {
+    const response = await apiFetch('/api/shifts/schedules/swap', {
+      method: 'POST',
+      body: JSON.stringify({ scheduleId1, scheduleId2 }),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to swap shifts');
+    }
+  },
 };

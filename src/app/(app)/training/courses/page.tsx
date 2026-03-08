@@ -109,7 +109,11 @@ export default function TrainingCoursesPage() {
                 <div key={course.id} className="bg-white rounded-lg shadow border p-5 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900">{course.title}</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        <Link href={`/training/courses/${course.id}`} className="hover:text-gold-600 transition-colors">
+                          {course.title}
+                        </Link>
+                      </h3>
                       <p className="text-xs text-gray-500 mt-0.5">{course.code}</p>
                     </div>
                     {course.isMandatory && (

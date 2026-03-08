@@ -85,4 +85,17 @@ public class ShiftController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(shiftScheduleService.getByEmployeeAndDateRange(employeeId, startDate, endDate));
     }
+
+    @PostMapping("/schedules/swap")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
+    public ResponseEntity<?> swapShifts(@RequestBody Map<String, Object> body) {
+        try {
+            Long scheduleId1 = ((Number) body.get("scheduleId1")).longValue();
+            Long scheduleId2 = ((Number) body.get("scheduleId2")).longValue();
+            shiftScheduleService.swapSchedules(scheduleId1, scheduleId2);
+            return ResponseEntity.ok(Map.of("message", "Shifts swapped successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

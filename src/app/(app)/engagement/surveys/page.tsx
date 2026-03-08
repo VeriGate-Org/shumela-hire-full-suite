@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, Survey } from '@/services/engagementService';
@@ -225,6 +226,12 @@ export default function SurveysPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {survey.status === 'ACTIVE' && (
+                        <Link href={`/engagement/surveys/${survey.id}`} title="Take Survey"
+                          className="p-2 text-gold-600 hover:bg-gold-50 rounded-lg">
+                          <ClipboardDocumentListIcon className="h-5 w-5" />
+                        </Link>
+                      )}
                       {survey.status === 'DRAFT' && (
                         <button onClick={() => handleActivate(survey.id)} title="Activate"
                           className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
@@ -238,10 +245,10 @@ export default function SurveysPage() {
                         </button>
                       )}
                       {(survey.status === 'ACTIVE' || survey.status === 'CLOSED') && (
-                        <button title="View Results"
+                        <Link href={`/engagement/surveys/${survey.id}/results`} title="View Results"
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
                           <ChartBarIcon className="h-5 w-5" />
-                        </button>
+                        </Link>
                       )}
                       {survey.status === 'DRAFT' && (
                         <button onClick={() => handleDelete(survey.id)} title="Delete"

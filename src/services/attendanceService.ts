@@ -152,6 +152,32 @@ export const attendanceService = {
     return await response.json();
   },
 
+  // Status
+  async getStatus(employeeId: number): Promise<AttendanceRecord | { clockedIn: false }> {
+    const response = await apiFetch(`/api/attendance/status?employeeId=${employeeId}`);
+    if (!response.ok) throw new Error('Failed to get status');
+    return await response.json();
+  },
+
+  // Manual Entry
+  async createManualEntry(data: { employeeId: number; clockIn: string; clockOut: string; notes?: string }): Promise<AttendanceRecord> {
+    const response = await apiFetch('/api/attendance/manual', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to create manual entry');
+    }
+    return await response.json();
+  },
+
+  async approveManualEntry(id: number): Promise<AttendanceRecord> {
+    const response = await apiFetch(`/api/attendance/manual/${id}/approve`, { method: 'PUT' });
+    if (!response.ok) throw new Error('Failed to approve entry');
+    return await response.json();
+  },
+
   async deleteGeofence(id: number): Promise<void> {
     const response = await apiFetch(`/api/geofences/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete geofence');

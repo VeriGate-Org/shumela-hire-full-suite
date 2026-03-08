@@ -135,6 +135,14 @@ public class AuditLogService {
     }
 
     /**
+     * Get audit logs by entity type with pagination
+     */
+    @Transactional(readOnly = true)
+    public Page<AuditLog> getLogsByEntityType(String entityType, Pageable pageable) {
+        return auditLogRepository.findByEntityTypeOrderByTimestampDesc(entityType, pageable);
+    }
+
+    /**
      * Save an audit log entry with userRole
      */
     public AuditLog saveLog(String userId, String action, String entityType, String entityId, String details, String userRole) {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, FeedbackRequest } from '@/services/performanceEnhancementService';
@@ -175,6 +176,7 @@ export default function FeedbackPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -193,6 +195,16 @@ export default function FeedbackPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                         {new Date(req.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {req.status === 'PENDING' && (
+                          <Link
+                            href={`/performance/360/provide/${req.id}`}
+                            className="px-3 py-1.5 bg-gold-500 text-white rounded-lg hover:bg-gold-600 text-xs font-medium"
+                          >
+                            Provide Feedback
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   ))}

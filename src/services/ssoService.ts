@@ -90,4 +90,16 @@ export const ssoService = {
     }
     return await response.json();
   },
+
+  async getAdGroups(): Promise<{ id: string; name: string; description: string }[]> {
+    const response = await apiFetch('/api/integrations/sso/groups');
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getAuditLog(page = 0, size = 20): Promise<{ content: any[]; totalElements: number; totalPages: number }> {
+    const response = await apiFetch(`/api/integrations/sso/audit?page=${page}&size=${size}`);
+    if (!response.ok) return { content: [], totalElements: 0, totalPages: 0 };
+    return await response.json();
+  },
 };

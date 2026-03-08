@@ -101,4 +101,53 @@ public class AttendanceService {
     public List<AttendanceRecord> getTeamAttendance(String department, LocalDateTime start, LocalDateTime end) {
         return attendanceRecordRepository.findByDepartmentAndDateRange(department, start, end);
     }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<AttendanceRecord> getOpenSession(Long employeeId) {
+        return attendanceRecordRepository.findOpenSession(employeeId);
+    }
+
+    public AttendanceRecord createManualEntry(Long employeeId, LocalDateTime clockIn, LocalDateTime clockOut, String notes) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+
+        AttendanceRecord record = new AttendanceRecord();
+        record.setEmployee(employee);
+        record.setClockIn(clockIn);
+        record.setClockOut(clockOut);
+        record.setClockMethod(ClockMethod.MANUAL);
+        record.setStatus(AttendanceStatus.PENDING_APPROVAL);
+        record.setNotes(notes);
+
+        if (clockOut != null) {
+            Duration duration = Duration.between(clockIn, clockOut);
+            BigDecimal hours = BigDecimal.valueOf(duration.toMinutes())
+                    .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+            record.setTotalHours(hours);
+        }
+
+        record = attendanceRecordRepository.save(record);
+
+        auditLogService.saveLog(employeeId.toString(), "MANUAL_ENTRY", "ATTENDANCE",
+                record.getId().toString(), "Manual attendance entry created");
+        logger.info("Manual attendance entry created for employee {}", employeeId);
+        return record;
+    }
+
+    public AttendanceRecord approveManualEntry(Long id) {
+        AttendanceRecord record = attendanceRecordRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Attendance record not found: " + id));
+
+        if (record.getStatus() != AttendanceStatus.PENDING_APPROVAL) {
+            throw new IllegalArgumentException("Record is not pending approval");
+        }
+
+        record.setStatus(AttendanceStatus.PRESENT);
+        record = attendanceRecordRepository.save(record);
+
+        auditLogService.saveLog("SYSTEM", "APPROVE", "ATTENDANCE",
+                record.getId().toString(), "Manual attendance entry approved");
+        logger.info("Manual attendance entry {} approved", id);
+        return record;
+    }
 }

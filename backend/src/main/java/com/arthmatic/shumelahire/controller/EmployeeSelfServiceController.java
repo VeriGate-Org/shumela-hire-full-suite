@@ -203,4 +203,26 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<List<EmployeeDocumentTypeConfig>> getDocumentTypes() {
         return ResponseEntity.ok(documentTypeConfigRepository.findByIsActiveTrue());
     }
+
+    // ---- Document Verification ----
+
+    @PutMapping("/documents/{id}/verify")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> verifyDocument(@PathVariable Long id,
+                                             @RequestParam String verifiedBy) {
+        try {
+            EmployeeDocument doc = documentRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Document not found: " + id));
+            doc.setIsVerified(true);
+            doc.setVerifiedBy(verifiedBy);
+            doc.setVerifiedAt(java.time.LocalDateTime.now());
+            EmployeeDocument saved = documentRepository.save(doc);
+            auditLogService.saveLog(verifiedBy, "VERIFY", "EMPLOYEE_DOCUMENT",
+                    saved.getId().toString(), "Document verified: " + saved.getTitle());
+            logger.info("Document {} verified by {}", id, verifiedBy);
+            return ResponseEntity.ok(EmployeeDocumentResponse.fromEntity(saved));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

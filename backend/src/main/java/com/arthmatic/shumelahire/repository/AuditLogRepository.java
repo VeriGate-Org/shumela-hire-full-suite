@@ -1,6 +1,8 @@
 package com.arthmatic.shumelahire.repository;
 
 import com.arthmatic.shumelahire.entity.AuditLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +32,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
     // Count audit logs by action
     long countByAction(String action);
+
+    // Find audit logs by entity type with pagination
+    Page<AuditLog> findByEntityTypeOrderByTimestampDesc(String entityType, Pageable pageable);
 }

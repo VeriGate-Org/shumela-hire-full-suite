@@ -126,4 +126,48 @@ public class AttendanceController {
                                                                     @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(overtimeService.getPending(PageRequest.of(page, size)));
     }
+
+    // ---- Status ----
+
+    @GetMapping("/status")
+    public ResponseEntity<?> getStatus(@RequestParam Long employeeId) {
+        try {
+            java.util.Optional<AttendanceRecord> openSession = attendanceService.getOpenSession(employeeId);
+            if (openSession.isPresent()) {
+                return ResponseEntity.ok(openSession.get());
+            }
+            return ResponseEntity.ok(Map.of("clockedIn", false));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ---- Manual Entry ----
+
+    @PostMapping("/manual")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
+    public ResponseEntity<?> createManualEntry(@RequestBody Map<String, Object> body) {
+        try {
+            Long employeeId = ((Number) body.get("employeeId")).longValue();
+            LocalDateTime clockIn = LocalDateTime.parse((String) body.get("clockIn"));
+            LocalDateTime clockOut = body.get("clockOut") != null ? LocalDateTime.parse((String) body.get("clockOut")) : null;
+            String notes = (String) body.get("notes");
+
+            AttendanceRecord record = attendanceService.createManualEntry(employeeId, clockIn, clockOut, notes);
+            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/manual/{id}/approve")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
+    public ResponseEntity<?> approveManualEntry(@PathVariable Long id) {
+        try {
+            AttendanceRecord record = attendanceService.approveManualEntry(id);
+            return ResponseEntity.ok(record);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
