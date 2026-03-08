@@ -11,11 +11,16 @@ import {
   ShieldCheckIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
+import { aiTrainingService } from '@/services/aiTrainingService';
+import { TrainingRoiResult } from '@/types/ai';
 
 export default function TrainingAnalyticsPage() {
   const [analytics, setAnalytics] = useState<TrainingAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [aiRoi, setAiRoi] = useState<TrainingRoiResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     trainingService.getAnalytics().then(data => {
@@ -23,6 +28,25 @@ export default function TrainingAnalyticsPage() {
       setLoading(false);
     });
   }, []);
+
+  async function analyzeRoi() {
+    if (!analytics) return;
+    setAiLoading(true);
+    try {
+      const result = await aiTrainingService.analyzeRoi({
+        courseName: 'All Courses',
+        enrollmentCount: analytics.totalEnrollments || 0,
+        completionCount: analytics.completedEnrollments || 0,
+        totalCost: 0,
+        department: 'All Departments',
+      });
+      setAiRoi(result);
+    } catch (error) {
+      console.error('AI ROI analysis failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -57,8 +81,52 @@ export default function TrainingAnalyticsPage() {
       <PageWrapper
         title="Training Analytics"
         subtitle="Overview of training and development metrics"
+        actions={
+          <button onClick={analyzeRoi} disabled={aiLoading || !analytics}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
+            <SparklesIcon className="h-4 w-4" />
+            {aiLoading ? 'Analysing...' : 'AI ROI Analysis'}
+          </button>
+        }
       >
         <div className="space-y-6">
+          {aiRoi && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-purple-900 flex items-center gap-2">
+                  <SparklesIcon className="h-5 w-5" />
+                  AI Training ROI Analysis
+                </h3>
+                <button onClick={() => setAiRoi(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+              </div>
+              <p className="text-sm text-gray-700 mb-3">{aiRoi.roiSummary}</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                <div className="bg-white p-3 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-purple-700">{aiRoi.estimatedRoiPercentage}%</p>
+                  <p className="text-xs text-gray-500">Estimated ROI</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg text-center">
+                  <p className="text-lg font-bold text-gray-700">{aiRoi.effectivenessRating}</p>
+                  <p className="text-xs text-gray-500">Effectiveness</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-xs font-medium text-gray-500 mb-1">Recommendations</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {aiRoi.recommendations?.slice(0, 3).map((r, i) => <li key={i}>- {r}</li>)}
+                  </ul>
+                </div>
+              </div>
+              {aiRoi.keyFindings?.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">Key Findings</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {aiRoi.keyFindings.map((f, i) => <li key={i}>- {f}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stat Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {stats.map(stat => (

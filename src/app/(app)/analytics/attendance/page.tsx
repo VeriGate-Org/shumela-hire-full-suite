@@ -5,6 +5,9 @@ import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
+import { aiAttendanceService } from '@/services/aiAttendanceService';
+import { AttendanceAnomalyResult } from '@/types/ai';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 interface AttendanceSummary {
   averageHoursPerDay: number;
@@ -47,6 +50,8 @@ export default function AttendanceAnalyticsPage() {
   const [metrics, setMetrics] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [aiAnomalies, setAiAnomalies] = useState<AttendanceAnomalyResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadMetrics();
@@ -70,11 +75,92 @@ export default function AttendanceAnalyticsPage() {
   const dayDistribution = (metrics.dayOfWeekDistribution || []) as DayDistribution[];
   const overtime = (metrics.overtime || {}) as OvertimeSummary;
 
+  async function detectAnomalies() {
+    setAiLoading(true);
+    try {
+      const result = await aiAttendanceService.detectAnomalies({
+        department: 'All Departments',
+        records: [],
+        periodDays: 30,
+      });
+      setAiAnomalies(result);
+    } catch (error) {
+      console.error('AI anomaly detection failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const maxAvgHours = Math.max(...monthlyTrends.map((t) => t.avgHours), 1);
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="Attendance Analytics" subtitle="Workforce attendance patterns and trends">
+      <PageWrapper title="Attendance Analytics" subtitle="Workforce attendance patterns and trends"
+        actions={
+          <button onClick={detectAnomalies} disabled={aiLoading}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
+            <SparklesIcon className="h-4 w-4" />
+            {aiLoading ? 'Detecting...' : 'AI Anomaly Detection'}
+          </button>
+        }
+      >
+        {aiAnomalies && (
+          <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5" />
+                AI Anomaly Detection Results
+              </h3>
+              <button onClick={() => setAiAnomalies(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiAnomalies.overallAssessment}</p>
+            {aiAnomalies.anomalies?.length > 0 && (
+              <div className="mb-3">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detected Anomalies</h4>
+                <div className="space-y-2">
+                  {aiAnomalies.anomalies.map((a, i) => {
+                    const severityColors: Record<string, string> = {
+                      CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                      HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                      MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+                      LOW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                    };
+                    return (
+                      <div key={i} className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-start gap-3">
+                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${severityColors[a.severity] || severityColors.LOW}`}>
+                          {a.severity}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{a.anomalyType} — {a.employeeName}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{a.description}</p>
+                          {a.suggestedAction && <p className="text-xs text-gray-500 mt-1">Action: {a.suggestedAction}</p>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {aiAnomalies.fatigueWarnings?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400 mb-1">Fatigue Warnings</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiAnomalies.fatigueWarnings.map((w, i) => <li key={i}>- {w}</li>)}
+                  </ul>
+                </div>
+              )}
+              {aiAnomalies.policyViolations?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Policy Violations</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiAnomalies.policyViolations.map((v, i) => <li key={i}>- {v}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />

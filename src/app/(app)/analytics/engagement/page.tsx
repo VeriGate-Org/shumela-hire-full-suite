@@ -5,6 +5,10 @@ import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { hrAnalyticsService } from '@/services/hrAnalyticsService';
 import { useToast } from '@/components/Toast';
+import { aiEngagementService } from '@/services/aiEngagementService';
+import { aiAttritionService } from '@/services/aiAttritionService';
+import { SentimentAnalysisResult, WorkforceAnalysisResult } from '@/types/ai';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 interface EngagementSummary {
   overallEngagementScore: number;
@@ -46,6 +50,9 @@ export default function EngagementAnalyticsPage() {
   const [metrics, setMetrics] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [aiSentiment, setAiSentiment] = useState<SentimentAnalysisResult | null>(null);
+  const [aiWorkforce, setAiWorkforce] = useState<WorkforceAnalysisResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadMetrics();
@@ -69,11 +76,145 @@ export default function EngagementAnalyticsPage() {
   const trends = (metrics.engagementTrends || []) as EngagementTrend[];
   const drivers = (metrics.engagementDrivers || []) as EngagementDriver[];
 
+  async function analyzeSentiment() {
+    setAiLoading(true);
+    try {
+      const result = await aiEngagementService.analyzeSentiment({
+        surveyName: 'Engagement Survey',
+        surveyType: 'Quarterly',
+        totalResponses: summary.totalSurveysCompleted || 0,
+        eNpsScore: summary.eNPSScore || 0,
+        responses: drivers.map(d => ({
+          question: d.driver,
+          avgRating: d.score / 2,
+          freeTextResponses: [],
+        })),
+      });
+      setAiSentiment(result);
+    } catch (error) {
+      console.error('AI sentiment analysis failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  async function analyzeWorkforce() {
+    setAiLoading(true);
+    try {
+      const result = await aiAttritionService.analyzeWorkforce({
+        department: 'All Departments',
+        totalHeadcount: 0,
+        avgTenureMonths: 0,
+        turnoverRateLast12Months: 0,
+        openPositions: 0,
+        avgPerformanceRating: 0,
+        avgEngagementScore: summary.overallEngagementScore || 0,
+      });
+      setAiWorkforce(result);
+    } catch (error) {
+      console.error('AI workforce analysis failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const maxCategoryCount = Math.max(...(recognition.topRecognitionCategories || []).map((c) => c.count), 1);
 
   return (
     <FeatureGate feature="ADVANCED_ANALYTICS">
-      <PageWrapper title="Engagement Analytics" subtitle="Employee engagement, survey participation, and recognition metrics">
+      <PageWrapper title="Engagement Analytics" subtitle="Employee engagement, survey participation, and recognition metrics"
+        actions={
+          <div className="flex gap-2">
+            <button onClick={analyzeSentiment} disabled={aiLoading || loading}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
+              <SparklesIcon className="h-4 w-4" />
+              {aiLoading ? 'Analysing...' : 'AI Sentiment'}
+            </button>
+            <button onClick={analyzeWorkforce} disabled={aiLoading || loading}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm disabled:opacity-50 flex items-center gap-1">
+              <SparklesIcon className="h-4 w-4" />
+              Workforce Health
+            </button>
+          </div>
+        }
+      >
+        {aiSentiment && (
+          <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5" />
+                AI Sentiment Analysis
+              </h3>
+              <button onClick={() => setAiSentiment(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiSentiment.executiveSummary}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
+                <p className="text-lg font-bold text-purple-700">{aiSentiment.overallSentiment}</p>
+                <p className="text-xs text-gray-500">Overall Sentiment</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
+                <p className="text-lg font-bold text-blue-700">{Math.round(aiSentiment.sentimentScore * 100)}%</p>
+                <p className="text-xs text-gray-500">Sentiment Score</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                <h4 className="text-xs font-medium text-green-700 mb-1">Key Positives</h4>
+                <ul className="text-xs text-gray-600 space-y-0.5">{aiSentiment.positives?.slice(0, 3).map((p, i) => <li key={i}>- {p}</li>)}</ul>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                <h4 className="text-xs font-medium text-red-700 mb-1">Key Concerns</h4>
+                <ul className="text-xs text-gray-600 space-y-0.5">{aiSentiment.concerns?.slice(0, 3).map((c, i) => <li key={i}>- {c}</li>)}</ul>
+              </div>
+            </div>
+            {aiSentiment.actionItems?.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                <h4 className="text-xs font-medium text-blue-700 mb-1">Action Items</h4>
+                <ul className="text-xs text-gray-600 space-y-0.5">{aiSentiment.actionItems.map((a, i) => <li key={i}>- {a}</li>)}</ul>
+              </div>
+            )}
+          </div>
+        )}
+        {aiWorkforce && (
+          <div className="mb-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5" />
+                AI Workforce Health Assessment
+              </h3>
+              <button onClick={() => setAiWorkforce(null)} className="text-indigo-400 hover:text-indigo-600 text-sm">Dismiss</button>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{aiWorkforce.overallHealthAssessment}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {aiWorkforce.keyRisks?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-xs font-medium text-red-700 mb-1">Key Risks</h4>
+                  <ul className="text-xs text-gray-600 space-y-0.5">{aiWorkforce.keyRisks.map((r, i) => <li key={i}>- {r}</li>)}</ul>
+                </div>
+              )}
+              {aiWorkforce.strengths?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-xs font-medium text-green-700 mb-1">Strengths</h4>
+                  <ul className="text-xs text-gray-600 space-y-0.5">{aiWorkforce.strengths.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+              {aiWorkforce.retentionStrategies?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-xs font-medium text-blue-700 mb-1">Retention Strategies</h4>
+                  <ul className="text-xs text-gray-600 space-y-0.5">{aiWorkforce.retentionStrategies.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+              {aiWorkforce.hiringRecommendations?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-xs font-medium text-purple-700 mb-1">Hiring Recommendations</h4>
+                  <ul className="text-xs text-gray-600 space-y-0.5">{aiWorkforce.hiringRecommendations.map((h, i) => <li key={i}>- {h}</li>)}</ul>
+                </div>
+              )}
+            </div>
+            {aiWorkforce.forecastSummary && (
+              <p className="text-xs text-indigo-600 mt-2">Forecast: {aiWorkforce.forecastSummary}</p>
+            )}
+          </div>
+        )}
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />

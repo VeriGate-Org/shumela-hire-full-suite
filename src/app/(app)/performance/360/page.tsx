@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { performanceEnhancementService, FeedbackRequest } from '@/services/performanceEnhancementService';
-import { ChatBubbleLeftRightIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftRightIcon, ClockIcon, CheckCircleIcon, XCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { aiPerformanceService } from '@/services/aiPerformanceService';
+import { FeedbackSummaryResult } from '@/types/ai';
 
 export default function FeedbackPage() {
   const [requests, setRequests] = useState<FeedbackRequest[]>([]);
@@ -13,6 +15,8 @@ export default function FeedbackPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({ employeeId: '', requesterId: '', feedbackType: 'PEER', dueDate: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [aiSummary, setAiSummary] = useState<FeedbackSummaryResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadRequests();
@@ -50,6 +54,26 @@ export default function FeedbackPage() {
     }
   }
 
+  async function generateAiSummary() {
+    if (requests.length === 0) return;
+    setAiLoading(true);
+    try {
+      const submitted = requests.filter(r => r.status === 'SUBMITTED');
+      const result = await aiPerformanceService.summarizeFeedback({
+        employeeName: 'Selected Employee',
+        feedbackEntries: submitted.map(r => ({
+          respondentRole: r.feedbackType || 'PEER',
+          comments: `Feedback from ${r.requesterName} (${r.feedbackType})`,
+        })),
+      });
+      setAiSummary(result);
+    } catch (error) {
+      console.error('AI summary failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const statusIcon = (status: string) => {
     switch (status) {
       case 'PENDING': return <ClockIcon className="h-5 w-5 text-yellow-500" />;
@@ -74,11 +98,61 @@ export default function FeedbackPage() {
     <FeatureGate feature="PERFORMANCE_360_FEEDBACK">
       <PageWrapper title="360 Feedback" subtitle="Multi-source performance feedback management"
         actions={
-          <button onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-            Request Feedback
-          </button>
+          <div className="flex gap-2">
+            <button onClick={generateAiSummary}
+              disabled={aiLoading || requests.length === 0}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
+              <SparklesIcon className="h-4 w-4" />
+              {aiLoading ? 'Analysing...' : 'AI Summary'}
+            </button>
+            <button onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+              Request Feedback
+            </button>
+          </div>
         }>
+        {aiSummary && (
+          <div className="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-purple-900 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5" />
+                AI Feedback Summary
+              </h3>
+              <button onClick={() => setAiSummary(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+            </div>
+            <p className="text-sm text-purple-800 mb-3">{aiSummary.executiveSummary}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {aiSummary.consensusStrengths?.length > 0 && (
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-green-700 mb-1">Consensus Strengths</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiSummary.consensusStrengths.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+              {aiSummary.consensusDevelopmentAreas?.length > 0 && (
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-amber-700 mb-1">Development Areas</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiSummary.consensusDevelopmentAreas.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+              {aiSummary.blindSpots?.length > 0 && (
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-700 mb-1">Blind Spots</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiSummary.blindSpots.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+              {aiSummary.actionableRecommendations?.length > 0 && (
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 mb-1">Recommended Actions</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiSummary.actionableRecommendations.map((s, i) => <li key={i}>- {s}</li>)}</ul>
+                </div>
+              )}
+            </div>
+            {aiSummary.sentimentOverview && (
+              <p className="text-xs text-purple-600 mt-2">Sentiment: {aiSummary.sentimentOverview}</p>
+            )}
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Feedback Requests List */}
           {loading ? (

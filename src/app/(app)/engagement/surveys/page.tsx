@@ -4,13 +4,17 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, Survey } from '@/services/engagementService';
-import { PlusIcon, ChartBarIcon, PlayIcon, StopIcon, TrashIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChartBarIcon, PlayIcon, StopIcon, TrashIcon, ClipboardDocumentListIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { aiEngagementService } from '@/services/aiEngagementService';
+import { SentimentAnalysisResult } from '@/types/ai';
 
 export default function SurveysPage() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filter, setFilter] = useState<string>('all');
+  const [aiSentiment, setAiSentiment] = useState<SentimentAnalysisResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadSurveys();
@@ -56,6 +60,24 @@ export default function SurveysPage() {
     }
   }
 
+  async function analyzeSentiment() {
+    setAiLoading(true);
+    try {
+      const result = await aiEngagementService.analyzeSentiment({
+        surveyName: 'Latest Survey',
+        surveyType: 'Engagement',
+        totalResponses: surveys.length,
+        eNpsScore: 0,
+        responses: [],
+      });
+      setAiSentiment(result);
+    } catch (error) {
+      console.error('AI sentiment analysis failed:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const filteredSurveys = filter === 'all' ? surveys : surveys.filter(s => s.status === filter);
 
   const statusBadge = (status: string) => {
@@ -69,7 +91,90 @@ export default function SurveysPage() {
 
   return (
     <FeatureGate feature="PULSE_SURVEYS">
-      <PageWrapper title="Pulse Surveys" subtitle="Create and manage employee engagement surveys">
+      <PageWrapper title="Pulse Surveys" subtitle="Create and manage employee engagement surveys"
+        actions={
+          <button onClick={analyzeSentiment} disabled={aiLoading}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm disabled:opacity-50 flex items-center gap-1">
+            <SparklesIcon className="h-4 w-4" />
+            {aiLoading ? 'Analysing...' : 'AI Sentiment Analysis'}
+          </button>
+        }
+      >
+        {aiSentiment && (
+          <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5" />
+                AI Sentiment Analysis
+              </h3>
+              <button onClick={() => setAiSentiment(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg text-center">
+                <p className="text-xs text-gray-500">Overall Sentiment</p>
+                <p className={`text-lg font-bold ${
+                  aiSentiment.overallSentiment === 'Positive' ? 'text-green-600' :
+                  aiSentiment.overallSentiment === 'Negative' ? 'text-red-600' : 'text-yellow-600'
+                }`}>{aiSentiment.overallSentiment}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg text-center">
+                <p className="text-xs text-gray-500">Sentiment Score</p>
+                <p className="text-lg font-bold text-purple-600">{aiSentiment.sentimentScore}/10</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              {aiSentiment.keyThemes?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-400 mb-1">Key Themes</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiSentiment.keyThemes.map((t, i) => <li key={i}>- {t}</li>)}
+                  </ul>
+                </div>
+              )}
+              {aiSentiment.concerns?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-700 dark:text-red-400 mb-1">Concerns</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiSentiment.concerns.map((c, i) => <li key={i}>- {c}</li>)}
+                  </ul>
+                </div>
+              )}
+              {aiSentiment.positives?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">Positives</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiSentiment.positives.map((p, i) => <li key={i}>- {p}</li>)}
+                  </ul>
+                </div>
+              )}
+              {aiSentiment.actionItems?.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Action Items</h4>
+                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    {aiSentiment.actionItems.map((a, i) => <li key={i}>- {a}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+            {aiSentiment.departmentBreakdown?.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department Breakdown</h4>
+                <div className="flex gap-2 overflow-x-auto">
+                  {aiSentiment.departmentBreakdown.map((d, i) => (
+                    <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded-lg min-w-[140px] text-center">
+                      <p className="text-xs font-medium text-gray-800 dark:text-gray-200">{d.department}</p>
+                      <p className={`text-xs font-bold ${
+                        d.sentiment === 'Positive' ? 'text-green-600' :
+                        d.sentiment === 'Negative' ? 'text-red-600' : 'text-yellow-600'
+                      }`}>{d.sentiment}</p>
+                      <p className="text-xs text-gray-500">{d.keyIssue}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         <div className="space-y-6">
           {/* Filters and Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

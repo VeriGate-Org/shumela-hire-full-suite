@@ -4,12 +4,18 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService } from '@/services/complianceService';
-import { ScaleIcon, ExclamationTriangleIcon, DocumentTextIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { aiHrGeneralService } from '@/services/aiHrGeneralService';
+import { CaseAnalysisResult } from '@/types/ai';
+import { ScaleIcon, ExclamationTriangleIcon, DocumentTextIcon, ClockIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export default function LabourRelationsDashboardPage() {
   const [dashboard, setDashboard] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  const [aiAnalysis, setAiAnalysis] = useState<CaseAnalysisResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showCaseModal, setShowCaseModal] = useState(false);
+  const [caseForm, setCaseForm] = useState({ caseType: 'Misconduct', description: '', employeeRole: '', department: '', severity: 'Medium' });
 
   useEffect(() => {
     loadDashboard();
@@ -24,6 +30,26 @@ export default function LabourRelationsDashboardPage() {
       console.error('Failed to load labour relations dashboard:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function analyzeCase() {
+    if (!caseForm.description) return;
+    setAiLoading(true);
+    try {
+      const result = await aiHrGeneralService.analyzeCase({
+        caseType: caseForm.caseType,
+        description: caseForm.description,
+        employeeRole: caseForm.employeeRole,
+        department: caseForm.department,
+        severity: caseForm.severity,
+      });
+      setAiAnalysis(result);
+      setShowCaseModal(false);
+    } catch (error) {
+      console.error('AI case analysis failed:', error);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -42,8 +68,84 @@ export default function LabourRelationsDashboardPage() {
 
   return (
     <FeatureGate feature="LABOUR_RELATIONS">
-      <PageWrapper title="Labour Relations" subtitle="Manage disciplinary cases and employee grievances">
+      <PageWrapper title="Labour Relations" subtitle="Manage disciplinary cases and employee grievances"
+        actions={
+          <button onClick={() => setShowCaseModal(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center gap-1">
+            <SparklesIcon className="h-4 w-4" />
+            AI Case Advisor
+          </button>
+        }>
         <div className="space-y-6">
+          {showCaseModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h3 className="text-lg font-medium mb-4">AI Case Analysis</h3>
+                <div className="space-y-3">
+                  <select value={caseForm.caseType} onChange={e => setCaseForm(f => ({...f, caseType: e.target.value}))}
+                    className="w-full px-3 py-2 border rounded-lg text-sm">
+                    <option>Misconduct</option><option>Grievance</option><option>Poor Performance</option>
+                    <option>Absenteeism</option><option>Harassment</option><option>Insubordination</option>
+                  </select>
+                  <textarea value={caseForm.description} onChange={e => setCaseForm(f => ({...f, description: e.target.value}))}
+                    placeholder="Describe the case..." rows={4} className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input value={caseForm.employeeRole} onChange={e => setCaseForm(f => ({...f, employeeRole: e.target.value}))}
+                      placeholder="Employee Role" className="px-3 py-2 border rounded-lg text-sm" />
+                    <input value={caseForm.department} onChange={e => setCaseForm(f => ({...f, department: e.target.value}))}
+                      placeholder="Department" className="px-3 py-2 border rounded-lg text-sm" />
+                  </div>
+                  <select value={caseForm.severity} onChange={e => setCaseForm(f => ({...f, severity: e.target.value}))}
+                    className="w-full px-3 py-2 border rounded-lg text-sm">
+                    <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button onClick={() => setShowCaseModal(false)} className="px-4 py-2 text-gray-600 text-sm">Cancel</button>
+                  <button onClick={analyzeCase} disabled={aiLoading || !caseForm.description}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm disabled:opacity-50">
+                    {aiLoading ? 'Analysing...' : 'Analyse Case'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {aiAnalysis && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-purple-900 flex items-center gap-2">
+                  <SparklesIcon className="h-5 w-5" />
+                  AI Case Analysis
+                </h3>
+                <button onClick={() => setAiAnalysis(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
+              </div>
+              <p className="text-sm text-gray-700 mb-3">{aiAnalysis.summary}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 mb-1">Recommended Steps</h4>
+                  <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                    {aiAnalysis.recommendedSteps?.map((s, i) => <li key={i}>{s}</li>)}
+                  </ol>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-700 mb-1">Legal Considerations</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiAnalysis.legalConsiderations?.map((l, i) => <li key={i}>- {l}</li>)}</ul>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-amber-700 mb-1">Documentation Required</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">{aiAnalysis.documentationRequired?.map((d, i) => <li key={i}>- {d}</li>)}</ul>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <h4 className="text-sm font-medium text-green-700 mb-1">Risk Assessment</h4>
+                  <p className="text-xs text-gray-600">{aiAnalysis.riskAssessment}</p>
+                </div>
+              </div>
+              <div className="mt-3 bg-white p-3 rounded-lg">
+                <h4 className="text-sm font-medium text-purple-700 mb-1">Suggested Resolution</h4>
+                <p className="text-xs text-gray-600">{aiAnalysis.suggestedResolution}</p>
+              </div>
+            </div>
+          )}
           {/* Quick Links */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link href="/admin/labour-relations/disciplinary">
