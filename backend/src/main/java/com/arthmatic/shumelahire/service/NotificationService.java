@@ -404,8 +404,8 @@ public class NotificationService {
         }
     }
 
-    private void sendInternalNotification(Long recipientId, String title, String message,
-                                          NotificationType type, NotificationPriority priority) {
+    public void sendInternalNotification(Long recipientId, String title, String message,
+                                         NotificationType type, NotificationPriority priority) {
         try {
             Notification notification = new Notification();
             notification.setRecipientId(recipientId);

@@ -10,7 +10,10 @@ import com.arthmatic.shumelahire.entity.training.TrainingSession;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.training.TrainingEnrollmentRepository;
 import com.arthmatic.shumelahire.repository.training.TrainingSessionRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,9 @@ public class TrainingEnrollmentService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<TrainingEnrollmentResponse> getBySession(Long sessionId) {
@@ -93,6 +99,10 @@ public class TrainingEnrollmentService {
                 "Enrolled employee " + employee.getFullName() + " in session #" + session.getId());
         logger.info("Employee {} enrolled in training session #{}", employee.getFullName(), session.getId());
 
+        notificationService.sendInternalNotification(employee.getId(), "Training Enrollment",
+                "You've been enrolled in '" + session.getCourse().getTitle() + "' — " + session.getStartDate(),
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
+
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
@@ -121,6 +131,11 @@ public class TrainingEnrollmentService {
         auditLogService.saveLog(userId, "COMPLETE", "TRAINING_ENROLLMENT", enrollmentId.toString(),
                 "Marked enrollment as completed" + (score != null ? " with score " + score : ""));
 
+        String courseName = enrollment.getSession().getCourse().getTitle();
+        notificationService.sendInternalNotification(enrollment.getEmployee().getId(), "Training Completed",
+                "You've completed '" + courseName + "'" + (score != null ? " — Score: " + score : ""),
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
+
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
@@ -133,6 +148,10 @@ public class TrainingEnrollmentService {
         auditLogService.saveLog(userId, "NO_SHOW", "TRAINING_ENROLLMENT", enrollmentId.toString(),
                 "Marked enrollment as no-show");
 
+        notificationService.sendInternalNotification(enrollment.getEmployee().getId(), "Training No-Show",
+                "You were marked as no-show for '" + enrollment.getSession().getCourse().getTitle() + "'",
+                NotificationType.APPROVAL_DENIED, NotificationPriority.HIGH);
+
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
@@ -144,6 +163,10 @@ public class TrainingEnrollmentService {
         TrainingEnrollment saved = enrollmentRepository.save(enrollment);
         auditLogService.saveLog(userId, "CANCEL", "TRAINING_ENROLLMENT", enrollmentId.toString(),
                 "Cancelled enrollment");
+
+        notificationService.sendInternalNotification(enrollment.getEmployee().getId(), "Training Cancelled",
+                "Your enrollment in '" + enrollment.getSession().getCourse().getTitle() + "' has been cancelled",
+                NotificationType.APPROVAL_DENIED, NotificationPriority.MEDIUM);
 
         return TrainingEnrollmentResponse.fromEntity(saved);
     }

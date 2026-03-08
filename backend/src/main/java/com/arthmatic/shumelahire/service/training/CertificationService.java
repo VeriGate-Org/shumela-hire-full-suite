@@ -7,7 +7,10 @@ import com.arthmatic.shumelahire.entity.training.Certification;
 import com.arthmatic.shumelahire.entity.training.CertificationStatus;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.training.CertificationRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class CertificationService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<CertificationResponse> getAll() {
@@ -89,6 +95,10 @@ public class CertificationService {
                 "Created certification: " + saved.getName() + " for " + employee.getFullName());
         logger.info("Created certification '{}' for employee {}", saved.getName(), employee.getFullName());
 
+        notificationService.sendInternalNotification(employee.getId(), "Certification Recorded",
+                "'" + saved.getName() + "' has been added to your profile",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
+
         return CertificationResponse.fromEntity(saved);
     }
 
@@ -120,5 +130,9 @@ public class CertificationService {
         certificationRepository.save(cert);
         auditLogService.saveLog(userId, "REVOKE", "CERTIFICATION", id.toString(),
                 "Revoked certification: " + cert.getName());
+
+        notificationService.sendInternalNotification(cert.getEmployee().getId(), "Certification Revoked",
+                "'" + cert.getName() + "' has been revoked",
+                NotificationType.APPROVAL_DENIED, NotificationPriority.HIGH);
     }
 }

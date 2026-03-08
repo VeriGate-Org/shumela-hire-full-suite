@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { navigationRegistry, sectionLabels, NavSection, NavigationEntry } from '
 import {
   MagnifyingGlassIcon,
   ChevronRightIcon,
+  ChevronDownIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import ThemeToggle from './ThemeToggle';
@@ -24,6 +25,19 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const { user } = useAuth();
   const { isFeatureEnabled } = useFeatureGate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = useCallback((section: string) => {
+    setCollapsedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(section)) {
+        next.delete(section);
+      } else {
+        next.add(section);
+      }
+      return next;
+    });
+  }, []);
 
   // Filter navigation entries by user permissions and feature gates
   const navigationItems = useMemo(() => {
@@ -159,18 +173,35 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
       {/* Section-grouped Navigation */}
       <div className="px-3 py-1">
-        {Object.entries(groupedNavItems).map(([section, items]) => (
-          <div key={section} className="mb-4">
-            {!isCollapsed && (
-              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.12em] mb-2 font-semibold px-2.5">
-                {sectionLabels[section as NavSection] || section}
-              </p>
-            )}
-            <nav className="space-y-0.5">
-              {items?.map(item => renderNavigationItem(item))}
-            </nav>
-          </div>
-        ))}
+        {Object.entries(groupedNavItems).map(([section, items]) => {
+          const isSectionCollapsed = collapsedSections.has(section);
+          const hasActiveItem = items?.some(item =>
+            isActiveRoute(item.href) && !filteredItems.some(other =>
+              other.href !== item.href && other.href.startsWith(item.href) && pathname.startsWith(other.href)
+            )
+          );
+
+          return (
+            <div key={section} className="mb-1">
+              {!isCollapsed && (
+                <button
+                  onClick={() => toggleSection(section)}
+                  className="w-full flex items-center justify-between px-2.5 py-1.5 rounded transition-colors hover:bg-accent/50 group/section"
+                >
+                  <span className={`text-[11px] uppercase tracking-[0.12em] font-semibold ${hasActiveItem && isSectionCollapsed ? 'text-cta' : 'text-muted-foreground'}`}>
+                    {sectionLabels[section as NavSection] || section}
+                  </span>
+                  <ChevronDownIcon className={`h-3 w-3 text-muted-foreground opacity-0 group-hover/section:opacity-100 transition-all duration-200 ${isSectionCollapsed ? '-rotate-90' : ''}`} />
+                </button>
+              )}
+              <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isSectionCollapsed && !isCollapsed && !searchQuery ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
+                <nav className="space-y-0.5 mt-0.5">
+                  {items?.map(item => renderNavigationItem(item))}
+                </nav>
+              </div>
+            </div>
+          );
+        })}
 
         {searchQuery && filteredItems.length === 0 && !isCollapsed && (
           <div className="px-5 py-4 text-center">

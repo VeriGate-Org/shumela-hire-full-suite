@@ -7,7 +7,10 @@ import com.arthmatic.shumelahire.entity.performance.*;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.performance.PerformanceImprovementPlanRepository;
 import com.arthmatic.shumelahire.repository.performance.PipMilestoneRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,9 @@ public class PipService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public PipResponse createPip(PipCreateRequest request) {
         Employee employee = employeeRepository.findById(request.getEmployeeId())
@@ -68,6 +74,9 @@ public class PipService {
         auditLogService.saveLog(request.getManagerId().toString(), "CREATE", "PIP",
                 pip.getId().toString(), "Created PIP for employee " + request.getEmployeeId());
         logger.info("PIP created for employee {} by manager {}", request.getEmployeeId(), request.getManagerId());
+
+        notificationService.notifyApprovalRequired(employee.getId(), "Performance Improvement Plan",
+                "PIP created by " + manager.getFullName());
 
         return PipResponse.fromEntity(pipRepository.findById(pip.getId()).orElse(pip));
     }
@@ -106,6 +115,12 @@ public class PipService {
 
         auditLogService.saveLog("SYSTEM", "UPDATE_STATUS", "PIP",
                 id.toString(), "Updated PIP status to " + status);
+
+        NotificationType notifType = "COMPLETED_SUCCESSFULLY".equals(status) ?
+                NotificationType.APPROVAL_GRANTED : NotificationType.APPROVAL_DENIED;
+        notificationService.sendInternalNotification(pip.getEmployee().getId(), "PIP Status Updated",
+                "Your PIP status changed to " + status, notifType, NotificationPriority.HIGH);
+
         return PipResponse.fromEntity(pip);
     }
 
@@ -120,5 +135,9 @@ public class PipService {
 
         auditLogService.saveLog("SYSTEM", "UPDATE_MILESTONE", "PIP_MILESTONE",
                 milestoneId.toString(), "Updated milestone status to " + status);
+
+        notificationService.sendInternalNotification(milestone.getPip().getManager().getId(), "PIP Milestone Updated",
+                milestone.getPip().getEmployee().getFullName() + " - milestone '" + milestone.getTitle() + "' → " + status,
+                NotificationType.APPROVAL_REQUIRED, NotificationPriority.MEDIUM);
     }
 }

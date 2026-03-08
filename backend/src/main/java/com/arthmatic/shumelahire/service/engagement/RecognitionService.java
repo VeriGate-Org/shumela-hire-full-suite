@@ -7,7 +7,10 @@ import com.arthmatic.shumelahire.entity.engagement.Recognition;
 import com.arthmatic.shumelahire.entity.engagement.RecognitionCategory;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.engagement.RecognitionRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,9 @@ public class RecognitionService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public RecognitionResponse giveRecognition(RecognitionCreateRequest request) {
         Employee fromEmployee = employeeRepository.findById(request.getFromEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("From employee not found: " + request.getFromEmployeeId()));
@@ -61,6 +67,10 @@ public class RecognitionService {
         auditLogService.saveLog(request.getFromEmployeeId().toString(), "GIVE_RECOGNITION", "RECOGNITION",
                 recognition.getId().toString(), "Gave recognition to employee " + request.getToEmployeeId());
         logger.info("Employee {} gave recognition to employee {}", request.getFromEmployeeId(), request.getToEmployeeId());
+
+        notificationService.sendInternalNotification(toEmployee.getId(), "Recognition Received",
+                fromEmployee.getFullName() + " recognized you: " + request.getMessage(),
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
 
         return RecognitionResponse.fromEntity(recognition);
     }

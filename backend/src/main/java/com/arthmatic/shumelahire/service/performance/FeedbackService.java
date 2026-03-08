@@ -6,7 +6,10 @@ import com.arthmatic.shumelahire.entity.performance.*;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.performance.FeedbackRequestRepository;
 import com.arthmatic.shumelahire.repository.performance.FeedbackResponseRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,9 @@ public class FeedbackService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public FeedbackRequestResponse createRequest(FeedbackRequestCreateRequest request) {
         Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
@@ -56,6 +62,9 @@ public class FeedbackService {
         auditLogService.saveLog(request.getRequesterId().toString(), "CREATE", "FEEDBACK_REQUEST",
                 feedbackRequest.getId().toString(), "Created 360 feedback request for employee " + request.getEmployeeId());
         logger.info("Feedback request created for employee {} by {}", request.getEmployeeId(), request.getRequesterId());
+
+        notificationService.notifyApprovalRequired(employee.getId(), "Feedback Request",
+                requester.getFullName() + " - " + feedbackRequest.getFeedbackType());
 
         return FeedbackRequestResponse.fromEntity(feedbackRequest);
     }
@@ -114,6 +123,10 @@ public class FeedbackService {
                 response.getId().toString(), "Submitted feedback for request " + requestId);
         logger.info("Feedback submitted for request {} by respondent {}", requestId, submitRequest.getRespondentId());
 
+        notificationService.sendInternalNotification(feedbackRequest.getRequester().getId(), "Feedback Received",
+                respondent.getFullName() + " submitted feedback for " + feedbackRequest.getEmployee().getFullName(),
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
+
         return FeedbackResponseDto.fromEntity(response);
     }
 
@@ -123,6 +136,10 @@ public class FeedbackService {
 
         feedbackRequest.setStatus(FeedbackStatus.DECLINED);
         feedbackRequestRepository.save(feedbackRequest);
+
+        notificationService.sendInternalNotification(feedbackRequest.getRequester().getId(), "Feedback Declined",
+                "Feedback request for " + feedbackRequest.getEmployee().getFullName() + " was declined",
+                NotificationType.APPROVAL_DENIED, NotificationPriority.MEDIUM);
 
         auditLogService.saveLog("SYSTEM", "DECLINE", "FEEDBACK_REQUEST",
                 requestId.toString(), "Declined feedback request");

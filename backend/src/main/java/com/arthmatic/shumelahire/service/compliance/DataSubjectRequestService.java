@@ -4,8 +4,13 @@ import com.arthmatic.shumelahire.dto.compliance.DataSubjectRequestResponse;
 import com.arthmatic.shumelahire.entity.compliance.DataSubjectRequest;
 import com.arthmatic.shumelahire.entity.compliance.DsarRequestType;
 import com.arthmatic.shumelahire.entity.compliance.DsarStatus;
+import com.arthmatic.shumelahire.entity.Employee;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
+import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.compliance.DataSubjectRequestRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -30,6 +36,12 @@ public class DataSubjectRequestService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     public DataSubjectRequestResponse createRequest(String requesterName, String requesterEmail,
                                                      String requestType, String description) {
@@ -46,6 +58,11 @@ public class DataSubjectRequestService {
         auditLogService.saveLog("SYSTEM", "CREATE", "DSAR",
                 dsar.getId().toString(), "Created DSAR from " + requesterEmail + " type: " + requestType);
         logger.info("DSAR created: {} from {}", requestType, requesterEmail);
+
+        employeeRepository.findByEmail(requesterEmail).ifPresent(emp ->
+                notificationService.sendInternalNotification(emp.getId(), "Data Subject Request",
+                        "Your DSAR has been received and is being processed",
+                        NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM));
 
         return DataSubjectRequestResponse.fromEntity(dsar);
     }
@@ -84,6 +101,25 @@ public class DataSubjectRequestService {
 
         auditLogService.saveLog("SYSTEM", "UPDATE_STATUS", "DSAR",
                 id.toString(), "Updated DSAR status to " + status);
+
+        Optional<Employee> requesterOpt = employeeRepository.findByEmail(dsar.getRequesterEmail());
+        if (requesterOpt.isPresent()) {
+            Long empId = requesterOpt.get().getId();
+            switch (status) {
+                case "COMPLETED":
+                    notificationService.notifyApprovalGranted(empId, "Data Subject Request", "Your request has been completed");
+                    break;
+                case "REJECTED":
+                    notificationService.notifyApprovalDenied(empId, "Data Subject Request", "Your request", response);
+                    break;
+                case "IN_PROGRESS":
+                    notificationService.sendInternalNotification(empId, "Data Subject Request",
+                            "Your request is now being processed",
+                            NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
+                    break;
+            }
+        }
+
         return DataSubjectRequestResponse.fromEntity(dsar);
     }
 

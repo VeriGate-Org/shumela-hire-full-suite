@@ -8,7 +8,10 @@ import com.arthmatic.shumelahire.entity.engagement.SurveyStatus;
 import com.arthmatic.shumelahire.entity.engagement.QuestionType;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.engagement.*;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,9 @@ public class SurveyService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public SurveyResponse createSurvey(SurveyCreateRequest request, Long createdBy) {
         Survey survey = new Survey();
@@ -101,6 +107,11 @@ public class SurveyService {
 
         auditLogService.saveLog("SYSTEM", "ACTIVATE", "SURVEY",
                 survey.getId().toString(), "Activated survey: " + survey.getTitle());
+
+        notificationService.sendInternalNotification(survey.getCreatedBy(), "Survey Activated",
+                "Your survey '" + survey.getTitle() + "' is now active",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
+
         return SurveyResponse.fromEntity(survey);
     }
 
@@ -112,6 +123,11 @@ public class SurveyService {
 
         auditLogService.saveLog("SYSTEM", "CLOSE", "SURVEY",
                 survey.getId().toString(), "Closed survey: " + survey.getTitle());
+
+        notificationService.sendInternalNotification(survey.getCreatedBy(), "Survey Closed",
+                "Survey '" + survey.getTitle() + "' has been closed",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
+
         return SurveyResponse.fromEntity(survey);
     }
 
@@ -147,6 +163,10 @@ public class SurveyService {
         auditLogService.saveLog(request.getEmployeeId().toString(), "SUBMIT_RESPONSE", "SURVEY",
                 surveyId.toString(), "Submitted response to survey: " + survey.getTitle());
         logger.info("Employee {} submitted response to survey {}", request.getEmployeeId(), surveyId);
+
+        notificationService.sendInternalNotification(survey.getCreatedBy(), "Survey Response",
+                "New response submitted for '" + survey.getTitle() + "'",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
     }
 
     @Transactional(readOnly = true)

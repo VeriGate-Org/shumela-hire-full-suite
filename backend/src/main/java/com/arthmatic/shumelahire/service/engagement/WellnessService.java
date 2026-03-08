@@ -9,7 +9,10 @@ import com.arthmatic.shumelahire.entity.engagement.WellnessProgramType;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.engagement.WellnessProgramParticipantRepository;
 import com.arthmatic.shumelahire.repository.engagement.WellnessProgramRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class WellnessService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public WellnessProgramResponse createProgram(WellnessProgramCreateRequest request) {
         WellnessProgram program = new WellnessProgram();
@@ -127,6 +133,10 @@ public class WellnessService {
         auditLogService.saveLog(employeeId.toString(), "JOIN", "WELLNESS_PROGRAM",
                 programId.toString(), "Joined wellness program: " + program.getName());
         logger.info("Employee {} joined wellness program {}", employeeId, programId);
+
+        notificationService.sendInternalNotification(employeeId, "Wellness Program",
+                "You've joined '" + program.getName() + "'",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
     }
 
     public void leaveProgram(Long programId, Long employeeId) {
@@ -146,6 +156,13 @@ public class WellnessService {
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
         program.setIsActive(false);
         wellnessProgramRepository.save(program);
+
+        List<WellnessProgramParticipant> participants = participantRepository.findByProgramId(id);
+        for (WellnessProgramParticipant participant : participants) {
+            notificationService.sendInternalNotification(participant.getEmployee().getId(), "Wellness Program Ended",
+                    "'" + program.getName() + "' has been deactivated",
+                    NotificationType.APPROVAL_DENIED, NotificationPriority.LOW);
+        }
 
         auditLogService.saveLog("SYSTEM", "DEACTIVATE", "WELLNESS_PROGRAM",
                 id.toString(), "Deactivated wellness program: " + program.getName());

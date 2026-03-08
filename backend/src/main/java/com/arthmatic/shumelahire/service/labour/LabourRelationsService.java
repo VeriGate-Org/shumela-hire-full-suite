@@ -7,7 +7,10 @@ import com.arthmatic.shumelahire.entity.labour.*;
 import com.arthmatic.shumelahire.repository.EmployeeRepository;
 import com.arthmatic.shumelahire.repository.labour.DisciplinaryCaseRepository;
 import com.arthmatic.shumelahire.repository.labour.GrievanceRepository;
+import com.arthmatic.shumelahire.entity.NotificationPriority;
+import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class LabourRelationsService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // ---- Disciplinary Cases ----
 
     public DisciplinaryCaseResponse createDisciplinaryCase(Long employeeId, String offenceCategory,
@@ -59,6 +65,9 @@ public class LabourRelationsService {
         auditLogService.saveLog(createdBy.toString(), "CREATE", "DISCIPLINARY_CASE",
                 dc.getId().toString(), "Created disciplinary case for employee " + employeeId);
         logger.info("Disciplinary case created for employee {}", employeeId);
+
+        notificationService.notifyApprovalRequired(employeeId, "Disciplinary Case",
+                "A disciplinary case has been opened");
 
         return DisciplinaryCaseResponse.fromEntity(dc);
     }
@@ -104,6 +113,13 @@ public class LabourRelationsService {
 
         auditLogService.saveLog("SYSTEM", "UPDATE", "DISCIPLINARY_CASE",
                 id.toString(), "Updated disciplinary case");
+
+        if (status != null) {
+            notificationService.sendInternalNotification(dc.getEmployee().getId(), "Disciplinary Case Update",
+                    "Case status changed to " + status,
+                    NotificationType.APPROVAL_REQUIRED, NotificationPriority.HIGH);
+        }
+
         return DisciplinaryCaseResponse.fromEntity(dc);
     }
 
@@ -131,6 +147,14 @@ public class LabourRelationsService {
         auditLogService.saveLog(employeeId.toString(), "FILE", "GRIEVANCE",
                 grievance.getId().toString(), "Filed grievance: " + grievanceType);
         logger.info("Grievance filed by employee {}", employeeId);
+
+        if (assignedToId != null) {
+            notificationService.notifyApprovalRequired(assignedToId, "Grievance Filed",
+                    employee.getFullName() + " has filed a grievance");
+        }
+        notificationService.sendInternalNotification(employeeId, "Grievance Received",
+                "Your grievance has been filed and assigned",
+                NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
 
         return GrievanceResponse.fromEntity(grievance);
     }
@@ -172,6 +196,18 @@ public class LabourRelationsService {
 
         auditLogService.saveLog("SYSTEM", "UPDATE", "GRIEVANCE",
                 id.toString(), "Updated grievance status to " + status);
+
+        if (status != null) {
+            notificationService.sendInternalNotification(grievance.getEmployee().getId(), "Grievance Update",
+                    "Your grievance status changed to " + status,
+                    NotificationType.APPROVAL_GRANTED, NotificationPriority.MEDIUM);
+            if (grievance.getAssignedTo() != null) {
+                notificationService.sendInternalNotification(grievance.getAssignedTo().getId(), "Grievance Update",
+                        grievance.getEmployee().getFullName() + "'s grievance → " + status,
+                        NotificationType.APPROVAL_REQUIRED, NotificationPriority.MEDIUM);
+            }
+        }
+
         return GrievanceResponse.fromEntity(grievance);
     }
 
