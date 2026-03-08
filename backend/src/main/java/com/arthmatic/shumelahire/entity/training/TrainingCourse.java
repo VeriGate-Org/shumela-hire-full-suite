@@ -55,6 +55,9 @@ public class TrainingCourse extends TenantAwareEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "linked_competency_ids", columnDefinition = "TEXT")
+    private String linkedCompetencyIds;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainingSession> sessions = new ArrayList<>();
 
@@ -102,6 +105,9 @@ public class TrainingCourse extends TenantAwareEntity {
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+    public String getLinkedCompetencyIds() { return linkedCompetencyIds; }
+    public void setLinkedCompetencyIds(String linkedCompetencyIds) { this.linkedCompetencyIds = linkedCompetencyIds; }
 
     public List<TrainingSession> getSessions() { return sessions; }
     public void setSessions(List<TrainingSession> sessions) { this.sessions = sessions; }

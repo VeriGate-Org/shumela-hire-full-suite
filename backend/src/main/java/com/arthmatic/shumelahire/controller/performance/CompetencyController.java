@@ -106,4 +106,35 @@ public class CompetencyController {
     public ResponseEntity<List<EmployeeCompetencyResponse>> getEmployeeCompetencies(@PathVariable Long employeeId) {
         return ResponseEntity.ok(competencyService.getEmployeeCompetencies(employeeId));
     }
+
+    // Skill Gap Analysis endpoints
+
+    @GetMapping("/gaps/employee/{employeeId}")
+    public ResponseEntity<?> getSkillGaps(@PathVariable Long employeeId) {
+        try {
+            return ResponseEntity.ok(competencyService.getSkillGaps(employeeId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/gaps/department/{department}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> getDepartmentGaps(@PathVariable String department) {
+        try {
+            // Pass department name as-is; service handles lookup
+            return ResponseEntity.ok(competencyService.getDepartmentGaps(Long.parseLong(department)));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid department ID"));
+        }
+    }
+
+    @GetMapping("/training/recommendations/{employeeId}")
+    public ResponseEntity<?> getTrainingRecommendations(@PathVariable Long employeeId) {
+        try {
+            return ResponseEntity.ok(competencyService.getTrainingRecommendations(employeeId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

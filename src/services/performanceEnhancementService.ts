@@ -90,6 +90,26 @@ export interface EmployeeCompetency {
   updatedAt: string;
 }
 
+export interface SkillGap {
+  competencyId: number;
+  competencyName: string;
+  frameworkName: string | null;
+  category: string | null;
+  currentLevel: number;
+  targetLevel: number;
+  gap: number;
+  recommendedCourses: { courseId: number; courseTitle: string }[];
+}
+
+export interface TrainingRecommendation {
+  courseId: number;
+  courseTitle: string;
+  category: string | null;
+  deliveryMethod: string | null;
+  durationHours: number | null;
+  matchingCompetencies: string[];
+}
+
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -245,6 +265,25 @@ export const performanceEnhancementService = {
     if (assessorId) params.set('assessorId', assessorId.toString());
     const response = await apiFetch(`/api/competencies/employees/${employeeId}/assess?${params}`, { method: 'POST' });
     if (!response.ok) throw new Error('Failed to assess competency');
+    return await response.json();
+  },
+
+  // Skill Gap Analysis
+  async getSkillGaps(employeeId: number): Promise<SkillGap[]> {
+    const response = await apiFetch(`/api/competencies/gaps/employee/${employeeId}`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getDepartmentGaps(departmentId: number): Promise<SkillGap[]> {
+    const response = await apiFetch(`/api/competencies/gaps/department/${departmentId}`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getTrainingRecommendations(employeeId: number): Promise<TrainingRecommendation[]> {
+    const response = await apiFetch(`/api/competencies/training/recommendations/${employeeId}`);
+    if (!response.ok) return [];
     return await response.json();
   },
 };
