@@ -8,14 +8,18 @@ import {
   SkillGap,
   TrainingRecommendation,
 } from '@/services/performanceEnhancementService';
-import { AcademicCapIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { aiSkillGapService } from '@/services/aiSkillGapService';
+import { SkillGapAiResult } from '@/types/ai';
+import { AcademicCapIcon, ExclamationTriangleIcon, SparklesIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SkillGapsPage() {
   const { user } = useAuth();
   const [gaps, setGaps] = useState<SkillGap[]>([]);
   const [recommendations, setRecommendations] = useState<TrainingRecommendation[]>([]);
+  const [aiInsights, setAiInsights] = useState<SkillGapAiResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [employeeId, setEmployeeId] = useState('');
   const [viewMode, setViewMode] = useState<'employee' | 'department'>('employee');
@@ -29,6 +33,7 @@ export default function SkillGapsPage() {
 
     setLoading(true);
     setSearched(true);
+    setAiInsights(null);
     try {
       if (viewMode === 'employee') {
         const id = parseInt(employeeId);
@@ -47,6 +52,26 @@ export default function SkillGapsPage() {
       console.error('Failed to load skill gaps:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateAiInsights() {
+    if (gaps.length === 0) return;
+    setAiLoading(true);
+    try {
+      const result = await aiSkillGapService.analyze({
+        gaps: gaps.map((g) => ({
+          competencyName: g.competencyName,
+          category: g.category,
+          currentLevel: g.currentLevel,
+          targetLevel: g.targetLevel,
+        })),
+      });
+      setAiInsights(result);
+    } catch (error) {
+      console.error('AI analysis unavailable:', error);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -137,11 +162,21 @@ export default function SkillGapsPage() {
           {/* Gap Table */}
           {!loading && gaps.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <ExclamationTriangleIcon className="h-5 w-5 text-amber-500" />
                   Competency Gaps ({gaps.length})
                 </h3>
+                {!aiInsights && (
+                  <button
+                    onClick={generateAiInsights}
+                    disabled={aiLoading}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                  >
+                    <SparklesIcon className="h-4 w-4" />
+                    {aiLoading ? 'Analyzing...' : 'AI Insights'}
+                  </button>
+                )}
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -206,6 +241,112 @@ export default function SkillGapsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* AI Insights Panel */}
+          {aiInsights && (
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg shadow border border-purple-200 dark:border-purple-800 overflow-hidden">
+              <div className="px-6 py-4 border-b border-purple-200 dark:border-purple-800">
+                <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                  <SparklesIcon className="h-5 w-5 text-purple-500" />
+                  AI Development Insights
+                </h3>
+                <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                  AI-generated analysis — review recommendations with professional judgement
+                </p>
+              </div>
+              <div className="p-6 space-y-5">
+                {/* Overall Assessment */}
+                {aiInsights.overallAssessment && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Overall Assessment</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{aiInsights.overallAssessment}</p>
+                  </div>
+                )}
+
+                {/* Priority Actions + Timeframe */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {aiInsights.priorityActions && aiInsights.priorityActions.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-1.5">
+                        <LightBulbIcon className="h-4 w-4 text-amber-500" /> Priority Actions
+                      </h4>
+                      <ol className="list-decimal list-inside space-y-1">
+                        {aiInsights.priorityActions.map((action, i) => (
+                          <li key={i} className="text-sm text-gray-700 dark:text-gray-300">{action}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    {aiInsights.estimatedTimeframe && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Estimated Timeframe</h4>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {aiInsights.estimatedTimeframe}
+                        </span>
+                      </div>
+                    )}
+                    {aiInsights.strengths && aiInsights.strengths.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Strengths to Leverage</h4>
+                        <ul className="space-y-1">
+                          {aiInsights.strengths.map((s, i) => (
+                            <li key={i} className="text-sm text-green-700 dark:text-green-400 flex items-start gap-1.5">
+                              <span className="text-green-500 mt-0.5">+</span> {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {aiInsights.riskFactors && aiInsights.riskFactors.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Risk Factors</h4>
+                        <ul className="space-y-1">
+                          {aiInsights.riskFactors.map((r, i) => (
+                            <li key={i} className="text-sm text-red-700 dark:text-red-400 flex items-start gap-1.5">
+                              <span className="text-red-500 mt-0.5">!</span> {r}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Suggested Learning Path */}
+                {aiInsights.suggestedLearningPath && aiInsights.suggestedLearningPath.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Suggested Learning Path</h4>
+                    <div className="space-y-2">
+                      {aiInsights.suggestedLearningPath.map((item) => (
+                        <div key={item.order} className="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs font-bold">
+                            {item.order}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">{item.activity}</span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                                {item.method}
+                              </span>
+                              {item.duration && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400">{item.duration}</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                              <span className="font-medium">{item.competency}</span>
+                              {item.rationale && <> &mdash; {item.rationale}</>}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

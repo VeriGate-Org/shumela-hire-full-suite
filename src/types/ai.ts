@@ -202,6 +202,36 @@ export interface ReportNarrativeResult {
   recommendations: string[];
 }
 
+// --- Skill Gap Analysis ---
+
+export interface SkillGapAiRequest {
+  employeeName?: string;
+  jobTitle?: string;
+  department?: string;
+  gaps: Array<{
+    competencyName: string;
+    category: string | null;
+    currentLevel: number;
+    targetLevel: number;
+  }>;
+}
+
+export interface SkillGapAiResult {
+  overallAssessment: string;
+  priorityActions: string[];
+  suggestedLearningPath: Array<{
+    order: number;
+    competency: string;
+    activity: string;
+    method: string;
+    duration: string;
+    rationale: string;
+  }>;
+  estimatedTimeframe: string;
+  riskFactors: string[];
+  strengths: string[];
+}
+
 // --- Smart Search ---
 
 export interface SmartSearchResult {

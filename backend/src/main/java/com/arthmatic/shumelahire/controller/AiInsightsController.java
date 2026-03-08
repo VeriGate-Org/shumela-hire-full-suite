@@ -3,10 +3,12 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ai.OfferPredictionDto;
 import com.arthmatic.shumelahire.dto.ai.ReportNarrativeDto;
 import com.arthmatic.shumelahire.dto.ai.SalaryBenchmarkDto;
+import com.arthmatic.shumelahire.dto.ai.SkillGapAiDto;
 import com.arthmatic.shumelahire.service.ai.AiService;
 import com.arthmatic.shumelahire.service.ai.features.OfferPredictionAiService;
 import com.arthmatic.shumelahire.service.ai.features.ReportNarrativeAiService;
 import com.arthmatic.shumelahire.service.ai.features.SalaryBenchmarkAiService;
+import com.arthmatic.shumelahire.service.ai.features.SkillGapAiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -22,16 +24,19 @@ public class AiInsightsController {
     private final SalaryBenchmarkAiService salaryBenchmarkAiService;
     private final OfferPredictionAiService offerPredictionAiService;
     private final ReportNarrativeAiService reportNarrativeAiService;
+    private final SkillGapAiService skillGapAiService;
 
     public AiInsightsController(
             AiService aiService,
             SalaryBenchmarkAiService salaryBenchmarkAiService,
             OfferPredictionAiService offerPredictionAiService,
-            ReportNarrativeAiService reportNarrativeAiService) {
+            ReportNarrativeAiService reportNarrativeAiService,
+            SkillGapAiService skillGapAiService) {
         this.aiService = aiService;
         this.salaryBenchmarkAiService = salaryBenchmarkAiService;
         this.offerPredictionAiService = offerPredictionAiService;
         this.reportNarrativeAiService = reportNarrativeAiService;
+        this.skillGapAiService = skillGapAiService;
     }
 
     @PostMapping("/salary-benchmark/analyze")
@@ -84,5 +89,17 @@ public class AiInsightsController {
         request.setJobId(jobId);
         String userId = authentication.getName();
         return ResponseEntity.ok(reportNarrativeAiService.generateNarrative(userId, request));
+    }
+
+    @PostMapping("/skill-gap/analyze")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<?> analyzeSkillGaps(
+            @RequestBody SkillGapAiDto.SkillGapAiRequest request,
+            Authentication authentication) {
+        if (!aiService.isEnabled()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "AI features are not enabled"));
+        }
+        String userId = authentication.getName();
+        return ResponseEntity.ok(skillGapAiService.analyzeGaps(userId, request));
     }
 }
