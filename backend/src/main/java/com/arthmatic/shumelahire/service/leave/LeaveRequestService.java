@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,6 +141,8 @@ public class LeaveRequestService {
             throw new IllegalArgumentException("Leave request is not in PENDING status");
         }
 
+        validateManagerAccess(leaveRequest.getEmployee().getId(), approverId);
+
         Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
@@ -175,6 +180,8 @@ public class LeaveRequestService {
         if (leaveRequest.getStatus() != LeaveRequestStatus.PENDING) {
             throw new IllegalArgumentException("Leave request is not in PENDING status");
         }
+
+        validateManagerAccess(leaveRequest.getEmployee().getId(), approverId);
 
         Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
@@ -267,6 +274,21 @@ public class LeaveRequestService {
         LeaveRequest request = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + id));
         return LeaveRequestResponse.fromEntity(request);
+    }
+
+    private void validateManagerAccess(Long employeeId, Long approverId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLineManager = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+
+        if (isLineManager) {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+            if (employee.getReportingManager() == null ||
+                    !employee.getReportingManager().getId().equals(approverId)) {
+                throw new AccessDeniedException("You can only approve requests for your direct reports");
+            }
+        }
     }
 
     public BigDecimal calculateWorkingDays(LocalDate startDate, LocalDate endDate) {

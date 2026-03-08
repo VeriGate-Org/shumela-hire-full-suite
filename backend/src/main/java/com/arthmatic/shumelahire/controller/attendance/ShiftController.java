@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/shifts")
 @FeatureGate("SHIFT_SCHEDULING")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class ShiftController {
 
     @Autowired
@@ -35,7 +35,7 @@ public class ShiftController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> createShift(@RequestBody Map<String, Object> body) {
         try {
             Shift shift = shiftService.create(
@@ -66,7 +66,7 @@ public class ShiftController {
     }
 
     @PostMapping("/schedules")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> assignShift(@RequestParam Long employeeId,
                                          @RequestParam Long shiftId,
                                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {

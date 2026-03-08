@@ -95,7 +95,7 @@ export const navigationRegistry: NavigationEntry[] = [
   // Engagement — surveys, recognition, wellness
   { id: 'engagement', label: 'Engagement', href: '/engagement', icon: HeartIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'EMPLOYEE_ENGAGEMENT' },
   { id: 'surveys', label: 'Pulse Surveys', href: '/engagement/surveys', icon: ChatBubbleLeftRightIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'PULSE_SURVEYS' },
-  { id: 'recognition', label: 'Recognition', href: '/engagement/recognition', icon: TrophyIcon, section: 'engagement', requiredPermissions: ['view_dashboard'], requiredFeature: 'RECOGNITION_REWARDS' },
+  { id: 'recognition', label: 'Recognition', href: '/engagement/recognition', icon: TrophyIcon, section: 'engagement', requiredPermissions: ['view_own_profile'], requiredFeature: 'RECOGNITION_REWARDS' },
 
   // Workflow & AI — automation tools
   { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'workflow', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },

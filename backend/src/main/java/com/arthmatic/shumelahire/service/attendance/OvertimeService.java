@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +65,9 @@ public class OvertimeService {
     public OvertimeRecord approve(Long recordId, Long approverId) {
         OvertimeRecord record = overtimeRecordRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("Overtime record not found: " + recordId));
+
+        validateManagerAccess(record.getEmployee().getId(), approverId);
+
         Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
@@ -79,6 +85,9 @@ public class OvertimeService {
     public OvertimeRecord reject(Long recordId, Long approverId) {
         OvertimeRecord record = overtimeRecordRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("Overtime record not found: " + recordId));
+
+        validateManagerAccess(record.getEmployee().getId(), approverId);
+
         record.setStatus(OvertimeStatus.REJECTED);
         record = overtimeRecordRepository.save(record);
 
@@ -86,6 +95,21 @@ public class OvertimeService {
                 record.getHours() + " hours", null);
         auditLogService.saveLog(approverId.toString(), "REJECT", "OVERTIME", recordId.toString(), "Rejected overtime");
         return record;
+    }
+
+    private void validateManagerAccess(Long employeeId, Long approverId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLineManager = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+
+        if (isLineManager) {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+            if (employee.getReportingManager() == null ||
+                    !employee.getReportingManager().getId().equals(approverId)) {
+                throw new AccessDeniedException("You can only approve requests for your direct reports");
+            }
+        }
     }
 
     @Transactional(readOnly = true)

@@ -28,39 +28,61 @@ public class PermissionService {
         new PermissionDefinition("train_manage", "Manage Training", "Create training content", "training", "write"),
         new PermissionDefinition("admin_users", "Manage Users", "Manage user accounts", "admin", "admin"),
         new PermissionDefinition("admin_roles", "Manage Roles", "Manage roles and permissions", "admin", "admin"),
-        new PermissionDefinition("admin_settings", "System Settings", "Configure system settings", "admin", "admin")
+        new PermissionDefinition("admin_settings", "System Settings", "Configure system settings", "admin", "admin"),
+        new PermissionDefinition("leave_view", "View Leave", "View leave requests and balances", "leave", "read"),
+        new PermissionDefinition("leave_manage", "Manage Leave", "Approve/reject leave requests", "leave", "write"),
+        new PermissionDefinition("attendance_view", "View Attendance", "View attendance records", "attendance", "read"),
+        new PermissionDefinition("attendance_manage", "Manage Attendance", "Manage team attendance", "attendance", "write"),
+        new PermissionDefinition("perf_view", "View Performance", "View performance reviews", "performance", "read"),
+        new PermissionDefinition("perf_manage", "Manage Performance", "Create performance reviews", "performance", "write"),
+        new PermissionDefinition("engage_view", "View Engagement", "View engagement surveys", "engagement", "read"),
+        new PermissionDefinition("engage_manage", "Manage Engagement", "Create surveys and programs", "engagement", "write"),
+        new PermissionDefinition("compliance_view", "View Compliance", "View compliance dashboards", "compliance", "read"),
+        new PermissionDefinition("compliance_manage", "Manage Compliance", "Manage compliance records", "compliance", "admin"),
+        new PermissionDefinition("docs_manage", "Manage Documents", "Upload and manage documents", "documents", "write")
     );
 
-    private static final Map<User.Role, List<String>> ROLE_PERMISSIONS = Map.of(
-        User.Role.PLATFORM_OWNER, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
+    private static final Map<User.Role, List<String>> ROLE_PERMISSIONS = Map.ofEntries(
+        Map.entry(User.Role.PLATFORM_OWNER, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
                 "cand_view", "cand_manage", "int_view", "int_manage", "integ_view", "integ_manage",
                 "train_view", "train_manage", "admin_users", "admin_roles", "admin_settings",
-                "platform_admin", "manage_features", "manage_tenants"),
-        User.Role.ADMIN, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
+                "platform_admin", "manage_features", "manage_tenants")),
+        Map.entry(User.Role.ADMIN, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
                 "cand_view", "cand_manage", "int_view", "int_manage", "integ_view", "integ_manage",
-                "train_view", "train_manage", "admin_users", "admin_roles", "admin_settings"),
-        User.Role.EXECUTIVE, List.of("dash_view", "dash_export", "recruit_view", "app_view", "cand_view", "int_view"),
-        User.Role.HR_MANAGER, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
-                "cand_view", "cand_manage", "int_view", "int_manage", "train_view", "train_manage"),
-        User.Role.HIRING_MANAGER, List.of("dash_view", "recruit_view", "recruit_manage", "app_view", "app_manage",
-                "cand_view", "int_view", "int_manage"),
-        User.Role.RECRUITER, List.of("dash_view", "recruit_view", "recruit_manage", "app_view", "app_manage",
-                "cand_view", "cand_manage", "int_view", "int_manage"),
-        User.Role.INTERVIEWER, List.of("int_view", "int_manage", "cand_view"),
-        User.Role.EMPLOYEE, List.of("dash_view", "train_view"),
-        User.Role.APPLICANT, List.of()
+                "train_view", "train_manage", "admin_users", "admin_roles", "admin_settings",
+                "leave_view", "leave_manage", "attendance_view", "attendance_manage",
+                "perf_view", "perf_manage", "engage_view", "engage_manage",
+                "compliance_view", "compliance_manage", "docs_manage")),
+        Map.entry(User.Role.EXECUTIVE, List.of("dash_view", "dash_export", "recruit_view", "app_view", "cand_view", "int_view",
+                "perf_view", "train_view")),
+        Map.entry(User.Role.HR_MANAGER, List.of("dash_view", "dash_export", "recruit_view", "recruit_manage", "app_view", "app_manage",
+                "cand_view", "cand_manage", "int_view", "int_manage", "train_view", "train_manage",
+                "leave_view", "leave_manage", "attendance_view", "attendance_manage",
+                "perf_view", "perf_manage", "engage_view", "engage_manage",
+                "compliance_view", "compliance_manage", "docs_manage")),
+        Map.entry(User.Role.LINE_MANAGER, List.of("dash_view", "train_view", "perf_view",
+                "leave_view", "leave_manage", "attendance_view", "attendance_manage", "docs_manage")),
+        Map.entry(User.Role.HIRING_MANAGER, List.of("dash_view", "recruit_view", "recruit_manage", "app_view", "app_manage",
+                "cand_view", "int_view", "int_manage")),
+        Map.entry(User.Role.RECRUITER, List.of("dash_view", "recruit_view", "recruit_manage", "app_view", "app_manage",
+                "cand_view", "cand_manage", "int_view", "int_manage")),
+        Map.entry(User.Role.INTERVIEWER, List.of("int_view", "int_manage", "cand_view")),
+        Map.entry(User.Role.EMPLOYEE, List.of("dash_view", "train_view",
+                "leave_view", "attendance_view", "perf_view", "docs_manage")),
+        Map.entry(User.Role.APPLICANT, List.of())
     );
 
-    private static final Map<User.Role, String> ROLE_COLORS = Map.of(
-        User.Role.PLATFORM_OWNER, "indigo",
-        User.Role.ADMIN, "red",
-        User.Role.EXECUTIVE, "purple",
-        User.Role.HR_MANAGER, "blue",
-        User.Role.HIRING_MANAGER, "green",
-        User.Role.RECRUITER, "yellow",
-        User.Role.INTERVIEWER, "gray",
-        User.Role.EMPLOYEE, "gray",
-        User.Role.APPLICANT, "gray"
+    private static final Map<User.Role, String> ROLE_COLORS = Map.ofEntries(
+        Map.entry(User.Role.PLATFORM_OWNER, "indigo"),
+        Map.entry(User.Role.ADMIN, "red"),
+        Map.entry(User.Role.EXECUTIVE, "purple"),
+        Map.entry(User.Role.HR_MANAGER, "blue"),
+        Map.entry(User.Role.LINE_MANAGER, "teal"),
+        Map.entry(User.Role.HIRING_MANAGER, "green"),
+        Map.entry(User.Role.RECRUITER, "yellow"),
+        Map.entry(User.Role.INTERVIEWER, "gray"),
+        Map.entry(User.Role.EMPLOYEE, "gray"),
+        Map.entry(User.Role.APPLICANT, "gray")
     );
 
     public List<PermissionDefinition> getAllPermissions() {

@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/engagement/surveys")
 @FeatureGate("PULSE_SURVEYS")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class SurveyController {
 
     @Autowired

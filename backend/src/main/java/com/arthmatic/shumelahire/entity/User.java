@@ -283,6 +283,7 @@ public class User implements UserDetails {
         ADMIN("Administrator", 100),
         EXECUTIVE("Executive", 90),
         HR_MANAGER("HR Manager", 80),
+        LINE_MANAGER("Line Manager", 75),
         HIRING_MANAGER("Hiring Manager", 70),
         RECRUITER("Recruiter", 60),
         INTERVIEWER("Interviewer", 50),

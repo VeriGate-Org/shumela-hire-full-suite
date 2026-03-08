@@ -36,6 +36,7 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
             "ADMIN",
             "EXECUTIVE",
             "HR_MANAGER",
+            "LINE_MANAGER",
             "HIRING_MANAGER",
             "RECRUITER",
             "INTERVIEWER",

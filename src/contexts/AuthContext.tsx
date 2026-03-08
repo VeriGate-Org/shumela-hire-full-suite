@@ -12,6 +12,7 @@ export type UserRole =
   | 'ADMIN'
   | 'EXECUTIVE'
   | 'HR_MANAGER'
+  | 'LINE_MANAGER'
   | 'HIRING_MANAGER'
   | 'RECRUITER'
   | 'INTERVIEWER'
@@ -23,6 +24,7 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   ADMIN: 'Administrator',
   EXECUTIVE: 'Executive',
   HR_MANAGER: 'HR Manager',
+  LINE_MANAGER: 'Line Manager',
   HIRING_MANAGER: 'Hiring Manager',
   RECRUITER: 'Recruiter',
   INTERVIEWER: 'Interviewer',
@@ -31,8 +33,8 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
 };
 
 export const ALL_ROLES: UserRole[] = [
-  'PLATFORM_OWNER', 'ADMIN', 'EXECUTIVE', 'HR_MANAGER', 'HIRING_MANAGER',
-  'RECRUITER', 'INTERVIEWER', 'EMPLOYEE', 'APPLICANT',
+  'PLATFORM_OWNER', 'ADMIN', 'EXECUTIVE', 'HR_MANAGER', 'LINE_MANAGER',
+  'HIRING_MANAGER', 'RECRUITER', 'INTERVIEWER', 'EMPLOYEE', 'APPLICANT',
 ];
 
 interface User {

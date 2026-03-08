@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/engagement/wellness")
 @FeatureGate("WELLNESS_PROGRAMS")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class WellnessController {
 
     @Autowired

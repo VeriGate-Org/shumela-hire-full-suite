@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/attendance")
 @FeatureGate("TIME_ATTENDANCE")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class AttendanceController {
 
     @Autowired
@@ -68,7 +68,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<List<AttendanceRecord>> getTeamAttendance(
             @RequestParam String department,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -93,7 +93,7 @@ public class AttendanceController {
     }
 
     @PutMapping("/overtime/{id}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> approveOvertime(@PathVariable Long id, @RequestParam Long approverId) {
         try {
             return ResponseEntity.ok(overtimeService.approve(id, approverId));
@@ -103,7 +103,7 @@ public class AttendanceController {
     }
 
     @PutMapping("/overtime/{id}/reject")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> rejectOvertime(@PathVariable Long id, @RequestParam Long approverId) {
         try {
             return ResponseEntity.ok(overtimeService.reject(id, approverId));
@@ -121,7 +121,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/overtime/pending")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<Page<OvertimeRecord>> getPendingOvertime(@RequestParam(defaultValue = "0") int page,
                                                                     @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(overtimeService.getPending(PageRequest.of(page, size)));

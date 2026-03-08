@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/training")
 @FeatureGate("TRAINING_MANAGEMENT")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class TrainingController {
 
     private static final Logger logger = LoggerFactory.getLogger(TrainingController.class);

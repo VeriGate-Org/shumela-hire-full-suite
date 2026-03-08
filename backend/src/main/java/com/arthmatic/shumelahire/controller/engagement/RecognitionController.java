@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/engagement/recognitions")
 @FeatureGate("RECOGNITION_REWARDS")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class RecognitionController {
 
     @Autowired

@@ -42,4 +42,20 @@ describe('Authorization alignment', () => {
       'manage_tenants',
     ]);
   });
+
+  it('aligns new HR module nav entries with correct roles', () => {
+    expectNavRoles('leave', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
+    expectNavRoles('time-attendance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
+    expectNavRoles('shift-scheduling', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
+    expectNavRoles('employee-self-service', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE', 'APPLICANT']);
+    expectNavRoles('training', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);
+    expectNavRoles('performance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);
+    expectNavRoles('engagement', ['ADMIN', 'HR_MANAGER']);
+    expectNavRoles('compliance', ['ADMIN', 'HR_MANAGER']);
+    expectNavRoles('labour-relations', ['ADMIN', 'HR_MANAGER']);
+    expectNavRoles('hr-analytics', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'HIRING_MANAGER', 'RECRUITER']);
+    expectNavRoles('report-export', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE']);
+    expectNavRoles('sage-integration', ['ADMIN', 'HR_MANAGER']);
+    expectNavRoles('sso-configuration', ['ADMIN', 'HR_MANAGER']);
+  });
 });

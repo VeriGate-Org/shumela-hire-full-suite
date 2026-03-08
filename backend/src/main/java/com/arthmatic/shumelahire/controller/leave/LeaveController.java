@@ -24,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/leave")
 @FeatureGate("LEAVE_MANAGEMENT")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class LeaveController {
 
     private static final Logger logger = LoggerFactory.getLogger(LeaveController.class);
@@ -169,7 +169,7 @@ public class LeaveController {
     }
 
     @GetMapping("/requests/pending")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<Page<LeaveRequestResponse>> getPendingApprovals(
             @RequestParam Long managerId,
             @RequestParam(defaultValue = "0") int page,
@@ -179,7 +179,7 @@ public class LeaveController {
     }
 
     @PutMapping("/requests/{id}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> approveRequest(@PathVariable Long id,
                                             @RequestParam Long approverId) {
         try {
@@ -191,7 +191,7 @@ public class LeaveController {
     }
 
     @PutMapping("/requests/{id}/reject")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> rejectRequest(@PathVariable Long id,
                                            @RequestParam Long approverId,
                                            @RequestBody(required = false) LeaveDecisionRequest decision) {

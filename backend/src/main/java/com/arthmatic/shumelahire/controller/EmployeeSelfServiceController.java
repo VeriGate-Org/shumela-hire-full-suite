@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/employee")
 @FeatureGate("EMPLOYEE_SELF_SERVICE")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
 public class EmployeeSelfServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeSelfServiceController.class);
