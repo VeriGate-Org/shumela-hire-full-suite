@@ -1,0 +1,97 @@
+package com.arthmatic.shumelahire.controller.performance;
+
+import com.arthmatic.shumelahire.annotation.FeatureGate;
+import com.arthmatic.shumelahire.dto.performance.*;
+import com.arthmatic.shumelahire.service.performance.FeedbackService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/performance/feedback")
+@FeatureGate("PERFORMANCE_360_FEEDBACK")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+public class FeedbackController {
+
+    @Autowired
+    private FeedbackService feedbackService;
+
+    @PostMapping("/requests")
+    public ResponseEntity<?> createRequest(@RequestBody FeedbackRequestCreateRequest request) {
+        try {
+            FeedbackRequestResponse response = feedbackService.createRequest(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/requests/{id}")
+    public ResponseEntity<?> getRequest(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(feedbackService.getRequest(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/requests/employee/{employeeId}")
+    public ResponseEntity<Page<FeedbackRequestResponse>> getRequestsForEmployee(
+            @PathVariable Long employeeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(feedbackService.getRequestsForEmployee(employeeId,
+                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    }
+
+    @GetMapping("/requests/requester/{requesterId}")
+    public ResponseEntity<Page<FeedbackRequestResponse>> getRequestsByRequester(
+            @PathVariable Long requesterId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(feedbackService.getRequestsByRequester(requesterId,
+                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    }
+
+    @GetMapping("/requests/pending")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<Page<FeedbackRequestResponse>> getPendingRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(feedbackService.getPendingRequests(PageRequest.of(page, size)));
+    }
+
+    @PostMapping("/requests/{id}/submit")
+    public ResponseEntity<?> submitFeedback(@PathVariable Long id,
+                                            @RequestBody FeedbackSubmitRequest request) {
+        try {
+            FeedbackResponseDto response = feedbackService.submitFeedback(id, request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/requests/{id}/decline")
+    public ResponseEntity<?> declineRequest(@PathVariable Long id) {
+        try {
+            feedbackService.declineRequest(id);
+            return ResponseEntity.ok(Map.of("message", "Request declined"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/requests/{id}/responses")
+    public ResponseEntity<List<FeedbackResponseDto>> getResponses(@PathVariable Long id) {
+        return ResponseEntity.ok(feedbackService.getResponses(id));
+    }
+}

@@ -1,0 +1,129 @@
+package com.arthmatic.shumelahire.controller.attendance;
+
+import com.arthmatic.shumelahire.annotation.FeatureGate;
+import com.arthmatic.shumelahire.entity.attendance.AttendanceRecord;
+import com.arthmatic.shumelahire.entity.attendance.ClockMethod;
+import com.arthmatic.shumelahire.entity.attendance.OvertimeRecord;
+import com.arthmatic.shumelahire.service.attendance.AttendanceService;
+import com.arthmatic.shumelahire.service.attendance.OvertimeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/attendance")
+@FeatureGate("TIME_ATTENDANCE")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+public class AttendanceController {
+
+    @Autowired
+    private AttendanceService attendanceService;
+
+    @Autowired
+    private OvertimeService overtimeService;
+
+    @PostMapping("/clock-in")
+    public ResponseEntity<?> clockIn(@RequestParam Long employeeId,
+                                     @RequestParam(defaultValue = "MANUAL") String method,
+                                     @RequestParam(required = false) Double latitude,
+                                     @RequestParam(required = false) Double longitude) {
+        try {
+            AttendanceRecord record = attendanceService.clockIn(employeeId, ClockMethod.valueOf(method), latitude, longitude);
+            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/clock-out")
+    public ResponseEntity<?> clockOut(@RequestParam Long employeeId,
+                                      @RequestParam(required = false) Double latitude,
+                                      @RequestParam(required = false) Double longitude) {
+        try {
+            AttendanceRecord record = attendanceService.clockOut(employeeId, latitude, longitude);
+            return ResponseEntity.ok(record);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/records")
+    public ResponseEntity<Page<AttendanceRecord>> getRecords(@RequestParam Long employeeId,
+                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(attendanceService.getByEmployee(employeeId,
+                PageRequest.of(page, size, Sort.by("clockIn").descending())));
+    }
+
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<List<AttendanceRecord>> getTeamAttendance(
+            @RequestParam String department,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ResponseEntity.ok(attendanceService.getTeamAttendance(department,
+                startDate.atStartOfDay(), endDate.atTime(23, 59, 59)));
+    }
+
+    // ---- Overtime ----
+
+    @PostMapping("/overtime")
+    public ResponseEntity<?> submitOvertime(@RequestParam Long employeeId,
+                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                            @RequestParam BigDecimal hours,
+                                            @RequestParam(required = false) String reason) {
+        try {
+            OvertimeRecord record = overtimeService.submit(employeeId, date, hours, reason);
+            return ResponseEntity.status(HttpStatus.CREATED).body(record);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/overtime/{id}/approve")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> approveOvertime(@PathVariable Long id, @RequestParam Long approverId) {
+        try {
+            return ResponseEntity.ok(overtimeService.approve(id, approverId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/overtime/{id}/reject")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> rejectOvertime(@PathVariable Long id, @RequestParam Long approverId) {
+        try {
+            return ResponseEntity.ok(overtimeService.reject(id, approverId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/overtime")
+    public ResponseEntity<Page<OvertimeRecord>> getOvertime(@RequestParam Long employeeId,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(overtimeService.getByEmployee(employeeId,
+                PageRequest.of(page, size, Sort.by("date").descending())));
+    }
+
+    @GetMapping("/overtime/pending")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<Page<OvertimeRecord>> getPendingOvertime(@RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(overtimeService.getPending(PageRequest.of(page, size)));
+    }
+}

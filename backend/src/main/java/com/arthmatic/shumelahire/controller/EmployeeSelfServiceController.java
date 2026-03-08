@@ -1,0 +1,206 @@
+package com.arthmatic.shumelahire.controller;
+
+import com.arthmatic.shumelahire.annotation.FeatureGate;
+import com.arthmatic.shumelahire.dto.employee.*;
+import com.arthmatic.shumelahire.entity.Employee;
+import com.arthmatic.shumelahire.entity.EmployeeDocument;
+import com.arthmatic.shumelahire.entity.EmployeeDocumentTypeConfig;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentTypeConfigRepository;
+import com.arthmatic.shumelahire.repository.EmployeeRepository;
+import com.arthmatic.shumelahire.service.AuditLogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/employee")
+@FeatureGate("EMPLOYEE_SELF_SERVICE")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EMPLOYEE')")
+public class EmployeeSelfServiceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeSelfServiceController.class);
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private EmployeeDocumentRepository documentRepository;
+
+    @Autowired
+    private EmployeeDocumentTypeConfigRepository documentTypeConfigRepository;
+
+    @Autowired
+    private AuditLogService auditLogService;
+
+    // ---- Profile ----
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@RequestParam Long employeeId) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+            return ResponseEntity.ok(EmployeeProfileResponse.fromEntity(employee));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestParam Long employeeId,
+                                           @RequestBody EmployeeProfileUpdateRequest request) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+
+            if (request.getPersonalEmail() != null) employee.setPersonalEmail(request.getPersonalEmail());
+            if (request.getPhone() != null) employee.setPhone(request.getPhone());
+            if (request.getMobilePhone() != null) employee.setMobilePhone(request.getMobilePhone());
+            if (request.getPhysicalAddress() != null) employee.setPhysicalAddress(request.getPhysicalAddress());
+            if (request.getPostalAddress() != null) employee.setPostalAddress(request.getPostalAddress());
+            if (request.getCity() != null) employee.setCity(request.getCity());
+            if (request.getProvince() != null) employee.setProvince(request.getProvince());
+            if (request.getPostalCode() != null) employee.setPostalCode(request.getPostalCode());
+            if (request.getCountry() != null) employee.setCountry(request.getCountry());
+            if (request.getPreferredName() != null) employee.setPreferredName(request.getPreferredName());
+            if (request.getMaritalStatus() != null) employee.setMaritalStatus(request.getMaritalStatus());
+
+            Employee saved = employeeRepository.save(employee);
+            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_PROFILE",
+                    employeeId.toString(), "Employee updated own profile");
+            logger.info("Employee {} updated their profile", employee.getFullName());
+
+            return ResponseEntity.ok(EmployeeProfileResponse.fromEntity(saved));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ---- Banking Details ----
+
+    @GetMapping("/banking")
+    public ResponseEntity<?> getBankingDetails(@RequestParam Long employeeId) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+            return ResponseEntity.ok(Map.of(
+                    "bankName", employee.getBankName() != null ? employee.getBankName() : "",
+                    "bankBranchCode", employee.getBankBranchCode() != null ? employee.getBankBranchCode() : "",
+                    "bankAccountNumber", employee.getBankAccountNumber() != null ? "****" + employee.getBankAccountNumber().substring(Math.max(0, employee.getBankAccountNumber().length() - 4)) : ""
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/banking")
+    public ResponseEntity<?> updateBankingDetails(@RequestParam Long employeeId,
+                                                  @RequestBody BankingDetailsRequest request) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+
+            if (request.getBankName() != null) employee.setBankName(request.getBankName());
+            if (request.getBankBranchCode() != null) employee.setBankBranchCode(request.getBankBranchCode());
+            if (request.getBankAccountNumber() != null) employee.setBankAccountNumber(request.getBankAccountNumber());
+
+            employeeRepository.save(employee);
+            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_BANKING",
+                    employeeId.toString(), "Employee updated banking details");
+
+            return ResponseEntity.ok(Map.of("message", "Banking details updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ---- Emergency Contact ----
+
+    @GetMapping("/emergency-contact")
+    public ResponseEntity<?> getEmergencyContact(@RequestParam Long employeeId) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+            return ResponseEntity.ok(Map.of(
+                    "emergencyContactName", employee.getEmergencyContactName() != null ? employee.getEmergencyContactName() : "",
+                    "emergencyContactPhone", employee.getEmergencyContactPhone() != null ? employee.getEmergencyContactPhone() : "",
+                    "emergencyContactRelationship", employee.getEmergencyContactRelationship() != null ? employee.getEmergencyContactRelationship() : ""
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/emergency-contact")
+    public ResponseEntity<?> updateEmergencyContact(@RequestParam Long employeeId,
+                                                    @RequestBody EmergencyContactRequest request) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+
+            if (request.getEmergencyContactName() != null) employee.setEmergencyContactName(request.getEmergencyContactName());
+            if (request.getEmergencyContactPhone() != null) employee.setEmergencyContactPhone(request.getEmergencyContactPhone());
+            if (request.getEmergencyContactRelationship() != null) employee.setEmergencyContactRelationship(request.getEmergencyContactRelationship());
+
+            employeeRepository.save(employee);
+            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_EMERGENCY_CONTACT",
+                    employeeId.toString(), "Employee updated emergency contact details");
+
+            return ResponseEntity.ok(Map.of("message", "Emergency contact updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ---- Documents ----
+
+    @GetMapping("/documents")
+    public ResponseEntity<List<EmployeeDocumentResponse>> getDocuments(@RequestParam Long employeeId) {
+        List<EmployeeDocument> docs = documentRepository.findByEmployeeIdAndIsActiveTrueOrderByCreatedAtDesc(employeeId);
+        List<EmployeeDocumentResponse> responses = docs.stream()
+                .map(EmployeeDocumentResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/documents")
+    public ResponseEntity<?> uploadDocument(@RequestParam Long employeeId,
+                                            @RequestBody Map<String, Object> request) {
+        try {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+
+            EmployeeDocument doc = new EmployeeDocument();
+            doc.setEmployee(employee);
+            doc.setTitle((String) request.get("title"));
+            doc.setDescription((String) request.get("description"));
+            doc.setFilename((String) request.get("filename"));
+            doc.setFileUrl((String) request.get("fileUrl"));
+            doc.setContentType((String) request.get("contentType"));
+            doc.setUploadedBy(employeeId.toString());
+
+            EmployeeDocument saved = documentRepository.save(doc);
+            auditLogService.saveLog(employeeId.toString(), "UPLOAD", "EMPLOYEE_DOCUMENT",
+                    saved.getId().toString(), "Employee uploaded document: " + saved.getTitle());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(EmployeeDocumentResponse.fromEntity(saved));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ---- Document Type Configs ----
+
+    @GetMapping("/document-types")
+    public ResponseEntity<List<EmployeeDocumentTypeConfig>> getDocumentTypes() {
+        return ResponseEntity.ok(documentTypeConfigRepository.findByIsActiveTrue());
+    }
+}

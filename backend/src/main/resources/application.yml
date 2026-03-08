@@ -162,3 +162,17 @@ springdoc:
     path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
+
+# Leave Management
+leave:
+  carry-forward:
+    cron: "0 0 1 1 1 ?"
+  encashment:
+    enabled: ${LEAVE_ENCASHMENT_ENABLED:true}
+
+# Sage Integration
+sage:
+  300-people:
+    enabled: ${SAGE_300_ENABLED:true}
+  evolution:
+    enabled: ${SAGE_EVOLUTION_ENABLED:true}

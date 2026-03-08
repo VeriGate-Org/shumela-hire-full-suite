@@ -103,8 +103,10 @@ export const navigationRegistry: NavigationEntry[] = [
 
   // Analytics
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
+  { id: 'hr-analytics', label: 'HR Analytics', href: '/analytics/hr-overview', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'ADVANCED_ANALYTICS' },
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'] },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
+  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT' },
 
   // Administration
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
@@ -122,6 +124,8 @@ export const navigationRegistry: NavigationEntry[] = [
 
   // System
   { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon, section: 'system', requiredPermissions: ['manage_integrations'] },
+  { id: 'sage-integration', label: 'Sage Integration', href: '/integrations/sage', icon: ServerStackIcon, section: 'system', requiredPermissions: ['manage_integrations'], requiredFeature: 'SAGE_300_PEOPLE' },
+  { id: 'sso-configuration', label: 'SSO Configuration', href: '/integrations/sso', icon: ShieldCheckIcon, section: 'system', requiredPermissions: ['manage_integrations'], requiredFeature: 'AD_SSO' },
   { id: 'help', label: 'Help Center', href: '/help', icon: QuestionMarkCircleIcon, section: 'system', requiredPermissions: [] },
 
   // Platform
