@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/arthurmanena/Documents/source/shumela-hire/infra/cdk/ShumelaHireInfra.csproj": {}
+    "/Users/arthurmanena/Documents/source/shumela-hire-full-suite/infra/cdk/ShumelaHireInfra.csproj": {}
   },
   "projects": {
-    "/Users/arthurmanena/Documents/source/shumela-hire/infra/cdk/ShumelaHireInfra.csproj": {
+    "/Users/arthurmanena/Documents/source/shumela-hire-full-suite/infra/cdk/ShumelaHireInfra.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/arthurmanena/Documents/source/shumela-hire/infra/cdk/ShumelaHireInfra.csproj",
+        "projectUniqueName": "/Users/arthurmanena/Documents/source/shumela-hire-full-suite/infra/cdk/ShumelaHireInfra.csproj",
         "projectName": "ShumelaHireInfra",
-        "projectPath": "/Users/arthurmanena/Documents/source/shumela-hire/infra/cdk/ShumelaHireInfra.csproj",
+        "projectPath": "/Users/arthurmanena/Documents/source/shumela-hire-full-suite/infra/cdk/ShumelaHireInfra.csproj",
         "packagesPath": "/Users/arthurmanena/.nuget/packages/",
-        "outputPath": "/Users/arthurmanena/Documents/source/shumela-hire/infra/cdk/obj/",
+        "outputPath": "/Users/arthurmanena/Documents/source/shumela-hire-full-suite/infra/cdk/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/arthurmanena/.nuget/NuGet/NuGet.Config"

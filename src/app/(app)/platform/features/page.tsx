@@ -26,6 +26,11 @@ interface PlatformFeature {
 
 const PLAN_OPTIONS = ['TRIAL', 'STARTER', 'STANDARD', 'ENTERPRISE'];
 
+const CATEGORY_OPTIONS = [
+  'ai', 'analytics', 'automation', 'compliance', 'customization',
+  'engagement', 'hr_core', 'integrations', 'recruitment', 'talent_development',
+];
+
 const CATEGORY_STYLES: Record<string, string> = {
   recruitment: 'bg-blue-50 text-blue-700 border-blue-200',
   ai: 'bg-violet-50 text-violet-700 border-violet-200',
@@ -33,6 +38,23 @@ const CATEGORY_STYLES: Record<string, string> = {
   compliance: 'bg-red-50 text-red-700 border-red-200',
   integrations: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   customization: 'bg-pink-50 text-pink-700 border-pink-200',
+  hr_core: 'bg-sky-50 text-sky-700 border-sky-200',
+  talent_development: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  engagement: 'bg-rose-50 text-rose-700 border-rose-200',
+  automation: 'bg-teal-50 text-teal-700 border-teal-200',
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ai: 'AI',
+  analytics: 'Analytics',
+  automation: 'Automation',
+  compliance: 'Compliance',
+  customization: 'Customisation',
+  engagement: 'Engagement',
+  hr_core: 'HR Core',
+  integrations: 'Integrations',
+  recruitment: 'Recruitment',
+  talent_development: 'Talent Development',
 };
 
 export default function FeaturesPage() {
@@ -50,6 +72,7 @@ export default function FeaturesPage() {
     isActive: true,
   });
   const [deleteFeatureId, setDeleteFeatureId] = useState<number | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   const fetchFeatures = useCallback(async () => {
     setLoading(true);
@@ -210,13 +233,16 @@ export default function FeaturesPage() {
 
             <div>
               <label className="block text-xs text-gray-500 uppercase tracking-[0.05em] mb-1">Category</label>
-              <input
-                type="text"
+              <select
                 value={form.category}
-                onChange={e => setForm(prev => ({ ...prev, category: e.target.value.toLowerCase() }))}
-                placeholder="e.g. recruitment, ai, integrations"
+                onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
                 className="w-full px-3 py-2 rounded-[2px] border border-gray-200 dark:border-gray-700 text-sm bg-white dark:bg-charcoal focus:outline-none focus:ring-1 focus:ring-primary"
-              />
+              >
+                <option value="">Select category...</option>
+                {CATEGORY_OPTIONS.map(cat => (
+                  <option key={cat} value={cat}>{CATEGORY_LABELS[cat] || cat}</option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -271,6 +297,37 @@ export default function FeaturesPage() {
           </div>
         )}
 
+        {/* Category Filter */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setCategoryFilter('all')}
+            className={`px-3 py-1.5 rounded-[2px] text-xs font-medium border transition-colors ${
+              categoryFilter === 'all'
+                ? 'bg-primary text-white border-primary'
+                : 'bg-white dark:bg-charcoal text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary'
+            }`}
+          >
+            All ({features.length})
+          </button>
+          {CATEGORY_OPTIONS.map(cat => {
+            const count = features.filter(f => f.category === cat).length;
+            if (count === 0) return null;
+            return (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1.5 rounded-[2px] text-xs font-medium border transition-colors ${
+                  categoryFilter === cat
+                    ? 'bg-primary text-white border-primary'
+                    : CATEGORY_STYLES[cat] || 'bg-gray-50 text-gray-600 border-gray-200'
+                }`}
+              >
+                {CATEGORY_LABELS[cat] || cat} ({count})
+              </button>
+            );
+          })}
+        </div>
+
         {/* Feature Table */}
         <div className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] overflow-hidden">
           <table className="w-full text-sm">
@@ -294,7 +351,7 @@ export default function FeaturesPage() {
                   <td colSpan={6} className="text-center py-12 text-gray-500">No features defined</td>
                 </tr>
               ) : (
-                features.map(feature => (
+                features.filter(f => categoryFilter === 'all' || f.category === categoryFilter).map(feature => (
                   <tr key={feature.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="py-3 px-4">
                       <Link href={`/platform/features/${feature.id}`} className="hover:text-primary transition-colors">
@@ -307,7 +364,7 @@ export default function FeaturesPage() {
                     <td className="py-3 px-4 font-mono text-xs text-gray-600 dark:text-gray-400">{feature.code}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-0.5 rounded-[2px] text-xs font-medium border ${CATEGORY_STYLES[feature.category] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
-                        {feature.category}
+                        {CATEGORY_LABELS[feature.category] || feature.category}
                       </span>
                     </td>
                     <td className="py-3 px-4">
