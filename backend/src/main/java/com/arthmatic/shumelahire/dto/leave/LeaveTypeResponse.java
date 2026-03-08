@@ -15,6 +15,8 @@ public class LeaveTypeResponse {
     private Boolean requiresMedicalCertificate;
     private Integer medicalCertThresholdDays;
     private Boolean isPaid;
+    private Boolean allowEncashment;
+    private BigDecimal encashmentRate;
     private Boolean isActive;
     private String colorCode;
     private LocalDateTime createdAt;
@@ -33,6 +35,8 @@ public class LeaveTypeResponse {
         r.requiresMedicalCertificate = entity.getRequiresMedicalCertificate();
         r.medicalCertThresholdDays = entity.getMedicalCertThresholdDays();
         r.isPaid = entity.getIsPaid();
+        r.allowEncashment = entity.getAllowEncashment();
+        r.encashmentRate = entity.getEncashmentRate();
         r.isActive = entity.getIsActive();
         r.colorCode = entity.getColorCode();
         r.createdAt = entity.getCreatedAt();
@@ -67,6 +71,12 @@ public class LeaveTypeResponse {
 
     public Boolean getIsPaid() { return isPaid; }
     public void setIsPaid(Boolean isPaid) { this.isPaid = isPaid; }
+
+    public Boolean getAllowEncashment() { return allowEncashment; }
+    public void setAllowEncashment(Boolean allowEncashment) { this.allowEncashment = allowEncashment; }
+
+    public BigDecimal getEncashmentRate() { return encashmentRate; }
+    public void setEncashmentRate(BigDecimal encashmentRate) { this.encashmentRate = encashmentRate; }
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }

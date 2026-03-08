@@ -37,6 +37,13 @@ export const roleConfigurations: Record<UserRole, RoleConfig> = {
     welcomeMessage: 'Human Resources Dashboard',
     description: 'Manage employee lifecycle, policies, and recruitment coordination.',
   },
+  LINE_MANAGER: {
+    primaryColor: 'bg-violet-600',
+    secondaryColor: 'bg-gold-50',
+    logo: '👥',
+    welcomeMessage: 'Line Manager Dashboard',
+    description: 'Manage your team, approve leave, and oversee performance reviews.',
+  },
   HIRING_MANAGER: {
     primaryColor: 'bg-violet-600',
     secondaryColor: 'bg-gold-50',

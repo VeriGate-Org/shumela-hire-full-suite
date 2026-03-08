@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { navigationRegistry, sectionLabels, NavSection, NavigationEntry } from '@/config/navigationRegistry';
 import {
   MagnifyingGlassIcon,
@@ -24,6 +25,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const pathname = usePathname();
   const { user } = useAuth();
   const { isFeatureEnabled } = useFeatureGate();
+  const { branding } = useTenant();
+  const [logoError, setLogoError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
@@ -137,13 +140,22 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       fixed left-0 top-14 bottom-0 bg-card border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
       ${isCollapsed ? 'w-16' : 'w-60'}
     `}>
-      {/* IDC Partner Logo */}
+      {/* Logo — tenant branding or IDC default */}
       <div className={`px-3 pt-3 pb-1 border-b border-border mb-1 ${isCollapsed ? 'flex justify-center' : ''}`}>
-        <img
-          src="/icons/idc-logo.png"
-          alt="IDC — Industrial Development Corporation"
-          className={isCollapsed ? 'h-6 w-auto' : 'h-8 w-auto'}
-        />
+        {branding?.logoUrl && !logoError ? (
+          <img
+            src={branding.logoUrl}
+            alt="Organization logo"
+            className={isCollapsed ? 'h-6 w-auto max-w-[40px] object-contain' : 'h-8 w-auto max-w-[180px] object-contain'}
+            onError={() => setLogoError(true)}
+          />
+        ) : (
+          <img
+            src="/icons/idc-logo.png"
+            alt="IDC — Industrial Development Corporation"
+            className={isCollapsed ? 'h-6 w-auto' : 'h-8 w-auto'}
+          />
+        )}
       </div>
 
       {/* Search */}

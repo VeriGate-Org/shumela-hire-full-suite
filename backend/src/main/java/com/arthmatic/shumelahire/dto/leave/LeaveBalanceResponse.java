@@ -18,6 +18,7 @@ public class LeaveBalanceResponse {
     private BigDecimal pendingDays;
     private BigDecimal carriedForwardDays;
     private BigDecimal adjustmentDays;
+    private BigDecimal encashedDays;
     private BigDecimal availableDays;
 
     public LeaveBalanceResponse() {}
@@ -37,6 +38,7 @@ public class LeaveBalanceResponse {
         r.pendingDays = entity.getPendingDays();
         r.carriedForwardDays = entity.getCarriedForwardDays();
         r.adjustmentDays = entity.getAdjustmentDays();
+        r.encashedDays = entity.getEncashedDays();
         r.availableDays = entity.getAvailableDays();
         return r;
     }
@@ -80,6 +82,9 @@ public class LeaveBalanceResponse {
 
     public BigDecimal getAdjustmentDays() { return adjustmentDays; }
     public void setAdjustmentDays(BigDecimal adjustmentDays) { this.adjustmentDays = adjustmentDays; }
+
+    public BigDecimal getEncashedDays() { return encashedDays; }
+    public void setEncashedDays(BigDecimal encashedDays) { this.encashedDays = encashedDays; }
 
     public BigDecimal getAvailableDays() { return availableDays; }
     public void setAvailableDays(BigDecimal availableDays) { this.availableDays = availableDays; }

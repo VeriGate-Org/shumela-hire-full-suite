@@ -93,6 +93,10 @@ test-users.md
 *.swo
 *~
 
+# Capacitor native projects
+ios/
+android/
+
 # Hive agent workspaces
 .hive/
 repos/team-*

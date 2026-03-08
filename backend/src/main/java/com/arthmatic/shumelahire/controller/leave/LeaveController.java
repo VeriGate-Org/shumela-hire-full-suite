@@ -50,6 +50,9 @@ public class LeaveController {
     @Autowired
     private PublicHolidayService publicHolidayService;
 
+    @Autowired
+    private LeaveEncashmentService leaveEncashmentService;
+
     // ---- Leave Types ----
 
     @GetMapping("/types")
@@ -259,6 +262,72 @@ public class LeaveController {
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    // ---- Leave Encashment ----
+
+    @PostMapping("/encashment")
+    public ResponseEntity<?> requestEncashment(@Valid @RequestBody LeaveEncashmentCreateRequest request,
+                                                @RequestParam Long employeeId) {
+        try {
+            LeaveEncashmentResponse response = leaveEncashmentService.requestEncashment(
+                    employeeId, request.getLeaveTypeId(), request.getDays(), request.getReason());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/encashment")
+    public ResponseEntity<List<LeaveEncashmentResponse>> getEncashmentRequests(
+            @RequestParam Long employeeId) {
+        return ResponseEntity.ok(leaveEncashmentService.getByEmployee(employeeId));
+    }
+
+    @GetMapping("/encashment/pending/hr")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<List<LeaveEncashmentResponse>> getPendingEncashmentHR() {
+        return ResponseEntity.ok(leaveEncashmentService.getPendingForHR());
+    }
+
+    @GetMapping("/encashment/pending/finance")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<List<LeaveEncashmentResponse>> getPendingEncashmentFinance() {
+        return ResponseEntity.ok(leaveEncashmentService.getPendingForFinance());
+    }
+
+    @PutMapping("/encashment/{id}/hr-approve")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> hrApproveEncashment(@PathVariable Long id,
+                                                  @RequestParam Long approverId) {
+        try {
+            return ResponseEntity.ok(leaveEncashmentService.hrApprove(id, approverId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/encashment/{id}/finance-approve")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<?> financeApproveEncashment(@PathVariable Long id,
+                                                       @RequestParam Long approverId) {
+        try {
+            return ResponseEntity.ok(leaveEncashmentService.financeApprove(id, approverId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/encashment/{id}/reject")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
+    public ResponseEntity<?> rejectEncashment(@PathVariable Long id,
+                                               @RequestParam Long approverId,
+                                               @RequestParam(required = false) String comment) {
+        try {
+            return ResponseEntity.ok(leaveEncashmentService.reject(id, approverId, comment));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

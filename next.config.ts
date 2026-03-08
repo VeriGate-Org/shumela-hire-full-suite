@@ -3,9 +3,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const isCapacitorBuild = process.env.CAPACITOR_BUILD === 'true';
+
 const nextConfig: NextConfig = {
-  // Build output for Docker/standalone deployment
-  output: 'standalone',
+  // Use 'export' for Capacitor native builds, 'standalone' for server deployment
+  output: isCapacitorBuild ? 'export' : 'standalone',
 
   // Strict mode for catching issues early
   reactStrictMode: true,

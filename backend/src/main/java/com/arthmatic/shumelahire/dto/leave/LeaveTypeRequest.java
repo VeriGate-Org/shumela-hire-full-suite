@@ -21,6 +21,8 @@ public class LeaveTypeRequest {
     private Boolean requiresMedicalCertificate;
     private Integer medicalCertThresholdDays;
     private Boolean isPaid;
+    private Boolean allowEncashment;
+    private BigDecimal encashmentRate;
     private String colorCode;
 
     // Getters and Setters
@@ -47,6 +49,12 @@ public class LeaveTypeRequest {
 
     public Boolean getIsPaid() { return isPaid; }
     public void setIsPaid(Boolean isPaid) { this.isPaid = isPaid; }
+
+    public Boolean getAllowEncashment() { return allowEncashment; }
+    public void setAllowEncashment(Boolean allowEncashment) { this.allowEncashment = allowEncashment; }
+
+    public BigDecimal getEncashmentRate() { return encashmentRate; }
+    public void setEncashmentRate(BigDecimal encashmentRate) { this.encashmentRate = encashmentRate; }
 
     public String getColorCode() { return colorCode; }
     public void setColorCode(String colorCode) { this.colorCode = colorCode; }

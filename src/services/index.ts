@@ -52,6 +52,10 @@ export type {
   WebSocketOptions,
 } from './webSocketService';
 
+// Document Template Service
+export { documentTemplateService, DocumentTemplateService } from './documentTemplateService';
+export type { DocumentTemplateFilters } from './documentTemplateService';
+
 // Import services for internal use
 import { authService, initializeAuth } from './authService';
 import { webSocketService, initializeWebSocket } from './webSocketService';

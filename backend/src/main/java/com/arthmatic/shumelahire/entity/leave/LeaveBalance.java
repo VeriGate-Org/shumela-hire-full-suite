@@ -48,6 +48,9 @@ public class LeaveBalance extends TenantAwareEntity {
     @Column(name = "adjustment_days", nullable = false, precision = 5, scale = 2)
     private BigDecimal adjustmentDays = BigDecimal.ZERO;
 
+    @Column(name = "encashed_days", nullable = false, precision = 5, scale = 2)
+    private BigDecimal encashedDays = BigDecimal.ZERO;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -61,7 +64,8 @@ public class LeaveBalance extends TenantAwareEntity {
                 .add(carriedForwardDays)
                 .add(adjustmentDays)
                 .subtract(takenDays)
-                .subtract(pendingDays);
+                .subtract(pendingDays)
+                .subtract(encashedDays);
     }
 
     // Getters and Setters
@@ -91,6 +95,9 @@ public class LeaveBalance extends TenantAwareEntity {
 
     public BigDecimal getAdjustmentDays() { return adjustmentDays; }
     public void setAdjustmentDays(BigDecimal adjustmentDays) { this.adjustmentDays = adjustmentDays; }
+
+    public BigDecimal getEncashedDays() { return encashedDays; }
+    public void setEncashedDays(BigDecimal encashedDays) { this.encashedDays = encashedDays; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

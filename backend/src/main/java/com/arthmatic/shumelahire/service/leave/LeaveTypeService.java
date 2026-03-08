@@ -85,6 +85,8 @@ public class LeaveTypeService {
         if (request.getRequiresMedicalCertificate() != null) entity.setRequiresMedicalCertificate(request.getRequiresMedicalCertificate());
         if (request.getMedicalCertThresholdDays() != null) entity.setMedicalCertThresholdDays(request.getMedicalCertThresholdDays());
         if (request.getIsPaid() != null) entity.setIsPaid(request.getIsPaid());
+        if (request.getAllowEncashment() != null) entity.setAllowEncashment(request.getAllowEncashment());
+        if (request.getEncashmentRate() != null) entity.setEncashmentRate(request.getEncashmentRate());
         if (request.getColorCode() != null) entity.setColorCode(request.getColorCode());
     }
 }

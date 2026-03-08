@@ -7,11 +7,15 @@ import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { TenantCompanyInfo } from '@/types/tenantBranding';
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
   ArrowPathIcon,
+  PencilIcon,
+  CheckIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 interface Tenant {
@@ -21,7 +25,9 @@ interface Tenant {
   status: string;
   plan: string;
   contactEmail: string;
+  contactName?: string;
   maxUsers: number;
+  settings?: string;
 }
 
 interface FeatureSummary {
@@ -51,6 +57,19 @@ export default function TenantDetailPage() {
   const [updating, setUpdating] = useState<number | null>(null);
   const [revertFeature, setRevertFeature] = useState<FeatureSummary | null>(null);
 
+  // Organization info editing
+  const [editingInfo, setEditingInfo] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [infoForm, setInfoForm] = useState({
+    name: '',
+    contactEmail: '',
+    contactName: '',
+    description: '',
+    industry: '',
+    address: '',
+    website: '',
+  });
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -59,7 +78,29 @@ export default function TenantDetailPage() {
         apiFetch(`/api/platform/tenants/${tenantId}/features`),
       ]);
 
-      if (tenantRes.ok) setTenant(await tenantRes.json());
+      if (tenantRes.ok) {
+        const tenantData = await tenantRes.json();
+        setTenant(tenantData);
+
+        // Parse settings for company info
+        let companyInfo: TenantCompanyInfo = {};
+        if (tenantData.settings) {
+          try {
+            const settings = JSON.parse(tenantData.settings);
+            companyInfo = settings.companyInfo || {};
+          } catch { /* ignore */ }
+        }
+
+        setInfoForm({
+          name: tenantData.name || '',
+          contactEmail: tenantData.contactEmail || '',
+          contactName: tenantData.contactName || '',
+          description: companyInfo.description || '',
+          industry: companyInfo.industry || '',
+          address: companyInfo.address || '',
+          website: companyInfo.website || '',
+        });
+      }
       if (featuresRes.ok) setFeatures(await featuresRes.json());
     } catch {
       toast('Failed to load tenant details', 'error');
@@ -71,6 +112,51 @@ export default function TenantDetailPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const saveOrganizationInfo = async () => {
+    if (!tenant) return;
+    setSavingInfo(true);
+    try {
+      // Parse existing settings to preserve other fields
+      let currentSettings: Record<string, unknown> = {};
+      if (tenant.settings) {
+        try { currentSettings = JSON.parse(tenant.settings); } catch { /* ignore */ }
+      }
+
+      const updatedSettings = {
+        ...currentSettings,
+        companyInfo: {
+          description: infoForm.description || undefined,
+          industry: infoForm.industry || undefined,
+          address: infoForm.address || undefined,
+          website: infoForm.website || undefined,
+        },
+      };
+
+      const res = await apiFetch(`/api/platform/tenants/${tenantId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: infoForm.name,
+          contactEmail: infoForm.contactEmail,
+          contactName: infoForm.contactName || undefined,
+          settings: JSON.stringify(updatedSettings),
+        }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setTenant(updated);
+        setEditingInfo(false);
+        toast('Organization info updated', 'success');
+      } else {
+        toast('Failed to update organization info', 'error');
+      }
+    } catch {
+      toast('Failed to update organization info', 'error');
+    } finally {
+      setSavingInfo(false);
+    }
+  };
 
   const toggleFeature = async (feature: FeatureSummary) => {
     setUpdating(feature.featureId);
@@ -172,7 +258,99 @@ export default function TenantDetailPage() {
       }
     >
       <div className="space-y-8">
-        {/* Tenant Info */}
+        {/* Organization Info */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-[0.05em]">Organization Info</h3>
+            {!editingInfo ? (
+              <button
+                onClick={() => setEditingInfo(true)}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                <PencilIcon className="h-3.5 w-3.5" />
+                Edit
+              </button>
+            ) : (
+              <div className="flex gap-1.5">
+                <button
+                  onClick={saveOrganizationInfo}
+                  disabled={savingInfo}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs text-white bg-primary rounded-[2px] hover:bg-primary/90 transition-colors disabled:opacity-50"
+                >
+                  <CheckIcon className="h-3 w-3" />
+                  {savingInfo ? 'Saving...' : 'Save'}
+                </button>
+                <button
+                  onClick={() => setEditingInfo(false)}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs text-gray-500 border border-gray-200 rounded-[2px] hover:bg-gray-50 transition-colors"
+                >
+                  <XMarkIcon className="h-3 w-3" />
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
+            {editingInfo ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { key: 'name', label: 'Organization Name', required: true },
+                  { key: 'contactEmail', label: 'Contact Email', required: true },
+                  { key: 'contactName', label: 'Contact Name' },
+                  { key: 'industry', label: 'Industry' },
+                  { key: 'website', label: 'Website' },
+                  { key: 'address', label: 'Address' },
+                ].map(({ key, label, required }) => (
+                  <div key={key}>
+                    <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-[0.05em] mb-1">
+                      {label} {required && <span className="text-red-400">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      value={infoForm[key as keyof typeof infoForm]}
+                      onChange={(e) => setInfoForm(prev => ({ ...prev, [key]: e.target.value }))}
+                      className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-ring/30"
+                    />
+                  </div>
+                ))}
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-[0.05em] mb-1">Description</label>
+                  <textarea
+                    value={infoForm.description}
+                    onChange={(e) => setInfoForm(prev => ({ ...prev, description: e.target.value }))}
+                    rows={3}
+                    className="w-full px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-ring/30"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Organization', value: tenant.name },
+                  { label: 'Contact Email', value: tenant.contactEmail },
+                  { label: 'Contact Name', value: infoForm.contactName || '—' },
+                  { label: 'Industry', value: infoForm.industry || '—' },
+                  { label: 'Website', value: infoForm.website || '—' },
+                  { label: 'Address', value: infoForm.address || '—' },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em] mb-0.5">{label}</div>
+                    <div className="text-xs text-gray-900 dark:text-gray-100">{value}</div>
+                  </div>
+                ))}
+                {infoForm.description && (
+                  <div className="col-span-full">
+                    <div className="text-[10px] text-gray-400 uppercase tracking-[0.05em] mb-0.5">Description</div>
+                    <div className="text-xs text-gray-900 dark:text-gray-100">{infoForm.description}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tenant Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'Contact', value: tenant.contactEmail },

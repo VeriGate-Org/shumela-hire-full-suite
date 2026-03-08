@@ -10,6 +10,8 @@ export interface LeaveType {
   requiresMedicalCertificate: boolean;
   medicalCertThresholdDays: number;
   isPaid: boolean;
+  allowEncashment: boolean;
+  encashmentRate: number | null;
   isActive: boolean;
   colorCode: string;
   createdAt: string;
@@ -50,7 +52,30 @@ export interface LeaveBalance {
   pendingDays: number;
   carriedForwardDays: number;
   adjustmentDays: number;
+  encashedDays: number;
   availableDays: number;
+}
+
+export interface LeaveEncashmentRequest {
+  id: number;
+  employeeId: number;
+  employeeName: string;
+  leaveTypeId: number;
+  leaveTypeName: string;
+  days: number;
+  ratePerDay: number;
+  totalAmount: number;
+  status: string;
+  reason: string | null;
+  requestedAt: string;
+  hrApprovedById: number | null;
+  hrApprovedByName: string | null;
+  hrApprovedAt: string | null;
+  financeApprovedById: number | null;
+  financeApprovedByName: string | null;
+  financeApprovedAt: string | null;
+  decisionComment: string | null;
+  cycleYear: number;
 }
 
 export interface LeaveRequest {
@@ -284,5 +309,71 @@ export const leaveService = {
   async deleteHoliday(id: number): Promise<void> {
     const response = await apiFetch(`/api/leave/holidays/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete holiday');
+  },
+
+  // Leave Encashment
+  async requestEncashment(employeeId: number, data: { leaveTypeId: number; days: number; reason?: string }): Promise<LeaveEncashmentRequest> {
+    const response = await apiFetch(`/api/leave/encashment?employeeId=${employeeId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to request encashment');
+    }
+    return await response.json();
+  },
+
+  async getEncashmentRequests(employeeId: number): Promise<LeaveEncashmentRequest[]> {
+    const response = await apiFetch(`/api/leave/encashment?employeeId=${employeeId}`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getPendingEncashmentHR(): Promise<LeaveEncashmentRequest[]> {
+    const response = await apiFetch('/api/leave/encashment/pending/hr');
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getPendingEncashmentFinance(): Promise<LeaveEncashmentRequest[]> {
+    const response = await apiFetch('/api/leave/encashment/pending/finance');
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async hrApproveEncashment(id: number, approverId: number): Promise<LeaveEncashmentRequest> {
+    const response = await apiFetch(`/api/leave/encashment/${id}/hr-approve?approverId=${approverId}`, {
+      method: 'PUT',
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to approve');
+    }
+    return await response.json();
+  },
+
+  async financeApproveEncashment(id: number, approverId: number): Promise<LeaveEncashmentRequest> {
+    const response = await apiFetch(`/api/leave/encashment/${id}/finance-approve?approverId=${approverId}`, {
+      method: 'PUT',
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to approve');
+    }
+    return await response.json();
+  },
+
+  async rejectEncashment(id: number, approverId: number, comment?: string): Promise<LeaveEncashmentRequest> {
+    const params = new URLSearchParams({ approverId: approverId.toString() });
+    if (comment) params.set('comment', comment);
+    const response = await apiFetch(`/api/leave/encashment/${id}/reject?${params}`, {
+      method: 'PUT',
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to reject');
+    }
+    return await response.json();
   },
 };

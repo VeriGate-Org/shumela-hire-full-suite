@@ -45,6 +45,12 @@ public class LeaveType extends TenantAwareEntity {
     @Column(name = "is_paid", nullable = false)
     private Boolean isPaid = true;
 
+    @Column(name = "allow_encashment", nullable = false)
+    private Boolean allowEncashment = false;
+
+    @Column(name = "encashment_rate", precision = 10, scale = 2)
+    private BigDecimal encashmentRate;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
@@ -86,6 +92,12 @@ public class LeaveType extends TenantAwareEntity {
 
     public Boolean getIsPaid() { return isPaid; }
     public void setIsPaid(Boolean isPaid) { this.isPaid = isPaid; }
+
+    public Boolean getAllowEncashment() { return allowEncashment; }
+    public void setAllowEncashment(Boolean allowEncashment) { this.allowEncashment = allowEncashment; }
+
+    public BigDecimal getEncashmentRate() { return encashmentRate; }
+    public void setEncashmentRate(BigDecimal encashmentRate) { this.encashmentRate = encashmentRate; }
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
