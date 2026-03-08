@@ -23,26 +23,30 @@ public class TrainingPathAiService {
 
     public LearningPathResult generateLearningPath(String userId, LearningPathRequest request) {
         String systemPrompt = "You are a learning and development specialist creating personalised learning paths. " +
-                "Given the employee's current skills, career aspirations, and available training, design an optimal learning path. " +
+                "Given the employee's current skills, career goal, and skill gaps, design an optimal learning path. " +
                 "Return JSON with: " +
-                "pathTitle (string - name for this learning path), " +
-                "overview (string - 2-3 sentence description of the learning journey), " +
+                "summary (string - 2-3 sentence description of the learning journey), " +
                 "estimatedDuration (string - total time e.g. '6 months'), " +
                 "phases (array of objects with: phase (number), name (string), duration (string), " +
-                "activities (array of objects with: title (string), type (string - e.g. Course, Workshop, Mentoring, Self-study, Project), " +
-                "description (string), duration (string), priority (string - Essential, Recommended, Optional))), " +
-                "milestones (array of strings - key checkpoints), " +
-                "successMetrics (array of strings - how to measure progress). " +
+                "activities (array of objects with: activity (string), type (string - e.g. Course, Workshop, Mentoring, Self-study, Project), " +
+                "provider (string - suggested provider), duration (string), skillAddressed (string)), " +
+                "milestone (string - key checkpoint for this phase)), " +
+                "certificationRecommendations (array of strings - relevant certifications to pursue), " +
+                "mentorshipSuggestions (array of strings - mentoring recommendations), " +
+                "readinessAssessment (string - assessment of readiness for target role). " +
                 "Consider South African training providers, SETA requirements, and SAQA frameworks where relevant. " +
                 "Return ONLY valid JSON, no markdown.";
 
         StringBuilder userPrompt = new StringBuilder();
         userPrompt.append("Create a personalised learning path for:\n");
         userPrompt.append("Employee: ").append(request.getEmployeeName()).append("\n");
-        userPrompt.append("Job Title: ").append(request.getJobTitle()).append("\n");
+        userPrompt.append("Current Role: ").append(request.getCurrentRole()).append("\n");
+        if (request.getTargetRole() != null) {
+            userPrompt.append("Target Role: ").append(request.getTargetRole()).append("\n");
+        }
         userPrompt.append("Department: ").append(request.getDepartment()).append("\n");
-        if (request.getCareerAspiration() != null) {
-            userPrompt.append("Career Aspiration: ").append(request.getCareerAspiration()).append("\n");
+        if (request.getCareerGoal() != null) {
+            userPrompt.append("Career Goal: ").append(request.getCareerGoal()).append("\n");
         }
 
         if (request.getCurrentSkills() != null && !request.getCurrentSkills().isEmpty()) {
@@ -59,9 +63,9 @@ public class TrainingPathAiService {
             }
         }
 
-        if (request.getAvailableCourses() != null && !request.getAvailableCourses().isEmpty()) {
-            userPrompt.append("\nAvailable Courses:\n");
-            for (String course : request.getAvailableCourses()) {
+        if (request.getCompletedCourses() != null && !request.getCompletedCourses().isEmpty()) {
+            userPrompt.append("\nCompleted Courses:\n");
+            for (String course : request.getCompletedCourses()) {
                 userPrompt.append("- ").append(course).append("\n");
             }
         }
@@ -74,7 +78,7 @@ public class TrainingPathAiService {
         } catch (Exception e) {
             logger.error("Failed to parse learning path AI response", e);
             LearningPathResult result = new LearningPathResult();
-            result.setOverview(response.getContent());
+            result.setSummary(response.getContent());
             return result;
         }
     }
@@ -83,35 +87,32 @@ public class TrainingPathAiService {
         String systemPrompt = "You are an HR analytics specialist analysing training return on investment. " +
                 "Evaluate training programme effectiveness and provide ROI insights. " +
                 "Return JSON with: " +
-                "overallAssessment (string - 2-3 sentence summary), " +
-                "estimatedRoi (string - e.g. '3.2x return'), " +
-                "costEffectiveness (string - rating and explanation), " +
-                "impactAreas (array of strings - areas where training had most impact), " +
-                "underperformingPrograms (array of strings - programmes with low ROI), " +
+                "roiSummary (string - 2-3 sentence summary), " +
+                "estimatedRoiPercentage (number - estimated ROI percentage), " +
+                "keyFindings (array of strings - key findings from the analysis), " +
                 "recommendations (array of strings - how to improve training ROI), " +
-                "benchmarkComparison (string - how this compares to industry standards). " +
+                "effectivenessRating (string - e.g. 'Highly Effective', 'Effective', 'Needs Improvement'). " +
                 "Return ONLY valid JSON, no markdown.";
 
         StringBuilder userPrompt = new StringBuilder();
         userPrompt.append("Analyse training ROI for:\n");
+        userPrompt.append("Course: ").append(request.getCourseName()).append("\n");
         userPrompt.append("Department: ").append(request.getDepartment()).append("\n");
-        userPrompt.append("Period: ").append(request.getPeriod()).append("\n");
-        userPrompt.append("Total Training Budget: R").append(request.getTotalBudget()).append("\n");
-        userPrompt.append("Total Employees Trained: ").append(request.getEmployeesTrained()).append("\n");
-        userPrompt.append("Total Training Hours: ").append(request.getTotalHours()).append("\n");
+        userPrompt.append("Enrollment: ").append(request.getEnrollmentCount()).append("\n");
+        userPrompt.append("Completions: ").append(request.getCompletionCount()).append("\n");
+        userPrompt.append("Total Cost: R").append(request.getTotalCost()).append("\n");
 
-        if (request.getCompletionRate() > 0) {
-            userPrompt.append("Completion Rate: ").append(request.getCompletionRate()).append("%\n");
+        if (request.getPreTrainingMetrics() != null && !request.getPreTrainingMetrics().isEmpty()) {
+            userPrompt.append("\nPre-Training Metrics:\n");
+            for (String metric : request.getPreTrainingMetrics()) {
+                userPrompt.append("- ").append(metric).append("\n");
+            }
         }
 
-        if (request.getPerformanceImprovementPct() > 0) {
-            userPrompt.append("Performance Improvement: ").append(request.getPerformanceImprovementPct()).append("%\n");
-        }
-
-        if (request.getProgrammes() != null && !request.getProgrammes().isEmpty()) {
-            userPrompt.append("\nProgrammes:\n");
-            for (String programme : request.getProgrammes()) {
-                userPrompt.append("- ").append(programme).append("\n");
+        if (request.getPostTrainingMetrics() != null && !request.getPostTrainingMetrics().isEmpty()) {
+            userPrompt.append("\nPost-Training Metrics:\n");
+            for (String metric : request.getPostTrainingMetrics()) {
+                userPrompt.append("- ").append(metric).append("\n");
             }
         }
 
@@ -123,7 +124,7 @@ public class TrainingPathAiService {
         } catch (Exception e) {
             logger.error("Failed to parse training ROI AI response", e);
             TrainingRoiResult result = new TrainingRoiResult();
-            result.setOverallAssessment(response.getContent());
+            result.setRoiSummary(response.getContent());
             return result;
         }
     }
