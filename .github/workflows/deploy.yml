@@ -86,7 +86,21 @@ jobs:
       - name: CDK Bootstrap
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          cdk bootstrap aws://${ACCOUNT_ID}/${{ inputs.aws-region }}
+          REGION=${{ inputs.aws-region }}
+          BUCKET_NAME="cdk-hnb659fds-assets-${ACCOUNT_ID}-${REGION}"
+
+          # If the CDKToolkit stack is missing but the staging bucket exists (orphaned),
+          # remove the orphaned bucket so bootstrap can recreate it cleanly.
+          # CDK will re-upload assets during the deploy phase.
+          if ! aws cloudformation describe-stacks --stack-name CDKToolkit --region ${REGION} >/dev/null 2>&1; then
+            if aws s3api head-bucket --bucket ${BUCKET_NAME} 2>/dev/null; then
+              echo "Removing orphaned CDK staging bucket..."
+              aws s3 rm s3://${BUCKET_NAME} --recursive --region ${REGION}
+              aws s3api delete-bucket --bucket ${BUCKET_NAME} --region ${REGION}
+            fi
+          fi
+
+          cdk bootstrap aws://${ACCOUNT_ID}/${REGION}
 
       # ── Resolve hosted zone name (defaults to domain-name) ────────────
       - name: Resolve hosted zone name
