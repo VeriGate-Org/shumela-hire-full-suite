@@ -83,6 +83,11 @@ jobs:
           dotnet restore
           dotnet build --no-restore
 
+      - name: CDK Bootstrap
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          cdk bootstrap aws://${ACCOUNT_ID}/${{ inputs.aws-region }}
+
       # ── Resolve hosted zone name (defaults to domain-name) ────────────
       - name: Resolve hosted zone name
         id: zone
