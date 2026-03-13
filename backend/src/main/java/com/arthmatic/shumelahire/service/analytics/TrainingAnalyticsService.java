@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Service
+@Service("analyticsTrainingAnalyticsService")
 @Transactional(readOnly = true)
 public class TrainingAnalyticsService {
 
