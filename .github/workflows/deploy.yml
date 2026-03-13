@@ -123,6 +123,61 @@ jobs:
           fi
 
       # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
+      - name: Import orphaned resources (if stack missing)
+        working-directory: infra/cdk
+        env:
+          SHUMELAHIRE_ENV: ${{ inputs.environment }}
+          SHUMELAHIRE_DOMAIN: ${{ inputs.domain-name }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
+          WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+        run: |
+          STACK="shumelahire-${{ inputs.environment }}-foundation"
+          CDK_ARGS="-c env=${{ inputs.environment }} -c domain=${{ inputs.domain-name }} -c hostedZoneName=${{ steps.zone.outputs.name }} -c certificateArn=${CERTIFICATE_ARN} -c apiCertificateArn=${API_CERTIFICATE_ARN} -c wildcardCertificateArn=${WILDCARD_CERTIFICATE_ARN} -c linkedInClientId=${LINKEDIN_CLIENT_ID} -c linkedInClientSecret=${LINKEDIN_CLIENT_SECRET}"
+
+          # Skip if stack already exists
+          if aws cloudformation describe-stacks --stack-name "$STACK" --region ${{ inputs.aws-region }} >/dev/null 2>&1; then
+            echo "Stack $STACK exists, skipping import."
+            exit 0
+          fi
+
+          PREFIX="shumelahire-${{ inputs.environment }}"
+
+          # Check if any named resources exist that need importing
+          NEEDS_IMPORT=false
+          aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
+          aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
+          aws s3api head-bucket --bucket "${PREFIX}-uploads" 2>/dev/null && NEEDS_IMPORT=true
+          aws s3api head-bucket --bucket "${PREFIX}-documents" 2>/dev/null && NEEDS_IMPORT=true
+
+          if [ "$NEEDS_IMPORT" = "false" ]; then
+            echo "No orphaned resources found, skipping import."
+            exit 0
+          fi
+
+          echo "Orphaned resources detected — importing into stack..."
+
+          # Build resource mapping for cdk import
+          cat > /tmp/resource-mapping.json << MAPPING
+          {
+            "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-backend" },
+            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" },
+            "UploadsBucket5E5E9B64": { "BucketName": "${PREFIX}-uploads" },
+            "DocumentsBucket9EC9DEB9": { "BucketName": "${PREFIX}-documents" }
+          }
+          MAPPING
+
+          # Delete any stuck REVIEW_IN_PROGRESS stack
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK" --region ${{ inputs.aws-region }} --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+          if [ "$STACK_STATUS" = "REVIEW_IN_PROGRESS" ]; then
+            aws cloudformation delete-stack --stack-name "$STACK" --region ${{ inputs.aws-region }}
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK" --region ${{ inputs.aws-region }}
+          fi
+
+          eval cdk import "$STACK" --resource-mapping /tmp/resource-mapping.json --force $CDK_ARGS
+
       - name: CDK Deploy Foundation
         working-directory: infra/cdk
         env:
