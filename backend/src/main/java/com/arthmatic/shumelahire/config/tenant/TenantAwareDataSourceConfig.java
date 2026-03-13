@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 @Configuration
-@Profile({"sbx", "ppe", "prod"})
+@Profile({"cloud", "ppe", "prod"})
 public class TenantAwareDataSourceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(TenantAwareDataSourceConfig.class);

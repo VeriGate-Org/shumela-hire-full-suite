@@ -55,7 +55,7 @@ jobs:
         id: spring-profile
         run: |
           if [ "${{ inputs.environment }}" = "dev" ]; then
-            echo "profile=sbx" >> $GITHUB_OUTPUT
+            echo "profile=cloud" >> $GITHUB_OUTPUT
           else
             echo "profile=${{ inputs.environment }}" >> $GITHUB_OUTPUT
           fi
