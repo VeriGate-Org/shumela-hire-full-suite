@@ -50,7 +50,7 @@ public class CacheConfig {
     }
 
     @Configuration
-    @Profile({"sbx", "ppe", "prod"})
+    @Profile({"cloud", "ppe", "prod"})
     static class RedisCacheConfig {
         @Bean
         @Primary

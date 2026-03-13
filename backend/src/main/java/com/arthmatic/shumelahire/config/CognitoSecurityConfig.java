@@ -28,13 +28,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Security configuration for deployed environments (sbx, ppe, prod).
+ * Security configuration for deployed environments (cloud, ppe, prod).
  * Uses Spring Security OAuth2 Resource Server with Cognito JWT validation.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Profile({"sbx", "ppe", "prod"})
+@Profile({"cloud", "ppe", "prod"})
 public class CognitoSecurityConfig {
 
     @Autowired
@@ -82,9 +82,11 @@ public class CognitoSecurityConfig {
             );
         } else {
             return Arrays.asList(
-                    "https://sbx.shumelahire.co.za",
-                    "https://*.sbx.shumelahire.co.za",
-                    "https://idc-demo.shumelahire.co.za"
+                    "https://dev.shumelahire.co.za",
+                    "https://*.dev.shumelahire.co.za",
+                    "https://idc-demo.shumelahire.co.za",
+                    "https://uthukela-demo.shumelahire.co.za",
+                    "http://localhost:3000"
             );
         }
     }

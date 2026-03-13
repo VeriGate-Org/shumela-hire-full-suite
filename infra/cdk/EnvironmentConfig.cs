@@ -19,7 +19,7 @@ public sealed class EnvironmentConfig
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}", $"https://*.{DomainName}" },
         "ppe" => new[] { $"https://ppe.{DomainName}", $"https://*.ppe.{DomainName}" },
-        "sbx" => new[] { $"https://sbx.{DomainName}", $"https://*.sbx.{DomainName}" },
+        // sbx environment removed — dev handles cloud deployments via "cloud" Spring profile
         "dev" => new[] { $"https://dev.{DomainName}", $"https://*.dev.{DomainName}", "http://localhost:3000", "http://*.localhost:3000" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001", "http://*.localhost:3000" }
     };
@@ -43,24 +43,22 @@ public sealed class EnvironmentConfig
     public string[] OAuthCallbackUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
-        "sbx" => new[] { $"https://sbx.{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 
     public string[] OAuthSignOutUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
-        "sbx" => new[] { $"https://sbx.{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 
     /// <summary>
-    /// Spring Boot profile. The dev AWS environment uses the sbx profile
+    /// Spring Boot profile. The dev AWS environment uses the cloud profile
     /// because deployed environments authenticate via Cognito, not local JWTs.
     /// </summary>
-    public string SpringProfile => EnvironmentName == "dev" ? "sbx" : EnvironmentName;
+    public string SpringProfile => EnvironmentName == "dev" ? "cloud" : EnvironmentName;
 
     public static EnvironmentConfig FromContext(App app)
     {
