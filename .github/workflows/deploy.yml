@@ -145,6 +145,10 @@ jobs:
 
           PREFIX="shumelahire-${{ inputs.environment }}"
 
+          # Delete orphaned resources that are safe to recreate (log groups)
+          aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region ${{ inputs.aws-region }} 2>/dev/null && \
+            echo "Cleaned up orphaned log group /ecs/${PREFIX}" || true
+
           # Check if any named resources exist that need importing
           NEEDS_IMPORT=false
           aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
