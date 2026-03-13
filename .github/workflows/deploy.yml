@@ -153,8 +153,6 @@ jobs:
           NEEDS_IMPORT=false
           aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
           aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
-          aws s3api head-bucket --bucket "${PREFIX}-uploads" 2>/dev/null && NEEDS_IMPORT=true
-          aws s3api head-bucket --bucket "${PREFIX}-documents" 2>/dev/null && NEEDS_IMPORT=true
 
           if [ "$NEEDS_IMPORT" = "false" ]; then
             echo "No orphaned resources found, skipping import."
@@ -167,9 +165,7 @@ jobs:
           cat > /tmp/resource-mapping.json << MAPPING
           {
             "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-backend" },
-            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" },
-            "UploadsBucket5E5E9B64": { "BucketName": "${PREFIX}-uploads" },
-            "DocumentsBucket9EC9DEB9": { "BucketName": "${PREFIX}-documents" }
+            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" }
           }
           MAPPING
 

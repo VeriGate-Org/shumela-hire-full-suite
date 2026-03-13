@@ -159,7 +159,7 @@ public class ShumelaHireFoundationStack : Stack
         // ── S3 Buckets ───────────────────────────────────────────────────────
         DocumentsBucket = new Bucket(this, "DocumentsBucket", new BucketProps
         {
-            BucketName = $"{config.Prefix}-documents",
+            BucketName = $"{config.Prefix}-docs",
             Encryption = BucketEncryption.S3_MANAGED,
             Versioned = true,
             BlockPublicAccess = BlockPublicAccess.BLOCK_ALL,
@@ -179,7 +179,7 @@ public class ShumelaHireFoundationStack : Stack
 
         UploadsBucket = new Bucket(this, "UploadsBucket", new BucketProps
         {
-            BucketName = $"{config.Prefix}-uploads",
+            BucketName = $"{config.Prefix}-file-uploads",
             Encryption = BucketEncryption.S3_MANAGED,
             BlockPublicAccess = BlockPublicAccess.BLOCK_ALL,
             RemovalPolicy = config.IsProduction ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
