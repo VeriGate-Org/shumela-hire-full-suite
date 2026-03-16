@@ -76,7 +76,7 @@ public class ShumelaHireComputeStack : Stack
             Actions = new[] { "secretsmanager:GetSecretValue" },
             Resources = new[]
             {
-                $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:shumelahire-fs/{config.EnvironmentName}/*",
+                $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:shumelahire/{config.EnvironmentName}/*",
                 $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:{prefix}/db-credentials*"
             }
         }));
@@ -117,7 +117,7 @@ public class ShumelaHireComputeStack : Stack
             Actions = new[] { "secretsmanager:GetSecretValue" },
             Resources = new[]
             {
-                $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:shumelahire-fs/{config.EnvironmentName}/*",
+                $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:shumelahire/{config.EnvironmentName}/*",
                 $"arn:aws:secretsmanager:{this.Region}:{this.Account}:secret:{prefix}/db-credentials*"
             }
         }));
