@@ -125,7 +125,7 @@ jobs:
       # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
       - name: Cleanup orphaned resources
         run: |
-          PREFIX="shumelahire-fs-${{ inputs.environment }}"
+          PREFIX="shumelahire-${{ inputs.environment }}"
           aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region ${{ inputs.aws-region }} 2>/dev/null && \
             echo "Cleaned up orphaned log group /ecs/${PREFIX}" || echo "No orphaned log group found"
 
@@ -140,7 +140,7 @@ jobs:
           LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
         run: |
-          STACK="shumelahire-fs-${{ inputs.environment }}-foundation"
+          STACK="shumelahire-${{ inputs.environment }}-foundation"
           CDK_ARGS="-c env=${{ inputs.environment }} -c domain=${{ inputs.domain-name }} -c hostedZoneName=${{ steps.zone.outputs.name }} -c certificateArn=${CERTIFICATE_ARN} -c apiCertificateArn=${API_CERTIFICATE_ARN} -c wildcardCertificateArn=${WILDCARD_CERTIFICATE_ARN} -c linkedInClientId=${LINKEDIN_CLIENT_ID} -c linkedInClientSecret=${LINKEDIN_CLIENT_SECRET}"
 
           # Skip if stack already exists
@@ -149,12 +149,12 @@ jobs:
             exit 0
           fi
 
-          PREFIX="shumelahire-fs-${{ inputs.environment }}"
+          PREFIX="shumelahire-${{ inputs.environment }}"
 
           # Check if any named resources exist that need importing
           NEEDS_IMPORT=false
-          aws ecr describe-repositories --repository-names shumelahire-fs-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
-          aws ecr describe-repositories --repository-names shumelahire-fs-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
+          aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
+          aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
 
           if [ "$NEEDS_IMPORT" = "false" ]; then
             echo "No orphaned resources found, skipping import."
@@ -166,8 +166,8 @@ jobs:
           # Build resource mapping for cdk import
           cat > /tmp/resource-mapping.json << MAPPING
           {
-            "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-fs-backend" },
-            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-fs-frontend" }
+            "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-backend" },
+            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" }
           }
           MAPPING
 
@@ -191,7 +191,7 @@ jobs:
           LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
         run: |
-          cdk deploy shumelahire-fs-${{ inputs.environment }}-foundation --require-approval never \
+          cdk deploy shumelahire-${{ inputs.environment }}-foundation --require-approval never \
             -c env=${{ inputs.environment }} \
             -c domain=${{ inputs.domain-name }} \
             -c hostedZoneName=${{ steps.zone.outputs.name }} \
@@ -205,7 +205,7 @@ jobs:
       - name: Get CDK outputs
         id: cdk-outputs
         run: |
-          PREFIX="shumelahire-fs-${{ inputs.environment }}"
+          PREFIX="shumelahire-${{ inputs.environment }}"
           echo "user_pool_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "user_pool_client_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "cognito_domain=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`CognitoDomain`].OutputValue' --output text)" >> $GITHUB_OUTPUT
@@ -224,10 +224,10 @@ jobs:
         run: |
           docker build \
             --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
-            -t $ECR_REGISTRY/shumelahire-fs-backend:$IMAGE_TAG \
-            -t $ECR_REGISTRY/shumelahire-fs-backend:latest \
+            -t $ECR_REGISTRY/shumelahire-backend:$IMAGE_TAG \
+            -t $ECR_REGISTRY/shumelahire-backend:latest \
             .
-          docker push --all-tags $ECR_REGISTRY/shumelahire-fs-backend
+          docker push --all-tags $ECR_REGISTRY/shumelahire-backend
 
       - uses: actions/setup-node@v4
         with:
@@ -246,10 +246,10 @@ jobs:
             --build-arg NEXT_PUBLIC_COGNITO_CLIENT_ID=${{ steps.cdk-outputs.outputs.user_pool_client_id }} \
             --build-arg NEXT_PUBLIC_COGNITO_DOMAIN=${{ steps.cdk-outputs.outputs.cognito_domain }} \
             --build-arg NEXT_PUBLIC_REGION=${{ inputs.aws-region }} \
-            -t $ECR_REGISTRY/shumelahire-fs-frontend:$IMAGE_TAG \
-            -t $ECR_REGISTRY/shumelahire-fs-frontend:latest \
+            -t $ECR_REGISTRY/shumelahire-frontend:$IMAGE_TAG \
+            -t $ECR_REGISTRY/shumelahire-frontend:latest \
             .
-          docker push --all-tags $ECR_REGISTRY/shumelahire-fs-frontend
+          docker push --all-tags $ECR_REGISTRY/shumelahire-frontend
 
       # ── Phase 3: Deploy compute, API, frontend stacks ──────────────────
       - name: CDK Deploy Services
@@ -276,6 +276,6 @@ jobs:
       # ── Force ECS Redeployment ──────────────────────────────────────────
       - name: Force ECS redeployment
         run: |
-          CLUSTER="shumelahire-fs-${{ inputs.environment }}"
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-fs-${{ inputs.environment }} --force-new-deployment
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-fs-${{ inputs.environment }}-frontend --force-new-deployment
+          CLUSTER="shumelahire-${{ inputs.environment }}"
+          aws ecs update-service --cluster $CLUSTER --service shumelahire-${{ inputs.environment }} --force-new-deployment
+          aws ecs update-service --cluster $CLUSTER --service shumelahire-${{ inputs.environment }}-frontend --force-new-deployment

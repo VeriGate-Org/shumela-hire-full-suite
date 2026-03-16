@@ -220,37 +220,37 @@ public class ShumelaHireFoundationStack : Stack
         // ── Secrets Manager ──────────────────────────────────────────────────
         AiKeysSecret = new Secret(this, "AiKeysSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/ai-keys",
+            SecretName = $"shumelahire/{config.EnvironmentName}/ai-keys",
             Description = "AI service API keys (Claude, OpenAI)"
         });
 
         new Secret(this, "DocusignSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/docusign",
+            SecretName = $"shumelahire/{config.EnvironmentName}/docusign",
             Description = "DocuSign API credentials"
         });
 
         EncryptionKeySecret = new Secret(this, "EncryptionKeySecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/encryption-key",
+            SecretName = $"shumelahire/{config.EnvironmentName}/encryption-key",
             Description = "Application encryption key"
         });
 
         JwtSecret = new Secret(this, "JwtSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/jwt-secret",
+            SecretName = $"shumelahire/{config.EnvironmentName}/jwt-secret",
             Description = "JWT signing secret"
         });
 
         new Secret(this, "MicrosoftSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/microsoft",
+            SecretName = $"shumelahire/{config.EnvironmentName}/microsoft",
             Description = "Microsoft Graph credentials (Teams, Outlook)"
         });
 
         new Secret(this, "JobBoardsSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/job-boards",
+            SecretName = $"shumelahire/{config.EnvironmentName}/job-boards",
             Description = "Job board API credentials (LinkedIn, Indeed, PNet, CareerJunction)"
         });
 
@@ -346,7 +346,7 @@ public class ShumelaHireFoundationStack : Stack
 
         new Secret(this, "LinkedInOAuthSecret", new SecretProps
         {
-            SecretName = $"shumelahire-fs/{config.EnvironmentName}/linkedin-oauth",
+            SecretName = $"shumelahire/{config.EnvironmentName}/linkedin-oauth",
             Description = "LinkedIn OAuth credentials (client_id, client_secret) for OIDC sign-in"
         });
 
@@ -400,7 +400,7 @@ public class ShumelaHireFoundationStack : Stack
         // ── ECR Repositories ───────────────────────────────────────────────
         BackendEcrRepo = new Repository(this, "BackendRepo", new RepositoryProps
         {
-            RepositoryName = "shumelahire-fs-backend",
+            RepositoryName = "shumelahire-backend",
             RemovalPolicy = RemovalPolicy.RETAIN,
             LifecycleRules = new[]
             {
@@ -414,7 +414,7 @@ public class ShumelaHireFoundationStack : Stack
 
         FrontendEcrRepo = new Repository(this, "FrontendRepo", new RepositoryProps
         {
-            RepositoryName = "shumelahire-fs-frontend",
+            RepositoryName = "shumelahire-frontend",
             RemovalPolicy = RemovalPolicy.RETAIN,
             LifecycleRules = new[]
             {
