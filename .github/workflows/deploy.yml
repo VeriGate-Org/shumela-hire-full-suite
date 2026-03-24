@@ -31,6 +31,8 @@ on:
         required: false
       LINKEDIN_CLIENT_SECRET:
         required: false
+      CLAUDE_API_KEY:
+        required: false
 
 permissions:
   id-token: write
@@ -201,6 +203,55 @@ jobs:
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
+      # ── Seed secrets with real values (first deploy only) ───────────────
+      - name: Seed secrets
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          ENV="${{ inputs.environment }}"
+          REGION="${{ inputs.aws-region }}"
+
+          seed_if_default() {
+            local secret_id="$1"
+            local new_value="$2"
+
+            # Retrieve current value; CDK creates secrets with a random placeholder
+            current=$(aws secretsmanager get-secret-value --secret-id "$secret_id" \
+              --region "$REGION" --query SecretString --output text 2>/dev/null || echo "MISSING")
+
+            if [ "$current" = "MISSING" ]; then
+              echo "Secret $secret_id does not exist yet, skipping."
+              return
+            fi
+
+            # CDK-generated secrets are short random passwords — only overwrite
+            # if the value looks like a CDK default (≤32 chars) or is empty
+            if [ ${#current} -le 32 ] && [ -n "$new_value" ]; then
+              aws secretsmanager put-secret-value \
+                --secret-id "$secret_id" \
+                --secret-string "$new_value" \
+                --region "$REGION"
+              echo "Seeded $secret_id"
+            else
+              echo "$secret_id already has a custom value, skipping."
+            fi
+          }
+
+          # JWT secret — generate a strong 64-byte base64 key
+          JWT_VALUE=$(openssl rand -base64 64 | tr -d '\n')
+          seed_if_default "shumelahire/${ENV}/jwt-secret" "$JWT_VALUE"
+
+          # Encryption key — generate a 32-byte (AES-256) base64 key
+          ENC_VALUE=$(openssl rand -base64 32 | tr -d '\n')
+          seed_if_default "shumelahire/${ENV}/encryption-key" "$ENC_VALUE"
+
+          # Claude API key — from GitHub secret
+          if [ -n "$CLAUDE_API_KEY" ]; then
+            seed_if_default "shumelahire/${ENV}/ai-keys" "$CLAUDE_API_KEY"
+          else
+            echo "WARNING: CLAUDE_API_KEY not set — AI features will fail at runtime."
+          fi
+
       # ── Get CDK outputs (Cognito IDs for frontend build) ────────────────
       - name: Get CDK outputs
         id: cdk-outputs
@@ -252,6 +303,20 @@ jobs:
           docker push --all-tags $ECR_REGISTRY/shumelahire-frontend
 
       # ── Phase 3: Deploy compute, API, frontend stacks ──────────────────
+      - name: Cleanup ROLLBACK_COMPLETE stacks
+        run: |
+          PREFIX="shumelahire-${{ inputs.environment }}"
+          for STACK_NAME in "${PREFIX}-compute" "${PREFIX}-api" "${PREFIX}-frontend"; do
+            STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
+              --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+            if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+              echo "Deleting $STACK_NAME (stuck in ROLLBACK_COMPLETE)..."
+              aws cloudformation delete-stack --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
+              aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
+              echo "$STACK_NAME deleted."
+            fi
+          done
+
       - name: CDK Deploy Services
         working-directory: infra/cdk
         env:
