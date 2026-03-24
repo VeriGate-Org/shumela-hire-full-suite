@@ -159,7 +159,7 @@ public class ShumelaHireComputeStack : Stack
                 Interval = Duration.Seconds(30),
                 Timeout = Duration.Seconds(10),
                 Retries = 5,
-                StartPeriod = Duration.Seconds(180)
+                StartPeriod = Duration.Seconds(240)
             },
             Environment = new Dictionary<string, string>
             {
@@ -237,7 +237,7 @@ public class ShumelaHireComputeStack : Stack
             CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
             MinHealthyPercent = config.IsProduction ? 100 : 0,
             MaxHealthyPercent = 200,
-            HealthCheckGracePeriod = Duration.Seconds(180)
+            HealthCheckGracePeriod = Duration.Seconds(300)
         });
 
         // ── Frontend Task Definition ─────────────────────────────────────────
@@ -280,7 +280,7 @@ public class ShumelaHireComputeStack : Stack
             CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
             MinHealthyPercent = config.IsProduction ? 100 : 0,
             MaxHealthyPercent = 200,
-            HealthCheckGracePeriod = Duration.Seconds(120)
+            HealthCheckGracePeriod = Duration.Seconds(180)
         });
 
         // ── ALB Listeners & Path-Based Routing ──────────────────────────────
