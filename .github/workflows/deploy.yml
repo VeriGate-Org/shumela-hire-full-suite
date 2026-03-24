@@ -125,11 +125,31 @@ jobs:
           fi
 
       # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
+      - name: Cleanup foundation stack if stuck
+        run: |
+          PREFIX="shumelahire-${{ inputs.environment }}"
+          STACK_NAME="${PREFIX}-foundation"
+          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
+            --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+          if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
+            echo "Deleting $STACK_NAME (stuck in $STATUS)..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
+            echo "$STACK_NAME deleted."
+          fi
+
       - name: Cleanup orphaned resources
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
-          aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region ${{ inputs.aws-region }} 2>/dev/null && \
-            echo "Cleaned up orphaned log group /ecs/${PREFIX}" || echo "No orphaned log group found"
+          STACK_NAME="${PREFIX}-foundation"
+          # Only delete the log group if the foundation stack does NOT exist,
+          # otherwise CloudFormation still references it.
+          if ! aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} >/dev/null 2>&1; then
+            aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region ${{ inputs.aws-region }} 2>/dev/null && \
+              echo "Cleaned up orphaned log group /ecs/${PREFIX}" || echo "No orphaned log group found"
+          else
+            echo "Stack $STACK_NAME exists, skipping log group cleanup."
+          fi
 
       - name: Import orphaned resources (if stack missing)
         working-directory: infra/cdk
@@ -309,7 +329,7 @@ jobs:
           for STACK_NAME in "${PREFIX}-compute" "${PREFIX}-api" "${PREFIX}-frontend"; do
             STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
               --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-            if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+            if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
               echo "Deleting $STACK_NAME (stuck in ROLLBACK_COMPLETE)..."
               aws cloudformation delete-stack --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
               aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
