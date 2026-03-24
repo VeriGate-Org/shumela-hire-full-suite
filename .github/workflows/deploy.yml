@@ -161,13 +161,15 @@ jobs:
             aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>&1 || true
           fi
 
-          # S3 buckets — use s3 rb --force to handle versioned objects
+          # S3 buckets — delete bucket policy first (CDK AutoDeleteObjects adds a
+          # restrictive policy), then empty and remove the bucket.
           for bucket_info in "docs:DocumentsBucket9EC9DEB9" "file-uploads:UploadsBucket5E5E9B64"; do
             SUFFIX="${bucket_info%%:*}"
             LOGICAL_ID="${bucket_info##*:}"
             BUCKET="${PREFIX}-${SUFFIX}"
             if ! resource_in_stack "$LOGICAL_ID"; then
               echo "Removing orphaned S3 bucket ${BUCKET} (if exists)..."
+              aws s3api delete-bucket-policy --bucket "$BUCKET" --region "$REGION" 2>&1 || true
               aws s3 rb "s3://${BUCKET}" --force --region "$REGION" 2>&1 || true
             fi
           done
