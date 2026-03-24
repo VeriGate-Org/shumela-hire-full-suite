@@ -175,8 +175,24 @@ jobs:
 
           # Check if any named resources exist that need importing
           NEEDS_IMPORT=false
-          aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
-          aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
+          RESOURCE_MAP="{}"
+
+          if aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1; then
+            NEEDS_IMPORT=true
+            RESOURCE_MAP=$(echo "$RESOURCE_MAP" | jq '. + {"BackendRepo7FFBAD06": {"RepositoryName": "shumelahire-backend"}}')
+          fi
+          if aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1; then
+            NEEDS_IMPORT=true
+            RESOURCE_MAP=$(echo "$RESOURCE_MAP" | jq '. + {"FrontendRepoF80FCC01": {"RepositoryName": "shumelahire-frontend"}}')
+          fi
+          if aws s3api head-bucket --bucket "${PREFIX}-docs" 2>/dev/null; then
+            NEEDS_IMPORT=true
+            RESOURCE_MAP=$(echo "$RESOURCE_MAP" | jq --arg b "${PREFIX}-docs" '. + {"DocumentsBucket9EC9DEB9": {"BucketName": $b}}')
+          fi
+          if aws s3api head-bucket --bucket "${PREFIX}-file-uploads" 2>/dev/null; then
+            NEEDS_IMPORT=true
+            RESOURCE_MAP=$(echo "$RESOURCE_MAP" | jq --arg b "${PREFIX}-file-uploads" '. + {"UploadsBucket5E5E9B64": {"BucketName": $b}}')
+          fi
 
           if [ "$NEEDS_IMPORT" = "false" ]; then
             echo "No orphaned resources found, skipping import."
@@ -184,14 +200,10 @@ jobs:
           fi
 
           echo "Orphaned resources detected — importing into stack..."
+          echo "$RESOURCE_MAP" | jq .
 
           # Build resource mapping for cdk import
-          cat > /tmp/resource-mapping.json << MAPPING
-          {
-            "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-backend" },
-            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" }
-          }
-          MAPPING
+          echo "$RESOURCE_MAP" > /tmp/resource-mapping.json
 
           # Delete any stuck REVIEW_IN_PROGRESS stack
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK" --region ${{ inputs.aws-region }} --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
