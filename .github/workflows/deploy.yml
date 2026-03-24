@@ -128,8 +128,23 @@ jobs:
       - name: Cleanup orphaned resources
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
-          aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region ${{ inputs.aws-region }} 2>/dev/null && \
+          REGION="${{ inputs.aws-region }}"
+
+          # Log group
+          aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>/dev/null && \
             echo "Cleaned up orphaned log group /ecs/${PREFIX}" || echo "No orphaned log group found"
+
+          # S3 buckets (dev/ppe only — prod buckets use RETAIN policy)
+          if [ "${{ inputs.environment }}" != "prod" ]; then
+            for BUCKET in "${PREFIX}-docs" "${PREFIX}-file-uploads"; do
+              if aws s3api head-bucket --bucket "$BUCKET" --region "$REGION" 2>/dev/null; then
+                echo "Removing orphaned bucket $BUCKET..."
+                aws s3 rm "s3://${BUCKET}" --recursive --region "$REGION"
+                aws s3api delete-bucket --bucket "$BUCKET" --region "$REGION"
+                echo "Deleted $BUCKET"
+              fi
+            done
+          fi
 
       - name: Import orphaned resources (if stack missing)
         working-directory: infra/cdk
