@@ -152,27 +152,23 @@ jobs:
               --region "$REGION" >/dev/null 2>&1
           }
 
-          # Clean up resources that exist in AWS but NOT in the stack
+          # Delete any resources not managed by the stack.
+          # No existence checks — just try to delete and ignore errors.
+
           # Log group
-          if aws logs describe-log-groups --log-group-name-prefix "/ecs/${PREFIX}" --region "$REGION" \
-              --query "logGroups[?logGroupName=='/ecs/${PREFIX}']" --output text 2>/dev/null | grep -q "/ecs/${PREFIX}"; then
-            if ! resource_in_stack "EcsLogGroup"; then
-              echo "Deleting orphaned log group /ecs/${PREFIX}"
-              aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION"
-            fi
+          if ! resource_in_stack "EcsLogGroup"; then
+            echo "Removing orphaned log group /ecs/${PREFIX} (if exists)..."
+            aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>&1 || true
           fi
 
-          # S3 buckets
+          # S3 buckets — use s3 rb --force to handle versioned objects
           for bucket_info in "docs:DocumentsBucket9EC9DEB9" "file-uploads:UploadsBucket5E5E9B64"; do
             SUFFIX="${bucket_info%%:*}"
             LOGICAL_ID="${bucket_info##*:}"
             BUCKET="${PREFIX}-${SUFFIX}"
-            if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
-              if ! resource_in_stack "$LOGICAL_ID"; then
-                echo "Deleting orphaned S3 bucket $BUCKET"
-                aws s3 rm "s3://${BUCKET}" --recursive --region "$REGION" 2>/dev/null || true
-                aws s3api delete-bucket --bucket "$BUCKET" --region "$REGION" 2>/dev/null || true
-              fi
+            if ! resource_in_stack "$LOGICAL_ID"; then
+              echo "Removing orphaned S3 bucket ${BUCKET} (if exists)..."
+              aws s3 rb "s3://${BUCKET}" --force --region "$REGION" 2>&1 || true
             fi
           done
 
@@ -180,11 +176,9 @@ jobs:
           for repo_info in "shumelahire-backend:BackendRepo7FFBAD06" "shumelahire-frontend:FrontendRepoF80FCC01"; do
             REPO="${repo_info%%:*}"
             LOGICAL_ID="${repo_info##*:}"
-            if aws ecr describe-repositories --repository-names "$REPO" --region "$REGION" >/dev/null 2>&1; then
-              if ! resource_in_stack "$LOGICAL_ID"; then
-                echo "Deleting orphaned ECR repo $REPO"
-                aws ecr delete-repository --repository-name "$REPO" --region "$REGION" --force 2>/dev/null || true
-              fi
+            if ! resource_in_stack "$LOGICAL_ID"; then
+              echo "Removing orphaned ECR repo ${REPO} (if exists)..."
+              aws ecr delete-repository --repository-name "$REPO" --region "$REGION" --force 2>&1 || true
             fi
           done
 
