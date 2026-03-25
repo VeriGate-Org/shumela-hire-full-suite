@@ -135,13 +135,24 @@ jobs:
             --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
           echo "Foundation stack status: $STATUS"
 
-          # If stack is stuck in a failed state, delete it entirely
-          if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STATUS" = "REVIEW_IN_PROGRESS" ]; then
+          # ROLLBACK_COMPLETE means the very first create failed — safe to delete.
+          # UPDATE_ROLLBACK_COMPLETE means a previous update failed but the stack
+          # has real resources — do NOT delete, just redeploy on top of it.
+          # REVIEW_IN_PROGRESS means a pending change set — delete the change set.
+          if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+            echo "Deleting $STACK_NAME (initial create failed, $STATUS)..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
+            echo "$STACK_NAME deleted."
+            STATUS="DOES_NOT_EXIST"
+          elif [ "$STATUS" = "REVIEW_IN_PROGRESS" ]; then
             echo "Deleting $STACK_NAME (stuck in $STATUS)..."
             aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
             echo "$STACK_NAME deleted."
             STATUS="DOES_NOT_EXIST"
+          elif [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
+            echo "$STACK_NAME is in $STATUS — will redeploy on top of existing resources."
           fi
 
           # Helper: check if a resource exists in the CloudFormation stack
@@ -163,7 +174,7 @@ jobs:
 
           # S3 buckets — delete bucket policy first (CDK AutoDeleteObjects adds a
           # restrictive policy), then empty and remove the bucket.
-          for bucket_info in "docs:DocumentsBucket9EC9DEB9" "file-uploads:UploadsBucket5E5E9B64"; do
+          for bucket_info in "fs-docs:DocumentsBucket9EC9DEB9" "fs-file-uploads:UploadsBucket5E5E9B64"; do
             SUFFIX="${bucket_info%%:*}"
             LOGICAL_ID="${bucket_info##*:}"
             BUCKET="${PREFIX}-${SUFFIX}"
