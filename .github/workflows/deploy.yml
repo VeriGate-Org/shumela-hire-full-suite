@@ -125,77 +125,66 @@ jobs:
           fi
 
       # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
-      - name: Cleanup orphaned resources
+      - name: Cleanup foundation stack and orphaned resources
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
+          STACK_NAME="${PREFIX}-foundation"
           REGION="${{ inputs.aws-region }}"
 
-          # Log group
-          aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>/dev/null && \
-            echo "Cleaned up orphaned log group /ecs/${PREFIX}" || echo "No orphaned log group found"
+          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" \
+            --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+          echo "Foundation stack status: $STATUS"
 
-          # S3 buckets (dev/ppe only — prod buckets use RETAIN policy)
-          if [ "${{ inputs.environment }}" != "prod" ]; then
-            for BUCKET in "${PREFIX}-docs" "${PREFIX}-file-uploads"; do
-              if aws s3api head-bucket --bucket "$BUCKET" --region "$REGION" 2>/dev/null; then
-                echo "Removing orphaned bucket $BUCKET..."
-                aws s3 rm "s3://${BUCKET}" --recursive --region "$REGION"
-                aws s3api delete-bucket --bucket "$BUCKET" --region "$REGION"
-                echo "Deleted $BUCKET"
-              fi
-            done
+          # If stack is stuck in a failed state, delete it entirely
+          if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STATUS" = "REVIEW_IN_PROGRESS" ]; then
+            echo "Deleting $STACK_NAME (stuck in $STATUS)..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
+            echo "$STACK_NAME deleted."
+            STATUS="DOES_NOT_EXIST"
           fi
 
-      - name: Import orphaned resources (if stack missing)
-        working-directory: infra/cdk
-        env:
-          SHUMELAHIRE_ENV: ${{ inputs.environment }}
-          SHUMELAHIRE_DOMAIN: ${{ inputs.domain-name }}
-          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
-          API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
-          WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
-          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
-          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
-        run: |
-          STACK="shumelahire-${{ inputs.environment }}-foundation"
-          CDK_ARGS="-c env=${{ inputs.environment }} -c domain=${{ inputs.domain-name }} -c hostedZoneName=${{ steps.zone.outputs.name }} -c certificateArn=${CERTIFICATE_ARN} -c apiCertificateArn=${API_CERTIFICATE_ARN} -c wildcardCertificateArn=${WILDCARD_CERTIFICATE_ARN} -c linkedInClientId=${LINKEDIN_CLIENT_ID} -c linkedInClientSecret=${LINKEDIN_CLIENT_SECRET}"
-
-          # Skip if stack already exists
-          if aws cloudformation describe-stacks --stack-name "$STACK" --region ${{ inputs.aws-region }} >/dev/null 2>&1; then
-            echo "Stack $STACK exists, skipping import."
-            exit 0
-          fi
-
-          PREFIX="shumelahire-${{ inputs.environment }}"
-
-          # Check if any named resources exist that need importing
-          NEEDS_IMPORT=false
-          aws ecr describe-repositories --repository-names shumelahire-backend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
-          aws ecr describe-repositories --repository-names shumelahire-frontend --region ${{ inputs.aws-region }} >/dev/null 2>&1 && NEEDS_IMPORT=true
-
-          if [ "$NEEDS_IMPORT" = "false" ]; then
-            echo "No orphaned resources found, skipping import."
-            exit 0
-          fi
-
-          echo "Orphaned resources detected — importing into stack..."
-
-          # Build resource mapping for cdk import
-          cat > /tmp/resource-mapping.json << MAPPING
-          {
-            "BackendRepo7FFBAD06": { "RepositoryName": "shumelahire-backend" },
-            "FrontendRepoF80FCC01": { "RepositoryName": "shumelahire-frontend" }
+          # Helper: check if a resource exists in the CloudFormation stack
+          resource_in_stack() {
+            local logical_id="$1"
+            if [ "$STATUS" = "DOES_NOT_EXIST" ]; then return 1; fi
+            aws cloudformation describe-stack-resource --stack-name "$STACK_NAME" --logical-resource-id "$logical_id" \
+              --region "$REGION" >/dev/null 2>&1
           }
-          MAPPING
 
-          # Delete any stuck REVIEW_IN_PROGRESS stack
-          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK" --region ${{ inputs.aws-region }} --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-          if [ "$STACK_STATUS" = "REVIEW_IN_PROGRESS" ]; then
-            aws cloudformation delete-stack --stack-name "$STACK" --region ${{ inputs.aws-region }}
-            aws cloudformation wait stack-delete-complete --stack-name "$STACK" --region ${{ inputs.aws-region }}
+          # Delete any resources not managed by the stack.
+          # No existence checks — just try to delete and ignore errors.
+
+          # Log group
+          if ! resource_in_stack "EcsLogGroup"; then
+            echo "Removing orphaned log group /ecs/${PREFIX} (if exists)..."
+            aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>&1 || true
           fi
 
-          eval cdk import "$STACK" --resource-mapping /tmp/resource-mapping.json --force $CDK_ARGS
+          # S3 buckets — delete bucket policy first (CDK AutoDeleteObjects adds a
+          # restrictive policy), then empty and remove the bucket.
+          for bucket_info in "docs:DocumentsBucket9EC9DEB9" "file-uploads:UploadsBucket5E5E9B64"; do
+            SUFFIX="${bucket_info%%:*}"
+            LOGICAL_ID="${bucket_info##*:}"
+            BUCKET="${PREFIX}-${SUFFIX}"
+            if ! resource_in_stack "$LOGICAL_ID"; then
+              echo "Removing orphaned S3 bucket ${BUCKET} (if exists)..."
+              aws s3api delete-bucket-policy --bucket "$BUCKET" --region "$REGION" 2>&1 || true
+              aws s3 rb "s3://${BUCKET}" --force --region "$REGION" 2>&1 || true
+            fi
+          done
+
+          # ECR repos
+          for repo_info in "shumelahire-backend:BackendRepo7FFBAD06" "shumelahire-frontend:FrontendRepoF80FCC01"; do
+            REPO="${repo_info%%:*}"
+            LOGICAL_ID="${repo_info##*:}"
+            if ! resource_in_stack "$LOGICAL_ID"; then
+              echo "Removing orphaned ECR repo ${REPO} (if exists)..."
+              aws ecr delete-repository --repository-name "$REPO" --region "$REGION" --force 2>&1 || true
+            fi
+          done
+
+          echo "Cleanup complete."
 
       - name: CDK Deploy Foundation
         working-directory: infra/cdk
@@ -324,7 +313,7 @@ jobs:
           for STACK_NAME in "${PREFIX}-compute" "${PREFIX}-api" "${PREFIX}-frontend"; do
             STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
               --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-            if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+            if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
               echo "Deleting $STACK_NAME (stuck in ROLLBACK_COMPLETE)..."
               aws cloudformation delete-stack --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
               aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}

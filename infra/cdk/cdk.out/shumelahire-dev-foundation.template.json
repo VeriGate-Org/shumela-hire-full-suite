@@ -21,7 +21,7 @@
   "VpcpublicSubnet1Subnet2BB74ED7": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1a",
+    "AvailabilityZone": "af-south-1a",
     "CidrBlock": "10.0.0.0/24",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -140,7 +140,7 @@
   "VpcpublicSubnet2SubnetE34B022A": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1b",
+    "AvailabilityZone": "af-south-1b",
     "CidrBlock": "10.0.1.0/24",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -217,7 +217,7 @@
   "VpcprivateSubnet1SubnetCEAD3716": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1a",
+    "AvailabilityZone": "af-south-1a",
     "CidrBlock": "10.0.2.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -291,7 +291,7 @@
   "VpcprivateSubnet2Subnet2DE7549C": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1b",
+    "AvailabilityZone": "af-south-1b",
     "CidrBlock": "10.0.3.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -365,7 +365,7 @@
   "VpcisolatedSubnet1SubnetE62B1B9B": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1a",
+    "AvailabilityZone": "af-south-1a",
     "CidrBlock": "10.0.4.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -424,7 +424,7 @@
   "VpcisolatedSubnet2Subnet39217055": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "us-east-1b",
+    "AvailabilityZone": "af-south-1b",
     "CidrBlock": "10.0.5.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -523,7 +523,7 @@
       "DefaultSecurityGroup"
      ]
     },
-    "Account": "420747712978"
+    "Account": "601301273631"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -570,7 +570,7 @@
            "Fn::Join": [
             "",
             [
-             "arn:aws:ec2:us-east-1:420747712978:security-group/",
+             "arn:aws:ec2:af-south-1:601301273631:security-group/",
              {
               "Fn::GetAtt": [
                "Vpc8378EB38",
@@ -595,7 +595,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-420747712978-us-east-1",
+     "S3Bucket": "cdk-hnb659fds-assets-601301273631-af-south-1",
      "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
     },
     "Timeout": 900,
@@ -755,6 +755,30 @@
     "aws:cdk:path": "shumelahire-dev-foundation/EcsSecurityGroup/from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:8080"
    }
   },
+  "EcsSecurityGroupfromshumelahiredevfoundationAlbSecurityGroupFC0C8B4E30007B183658": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 3000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "EcsSecurityGroup44008BF1",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AlbSecurityGroup86A59E99",
+      "GroupId"
+     ]
+    },
+    "ToPort": 3000
+   },
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/EcsSecurityGroup/from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:3000"
+   }
+  },
   "AlbSecurityGroup86A59E99": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -863,7 +887,7 @@
     "DatabaseName": "shumelahire",
     "DeletionProtection": false,
     "Engine": "aurora-postgresql",
-    "EngineVersion": "15.4",
+    "EngineVersion": "15.8",
     "MasterUserPassword": {
      "Fn::Join": [
       "",
@@ -940,7 +964,7 @@
   "Redis": {
    "Type": "AWS::ElastiCache::CacheCluster",
    "Properties": {
-    "CacheNodeType": "cache.t4g.micro",
+    "CacheNodeType": "cache.t3.micro",
     "CacheSubnetGroupName": "shumelahire-dev-redis-subnet",
     "ClusterName": "shumelahire-dev-redis",
     "Engine": "redis",
@@ -974,7 +998,7 @@
       }
      ]
     },
-    "BucketName": "shumelahire-dev-documents",
+    "BucketName": "shumelahire-dev-fs-docs",
     "CorsConfiguration": {
      "CorsRules": [
       {
@@ -987,8 +1011,10 @@
         "POST"
        ],
        "AllowedOrigins": [
+        "https://dev.shumelahire.co.za",
+        "https://*.dev.shumelahire.co.za",
         "http://localhost:3000",
-        "http://localhost:3001"
+        "http://*.localhost:3000"
        ],
        "MaxAge": 3600
       }
@@ -1122,7 +1148,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-420747712978-us-east-1",
+     "S3Bucket": "cdk-hnb659fds-assets-601301273631-af-south-1",
      "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
     },
     "Timeout": 900,
@@ -1169,7 +1195,7 @@
       }
      ]
     },
-    "BucketName": "shumelahire-dev-uploads",
+    "BucketName": "shumelahire-dev-fs-file-uploads",
     "LifecycleConfiguration": {
      "Rules": [
       {
@@ -1279,8 +1305,9 @@
   "NotificationDlq467FCAE6": {
    "Type": "AWS::SQS::Queue",
    "Properties": {
+    "FifoQueue": true,
     "MessageRetentionPeriod": 1209600,
-    "QueueName": "shumelahire-dev-notification-dlq"
+    "QueueName": "shumelahire-dev-notification-dlq.fifo"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -1364,6 +1391,32 @@
     "aws:cdk:path": "shumelahire-dev-foundation/JwtSecret/Resource"
    }
   },
+  "MicrosoftSecret23F7E3A9": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "Microsoft Graph credentials (Teams, Outlook)",
+    "GenerateSecretString": {},
+    "Name": "shumelahire/dev/microsoft"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/MicrosoftSecret/Resource"
+   }
+  },
+  "JobBoardsSecretAB646D7C": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "Job board API credentials (LinkedIn, Indeed, PNet, CareerJunction)",
+    "GenerateSecretString": {},
+    "Name": "shumelahire/dev/job-boards"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/JobBoardsSecret/Resource"
+   }
+  },
   "UserPool6BA7E5F2": {
    "Type": "AWS::Cognito::UserPool",
    "Properties": {
@@ -1412,6 +1465,15 @@
       "Mutable": true,
       "Name": "given_name",
       "Required": true
+     },
+     {
+      "AttributeDataType": "String",
+      "Mutable": true,
+      "Name": "tenant_id",
+      "StringAttributeConstraints": {
+       "MaxLength": "50",
+       "MinLength": "1"
+      }
      }
     ],
     "SmsVerificationMessage": "The verification code to your new account is {####}",
@@ -1432,24 +1494,36 @@
     "aws:cdk:path": "shumelahire-dev-foundation/UserPool/Resource"
    }
   },
+  "UserPoolDomainD0EA232A": {
+   "Type": "AWS::Cognito::UserPoolDomain",
+   "Properties": {
+    "Domain": "shumelahire-fs-dev-auth",
+    "UserPoolId": {
+     "Ref": "UserPool6BA7E5F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/UserPool/Domain/Resource"
+   }
+  },
   "UserPoolWebAppClientCD2D5CB1": {
    "Type": "AWS::Cognito::UserPoolClient",
    "Properties": {
     "AccessTokenValidity": 60,
     "AllowedOAuthFlows": [
-     "implicit",
      "code"
     ],
     "AllowedOAuthFlowsUserPoolClient": true,
     "AllowedOAuthScopes": [
-     "profile",
-     "phone",
-     "email",
      "openid",
-     "aws.cognito.signin.user.admin"
+     "email",
+     "profile"
     ],
     "CallbackURLs": [
-     "https://example.com"
+     "https://dev.shumelahire.co.za/login",
+     "https://idc-demo.shumelahire.co.za/login",
+     "https://uthukela-demo.shumelahire.co.za/login",
+     "http://localhost:3000/login"
     ],
     "ClientName": "shumelahire-dev-web",
     "ExplicitAuthFlows": [
@@ -1459,6 +1533,12 @@
     ],
     "GenerateSecret": false,
     "IdTokenValidity": 60,
+    "LogoutURLs": [
+     "https://dev.shumelahire.co.za/login",
+     "https://idc-demo.shumelahire.co.za/login",
+     "https://uthukela-demo.shumelahire.co.za/login",
+     "http://localhost:3000/login"
+    ],
     "PreventUserExistenceErrors": "ENABLED",
     "RefreshTokenValidity": 43200,
     "SupportedIdentityProviders": [
@@ -1581,10 +1661,63 @@
     "aws:cdk:path": "shumelahire-dev-foundation/GroupAPPLICANT"
    }
   },
+  "LinkedInOAuthSecret32CE2FB8": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "LinkedIn OAuth credentials (client_id, client_secret) for OIDC sign-in",
+    "GenerateSecretString": {},
+    "Name": "shumelahire/dev/linkedin-oauth"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/LinkedInOAuthSecret/Resource"
+   }
+  },
+  "BackendRepo7FFBAD06": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "shumelahire-backend"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/BackendRepo/Resource"
+   }
+  },
+  "FrontendRepoF80FCC01": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "shumelahire-frontend"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/FrontendRepo/Resource"
+   }
+  },
+  "EcsLogGroupD0138CE7": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/shumelahire-dev",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "shumelahire-dev-foundation/EcsLogGroup/Resource"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31RwU4CMRD9Fu+liJgYDx5gMYYLrixyNbNlXCtLu3amELLpv5vdwi7GaHqYN2/em76mN3J0N5a3V3CggdpsB6XOZZ0xqK2AA73VqG5kva6USN7NOk1E6vNSq8znBrnherS0nnEFeYk933MTIqs0sLamEzfgcZ42ZQH8BIwHOIrU6T0w9ovnhtEZ7AQxyambMIP62KFhkaHyTvPxyVlftRn+JeamcEgUhNuQrGfAkANhUnpidCJe3zln00viLM5QuZhxNj0b22ZuiMEoDIJaCe3AQIFO1jFF44plBa5AvnhFJ/g1iXQQWAKxVqA+MO77GTVpBqc0QdBY1lOvtjHmCcWS2lKrY0/HPgj6Ilm/ePTtB7UgCGULo9nK+pXQpdaWzazDZ5CU+vSGv5k2aAhiiWS9UygST2x3fftu/hilzu71Bt0UCMWECDljKLQpGs+z58pzEDPLC+ThvbyW90O5eFwl1uGkqgZrdKStediP5Wg4ktfNufokrQfOG9Y7lMtYvwES2UCgEwMAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31RS4/aMBD+LXs3ZoFKVQ89QLJaIVU0JZRrNTHTrEtip54xCEX+71ViklD1oRzme8yMv1GWcvF+Jd89wZVm6nSeVbqQbc6gzgKu9K1FtZTtsVEi+W6OWSIyX1Ra5b4wyJ02ob31jAcoKpz0SVsTWaWBtTVjcwdetllXdsCvwHiFm8icvgDjtHhrGJ3BsSEmubM1M6i3Gg2LHJV3mm+vzvqmz/BfYWtKh0RBuBPJNgWGAgiTyhOjE/H5cTLdPApDc47KxYzpZhjsydYQg1EYBPUtVIOBEp1sY4puKpYDuBL54Yqx4Q8nykFgBcRagXrDuO/3qEln3NMEQSvZbrw6x5h3FEtmK61ukxx5EPSTZPvFo+9/UA+CULY0mq1svxK6zNqq80Y8gNTWoM2jdVcGmlT6fuS/lf6SIFA52e6xsaTZuj7nxIKobEmy/WTL8fABhyD2SNY7hSLxxLaeaLfjr1bm7EWf0G2AUKyJkHOGUpuym/nsufEcRGp5hzz/IJ/lYjmXu5dDYh2um2Z2REfamo+XlVzMF/K5+55+kNYz5w3rGuU+1l8missAcAMAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "shumelahire-dev-foundation/CDKMetadata/Default"
@@ -1638,6 +1771,109 @@
     "Ref": "UserPoolWebAppClientCD2D5CB1"
    }
   },
+  "CognitoDomain": {
+   "Value": "shumelahire-fs-dev-auth.auth.af-south-1.amazoncognito.com"
+  },
+  "BackendEcrRepoUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "BackendRepo7FFBAD06",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "BackendRepo7FFBAD06",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "BackendRepo7FFBAD06"
+      }
+     ]
+    ]
+   }
+  },
+  "FrontendEcrRepoUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "FrontendRepoF80FCC01",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "FrontendRepoF80FCC01",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "FrontendRepoF80FCC01"
+      }
+     ]
+    ]
+   }
+  },
   "ExportsOutputFnGetAttDocumentsBucket9EC9DEB9ArnEA5095A7": {
    "Value": {
     "Fn::GetAtt": [
@@ -1680,6 +1916,87 @@
    },
    "Export": {
     "Name": "shumelahire-dev-foundation:ExportsOutputFnGetAttUserPool6BA7E5F2Arn686ACC00"
+   }
+  },
+  "ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219": {
+   "Value": {
+    "Fn::GetAtt": [
+     "BackendRepo7FFBAD06",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219"
+   }
+  },
+  "ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D": {
+   "Value": {
+    "Fn::GetAtt": [
+     "FrontendRepoF80FCC01",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D"
+   }
+  },
+  "ExportsOutputFnGetAttEcsLogGroupD0138CE7ArnF7234D4C": {
+   "Value": {
+    "Fn::GetAtt": [
+     "EcsLogGroupD0138CE7",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputFnGetAttEcsLogGroupD0138CE7ArnF7234D4C"
+   }
+  },
+  "ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73": {
+   "Value": {
+    "Ref": "DatabaseSecretAttachmentE5D1B020"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73"
+   }
+  },
+  "ExportsOutputRefAiKeysSecretDA83C82639D4A896": {
+   "Value": {
+    "Ref": "AiKeysSecretDA83C826"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefAiKeysSecretDA83C82639D4A896"
+   }
+  },
+  "ExportsOutputRefEncryptionKeySecretE7F1DBEA62B42E60": {
+   "Value": {
+    "Ref": "EncryptionKeySecretE7F1DBEA"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefEncryptionKeySecretE7F1DBEA62B42E60"
+   }
+  },
+  "ExportsOutputRefJwtSecretB8834B392B9A9162": {
+   "Value": {
+    "Ref": "JwtSecretB8834B39"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefJwtSecretB8834B392B9A9162"
+   }
+  },
+  "ExportsOutputRefBackendRepo7FFBAD06405267DF": {
+   "Value": {
+    "Ref": "BackendRepo7FFBAD06"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefBackendRepo7FFBAD06405267DF"
+   }
+  },
+  "ExportsOutputRefEcsLogGroupD0138CE7D7B2389B": {
+   "Value": {
+    "Ref": "EcsLogGroupD0138CE7"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefEcsLogGroupD0138CE7D7B2389B"
    }
   },
   "ExportsOutputFnGetAttDatabaseB269D8BBEndpointAddressA4DBD059": {
@@ -1796,6 +2113,14 @@
    },
    "Export": {
     "Name": "shumelahire-dev-foundation:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+   }
+  },
+  "ExportsOutputRefFrontendRepoF80FCC01D2E9C93A": {
+   "Value": {
+    "Ref": "FrontendRepoF80FCC01"
+   },
+   "Export": {
+    "Name": "shumelahire-dev-foundation:ExportsOutputRefFrontendRepoF80FCC01D2E9C93A"
    }
   }
  },

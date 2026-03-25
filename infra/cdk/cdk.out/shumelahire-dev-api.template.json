@@ -78,7 +78,7 @@
    "Type": "AWS::WAFv2::WebACLAssociation",
    "Properties": {
     "ResourceArn": {
-     "Fn::ImportValue": "shumelahire-dev-AlbArn"
+     "Fn::ImportValue": "shumelahire-dev-compute:ExportsOutputRefAlb16C2F1822A94C303"
     },
     "WebACLArn": {
      "Fn::GetAtt": [
@@ -94,7 +94,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z2ITQuCQBBAf4t3d/wKwkMHsW5hYFHH2LYRJmtXdmb1IP73kCDe4T1eDtm2gE2kJ1bm2as3PWA+izZ9rCe+T7obc5jrzt7wUdXH+F8VszOkhZxd1nsKMgRZq0V2wRtc4r2TBiUpIYUygeZwqZ3HahjUFT2Ts7uxgCzJIF2JXkykfLBCH4T25y9fARWVnwAAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z2IwQqCQBQAv8X77tPVIDp0EOsWBhZ1jHV7wsvalX27ehD/PSSIOcwwOahtAZtETyzNs5dvamG+BG16oSd+TLobc5irzt6xLauT+FfJ7AzpQM4u6z3HMMSwVoPsoje4iIMLNYZ0BxmoPIX6eK2cx3IY5A09k7P7sQCVKshWkhcTSR9toA9C8/MXJLBIyqAAAAA="
    },
    "Metadata": {
     "aws:cdk:path": "shumelahire-dev-api/CDKMetadata/Default"
