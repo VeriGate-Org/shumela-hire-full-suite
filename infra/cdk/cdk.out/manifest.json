@@ -11,21 +11,21 @@
     },
     "shumelahire-dev-foundation": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://420747712978/us-east-1",
+      "environment": "aws://601301273631/af-south-1",
       "properties": {
         "templateFile": "shumelahire-dev-foundation.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-deploy-role-420747712978-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-cfn-exec-role-420747712978-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-420747712978-us-east-1/805361ddd9cfdd5713f9ae73a3e3be28787221043f21b3d2eb6eca99a6c22090.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-deploy-role-601301273631-af-south-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-cfn-exec-role-601301273631-af-south-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-601301273631-af-south-1/bd1702367aaa631f3579f25914744ce4a198b61e862e07b29f4ebe4db55a021f.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "shumelahire-dev-foundation.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-lookup-role-420747712978-us-east-1",
+          "arn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-lookup-role-601301273631-af-south-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -256,6 +256,12 @@
             "data": "EcsSecurityGroupfromshumelahiredevfoundationAlbSecurityGroupFC0C8B4E8080AC542592"
           }
         ],
+        "/shumelahire-dev-foundation/EcsSecurityGroup/from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:3000": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsSecurityGroupfromshumelahiredevfoundationAlbSecurityGroupFC0C8B4E30007B183658"
+          }
+        ],
         "/shumelahire-dev-foundation/AlbSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -394,10 +400,28 @@
             "data": "JwtSecretB8834B39"
           }
         ],
+        "/shumelahire-dev-foundation/MicrosoftSecret/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MicrosoftSecret23F7E3A9"
+          }
+        ],
+        "/shumelahire-dev-foundation/JobBoardsSecret/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "JobBoardsSecretAB646D7C"
+          }
+        ],
         "/shumelahire-dev-foundation/UserPool/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "UserPool6BA7E5F2"
+          }
+        ],
+        "/shumelahire-dev-foundation/UserPool/Domain/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UserPoolDomainD0EA232A"
           }
         ],
         "/shumelahire-dev-foundation/UserPool/WebAppClient/Resource": [
@@ -454,6 +478,30 @@
             "data": "GroupAPPLICANT"
           }
         ],
+        "/shumelahire-dev-foundation/LinkedInOAuthSecret/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LinkedInOAuthSecret32CE2FB8"
+          }
+        ],
+        "/shumelahire-dev-foundation/BackendRepo/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BackendRepo7FFBAD06"
+          }
+        ],
+        "/shumelahire-dev-foundation/FrontendRepo/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FrontendRepoF80FCC01"
+          }
+        ],
+        "/shumelahire-dev-foundation/EcsLogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsLogGroupD0138CE7"
+          }
+        ],
         "/shumelahire-dev-foundation/VpcId": [
           {
             "type": "aws:cdk:logicalId",
@@ -502,6 +550,24 @@
             "data": "UserPoolClientId"
           }
         ],
+        "/shumelahire-dev-foundation/CognitoDomain": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoDomain"
+          }
+        ],
+        "/shumelahire-dev-foundation/BackendEcrRepoUri": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BackendEcrRepoUri"
+          }
+        ],
+        "/shumelahire-dev-foundation/FrontendEcrRepoUri": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FrontendEcrRepoUri"
+          }
+        ],
         "/shumelahire-dev-foundation/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
@@ -530,6 +596,60 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "ExportsOutputFnGetAttUserPool6BA7E5F2Arn686ACC00"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"BackendRepo7FFBAD06\",\"Arn\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"FrontendRepoF80FCC01\",\"Arn\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"EcsLogGroupD0138CE7\",\"Arn\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttEcsLogGroupD0138CE7ArnF7234D4C"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"DatabaseSecretAttachmentE5D1B020\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"AiKeysSecretDA83C826\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefAiKeysSecretDA83C82639D4A896"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"EncryptionKeySecretE7F1DBEA\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefEncryptionKeySecretE7F1DBEA62B42E60"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"JwtSecretB8834B39\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefJwtSecretB8834B392B9A9162"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"BackendRepo7FFBAD06\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefBackendRepo7FFBAD06405267DF"
+          }
+        ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"EcsLogGroupD0138CE7\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefEcsLogGroupD0138CE7D7B2389B"
           }
         ],
         "/shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"DatabaseB269D8BB\",\"Endpoint.Address\"]}": [
@@ -610,6 +730,12 @@
             "data": "ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
           }
         ],
+        "/shumelahire-dev-foundation/Exports/Output{\"Ref\":\"FrontendRepoF80FCC01\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefFrontendRepoF80FCC01D2E9C93A"
+          }
+        ],
         "/shumelahire-dev-foundation/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
@@ -635,21 +761,21 @@
     },
     "shumelahire-dev-compute": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://420747712978/us-east-1",
+      "environment": "aws://601301273631/af-south-1",
       "properties": {
         "templateFile": "shumelahire-dev-compute.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-deploy-role-420747712978-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-cfn-exec-role-420747712978-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-420747712978-us-east-1/df08228b8cc41a7bd07f58b096fbd1d4905e37b165a104d66534d42235cbd9e1.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-deploy-role-601301273631-af-south-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-cfn-exec-role-601301273631-af-south-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-601301273631-af-south-1/c181e5713745a354a7d5beaf71e18019f9cc3195f3b4525cf9f69e9f8f1691d7.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "shumelahire-dev-compute.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-lookup-role-420747712978-us-east-1",
+          "arn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-lookup-role-601301273631-af-south-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -659,12 +785,6 @@
         "shumelahire-dev-compute.assets"
       ],
       "metadata": {
-        "/shumelahire-dev-compute/BackendRepo/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "BackendRepo7FFBAD06"
-          }
-        ],
         "/shumelahire-dev-compute/Cluster/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -695,12 +815,6 @@
             "data": "ExecutionRoleDefaultPolicyA5B92313"
           }
         ],
-        "/shumelahire-dev-compute/LogGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogGroupF5B46931"
-          }
-        ],
         "/shumelahire-dev-compute/TaskDef/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -713,27 +827,6 @@
             "data": "Alb16C2F182"
           }
         ],
-        "/shumelahire-dev-compute/Alb/Http": [
-          {
-            "type": "aws:cdk:warning",
-            "data": "A default Action already existed on this Listener and was replaced. Configure exactly one default Action. [ack: @aws-cdk/aws-elbv2:listenerExistingDefaultActionReplaced]",
-            "trace": [
-              "Annotations.addMessage (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/core/lib/annotations.js:1:1608)",
-              "Annotations.addWarningV2 (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/core/lib/annotations.js:1:825)",
-              "ApplicationListener._setDefaultAction (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/shared/base-listener.js:1:2489)",
-              "ApplicationListener.setDefaultAction (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:9805)",
-              "ApplicationListener.addTargetGroups (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:6693)",
-              "ApplicationListener.addTargets (/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/jsii-kernel-LN8E9T/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:7391)",
-              "/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:8874:172",
-              "Kernel._Kernel_ensureSync (/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:9499:24)",
-              "Kernel.invoke (/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:8874:102)",
-              "KernelHost.processRequest (/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:10715:36)",
-              "KernelHost.run (/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:10675:22)",
-              "Immediate._onImmediate (/private/var/folders/94/b1l347yn11z20ql_060nzr_m0000gn/T/ukekzgit.ekk/lib/program.js:10676:46)",
-              "process.processImmediate (node:internal/timers:485:21)"
-            ]
-          }
-        ],
         "/shumelahire-dev-compute/Alb/Http/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -744,6 +837,18 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AlbHttpBackendTargetGroupF834592E"
+          }
+        ],
+        "/shumelahire-dev-compute/Alb/Http/BackendTargetRule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AlbHttpBackendTargetRule839A7CAD"
+          }
+        ],
+        "/shumelahire-dev-compute/Alb/Http/FrontendTargetGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AlbHttpFrontendTargetGroupEB76E5BA"
           }
         ],
         "/shumelahire-dev-compute/Service/Service": [
@@ -770,6 +875,60 @@
             "data": "ServiceTaskCountTargetMemoryScalingEA4B07C8"
           }
         ],
+        "/shumelahire-dev-compute/FrontendTaskDef/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FrontendTaskDef7D3FD156"
+          }
+        ],
+        "/shumelahire-dev-compute/FrontendService/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FrontendServiceBC94BA93"
+          }
+        ],
+        "/shumelahire-dev-compute/AlarmTopic/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AlarmTopicD01E77F9"
+          }
+        ],
+        "/shumelahire-dev-compute/CpuAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CpuAlarm87CA37A9"
+          }
+        ],
+        "/shumelahire-dev-compute/MemoryAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "MemoryAlarm2E786DB4"
+          }
+        ],
+        "/shumelahire-dev-compute/Alb5xxAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Alb5xxAlarm99BFF946"
+          }
+        ],
+        "/shumelahire-dev-compute/UnhealthyTargetsAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UnhealthyTargetsAlarm3F77BCD9"
+          }
+        ],
+        "/shumelahire-dev-compute/Dashboard/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Dashboard9E4231ED"
+          }
+        ],
+        "/shumelahire-dev-compute/AlarmTopicArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AlarmTopicArn"
+          }
+        ],
         "/shumelahire-dev-compute/AlbDnsName": [
           {
             "type": "aws:cdk:logicalId",
@@ -794,16 +953,28 @@
             "data": "ServiceName"
           }
         ],
-        "/shumelahire-dev-compute/EcrRepositoryUri": [
+        "/shumelahire-dev-compute/FrontendServiceName": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "EcrRepositoryUri"
+            "data": "FrontendServiceName"
           }
         ],
         "/shumelahire-dev-compute/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
+          }
+        ],
+        "/shumelahire-dev-compute/Exports/Output{\"Ref\":\"Alb16C2F182\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefAlb16C2F1822A94C303"
+          }
+        ],
+        "/shumelahire-dev-compute/Exports/Output{\"Fn::GetAtt\":[\"Alb16C2F182\",\"DNSName\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttAlb16C2F182DNSNameB67BDABC"
           }
         ],
         "/shumelahire-dev-compute/BootstrapVersion": [
@@ -831,26 +1002,27 @@
     },
     "shumelahire-dev-api": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://420747712978/us-east-1",
+      "environment": "aws://601301273631/af-south-1",
       "properties": {
         "templateFile": "shumelahire-dev-api.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-deploy-role-420747712978-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-cfn-exec-role-420747712978-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-420747712978-us-east-1/d63f278a051ed2df32ed2247a5c3236258c568902f0fec7ffaff7e8a5eb321e4.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-deploy-role-601301273631-af-south-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-cfn-exec-role-601301273631-af-south-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-601301273631-af-south-1/e6715b998ca600768c3d14002d626c16ec62527cc94b864df5ff12ca4cde17c2.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "shumelahire-dev-api.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-lookup-role-420747712978-us-east-1",
+          "arn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-lookup-role-601301273631-af-south-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
       },
       "dependencies": [
+        "shumelahire-dev-compute",
         "shumelahire-dev-api.assets"
       ],
       "metadata": {
@@ -903,81 +1075,34 @@
     },
     "shumelahire-dev-frontend": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://420747712978/us-east-1",
+      "environment": "aws://601301273631/af-south-1",
       "properties": {
         "templateFile": "shumelahire-dev-frontend.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-deploy-role-420747712978-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-cfn-exec-role-420747712978-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-420747712978-us-east-1/ff67f523a9474a2cbfa83d23a97f87e7888a30cba02dc7a9bb0c0c10b04d59aa.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-deploy-role-601301273631-af-south-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-cfn-exec-role-601301273631-af-south-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-601301273631-af-south-1/f125b14a67b701de47c3e4c0d704415a13a3f882e484ba5faa40e3e3196396e5.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "shumelahire-dev-frontend.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::420747712978:role/cdk-hnb659fds-lookup-role-420747712978-us-east-1",
+          "arn": "arn:${AWS::Partition}:iam::601301273631:role/cdk-hnb659fds-lookup-role-601301273631-af-south-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
       },
       "dependencies": [
+        "shumelahire-dev-compute",
         "shumelahire-dev-frontend.assets"
       ],
       "metadata": {
-        "/shumelahire-dev-frontend/UiBucket/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "UiBucket6890E4C3"
-          }
-        ],
-        "/shumelahire-dev-frontend/UiBucket/Policy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "UiBucketPolicy09DA0D65"
-          }
-        ],
-        "/shumelahire-dev-frontend/UiBucket/AutoDeleteObjectsCustomResource/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "UiBucketAutoDeleteObjectsCustomResourceE3F28A4B"
-          }
-        ],
-        "/shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
-          {
-            "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
-            "data": true
-          }
-        ],
-        "/shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
-          }
-        ],
-        "/shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
-          }
-        ],
-        "/shumelahire-dev-frontend/OAI/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "OAIE1EFC67F"
-          }
-        ],
         "/shumelahire-dev-frontend/Distribution/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "Distribution830FAC52"
-          }
-        ],
-        "/shumelahire-dev-frontend/UiBucketName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "UiBucketName"
           }
         ],
         "/shumelahire-dev-frontend/DistributionId": [
