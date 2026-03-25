@@ -234,7 +234,7 @@ public class ShumelaHireComputeStack : Stack
             SecurityGroups = new[] { foundation.EcsSecurityGroup },
             VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PRIVATE_WITH_EGRESS },
             AssignPublicIp = false,
-            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
+            CircuitBreaker = config.IsProduction ? new DeploymentCircuitBreaker { Rollback = true } : null,
             MinHealthyPercent = config.IsProduction ? 100 : 0,
             MaxHealthyPercent = 200,
             HealthCheckGracePeriod = Duration.Seconds(300)
@@ -277,10 +277,10 @@ public class ShumelaHireComputeStack : Stack
             SecurityGroups = new[] { foundation.EcsSecurityGroup },
             VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PRIVATE_WITH_EGRESS },
             AssignPublicIp = false,
-            CircuitBreaker = new DeploymentCircuitBreaker { Rollback = config.IsProduction },
+            CircuitBreaker = config.IsProduction ? new DeploymentCircuitBreaker { Rollback = true } : null,
             MinHealthyPercent = config.IsProduction ? 100 : 0,
             MaxHealthyPercent = 200,
-            HealthCheckGracePeriod = Duration.Seconds(180)
+            HealthCheckGracePeriod = Duration.Seconds(300)
         });
 
         // ── ALB Listeners & Path-Based Routing ──────────────────────────────
