@@ -324,15 +324,38 @@ jobs:
           for STACK_NAME in "${PREFIX}-compute" "${PREFIX}-api" "${PREFIX}-frontend"; do
             STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
               --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-            if [ "$STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
-              echo "Deleting $STACK_NAME (stuck in ROLLBACK_COMPLETE)..."
+            if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+              echo "Deleting $STACK_NAME (initial create failed, $STATUS)..."
               aws cloudformation delete-stack --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
               aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }}
               echo "$STACK_NAME deleted."
+            elif [ "$STATUS" = "UPDATE_ROLLBACK_COMPLETE" ]; then
+              echo "$STACK_NAME is in $STATUS — will redeploy on top of existing resources."
             fi
           done
 
-      - name: CDK Deploy Services
+      - name: CDK Deploy Compute
+        working-directory: infra/cdk
+        env:
+          SHUMELAHIRE_ENV: ${{ inputs.environment }}
+          SHUMELAHIRE_DOMAIN: ${{ inputs.domain-name }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
+          WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+        run: |
+          cdk deploy shumelahire-${{ inputs.environment }}-compute --require-approval never \
+            -c env=${{ inputs.environment }} \
+            -c domain=${{ inputs.domain-name }} \
+            -c hostedZoneName=${{ steps.zone.outputs.name }} \
+            -c certificateArn="${CERTIFICATE_ARN}" \
+            -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
+            -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
+            -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
+            -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
+
+      - name: CDK Deploy Remaining Stacks
         working-directory: infra/cdk
         env:
           SHUMELAHIRE_ENV: ${{ inputs.environment }}
