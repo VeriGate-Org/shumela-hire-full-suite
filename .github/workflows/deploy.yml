@@ -167,7 +167,7 @@ jobs:
           # No existence checks — just try to delete and ignore errors.
 
           # Log group
-          if ! resource_in_stack "EcsLogGroup"; then
+          if ! resource_in_stack "EcsLogGroupD0138CE7"; then
             echo "Removing orphaned log group /ecs/${PREFIX} (if exists)..."
             aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>&1 || true
           fi
@@ -354,6 +354,15 @@ jobs:
             -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
+
+      # ── Ensure log group exists (repair CloudFormation drift) ─────────
+      # The log group has RemovalPolicy.RETAIN so CloudFormation may think
+      # it exists even if it was deleted out-of-band.  Create it if missing.
+      - name: Ensure ECS log group exists
+        run: |
+          LOG_GROUP="/ecs/shumelahire-${{ inputs.environment }}"
+          aws logs create-log-group --log-group-name "$LOG_GROUP" \
+            --region ${{ inputs.aws-region }} 2>/dev/null || true
 
       # ── Start ECS Services ─────────────────────────────────────────────
       # CDK creates services with desiredCount=0 so the stack succeeds even
