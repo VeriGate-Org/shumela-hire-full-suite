@@ -14,6 +14,7 @@ public class ShumelaHireApiStack : Stack
     public ShumelaHireApiStack(Construct scope, string id, EnvironmentConfig config,
         ShumelaHireComputeStack compute, IStackProps? props = null) : base(scope, id, props)
     {
+        AddDependency(compute);
         var prefix = config.Prefix;
 
         // ── WAF WebACL ───────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ public class ShumelaHireApiStack : Stack
         // Associate WAF with ALB
         new CfnWebACLAssociation(this, "WafAlbAssociation", new CfnWebACLAssociationProps
         {
-            ResourceArn = compute.AlbArn,
+            ResourceArn = Fn.ImportValue($"{prefix}-AlbArn"),
             WebAclArn = webAcl.AttrArn
         });
 
@@ -121,7 +122,7 @@ public class ShumelaHireApiStack : Stack
                 DomainName = config.HostedZoneName
             });
 
-            var albDns = compute.AlbDnsName;
+            var albDns = Fn.ImportValue($"{prefix}-AlbDnsName");
 
             new CnameRecord(this, "ApiDnsRecord", new CnameRecordProps
             {
