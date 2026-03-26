@@ -355,9 +355,16 @@ jobs:
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
-      # ── Force ECS Redeployment ──────────────────────────────────────────
-      - name: Force ECS redeployment
+      # ── Start ECS Services ─────────────────────────────────────────────
+      # CDK creates services with desiredCount=0 so the stack succeeds even
+      # when tasks need a running ALB / secrets / DB.  This step sets the
+      # real desired count and forces a fresh deployment with the latest image.
+      - name: Start ECS services
         run: |
           CLUSTER="shumelahire-${{ inputs.environment }}"
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-${{ inputs.environment }} --force-new-deployment
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-${{ inputs.environment }}-frontend --force-new-deployment
+          ENV="${{ inputs.environment }}"
+          if [ "$ENV" = "prod" ]; then BACKEND_COUNT=2; else BACKEND_COUNT=1; fi
+          aws ecs update-service --cluster $CLUSTER --service shumelahire-${ENV} \
+            --desired-count $BACKEND_COUNT --force-new-deployment
+          aws ecs update-service --cluster $CLUSTER --service shumelahire-${ENV}-frontend \
+            --desired-count 1 --force-new-deployment
