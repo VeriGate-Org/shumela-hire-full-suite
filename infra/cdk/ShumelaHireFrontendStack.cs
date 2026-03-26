@@ -14,6 +14,7 @@ public class ShumelaHireFrontendStack : Stack
     public ShumelaHireFrontendStack(Construct scope, string id, EnvironmentConfig config,
         ShumelaHireComputeStack compute, IStackProps? props = null) : base(scope, id, props)
     {
+        AddDependency(compute);
         var prefix = config.Prefix;
 
         var frontendDomain = config.EnvironmentName == "prod"
@@ -21,7 +22,7 @@ public class ShumelaHireFrontendStack : Stack
             : $"{config.EnvironmentName}.{config.DomainName}";
 
         // ── ALB HTTP Origin ────────────────────────────────────────────────────
-        var albDns = compute.AlbDnsName;
+        var albDns = Fn.ImportValue($"{prefix}-AlbDnsName");
         var albOrigin = new HttpOrigin(albDns, new HttpOriginProps
         {
             ProtocolPolicy = OriginProtocolPolicy.HTTP_ONLY
