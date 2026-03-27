@@ -1,19 +1,18 @@
 -- V052: Seed uThukela Water demo tenant with realistic recruitment data
 -- uThukela Water (uThukela District Municipality Water Services)
--- Idempotent: skips if applicants already exist for uthukela-water
+-- Idempotent: skips if applicants already exist for uthukela
 
 DO $$
 DECLARE
     v_tenant_id     VARCHAR(50);
     v_existing      INTEGER;
 
-    -- user IDs
-    v_user_employee     BIGINT;
-    v_user_manager      BIGINT;
-    v_user_hr_manager   BIGINT;
-    v_user_recruiter    BIGINT;
-    v_user_admin        BIGINT;
-    v_user_executive    BIGINT;
+    -- user IDs (5 demo accounts per NDA Annexure L)
+    v_user_admin        BIGINT;  -- admin@uthukela.shumelahire.co.za
+    v_user_hr_manager   BIGINT;  -- hr.manager@uthukela.shumelahire.co.za
+    v_user_executive    BIGINT;  -- executive@uthukela.shumelahire.co.za
+    v_user_manager      BIGINT;  -- line.manager@uthukela.shumelahire.co.za
+    v_user_employee     BIGINT;  -- employee@uthukela.shumelahire.co.za
 
     -- department IDs
     v_dept_ops      BIGINT;
@@ -188,16 +187,33 @@ DECLARE
 
 BEGIN
     -- ============================================================
+    -- CREATE TENANT (idempotent — skips if already exists)
+    -- ============================================================
+    INSERT INTO tenants (id, name, subdomain, status, plan, contact_email, contact_name, max_users, settings)
+    VALUES (
+        'uthukela',
+        'uThukela Water',
+        'uthukela',
+        'ACTIVE',
+        'STANDARD',
+        'hr@uthukela.gov.za',
+        'System Administrator',
+        50,
+        '{}'::jsonb
+    )
+    ON CONFLICT (subdomain) DO NOTHING;
+
+    -- ============================================================
     -- RESOLVE TENANT BY SUBDOMAIN
     -- ============================================================
-    SELECT id INTO v_tenant_id FROM tenants WHERE subdomain = 'uthukela-water';
+    SELECT id INTO v_tenant_id FROM tenants WHERE subdomain = 'uthukela';
 
     IF v_tenant_id IS NULL THEN
-        RAISE NOTICE 'Tenant with subdomain uthukela-water not found. Skipping.';
+        RAISE NOTICE 'Tenant with subdomain uthukela not found. Skipping.';
         RETURN;
     END IF;
 
-    RAISE NOTICE 'Resolved uthukela-water tenant ID: %', v_tenant_id;
+    RAISE NOTICE 'Resolved uthukela tenant ID: %', v_tenant_id;
 
     -- ============================================================
     -- IDEMPOTENCY CHECK
@@ -212,7 +228,7 @@ BEGIN
     END IF;
 
     -- ============================================================
-    -- CLEANUP: Clear talent pools and agencies for uthukela-water
+    -- CLEANUP: Clear talent pools and agencies for uthukela
     -- (FK-safe order: children first)
     -- ============================================================
     DELETE FROM talent_pool_entries WHERE tenant_id = v_tenant_id;
@@ -221,54 +237,52 @@ BEGIN
     RAISE NOTICE 'Cleared talent_pool_entries, talent_pools, and agency_profiles for %', v_tenant_id;
 
     -- ============================================================
-    -- TIER 0: USERS (6 demo accounts)
-    -- Passwords are bcrypt-hashed 'Password1!' for demo purposes
-    -- These users can also be provisioned via Cognito JIT; the
-    -- DB records ensure the seed script is self-contained.
+    -- TIER 0: USERS (5 demo accounts per NDA Annexure L)
+    -- Passwords are bcrypt-hashed 'Demo@2026!' for demo purposes
+    -- Emails use @uthukela.shumelahire.co.za (Cognito provisioned)
     -- ============================================================
-    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'thandi.moyo', 'thandi.moyo@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-            'Thandi', 'Moyo', 'EMPLOYEE', TRUE, TRUE,
-            '+27 72 100 0001', 'Water Meter Reader', 'Operations')
-    RETURNING id INTO v_user_employee;
 
+    -- 1. Administrator — full system config, user management, Sage integration
     INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'john.van.wyk', 'john.vanwyk@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-            'John', 'van Wyk', 'HIRING_MANAGER', TRUE, TRUE,
-            '+27 83 200 0002', 'Operations Manager', 'Operations')
-    RETURNING id INTO v_user_manager;
-
-    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'nomvula.nzimande', 'nomvula.nzimande@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-            'Nomvula', 'Nzimande', 'HR_MANAGER', TRUE, TRUE,
-            '+27 61 300 0003', 'HR Manager', 'Corporate Services')
-    RETURNING id INTO v_user_hr_manager;
-
-    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'ayesha.pillay', 'ayesha.pillay@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-            'Ayesha', 'Pillay', 'RECRUITER', TRUE, TRUE,
-            '+27 76 400 0004', 'Talent Acquisition Specialist', 'Corporate Services')
-    RETURNING id INTO v_user_recruiter;
-
-    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'pieter.botha', 'pieter.botha@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    VALUES (v_tenant_id, 'admin', 'admin@uthukela.shumelahire.co.za',
+            '$2a$12$.LjEv7zW9uNpGQXzwl01i.Mh916jh8Qb3tRw/UVaKydec1HlMVEI2',
             'Pieter', 'Botha', 'ADMIN', TRUE, TRUE,
             '+27 82 500 0005', 'IT Systems Administrator', 'Corporate Services')
     RETURNING id INTO v_user_admin;
 
+    -- 2. HR Manager — leave, attendance, recruitment, performance, documents
     INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
-    VALUES (v_tenant_id, 'sizwe.mthembu', 'sizwe.mthembu@uthukela.gov.za',
-            '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    VALUES (v_tenant_id, 'hr.manager', 'hr.manager@uthukela.shumelahire.co.za',
+            '$2a$12$.LjEv7zW9uNpGQXzwl01i.Mh916jh8Qb3tRw/UVaKydec1HlMVEI2',
+            'Nomvula', 'Nzimande', 'HR_MANAGER', TRUE, TRUE,
+            '+27 61 300 0003', 'HR Manager', 'Corporate Services')
+    RETURNING id INTO v_user_hr_manager;
+
+    -- 3. Executive — dashboards, analytics, workforce planning, approvals
+    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
+    VALUES (v_tenant_id, 'executive', 'executive@uthukela.shumelahire.co.za',
+            '$2a$12$.LjEv7zW9uNpGQXzwl01i.Mh916jh8Qb3tRw/UVaKydec1HlMVEI2',
             'Sizwe', 'Mthembu', 'EXECUTIVE', TRUE, TRUE,
             '+27 84 600 0006', 'Municipal Manager', 'Corporate Services')
     RETURNING id INTO v_user_executive;
 
-    RAISE NOTICE 'Created 6 demo user accounts for uThukela Water';
+    -- 4. Line Manager — team dashboard, leave/attendance approvals, performance reviews
+    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
+    VALUES (v_tenant_id, 'line.manager', 'line.manager@uthukela.shumelahire.co.za',
+            '$2a$12$.LjEv7zW9uNpGQXzwl01i.Mh916jh8Qb3tRw/UVaKydec1HlMVEI2',
+            'John', 'van Wyk', 'HIRING_MANAGER', TRUE, TRUE,
+            '+27 83 200 0002', 'Operations Manager', 'Operations')
+    RETURNING id INTO v_user_manager;
+
+    -- 5. Employee — self-service, leave requests, clock-in, training, self-assessment
+    INSERT INTO users (tenant_id, username, email, password, first_name, last_name, role, is_enabled, email_verified, phone, job_title, department)
+    VALUES (v_tenant_id, 'employee', 'employee@uthukela.shumelahire.co.za',
+            '$2a$12$.LjEv7zW9uNpGQXzwl01i.Mh916jh8Qb3tRw/UVaKydec1HlMVEI2',
+            'Thandi', 'Moyo', 'EMPLOYEE', TRUE, TRUE,
+            '+27 72 100 0001', 'Water Meter Reader', 'Operations')
+    RETURNING id INTO v_user_employee;
+
+    RAISE NOTICE 'Created 5 demo user accounts per NDA Annexure L';
 
     -- ============================================================
     -- RESOLVE ADMIN USER (for created_by NOT NULL columns)
@@ -1104,103 +1118,103 @@ BEGIN
 
     -- Thandi Moyo
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_moyo, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'moyo_id.pdf', 's3://uthukela-water-docs/employees/UTW-001/moyo_id.pdf', 245000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_moyo, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'moyo_id.pdf', 's3://uthukela-docs/employees/UTW-001/moyo_id.pdf', 245000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_moyo, 'QUALIFICATION', 'National Diploma: Water Care', 'DUT — National Diploma in Water Care (2016)', 'moyo_diploma.pdf', 's3://uthukela-water-docs/employees/UTW-001/moyo_diploma.pdf', 512000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_moyo, 'QUALIFICATION', 'National Diploma: Water Care', 'DUT — National Diploma in Water Care (2016)', 'moyo_diploma.pdf', 's3://uthukela-docs/employees/UTW-001/moyo_diploma.pdf', 512000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_moyo, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2022-06-01', 'moyo_contract.pdf', 's3://uthukela-water-docs/employees/UTW-001/moyo_contract.pdf', 189000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_moyo, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2022-06-01', 'moyo_contract.pdf', 's3://uthukela-docs/employees/UTW-001/moyo_contract.pdf', 189000, 'application/pdf', 'System');
 
     -- John van Wyk
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'vanwyk_id.pdf', 's3://uthukela-water-docs/employees/UTW-002/vanwyk_id.pdf', 230000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'vanwyk_id.pdf', 's3://uthukela-docs/employees/UTW-002/vanwyk_id.pdf', 230000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'QUALIFICATION', 'B.Eng Civil Engineering (UCT)', 'University of Cape Town — B.Eng Civil Engineering (2001)', 'vanwyk_beng.pdf', 's3://uthukela-water-docs/employees/UTW-002/vanwyk_beng.pdf', 498000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'QUALIFICATION', 'B.Eng Civil Engineering (UCT)', 'University of Cape Town — B.Eng Civil Engineering (2001)', 'vanwyk_beng.pdf', 's3://uthukela-docs/employees/UTW-002/vanwyk_beng.pdf', 498000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'QUALIFICATION', 'MBL (UNISA SBL)', 'UNISA School of Business Leadership — Master of Business Leadership (2018)', 'vanwyk_mbl.pdf', 's3://uthukela-water-docs/employees/UTW-002/vanwyk_mbl.pdf', 534000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'QUALIFICATION', 'MBL (UNISA SBL)', 'UNISA School of Business Leadership — Master of Business Leadership (2018)', 'vanwyk_mbl.pdf', 's3://uthukela-docs/employees/UTW-002/vanwyk_mbl.pdf', 534000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2015-02-01', 'vanwyk_contract.pdf', 's3://uthukela-water-docs/employees/UTW-002/vanwyk_contract.pdf', 201000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2015-02-01', 'vanwyk_contract.pdf', 's3://uthukela-docs/employees/UTW-002/vanwyk_contract.pdf', 201000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by, expiry_date)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'TRAINING_CERTIFICATE', 'ECSA Pr.Eng Certificate', 'Professional Engineer registration with ECSA', 'vanwyk_ecsa.pdf', 's3://uthukela-water-docs/employees/UTW-002/vanwyk_ecsa.pdf', 156000, 'application/pdf', 'System', '2027-03-31');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'TRAINING_CERTIFICATE', 'ECSA Pr.Eng Certificate', 'Professional Engineer registration with ECSA', 'vanwyk_ecsa.pdf', 's3://uthukela-docs/employees/UTW-002/vanwyk_ecsa.pdf', 156000, 'application/pdf', 'System', '2027-03-31');
 
     -- Nomvula Nzimande
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_nzimande, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'nzimande_id.pdf', 's3://uthukela-water-docs/employees/UTW-003/nzimande_id.pdf', 240000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_nzimande, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'nzimande_id.pdf', 's3://uthukela-docs/employees/UTW-003/nzimande_id.pdf', 240000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_nzimande, 'QUALIFICATION', 'B.Com Honours in HRM (UKZN)', 'University of KwaZulu-Natal — B.Com Honours Human Resource Management (2009)', 'nzimande_bcom.pdf', 's3://uthukela-water-docs/employees/UTW-003/nzimande_bcom.pdf', 476000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_nzimande, 'QUALIFICATION', 'B.Com Honours in HRM (UKZN)', 'University of KwaZulu-Natal — B.Com Honours Human Resource Management (2009)', 'nzimande_bcom.pdf', 's3://uthukela-docs/employees/UTW-003/nzimande_bcom.pdf', 476000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_nzimande, 'QUALIFICATION', 'Postgrad Diploma Labour Law (UFS)', 'University of the Free State — Postgraduate Diploma in Labour Law (2015)', 'nzimande_pglabour.pdf', 's3://uthukela-water-docs/employees/UTW-003/nzimande_pglabour.pdf', 389000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_nzimande, 'QUALIFICATION', 'Postgrad Diploma Labour Law (UFS)', 'University of the Free State — Postgraduate Diploma in Labour Law (2015)', 'nzimande_pglabour.pdf', 's3://uthukela-docs/employees/UTW-003/nzimande_pglabour.pdf', 389000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_nzimande, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2017-08-01', 'nzimande_contract.pdf', 's3://uthukela-water-docs/employees/UTW-003/nzimande_contract.pdf', 195000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_nzimande, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2017-08-01', 'nzimande_contract.pdf', 's3://uthukela-docs/employees/UTW-003/nzimande_contract.pdf', 195000, 'application/pdf', 'System');
 
     -- Ayesha Pillay
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_pillay, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'pillay_id.pdf', 's3://uthukela-water-docs/employees/UTW-004/pillay_id.pdf', 235000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_pillay, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'pillay_id.pdf', 's3://uthukela-docs/employees/UTW-004/pillay_id.pdf', 235000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_pillay, 'QUALIFICATION', 'BA Industrial Psychology (UKZN)', 'University of KwaZulu-Natal — BA Industrial Psychology (2014)', 'pillay_ba.pdf', 's3://uthukela-water-docs/employees/UTW-004/pillay_ba.pdf', 456000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_pillay, 'QUALIFICATION', 'BA Industrial Psychology (UKZN)', 'University of KwaZulu-Natal — BA Industrial Psychology (2014)', 'pillay_ba.pdf', 's3://uthukela-docs/employees/UTW-004/pillay_ba.pdf', 456000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_pillay, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2023-03-01', 'pillay_contract.pdf', 's3://uthukela-water-docs/employees/UTW-004/pillay_contract.pdf', 187000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_pillay, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2023-03-01', 'pillay_contract.pdf', 's3://uthukela-docs/employees/UTW-004/pillay_contract.pdf', 187000, 'application/pdf', 'System');
 
     -- Pieter Botha
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_botha, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'botha_id.pdf', 's3://uthukela-water-docs/employees/UTW-005/botha_id.pdf', 228000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_botha, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'botha_id.pdf', 's3://uthukela-docs/employees/UTW-005/botha_id.pdf', 228000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_botha, 'QUALIFICATION', 'B.Sc Computer Science (UP)', 'University of Pretoria — B.Sc Computer Science (2005)', 'botha_bsc.pdf', 's3://uthukela-water-docs/employees/UTW-005/botha_bsc.pdf', 467000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_botha, 'QUALIFICATION', 'B.Sc Computer Science (UP)', 'University of Pretoria — B.Sc Computer Science (2005)', 'botha_bsc.pdf', 's3://uthukela-docs/employees/UTW-005/botha_bsc.pdf', 467000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by, expiry_date)
-    VALUES (v_tenant_id, v_emp_botha, 'TRAINING_CERTIFICATE', 'ITIL Foundation v4 Certificate', 'ITIL 4 Foundation — Axelos (2023)', 'botha_itil.pdf', 's3://uthukela-water-docs/employees/UTW-005/botha_itil.pdf', 178000, 'application/pdf', 'System', '2028-06-30');
+    VALUES (v_tenant_id, v_emp_botha, 'TRAINING_CERTIFICATE', 'ITIL Foundation v4 Certificate', 'ITIL 4 Foundation — Axelos (2023)', 'botha_itil.pdf', 's3://uthukela-docs/employees/UTW-005/botha_itil.pdf', 178000, 'application/pdf', 'System', '2028-06-30');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_botha, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2016-04-01', 'botha_contract.pdf', 's3://uthukela-water-docs/employees/UTW-005/botha_contract.pdf', 198000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_botha, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2016-04-01', 'botha_contract.pdf', 's3://uthukela-docs/employees/UTW-005/botha_contract.pdf', 198000, 'application/pdf', 'System');
 
     -- Sizwe Mthembu
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mthembu, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'mthembu_id.pdf', 's3://uthukela-water-docs/employees/UTW-006/mthembu_id.pdf', 242000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mthembu, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'mthembu_id.pdf', 's3://uthukela-docs/employees/UTW-006/mthembu_id.pdf', 242000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mthembu, 'QUALIFICATION', 'MBA (Wits Business School)', 'University of the Witwatersrand — Master of Business Administration (2010)', 'mthembu_mba.pdf', 's3://uthukela-water-docs/employees/UTW-006/mthembu_mba.pdf', 543000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mthembu, 'QUALIFICATION', 'MBA (Wits Business School)', 'University of the Witwatersrand — Master of Business Administration (2010)', 'mthembu_mba.pdf', 's3://uthukela-docs/employees/UTW-006/mthembu_mba.pdf', 543000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mthembu, 'QUALIFICATION', 'B.Admin (University of Zululand)', 'University of Zululand — Bachelor of Administration (2000)', 'mthembu_badmin.pdf', 's3://uthukela-water-docs/employees/UTW-006/mthembu_badmin.pdf', 412000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mthembu, 'QUALIFICATION', 'B.Admin (University of Zululand)', 'University of Zululand — Bachelor of Administration (2000)', 'mthembu_badmin.pdf', 's3://uthukela-docs/employees/UTW-006/mthembu_badmin.pdf', 412000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mthembu, 'CONTRACT', 'Employment Contract', 'Section 57 fixed-term contract — Municipal Manager appointment', 'mthembu_contract.pdf', 's3://uthukela-water-docs/employees/UTW-006/mthembu_contract.pdf', 267000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mthembu, 'CONTRACT', 'Employment Contract', 'Section 57 fixed-term contract — Municipal Manager appointment', 'mthembu_contract.pdf', 's3://uthukela-docs/employees/UTW-006/mthembu_contract.pdf', 267000, 'application/pdf', 'System');
 
     -- Senzo Dladla
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_dladla, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'dladla_id.pdf', 's3://uthukela-water-docs/employees/UTW-007/dladla_id.pdf', 238000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_dladla, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'dladla_id.pdf', 's3://uthukela-docs/employees/UTW-007/dladla_id.pdf', 238000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_dladla, 'QUALIFICATION', 'N.Dip Water Treatment (Umfolozi TVET)', 'Umfolozi TVET College — National Diploma Water Treatment Practice (2017)', 'dladla_ndip.pdf', 's3://uthukela-water-docs/employees/UTW-007/dladla_ndip.pdf', 489000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_dladla, 'QUALIFICATION', 'N.Dip Water Treatment (Umfolozi TVET)', 'Umfolozi TVET College — National Diploma Water Treatment Practice (2017)', 'dladla_ndip.pdf', 's3://uthukela-docs/employees/UTW-007/dladla_ndip.pdf', 489000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by, expiry_date)
-    VALUES (v_tenant_id, v_emp_dladla, 'TRAINING_CERTIFICATE', 'Water Treatment NQF Level 4', 'EWSETA registered — Water and Wastewater Treatment Process Controller NQF 4', 'dladla_nqf4.pdf', 's3://uthukela-water-docs/employees/UTW-007/dladla_nqf4.pdf', 167000, 'application/pdf', 'System', '2027-12-31');
+    VALUES (v_tenant_id, v_emp_dladla, 'TRAINING_CERTIFICATE', 'Water Treatment NQF Level 4', 'EWSETA registered — Water and Wastewater Treatment Process Controller NQF 4', 'dladla_nqf4.pdf', 's3://uthukela-docs/employees/UTW-007/dladla_nqf4.pdf', 167000, 'application/pdf', 'System', '2027-12-31');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_dladla, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2018-01-15', 'dladla_contract.pdf', 's3://uthukela-water-docs/employees/UTW-007/dladla_contract.pdf', 192000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_dladla, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2018-01-15', 'dladla_contract.pdf', 's3://uthukela-docs/employees/UTW-007/dladla_contract.pdf', 192000, 'application/pdf', 'System');
 
     -- Prashna Govender
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_govender, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'govender_id.pdf', 's3://uthukela-water-docs/employees/UTW-008/govender_id.pdf', 237000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_govender, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'govender_id.pdf', 's3://uthukela-docs/employees/UTW-008/govender_id.pdf', 237000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_govender, 'QUALIFICATION', 'B.Com Accounting (UKZN)', 'University of KwaZulu-Natal — B.Com Accounting (2012)', 'govender_bcom.pdf', 's3://uthukela-water-docs/employees/UTW-008/govender_bcom.pdf', 478000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_govender, 'QUALIFICATION', 'B.Com Accounting (UKZN)', 'University of KwaZulu-Natal — B.Com Accounting (2012)', 'govender_bcom.pdf', 's3://uthukela-docs/employees/UTW-008/govender_bcom.pdf', 478000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by, expiry_date)
-    VALUES (v_tenant_id, v_emp_govender, 'TRAINING_CERTIFICATE', 'mSCOA Practitioner Certificate', 'Municipal Standard Chart of Accounts — National Treasury (2021)', 'govender_mscoa.pdf', 's3://uthukela-water-docs/employees/UTW-008/govender_mscoa.pdf', 145000, 'application/pdf', 'System', '2026-12-31');
+    VALUES (v_tenant_id, v_emp_govender, 'TRAINING_CERTIFICATE', 'mSCOA Practitioner Certificate', 'Municipal Standard Chart of Accounts — National Treasury (2021)', 'govender_mscoa.pdf', 's3://uthukela-docs/employees/UTW-008/govender_mscoa.pdf', 145000, 'application/pdf', 'System', '2026-12-31');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_govender, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2020-09-01', 'govender_contract.pdf', 's3://uthukela-water-docs/employees/UTW-008/govender_contract.pdf', 190000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_govender, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2020-09-01', 'govender_contract.pdf', 's3://uthukela-docs/employees/UTW-008/govender_contract.pdf', 190000, 'application/pdf', 'System');
 
     -- Lungile Mabaso
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mabaso, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'mabaso_id.pdf', 's3://uthukela-water-docs/employees/UTW-009/mabaso_id.pdf', 233000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mabaso, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'mabaso_id.pdf', 's3://uthukela-docs/employees/UTW-009/mabaso_id.pdf', 233000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mabaso, 'QUALIFICATION', 'Trade Certificate: Plumbing (NQF 4)', 'Majuba TVET College — Trade Certificate Plumbing (2018)', 'mabaso_trade.pdf', 's3://uthukela-water-docs/employees/UTW-009/mabaso_trade.pdf', 356000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mabaso, 'QUALIFICATION', 'Trade Certificate: Plumbing (NQF 4)', 'Majuba TVET College — Trade Certificate Plumbing (2018)', 'mabaso_trade.pdf', 's3://uthukela-docs/employees/UTW-009/mabaso_trade.pdf', 356000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by, expiry_date)
-    VALUES (v_tenant_id, v_emp_mabaso, 'TRAINING_CERTIFICATE', 'PIRB Registration Certificate', 'Plumbing Industry Registration Board — registered plumber', 'mabaso_pirb.pdf', 's3://uthukela-water-docs/employees/UTW-009/mabaso_pirb.pdf', 134000, 'application/pdf', 'System', '2027-06-30');
+    VALUES (v_tenant_id, v_emp_mabaso, 'TRAINING_CERTIFICATE', 'PIRB Registration Certificate', 'Plumbing Industry Registration Board — registered plumber', 'mabaso_pirb.pdf', 's3://uthukela-docs/employees/UTW-009/mabaso_pirb.pdf', 134000, 'application/pdf', 'System', '2027-06-30');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mabaso, 'CONTRACT', 'Employment Contract', 'Permanent employment contract with 6-month probation — effective 2025-11-01', 'mabaso_contract.pdf', 's3://uthukela-water-docs/employees/UTW-009/mabaso_contract.pdf', 194000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mabaso, 'CONTRACT', 'Employment Contract', 'Permanent employment contract with 6-month probation — effective 2025-11-01', 'mabaso_contract.pdf', 's3://uthukela-docs/employees/UTW-009/mabaso_contract.pdf', 194000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_mabaso, 'MEDICAL', 'Pre-employment Medical Certificate', 'Occupational health assessment — fit for duty', 'mabaso_medical.pdf', 's3://uthukela-water-docs/employees/UTW-009/mabaso_medical.pdf', 178000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_mabaso, 'MEDICAL', 'Pre-employment Medical Certificate', 'Occupational health assessment — fit for duty', 'mabaso_medical.pdf', 's3://uthukela-docs/employees/UTW-009/mabaso_medical.pdf', 178000, 'application/pdf', 'System');
 
     -- Nkosinathi Radebe
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_radebe, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'radebe_id.pdf', 's3://uthukela-water-docs/employees/UTW-010/radebe_id.pdf', 241000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_radebe, 'ID_DOCUMENT', 'SA ID Document', 'Certified copy of South African ID', 'radebe_id.pdf', 's3://uthukela-docs/employees/UTW-010/radebe_id.pdf', 241000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_radebe, 'QUALIFICATION', 'Diploma Public Administration (MUT)', 'Mangosuthu University of Technology — Diploma in Public Administration (2014)', 'radebe_diploma.pdf', 's3://uthukela-water-docs/employees/UTW-010/radebe_diploma.pdf', 434000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_radebe, 'QUALIFICATION', 'Diploma Public Administration (MUT)', 'Mangosuthu University of Technology — Diploma in Public Administration (2014)', 'radebe_diploma.pdf', 's3://uthukela-docs/employees/UTW-010/radebe_diploma.pdf', 434000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_radebe, 'QUALIFICATION', 'Certificate: Conflict Resolution (UNISA)', 'UNISA — Short Course in Conflict Resolution and Mediation (2020)', 'radebe_conflict.pdf', 's3://uthukela-water-docs/employees/UTW-010/radebe_conflict.pdf', 267000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_radebe, 'QUALIFICATION', 'Certificate: Conflict Resolution (UNISA)', 'UNISA — Short Course in Conflict Resolution and Mediation (2020)', 'radebe_conflict.pdf', 's3://uthukela-docs/employees/UTW-010/radebe_conflict.pdf', 267000, 'application/pdf', 'System');
     INSERT INTO employee_documents (tenant_id, employee_id, document_type, title, description, filename, file_url, file_size, content_type, uploaded_by)
-    VALUES (v_tenant_id, v_emp_radebe, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2019-03-01', 'radebe_contract.pdf', 's3://uthukela-water-docs/employees/UTW-010/radebe_contract.pdf', 191000, 'application/pdf', 'System');
+    VALUES (v_tenant_id, v_emp_radebe, 'CONTRACT', 'Employment Contract', 'Permanent employment contract — effective 2019-03-01', 'radebe_contract.pdf', 's3://uthukela-docs/employees/UTW-010/radebe_contract.pdf', 191000, 'application/pdf', 'System');
 
     RAISE NOTICE 'Created employee documents (IDs, qualifications, contracts, certificates)';
 
@@ -1480,7 +1494,7 @@ BEGIN
 
     -- Thandi Moyo — 3 days sick Mar 2025
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at, medical_certificate_url)
-    VALUES (v_tenant_id, v_emp_moyo, v_lt_sick, '2025-03-10', '2025-03-12', 3, 'Flu — medical certificate attached', 'APPROVED', v_emp_vanwyk, '2025-03-10 08:00:00', 's3://uthukela-water-docs/leave/moyo_med_mar2025.pdf');
+    VALUES (v_tenant_id, v_emp_moyo, v_lt_sick, '2025-03-10', '2025-03-12', 3, 'Flu — medical certificate attached', 'APPROVED', v_emp_vanwyk, '2025-03-10 08:00:00', 's3://uthukela-docs/leave/moyo_med_mar2025.pdf');
 
     -- John van Wyk — 5 days annual Jun 2025
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at)
@@ -1504,7 +1518,7 @@ BEGIN
 
     -- Nomvula Nzimande — 5 sick Sep 2025
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at, medical_certificate_url)
-    VALUES (v_tenant_id, v_emp_nzimande, v_lt_sick, '2025-09-15', '2025-09-19', 5, 'Bronchitis — doctor ordered bed rest', 'APPROVED', v_emp_mthembu, '2025-09-15 08:30:00', 's3://uthukela-water-docs/leave/nzimande_med_sep2025.pdf');
+    VALUES (v_tenant_id, v_emp_nzimande, v_lt_sick, '2025-09-15', '2025-09-19', 5, 'Bronchitis — doctor ordered bed rest', 'APPROVED', v_emp_mthembu, '2025-09-15 08:30:00', 's3://uthukela-docs/leave/nzimande_med_sep2025.pdf');
 
     -- Senzo Dladla — 10 days annual Apr 2025
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at)
@@ -1516,7 +1530,7 @@ BEGIN
 
     -- Senzo Dladla — 6 sick Jul 2025 (back injury at WTW)
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at, medical_certificate_url)
-    VALUES (v_tenant_id, v_emp_dladla, v_lt_sick, '2025-07-14', '2025-07-21', 6, 'Lower back injury sustained during chemical drum handling — physiotherapy prescribed', 'APPROVED', v_emp_vanwyk, '2025-07-14 09:00:00', 's3://uthukela-water-docs/leave/dladla_med_jul2025.pdf');
+    VALUES (v_tenant_id, v_emp_dladla, v_lt_sick, '2025-07-14', '2025-07-21', 6, 'Lower back injury sustained during chemical drum handling — physiotherapy prescribed', 'APPROVED', v_emp_vanwyk, '2025-07-14 09:00:00', 's3://uthukela-docs/leave/dladla_med_jul2025.pdf');
 
     -- Pieter Botha — 8 days annual Jul 2025
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, approved_at)
@@ -1618,7 +1632,7 @@ BEGIN
 
     -- Ayesha Pillay — 2 days sick pending
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id, medical_certificate_url)
-    VALUES (v_tenant_id, v_emp_pillay, v_lt_sick, '2026-03-30', '2026-03-31', 2, 'Wisdom tooth extraction — dental procedure', 'PENDING', v_emp_nzimande, 's3://uthukela-water-docs/leave/pillay_dental_mar2026.pdf');
+    VALUES (v_tenant_id, v_emp_pillay, v_lt_sick, '2026-03-30', '2026-03-31', 2, 'Wisdom tooth extraction — dental procedure', 'PENDING', v_emp_nzimande, 's3://uthukela-docs/leave/pillay_dental_mar2026.pdf');
 
     -- Lungile Mabaso — 2 days annual pending (first leave request)
     INSERT INTO leave_requests (tenant_id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approver_id)
@@ -2020,29 +2034,29 @@ BEGIN
     -- TIER 23: REVIEW EVIDENCE (supporting documents for submitted reviews)
     -- ============================================================
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_moyo, 'moyo_meter_accuracy_q1q2.pdf', 's3://uthukela-water-docs/performance/UTW-001/moyo_meter_accuracy_q1q2.pdf', 234000, 'application/pdf', 'Meter reading accuracy report Jul-Dec 2025', 'REPORT', v_emp_moyo::VARCHAR);
+    VALUES (v_rev_moyo, 'moyo_meter_accuracy_q1q2.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_meter_accuracy_q1q2.pdf', 234000, 'application/pdf', 'Meter reading accuracy report Jul-Dec 2025', 'REPORT', v_emp_moyo::VARCHAR);
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_moyo, 'moyo_nqf5_enrolment.pdf', 's3://uthukela-water-docs/performance/UTW-001/moyo_nqf5_enrolment.pdf', 156000, 'application/pdf', 'NQF Level 5 enrolment confirmation — Umfolozi TVET', 'CERTIFICATE', v_emp_moyo::VARCHAR);
+    VALUES (v_rev_moyo, 'moyo_nqf5_enrolment.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_nqf5_enrolment.pdf', 156000, 'application/pdf', 'NQF Level 5 enrolment confirmation — Umfolozi TVET', 'CERTIFICATE', v_emp_moyo::VARCHAR);
 
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_vanwyk, 'vanwyk_nrw_dashboard_h1.pdf', 's3://uthukela-water-docs/performance/UTW-002/vanwyk_nrw_dashboard_h1.pdf', 456000, 'application/pdf', 'Non-revenue water dashboard H1 2025/26', 'REPORT', v_emp_vanwyk::VARCHAR);
+    VALUES (v_rev_vanwyk, 'vanwyk_nrw_dashboard_h1.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_nrw_dashboard_h1.pdf', 456000, 'application/pdf', 'Non-revenue water dashboard H1 2025/26', 'REPORT', v_emp_vanwyk::VARCHAR);
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_vanwyk, 'vanwyk_blue_drop_internal_audit.pdf', 's3://uthukela-water-docs/performance/UTW-002/vanwyk_blue_drop_internal_audit.pdf', 389000, 'application/pdf', 'Ladysmith WTW internal Blue Drop audit report', 'REPORT', v_emp_vanwyk::VARCHAR);
+    VALUES (v_rev_vanwyk, 'vanwyk_blue_drop_internal_audit.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_blue_drop_internal_audit.pdf', 389000, 'application/pdf', 'Ladysmith WTW internal Blue Drop audit report', 'REPORT', v_emp_vanwyk::VARCHAR);
 
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_nzimande, 'nzimande_recruitment_metrics_h1.pdf', 's3://uthukela-water-docs/performance/UTW-003/nzimande_recruitment_metrics_h1.pdf', 312000, 'application/pdf', 'Recruitment metrics dashboard H1 — ATS generated', 'REPORT', v_emp_nzimande::VARCHAR);
+    VALUES (v_rev_nzimande, 'nzimande_recruitment_metrics_h1.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_recruitment_metrics_h1.pdf', 312000, 'application/pdf', 'Recruitment metrics dashboard H1 — ATS generated', 'REPORT', v_emp_nzimande::VARCHAR);
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_nzimande, 'nzimande_wsp_progress_q2.pdf', 's3://uthukela-water-docs/performance/UTW-003/nzimande_wsp_progress_q2.pdf', 278000, 'application/pdf', 'Workplace Skills Plan Q2 progress report', 'REPORT', v_emp_nzimande::VARCHAR);
+    VALUES (v_rev_nzimande, 'nzimande_wsp_progress_q2.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_wsp_progress_q2.pdf', 278000, 'application/pdf', 'Workplace Skills Plan Q2 progress report', 'REPORT', v_emp_nzimande::VARCHAR);
 
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_dladla, 'dladla_sans241_results_h1.pdf', 's3://uthukela-water-docs/performance/UTW-007/dladla_sans241_results_h1.pdf', 534000, 'application/pdf', 'SANS 241 compliance results Jul-Dec 2025', 'REPORT', v_emp_dladla::VARCHAR);
+    VALUES (v_rev_dladla, 'dladla_sans241_results_h1.pdf', 's3://uthukela-docs/performance/UTW-007/dladla_sans241_results_h1.pdf', 534000, 'application/pdf', 'SANS 241 compliance results Jul-Dec 2025', 'REPORT', v_emp_dladla::VARCHAR);
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_dladla, 'dladla_chemical_cost_analysis.xlsx', 's3://uthukela-water-docs/performance/UTW-007/dladla_chemical_cost_analysis.xlsx', 189000, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Chemical cost analysis and dosing optimisation report', 'REPORT', v_emp_dladla::VARCHAR);
+    VALUES (v_rev_dladla, 'dladla_chemical_cost_analysis.xlsx', 's3://uthukela-docs/performance/UTW-007/dladla_chemical_cost_analysis.xlsx', 189000, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Chemical cost analysis and dosing optimisation report', 'REPORT', v_emp_dladla::VARCHAR);
 
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_mthembu, 'mthembu_ag_interim_findings.pdf', 's3://uthukela-water-docs/performance/UTW-006/mthembu_ag_interim_findings.pdf', 678000, 'application/pdf', 'AG interim audit management letter — findings summary', 'REPORT', v_emp_mthembu::VARCHAR);
+    VALUES (v_rev_mthembu, 'mthembu_ag_interim_findings.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_ag_interim_findings.pdf', 678000, 'application/pdf', 'AG interim audit management letter — findings summary', 'REPORT', v_emp_mthembu::VARCHAR);
     INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_mthembu, 'mthembu_revenue_collection_trend.pdf', 's3://uthukela-water-docs/performance/UTW-006/mthembu_revenue_collection_trend.pdf', 234000, 'application/pdf', 'Revenue collection rate trend analysis', 'REPORT', v_emp_mthembu::VARCHAR);
+    VALUES (v_rev_mthembu, 'mthembu_revenue_collection_trend.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_revenue_collection_trend.pdf', 234000, 'application/pdf', 'Revenue collection rate trend analysis', 'REPORT', v_emp_mthembu::VARCHAR);
 
     RAISE NOTICE 'Created review evidence documents';
 
@@ -2144,78 +2158,78 @@ BEGIN
 
     -- SANS 241 (Sep 2025 — completed) — Water Services + Operations staff
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_dladla, 'COMPLETED', 92.00, '2025-09-16 17:00:00', 's3://uthukela-water-docs/training/certs/dladla_sans241_sep2025.pdf');
+    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_dladla, 'COMPLETED', 92.00, '2025-09-16 17:00:00', 's3://uthukela-docs/training/certs/dladla_sans241_sep2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_vanwyk, 'COMPLETED', 88.00, '2025-09-16 17:00:00', 's3://uthukela-water-docs/training/certs/vanwyk_sans241_sep2025.pdf');
+    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_vanwyk, 'COMPLETED', 88.00, '2025-09-16 17:00:00', 's3://uthukela-docs/training/certs/vanwyk_sans241_sep2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_moyo, 'COMPLETED', 85.00, '2025-09-16 17:00:00', 's3://uthukela-water-docs/training/certs/moyo_sans241_sep2025.pdf');
+    VALUES (v_tenant_id, v_ts_sans241_q3, v_emp_moyo, 'COMPLETED', 85.00, '2025-09-16 17:00:00', 's3://uthukela-docs/training/certs/moyo_sans241_sep2025.pdf');
 
     -- OHS Act (Oct 2025 — completed) — all staff mandatory
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_moyo, 'COMPLETED', 78.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/moyo_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_moyo, 'COMPLETED', 78.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/moyo_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_vanwyk, 'COMPLETED', 90.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/vanwyk_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_vanwyk, 'COMPLETED', 90.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/vanwyk_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_dladla, 'COMPLETED', 82.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/dladla_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_dladla, 'COMPLETED', 82.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/dladla_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_radebe, 'COMPLETED', 75.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/radebe_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_radebe, 'COMPLETED', 75.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/radebe_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_nzimande, 'COMPLETED', 85.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/nzimande_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_nzimande, 'COMPLETED', 85.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/nzimande_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_govender, 'COMPLETED', 80.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/govender_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_govender, 'COMPLETED', 80.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/govender_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_pillay, 'COMPLETED', 88.00, '2025-10-22 17:00:00', 's3://uthukela-water-docs/training/certs/pillay_ohs_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_pillay, 'COMPLETED', 88.00, '2025-10-22 17:00:00', 's3://uthukela-docs/training/certs/pillay_ohs_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, completed_at)
     VALUES (v_tenant_id, v_ts_ohs_q2, v_emp_botha, 'NO_SHOW', NULL);
 
     -- SCADA (Aug 2025 — completed) — Water Services technical staff
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_scada_q3, v_emp_dladla, 'COMPLETED', 95.00, '2025-08-20 17:00:00', 's3://uthukela-water-docs/training/certs/dladla_scada_aug2025.pdf');
+    VALUES (v_tenant_id, v_ts_scada_q3, v_emp_dladla, 'COMPLETED', 95.00, '2025-08-20 17:00:00', 's3://uthukela-docs/training/certs/dladla_scada_aug2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_scada_q3, v_emp_vanwyk, 'COMPLETED', 82.00, '2025-08-20 17:00:00', 's3://uthukela-water-docs/training/certs/vanwyk_scada_aug2025.pdf');
+    VALUES (v_tenant_id, v_ts_scada_q3, v_emp_vanwyk, 'COMPLETED', 82.00, '2025-08-20 17:00:00', 's3://uthukela-docs/training/certs/vanwyk_scada_aug2025.pdf');
 
     -- MFMA (Jan-Feb 2026 — completed) — Finance + management staff
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_govender, 'COMPLETED', 91.00, '2026-02-05 14:00:00', 's3://uthukela-water-docs/training/certs/govender_mfma_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_govender, 'COMPLETED', 91.00, '2026-02-05 14:00:00', 's3://uthukela-docs/training/certs/govender_mfma_feb2026.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_mthembu, 'COMPLETED', 88.00, '2026-02-07 10:00:00', 's3://uthukela-water-docs/training/certs/mthembu_mfma_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_mthembu, 'COMPLETED', 88.00, '2026-02-07 10:00:00', 's3://uthukela-docs/training/certs/mthembu_mfma_feb2026.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_nzimande, 'COMPLETED', 85.00, '2026-02-06 16:00:00', 's3://uthukela-water-docs/training/certs/nzimande_mfma_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_nzimande, 'COMPLETED', 85.00, '2026-02-06 16:00:00', 's3://uthukela-docs/training/certs/nzimande_mfma_feb2026.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status)
     VALUES (v_tenant_id, v_ts_mfma_q1, v_emp_vanwyk, 'REGISTERED');
     -- van Wyk registered but never completed the online module
 
     -- Batho Pele (Nov 2025 — completed) — community-facing staff
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_radebe, 'COMPLETED', 90.00, '2025-11-05 17:00:00', 's3://uthukela-water-docs/training/certs/radebe_batho_nov2025.pdf');
+    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_radebe, 'COMPLETED', 90.00, '2025-11-05 17:00:00', 's3://uthukela-docs/training/certs/radebe_batho_nov2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_moyo, 'COMPLETED', 82.00, '2025-11-05 17:00:00', 's3://uthukela-water-docs/training/certs/moyo_batho_nov2025.pdf');
+    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_moyo, 'COMPLETED', 82.00, '2025-11-05 17:00:00', 's3://uthukela-docs/training/certs/moyo_batho_nov2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_pillay, 'COMPLETED', 87.00, '2025-11-05 17:00:00', 's3://uthukela-water-docs/training/certs/pillay_batho_nov2025.pdf');
+    VALUES (v_tenant_id, v_ts_batho_q2, v_emp_pillay, 'COMPLETED', 87.00, '2025-11-05 17:00:00', 's3://uthukela-docs/training/certs/pillay_batho_nov2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status)
     VALUES (v_tenant_id, v_ts_batho_q2, v_emp_govender, 'CANCELLED');
 
     -- Leak Detection (Dec 2025 — completed) — Technical Services + Operations
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_leak_q4, v_emp_vanwyk, 'COMPLETED', 86.00, '2025-12-02 16:00:00', 's3://uthukela-water-docs/training/certs/vanwyk_leak_dec2025.pdf');
+    VALUES (v_tenant_id, v_ts_leak_q4, v_emp_vanwyk, 'COMPLETED', 86.00, '2025-12-02 16:00:00', 's3://uthukela-docs/training/certs/vanwyk_leak_dec2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_leak_q4, v_emp_moyo, 'COMPLETED', 80.00, '2025-12-02 16:00:00', 's3://uthukela-water-docs/training/certs/moyo_leak_dec2025.pdf');
+    VALUES (v_tenant_id, v_ts_leak_q4, v_emp_moyo, 'COMPLETED', 80.00, '2025-12-02 16:00:00', 's3://uthukela-docs/training/certs/moyo_leak_dec2025.pdf');
 
     -- Advanced Excel (Jan-Feb 2026 — completed) — admin/finance staff
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_govender, 'COMPLETED', 94.00, '2026-02-10 11:00:00', 's3://uthukela-water-docs/training/certs/govender_excel_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_govender, 'COMPLETED', 94.00, '2026-02-10 11:00:00', 's3://uthukela-docs/training/certs/govender_excel_feb2026.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_pillay, 'COMPLETED', 89.00, '2026-02-12 14:00:00', 's3://uthukela-water-docs/training/certs/pillay_excel_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_pillay, 'COMPLETED', 89.00, '2026-02-12 14:00:00', 's3://uthukela-docs/training/certs/pillay_excel_feb2026.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_nzimande, 'COMPLETED', 76.00, '2026-02-14 09:00:00', 's3://uthukela-water-docs/training/certs/nzimande_excel_feb2026.pdf');
+    VALUES (v_tenant_id, v_ts_excel_q1, v_emp_nzimande, 'COMPLETED', 76.00, '2026-02-14 09:00:00', 's3://uthukela-docs/training/certs/nzimande_excel_feb2026.pdf');
 
     -- Leadership Development (Sep-Oct 2025 — completed) — managers
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_vanwyk, 'COMPLETED', 84.00, '2025-10-31 17:00:00', 's3://uthukela-water-docs/training/certs/vanwyk_leadership_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_vanwyk, 'COMPLETED', 84.00, '2025-10-31 17:00:00', 's3://uthukela-docs/training/certs/vanwyk_leadership_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_nzimande, 'COMPLETED', 91.00, '2025-10-31 17:00:00', 's3://uthukela-water-docs/training/certs/nzimande_leadership_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_nzimande, 'COMPLETED', 91.00, '2025-10-31 17:00:00', 's3://uthukela-docs/training/certs/nzimande_leadership_oct2025.pdf');
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status, score, completed_at, certificate_url)
-    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_mthembu, 'COMPLETED', 88.00, '2025-10-31 17:00:00', 's3://uthukela-water-docs/training/certs/mthembu_leadership_oct2025.pdf');
+    VALUES (v_tenant_id, v_ts_leadership_q3, v_emp_mthembu, 'COMPLETED', 88.00, '2025-10-31 17:00:00', 's3://uthukela-docs/training/certs/mthembu_leadership_oct2025.pdf');
 
     -- OHS Refresher (Mar 2026 — IN_PROGRESS) — current attendees
     INSERT INTO training_enrollments (tenant_id, session_id, employee_id, status)
@@ -2245,28 +2259,28 @@ BEGIN
     -- TIER 27: CERTIFICATIONS (professional registrations & course certs)
     -- ============================================================
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_vanwyk, 'Professional Engineer (Pr.Eng)', 'Engineering Council of South Africa (ECSA)', 'PR-ENG-20050234', '2005-06-15', '2027-03-31', 'ACTIVE', 's3://uthukela-water-docs/certs/vanwyk_ecsa_preng.pdf');
+    VALUES (v_tenant_id, v_emp_vanwyk, 'Professional Engineer (Pr.Eng)', 'Engineering Council of South Africa (ECSA)', 'PR-ENG-20050234', '2005-06-15', '2027-03-31', 'ACTIVE', 's3://uthukela-docs/certs/vanwyk_ecsa_preng.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_dladla, 'Water Treatment Process Controller NQF Level 4', 'Energy and Water SETA (EWSETA)', 'EWSETA-WPC4-2022-0891', '2022-07-01', '2027-12-31', 'ACTIVE', 's3://uthukela-water-docs/certs/dladla_nqf4_ewseta.pdf');
+    VALUES (v_tenant_id, v_emp_dladla, 'Water Treatment Process Controller NQF Level 4', 'Energy and Water SETA (EWSETA)', 'EWSETA-WPC4-2022-0891', '2022-07-01', '2027-12-31', 'ACTIVE', 's3://uthukela-docs/certs/dladla_nqf4_ewseta.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_mabaso, 'Registered Plumber', 'Plumbing Industry Registration Board (PIRB)', 'PIRB-2019-45678', '2019-03-01', '2027-06-30', 'ACTIVE', 's3://uthukela-water-docs/certs/mabaso_pirb.pdf');
+    VALUES (v_tenant_id, v_emp_mabaso, 'Registered Plumber', 'Plumbing Industry Registration Board (PIRB)', 'PIRB-2019-45678', '2019-03-01', '2027-06-30', 'ACTIVE', 's3://uthukela-docs/certs/mabaso_pirb.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_botha, 'ITIL 4 Foundation', 'Axelos / PeopleCert', 'GR671234567TB', '2023-06-15', '2028-06-30', 'ACTIVE', 's3://uthukela-water-docs/certs/botha_itil4.pdf');
+    VALUES (v_tenant_id, v_emp_botha, 'ITIL 4 Foundation', 'Axelos / PeopleCert', 'GR671234567TB', '2023-06-15', '2028-06-30', 'ACTIVE', 's3://uthukela-docs/certs/botha_itil4.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_govender, 'mSCOA Practitioner', 'National Treasury', 'NT-MSCOA-2021-3456', '2021-09-01', '2026-12-31', 'ACTIVE', 's3://uthukela-water-docs/certs/govender_mscoa.pdf');
+    VALUES (v_tenant_id, v_emp_govender, 'mSCOA Practitioner', 'National Treasury', 'NT-MSCOA-2021-3456', '2021-09-01', '2026-12-31', 'ACTIVE', 's3://uthukela-docs/certs/govender_mscoa.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_nzimande, 'SABPP HR Professional', 'South African Board for People Practices', 'SABPP-HRP-2020-2345', '2020-04-01', '2026-03-31', 'ACTIVE', 's3://uthukela-water-docs/certs/nzimande_sabpp.pdf');
+    VALUES (v_tenant_id, v_emp_nzimande, 'SABPP HR Professional', 'South African Board for People Practices', 'SABPP-HRP-2020-2345', '2020-04-01', '2026-03-31', 'ACTIVE', 's3://uthukela-docs/certs/nzimande_sabpp.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_moyo, 'First Aid Level 1', 'St John Ambulance South Africa', 'SJFAID-2024-78901', '2024-03-15', '2026-03-14', 'EXPIRED', 's3://uthukela-water-docs/certs/moyo_firstaid.pdf');
+    VALUES (v_tenant_id, v_emp_moyo, 'First Aid Level 1', 'St John Ambulance South Africa', 'SJFAID-2024-78901', '2024-03-15', '2026-03-14', 'EXPIRED', 's3://uthukela-docs/certs/moyo_firstaid.pdf');
 
     INSERT INTO certifications (tenant_id, employee_id, name, issuing_body, certification_number, issue_date, expiry_date, status, document_url)
-    VALUES (v_tenant_id, v_emp_radebe, 'Certificate in Conflict Resolution & Mediation', 'UNISA', 'UNISA-CRM-2020-6789', '2020-11-15', NULL, 'ACTIVE', 's3://uthukela-water-docs/certs/radebe_conflict_resolution.pdf');
+    VALUES (v_tenant_id, v_emp_radebe, 'Certificate in Conflict Resolution & Mediation', 'UNISA', 'UNISA-CRM-2020-6789', '2020-11-15', NULL, 'ACTIVE', 's3://uthukela-docs/certs/radebe_conflict_resolution.pdf');
 
     RAISE NOTICE 'Created 8 professional certifications';
 
