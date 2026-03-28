@@ -3,7 +3,7 @@
 -- =====================================================
 
 CREATE TABLE consent_records (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     employee_id BIGINT NOT NULL,
     consent_type VARCHAR(50) NOT NULL,
@@ -13,14 +13,11 @@ CREATE TABLE consent_records (
     withdrawn_at TIMESTAMP,
     ip_address VARCHAR(50),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_consent_tenant (tenant_id),
-    INDEX idx_consent_employee (employee_id),
-    INDEX idx_consent_type (tenant_id, consent_type),
     CONSTRAINT fk_consent_employee FOREIGN KEY (employee_id) REFERENCES employees(id)
 );
 
 CREATE TABLE data_subject_requests (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     requester_name VARCHAR(200) NOT NULL,
     requester_email VARCHAR(200) NOT NULL,
@@ -31,8 +28,12 @@ CREATE TABLE data_subject_requests (
     due_date DATE,
     completed_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_dsr_tenant (tenant_id),
-    INDEX idx_dsr_status (tenant_id, status),
-    INDEX idx_dsr_email (requester_email)
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_consent_tenant ON consent_records(tenant_id);
+CREATE INDEX idx_consent_employee ON consent_records(employee_id);
+CREATE INDEX idx_consent_type ON consent_records(tenant_id, consent_type);
+CREATE INDEX idx_dsr_tenant ON data_subject_requests(tenant_id);
+CREATE INDEX idx_dsr_status ON data_subject_requests(tenant_id, status);
+CREATE INDEX idx_dsr_email ON data_subject_requests(requester_email);

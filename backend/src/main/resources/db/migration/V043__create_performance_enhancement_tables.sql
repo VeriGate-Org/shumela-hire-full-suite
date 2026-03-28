@@ -3,7 +3,7 @@
 -- =====================================================
 
 CREATE TABLE feedback_requests (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     employee_id BIGINT NOT NULL,
     requester_id BIGINT NOT NULL,
@@ -11,16 +11,13 @@ CREATE TABLE feedback_requests (
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     due_date DATE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_fr_tenant (tenant_id),
-    INDEX idx_fr_employee (employee_id),
-    INDEX idx_fr_requester (requester_id),
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_fr_employee FOREIGN KEY (employee_id) REFERENCES employees(id),
     CONSTRAINT fk_fr_requester FOREIGN KEY (requester_id) REFERENCES employees(id)
 );
 
 CREATE TABLE feedback_responses (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     request_id BIGINT NOT NULL,
     respondent_id BIGINT NOT NULL,
@@ -30,13 +27,12 @@ CREATE TABLE feedback_responses (
     improvements TEXT,
     submitted_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_fres_request (request_id),
     CONSTRAINT fk_fres_request FOREIGN KEY (request_id) REFERENCES feedback_requests(id) ON DELETE CASCADE,
     CONSTRAINT fk_fres_respondent FOREIGN KEY (respondent_id) REFERENCES employees(id)
 );
 
 CREATE TABLE performance_improvement_plans (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     employee_id BIGINT NOT NULL,
     manager_id BIGINT NOT NULL,
@@ -46,16 +42,13 @@ CREATE TABLE performance_improvement_plans (
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     outcome TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_pip_tenant (tenant_id),
-    INDEX idx_pip_employee (employee_id),
-    INDEX idx_pip_status (tenant_id, status),
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_pip_employee FOREIGN KEY (employee_id) REFERENCES employees(id),
     CONSTRAINT fk_pip_manager FOREIGN KEY (manager_id) REFERENCES employees(id)
 );
 
 CREATE TABLE pip_milestones (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     pip_id BIGINT NOT NULL,
     title VARCHAR(200) NOT NULL,
@@ -65,24 +58,21 @@ CREATE TABLE pip_milestones (
     evidence TEXT,
     reviewed_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_pm_pip (pip_id),
     CONSTRAINT fk_pm_pip FOREIGN KEY (pip_id) REFERENCES performance_improvement_plans(id) ON DELETE CASCADE
 );
 
 CREATE TABLE competency_frameworks (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     name VARCHAR(200) NOT NULL,
     description TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_cf_tenant (tenant_id),
-    INDEX idx_cf_active (tenant_id, is_active)
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE competencies (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     framework_id BIGINT NOT NULL,
     name VARCHAR(200) NOT NULL,
@@ -90,12 +80,11 @@ CREATE TABLE competencies (
     category VARCHAR(100),
     proficiency_levels TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_comp_framework (framework_id),
     CONSTRAINT fk_comp_framework FOREIGN KEY (framework_id) REFERENCES competency_frameworks(id) ON DELETE CASCADE
 );
 
 CREATE TABLE employee_competencies (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     tenant_id VARCHAR(50) NOT NULL,
     employee_id BIGINT NOT NULL,
     competency_id BIGINT NOT NULL,
@@ -104,10 +93,22 @@ CREATE TABLE employee_competencies (
     assessed_at TIMESTAMP,
     assessor_id BIGINT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_ec_employee (employee_id),
-    INDEX idx_ec_competency (competency_id),
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_ec_employee FOREIGN KEY (employee_id) REFERENCES employees(id),
     CONSTRAINT fk_ec_competency FOREIGN KEY (competency_id) REFERENCES competencies(id),
     CONSTRAINT fk_ec_assessor FOREIGN KEY (assessor_id) REFERENCES employees(id)
 );
+
+CREATE INDEX idx_fr_tenant ON feedback_requests(tenant_id);
+CREATE INDEX idx_fr_employee ON feedback_requests(employee_id);
+CREATE INDEX idx_fr_requester ON feedback_requests(requester_id);
+CREATE INDEX idx_fres_request ON feedback_responses(request_id);
+CREATE INDEX idx_pip_tenant ON performance_improvement_plans(tenant_id);
+CREATE INDEX idx_pip_employee ON performance_improvement_plans(employee_id);
+CREATE INDEX idx_pip_status ON performance_improvement_plans(tenant_id, status);
+CREATE INDEX idx_pm_pip ON pip_milestones(pip_id);
+CREATE INDEX idx_cf_tenant ON competency_frameworks(tenant_id);
+CREATE INDEX idx_cf_active ON competency_frameworks(tenant_id, is_active);
+CREATE INDEX idx_comp_framework ON competencies(framework_id);
+CREATE INDEX idx_ec_employee ON employee_competencies(employee_id);
+CREATE INDEX idx_ec_competency ON employee_competencies(competency_id);
