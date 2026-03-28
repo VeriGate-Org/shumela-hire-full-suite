@@ -400,52 +400,52 @@ BEGIN
     -- ============================================================
     -- TIER 4: APPLICANTS (12)
     -- ============================================================
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Sipho', 'Mkhize', 'sipho.mkhize@email.co.za', '+27 72 345 6789', 'Ladysmith', 'Plumber Foreman', 'Msunduzi Municipality', 8, 'Water reticulation, Leak detection, Team supervision, Pipe laying, OHS compliance', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Sipho', 'Mkhize', 'sipho.mkhize@email.co.za', '+27 72 345 6789', 'Ladysmith', 'Plumber Foreman at Msunduzi Municipality (8 years)', 'Water reticulation, Leak detection, Team supervision, Pipe laying, OHS compliance', 'DIRECT')
     RETURNING id INTO v_sipho;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Thandiwe', 'Dlamini', 'thandiwe.dlamini@email.co.za', '+27 83 456 7890', 'Pietermaritzburg', 'Process Engineer', 'Umgeni Water', 6, 'Water treatment, SANS 241, SCADA systems, Chemical dosing, Process optimisation', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Thandiwe', 'Dlamini', 'thandiwe.dlamini@email.co.za', '+27 83 456 7890', 'Pietermaritzburg', 'Process Engineer at Umgeni Water (6 years)', 'Water treatment, SANS 241, SCADA systems, Chemical dosing, Process optimisation', 'LINKEDIN')
     RETURNING id INTO v_thandiwe;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Bongani', 'Nkosi', 'bongani.nkosi@email.co.za', '+27 61 567 8901', 'Durban', 'Senior Water Engineer', 'eThekwini Municipality', 10, 'Water process design, Blue Drop audits, Project management, ECSA registered, Wastewater treatment', 'REFERRAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Bongani', 'Nkosi', 'bongani.nkosi@email.co.za', '+27 61 567 8901', 'Durban', 'Senior Water Engineer at eThekwini Municipality (10 years)', 'Water process design, Blue Drop audits, Project management, ECSA registered, Wastewater treatment', 'REFERRAL')
     RETURNING id INTO v_bongani;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Zanele', 'Shabalala', 'zanele.shabalala@email.co.za', '+27 76 678 9012', 'Bergville', 'Community Development Worker', 'Okhahlamba Local Municipality', 4, 'Community engagement, IsiZulu, Public participation, Conflict resolution, Report writing', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Zanele', 'Shabalala', 'zanele.shabalala@email.co.za', '+27 76 678 9012', 'Bergville', 'Community Development Worker at Okhahlamba Local Municipality (4 years)', 'Community engagement, IsiZulu, Public participation, Conflict resolution, Report writing', 'DIRECT')
     RETURNING id INTO v_zanele;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Themba', 'Zulu', 'themba.zulu@email.co.za', '+27 82 789 0123', 'Richards Bay', 'Civil Engineer', 'Royal HaskoningDHV', 7, 'Water infrastructure design, Hydraulic modelling, Project management, AutoCAD, GIS', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Themba', 'Zulu', 'themba.zulu@email.co.za', '+27 82 789 0123', 'Richards Bay', 'Civil Engineer at Royal HaskoningDHV (7 years)', 'Water infrastructure design, Hydraulic modelling, Project management, AutoCAD, GIS', 'LINKEDIN')
     RETURNING id INTO v_themba;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Nokuthula', 'Cele', 'nokuthula.cele@email.co.za', '+27 73 890 1234', 'Estcourt', 'Public Relations Officer', 'Inkosi Langalibalele Municipality', 5, 'Stakeholder management, Media relations, IsiZulu, Event coordination, Communication strategy', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Nokuthula', 'Cele', 'nokuthula.cele@email.co.za', '+27 73 890 1234', 'Estcourt', 'Public Relations Officer at Inkosi Langalibalele Municipality (5 years)', 'Stakeholder management, Media relations, IsiZulu, Event coordination, Communication strategy', 'DIRECT')
     RETURNING id INTO v_nokuthula;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Sibusiso', 'Ndlovu', 'sibusiso.ndlovu@email.co.za', '+27 84 901 2345', 'Newcastle', 'Management Accountant', 'Amajuba District Municipality', 6, 'Municipal finance, mSCOA, GRAP, Revenue management, MFMA compliance', 'REFERRAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Sibusiso', 'Ndlovu', 'sibusiso.ndlovu@email.co.za', '+27 84 901 2345', 'Newcastle', 'Management Accountant at Amajuba District Municipality (6 years)', 'Municipal finance, mSCOA, GRAP, Revenue management, MFMA compliance', 'REFERRAL')
     RETURNING id INTO v_sibusiso;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Lindiwe', 'Khumalo', 'lindiwe.khumalo@email.co.za', '+27 79 012 3456', 'Harrismith', 'Social Worker', 'Department of Social Development', 3, 'Community development, IsiZulu, Sesotho, Counselling, Project coordination', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Lindiwe', 'Khumalo', 'lindiwe.khumalo@email.co.za', '+27 79 012 3456', 'Harrismith', 'Social Worker at Department of Social Development (3 years)', 'Community development, IsiZulu, Sesotho, Counselling, Project coordination', 'DIRECT')
     RETURNING id INTO v_lindiwe;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Mthokozisi', 'Buthelezi', 'mthokozisi.buthelezi@email.co.za', '+27 71 123 4567', 'Ladysmith', 'Water Plant Operator', 'uThukela District Municipality', 12, 'Water treatment operations, Process control, Chemical handling, Plant maintenance, Water quality testing', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Mthokozisi', 'Buthelezi', 'mthokozisi.buthelezi@email.co.za', '+27 71 123 4567', 'Ladysmith', 'Water Plant Operator at uThukela District Municipality (12 years)', 'Water treatment operations, Process control, Chemical handling, Plant maintenance, Water quality testing', 'DIRECT')
     RETURNING id INTO v_mthokozisi;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Nompilo', 'Mazibuko', 'nompilo.mazibuko@email.co.za', '+27 68 234 5678', 'Pietermaritzburg', 'Financial Analyst', 'KZN Treasury', 4, 'Financial analysis, Municipal budgeting, Excel, Data analytics, PFMA compliance', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Nompilo', 'Mazibuko', 'nompilo.mazibuko@email.co.za', '+27 68 234 5678', 'Pietermaritzburg', 'Financial Analyst at KZN Treasury (4 years)', 'Financial analysis, Municipal budgeting, Excel, Data analytics, PFMA compliance', 'LINKEDIN')
     RETURNING id INTO v_nompilo;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Sakhile', 'Ngcobo', 'sakhile.ngcobo@email.co.za', '+27 63 345 6789', 'Estcourt', 'Plumber', 'Self-employed', 9, 'Plumbing, Water reticulation, Pipe fitting, Welding, Maintenance planning', 'DIRECT', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Sakhile', 'Ngcobo', 'sakhile.ngcobo@email.co.za', '+27 63 345 6789', 'Estcourt', 'Plumber, Self-employed (9 years)', 'Plumbing, Water reticulation, Pipe fitting, Welding, Maintenance planning', 'DIRECT')
     RETURNING id INTO v_sakhile;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Hlengiwe', 'Sithole', 'hlengiwe.sithole@email.co.za', '+27 65 456 7890', 'Winterton', 'Admin Officer', 'Department of Water and Sanitation', 5, 'Administration, Document management, Municipal systems, Customer service, IsiZulu', 'REFERRAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Hlengiwe', 'Sithole', 'hlengiwe.sithole@email.co.za', '+27 65 456 7890', 'Winterton', 'Admin Officer at Department of Water and Sanitation (5 years)', 'Administration, Document management, Municipal systems, Customer service, IsiZulu', 'REFERRAL')
     RETURNING id INTO v_hlengiwe;
 
     -- ============================================================
@@ -551,19 +551,19 @@ BEGIN
     -- ============================================================
     -- TIER 7: OFFERS
     -- ============================================================
-    INSERT INTO offers (tenant_id, application_id, salary, start_date, expiry_date, status, terms, notes)
-    VALUES (v_tenant_id, v_app_sipho_plumber, 340000, NOW() + INTERVAL '30 days', NOW() + INTERVAL '14 days', 'PENDING',
+    INSERT INTO offers (tenant_id, application_id, offer_number, job_title, department, base_salary, start_date, offer_expiry_date, status, special_conditions, approval_notes, created_by)
+    VALUES (v_tenant_id, v_app_sipho_plumber, 'UTH-2026-001', 'Senior Plumber', 'Water Services', 340000, NOW() + INTERVAL '30 days', NOW() + INTERVAL '14 days', 'PENDING_APPROVAL',
             'Permanent appointment on salary level 7. 37-hour work week with after-hours standby roster. Municipal pension fund and medical aid contributions included. Relocation allowance of R15,000.',
-            'Preferred candidate. Strong references from Msunduzi Municipality. PIRB registered.');
+            'Preferred candidate. Strong references from Msunduzi Municipality. PIRB registered.', v_admin_user);
 
     -- ============================================================
     -- TIER 8: TALENT POOLS
     -- ============================================================
-    INSERT INTO talent_pools (tenant_id, name, description, created_by)
+    INSERT INTO talent_pools (tenant_id, pool_name, description, created_by)
     VALUES (v_tenant_id, 'Water Engineers & Technical Specialists', 'Pipeline of qualified water and process engineers for future vacancies across treatment works and infrastructure projects.', v_admin_user)
     RETURNING id INTO v_pool_engineers;
 
-    INSERT INTO talent_pools (tenant_id, name, description, created_by)
+    INSERT INTO talent_pools (tenant_id, pool_name, description, created_by)
     VALUES (v_tenant_id, 'Water Services & Community Engagement', 'Candidates with water services and community development experience for community-facing roles.', v_admin_user)
     RETURNING id INTO v_pool_water;
 
@@ -606,44 +606,44 @@ BEGIN
     RETURNING id INTO v_jp_wqt;
 
     -- 10 NEW APPLICANTS for this role
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Mbali', 'Mthethwa', 'mbali.mthethwa@email.co.za', '+27 72 501 0001', 'Ladysmith', 'Laboratory Assistant', 'Rand Water', 3, 'Water analysis, SANS 241, Spectrophotometry, Microbiological testing, Sample collection', 'CAREER_PORTAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Mbali', 'Mthethwa', 'mbali.mthethwa@email.co.za', '+27 72 501 0001', 'Ladysmith', 'Laboratory Assistant at Rand Water (3 years)', 'Water analysis, SANS 241, Spectrophotometry, Microbiological testing, Sample collection', 'CAREER_PORTAL')
     RETURNING id INTO v_mbali;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Vuyo', 'Ntuli', 'vuyo.ntuli@email.co.za', '+27 83 502 0002', 'Estcourt', 'Intern: Water Quality', 'uThukela District Municipality', 1, 'Water sampling, Laboratory safety, Data recording, Basic chemistry, MS Excel', 'CAREER_PORTAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Vuyo', 'Ntuli', 'vuyo.ntuli@email.co.za', '+27 83 502 0002', 'Estcourt', 'Intern: Water Quality at uThukela District Municipality (1 year)', 'Water sampling, Laboratory safety, Data recording, Basic chemistry, MS Excel', 'CAREER_PORTAL')
     RETURNING id INTO v_vuyo;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Thabiso', 'Mkhwanazi', 'thabiso.mkhwanazi@email.co.za', '+27 61 503 0003', 'Pietermaritzburg', 'Analytical Chemist', 'SGS Laboratories', 4, 'Analytical chemistry, ICP-OES, HPLC, Quality assurance, ISO 17025, Method validation', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Thabiso', 'Mkhwanazi', 'thabiso.mkhwanazi@email.co.za', '+27 61 503 0003', 'Pietermaritzburg', 'Analytical Chemist at SGS Laboratories (4 years)', 'Analytical chemistry, ICP-OES, HPLC, Quality assurance, ISO 17025, Method validation', 'LINKEDIN')
     RETURNING id INTO v_thabiso;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Anele', 'Zungu', 'anele.zungu@email.co.za', '+27 76 504 0004', 'Newcastle', 'Water Quality Monitor', 'Amajuba District Municipality', 3, 'Water quality monitoring, SANS 241, Blue Drop, Turbidimeters, pH measurement, Report writing', 'REFERRAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Anele', 'Zungu', 'anele.zungu@email.co.za', '+27 76 504 0004', 'Newcastle', 'Water Quality Monitor at Amajuba District Municipality (3 years)', 'Water quality monitoring, SANS 241, Blue Drop, Turbidimeters, pH measurement, Report writing', 'REFERRAL')
     RETURNING id INTO v_anele;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Nhlanhla', 'Ngubane', 'nhlanhla.ngubane@email.co.za', '+27 82 505 0005', 'Ladysmith', 'Lab Technician', 'National Health Laboratory Service', 5, 'Microbiology, Coliform testing, E.coli analysis, Aseptic technique, LIMS, Quality control', 'CAREER_PORTAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Nhlanhla', 'Ngubane', 'nhlanhla.ngubane@email.co.za', '+27 82 505 0005', 'Ladysmith', 'Lab Technician at National Health Laboratory Service (5 years)', 'Microbiology, Coliform testing, E.coli analysis, Aseptic technique, LIMS, Quality control', 'CAREER_PORTAL')
     RETURNING id INTO v_nhlanhla;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Bheki', 'Majola', 'bheki.majola@email.co.za', '+27 71 506 0006', 'Bergville', 'Environmental Technician', 'Department of Water and Sanitation', 4, 'Water quality assessment, Catchment monitoring, Environmental compliance, GIS, Report writing, SANS 241', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Bheki', 'Majola', 'bheki.majola@email.co.za', '+27 71 506 0006', 'Bergville', 'Environmental Technician at Department of Water and Sanitation (4 years)', 'Water quality assessment, Catchment monitoring, Environmental compliance, GIS, Report writing, SANS 241', 'LINKEDIN')
     RETURNING id INTO v_bheki;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Sindisiwe', 'Mthiyane', 'sindisiwe.mthiyane@email.co.za', '+27 73 507 0007', 'Dundee', 'Quality Control Officer', 'Umgeni Water', 6, 'Water quality management, Laboratory management, SANS 241, Blue Drop assessments, Instrument calibration, Team leadership', 'REFERRAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Sindisiwe', 'Mthiyane', 'sindisiwe.mthiyane@email.co.za', '+27 73 507 0007', 'Dundee', 'Quality Control Officer at Umgeni Water (6 years)', 'Water quality management, Laboratory management, SANS 241, Blue Drop assessments, Instrument calibration, Team leadership', 'REFERRAL')
     RETURNING id INTO v_sindisiwe;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Phiwokuhle', 'Hadebe', 'phiwokuhle.hadebe@email.co.za', '+27 68 508 0008', 'Ladysmith', 'Water Quality Analyst', 'Midvaal Water Company', 5, 'Water analysis, Chemical dosing calculations, Jar testing, SCADA monitoring, SANS 241, Compliance reporting', 'CAREER_PORTAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Phiwokuhle', 'Hadebe', 'phiwokuhle.hadebe@email.co.za', '+27 68 508 0008', 'Ladysmith', 'Water Quality Analyst at Midvaal Water Company (5 years)', 'Water analysis, Chemical dosing calculations, Jar testing, SCADA monitoring, SANS 241, Compliance reporting', 'CAREER_PORTAL')
     RETURNING id INTO v_phiwokuhle;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Kwanele', 'Mabena', 'kwanele.mabena@email.co.za', '+27 65 509 0009', 'Harrismith', 'General Worker', 'Maluti-a-Phofung Municipality', 1, 'Basic maintenance, Meter reading, Physical fitness, Drivers licence', 'CAREER_PORTAL', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Kwanele', 'Mabena', 'kwanele.mabena@email.co.za', '+27 65 509 0009', 'Harrismith', 'General Worker at Maluti-a-Phofung Municipality (1 year)', 'Basic maintenance, Meter reading, Physical fitness, Drivers licence', 'CAREER_PORTAL')
     RETURNING id INTO v_kwanele;
 
-    INSERT INTO applicants (tenant_id, first_name, last_name, email, phone, location, current_title, current_company, years_of_experience, skills, source, status)
-    VALUES (v_tenant_id, 'Dumisani', 'Sithole', 'dumisani.sithole@email.co.za', '+27 84 510 0010', 'Pietermaritzburg', 'Lab Technician', 'UKZN Chemistry Department', 2, 'Analytical chemistry, Research methods, Laboratory equipment, Data analysis, Scientific writing', 'LINKEDIN', 'ACTIVE')
+    INSERT INTO applicants (tenant_id, name, surname, email, phone, location, experience, skills, source)
+    VALUES (v_tenant_id, 'Dumisani', 'Sithole', 'dumisani.sithole@email.co.za', '+27 84 510 0010', 'Pietermaritzburg', 'Lab Technician at UKZN Chemistry Department (2 years)', 'Analytical chemistry, Research methods, Laboratory equipment, Data analysis, Scientific writing', 'LINKEDIN')
     RETURNING id INTO v_dumisani;
 
     -- ---- PIPELINE STAGE: NEW (APPLICATION_RECEIVED / SUBMITTED) — 3 applicants ----
