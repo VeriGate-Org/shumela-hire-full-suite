@@ -1786,94 +1786,94 @@ BEGIN
     -- ============================================================
 
     -- Thandi Moyo — Water Meter Reader
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_moyo, 'Meter Reading Accuracy', 'Achieve 98% meter reading accuracy rate across assigned routes', 'OPERATIONAL', 40.00, '98% accuracy rate', 'Monthly accuracy reports from billing system. Variance between readings and consumption patterns.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_moyo, 'Route Completion', 'Complete 100% of assigned meter reading routes within scheduled timeframes', 'OPERATIONAL', 30.00, '100% route completion', 'Monthly route completion reports. Number of missed readings vs. total assigned.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_moyo, 'Professional Development', 'Complete NQF Level 5 Water Reticulation Practice certification', 'DEVELOPMENT', 15.00, 'NQF 5 certificate obtained', 'Enrolment confirmation, progress reports, and certificate of completion.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_moyo, 'Customer Service Excellence', 'Maintain zero valid complaints from ratepayers during meter reading visits', 'BEHAVIORAL', 15.00, 'Zero valid complaints', 'Quarterly complaint register review. Customer feedback from ward councillors.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_moyo, 'Meter Reading Accuracy', 'Achieve 98% meter reading accuracy rate across assigned routes', 'OPERATIONAL', 40.00, '98% accuracy rate', 'Monthly accuracy reports from billing system. Variance between readings and consumption patterns.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_moyo, 'Route Completion', 'Complete 100% of assigned meter reading routes within scheduled timeframes', 'OPERATIONAL', 30.00, '100% route completion', 'Monthly route completion reports. Number of missed readings vs. total assigned.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_moyo, 'Professional Development', 'Complete NQF Level 5 Water Reticulation Practice certification', 'DEVELOPMENT', 15.00, 'NQF 5 certificate obtained', 'Enrolment confirmation, progress reports, and certificate of completion.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_moyo, 'Customer Service Excellence', 'Maintain zero valid complaints from ratepayers during meter reading visits', 'BEHAVIORAL', 15.00, 'Zero valid complaints', 'Quarterly complaint register review. Customer feedback from ward councillors.', 4);
 
     -- John van Wyk — Operations Manager
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_vanwyk, 'Non-Revenue Water Reduction', 'Reduce district non-revenue water from 42% to below 35% by year-end', 'STRATEGIC', 35.00, 'NRW below 35%', 'Monthly water balance calculations. DWS reporting metrics. Infrastructure loss reports.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_vanwyk, 'Operational Uptime', 'Maintain 95% operational uptime across all treatment works and pump stations', 'OPERATIONAL', 30.00, '95% uptime', 'SCADA downtime reports. Monthly infrastructure availability dashboard.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_vanwyk, 'Team Development', 'Ensure 100% of direct reports have active performance contracts and complete mid-year reviews', 'BEHAVIORAL', 20.00, '100% compliance', 'HR performance management system reports. Mid-year review completion tracker.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_vanwyk, 'Blue Drop Compliance', 'Achieve Blue Drop score of 80% or above for Ladysmith WTW', 'STRATEGIC', 15.00, 'Blue Drop >= 80%', 'DWS Blue Drop assessment report. Internal audit scores.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_vanwyk, 'Non-Revenue Water Reduction', 'Reduce district non-revenue water from 42% to below 35% by year-end', 'STRATEGIC', 35.00, 'NRW below 35%', 'Monthly water balance calculations. DWS reporting metrics. Infrastructure loss reports.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_vanwyk, 'Operational Uptime', 'Maintain 95% operational uptime across all treatment works and pump stations', 'OPERATIONAL', 30.00, '95% uptime', 'SCADA downtime reports. Monthly infrastructure availability dashboard.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_vanwyk, 'Team Development', 'Ensure 100% of direct reports have active performance contracts and complete mid-year reviews', 'BEHAVIORAL', 20.00, '100% compliance', 'HR performance management system reports. Mid-year review completion tracker.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_vanwyk, 'Blue Drop Compliance', 'Achieve Blue Drop score of 80% or above for Ladysmith WTW', 'STRATEGIC', 15.00, 'Blue Drop >= 80%', 'DWS Blue Drop assessment report. Internal audit scores.', 4);
 
     -- Nomvula Nzimande — HR Manager
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_nzimande, 'Vacancy Fill Rate', 'Fill 90% of approved vacancies within 60 working days of requisition approval', 'OPERATIONAL', 30.00, '90% within 60 days', 'Recruitment tracker. Time-to-fill reports from ShumelaHire ATS.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_nzimande, 'Performance Management Compliance', 'Ensure 100% of eligible employees have signed performance agreements by 31 July', 'OPERATIONAL', 25.00, '100% signed by deadline', 'Performance management system compliance dashboard.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_nzimande, 'Skills Development Plan', 'Implement approved Workplace Skills Plan and achieve 80% of training targets', 'STRATEGIC', 25.00, '80% WSP implementation', 'EWSETA WSP quarterly progress reports. Training attendance records.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_nzimande, 'Labour Relations Stability', 'Maintain zero days lost to unprotected industrial action', 'BEHAVIORAL', 20.00, 'Zero days lost', 'Labour relations register. SALGBC reports. Grievance resolution timeframes.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_nzimande, 'Vacancy Fill Rate', 'Fill 90% of approved vacancies within 60 working days of requisition approval', 'OPERATIONAL', 30.00, '90% within 60 days', 'Recruitment tracker. Time-to-fill reports from ShumelaHire ATS.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_nzimande, 'Performance Management Compliance', 'Ensure 100% of eligible employees have signed performance agreements by 31 July', 'OPERATIONAL', 25.00, '100% signed by deadline', 'Performance management system compliance dashboard.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_nzimande, 'Skills Development Plan', 'Implement approved Workplace Skills Plan and achieve 80% of training targets', 'STRATEGIC', 25.00, '80% WSP implementation', 'EWSETA WSP quarterly progress reports. Training attendance records.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_nzimande, 'Labour Relations Stability', 'Maintain zero days lost to unprotected industrial action', 'BEHAVIORAL', 20.00, 'Zero days lost', 'Labour relations register. SALGBC reports. Grievance resolution timeframes.', 4);
 
     -- Ayesha Pillay — Talent Acquisition Specialist
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_pillay, 'Recruitment Pipeline Management', 'Maintain a healthy pipeline with minimum 5 qualified candidates per open position', 'OPERATIONAL', 35.00, '5+ candidates per role', 'ATS pipeline reports. Sourcing channel effectiveness metrics.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_pillay, 'Candidate Experience', 'Achieve 85% positive feedback score from candidate experience surveys', 'BEHAVIORAL', 25.00, '85% positive feedback', 'Post-interview candidate surveys. Glassdoor/HelloPeter reviews.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_pillay, 'ATS Implementation', 'Ensure 100% adoption of ShumelaHire ATS across all recruitment processes', 'OPERATIONAL', 25.00, '100% ATS adoption', 'System usage analytics. Percentage of requisitions processed through ATS.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_pillay, 'Professional Certification', 'Obtain SABPP HR Practitioner certification', 'DEVELOPMENT', 15.00, 'SABPP certification', 'Registration confirmation and certificate.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_pillay, 'Recruitment Pipeline Management', 'Maintain a healthy pipeline with minimum 5 qualified candidates per open position', 'OPERATIONAL', 35.00, '5+ candidates per role', 'ATS pipeline reports. Sourcing channel effectiveness metrics.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_pillay, 'Candidate Experience', 'Achieve 85% positive feedback score from candidate experience surveys', 'BEHAVIORAL', 25.00, '85% positive feedback', 'Post-interview candidate surveys. Glassdoor/HelloPeter reviews.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_pillay, 'ATS Implementation', 'Ensure 100% adoption of ShumelaHire ATS across all recruitment processes', 'OPERATIONAL', 25.00, '100% ATS adoption', 'System usage analytics. Percentage of requisitions processed through ATS.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_pillay, 'Professional Certification', 'Obtain SABPP HR Practitioner certification', 'DEVELOPMENT', 15.00, 'SABPP certification', 'Registration confirmation and certificate.', 4);
 
     -- Pieter Botha — IT Systems Administrator
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_botha, 'System Availability', 'Maintain 99.5% availability for all critical business systems (ERP, email, SCADA network)', 'OPERATIONAL', 35.00, '99.5% uptime', 'Monthly system availability reports. Incident tickets and resolution times.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_botha, 'Cybersecurity Compliance', 'Implement POPIA technical controls and achieve zero data breaches', 'STRATEGIC', 25.00, 'Zero breaches + POPIA controls', 'POPIA compliance audit. Penetration test results. Security incident log.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_botha, 'Disaster Recovery', 'Complete and test IT disaster recovery plan with RTO < 4 hours for critical systems', 'OPERATIONAL', 25.00, 'DR plan tested, RTO < 4hrs', 'DR test report. Recovery time metrics from simulation exercises.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_botha, 'User Support Satisfaction', 'Achieve 90% user satisfaction score on IT helpdesk surveys', 'BEHAVIORAL', 15.00, '90% satisfaction', 'Quarterly helpdesk satisfaction surveys. Average ticket resolution time.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_botha, 'System Availability', 'Maintain 99.5% availability for all critical business systems (ERP, email, SCADA network)', 'OPERATIONAL', 35.00, '99.5% uptime', 'Monthly system availability reports. Incident tickets and resolution times.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_botha, 'Cybersecurity Compliance', 'Implement POPIA technical controls and achieve zero data breaches', 'STRATEGIC', 25.00, 'Zero breaches + POPIA controls', 'POPIA compliance audit. Penetration test results. Security incident log.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_botha, 'Disaster Recovery', 'Complete and test IT disaster recovery plan with RTO < 4 hours for critical systems', 'OPERATIONAL', 25.00, 'DR plan tested, RTO < 4hrs', 'DR test report. Recovery time metrics from simulation exercises.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_botha, 'User Support Satisfaction', 'Achieve 90% user satisfaction score on IT helpdesk surveys', 'BEHAVIORAL', 15.00, '90% satisfaction', 'Quarterly helpdesk satisfaction surveys. Average ticket resolution time.', 4);
 
     -- Sizwe Mthembu — Municipal Manager (S57 strategic KPAs)
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_mthembu, 'Clean Audit Outcome', 'Achieve unqualified audit opinion from Auditor-General for FY 2025/26', 'STRATEGIC', 30.00, 'Unqualified audit', 'AG audit report. Management letter findings reduction.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_mthembu, 'Service Delivery Improvement', 'Achieve 75% satisfaction in annual community satisfaction survey', 'STRATEGIC', 25.00, '75% satisfaction', 'Annual community satisfaction survey results. Service delivery protest incidents.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_mthembu, 'Revenue Enhancement', 'Improve revenue collection rate from 78% to 85%', 'STRATEGIC', 25.00, '85% collection rate', 'Monthly revenue collection reports. Debtor age analysis trends.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_mthembu, 'Institutional Development', 'Fill all critical vacancies and reduce staff turnover to below 10%', 'OPERATIONAL', 20.00, 'Turnover < 10%', 'Quarterly HR dashboard. Vacancy rate and turnover statistics.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_mthembu, 'Clean Audit Outcome', 'Achieve unqualified audit opinion from Auditor-General for FY 2025/26', 'STRATEGIC', 30.00, 'Unqualified audit', 'AG audit report. Management letter findings reduction.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_mthembu, 'Service Delivery Improvement', 'Achieve 75% satisfaction in annual community satisfaction survey', 'STRATEGIC', 25.00, '75% satisfaction', 'Annual community satisfaction survey results. Service delivery protest incidents.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_mthembu, 'Revenue Enhancement', 'Improve revenue collection rate from 78% to 85%', 'STRATEGIC', 25.00, '85% collection rate', 'Monthly revenue collection reports. Debtor age analysis trends.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_mthembu, 'Institutional Development', 'Fill all critical vacancies and reduce staff turnover to below 10%', 'OPERATIONAL', 20.00, 'Turnover < 10%', 'Quarterly HR dashboard. Vacancy rate and turnover statistics.', 4);
 
     -- Senzo Dladla — Senior Process Controller
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_dladla, 'Water Quality Compliance', 'Maintain 100% SANS 241 compliance for treated water at Ladysmith WTW', 'OPERATIONAL', 40.00, '100% SANS 241 compliance', 'Monthly water quality results. Non-compliance incident reports.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_dladla, 'Chemical Cost Optimisation', 'Reduce chemical dosing costs by 10% through optimised coagulation and pH control', 'OPERATIONAL', 25.00, '10% cost reduction', 'Monthly chemical consumption and cost reports vs. baseline.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_dladla, 'Process Documentation', 'Update all SOPs for Ladysmith WTW and train process controllers on revised procedures', 'DEVELOPMENT', 20.00, 'All SOPs updated + training done', 'SOP revision register. Training attendance records and competency assessments.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_dladla, 'Safety Compliance', 'Achieve zero lost-time injuries in Water Treatment section', 'BEHAVIORAL', 15.00, 'Zero LTIs', 'Monthly OHS reports. Incident investigation records.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_dladla, 'Water Quality Compliance', 'Maintain 100% SANS 241 compliance for treated water at Ladysmith WTW', 'OPERATIONAL', 40.00, '100% SANS 241 compliance', 'Monthly water quality results. Non-compliance incident reports.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_dladla, 'Chemical Cost Optimisation', 'Reduce chemical dosing costs by 10% through optimised coagulation and pH control', 'OPERATIONAL', 25.00, '10% cost reduction', 'Monthly chemical consumption and cost reports vs. baseline.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_dladla, 'Process Documentation', 'Update all SOPs for Ladysmith WTW and train process controllers on revised procedures', 'DEVELOPMENT', 20.00, 'All SOPs updated + training done', 'SOP revision register. Training attendance records and competency assessments.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_dladla, 'Safety Compliance', 'Achieve zero lost-time injuries in Water Treatment section', 'BEHAVIORAL', 15.00, 'Zero LTIs', 'Monthly OHS reports. Incident investigation records.', 4);
 
     -- Prashna Govender — Finance Officer
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_govender, 'Revenue Billing Accuracy', 'Achieve 99% billing accuracy on monthly water consumption invoices', 'OPERATIONAL', 35.00, '99% billing accuracy', 'Monthly billing variance reports. Credit note analysis.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_govender, 'Debt Collection', 'Reduce debtors over 90 days from 35% to 25% of total outstanding', 'OPERATIONAL', 30.00, '90-day debtors < 25%', 'Monthly debtor age analysis. Collection strategy implementation progress.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_govender, 'mSCOA Compliance', 'Maintain 100% compliance with mSCOA chart of accounts for all revenue transactions', 'STRATEGIC', 20.00, '100% mSCOA compliance', 'Quarterly mSCOA compliance reports. National Treasury assessment feedback.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_govender, 'Professional Development', 'Complete CIMA Management Accounting module', 'DEVELOPMENT', 15.00, 'CIMA module passed', 'Enrolment and result confirmation.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_govender, 'Revenue Billing Accuracy', 'Achieve 99% billing accuracy on monthly water consumption invoices', 'OPERATIONAL', 35.00, '99% billing accuracy', 'Monthly billing variance reports. Credit note analysis.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_govender, 'Debt Collection', 'Reduce debtors over 90 days from 35% to 25% of total outstanding', 'OPERATIONAL', 30.00, '90-day debtors < 25%', 'Monthly debtor age analysis. Collection strategy implementation progress.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_govender, 'mSCOA Compliance', 'Maintain 100% compliance with mSCOA chart of accounts for all revenue transactions', 'STRATEGIC', 20.00, '100% mSCOA compliance', 'Quarterly mSCOA compliance reports. National Treasury assessment feedback.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_govender, 'Professional Development', 'Complete CIMA Management Accounting module', 'DEVELOPMENT', 15.00, 'CIMA module passed', 'Enrolment and result confirmation.', 4);
 
     -- Nkosinathi Radebe — Community Liaison Officer
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_radebe, 'Community Meeting Programme', 'Conduct minimum 4 community meetings per quarter across all Bergville wards', 'OPERATIONAL', 30.00, '16 meetings per annum', 'Meeting attendance registers. Minutes and action item tracker.', 1);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_radebe, 'Complaint Resolution', 'Resolve 90% of water service delivery complaints within 5 working days', 'OPERATIONAL', 30.00, '90% within 5 days', 'Complaint management system reports. Average resolution time metrics.', 2);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_radebe, 'Stakeholder Relationships', 'Establish formal liaison structure with all 12 Bergville ward councillors', 'STRATEGIC', 20.00, '12 ward liaison agreements', 'Signed liaison framework agreements. Quarterly ward feedback reports.', 3);
-    INSERT INTO performance_goals (contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
-    VALUES (v_pc_radebe, 'Report Writing', 'Submit monthly community engagement reports by the 5th of each month', 'BEHAVIORAL', 20.00, '12 reports on time', 'Report submission dates vs. deadline. Quality assessment by manager.', 4);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_radebe, 'Community Meeting Programme', 'Conduct minimum 4 community meetings per quarter across all Bergville wards', 'OPERATIONAL', 30.00, '16 meetings per annum', 'Meeting attendance registers. Minutes and action item tracker.', 1);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_radebe, 'Complaint Resolution', 'Resolve 90% of water service delivery complaints within 5 working days', 'OPERATIONAL', 30.00, '90% within 5 days', 'Complaint management system reports. Average resolution time metrics.', 2);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_radebe, 'Stakeholder Relationships', 'Establish formal liaison structure with all 12 Bergville ward councillors', 'STRATEGIC', 20.00, '12 ward liaison agreements', 'Signed liaison framework agreements. Quarterly ward feedback reports.', 3);
+    INSERT INTO performance_goals (tenant_id, contract_id, title, description, goal_type, weighting, target_value, measurement_criteria, sort_order)
+    VALUES (v_tenant_id, v_pc_radebe, 'Report Writing', 'Submit monthly community engagement reports by the 5th of each month', 'BEHAVIORAL', 20.00, '12 reports on time', 'Report submission dates vs. deadline. Quality assessment by manager.', 4);
 
     RAISE NOTICE 'Created performance goals (3-4 per contract, weighted to 100%%)';
 
@@ -1970,93 +1970,93 @@ BEGIN
     -- Helper: get goal IDs for Thandi Moyo's contract to score them
     -- Moyo goal scores (self only — EMPLOYEE_SUBMITTED)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_moyo AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_moyo, v_goal_id, 3.50, 'Accuracy at 97.5% — just below 98% target. Improving month on month.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_moyo, v_goal_id, 3.50, 'Accuracy at 97.5% — just below 98% target. Improving month on month.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_moyo AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_moyo, v_goal_id, 4.00, '100% route completion maintained throughout the period.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_moyo, v_goal_id, 4.00, '100% route completion maintained throughout the period.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_moyo AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_moyo, v_goal_id, 3.00, 'Enrolled for NQF 5 at Umfolozi TVET. Classes started Feb 2026.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_moyo, v_goal_id, 3.00, 'Enrolled for NQF 5 at Umfolozi TVET. Classes started Feb 2026.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_moyo AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_moyo, v_goal_id, 4.00, 'Zero complaints. Positive feedback from Ward 7 councillor.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_moyo, v_goal_id, 4.00, 'Zero complaints. Positive feedback from Ward 7 councillor.');
 
     -- Van Wyk goal scores (self only)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_vanwyk AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_vanwyk, v_goal_id, 3.50, 'NRW reduced from 42% to 38%. Pressure management in Estcourt contributing. Target 35% achievable by year-end.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_vanwyk, v_goal_id, 3.50, 'NRW reduced from 42% to 38%. Pressure management in Estcourt contributing. Target 35% achievable by year-end.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_vanwyk AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_vanwyk, v_goal_id, 3.50, 'Uptime at 94.2% vs. 95% target. October pump failure brought average down. New standby pump commissioned.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_vanwyk, v_goal_id, 3.50, 'Uptime at 94.2% vs. 95% target. October pump failure brought average down. New standby pump commissioned.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_vanwyk AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_vanwyk, v_goal_id, 4.00, 'All direct reports have active contracts. Mid-year reviews in progress.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_vanwyk, v_goal_id, 4.00, 'All direct reports have active contracts. Mid-year reviews in progress.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_vanwyk AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_vanwyk, v_goal_id, 4.00, 'Ladysmith WTW Blue Drop preparations on track. Internal audit score improved to 78%.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_vanwyk, v_goal_id, 4.00, 'Ladysmith WTW Blue Drop preparations on track. Internal audit score improved to 78%.');
 
     -- Nzimande goal scores (self + manager — MANAGER_SUBMITTED)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_nzimande AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_nzimande, v_goal_id, 3.50, 'Self: 85% fill rate within 60 days. Technical roles taking longer. Manager: Acceptable given market challenges for water engineers.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_nzimande, v_goal_id, 3.50, 'Self: 85% fill rate within 60 days. Technical roles taking longer. Manager: Acceptable given market challenges for water engineers.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_nzimande AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_nzimande, v_goal_id, 4.50, 'Self: 100% compliance achieved. Manager: Excellent — all agreements signed within deadline. Well managed process.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_nzimande, v_goal_id, 4.50, 'Self: 100% compliance achieved. Manager: Excellent — all agreements signed within deadline. Well managed process.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_nzimande AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_nzimande, v_goal_id, 3.50, 'Self: WSP at 65%. Manager: On track but needs acceleration. EWSETA reporting on time. Budget utilisation needs attention.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_nzimande, v_goal_id, 3.50, 'Self: WSP at 65%. Manager: On track but needs acceleration. EWSETA reporting on time. Budget utilisation needs attention.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_nzimande AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_nzimande, v_goal_id, 4.50, 'Self: Zero days lost. Manager: Exemplary labour relations. Proactive engagement with SAMWU. Wage negotiations handled skillfully.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_nzimande, v_goal_id, 4.50, 'Self: Zero days lost. Manager: Exemplary labour relations. Proactive engagement with SAMWU. Wage negotiations handled skillfully.');
 
     -- Pillay goal scores (self only)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_pillay AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_pillay, v_goal_id, 4.00, 'Averaging 7 qualified candidates per role vs. 5 target. WQT recruitment pipeline particularly strong.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_pillay, v_goal_id, 4.00, 'Averaging 7 qualified candidates per role vs. 5 target. WQT recruitment pipeline particularly strong.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_pillay AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_pillay, v_goal_id, 3.00, 'Candidate experience at 82% vs. 85% target. Working on interview scheduling communication improvements.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_pillay, v_goal_id, 3.00, 'Candidate experience at 82% vs. 85% target. Working on interview scheduling communication improvements.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_pillay AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_pillay, v_goal_id, 3.50, 'ATS at 95%. Two hiring managers still using email for initial screening. Targeted training planned.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_pillay, v_goal_id, 3.50, 'ATS at 95%. Two hiring managers still using email for initial screening. Targeted training planned.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_pillay AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_pillay, v_goal_id, 3.00, 'Registered for SABPP exam in May 2026. Studying in progress.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_pillay, v_goal_id, 3.00, 'Registered for SABPP exam in May 2026. Studying in progress.');
 
     -- Dladla goal scores (self only)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_dladla AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_dladla, v_goal_id, 4.00, 'SANS 241 at 99.8% — one turbidity exceedance during August storm event. Corrective action taken within 2 hours.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_dladla, v_goal_id, 4.00, 'SANS 241 at 99.8% — one turbidity exceedance during August storm event. Corrective action taken within 2 hours.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_dladla AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_dladla, v_goal_id, 3.50, 'Chemical costs down 7%. Jar testing optimisation programme showing results. 10% target achievable by year-end.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_dladla, v_goal_id, 3.50, 'Chemical costs down 7%. Jar testing optimisation programme showing results. 10% target achievable by year-end.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_dladla AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_dladla, v_goal_id, 3.50, '6 of 12 SOPs updated. Training completed for revised procedures. Remaining 6 scheduled for Q3.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_dladla, v_goal_id, 3.50, '6 of 12 SOPs updated. Training completed for revised procedures. Remaining 6 scheduled for Q3.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_dladla AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_dladla, v_goal_id, 4.00, 'Zero LTIs. Manual handling refresher training completed after July incident.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_dladla, v_goal_id, 4.00, 'Zero LTIs. Manual handling refresher training completed after July incident.');
 
     -- Mthembu goal scores (self + manager — COMPLETED)
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_mthembu AND sort_order = 1;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_mthembu, v_goal_id, 4.00, 'AG interim findings reduced from 12 to 4. Strong trajectory toward unqualified opinion. Internal controls strengthened.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_mthembu, v_goal_id, 4.00, 'AG interim findings reduced from 12 to 4. Strong trajectory toward unqualified opinion. Internal controls strengthened.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_mthembu AND sort_order = 2;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_mthembu, v_goal_id, 3.50, 'Survey not yet conducted (Q3). Service delivery protests reduced by 40% compared to prior year. Positive indicator.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_mthembu, v_goal_id, 3.50, 'Survey not yet conducted (Q3). Service delivery protests reduced by 40% compared to prior year. Positive indicator.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_mthembu AND sort_order = 3;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_mthembu, v_goal_id, 3.75, 'Collection rate at 82% vs. 85% target. Credit control policy revised. Indigent register updated. Continued focus needed.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_mthembu, v_goal_id, 3.75, 'Collection rate at 82% vs. 85% target. Credit control policy revised. Indigent register updated. Continued focus needed.');
     SELECT id INTO v_goal_id FROM performance_goals WHERE contract_id = v_pc_mthembu AND sort_order = 4;
-    INSERT INTO review_goal_scores (review_id, goal_id, score, comment) VALUES (v_rev_mthembu, v_goal_id, 4.50, 'All critical vacancies filled. Turnover at 8.5%. ShumelaHire ATS successfully deployed. Skills development on track.');
+    INSERT INTO review_goal_scores (tenant_id, review_id, goal_id, score, comment) VALUES (v_tenant_id, v_rev_mthembu, v_goal_id, 4.50, 'All critical vacancies filled. Turnover at 8.5%. ShumelaHire ATS successfully deployed. Skills development on track.');
 
     RAISE NOTICE 'Created review goal scores for 6 submitted/completed reviews';
 
     -- ============================================================
     -- TIER 23: REVIEW EVIDENCE (supporting documents for submitted reviews)
     -- ============================================================
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_moyo, 'moyo_meter_accuracy_q1q2.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_meter_accuracy_q1q2.pdf', 234000, 'application/pdf', 'Meter reading accuracy report Jul-Dec 2025', 'REPORT', v_emp_moyo::VARCHAR);
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_moyo, 'moyo_nqf5_enrolment.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_nqf5_enrolment.pdf', 156000, 'application/pdf', 'NQF Level 5 enrolment confirmation — Umfolozi TVET', 'CERTIFICATE', v_emp_moyo::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_moyo, 'moyo_meter_accuracy_q1q2.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_meter_accuracy_q1q2.pdf', 234000, 'application/pdf', 'Meter reading accuracy report Jul-Dec 2025', 'REPORT', v_emp_moyo::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_moyo, 'moyo_nqf5_enrolment.pdf', 's3://uthukela-docs/performance/UTW-001/moyo_nqf5_enrolment.pdf', 156000, 'application/pdf', 'NQF Level 5 enrolment confirmation — Umfolozi TVET', 'CERTIFICATE', v_emp_moyo::VARCHAR);
 
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_vanwyk, 'vanwyk_nrw_dashboard_h1.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_nrw_dashboard_h1.pdf', 456000, 'application/pdf', 'Non-revenue water dashboard H1 2025/26', 'REPORT', v_emp_vanwyk::VARCHAR);
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_vanwyk, 'vanwyk_blue_drop_internal_audit.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_blue_drop_internal_audit.pdf', 389000, 'application/pdf', 'Ladysmith WTW internal Blue Drop audit report', 'REPORT', v_emp_vanwyk::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_vanwyk, 'vanwyk_nrw_dashboard_h1.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_nrw_dashboard_h1.pdf', 456000, 'application/pdf', 'Non-revenue water dashboard H1 2025/26', 'REPORT', v_emp_vanwyk::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_vanwyk, 'vanwyk_blue_drop_internal_audit.pdf', 's3://uthukela-docs/performance/UTW-002/vanwyk_blue_drop_internal_audit.pdf', 389000, 'application/pdf', 'Ladysmith WTW internal Blue Drop audit report', 'REPORT', v_emp_vanwyk::VARCHAR);
 
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_nzimande, 'nzimande_recruitment_metrics_h1.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_recruitment_metrics_h1.pdf', 312000, 'application/pdf', 'Recruitment metrics dashboard H1 — ATS generated', 'REPORT', v_emp_nzimande::VARCHAR);
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_nzimande, 'nzimande_wsp_progress_q2.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_wsp_progress_q2.pdf', 278000, 'application/pdf', 'Workplace Skills Plan Q2 progress report', 'REPORT', v_emp_nzimande::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_nzimande, 'nzimande_recruitment_metrics_h1.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_recruitment_metrics_h1.pdf', 312000, 'application/pdf', 'Recruitment metrics dashboard H1 — ATS generated', 'REPORT', v_emp_nzimande::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_nzimande, 'nzimande_wsp_progress_q2.pdf', 's3://uthukela-docs/performance/UTW-003/nzimande_wsp_progress_q2.pdf', 278000, 'application/pdf', 'Workplace Skills Plan Q2 progress report', 'REPORT', v_emp_nzimande::VARCHAR);
 
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_dladla, 'dladla_sans241_results_h1.pdf', 's3://uthukela-docs/performance/UTW-007/dladla_sans241_results_h1.pdf', 534000, 'application/pdf', 'SANS 241 compliance results Jul-Dec 2025', 'REPORT', v_emp_dladla::VARCHAR);
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_dladla, 'dladla_chemical_cost_analysis.xlsx', 's3://uthukela-docs/performance/UTW-007/dladla_chemical_cost_analysis.xlsx', 189000, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Chemical cost analysis and dosing optimisation report', 'REPORT', v_emp_dladla::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_dladla, 'dladla_sans241_results_h1.pdf', 's3://uthukela-docs/performance/UTW-007/dladla_sans241_results_h1.pdf', 534000, 'application/pdf', 'SANS 241 compliance results Jul-Dec 2025', 'REPORT', v_emp_dladla::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_dladla, 'dladla_chemical_cost_analysis.xlsx', 's3://uthukela-docs/performance/UTW-007/dladla_chemical_cost_analysis.xlsx', 189000, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Chemical cost analysis and dosing optimisation report', 'REPORT', v_emp_dladla::VARCHAR);
 
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_mthembu, 'mthembu_ag_interim_findings.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_ag_interim_findings.pdf', 678000, 'application/pdf', 'AG interim audit management letter — findings summary', 'REPORT', v_emp_mthembu::VARCHAR);
-    INSERT INTO review_evidence (review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
-    VALUES (v_rev_mthembu, 'mthembu_revenue_collection_trend.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_revenue_collection_trend.pdf', 234000, 'application/pdf', 'Revenue collection rate trend analysis', 'REPORT', v_emp_mthembu::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_mthembu, 'mthembu_ag_interim_findings.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_ag_interim_findings.pdf', 678000, 'application/pdf', 'AG interim audit management letter — findings summary', 'REPORT', v_emp_mthembu::VARCHAR);
+    INSERT INTO review_evidence (tenant_id, review_id, file_name, file_path, file_size, content_type, description, evidence_type, uploaded_by)
+    VALUES (v_tenant_id, v_rev_mthembu, 'mthembu_revenue_collection_trend.pdf', 's3://uthukela-docs/performance/UTW-006/mthembu_revenue_collection_trend.pdf', 234000, 'application/pdf', 'Revenue collection rate trend analysis', 'REPORT', v_emp_mthembu::VARCHAR);
 
     RAISE NOTICE 'Created review evidence documents';
 
