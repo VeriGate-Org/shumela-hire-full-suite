@@ -36,7 +36,7 @@ public sealed class EnvironmentConfig
         _ => $"https://api.{EnvironmentName}.{DomainName}"
     };
 
-    public string Prefix => $"shumelahire-{EnvironmentName}";
+    public string Prefix => IsProduction ? "shumelahire" : $"shumelahire-{EnvironmentName}";
 
     public string CognitoDomainPrefix => EnvironmentName == "prod" ? "auth-shumelahire" : $"shumelahire-fs-{EnvironmentName}-auth";
 
