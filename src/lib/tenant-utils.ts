@@ -25,8 +25,13 @@ export function getTenantSubdomain(): string {
   }
 
   // <subdomain>.[env.]shumelahire.co.za
+  const ENVIRONMENT_PREFIXES = new Set(['dev', 'ppe', 'staging', 'qa', 'sandbox', 'sbx']);
   const parts = hostname.split('.');
   if (parts.length >= 3 && hostname.includes('shumelahire.co.za')) {
+    // Environment base URLs (dev.shumelahire.co.za, ppe.shumelahire.co.za) are not tenant subdomains
+    if (ENVIRONMENT_PREFIXES.has(parts[0])) {
+      return 'default';
+    }
     return parts[0];
   }
 
