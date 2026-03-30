@@ -58,8 +58,8 @@ public class ApplicationManagementService {
             String sortDirection,
             Pageable pageable) {
 
-        List<Application> filtered = applicationRepository.searchApplicationsFiltered(
-            searchTerm, statuses, departments, jobTitle, dateFrom, dateTo, minRating, maxRating);
+        List<Application> filtered = new ArrayList<>(applicationRepository.searchApplicationsFiltered(
+            searchTerm, statuses, departments, jobTitle, dateFrom, dateTo, minRating, maxRating));
 
         // Apply sorting
         Comparator<Application> comparator = getComparator(sortBy, sortDirection);
@@ -68,6 +68,9 @@ public class ApplicationManagementService {
         }
 
         // Apply pagination
+        if (pageable.isUnpaged()) {
+            return new PageImpl<>(filtered);
+        }
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filtered.size());
         List<Application> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
