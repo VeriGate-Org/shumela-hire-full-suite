@@ -1,10 +1,11 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.dto.InviteUserRequest;
 import com.arthmatic.shumelahire.dto.UserAdminResponse;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.CognitoAdminService;
 import com.arthmatic.shumelahire.service.PermissionService;
 import com.arthmatic.shumelahire.service.PermissionService.PermissionDefinition;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -30,13 +32,13 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
-    private final UserRepository userRepository;
+    private final UserDataRepository userRepository;
     private final PermissionService permissionService;
 
     @Autowired(required = false)
     private CognitoAdminService cognitoAdminService;
 
-    public AdminController(UserRepository userRepository, PermissionService permissionService) {
+    public AdminController(UserDataRepository userRepository, PermissionService permissionService) {
         this.userRepository = userRepository;
         this.permissionService = permissionService;
     }
@@ -75,18 +77,26 @@ public class AdminController {
             @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "DESC") String direction,
             @RequestParam(required = false) String search) {
-        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort));
 
-        Page<UserAdminResponse> users;
+        List<User> users;
         if (search != null && !search.isBlank()) {
-            users = userRepository.findBySearchTerm(search.trim(), pageRequest)
-                    .map(UserAdminResponse::fromEntity);
+            CursorPage<User> result = userRepository.findBySearchTerm(search.trim(), null, size);
+            users = result.content();
         } else {
-            users = userRepository.findAll(pageRequest)
-                    .map(UserAdminResponse::fromEntity);
+            users = userRepository.findAll();
         }
-        return ResponseEntity.ok(users);
+
+        List<UserAdminResponse> allResponses = users.stream()
+            .map(UserAdminResponse::fromEntity)
+            .toList();
+
+        int start = Math.min(page * size, allResponses.size());
+        int end = Math.min(start + size, allResponses.size());
+        List<UserAdminResponse> pageContent = allResponses.subList(start, end);
+
+        Page<UserAdminResponse> pageResult = new PageImpl<>(pageContent, pageRequest, allResponses.size());
+        return ResponseEntity.ok(pageResult);
     }
 
     @PutMapping("/users/{userId}/role")
@@ -96,7 +106,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body(Map.of("error", "role is required"));
         }
 
-        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<User> userOpt = userRepository.findById(String.valueOf(userId));
         if (userOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -131,7 +141,7 @@ public class AdminController {
         String tenantId = TenantContext.requireCurrentTenant();
 
         // Check local DB uniqueness
-        if (userRepository.existsByEmailAndTenantId(email, tenantId)) {
+        if (userRepository.existsByEmail(email)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "A user with this email already exists"));
         }

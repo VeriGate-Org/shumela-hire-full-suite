@@ -1,9 +1,5 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.WAFv2;
-using Amazon.CDK.AWS.Route53;
-using Amazon.CDK.AWS.Route53.Targets;
-using Amazon.CDK.AWS.CertificateManager;
-using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Constructs;
 using System.Collections.Generic;
 
@@ -11,14 +7,19 @@ namespace ShumelaHire.Infra;
 
 public class ShumelaHireApiStack : Stack
 {
+    public CfnWebACL WebAcl { get; }
+
     public ShumelaHireApiStack(Construct scope, string id, EnvironmentConfig config,
-        ShumelaHireComputeStack compute, IStackProps? props = null) : base(scope, id, props)
+        ShumelaHireServerlessStack serverless, IStackProps? props = null) : base(scope, id, props)
     {
-        AddDependency(compute);
+        AddDependency(serverless);
         var prefix = config.Prefix;
 
-        // ── WAF WebACL ───────────────────────────────────────────────────────
-        var webAcl = new CfnWebACL(this, "WebAcl", new CfnWebACLProps
+        // ── WAF WebACL (CLOUDFRONT scope for CloudFront distribution) ───────
+        // Note: CloudFront WAF must be in us-east-1. For regional resources,
+        // use REGIONAL scope. Since our frontend stack handles CloudFront
+        // association, we create a REGIONAL WAF for API Gateway if needed.
+        WebAcl = new CfnWebACL(this, "WebAcl", new CfnWebACLProps
         {
             Name = $"{prefix}-waf",
             Scope = "REGIONAL",
@@ -103,40 +104,18 @@ public class ShumelaHireApiStack : Stack
             }
         });
 
-        // Associate WAF with ALB
-        new CfnWebACLAssociation(this, "WafAlbAssociation", new CfnWebACLAssociationProps
+        // ── Associate WAF with API Gateway HTTP API stage ────────────────────
+        var apiGatewayStageArn = $"arn:aws:apigateway:{config.Region}::/apis/{serverless.HttpApi.Ref}/stages/$default";
+        new CfnWebACLAssociation(this, "WafApiGatewayAssociation", new CfnWebACLAssociationProps
         {
-            ResourceArn = Fn.ImportValue($"{prefix}-AlbArn"),
-            WebAclArn = webAcl.AttrArn
+            ResourceArn = apiGatewayStageArn,
+            WebAclArn = WebAcl.AttrArn
         });
-
-        // ── Route 53 (only if certificate is provided) ──────────────────────
-        if (!string.IsNullOrEmpty(config.ApiCertificateArn))
-        {
-            var apiDomain = config.EnvironmentName == "prod"
-                ? config.ApiDomainName
-                : $"api.{config.EnvironmentName}.{config.DomainName}";
-
-            var hostedZone = HostedZone.FromLookup(this, "HostedZone", new HostedZoneProviderProps
-            {
-                DomainName = config.HostedZoneName
-            });
-
-            var albDns = Fn.ImportValue($"{prefix}-AlbDnsName");
-
-            new CnameRecord(this, "ApiDnsRecord", new CnameRecordProps
-            {
-                Zone = hostedZone,
-                RecordName = apiDomain,
-                DomainName = albDns,
-                Ttl = Duration.Minutes(5)
-            });
-        }
 
         // ── CfnOutputs ──────────────────────────────────────────────────────
         new CfnOutput(this, "WafWebAclArn", new CfnOutputProps
         {
-            Value = webAcl.AttrArn,
+            Value = WebAcl.AttrArn,
             ExportName = $"{prefix}-WafWebAclArn"
         });
     }

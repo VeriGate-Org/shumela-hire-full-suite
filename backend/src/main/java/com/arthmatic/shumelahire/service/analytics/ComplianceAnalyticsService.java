@@ -9,6 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+/**
+ * Compliance analytics service.
+ * Currently returns mock data — Glue tables for certifications, disciplinary cases,
+ * and policy acknowledgements are not yet in the analytics pipeline. Once those entities
+ * flow through DynamoDB Streams → S3, the mock data will be replaced with real Athena queries.
+ */
 @Service
 @Transactional(readOnly = true)
 public class ComplianceAnalyticsService {
@@ -18,17 +24,22 @@ public class ComplianceAnalyticsService {
     @Autowired
     private AuditLogService auditLogService;
 
-    /**
-     * Compute compliance analytics: expiring certifications, open disciplinary cases,
-     * pending policy acknowledgements, POPIA compliance status, audit findings.
-     */
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
     public Map<String, Object> getComplianceMetrics() {
         logger.info("Computing compliance analytics");
         auditLogService.logSystemAction("VIEW", "COMPLIANCE_ANALYTICS", "Compliance metrics requested");
 
+        // No Glue tables for compliance entities yet — return mock data.
+        // When certifications, disciplinary_cases, and policy_acknowledgements tables
+        // are added to the analytics pipeline, this method will query Athena.
+        return getComplianceMetricsMock();
+    }
+
+    private Map<String, Object> getComplianceMetricsMock() {
         Map<String, Object> metrics = new LinkedHashMap<>();
 
-        // Summary KPIs
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("overallComplianceScore", 91.5);
         summary.put("expiringCertifications", 14);
@@ -39,7 +50,6 @@ public class ComplianceAnalyticsService {
         summary.put("popiaComplianceRate", 94.2);
         metrics.put("summary", summary);
 
-        // Expiring certifications (next 90 days)
         metrics.put("expiringCertifications", List.of(
                 Map.of("employeeName", "John Moyo", "department", "Operations", "certification", "First Aid Level 2", "expiryDate", "2025-02-15", "daysUntilExpiry", 22),
                 Map.of("employeeName", "Thandi Nkosi", "department", "Engineering", "certification", "AWS Solutions Architect", "expiryDate", "2025-02-28", "daysUntilExpiry", 35),
@@ -49,7 +59,6 @@ public class ComplianceAnalyticsService {
                 Map.of("employeeName", "Linda Botha", "department", "Engineering", "certification", "PMP", "expiryDate", "2025-04-01", "daysUntilExpiry", 67)
         ));
 
-        // Open disciplinary cases
         metrics.put("openCases", List.of(
                 Map.of("caseId", "DC-2025-001", "type", "Misconduct", "status", "Investigation", "department", "Sales", "openedDate", "2025-01-05"),
                 Map.of("caseId", "DC-2025-002", "type", "Attendance", "status", "Hearing Scheduled", "department", "Operations", "openedDate", "2025-01-12"),
@@ -58,14 +67,12 @@ public class ComplianceAnalyticsService {
                 Map.of("caseId", "DC-2025-005", "type", "Harassment", "status", "Formal Investigation", "department", "Engineering", "openedDate", "2025-01-22")
         ));
 
-        // Pending policy acknowledgements
         metrics.put("pendingAcknowledgements", List.of(
                 Map.of("policyName", "Code of Conduct 2025", "totalEmployees", 342, "acknowledged", 320, "pending", 22, "deadline", "2025-02-28"),
                 Map.of("policyName", "POPIA Privacy Policy", "totalEmployees", 342, "acknowledged", 338, "pending", 4, "deadline", "2025-01-31"),
                 Map.of("policyName", "IT Security Policy", "totalEmployees", 342, "acknowledged", 340, "pending", 2, "deadline", "2025-03-15")
         ));
 
-        // Compliance trends (monthly)
         metrics.put("complianceTrends", List.of(
                 Map.of("month", "Jul", "complianceScore", 88.2, "openCases", 8, "expiringCerts", 18),
                 Map.of("month", "Aug", "complianceScore", 89.5, "openCases", 7, "expiringCerts", 15),
@@ -75,7 +82,6 @@ public class ComplianceAnalyticsService {
                 Map.of("month", "Dec", "complianceScore", 91.5, "openCases", 5, "expiringCerts", 14)
         ));
 
-        // Department compliance scores
         metrics.put("departmentCompliance", List.of(
                 Map.of("department", "Human Resources", "score", 97.5, "issues", 1),
                 Map.of("department", "Finance", "score", 95.2, "issues", 2),

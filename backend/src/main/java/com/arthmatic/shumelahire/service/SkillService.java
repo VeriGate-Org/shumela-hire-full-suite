@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.SkillRequest;
 import com.arthmatic.shumelahire.entity.Skill;
-import com.arthmatic.shumelahire.repository.SkillRepository;
+import com.arthmatic.shumelahire.repository.SkillDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import java.util.List;
 public class SkillService {
 
     @Autowired
-    private SkillRepository skillRepository;
+    private SkillDataRepository skillRepository;
 
     @Autowired
     private SlugGeneratorService slugGeneratorService;
@@ -41,7 +41,7 @@ public class SkillService {
     }
 
     public Skill update(Long id, SkillRequest request) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
 
         boolean nameChanged = !skill.getName().equals(request.getName());
@@ -67,18 +67,18 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public Skill getById(Long id) {
-        return skillRepository.findById(id)
+        return skillRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<Skill> getAll() {
-        return skillRepository.findAllByOrderByNameAsc();
+        return skillRepository.findAllOrderByName();
     }
 
     @Transactional(readOnly = true)
     public List<Skill> getActive() {
-        return skillRepository.findByIsActiveTrueOrderByNameAsc();
+        return skillRepository.findActiveOrderByName();
     }
 
     @Transactional(readOnly = true)
@@ -88,11 +88,11 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public List<Skill> getByCategory(String category) {
-        return skillRepository.findByCategoryAndIsActiveTrueOrderByNameAsc(category);
+        return skillRepository.findByCategoryAndActiveOrderByName(category);
     }
 
     public Skill deactivate(Long id) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
         skill.setIsActive(false);
         Skill saved = skillRepository.save(skill);
@@ -102,7 +102,7 @@ public class SkillService {
     }
 
     public Skill activate(Long id) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
         skill.setIsActive(true);
         Skill saved = skillRepository.save(skill);

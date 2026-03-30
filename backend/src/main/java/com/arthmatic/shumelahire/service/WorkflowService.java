@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.WorkflowDefinition;
-import com.arthmatic.shumelahire.repository.WorkflowDefinitionRepository;
+import com.arthmatic.shumelahire.repository.WorkflowDefinitionDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,9 @@ public class WorkflowService {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkflowService.class);
 
-    private final WorkflowDefinitionRepository workflowDefinitionRepository;
+    private final WorkflowDefinitionDataRepository workflowDefinitionRepository;
 
-    public WorkflowService(WorkflowDefinitionRepository workflowDefinitionRepository) {
+    public WorkflowService(WorkflowDefinitionDataRepository workflowDefinitionRepository) {
         this.workflowDefinitionRepository = workflowDefinitionRepository;
     }
 
@@ -29,7 +29,7 @@ public class WorkflowService {
 
     @Transactional(readOnly = true)
     public WorkflowDefinition getWorkflowById(Long id) {
-        return workflowDefinitionRepository.findById(id)
+        return workflowDefinitionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Workflow not found: " + id));
     }
 

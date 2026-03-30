@@ -13,7 +13,7 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-// Paginated response type
+// Paginated response type — supports both JPA page-based and DynamoDB cursor-based pagination.
 interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -22,6 +22,8 @@ interface PaginatedResponse<T> {
     totalItems: number;
     hasNextPage: boolean;
     hasPreviousPage: boolean;
+    /** Opaque cursor for the next page (DynamoDB cursor-based pagination). */
+    nextCursor?: string;
   };
   success: boolean;
 }
@@ -47,7 +49,9 @@ export function useApiData<T>(
   };
 }
 
-// Hook for paginated data
+// Hook for paginated data — supports both page-based (JPA) and cursor-based (DynamoDB) pagination.
+// When the backend returns a `nextCursor`, subsequent pages are fetched using that cursor
+// instead of a page number. This allows transparent migration from JPA to DynamoDB.
 export function usePaginatedData<T>(
   endpoint: string,
   config?: SWRConfiguration
@@ -55,11 +59,17 @@ export function usePaginatedData<T>(
   const getKey = useCallback((pageIndex: number, previousPageData: PaginatedResponse<T> | null) => {
     // If we've reached the end, return null
     if (previousPageData && !previousPageData.pagination.hasNextPage) return null;
-    
-    // First page
+
+    // First page — no cursor available yet
     if (pageIndex === 0) return `/api${endpoint}?page=1`;
-    
-    // Next pages
+
+    // Prefer cursor-based pagination when a cursor is available (DynamoDB)
+    if (previousPageData?.pagination?.nextCursor) {
+      const separator = endpoint.includes('?') ? '&' : '?';
+      return `/api${endpoint}${separator}cursor=${encodeURIComponent(previousPageData.pagination.nextCursor)}`;
+    }
+
+    // Fall back to page-based pagination (JPA)
     return `/api${endpoint}?page=${pageIndex + 1}`;
   }, [endpoint]);
 

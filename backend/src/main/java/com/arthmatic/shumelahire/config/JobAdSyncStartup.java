@@ -2,8 +2,8 @@ package com.arthmatic.shumelahire.config;
 
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.JobPostingStatus;
-import com.arthmatic.shumelahire.repository.JobAdRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobAdDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.JobAdSyncService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +23,12 @@ public class JobAdSyncStartup {
 
     private static final Logger logger = LoggerFactory.getLogger(JobAdSyncStartup.class);
 
-    private final JobPostingRepository jobPostingRepository;
-    private final JobAdRepository jobAdRepository;
+    private final JobPostingDataRepository jobPostingRepository;
+    private final JobAdDataRepository jobAdRepository;
     private final JobAdSyncService jobAdSyncService;
 
-    public JobAdSyncStartup(JobPostingRepository jobPostingRepository,
-                            JobAdRepository jobAdRepository,
+    public JobAdSyncStartup(JobPostingDataRepository jobPostingRepository,
+                            JobAdDataRepository jobAdRepository,
                             JobAdSyncService jobAdSyncService) {
         this.jobPostingRepository = jobPostingRepository;
         this.jobAdRepository = jobAdRepository;
@@ -43,7 +43,7 @@ public class JobAdSyncStartup {
 
         int synced = 0;
         for (JobPosting posting : published) {
-            if (jobAdRepository.findByJobPostingId(posting.getId()).isEmpty()) {
+            if (jobAdRepository.findByJobPostingId(String.valueOf(posting.getId())).isEmpty()) {
                 jobAdSyncService.onJobPostingPublished(posting);
                 synced++;
             }

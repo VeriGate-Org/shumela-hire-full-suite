@@ -1,128 +1,88 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity(name = "TgSalaryRecommendation")
-@Table(name = "tg_salary_recommendations")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SalaryRecommendation extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "recommendation_number", unique = true, nullable = false)
     private String recommendationNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private SalaryRecommendationStatus status = SalaryRecommendationStatus.DRAFT;
 
     // Position details
-    @Column(name = "position_title", nullable = false)
     private String positionTitle;
 
-    @Column(name = "department")
     private String department;
 
-    @Column(name = "job_grade")
     private String jobGrade;
 
-    @Column(name = "position_level")
     private String positionLevel;
 
     // Request details
-    @Column(name = "requested_by")
     private String requestedBy;
 
-    @Column(name = "candidate_name")
     private String candidateName;
 
-    @Column(name = "candidate_current_salary", precision = 15, scale = 2)
     private BigDecimal candidateCurrentSalary;
 
-    @Column(name = "candidate_expected_salary", precision = 15, scale = 2)
     private BigDecimal candidateExpectedSalary;
 
-    @Column(name = "market_data_reference", columnDefinition = "TEXT")
     private String marketDataReference;
 
     // Proposed salary range
-    @Column(name = "proposed_min_salary", precision = 15, scale = 2)
     private BigDecimal proposedMinSalary;
 
-    @Column(name = "proposed_max_salary", precision = 15, scale = 2)
     private BigDecimal proposedMaxSalary;
 
-    @Column(name = "proposed_target_salary", precision = 15, scale = 2)
     private BigDecimal proposedTargetSalary;
 
     // Recommendation
-    @Column(name = "recommended_salary", precision = 15, scale = 2)
     private BigDecimal recommendedSalary;
 
-    @Column(name = "recommended_by")
     private String recommendedBy;
 
-    @Column(name = "recommended_at")
     private LocalDateTime recommendedAt;
 
-    @Column(name = "recommendation_justification", columnDefinition = "TEXT")
     private String recommendationJustification;
 
     // Additional compensation
-    @Column(name = "bonus_recommendation", columnDefinition = "TEXT")
     private String bonusRecommendation;
 
-    @Column(name = "equity_recommendation", columnDefinition = "TEXT")
     private String equityRecommendation;
 
-    @Column(name = "benefits_notes", columnDefinition = "TEXT")
     private String benefitsNotes;
 
     // Approval
-    @Column(name = "requires_approval")
     private Boolean requiresApproval = true;
 
-    @Column(name = "approval_level_required")
     private Integer approvalLevelRequired;
 
-    @Column(name = "approved_by")
     private String approvedBy;
 
-    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(name = "approval_notes", columnDefinition = "TEXT")
     private String approvalNotes;
 
-    @Column(name = "rejected_by")
     private String rejectedBy;
 
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
     // Currency (defaults to ZAR)
-    @Column(name = "currency")
     private String currency = "ZAR";
 
     // Links
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application application;
 
-    @Column(name = "offer_id")
     private Long offerId;
 
     // Timestamps
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public SalaryRecommendation() {
@@ -130,7 +90,6 @@ public class SalaryRecommendation extends TenantAwareEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

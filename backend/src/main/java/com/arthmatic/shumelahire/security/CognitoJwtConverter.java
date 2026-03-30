@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.security;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
@@ -45,9 +45,9 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
             "TA_MANAGER"
     );
 
-    private final UserRepository userRepository;
+    private final UserDataRepository userRepository;
 
-    public CognitoJwtConverter(UserRepository userRepository) {
+    public CognitoJwtConverter(UserDataRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -172,7 +172,7 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
 
         String email = jwt.getClaimAsString("email");
         if (email != null && !email.isBlank()) {
-            Optional<String> role = userRepository.findByEmailAndTenantId(email, tenantId)
+            Optional<String> role = userRepository.findByEmail(email)
                     .map(User::getRole)
                     .map(Enum::name);
             if (role.isPresent()) {
@@ -184,7 +184,7 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
             if (username == null || username.isBlank()) {
                 continue;
             }
-            Optional<String> role = userRepository.findByUsernameAndTenantId(username, tenantId)
+            Optional<String> role = userRepository.findByUsername(username)
                     .map(User::getRole)
                     .map(Enum::name);
             if (role.isPresent()) {

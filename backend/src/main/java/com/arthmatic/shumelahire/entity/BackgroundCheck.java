@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,90 +10,56 @@ import java.time.LocalDateTime;
  * Represents a background/verification check initiated for a candidate
  * through an external verification provider (e.g. Dots Africa).
  */
-@Entity
-@Table(name = "background_checks", indexes = {
-        @Index(name = "idx_bgcheck_tenant", columnList = "tenant_id"),
-        @Index(name = "idx_bgcheck_application", columnList = "application_id"),
-        @Index(name = "idx_bgcheck_reference", columnList = "reference_id"),
-        @Index(name = "idx_bgcheck_status", columnList = "status"),
-})
 public class BackgroundCheck extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
     @NotNull(message = "Application is required")
     private Application application;
 
-    @Column(name = "reference_id", unique = true, length = 100)
     private String referenceId;
 
     @NotBlank(message = "Candidate ID number is required")
-    @Column(name = "candidate_id_number", nullable = false, length = 20)
     private String candidateIdNumber;
 
-    @Column(name = "candidate_name", length = 200)
     private String candidateName;
 
-    @Column(name = "candidate_email", length = 200)
     private String candidateEmail;
 
-    @Column(name = "check_types", columnDefinition = "TEXT")
     private String checkTypes; // JSON array of check type strings
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
     private BackgroundCheckStatus status = BackgroundCheckStatus.INITIATED;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "overall_result", length = 30)
     private BackgroundCheckResult overallResult;
 
-    @Column(name = "results_json", columnDefinition = "TEXT")
     private String resultsJson; // JSON object with per-check-type results
 
-    @Column(name = "consent_obtained", nullable = false)
     private Boolean consentObtained = false;
 
-    @Column(name = "consent_obtained_at")
     private LocalDateTime consentObtainedAt;
 
-    @Column(name = "initiated_by", nullable = false)
     @NotNull(message = "Initiator is required")
     private Long initiatedBy; // User ID who initiated the check
 
-    @Column(name = "provider", length = 50)
     private String provider; // e.g. "dots-africa"
 
-    @Column(name = "external_screening_id", length = 200)
     private String externalScreeningId; // Provider's internal screening reference
 
-    @Column(name = "report_url", length = 500)
     private String reportUrl;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
     // Constructors
@@ -103,7 +68,6 @@ public class BackgroundCheck extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

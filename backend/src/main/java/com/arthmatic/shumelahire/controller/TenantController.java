@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.Tenant;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import com.arthmatic.shumelahire.service.FileStorageService;
 import com.arthmatic.shumelahire.service.TenantOnboardingService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +32,7 @@ import java.util.Set;
 public class TenantController {
 
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantDataRepository tenantRepository;
 
     @Autowired
     private TenantOnboardingService onboardingService;
@@ -61,8 +63,12 @@ public class TenantController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Tenant> tenants = tenantRepository.findAll(pageable);
-        return ResponseEntity.ok(tenants);
+        List<Tenant> allTenants = tenantRepository.findAll();
+        int start = Math.min(page * size, allTenants.size());
+        int end = Math.min(start + size, allTenants.size());
+        List<Tenant> pageContent = allTenants.subList(start, end);
+        Page<Tenant> tenantPage = new PageImpl<>(pageContent, pageable, allTenants.size());
+        return ResponseEntity.ok(tenantPage);
     }
 
     @GetMapping("/{id}")

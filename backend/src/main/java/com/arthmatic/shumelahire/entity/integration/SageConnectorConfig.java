@@ -1,54 +1,30 @@
 package com.arthmatic.shumelahire.entity.integration;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import com.arthmatic.shumelahire.entity.converter.EncryptedFieldConverter;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sage_connector_configs")
 public class SageConnectorConfig extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 200)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "connector_type", nullable = false, length = 30)
     private SageConnectorType connectorType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "auth_method", nullable = false, length = 30)
     private SageAuthMethod authMethod = SageAuthMethod.API_KEY;
 
-    @Column(name = "base_url", length = 500)
     private String baseUrl;
 
-    @Convert(converter = EncryptedFieldConverter.class)
-    @Column(name = "credentials", columnDefinition = "TEXT")
     private String credentials;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 
-    @Column(name = "last_tested_at")
     private LocalDateTime lastTestedAt;
 
-    @Column(name = "last_test_success")
     private Boolean lastTestSuccess;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public SageConnectorConfig() {}

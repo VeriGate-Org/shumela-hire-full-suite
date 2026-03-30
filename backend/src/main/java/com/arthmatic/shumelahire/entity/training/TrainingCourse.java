@@ -1,72 +1,47 @@
 package com.arthmatic.shumelahire.entity.training;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "training_courses")
 public class TrainingCourse extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 300)
     private String title;
 
     @NotBlank
-    @Column(nullable = false, length = 50)
     private String code;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_method", nullable = false, length = 30)
     private DeliveryMethod deliveryMethod = DeliveryMethod.CLASSROOM;
 
-    @Column(length = 100)
     private String category;
 
-    @Column(length = 200)
     private String provider;
 
-    @Column(name = "duration_hours")
     private BigDecimal durationHours;
 
-    @Column(name = "max_participants")
     private Integer maxParticipants;
 
-    @Column
     private BigDecimal cost;
 
-    @Column(name = "is_mandatory", nullable = false)
     private Boolean isMandatory = false;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "linked_competency_ids", columnDefinition = "TEXT")
     private String linkedCompetencyIds;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainingSession> sessions = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

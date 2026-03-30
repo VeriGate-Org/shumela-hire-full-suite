@@ -1,46 +1,31 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "workflow_executions")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class WorkflowExecution extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workflow_definition_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private WorkflowDefinition workflowDefinition;
 
-    @Column(nullable = false, length = 20)
     private String status = "running";
 
-    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "triggered_by")
     private String triggeredBy;
 
-    @Column(name = "current_step")
     private int currentStep = 0;
 
-    @Column(name = "total_steps")
     private int totalSteps = 0;
 
-    @Column(name = "execution_log_json", columnDefinition = "TEXT")
     private String executionLogJson;
 
-    @Column(name = "context_json", columnDefinition = "TEXT")
     private String contextJson;
 
     public WorkflowExecution() {

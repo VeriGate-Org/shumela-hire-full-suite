@@ -5,9 +5,6 @@ import com.arthmatic.shumelahire.dto.labour.DisciplinaryCaseResponse;
 import com.arthmatic.shumelahire.dto.labour.GrievanceResponse;
 import com.arthmatic.shumelahire.service.labour.LabourRelationsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,19 +52,16 @@ public class LabourRelationsController {
     }
 
     @GetMapping("/disciplinary")
-    public ResponseEntity<Page<DisciplinaryCaseResponse>> getDisciplinaryCases(
+    public ResponseEntity<List<DisciplinaryCaseResponse>> getDisciplinaryCases(
             @RequestParam(required = false) Long employeeId,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            @RequestParam(required = false) String status) {
         if (employeeId != null) {
-            return ResponseEntity.ok(labourRelationsService.getDisciplinaryCasesByEmployee(employeeId, pageRequest));
+            return ResponseEntity.ok(labourRelationsService.getDisciplinaryCasesByEmployee(employeeId));
         }
         if (status != null) {
-            return ResponseEntity.ok(labourRelationsService.getDisciplinaryCasesByStatus(status, pageRequest));
+            return ResponseEntity.ok(labourRelationsService.getDisciplinaryCasesByStatus(status));
         }
-        return ResponseEntity.ok(labourRelationsService.getAllDisciplinaryCases(pageRequest));
+        return ResponseEntity.ok(labourRelationsService.getAllDisciplinaryCases());
     }
 
     @PutMapping("/disciplinary/{id}")
@@ -110,19 +105,16 @@ public class LabourRelationsController {
     }
 
     @GetMapping("/grievances")
-    public ResponseEntity<Page<GrievanceResponse>> getGrievances(
+    public ResponseEntity<List<GrievanceResponse>> getGrievances(
             @RequestParam(required = false) Long employeeId,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            @RequestParam(required = false) String status) {
         if (employeeId != null) {
-            return ResponseEntity.ok(labourRelationsService.getGrievancesByEmployee(employeeId, pageRequest));
+            return ResponseEntity.ok(labourRelationsService.getGrievancesByEmployee(employeeId));
         }
         if (status != null) {
-            return ResponseEntity.ok(labourRelationsService.getGrievancesByStatus(status, pageRequest));
+            return ResponseEntity.ok(labourRelationsService.getGrievancesByStatus(status));
         }
-        return ResponseEntity.ok(labourRelationsService.getAllGrievances(pageRequest));
+        return ResponseEntity.ok(labourRelationsService.getAllGrievances());
     }
 
     @PutMapping("/grievances/{id}")

@@ -1,73 +1,47 @@
 package com.arthmatic.shumelahire.entity.leave;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "leave_policies")
 public class LeavePolicy extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
     @NotBlank
-    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "accrual_method", nullable = false, length = 30)
     private AccrualMethod accrualMethod = AccrualMethod.ANNUAL;
 
     @NotNull
-    @Column(name = "days_per_cycle", nullable = false, precision = 5, scale = 2)
     private BigDecimal daysPerCycle;
 
-    @Column(name = "cycle_start_month", nullable = false)
     private Integer cycleStartMonth = 1;
 
-    @Column(name = "min_service_months")
     private Integer minServiceMonths = 0;
 
-    @Column(name = "applicable_employment_types", columnDefinition = "TEXT")
     private String applicableEmploymentTypes;
 
-    @Column(name = "applicable_departments", columnDefinition = "TEXT")
     private String applicableDepartments;
 
-    @Column(name = "allow_negative_balance", nullable = false)
     private Boolean allowNegativeBalance = false;
 
-    @Column(name = "max_consecutive_days")
     private Integer maxConsecutiveDays;
 
-    @Column(name = "min_notice_days")
     private Integer minNoticeDays = 0;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

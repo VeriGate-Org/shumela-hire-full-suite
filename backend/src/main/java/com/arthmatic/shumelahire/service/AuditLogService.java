@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.AuditLog;
-import com.arthmatic.shumelahire.repository.AuditLogRepository;
+import com.arthmatic.shumelahire.repository.AuditLogDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ public class AuditLogService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditLogService.class);
 
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogDataRepository auditLogRepository;
 
     @Autowired
-    public AuditLogService(AuditLogRepository auditLogRepository) {
+    public AuditLogService(AuditLogDataRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
     }
 

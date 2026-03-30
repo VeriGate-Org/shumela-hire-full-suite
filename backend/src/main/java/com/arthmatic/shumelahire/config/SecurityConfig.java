@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.config;
 
 import com.arthmatic.shumelahire.config.tenant.TenantResolutionFilter;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import com.arthmatic.shumelahire.security.JwtAuthenticationFilter;
 import com.arthmatic.shumelahire.security.JwtAuthenticationEntryPoint;
 import com.arthmatic.shumelahire.security.RateLimitFilter;
@@ -37,7 +37,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Profile({"dev", "test", "hybrid"})
+@Profile({"dev", "test"})
 public class SecurityConfig {
 
     @Autowired
@@ -53,7 +53,7 @@ public class SecurityConfig {
     private RateLimitFilter rateLimitFilter;
 
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantDataRepository tenantRepository;
 
     @Autowired
     private Environment environment;

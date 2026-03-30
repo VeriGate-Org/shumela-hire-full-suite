@@ -5,9 +5,9 @@ import com.arthmatic.shumelahire.dto.employee.*;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeDocument;
 import com.arthmatic.shumelahire.entity.EmployeeDocumentTypeConfig;
-import com.arthmatic.shumelahire.repository.EmployeeDocumentRepository;
-import com.arthmatic.shumelahire.repository.EmployeeDocumentTypeConfigRepository;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentTypeConfigDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +30,13 @@ public class EmployeeSelfServiceController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeSelfServiceController.class);
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
-    private EmployeeDocumentRepository documentRepository;
+    private EmployeeDocumentDataRepository documentRepository;
 
     @Autowired
-    private EmployeeDocumentTypeConfigRepository documentTypeConfigRepository;
+    private EmployeeDocumentTypeConfigDataRepository documentTypeConfigRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -46,7 +46,7 @@ public class EmployeeSelfServiceController {
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestParam Long employeeId) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(EmployeeProfileResponse.fromEntity(employee));
         } catch (IllegalArgumentException e) {
@@ -58,7 +58,7 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<?> updateProfile(@RequestParam Long employeeId,
                                            @RequestBody EmployeeProfileUpdateRequest request) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getPersonalEmail() != null) employee.setPersonalEmail(request.getPersonalEmail());
@@ -89,7 +89,7 @@ public class EmployeeSelfServiceController {
     @GetMapping("/banking")
     public ResponseEntity<?> getBankingDetails(@RequestParam Long employeeId) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(Map.of(
                     "bankName", employee.getBankName() != null ? employee.getBankName() : "",
@@ -105,7 +105,7 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<?> updateBankingDetails(@RequestParam Long employeeId,
                                                   @RequestBody BankingDetailsRequest request) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getBankName() != null) employee.setBankName(request.getBankName());
@@ -127,7 +127,7 @@ public class EmployeeSelfServiceController {
     @GetMapping("/emergency-contact")
     public ResponseEntity<?> getEmergencyContact(@RequestParam Long employeeId) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(Map.of(
                     "emergencyContactName", employee.getEmergencyContactName() != null ? employee.getEmergencyContactName() : "",
@@ -143,7 +143,7 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<?> updateEmergencyContact(@RequestParam Long employeeId,
                                                     @RequestBody EmergencyContactRequest request) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getEmergencyContactName() != null) employee.setEmergencyContactName(request.getEmergencyContactName());
@@ -164,7 +164,7 @@ public class EmployeeSelfServiceController {
 
     @GetMapping("/documents")
     public ResponseEntity<List<EmployeeDocumentResponse>> getDocuments(@RequestParam Long employeeId) {
-        List<EmployeeDocument> docs = documentRepository.findByEmployeeIdAndIsActiveTrueOrderByCreatedAtDesc(employeeId);
+        List<EmployeeDocument> docs = documentRepository.findActiveByEmployee(String.valueOf(employeeId));
         List<EmployeeDocumentResponse> responses = docs.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -175,7 +175,7 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<?> uploadDocument(@RequestParam Long employeeId,
                                             @RequestBody Map<String, Object> request) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             EmployeeDocument doc = new EmployeeDocument();
@@ -201,7 +201,7 @@ public class EmployeeSelfServiceController {
 
     @GetMapping("/document-types")
     public ResponseEntity<List<EmployeeDocumentTypeConfig>> getDocumentTypes() {
-        return ResponseEntity.ok(documentTypeConfigRepository.findByIsActiveTrue());
+        return ResponseEntity.ok(documentTypeConfigRepository.findActive());
     }
 
     // ---- Document Verification ----
@@ -211,7 +211,7 @@ public class EmployeeSelfServiceController {
     public ResponseEntity<?> verifyDocument(@PathVariable Long id,
                                              @RequestParam String verifiedBy) {
         try {
-            EmployeeDocument doc = documentRepository.findById(id)
+            EmployeeDocument doc = documentRepository.findById(String.valueOf(id))
                     .orElseThrow(() -> new IllegalArgumentException("Document not found: " + id));
             doc.setIsVerified(true);
             doc.setVerifiedBy(verifiedBy);

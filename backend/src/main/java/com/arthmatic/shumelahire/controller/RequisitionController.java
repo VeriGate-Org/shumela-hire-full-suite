@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.entity.Requisition;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.RequisitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,7 @@ public class RequisitionController {
     private RequisitionService requisitionService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")

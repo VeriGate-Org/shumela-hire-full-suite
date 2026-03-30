@@ -7,9 +7,9 @@ import com.arthmatic.shumelahire.entity.analytics.RiskLevel;
 import com.arthmatic.shumelahire.entity.analytics.SuccessionPlan;
 import com.arthmatic.shumelahire.entity.analytics.SuccessionPlanStatus;
 import com.arthmatic.shumelahire.entity.analytics.ReadinessLevel;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.analytics.AttritionRiskScoreRepository;
-import com.arthmatic.shumelahire.repository.analytics.SuccessionPlanRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.AttritionRiskScoreDataRepository;
+import com.arthmatic.shumelahire.repository.SuccessionPlanDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +31,13 @@ public class AttritionRiskService {
     private static final Logger logger = LoggerFactory.getLogger(AttritionRiskService.class);
 
     @Autowired
-    private AttritionRiskScoreRepository attritionRiskScoreRepository;
+    private AttritionRiskScoreDataRepository attritionRiskScoreRepository;
 
     @Autowired
-    private SuccessionPlanRepository successionPlanRepository;
+    private SuccessionPlanDataRepository successionPlanRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -121,14 +121,14 @@ public class AttritionRiskService {
 
         if (request.get("currentHolderId") != null) {
             Long currentHolderId = Long.valueOf(request.get("currentHolderId").toString());
-            Employee currentHolder = employeeRepository.findById(currentHolderId)
+            Employee currentHolder = employeeRepository.findById(String.valueOf(currentHolderId))
                     .orElseThrow(() -> new RuntimeException("Current holder not found: " + currentHolderId));
             plan.setCurrentHolder(currentHolder);
         }
 
         if (request.get("successorId") != null) {
             Long successorId = Long.valueOf(request.get("successorId").toString());
-            Employee successor = employeeRepository.findById(successorId)
+            Employee successor = employeeRepository.findById(String.valueOf(successorId))
                     .orElseThrow(() -> new RuntimeException("Successor not found: " + successorId));
             plan.setSuccessor(successor);
         }

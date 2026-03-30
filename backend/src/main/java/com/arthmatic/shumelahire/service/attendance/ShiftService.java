@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service.attendance;
 
 import com.arthmatic.shumelahire.entity.attendance.Shift;
-import com.arthmatic.shumelahire.repository.attendance.ShiftRepository;
+import com.arthmatic.shumelahire.repository.ShiftDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class ShiftService {
     private static final Logger logger = LoggerFactory.getLogger(ShiftService.class);
 
     @Autowired
-    private ShiftRepository shiftRepository;
+    private ShiftDataRepository shiftRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -56,7 +56,7 @@ public class ShiftService {
 
     @Transactional(readOnly = true)
     public Shift getById(Long id) {
-        return shiftRepository.findById(id)
+        return shiftRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Shift not found: " + id));
     }
 }

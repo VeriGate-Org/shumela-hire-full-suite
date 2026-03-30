@@ -1,12 +1,12 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
-import com.arthmatic.shumelahire.repository.InterviewFeedbackRepository;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewFeedbackDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 public class InterviewService {
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
-    private InterviewFeedbackRepository interviewFeedbackRepository;
+    private InterviewFeedbackDataRepository interviewFeedbackRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -41,7 +41,7 @@ public class InterviewService {
     // Core CRUD operations
     public Interview createInterview(Interview interview, Long createdBy) {
         // Validate application exists and is in valid state
-        Application application = applicationRepository.findById(interview.getApplication().getId())
+        Application application = applicationRepository.findById(String.valueOf(interview.getApplication().getId()))
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         if (!canScheduleInterviewForApplication(application)) {
@@ -113,7 +113,7 @@ public class InterviewService {
     }
 
     public Interview getInterviewById(Long id) {
-        return interviewRepository.findByIdWithDetails(id)
+        return interviewRepository.findByIdWithDetails(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Interview not found with id: " + id));
     }
 
@@ -131,14 +131,14 @@ public class InterviewService {
             String.format("Interview '%s' deleted", interview.getTitle())
         );
         
-        interviewRepository.deleteById(id);
+        interviewRepository.deleteById(String.valueOf(id));
     }
 
     // Scheduling operations
     public Interview scheduleInterview(Long applicationId, LocalDateTime scheduledAt, 
                                      Long interviewerId, InterviewType type, 
                                      InterviewRound round, Long scheduledBy) {
-        Application application = applicationRepository.findById(applicationId)
+        Application application = applicationRepository.findById(String.valueOf(applicationId))
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         Interview interview = new Interview(application, scheduledAt, interviewerId, type);
@@ -296,7 +296,7 @@ public class InterviewService {
 
         // Check if this user already submitted feedback — update if so
         InterviewFeedback feedbackEntity = interviewFeedbackRepository
-            .findByInterviewIdAndSubmittedBy(interviewId, submittedBy)
+            .findByInterviewIdAndSubmittedBy(String.valueOf(interviewId), String.valueOf(submittedBy))
             .orElse(new InterviewFeedback());
 
         boolean isUpdate = feedbackEntity.getId() != null;
@@ -338,22 +338,22 @@ public class InterviewService {
     }
 
     public List<InterviewFeedback> getFeedbacksForInterview(Long interviewId) {
-        return interviewFeedbackRepository.findByInterviewIdOrderBySubmittedAtDesc(interviewId);
+        return interviewFeedbackRepository.findByInterviewIdOrderBySubmittedAtDesc(String.valueOf(interviewId));
     }
 
     public Optional<InterviewFeedback> getFeedbackByInterviewAndUser(Long interviewId, Long userId) {
-        return interviewFeedbackRepository.findByInterviewIdAndSubmittedBy(interviewId, userId);
+        return interviewFeedbackRepository.findByInterviewIdAndSubmittedBy(String.valueOf(interviewId), String.valueOf(userId));
     }
 
     public void deleteFeedback(Long feedbackId, Long deletedBy) {
-        InterviewFeedback feedback = interviewFeedbackRepository.findById(feedbackId)
+        InterviewFeedback feedback = interviewFeedbackRepository.findById(String.valueOf(feedbackId))
             .orElseThrow(() -> new IllegalArgumentException("Feedback not found: " + feedbackId));
 
         if (!feedback.getSubmittedBy().equals(deletedBy)) {
             throw new IllegalStateException("Only the feedback author can delete their feedback");
         }
 
-        interviewFeedbackRepository.delete(feedback);
+        interviewFeedbackRepository.deleteById(String.valueOf(feedback.getId()));
 
         auditLogService.logUserAction(
             deletedBy,
@@ -373,11 +373,11 @@ public class InterviewService {
     }
 
     public List<Interview> getInterviewsByApplication(Long applicationId) {
-        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(applicationId);
+        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(String.valueOf(applicationId));
     }
 
     public List<Interview> getInterviewerSchedule(Long interviewerId, LocalDateTime startDate, LocalDateTime endDate) {
-        return interviewRepository.findInterviewerSchedule(interviewerId, startDate, endDate);
+        return interviewRepository.findInterviewerSchedule(String.valueOf(interviewerId), startDate, endDate);
     }
 
     public List<Interview> getUpcomingInterviews(int days) {
@@ -393,7 +393,7 @@ public class InterviewService {
     // Availability and conflict checking (uses JPQL + Java filtering for DB portability)
     public boolean isInterviewerAvailable(Long interviewerId, LocalDateTime startTime, int durationMinutes) {
         LocalDateTime endTime = startTime.plusMinutes(durationMinutes);
-        List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(interviewerId, endTime);
+        List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(String.valueOf(interviewerId), endTime);
         return potentialConflicts.stream()
                 .noneMatch(i -> i.hasConflictWith(startTime, endTime));
     }

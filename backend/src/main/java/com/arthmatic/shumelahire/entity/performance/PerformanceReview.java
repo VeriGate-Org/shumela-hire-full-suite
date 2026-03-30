@@ -1,88 +1,60 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "performance_reviews")
 public class PerformanceReview extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contract_id", nullable = false)
     @NotNull(message = "Performance contract is required")
     private PerformanceContract contract;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "review_type", nullable = false)
     private ReviewType type;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ReviewStatus status = ReviewStatus.PENDING;
     
     // Self-assessment data
-    @Column(name = "self_assessment_notes", columnDefinition = "TEXT")
     private String selfAssessmentNotes;
     
-    @Column(name = "self_rating", precision = 3, scale = 2)
     private BigDecimal selfRating;
     
-    @Column(name = "self_submitted_at")
     private LocalDateTime selfSubmittedAt;
     
     // Manager assessment data
-    @Column(name = "manager_assessment_notes", columnDefinition = "TEXT")
     private String managerAssessmentNotes;
     
-    @Column(name = "manager_rating", precision = 3, scale = 2)
     private BigDecimal managerRating;
     
-    @Column(name = "manager_submitted_at")
     private LocalDateTime managerSubmittedAt;
     
     // Final scores (post-moderation)
-    @Column(name = "final_rating", precision = 3, scale = 2)
     private BigDecimal finalRating;
     
-    @Column(name = "moderated_at")
     private LocalDateTime moderatedAt;
     
-    @Column(name = "moderated_by", length = 50)
     private String moderatedBy;
     
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
     
     // Review period dates
-    @Column(name = "review_period_start")
     private LocalDateTime reviewPeriodStart;
     
-    @Column(name = "review_period_end")
     private LocalDateTime reviewPeriodEnd;
     
-    @Column(name = "due_date")
     private LocalDateTime dueDate;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
     // Relationships
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReviewGoalScore> goalScores;
     
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReviewEvidence> evidenceFiles;
     
     // Constructors
@@ -97,7 +69,6 @@ public class PerformanceReview extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

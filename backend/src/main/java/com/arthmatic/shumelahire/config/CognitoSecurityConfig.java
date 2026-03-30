@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.config;
 
 import com.arthmatic.shumelahire.config.tenant.TenantResolutionFilter;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import com.arthmatic.shumelahire.security.CognitoJwtConverter;
 import com.arthmatic.shumelahire.security.CognitoUserProvisioningFilter;
 import com.arthmatic.shumelahire.security.RateLimitFilter;
@@ -34,7 +34,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Profile({"cloud", "ppe", "prod"})
+@Profile({"cloud", "prod"})
 public class CognitoSecurityConfig {
 
     @Autowired
@@ -44,7 +44,7 @@ public class CognitoSecurityConfig {
     private CognitoUserProvisioningFilter cognitoUserProvisioningFilter;
 
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantDataRepository tenantRepository;
 
     @Autowired
     private Environment environment;
@@ -74,11 +74,6 @@ public class CognitoSecurityConfig {
                     "https://shumelahire.co.za",
                     "https://www.shumelahire.co.za",
                     "https://*.shumelahire.co.za"
-            );
-        } else if (activeProfiles.contains("ppe")) {
-            return Arrays.asList(
-                    "https://ppe.shumelahire.co.za",
-                    "https://*.ppe.shumelahire.co.za"
             );
         } else {
             return Arrays.asList(

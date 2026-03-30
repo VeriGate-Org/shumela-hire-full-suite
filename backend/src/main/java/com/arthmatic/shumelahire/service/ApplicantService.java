@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.DocumentRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.DocumentDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,13 +25,13 @@ public class ApplicantService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicantService.class);
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    private final ApplicantRepository applicantRepository;
-    private final DocumentRepository documentRepository;
+    private final ApplicantDataRepository applicantRepository;
+    private final DocumentDataRepository documentRepository;
     private final AuditLogService auditLogService;
     private final FileStorageService fileStorageService;
 
-    public ApplicantService(ApplicantRepository applicantRepository,
-                           DocumentRepository documentRepository,
+    public ApplicantService(ApplicantDataRepository applicantRepository,
+                           DocumentDataRepository documentRepository,
                            AuditLogService auditLogService,
                            FileStorageService fileStorageService) {
         this.applicantRepository = applicantRepository;
@@ -171,7 +171,7 @@ public class ApplicantService {
     public void deleteDocument(Long applicantId, Long documentId) {
         logger.info("Deleting document {} for applicant: {}", documentId, applicantId);
 
-        Document document = documentRepository.findById(documentId)
+        Document document = documentRepository.findById(String.valueOf(documentId))
                 .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
 
         if (!document.getApplicant().getId().equals(applicantId)) {
@@ -186,7 +186,7 @@ public class ApplicantService {
         }
 
         // Delete document record
-        documentRepository.delete(document);
+        documentRepository.deleteById(String.valueOf(document.getId()));
 
         // Log to audit
         auditLogService.logApplicantAction(applicantId, "DOCUMENT_DELETED", "APPLICANT",
@@ -200,7 +200,7 @@ public class ApplicantService {
      */
     @Transactional(readOnly = true)
     public List<Document> getApplicantDocuments(Long applicantId) {
-        return documentRepository.findByApplicantIdOrderByUploadedAtDesc(applicantId);
+        return documentRepository.findByApplicantIdOrderByUploadedAtDesc(String.valueOf(applicantId));
     }
 
     /**
@@ -222,7 +222,7 @@ public class ApplicantService {
     // Helper methods
 
     private Applicant findApplicantById(Long id) {
-        return applicantRepository.findById(id)
+        return applicantRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + id));
     }
 

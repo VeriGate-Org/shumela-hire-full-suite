@@ -2,42 +2,27 @@ package com.arthmatic.shumelahire.entity.mobile;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "device_registrations")
 public class DeviceRegistration extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column(name = "device_token", nullable = false, length = 500)
     private String deviceToken;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "platform", nullable = false, length = 20)
     private DevicePlatform platform;
 
-    @Column(name = "device_name", length = 200)
     private String deviceName;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
 
-    @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
-    @PrePersist
     protected void onPrePersist() {
         if (this.registeredAt == null) {
             this.registeredAt = LocalDateTime.now();

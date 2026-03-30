@@ -1,9 +1,9 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.TalentPoolEntryRepository;
-import com.arthmatic.shumelahire.repository.TalentPoolRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.TalentPoolEntryDataRepository;
+import com.arthmatic.shumelahire.repository.TalentPoolDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,13 @@ public class TalentPoolService {
     private static final Logger logger = LoggerFactory.getLogger(TalentPoolService.class);
 
     @Autowired
-    private TalentPoolRepository talentPoolRepository;
+    private TalentPoolDataRepository talentPoolRepository;
 
     @Autowired
-    private TalentPoolEntryRepository talentPoolEntryRepository;
+    private TalentPoolEntryDataRepository talentPoolEntryRepository;
 
     @Autowired
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     public TalentPool createPool(TalentPool pool) {
         pool.setCreatedAt(LocalDateTime.now());
@@ -42,7 +42,7 @@ public class TalentPoolService {
     }
 
     public TalentPool getPool(Long id) {
-        return talentPoolRepository.findById(id)
+        return talentPoolRepository.findById(String.valueOf(id))
             .orElseThrow(() -> new RuntimeException("Talent pool not found: " + id));
     }
 
@@ -65,7 +65,7 @@ public class TalentPoolService {
         }
 
         TalentPool pool = getPool(poolId);
-        Applicant applicant = applicantRepository.findById(applicantId)
+        Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
             .orElseThrow(() -> new RuntimeException("Applicant not found: " + applicantId));
 
         TalentPoolEntry entry = new TalentPoolEntry();
@@ -82,12 +82,12 @@ public class TalentPoolService {
     }
 
     public List<TalentPoolEntry> getEntries(Long poolId) {
-        return talentPoolEntryRepository.findByTalentPoolId(poolId);
+        return talentPoolEntryRepository.findByTalentPoolId(String.valueOf(poolId));
     }
 
     @Transactional
     public void removeEntry(Long entryId, String reason) {
-        TalentPoolEntry entry = talentPoolEntryRepository.findById(entryId)
+        TalentPoolEntry entry = talentPoolEntryRepository.findById(String.valueOf(entryId))
             .orElseThrow(() -> new RuntimeException("Entry not found: " + entryId));
         entry.setRemovedAt(LocalDateTime.now());
         entry.setRemovalReason(reason);
@@ -97,7 +97,7 @@ public class TalentPoolService {
 
     @Transactional
     public TalentPoolEntry updateRating(Long entryId, Integer rating) {
-        TalentPoolEntry entry = talentPoolEntryRepository.findById(entryId)
+        TalentPoolEntry entry = talentPoolEntryRepository.findById(String.valueOf(entryId))
             .orElseThrow(() -> new RuntimeException("Entry not found: " + entryId));
         entry.setRating(rating);
         return talentPoolEntryRepository.save(entry);
@@ -122,7 +122,7 @@ public class TalentPoolService {
 
     public Map<String, Object> getPoolAnalytics(Long poolId) {
         TalentPool pool = getPool(poolId);
-        List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(poolId);
+        List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(String.valueOf(poolId));
 
         long activeCount = entries.stream().filter(e -> e.getRemovedAt() == null).count();
         double avgRating = entries.stream()

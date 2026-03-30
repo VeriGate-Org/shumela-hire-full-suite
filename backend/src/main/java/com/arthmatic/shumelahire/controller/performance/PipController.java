@@ -5,14 +5,12 @@ import com.arthmatic.shumelahire.dto.performance.PipCreateRequest;
 import com.arthmatic.shumelahire.dto.performance.PipResponse;
 import com.arthmatic.shumelahire.service.performance.PipService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,29 +42,20 @@ public class PipController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<Page<PipResponse>> getPipsByEmployee(
-            @PathVariable Long employeeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(pipService.getPipsByEmployee(employeeId,
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<PipResponse>> getPipsByEmployee(
+            @PathVariable Long employeeId) {
+        return ResponseEntity.ok(pipService.getPipsByEmployee(employeeId));
     }
 
     @GetMapping("/manager/{managerId}")
-    public ResponseEntity<Page<PipResponse>> getPipsByManager(
-            @PathVariable Long managerId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(pipService.getPipsByManager(managerId,
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<PipResponse>> getPipsByManager(
+            @PathVariable Long managerId) {
+        return ResponseEntity.ok(pipService.getPipsByManager(managerId));
     }
 
     @GetMapping("/active")
-    public ResponseEntity<Page<PipResponse>> getActivePips(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(pipService.getActivePips(
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<PipResponse>> getActivePips() {
+        return ResponseEntity.ok(pipService.getActivePips());
     }
 
     @PutMapping("/{id}/status")

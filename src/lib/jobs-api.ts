@@ -28,7 +28,9 @@ export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
     url.searchParams.set('sort', 'createdAt,desc');
 
     const response = await fetch(url.toString(), {
-      next: { revalidate: 300 },
+      // Static export: ISR revalidation not available; data fetched at build time
+      // or client-side. Cache headers are set by CloudFront/API Gateway.
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -57,7 +59,8 @@ export async function fetchJobBySlug(slug: string): Promise<BackendJobAd | null>
   try {
     const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/ads/${slug}`, {
-      next: { revalidate: 300 },
+      // Static export: ISR revalidation not available; cache via CloudFront/API Gateway
+      cache: 'no-store',
     });
 
     if (!response.ok) {

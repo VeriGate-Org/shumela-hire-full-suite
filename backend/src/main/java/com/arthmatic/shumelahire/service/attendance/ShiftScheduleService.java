@@ -4,9 +4,9 @@ import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.attendance.Shift;
 import com.arthmatic.shumelahire.entity.attendance.ShiftSchedule;
 import com.arthmatic.shumelahire.entity.attendance.ShiftScheduleStatus;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.attendance.ShiftRepository;
-import com.arthmatic.shumelahire.repository.attendance.ShiftScheduleRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.ShiftDataRepository;
+import com.arthmatic.shumelahire.repository.ShiftScheduleDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,22 +22,22 @@ public class ShiftScheduleService {
 
   private static final Logger logger = LoggerFactory.getLogger(ShiftScheduleService.class);
 
-  @Autowired private ShiftScheduleRepository shiftScheduleRepository;
+  @Autowired private ShiftScheduleDataRepository shiftScheduleRepository;
 
-  @Autowired private ShiftRepository shiftRepository;
+  @Autowired private ShiftDataRepository shiftRepository;
 
-  @Autowired private EmployeeRepository employeeRepository;
+  @Autowired private EmployeeDataRepository employeeRepository;
 
   @Autowired private AuditLogService auditLogService;
 
   public ShiftSchedule assign(Long employeeId, Long shiftId, LocalDate date, String userId) {
     Employee employee =
         employeeRepository
-            .findById(employeeId)
+            .findById(String.valueOf(employeeId))
             .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
     Shift shift =
         shiftRepository
-            .findById(shiftId)
+            .findById(String.valueOf(shiftId))
             .orElseThrow(() -> new IllegalArgumentException("Shift not found: " + shiftId));
 
     ShiftSchedule schedule = new ShiftSchedule();
@@ -59,7 +59,7 @@ public class ShiftScheduleService {
   @Transactional(readOnly = true)
   public List<ShiftSchedule> getByEmployeeAndDateRange(
       Long employeeId, LocalDate start, LocalDate end) {
-    return shiftScheduleRepository.findByEmployeeIdAndScheduleDateBetween(employeeId, start, end);
+    return shiftScheduleRepository.findByEmployeeIdAndScheduleDateBetween(String.valueOf(employeeId), start, end);
   }
 
   @Transactional(readOnly = true)
@@ -75,11 +75,11 @@ public class ShiftScheduleService {
   public void swapSchedules(Long scheduleId1, Long scheduleId2) {
     ShiftSchedule s1 =
         shiftScheduleRepository
-            .findById(scheduleId1)
+            .findById(String.valueOf(scheduleId1))
             .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId1));
     ShiftSchedule s2 =
         shiftScheduleRepository
-            .findById(scheduleId2)
+            .findById(String.valueOf(scheduleId2))
             .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId2));
 
     // Swap employees

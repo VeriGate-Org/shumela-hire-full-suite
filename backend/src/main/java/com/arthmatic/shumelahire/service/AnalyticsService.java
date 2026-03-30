@@ -1,9 +1,14 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.*;
+import com.arthmatic.shumelahire.service.analytics.AthenaQueryService;
+import com.arthmatic.shumelahire.service.analytics.AthenaQueryTemplates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,22 +26,33 @@ import java.util.stream.Collectors;
 public class AnalyticsService {
 
     @Autowired
-    private RecruitmentMetricsRepository metricsRepository;
-    
+    private RecruitmentMetricsDataRepository metricsRepository;
+
     @Autowired
-    private ApplicationRepository applicationRepository;
-    
+    private ApplicationDataRepository applicationRepository;
+
     @Autowired
-    private JobPostingRepository jobPostingRepository;
-    
+    private JobPostingDataRepository jobPostingRepository;
+
     @Autowired
-    private InterviewRepository interviewRepository;
-    
+    private InterviewDataRepository interviewRepository;
+
     @Autowired
-    private OfferRepository offerRepository;
-    
+    private OfferDataRepository offerRepository;
+
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
+    private boolean useAthena() {
+        return athenaQueryService != null;
+    }
+
+    private Map<String, String> tenantParams() {
+        return Map.of("tenantId", TenantContext.getCurrentTenant());
+    }
 
     // Core metrics calculation
     public void calculateAndStoreMetrics(LocalDate date, String department) {
@@ -122,9 +138,11 @@ public class AnalyticsService {
         // No-show rate
         Long totalScheduled = interviewRepository.countByScheduledAtBetween(
             date.atStartOfDay(), date.atTime(23, 59, 59));
-        Long noShows = interviewRepository.countByStatusAndScheduledAtBetween(
-            InterviewStatus.NO_SHOW, date.atStartOfDay(), date.atTime(23, 59, 59));
-        
+        Long noShows = interviewRepository.findByScheduledAtBetween(
+            date.atStartOfDay(), date.atTime(23, 59, 59)).stream()
+            .filter(i -> i.getStatus() == InterviewStatus.NO_SHOW)
+            .count();
+
         if (totalScheduled > 0) {
             BigDecimal noShowRate = BigDecimal.valueOf(noShows)
                 .divide(BigDecimal.valueOf(totalScheduled), 4, RoundingMode.HALF_UP)
@@ -132,10 +150,12 @@ public class AnalyticsService {
             saveMetric(date, "INTERVIEWS", "no_show_rate", MetricType.PERCENTAGE,
                       noShowRate, department);
         }
-        
+
         // Average interview score
-        List<Interview> completedInterviews = interviewRepository.findByStatusAndScheduledAtBetween(
-            InterviewStatus.COMPLETED, date.atStartOfDay(), date.atTime(23, 59, 59));
+        List<Interview> completedInterviews = interviewRepository.findByScheduledAtBetween(
+            date.atStartOfDay(), date.atTime(23, 59, 59)).stream()
+            .filter(i -> i.getStatus() == InterviewStatus.COMPLETED)
+            .toList();
         
         if (!completedInterviews.isEmpty()) {
             double avgScore = completedInterviews.stream()
@@ -181,8 +201,13 @@ public class AnalyticsService {
         }
         
         // Average offer amount
-        BigDecimal avgOfferAmount = offerRepository.getAverageAcceptedSalaryByType(
-            OfferType.FULL_TIME_PERMANENT, startOfDay, endOfDay);
+        List<Offer> acceptedOffers = offerRepository.findByOfferType(OfferType.FULL_TIME_PERMANENT).stream()
+            .filter(o -> o.getStatus() == OfferStatus.ACCEPTED && o.getBaseSalary() != null)
+            .toList();
+        BigDecimal avgOfferAmount = acceptedOffers.isEmpty() ? null :
+            acceptedOffers.stream().map(Offer::getBaseSalary)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(acceptedOffers.size()), RoundingMode.HALF_UP);
         if (avgOfferAmount != null) {
             saveMetric(date, "OFFERS", "avg_offer_amount", MetricType.COST,
                       avgOfferAmount, department);
@@ -307,6 +332,86 @@ public class AnalyticsService {
         }
     }
 
+    // ── Athena-backed analytics queries ──────────────────────────────────────
+
+    /**
+     * Get application status counts using Athena when available, falls back to in-memory.
+     */
+    public List<Map<String, String>> getApplicationStatusCounts() {
+        if (useAthena()) {
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.APPLICATION_STATUS_COUNTS, tenantParams());
+        }
+        // Fallback: delegate to existing repository-based approach
+        return List.of();
+    }
+
+    /**
+     * Get daily application totals from Athena.
+     */
+    public List<Map<String, String>> getApplicationDailyTotals(LocalDate startDate, LocalDate endDate) {
+        if (useAthena()) {
+            Map<String, String> params = new HashMap<>(tenantParams());
+            params.put("startDate", startDate.toString());
+            params.put("endDate", endDate.toString());
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.APPLICATION_DAILY_TOTALS, params);
+        }
+        return List.of();
+    }
+
+    /**
+     * Get offer status distribution from Athena.
+     */
+    public List<Map<String, String>> getOfferStatusDistribution(LocalDate startDate, LocalDate endDate) {
+        if (useAthena()) {
+            Map<String, String> params = new HashMap<>(tenantParams());
+            params.put("startDate", startDate.toString());
+            params.put("endDate", endDate.toString());
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.OFFER_STATUS_DISTRIBUTION, params);
+        }
+        return List.of();
+    }
+
+    /**
+     * Get average salary by department from Athena.
+     */
+    public List<Map<String, String>> getAverageSalaryByDepartment() {
+        if (useAthena()) {
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.AVERAGE_SALARY_BY_DEPARTMENT, tenantParams());
+        }
+        return List.of();
+    }
+
+    /**
+     * Get average metric by department from Athena.
+     */
+    public List<Map<String, String>> getAverageMetricByDepartmentAthena(String metricName, LocalDate startDate) {
+        if (useAthena()) {
+            Map<String, String> params = new HashMap<>(tenantParams());
+            params.put("metricName", metricName);
+            params.put("startDate", startDate.toString());
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.METRIC_BY_DEPARTMENT, params);
+        }
+        return List.of();
+    }
+
+    /**
+     * Get pipeline velocity from Athena.
+     */
+    public List<Map<String, String>> getPipelineVelocity(LocalDate startDate) {
+        if (useAthena()) {
+            Map<String, String> params = new HashMap<>(tenantParams());
+            params.put("startDate", startDate.toString());
+            return athenaQueryService.executeQuery(
+                    AthenaQueryTemplates.PIPELINE_VELOCITY, params);
+        }
+        return List.of();
+    }
+
     // Dashboard and reporting methods
     @Transactional(readOnly = true)
     public Map<String, Object> getDashboardMetrics(String department, LocalDate date) {
@@ -387,7 +492,7 @@ public class AnalyticsService {
         
         // Individual metrics
         List<RecruitmentMetrics> userMetrics = userType.equals("recruiter") ?
-            metricsRepository.findByRecruiterAndDateRange(userId, startDate, endDate) :
+            metricsRepository.findByRecruiterAndDateRange(String.valueOf(userId), startDate, endDate) :
             new ArrayList<>();
         
         report.put("metrics", userMetrics);
@@ -556,7 +661,12 @@ public class AnalyticsService {
                                                  Long recruiterId, Long hiringManagerId,
                                                  LocalDate startDate, LocalDate endDate,
                                                  Pageable pageable) {
-        return metricsRepository.searchMetrics(category, name, department, recruiterId, 
-                                             hiringManagerId, startDate, endDate, pageable);
+        CursorPage<RecruitmentMetrics> result = metricsRepository.searchMetrics(
+            category, name, department,
+            recruiterId != null ? String.valueOf(recruiterId) : null,
+            hiringManagerId != null ? String.valueOf(hiringManagerId) : null,
+            startDate, endDate,
+            pageable.getPageNumber(), pageable.getPageSize());
+        return new PageImpl<>(result.content(), pageable, result.content().size());
     }
 }

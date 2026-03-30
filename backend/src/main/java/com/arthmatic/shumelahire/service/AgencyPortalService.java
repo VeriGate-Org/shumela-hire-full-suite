@@ -1,10 +1,10 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.AgencyProfileRepository;
-import com.arthmatic.shumelahire.repository.AgencySubmissionRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.AgencyProfileDataRepository;
+import com.arthmatic.shumelahire.repository.AgencySubmissionDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,16 @@ public class AgencyPortalService {
     private static final Logger logger = LoggerFactory.getLogger(AgencyPortalService.class);
 
     @Autowired
-    private AgencyProfileRepository agencyProfileRepository;
+    private AgencyProfileDataRepository agencyProfileRepository;
 
     @Autowired
-    private AgencySubmissionRepository agencySubmissionRepository;
+    private AgencySubmissionDataRepository agencySubmissionRepository;
 
     @Autowired
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Autowired(required = false)
     private CognitoAdminService cognitoAdminService;
@@ -50,7 +50,7 @@ public class AgencyPortalService {
     }
 
     public AgencyProfile getAgency(Long id) {
-        return agencyProfileRepository.findById(id)
+        return agencyProfileRepository.findById(String.valueOf(id))
             .orElseThrow(() -> new RuntimeException("Agency not found: " + id));
     }
 
@@ -125,7 +125,7 @@ public class AgencyPortalService {
             throw new IllegalStateException("Only active agencies can submit candidates");
         }
 
-        JobPosting jobPosting = jobPostingRepository.findById(submission.getJobPosting().getId())
+        JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(submission.getJobPosting().getId()))
             .orElseThrow(() -> new RuntimeException("Job posting not found"));
 
         submission.setAgency(agency);
@@ -141,7 +141,7 @@ public class AgencyPortalService {
 
     @Transactional
     public AgencySubmission reviewSubmission(Long submissionId, boolean accept, Long reviewedBy) {
-        AgencySubmission submission = agencySubmissionRepository.findById(submissionId)
+        AgencySubmission submission = agencySubmissionRepository.findById(String.valueOf(submissionId))
             .orElseThrow(() -> new RuntimeException("Submission not found: " + submissionId));
 
         submission.setStatus(accept ? AgencySubmissionStatus.ACCEPTED : AgencySubmissionStatus.REJECTED);
@@ -155,9 +155,9 @@ public class AgencyPortalService {
 
     public Map<String, Object> getAgencyDashboard(Long agencyId) {
         AgencyProfile agency = getAgency(agencyId);
-        long totalSubmissions = agencySubmissionRepository.countByAgencyId(agencyId);
+        long totalSubmissions = agencySubmissionRepository.countByAgencyId(String.valueOf(agencyId));
         long acceptedSubmissions = agencySubmissionRepository.countByAgencyIdAndStatus(
-            agencyId, AgencySubmissionStatus.ACCEPTED);
+            String.valueOf(agencyId), AgencySubmissionStatus.ACCEPTED);
 
         Map<String, Object> dashboard = new LinkedHashMap<>();
         dashboard.put("agencyName", agency.getAgencyName());

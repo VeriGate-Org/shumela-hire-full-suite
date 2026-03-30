@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.training.CertificationResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.training.Certification;
 import com.arthmatic.shumelahire.entity.training.CertificationStatus;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.training.CertificationRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.CertificationDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -28,10 +28,10 @@ public class CertificationService {
     private static final Logger logger = LoggerFactory.getLogger(CertificationService.class);
 
     @Autowired
-    private CertificationRepository certificationRepository;
+    private CertificationDataRepository certificationRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -48,14 +48,14 @@ public class CertificationService {
 
     @Transactional(readOnly = true)
     public List<CertificationResponse> getByEmployee(Long employeeId) {
-        return certificationRepository.findByEmployeeId(employeeId).stream()
+        return certificationRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
                 .map(CertificationResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public CertificationResponse getById(Long id) {
-        Certification cert = certificationRepository.findById(id)
+        Certification cert = certificationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
         return CertificationResponse.fromEntity(cert);
     }
@@ -71,13 +71,13 @@ public class CertificationService {
 
     @Transactional(readOnly = true)
     public List<CertificationResponse> getExpired() {
-        return certificationRepository.findExpired(LocalDate.now()).stream()
+        return certificationRepository.findExpired().stream()
                 .map(CertificationResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     public CertificationResponse create(CertificationRequest request, String userId) {
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
+        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
         Certification cert = new Certification();
@@ -103,7 +103,7 @@ public class CertificationService {
     }
 
     public CertificationResponse update(Long id, CertificationRequest request, String userId) {
-        Certification cert = certificationRepository.findById(id)
+        Certification cert = certificationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
 
         cert.setName(request.getName());
@@ -124,7 +124,7 @@ public class CertificationService {
     }
 
     public void revoke(Long id, String userId) {
-        Certification cert = certificationRepository.findById(id)
+        Certification cert = certificationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
         cert.setStatus(CertificationStatus.REVOKED);
         certificationRepository.save(cert);

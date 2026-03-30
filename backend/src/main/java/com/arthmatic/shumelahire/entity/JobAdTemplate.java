@@ -1,80 +1,53 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "job_ad_templates")
 public class JobAdTemplate extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Template name is required")
-    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(length = 500)
     private String description;
 
     @NotBlank(message = "Title template is required")
-    @Column(nullable = false, length = 500)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String intro;
 
-    @Column(columnDefinition = "TEXT")
     private String responsibilities;
 
-    @Column(columnDefinition = "TEXT")
     private String requirements;
 
-    @Column(columnDefinition = "TEXT")
     private String benefits;
 
-    @Column(length = 200)
     private String location;
 
-    @Column(name = "employment_type", length = 30)
     private String employmentType;
 
-    @Column(name = "salary_range_min", precision = 12, scale = 2)
     private BigDecimal salaryRangeMin;
 
-    @Column(name = "salary_range_max", precision = 12, scale = 2)
     private BigDecimal salaryRangeMax;
 
-    @Column(name = "closing_date")
     private LocalDate closingDate;
 
     @NotBlank(message = "Contact email is required")
-    @Column(name = "contact_email", nullable = false, length = 200)
     private String contactEmail;
 
-    @Column(name = "is_archived", nullable = false)
     private Boolean isArchived = false;
 
-    @Column(name = "usage_count", nullable = false)
     private Integer usageCount = 0;
 
     @NotBlank(message = "Created by is required")
-    @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public JobAdTemplate() {}

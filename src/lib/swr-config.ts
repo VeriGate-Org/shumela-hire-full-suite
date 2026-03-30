@@ -1,5 +1,7 @@
 import { SWRConfiguration } from 'swr';
 
+// NEXT_PUBLIC_API_URL must be set at build time for static export.
+// Falls back to localhost:8080 for local development only.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 async function getAuthToken(): Promise<string | null> {

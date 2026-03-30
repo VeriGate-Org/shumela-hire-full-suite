@@ -1,68 +1,45 @@
 package com.arthmatic.shumelahire.entity.leave;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "leave_types")
 public class LeaveType extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 100)
     private String name;
 
     @NotBlank
-    @Column(nullable = false, length = 30)
     private String code;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotNull
-    @Column(name = "default_days_per_year", nullable = false, precision = 5, scale = 2)
     private BigDecimal defaultDaysPerYear = BigDecimal.ZERO;
 
-    @Column(name = "max_carry_forward_days", precision = 5, scale = 2)
     private BigDecimal maxCarryForwardDays = BigDecimal.ZERO;
 
-    @Column(name = "requires_medical_certificate", nullable = false)
     private Boolean requiresMedicalCertificate = false;
 
-    @Column(name = "medical_cert_threshold_days")
     private Integer medicalCertThresholdDays = 2;
 
-    @Column(name = "is_paid", nullable = false)
     private Boolean isPaid = true;
 
-    @Column(name = "allow_encashment", nullable = false)
     private Boolean allowEncashment = false;
 
-    @Column(name = "encashment_rate", precision = 10, scale = 2)
     private BigDecimal encashmentRate;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "color_code", length = 7)
     private String colorCode = "#3B82F6";
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

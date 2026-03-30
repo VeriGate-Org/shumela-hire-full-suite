@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.leave.LeavePolicyResponse;
 import com.arthmatic.shumelahire.entity.leave.AccrualMethod;
 import com.arthmatic.shumelahire.entity.leave.LeavePolicy;
 import com.arthmatic.shumelahire.entity.leave.LeaveType;
-import com.arthmatic.shumelahire.repository.leave.LeavePolicyRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveTypeRepository;
+import com.arthmatic.shumelahire.repository.LeavePolicyDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveTypeDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +24,16 @@ public class LeavePolicyService {
     private static final Logger logger = LoggerFactory.getLogger(LeavePolicyService.class);
 
     @Autowired
-    private LeavePolicyRepository leavePolicyRepository;
+    private LeavePolicyDataRepository leavePolicyRepository;
 
     @Autowired
-    private LeaveTypeRepository leaveTypeRepository;
+    private LeaveTypeDataRepository leaveTypeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
 
     public LeavePolicyResponse create(LeavePolicyRequest request, String userId) {
-        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(request.getLeaveTypeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + request.getLeaveTypeId()));
 
         LeavePolicy policy = new LeavePolicy();
@@ -49,11 +49,11 @@ public class LeavePolicyService {
     }
 
     public LeavePolicyResponse update(Long id, LeavePolicyRequest request, String userId) {
-        LeavePolicy policy = leavePolicyRepository.findById(id)
+        LeavePolicy policy = leavePolicyRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Leave policy not found: " + id));
 
         if (!policy.getLeaveType().getId().equals(request.getLeaveTypeId())) {
-            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+            LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(request.getLeaveTypeId()))
                     .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + request.getLeaveTypeId()));
             policy.setLeaveType(leaveType);
         }
@@ -83,7 +83,7 @@ public class LeavePolicyService {
 
     @Transactional(readOnly = true)
     public List<LeavePolicyResponse> getByLeaveType(Long leaveTypeId) {
-        return leavePolicyRepository.findByLeaveTypeId(leaveTypeId).stream()
+        return leavePolicyRepository.findByLeaveTypeId(String.valueOf(leaveTypeId)).stream()
                 .map(LeavePolicyResponse::fromEntity)
                 .collect(Collectors.toList());
     }

@@ -1,62 +1,42 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "shortlist_scores")
 public class ShortlistScore extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Column(name = "total_score", nullable = false)
     private Double totalScore;
 
-    @Column(name = "skills_match_score")
     private Double skillsMatchScore;
 
-    @Column(name = "experience_score")
     private Double experienceScore;
 
-    @Column(name = "education_score")
     private Double educationScore;
 
-    @Column(name = "screening_score")
     private Double screeningScore;
 
-    @Column(name = "keyword_match_score")
     private Double keywordMatchScore;
 
-    @Column(name = "score_breakdown", columnDefinition = "TEXT")
     private String scoreBreakdown;
 
-    @Column(name = "is_shortlisted")
     private Boolean isShortlisted = false;
 
-    @Column(name = "manually_overridden")
     private Boolean manuallyOverridden = false;
 
-    @Column(name = "override_reason")
     private String overrideReason;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public ShortlistScore() {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

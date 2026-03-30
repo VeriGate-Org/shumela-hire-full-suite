@@ -4,9 +4,9 @@ import com.arthmatic.shumelahire.dto.leave.LeaveBalanceResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.leave.LeaveBalance;
 import com.arthmatic.shumelahire.entity.leave.LeaveType;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveBalanceRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveTypeRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveBalanceDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveTypeDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +27,13 @@ public class LeaveBalanceService {
     private static final Logger logger = LoggerFactory.getLogger(LeaveBalanceService.class);
 
     @Autowired
-    private LeaveBalanceRepository leaveBalanceRepository;
+    private LeaveBalanceDataRepository leaveBalanceRepository;
 
     @Autowired
-    private LeaveTypeRepository leaveTypeRepository;
+    private LeaveTypeDataRepository leaveTypeRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -41,7 +41,8 @@ public class LeaveBalanceService {
     @Transactional(readOnly = true)
     public List<LeaveBalanceResponse> getBalancesForEmployee(Long employeeId, Integer cycleYear) {
         int year = cycleYear != null ? cycleYear : LocalDate.now().getYear();
-        return leaveBalanceRepository.findBalancesForEmployee(employeeId, year).stream()
+        return leaveBalanceRepository.findBalancesForEmployee(String.valueOf(employeeId)).stream()
+                .filter(b -> b.getCycleYear() != null && b.getCycleYear().equals(year))
                 .map(LeaveBalanceResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -49,14 +50,14 @@ public class LeaveBalanceService {
     @Transactional(readOnly = true)
     public LeaveBalance getOrCreateBalance(Long employeeId, Long leaveTypeId, Integer cycleYear) {
         return leaveBalanceRepository
-                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(employeeId, leaveTypeId, cycleYear)
+                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(String.valueOf(employeeId), String.valueOf(leaveTypeId), cycleYear)
                 .orElseGet(() -> initializeBalance(employeeId, leaveTypeId, cycleYear));
     }
 
     public LeaveBalance initializeBalance(Long employeeId, Long leaveTypeId, Integer cycleYear) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
-        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
+        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(leaveTypeId))
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + leaveTypeId));
 
         LeaveBalance balance = new LeaveBalance();

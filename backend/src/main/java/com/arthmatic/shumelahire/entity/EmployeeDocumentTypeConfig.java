@@ -1,41 +1,27 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "employee_document_types")
 public class EmployeeDocumentTypeConfig extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 200)
     private String name;
 
     @NotBlank
-    @Column(nullable = false, length = 50)
     private String code;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "is_required", nullable = false)
     private Boolean isRequired = false;
 
-    @Column(name = "requires_expiry", nullable = false)
     private Boolean requiresExpiry = false;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     // Getters and Setters

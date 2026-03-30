@@ -1,56 +1,37 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "documents")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Document extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", nullable = false)
     @NotNull(message = "Applicant is required")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Applicant applicant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "applicationDocuments"})
     private Application application; // Optional - links to specific application
     
-    @Column(name = "application_id", insertable = false, updatable = false)
     private Long applicationId; // For convenience and backwards compatibility
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private DocumentType type;
     
     @NotBlank(message = "Filename is required")
-    @Column(nullable = false, length = 255)
     private String filename;
     
     @NotBlank(message = "File URL is required")
-    @Column(nullable = false, length = 500)
     private String url;
     
-    @Column(name = "file_size")
     private Long fileSize; // Size in bytes
     
-    @Column(name = "content_type", length = 100)
     private String contentType; // MIME type
     
-    @CreationTimestamp
-    @Column(name = "uploaded_at", nullable = false, updatable = false)
     private LocalDateTime uploadedAt;
     
     // Constructors

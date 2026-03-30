@@ -1,62 +1,36 @@
 package com.arthmatic.shumelahire.entity.integration;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import com.arthmatic.shumelahire.entity.converter.EncryptedFieldConverter;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sso_configurations")
 public class SsoConfiguration extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "provider", nullable = false, length = 30)
     private SsoProvider provider;
 
-    @Column(name = "display_name", nullable = false, length = 200)
     private String displayName;
 
-    @Column(name = "client_id", length = 500)
     private String clientId;
 
-    @Convert(converter = EncryptedFieldConverter.class)
-    @Column(name = "client_secret", columnDefinition = "TEXT")
     private String clientSecret;
 
-    @Column(name = "tenant_identifier", length = 500)
     private String tenantIdentifier;
 
-    @Column(name = "discovery_url", length = 500)
     private String discoveryUrl;
 
-    @Column(name = "metadata_xml", columnDefinition = "TEXT")
     private String metadataXml;
 
-    @Column(name = "is_enabled", nullable = false)
     private Boolean isEnabled = false;
 
-    @Column(name = "auto_provision_users", nullable = false)
     private Boolean autoProvisionUsers = false;
 
-    @Column(name = "default_role", length = 50)
     private String defaultRole = "EMPLOYEE";
 
-    @Column(name = "group_mappings", columnDefinition = "TEXT")
     private String groupMappings;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public SsoConfiguration() {}

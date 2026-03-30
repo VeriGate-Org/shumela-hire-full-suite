@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.OfferRepository;
-import com.arthmatic.shumelahire.repository.SapPayrollTransmissionRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
+import com.arthmatic.shumelahire.repository.SapPayrollTransmissionDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +55,10 @@ public class SapPayrollConnector implements SapPayrollService {
     private String payrollArea;
 
     @Autowired
-    private OfferRepository offerRepository;
+    private OfferDataRepository offerRepository;
 
     @Autowired
-    private SapPayrollTransmissionRepository transmissionRepository;
+    private SapPayrollTransmissionDataRepository transmissionRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -71,7 +71,7 @@ public class SapPayrollConnector implements SapPayrollService {
 
     @Override
     public SapPayrollTransmission sendNewHireData(Long offerId, Long initiatedBy) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
                 .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getStatus() != OfferStatus.ACCEPTED) {
@@ -80,7 +80,7 @@ public class SapPayrollConnector implements SapPayrollService {
         }
 
         // Check for existing active transmission
-        List<SapPayrollTransmission> existing = transmissionRepository.findByOfferIdOrderByCreatedAtDesc(offerId);
+        List<SapPayrollTransmission> existing = transmissionRepository.findByOfferIdOrderByCreatedAtDesc(String.valueOf(offerId));
         Optional<SapPayrollTransmission> active = existing.stream()
                 .filter(t -> t.getStatus().isActive() || t.getStatus() == TransmissionStatus.CONFIRMED)
                 .findFirst();
@@ -251,7 +251,7 @@ public class SapPayrollConnector implements SapPayrollService {
 
     @Override
     public Map<String, String> validateEmployeeData(Long offerId) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
                 .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         return validateOfferData(offer);

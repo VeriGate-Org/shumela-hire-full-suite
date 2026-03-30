@@ -1,41 +1,29 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "audit_logs")
 public class AuditLog extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @Column(nullable = false)
     private LocalDateTime timestamp;
 
     @NotBlank
-    @Column(nullable = false)
     private String userId;
 
     @NotBlank
-    @Column(nullable = false)
     private String action;
 
     @NotBlank
-    @Column(nullable = false)
     private String entityType;
 
-    @Column
     private String entityId;
 
-    @Column(columnDefinition = "TEXT")
     private String details;
 
-    @Column(name = "user_role", length = 30)
     private String userRole;
 
     // Constructors

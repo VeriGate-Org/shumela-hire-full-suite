@@ -6,19 +6,17 @@ import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +26,13 @@ public class ApplicationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
-    private final ApplicationRepository applicationRepository;
-    private final ApplicantRepository applicantRepository;
+    private final ApplicationDataRepository applicationRepository;
+    private final ApplicantDataRepository applicantRepository;
     private final AuditLogService auditLogService;
     private final NotificationService notificationService;
 
-    public ApplicationService(ApplicationRepository applicationRepository,
-                             ApplicantRepository applicantRepository,
+    public ApplicationService(ApplicationDataRepository applicationRepository,
+                             ApplicantDataRepository applicantRepository,
                              AuditLogService auditLogService,
                              NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
@@ -54,7 +52,7 @@ public class ApplicationService {
         Applicant applicant = findApplicantById(request.getApplicantId());
 
         // Check if applicant has already applied for this job
-        if (applicationRepository.existsByApplicantIdAndJobPostingId(request.getApplicantId(), request.getJobAdId())) {
+        if (applicationRepository.existsByApplicantIdAndJobPostingId(String.valueOf(request.getApplicantId()), String.valueOf(request.getJobAdId()))) {
             throw new IllegalArgumentException("Applicant has already applied for this job");
         }
 
@@ -96,7 +94,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByApplicant(Long applicantId) {
-        List<Application> applications = applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId);
+        List<Application> applications = applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(String.valueOf(applicantId));
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -107,7 +105,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByJobAd(Long jobAdId) {
-        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobAdId);
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(String.valueOf(jobAdId));
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -130,36 +128,13 @@ public class ApplicationService {
         } else if (statuses == null || statuses.isEmpty()) {
             applications = applicationRepository.searchApplications(searchTerm, pageable);
         } else {
-            Specification<Application> spec = (root, query, criteriaBuilder) -> {
-                List<Predicate> predicates = new ArrayList<>();
-
-                if (statuses.size() == 1) {
-                    predicates.add(criteriaBuilder.equal(root.get("status"), statuses.get(0)));
-                } else {
-                    predicates.add(root.get("status").in(statuses));
-                }
-
-                if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-                    String likePattern = "%" + searchTerm.toLowerCase() + "%";
-                    Predicate searchPredicate = criteriaBuilder.or(
-                        criteriaBuilder.like(
-                            criteriaBuilder.lower(
-                                criteriaBuilder.concat(
-                                    criteriaBuilder.concat(root.get("applicant").get("name"), " "),
-                                    root.get("applicant").get("surname")
-                                )
-                            ),
-                            likePattern
-                        ),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("jobTitle")), likePattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("applicant").get("email")), likePattern)
-                    );
-                    predicates.add(searchPredicate);
-                }
-
-                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-            };
-            applications = applicationRepository.findAll(spec, pageable);
+            // Use searchApplicationsFiltered for combined status + search filtering
+            List<Application> filtered = applicationRepository.searchApplicationsFiltered(
+                    searchTerm, statuses, null, null, null, null, null, null);
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), filtered.size());
+            List<Application> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
+            applications = new PageImpl<>(pageContent, pageable, filtered.size());
         }
 
         return applications.map(ApplicationResponse::fromEntity);
@@ -332,7 +307,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public boolean canApplicantApplyForJob(Long applicantId, Long jobAdId) {
-        return !applicationRepository.existsByApplicantIdAndJobPostingId(applicantId, jobAdId);
+        return !applicationRepository.existsByApplicantIdAndJobPostingId(String.valueOf(applicantId), String.valueOf(jobAdId));
     }
 
     /**
@@ -375,12 +350,12 @@ public class ApplicationService {
     // Helper methods
 
     private Application findApplicationById(Long id) {
-        return applicationRepository.findById(id)
+        return applicationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + id));
     }
 
     private Applicant findApplicantById(Long id) {
-        return applicantRepository.findById(id)
+        return applicantRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + id));
     }
 }

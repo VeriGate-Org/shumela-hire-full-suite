@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.PostingStatus;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -39,9 +39,9 @@ public class LinkedInConnector implements JobBoardConnector {
   @Value("${job-boards.linkedin.org-id:}")
   private String orgId;
 
-  @Autowired private JobBoardPostingRepository repository;
+  @Autowired private JobBoardPostingDataRepository repository;
 
-  @Autowired private JobPostingRepository jobPostingRepository;
+  @Autowired private JobPostingDataRepository jobPostingRepository;
 
   @Autowired private AuditLogService auditLogService;
 
@@ -141,7 +141,7 @@ public class LinkedInConnector implements JobBoardConnector {
       // Load full job posting data
       JobPosting jp =
           jobPostingRepository
-              .findById(Long.parseLong(jobPostingId))
+              .findById(jobPostingId)
               .orElseThrow(() -> new RuntimeException("Job posting not found: " + jobPostingId));
 
       String accessToken = getAccessToken();
@@ -270,7 +270,7 @@ public class LinkedInConnector implements JobBoardConnector {
   public JobBoardPosting remove(Long postingId) {
     JobBoardPosting posting =
         repository
-            .findById(postingId)
+            .findById(String.valueOf(postingId))
             .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
     try {
@@ -309,7 +309,7 @@ public class LinkedInConnector implements JobBoardConnector {
   public JobBoardPosting sync(Long postingId) {
     JobBoardPosting posting =
         repository
-            .findById(postingId)
+            .findById(String.valueOf(postingId))
             .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
     try {

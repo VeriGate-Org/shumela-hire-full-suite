@@ -1,10 +1,7 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,75 +9,49 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "job_ads")
 public class JobAd extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "requisition_id")
     private Long requisitionId;
 
-    @Column(name = "job_posting_id")
     private Long jobPostingId;
 
     @NotBlank(message = "Title is required")
-    @Column(nullable = false, length = 500)
     private String title;
     
     @NotBlank(message = "HTML body is required")
-    @Column(name = "html_body", nullable = false, columnDefinition = "TEXT")
     private String htmlBody;
     
-    @Column(name = "channel_internal", nullable = false)
     private Boolean channelInternal = false;
     
-    @Column(name = "channel_external", nullable = false)
     private Boolean channelExternal = false;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private JobAdStatus status = JobAdStatus.DRAFT;
     
-    @Column(name = "closing_date")
     private LocalDate closingDate;
     
-    @Column(unique = true, length = 200)
     private String slug;
     
     @NotBlank(message = "Created by is required")
-    @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
     
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    @Column(name = "department", length = 100)
     private String department;
 
-    @Column(name = "location", length = 100)
     private String location;
 
-    @Column(name = "employment_type", length = 50)
     private String employmentType;
 
-    @Column(name = "salary_range_min", precision = 12, scale = 2)
     private BigDecimal salaryRangeMin;
 
-    @Column(name = "salary_range_max", precision = 12, scale = 2)
     private BigDecimal salaryRangeMax;
 
-    @Column(name = "salary_currency", length = 3)
     private String salaryCurrency;
 
-    @OneToMany(mappedBy = "jobAd", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<JobAdHistory> history = new ArrayList<>();
     
     // Constructors

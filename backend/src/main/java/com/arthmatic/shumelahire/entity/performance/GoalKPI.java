@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
@@ -9,50 +8,33 @@ import jakarta.validation.constraints.DecimalMax;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "goal_kpis")
 public class GoalKPI extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_id", nullable = false)
     @NotNull(message = "Performance goal is required")
     private PerformanceGoal goal;
     
-    @Column(nullable = false, length = 200)
     private String name;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
-    @Column(name = "target_value", columnDefinition = "TEXT")
     private String targetValue;
     
-    @Column(name = "measurement_unit", length = 50)
     private String measurementUnit;
     
-    @Column(precision = 5, scale = 2)
     @DecimalMin(value = "0.0", message = "KPI weighting must be positive")
     @DecimalMax(value = "100.0", message = "KPI weighting cannot exceed 100%")
     private BigDecimal weighting;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "kpi_type")
     private KPIType type;
     
-    @Column(name = "sort_order")
     private Integer sortOrder;
     
-    @Column(name = "is_active")
     private Boolean isActive = true;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
     // Constructors
@@ -69,7 +51,6 @@ public class GoalKPI extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

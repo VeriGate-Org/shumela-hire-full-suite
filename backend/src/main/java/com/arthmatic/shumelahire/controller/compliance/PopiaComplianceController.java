@@ -6,9 +6,6 @@ import com.arthmatic.shumelahire.dto.compliance.DataSubjectRequestResponse;
 import com.arthmatic.shumelahire.service.compliance.ConsentService;
 import com.arthmatic.shumelahire.service.compliance.DataSubjectRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,11 +58,8 @@ public class PopiaComplianceController {
     }
 
     @GetMapping("/consents")
-    public ResponseEntity<Page<ConsentRecordResponse>> getAllConsents(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(consentService.getAllConsents(
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<ConsentRecordResponse>> getAllConsents() {
+        return ResponseEntity.ok(consentService.getAllConsents());
     }
 
     @GetMapping("/consents/stats")
@@ -99,16 +93,12 @@ public class PopiaComplianceController {
     }
 
     @GetMapping("/dsar")
-    public ResponseEntity<Page<DataSubjectRequestResponse>> getAllDsars(
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<DataSubjectRequestResponse>> getAllDsars(
+            @RequestParam(required = false) String status) {
         if (status != null) {
-            return ResponseEntity.ok(dsarService.getRequestsByStatus(status,
-                    PageRequest.of(page, size, Sort.by("createdAt").descending())));
+            return ResponseEntity.ok(dsarService.getRequestsByStatus(status));
         }
-        return ResponseEntity.ok(dsarService.getAllRequests(
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+        return ResponseEntity.ok(dsarService.getAllRequests());
     }
 
     @PutMapping("/dsar/{id}/status")

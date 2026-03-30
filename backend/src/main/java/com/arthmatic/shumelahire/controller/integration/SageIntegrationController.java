@@ -9,10 +9,6 @@ import com.arthmatic.shumelahire.service.integration.sage.SageConnectorService;
 import com.arthmatic.shumelahire.service.integration.sage.SageSyncEngine;
 import com.arthmatic.shumelahire.service.integration.sage.SageSyncScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -115,23 +111,21 @@ public class SageIntegrationController {
     // ==================== Log Endpoints ====================
 
     @GetMapping("/logs")
-    public ResponseEntity<Page<SageSyncLogResponse>> getAllLogs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        Page<SageSyncLog> logs = syncEngine.getAllLogs(pageable);
-        Page<SageSyncLogResponse> response = logs.map(SageSyncLogResponse::fromEntity);
+    public ResponseEntity<List<SageSyncLogResponse>> getAllLogs() {
+        List<SageSyncLog> logs = syncEngine.getAllLogs();
+        List<SageSyncLogResponse> response = logs.stream()
+                .map(SageSyncLogResponse::fromEntity)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/logs/{connectorId}")
-    public ResponseEntity<Page<SageSyncLogResponse>> getLogsByConnector(
-            @PathVariable Long connectorId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SageSyncLog> logs = syncEngine.getLogsByConnector(connectorId, pageable);
-        Page<SageSyncLogResponse> response = logs.map(SageSyncLogResponse::fromEntity);
+    public ResponseEntity<List<SageSyncLogResponse>> getLogsByConnector(
+            @PathVariable Long connectorId) {
+        List<SageSyncLog> logs = syncEngine.getLogsByConnector(connectorId);
+        List<SageSyncLogResponse> response = logs.stream()
+                .map(SageSyncLogResponse::fromEntity)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 }

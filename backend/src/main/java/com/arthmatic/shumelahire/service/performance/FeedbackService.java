@@ -3,9 +3,9 @@ package com.arthmatic.shumelahire.service.performance;
 import com.arthmatic.shumelahire.dto.performance.*;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.performance.*;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.performance.FeedbackRequestRepository;
-import com.arthmatic.shumelahire.repository.performance.FeedbackResponseRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.FeedbackRequestDataRepository;
+import com.arthmatic.shumelahire.repository.FeedbackResponseDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -13,8 +13,6 @@ import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +27,13 @@ public class FeedbackService {
     private static final Logger logger = LoggerFactory.getLogger(FeedbackService.class);
 
     @Autowired
-    private FeedbackRequestRepository feedbackRequestRepository;
+    private FeedbackRequestDataRepository feedbackRequestRepository;
 
     @Autowired
-    private FeedbackResponseRepository feedbackResponseRepository;
+    private FeedbackResponseDataRepository feedbackResponseRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -44,10 +42,10 @@ public class FeedbackService {
     private NotificationService notificationService;
 
     public FeedbackRequestResponse createRequest(FeedbackRequestCreateRequest request) {
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
+        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        Employee requester = employeeRepository.findById(request.getRequesterId())
+        Employee requester = employeeRepository.findById(String.valueOf(request.getRequesterId()))
                 .orElseThrow(() -> new IllegalArgumentException("Requester not found: " + request.getRequesterId()));
 
         FeedbackRequest feedbackRequest = new FeedbackRequest();
@@ -71,38 +69,41 @@ public class FeedbackService {
 
     @Transactional(readOnly = true)
     public FeedbackRequestResponse getRequest(Long id) {
-        FeedbackRequest request = feedbackRequestRepository.findById(id)
+        FeedbackRequest request = feedbackRequestRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + id));
         return FeedbackRequestResponse.fromEntity(request);
     }
 
     @Transactional(readOnly = true)
-    public Page<FeedbackRequestResponse> getRequestsForEmployee(Long employeeId, Pageable pageable) {
-        return feedbackRequestRepository.findByEmployeeId(employeeId, pageable)
-                .map(FeedbackRequestResponse::fromEntity);
+    public List<FeedbackRequestResponse> getRequestsForEmployee(Long employeeId) {
+        return feedbackRequestRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+                .map(FeedbackRequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<FeedbackRequestResponse> getRequestsByRequester(Long requesterId, Pageable pageable) {
-        return feedbackRequestRepository.findByRequesterId(requesterId, pageable)
-                .map(FeedbackRequestResponse::fromEntity);
+    public List<FeedbackRequestResponse> getRequestsByRequester(Long requesterId) {
+        return feedbackRequestRepository.findByRequesterId(String.valueOf(requesterId)).stream()
+                .map(FeedbackRequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<FeedbackRequestResponse> getPendingRequests(Pageable pageable) {
-        return feedbackRequestRepository.findByStatus(FeedbackStatus.PENDING, pageable)
-                .map(FeedbackRequestResponse::fromEntity);
+    public List<FeedbackRequestResponse> getPendingRequests() {
+        return feedbackRequestRepository.findByStatus(FeedbackStatus.PENDING).stream()
+                .map(FeedbackRequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public FeedbackResponseDto submitFeedback(Long requestId, FeedbackSubmitRequest submitRequest) {
-        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(requestId)
+        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(String.valueOf(requestId))
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + requestId));
 
         if (feedbackRequest.getStatus() != FeedbackStatus.PENDING) {
             throw new IllegalArgumentException("Feedback request is not pending");
         }
 
-        Employee respondent = employeeRepository.findById(submitRequest.getRespondentId())
+        Employee respondent = employeeRepository.findById(String.valueOf(submitRequest.getRespondentId()))
                 .orElseThrow(() -> new IllegalArgumentException("Respondent not found: " + submitRequest.getRespondentId()));
 
         FeedbackResponse response = new FeedbackResponse();
@@ -131,7 +132,7 @@ public class FeedbackService {
     }
 
     public void declineRequest(Long requestId) {
-        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(requestId)
+        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(String.valueOf(requestId))
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + requestId));
 
         feedbackRequest.setStatus(FeedbackStatus.DECLINED);
@@ -147,7 +148,7 @@ public class FeedbackService {
 
     @Transactional(readOnly = true)
     public List<FeedbackResponseDto> getResponses(Long requestId) {
-        return feedbackResponseRepository.findByRequestId(requestId).stream()
+        return feedbackResponseRepository.findByRequestId(String.valueOf(requestId)).stream()
                 .map(FeedbackResponseDto::fromEntity)
                 .collect(Collectors.toList());
     }

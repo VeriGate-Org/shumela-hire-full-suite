@@ -1,47 +1,32 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "linkedin_org_connections")
 public class LinkedInOrgConnection extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonIgnore
-    @Column(name = "access_token", nullable = false, columnDefinition = "TEXT")
     private String accessToken;
 
     @JsonIgnore
-    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
-    @Column(name = "token_expires_at", nullable = false)
     private LocalDateTime tokenExpiresAt;
 
-    @Column(name = "organization_id", nullable = false, length = 50)
     private String organizationId;
 
-    @Column(name = "organization_name", length = 255)
     private String organizationName;
 
-    @Column(name = "connected_by_user_id", nullable = false, length = 255)
     private String connectedByUserId;
 
-    @Column(name = "connected_at", nullable = false)
     private LocalDateTime connectedAt;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist
     protected void onCreate() {
         super.prePersistTenant();
         if (this.createdAt == null) {
@@ -52,7 +37,6 @@ public class LinkedInOrgConnection extends TenantAwareEntity {
         }
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

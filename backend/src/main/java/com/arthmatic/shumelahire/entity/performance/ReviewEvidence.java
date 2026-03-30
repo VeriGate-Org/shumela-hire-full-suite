@@ -1,47 +1,31 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "review_evidence")
 public class ReviewEvidence extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id", nullable = false)
     @NotNull(message = "Performance review is required")
     private PerformanceReview review;
     
-    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
     
-    @Column(name = "file_path", nullable = false, length = 500)
     private String filePath;
     
-    @Column(name = "file_size")
     private Long fileSize;
     
-    @Column(name = "content_type", length = 100)
     private String contentType;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "evidence_type")
     private EvidenceType evidenceType;
     
-    @Column(name = "uploaded_by", nullable = false, length = 50)
     private String uploadedBy;
     
-    @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
     
     // Constructors

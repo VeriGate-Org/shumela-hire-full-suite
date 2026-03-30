@@ -2,57 +2,36 @@ package com.arthmatic.shumelahire.entity.training;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "certifications")
 public class Certification extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @NotBlank
-    @Column(nullable = false, length = 300)
     private String name;
 
-    @Column(name = "issuing_body", length = 200)
     private String issuingBody;
 
-    @Column(name = "certification_number", length = 100)
     private String certificationNumber;
 
-    @Column(name = "issue_date")
     private LocalDate issueDate;
 
-    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private CertificationStatus status = CertificationStatus.ACTIVE;
 
-    @Column(name = "document_url", length = 500)
     private String documentUrl;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public boolean isExpired() {

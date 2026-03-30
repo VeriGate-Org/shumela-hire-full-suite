@@ -1,34 +1,23 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "review_goal_scores")
 public class ReviewGoalScore extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id", nullable = false)
     private PerformanceReview review;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_id", nullable = false)
     private PerformanceGoal goal;
 
     @DecimalMin("0.0")
     @DecimalMax("5.0")
-    @Column(precision = 3, scale = 2)
     private BigDecimal score;
 
-    @Column(columnDefinition = "TEXT")
     private String comment;
 
     // Constructors

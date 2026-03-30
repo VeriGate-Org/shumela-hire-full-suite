@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.config.tenant;
 
 import com.arthmatic.shumelahire.entity.Tenant;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,10 +30,10 @@ public class TenantResolutionFilter implements Filter {
             "dev", "ppe", "staging", "qa", "sandbox", "sbx"
     );
 
-    private final TenantRepository tenantRepository;
+    private final TenantDataRepository tenantRepository;
     private final Environment environment;
 
-    public TenantResolutionFilter(TenantRepository tenantRepository, Environment environment) {
+    public TenantResolutionFilter(TenantDataRepository tenantRepository, Environment environment) {
         this.tenantRepository = tenantRepository;
         this.environment = environment;
     }

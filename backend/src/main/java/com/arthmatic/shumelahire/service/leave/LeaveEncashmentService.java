@@ -3,10 +3,10 @@ package com.arthmatic.shumelahire.service.leave;
 import com.arthmatic.shumelahire.dto.leave.LeaveEncashmentResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.leave.*;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveBalanceRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveEncashmentRequestRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveTypeRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveBalanceDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveEncashmentRequestDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveTypeDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
@@ -28,16 +28,16 @@ public class LeaveEncashmentService {
     private static final Logger logger = LoggerFactory.getLogger(LeaveEncashmentService.class);
 
     @Autowired
-    private LeaveEncashmentRequestRepository encashmentRepository;
+    private LeaveEncashmentRequestDataRepository encashmentRepository;
 
     @Autowired
-    private LeaveTypeRepository leaveTypeRepository;
+    private LeaveTypeDataRepository leaveTypeRepository;
 
     @Autowired
-    private LeaveBalanceRepository leaveBalanceRepository;
+    private LeaveBalanceDataRepository leaveBalanceRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -46,10 +46,10 @@ public class LeaveEncashmentService {
     private NotificationService notificationService;
 
     public LeaveEncashmentResponse requestEncashment(Long employeeId, Long leaveTypeId, BigDecimal days, String reason) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
+        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(leaveTypeId))
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + leaveTypeId));
 
         if (!Boolean.TRUE.equals(leaveType.getAllowEncashment())) {
@@ -60,7 +60,7 @@ public class LeaveEncashmentService {
 
         // Check available balance
         LeaveBalance balance = leaveBalanceRepository
-                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(employeeId, leaveTypeId, currentYear)
+                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(String.valueOf(employeeId), String.valueOf(leaveTypeId), currentYear)
                 .orElseThrow(() -> new IllegalArgumentException("No leave balance found for current year"));
 
         BigDecimal available = balance.getAvailableDays();
@@ -93,14 +93,14 @@ public class LeaveEncashmentService {
     }
 
     public LeaveEncashmentResponse hrApprove(Long requestId, Long approverId) {
-        LeaveEncashmentRequest request = encashmentRepository.findById(requestId)
+        LeaveEncashmentRequest request = encashmentRepository.findById(String.valueOf(requestId))
                 .orElseThrow(() -> new IllegalArgumentException("Encashment request not found: " + requestId));
 
         if (request.getStatus() != LeaveEncashmentStatus.PENDING) {
             throw new IllegalArgumentException("Request is not in PENDING status");
         }
 
-        Employee approver = employeeRepository.findById(approverId)
+        Employee approver = employeeRepository.findById(String.valueOf(approverId))
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         request.setStatus(LeaveEncashmentStatus.HR_APPROVED);
@@ -116,14 +116,14 @@ public class LeaveEncashmentService {
     }
 
     public LeaveEncashmentResponse financeApprove(Long requestId, Long approverId) {
-        LeaveEncashmentRequest request = encashmentRepository.findById(requestId)
+        LeaveEncashmentRequest request = encashmentRepository.findById(String.valueOf(requestId))
                 .orElseThrow(() -> new IllegalArgumentException("Encashment request not found: " + requestId));
 
         if (request.getStatus() != LeaveEncashmentStatus.HR_APPROVED) {
             throw new IllegalArgumentException("Request must be HR_APPROVED before finance approval");
         }
 
-        Employee approver = employeeRepository.findById(approverId)
+        Employee approver = employeeRepository.findById(String.valueOf(approverId))
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         request.setStatus(LeaveEncashmentStatus.FINANCE_APPROVED);
@@ -134,8 +134,8 @@ public class LeaveEncashmentService {
         // Deduct encashed days from leave balance
         LeaveBalance balance = leaveBalanceRepository
                 .findByEmployeeIdAndLeaveTypeIdAndCycleYear(
-                        request.getEmployee().getId(),
-                        request.getLeaveType().getId(),
+                        String.valueOf(request.getEmployee().getId()),
+                        String.valueOf(request.getLeaveType().getId()),
                         request.getCycleYear())
                 .orElse(null);
 
@@ -153,7 +153,7 @@ public class LeaveEncashmentService {
     }
 
     public LeaveEncashmentResponse reject(Long requestId, Long approverId, String comment) {
-        LeaveEncashmentRequest request = encashmentRepository.findById(requestId)
+        LeaveEncashmentRequest request = encashmentRepository.findById(String.valueOf(requestId))
                 .orElseThrow(() -> new IllegalArgumentException("Encashment request not found: " + requestId));
 
         if (request.getStatus() == LeaveEncashmentStatus.FINANCE_APPROVED ||
@@ -162,7 +162,7 @@ public class LeaveEncashmentService {
             throw new IllegalArgumentException("Cannot reject request in " + request.getStatus() + " status");
         }
 
-        Employee approver = employeeRepository.findById(approverId)
+        Employee approver = employeeRepository.findById(String.valueOf(approverId))
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         request.setStatus(LeaveEncashmentStatus.REJECTED);
@@ -178,7 +178,7 @@ public class LeaveEncashmentService {
 
     @Transactional(readOnly = true)
     public List<LeaveEncashmentResponse> getByEmployee(Long employeeId) {
-        return encashmentRepository.findByEmployeeId(employeeId).stream()
+        return encashmentRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
                 .map(LeaveEncashmentResponse::fromEntity)
                 .collect(Collectors.toList());
     }

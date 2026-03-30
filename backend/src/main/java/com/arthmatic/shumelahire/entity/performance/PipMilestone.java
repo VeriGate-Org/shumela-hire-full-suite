@@ -1,45 +1,28 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "pip_milestones")
 public class PipMilestone extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pip_id", nullable = false)
     private PerformanceImprovementPlan pip;
 
-    @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "target_date", nullable = false)
     private LocalDate targetDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private PipMilestoneStatus status = PipMilestoneStatus.PENDING;
 
-    @Column(columnDefinition = "TEXT")
     private String evidence;
 
-    @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Long getId() { return id; }

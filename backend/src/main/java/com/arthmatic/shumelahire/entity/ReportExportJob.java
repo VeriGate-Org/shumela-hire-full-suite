@@ -1,52 +1,32 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "report_export_jobs")
 public class ReportExportJob extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "report_type", nullable = false, length = 100)
     private String reportType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private ExportFormat format = ExportFormat.PDF;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private ExportStatus status = ExportStatus.QUEUED;
 
-    @Column(name = "file_url", length = 500)
     private String fileUrl;
 
-    @Column(name = "file_size")
     private Long fileSize;
 
-    @Column(columnDefinition = "TEXT")
     private String parameters;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requested_by")
     private Employee requestedBy;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     // Getters and Setters

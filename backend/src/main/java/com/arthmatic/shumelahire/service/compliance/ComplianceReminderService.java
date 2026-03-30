@@ -5,14 +5,12 @@ import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.compliance.ComplianceReminder;
 import com.arthmatic.shumelahire.entity.compliance.ReminderStatus;
 import com.arthmatic.shumelahire.entity.compliance.ReminderType;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.compliance.ComplianceReminderRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.ComplianceReminderDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +28,10 @@ public class ComplianceReminderService {
     private static final Logger logger = LoggerFactory.getLogger(ComplianceReminderService.class);
 
     @Autowired
-    private ComplianceReminderRepository reminderRepository;
+    private ComplianceReminderDataRepository reminderRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -52,7 +50,7 @@ public class ComplianceReminderService {
         reminder.setStatus(ReminderStatus.PENDING);
 
         if (employeeId != null) {
-            Employee employee = employeeRepository.findById(employeeId).orElse(null);
+            Employee employee = employeeRepository.findById(String.valueOf(employeeId)).orElse(null);
             reminder.setEmployee(employee);
         }
 
@@ -67,26 +65,30 @@ public class ComplianceReminderService {
 
     @Transactional(readOnly = true)
     public ComplianceReminderResponse getReminder(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(id)
+        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
         return ComplianceReminderResponse.fromEntity(reminder);
     }
 
     @Transactional(readOnly = true)
-    public Page<ComplianceReminderResponse> getAllReminders(Pageable pageable) {
-        return reminderRepository.findAll(pageable).map(ComplianceReminderResponse::fromEntity);
+    public List<ComplianceReminderResponse> getAllReminders() {
+        return reminderRepository.findAll().stream()
+                .map(ComplianceReminderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<ComplianceReminderResponse> getRemindersByStatus(String status, Pageable pageable) {
-        return reminderRepository.findByStatus(ReminderStatus.valueOf(status), pageable)
-                .map(ComplianceReminderResponse::fromEntity);
+    public List<ComplianceReminderResponse> getRemindersByStatus(String status) {
+        return reminderRepository.findByStatus(ReminderStatus.valueOf(status)).stream()
+                .map(ComplianceReminderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<ComplianceReminderResponse> getRemindersByEmployee(Long employeeId, Pageable pageable) {
-        return reminderRepository.findByEmployeeId(employeeId, pageable)
-                .map(ComplianceReminderResponse::fromEntity);
+    public List<ComplianceReminderResponse> getRemindersByEmployee(Long employeeId) {
+        return reminderRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+                .map(ComplianceReminderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +101,7 @@ public class ComplianceReminderService {
     }
 
     public ComplianceReminderResponse acknowledge(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(id)
+        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.ACKNOWLEDGED);
@@ -112,7 +114,7 @@ public class ComplianceReminderService {
     }
 
     public void markAsSent(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(id)
+        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.SENT);
@@ -121,7 +123,7 @@ public class ComplianceReminderService {
     }
 
     public void markOverdue(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(id)
+        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.OVERDUE);
@@ -135,7 +137,7 @@ public class ComplianceReminderService {
         stats.put("sent", reminderRepository.countByStatus(ReminderStatus.SENT));
         stats.put("acknowledged", reminderRepository.countByStatus(ReminderStatus.ACKNOWLEDGED));
         stats.put("overdue", reminderRepository.countByStatus(ReminderStatus.OVERDUE));
-        stats.put("total", reminderRepository.count());
+        stats.put("total", (long) reminderRepository.findAll().size());
         return stats;
     }
 }

@@ -1,0 +1,18 @@
+spring:
+  task:
+    scheduling:
+      pool:
+        size: 0
+
+dynamodb:
+  table-name: ${DYNAMODB_TABLE_NAME}
+
+aws:
+  region: ${AWS_REGION_OVERRIDE:af-south-1}
+
+logging:
+  level:
+    com.arthmatic.shumelahire: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

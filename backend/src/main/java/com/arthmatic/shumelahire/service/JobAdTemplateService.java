@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.*;
 import com.arthmatic.shumelahire.entity.JobAdTemplate;
-import com.arthmatic.shumelahire.repository.JobAdTemplateRepository;
+import com.arthmatic.shumelahire.repository.JobAdTemplateDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class JobAdTemplateService {
     private static final Logger logger = LoggerFactory.getLogger(JobAdTemplateService.class);
 
     @Autowired
-    private JobAdTemplateRepository templateRepository;
+    private JobAdTemplateDataRepository templateRepository;
 
     /**
      * Create a new job ad template.
@@ -111,7 +111,7 @@ public class JobAdTemplateService {
     public void deleteTemplate(Long id) {
         logger.info("Deleting job ad template: {}", id);
         JobAdTemplate template = findById(id);
-        templateRepository.delete(template);
+        templateRepository.deleteById(String.valueOf(template.getId()));
     }
 
     /**
@@ -241,7 +241,7 @@ public class JobAdTemplateService {
     }
 
     private JobAdTemplate findById(Long id) {
-        return templateRepository.findById(id)
+        return templateRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Job ad template not found with ID: " + id));
     }
 }

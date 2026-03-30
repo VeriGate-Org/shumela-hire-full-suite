@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service.attendance;
 
 import com.arthmatic.shumelahire.entity.attendance.Geofence;
-import com.arthmatic.shumelahire.repository.attendance.GeofenceRepository;
+import com.arthmatic.shumelahire.repository.GeofenceDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class GeofenceService {
     private static final Logger logger = LoggerFactory.getLogger(GeofenceService.class);
 
     @Autowired
-    private GeofenceRepository geofenceRepository;
+    private GeofenceDataRepository geofenceRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -53,9 +53,9 @@ public class GeofenceService {
     }
 
     public void delete(Long id, String userId) {
-        Geofence geofence = geofenceRepository.findById(id)
+        Geofence geofence = geofenceRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Geofence not found: " + id));
-        geofenceRepository.delete(geofence);
+        geofenceRepository.deleteById(String.valueOf(geofence.getId()));
         auditLogService.saveLog(userId, "DELETE", "GEOFENCE", id.toString(), "Deleted geofence: " + geofence.getName());
     }
 }

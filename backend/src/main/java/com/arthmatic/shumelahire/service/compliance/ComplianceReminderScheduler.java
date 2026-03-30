@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service.compliance;
 
 import com.arthmatic.shumelahire.entity.compliance.ComplianceReminder;
 import com.arthmatic.shumelahire.entity.compliance.ReminderStatus;
-import com.arthmatic.shumelahire.repository.compliance.ComplianceReminderRepository;
+import com.arthmatic.shumelahire.repository.ComplianceReminderDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ComplianceReminderScheduler {
     private static final Logger logger = LoggerFactory.getLogger(ComplianceReminderScheduler.class);
 
     @Autowired
-    private ComplianceReminderRepository reminderRepository;
+    private ComplianceReminderDataRepository reminderRepository;
 
     @Autowired
     private AuditLogService auditLogService;

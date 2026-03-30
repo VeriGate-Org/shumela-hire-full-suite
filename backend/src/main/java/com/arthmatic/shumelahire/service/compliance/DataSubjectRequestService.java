@@ -7,23 +7,23 @@ import com.arthmatic.shumelahire.entity.compliance.DsarStatus;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.compliance.DataSubjectRequestRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.DataSubjectRequestDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,7 +32,7 @@ public class DataSubjectRequestService {
     private static final Logger logger = LoggerFactory.getLogger(DataSubjectRequestService.class);
 
     @Autowired
-    private DataSubjectRequestRepository dsarRepository;
+    private DataSubjectRequestDataRepository dsarRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -41,7 +41,7 @@ public class DataSubjectRequestService {
     private NotificationService notificationService;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     public DataSubjectRequestResponse createRequest(String requesterName, String requesterEmail,
                                                      String requestType, String description) {
@@ -69,24 +69,27 @@ public class DataSubjectRequestService {
 
     @Transactional(readOnly = true)
     public DataSubjectRequestResponse getRequest(Long id) {
-        DataSubjectRequest dsar = dsarRepository.findById(id)
+        DataSubjectRequest dsar = dsarRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("DSAR not found: " + id));
         return DataSubjectRequestResponse.fromEntity(dsar);
     }
 
     @Transactional(readOnly = true)
-    public Page<DataSubjectRequestResponse> getAllRequests(Pageable pageable) {
-        return dsarRepository.findAll(pageable).map(DataSubjectRequestResponse::fromEntity);
+    public List<DataSubjectRequestResponse> getAllRequests() {
+        return dsarRepository.findAll().stream()
+                .map(DataSubjectRequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<DataSubjectRequestResponse> getRequestsByStatus(String status, Pageable pageable) {
-        return dsarRepository.findByStatus(DsarStatus.valueOf(status), pageable)
-                .map(DataSubjectRequestResponse::fromEntity);
+    public List<DataSubjectRequestResponse> getRequestsByStatus(String status) {
+        return dsarRepository.findByStatus(DsarStatus.valueOf(status)).stream()
+                .map(DataSubjectRequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public DataSubjectRequestResponse updateStatus(Long id, String status, String response) {
-        DataSubjectRequest dsar = dsarRepository.findById(id)
+        DataSubjectRequest dsar = dsarRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("DSAR not found: " + id));
 
         dsar.setStatus(DsarStatus.valueOf(status));
@@ -126,7 +129,7 @@ public class DataSubjectRequestService {
     @Transactional(readOnly = true)
     public Map<String, Object> getDsarStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalRequests", dsarRepository.count());
+        stats.put("totalRequests", (long) dsarRepository.findAll().size());
         stats.put("received", dsarRepository.countByStatus(DsarStatus.RECEIVED));
         stats.put("inProgress", dsarRepository.countByStatus(DsarStatus.IN_PROGRESS));
         stats.put("completed", dsarRepository.countByStatus(DsarStatus.COMPLETED));
