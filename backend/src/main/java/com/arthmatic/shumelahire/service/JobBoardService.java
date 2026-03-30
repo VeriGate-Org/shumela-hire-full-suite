@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
 import com.arthmatic.shumelahire.service.jobboard.JobBoardConnector;
 import com.arthmatic.shumelahire.service.jobboard.JobBoardConnectorRegistry;
 import com.arthmatic.shumelahire.service.jobboard.ManualJobBoardConnector;
@@ -32,7 +32,7 @@ public class JobBoardService {
     private ManualJobBoardConnector manualConnector;
 
     @Autowired
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     public JobBoardPosting postToBoard(String jobPostingId, JobBoardType boardType, String boardConfig) {
         logger.info("Posting job {} to {}", jobPostingId, boardType.getDisplayName());
@@ -45,7 +45,7 @@ public class JobBoardService {
     }
 
     public JobBoardPosting removePosting(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         JobBoardConnector connector = connectorRegistry.getConnector(posting.getBoardType());
         if (connector != null) {
@@ -55,7 +55,7 @@ public class JobBoardService {
     }
 
     public JobBoardPosting syncPosting(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         JobBoardConnector connector = connectorRegistry.getConnector(posting.getBoardType());
         if (connector != null) {

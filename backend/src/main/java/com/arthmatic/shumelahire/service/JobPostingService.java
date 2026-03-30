@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,12 +21,12 @@ public class JobPostingService {
     
     private static final Logger logger = LoggerFactory.getLogger(JobPostingService.class);
 
-    private final JobPostingRepository jobPostingRepository;
+    private final JobPostingDataRepository jobPostingRepository;
     private final AuditLogService auditLogService;
     private final JobAdSyncService jobAdSyncService;
     private final NotificationService notificationService;
 
-    public JobPostingService(JobPostingRepository jobPostingRepository,
+    public JobPostingService(JobPostingDataRepository jobPostingRepository,
                              AuditLogService auditLogService,
                              JobAdSyncService jobAdSyncService,
                              NotificationService notificationService) {
@@ -114,7 +114,7 @@ public class JobPostingService {
         // TODO: Add rate-limiting/deduplication (session/IP-based) to prevent view inflation
         // Increment view count for published jobs
         if (jobPosting.getStatus() == JobPostingStatus.PUBLISHED) {
-            jobPostingRepository.incrementViewCount(jobPosting.getId());
+            jobPostingRepository.incrementViewCount(String.valueOf(jobPosting.getId()));
         }
         
         return JobPostingResponse.fromEntity(jobPosting);
@@ -424,7 +424,7 @@ public class JobPostingService {
     // Helper methods
     
     private JobPosting findJobPostingById(Long id) {
-        return jobPostingRepository.findById(id)
+        return jobPostingRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Job posting not found: " + id));
     }
     

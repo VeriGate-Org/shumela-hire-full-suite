@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.service.jobboard;
 import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
 import com.arthmatic.shumelahire.entity.PostingStatus;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class ManualJobBoardConnector {
     private static final Logger logger = LoggerFactory.getLogger(ManualJobBoardConnector.class);
 
     @Autowired
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -45,7 +45,7 @@ public class ManualJobBoardConnector {
     }
 
     public JobBoardPosting remove(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         posting.setStatus(PostingStatus.REMOVED);
         JobBoardPosting saved = repository.save(posting);
@@ -55,7 +55,7 @@ public class ManualJobBoardConnector {
     }
 
     public JobBoardPosting sync(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         if (posting.getExpiresAt() != null && posting.getExpiresAt().isBefore(LocalDateTime.now())) {
             posting.setStatus(PostingStatus.EXPIRED);

@@ -6,9 +6,9 @@ import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.engagement.WellnessProgram;
 import com.arthmatic.shumelahire.entity.engagement.WellnessProgramParticipant;
 import com.arthmatic.shumelahire.entity.engagement.WellnessProgramType;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.engagement.WellnessProgramParticipantRepository;
-import com.arthmatic.shumelahire.repository.engagement.WellnessProgramRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.WellnessProgramParticipantDataRepository;
+import com.arthmatic.shumelahire.repository.WellnessProgramDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -16,8 +16,6 @@ import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +29,13 @@ public class WellnessService {
     private static final Logger logger = LoggerFactory.getLogger(WellnessService.class);
 
     @Autowired
-    private WellnessProgramRepository wellnessProgramRepository;
+    private WellnessProgramDataRepository wellnessProgramRepository;
 
     @Autowired
-    private WellnessProgramParticipantRepository participantRepository;
+    private WellnessProgramParticipantDataRepository participantRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -65,7 +63,7 @@ public class WellnessService {
     }
 
     public WellnessProgramResponse updateProgram(Long id, WellnessProgramCreateRequest request) {
-        WellnessProgram program = wellnessProgramRepository.findById(id)
+        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
 
         program.setName(request.getName());
@@ -85,7 +83,7 @@ public class WellnessService {
 
     @Transactional(readOnly = true)
     public WellnessProgramResponse getProgram(Long id) {
-        WellnessProgram program = wellnessProgramRepository.findById(id)
+        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
         return enrichWithParticipantCount(WellnessProgramResponse.fromEntity(program), id);
     }
@@ -98,28 +96,29 @@ public class WellnessService {
     }
 
     @Transactional(readOnly = true)
-    public Page<WellnessProgramResponse> getAllPrograms(Pageable pageable) {
-        return wellnessProgramRepository.findAll(pageable)
-                .map(p -> enrichWithParticipantCount(WellnessProgramResponse.fromEntity(p), p.getId()));
+    public List<WellnessProgramResponse> getAllPrograms() {
+        return wellnessProgramRepository.findAll().stream()
+                .map(p -> enrichWithParticipantCount(WellnessProgramResponse.fromEntity(p), p.getId()))
+                .collect(Collectors.toList());
     }
 
     public void joinProgram(Long programId, Long employeeId) {
-        WellnessProgram program = wellnessProgramRepository.findById(programId)
+        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(programId))
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + programId));
 
         if (!program.getIsActive()) {
             throw new IllegalArgumentException("Program is not active");
         }
 
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        if (participantRepository.existsByProgramIdAndEmployeeId(programId, employeeId)) {
+        if (participantRepository.existsByProgramIdAndEmployeeId(String.valueOf(programId), String.valueOf(employeeId))) {
             throw new IllegalArgumentException("Employee is already enrolled in this program");
         }
 
         if (program.getMaxParticipants() != null) {
-            long currentCount = participantRepository.countByProgramId(programId);
+            long currentCount = participantRepository.countByProgramId(String.valueOf(programId));
             if (currentCount >= program.getMaxParticipants()) {
                 throw new IllegalArgumentException("Program has reached maximum capacity");
             }
@@ -141,10 +140,10 @@ public class WellnessService {
 
     public void leaveProgram(Long programId, Long employeeId) {
         WellnessProgramParticipant participant = participantRepository
-                .findByProgramIdAndEmployeeId(programId, employeeId)
+                .findByProgramIdAndEmployeeId(String.valueOf(programId), String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee is not enrolled in this program"));
 
-        participantRepository.delete(participant);
+        participantRepository.deleteById(String.valueOf(participant.getId()));
 
         auditLogService.saveLog(employeeId.toString(), "LEAVE", "WELLNESS_PROGRAM",
                 programId.toString(), "Left wellness program");
@@ -152,12 +151,12 @@ public class WellnessService {
     }
 
     public void deactivateProgram(Long id) {
-        WellnessProgram program = wellnessProgramRepository.findById(id)
+        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
         program.setIsActive(false);
         wellnessProgramRepository.save(program);
 
-        List<WellnessProgramParticipant> participants = participantRepository.findByProgramId(id);
+        List<WellnessProgramParticipant> participants = participantRepository.findByProgramId(String.valueOf(id));
         for (WellnessProgramParticipant participant : participants) {
             notificationService.sendInternalNotification(participant.getEmployee().getId(), "Wellness Program Ended",
                     "'" + program.getName() + "' has been deactivated",
@@ -169,7 +168,7 @@ public class WellnessService {
     }
 
     private WellnessProgramResponse enrichWithParticipantCount(WellnessProgramResponse response, Long programId) {
-        response.setCurrentParticipants(participantRepository.countByProgramId(programId));
+        response.setCurrentParticipants(participantRepository.countByProgramId(String.valueOf(programId)));
         return response;
     }
 }

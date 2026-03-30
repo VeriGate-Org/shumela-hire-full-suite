@@ -5,7 +5,6 @@ import com.arthmatic.shumelahire.entity.integration.LmsConnectorConfig;
 import com.arthmatic.shumelahire.entity.integration.LmsSyncLog;
 import com.arthmatic.shumelahire.service.integration.lms.LmsIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -76,21 +75,21 @@ public class LmsController {
     // ==================== Log Endpoints ====================
 
     @GetMapping("/logs")
-    public ResponseEntity<Page<Map<String, Object>>> getSyncLogs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<LmsSyncLog> logs = lmsIntegrationService.getSyncLogs(page, size);
-        Page<Map<String, Object>> response = logs.map(this::mapSyncLog);
+    public ResponseEntity<List<Map<String, Object>>> getSyncLogs() {
+        List<LmsSyncLog> logs = lmsIntegrationService.getSyncLogs();
+        List<Map<String, Object>> response = logs.stream()
+                .map(this::mapSyncLog)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/logs/{connectorId}")
-    public ResponseEntity<Page<Map<String, Object>>> getLogsByConnector(
-            @PathVariable Long connectorId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<LmsSyncLog> logs = lmsIntegrationService.getSyncLogsByConnector(connectorId, page, size);
-        Page<Map<String, Object>> response = logs.map(this::mapSyncLog);
+    public ResponseEntity<List<Map<String, Object>>> getLogsByConnector(
+            @PathVariable Long connectorId) {
+        List<LmsSyncLog> logs = lmsIntegrationService.getSyncLogsByConnector(connectorId);
+        List<Map<String, Object>> response = logs.stream()
+                .map(this::mapSyncLog)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 

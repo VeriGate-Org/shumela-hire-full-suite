@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
-import com.arthmatic.shumelahire.repository.OfferRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class DocuSignService implements ESignatureService {
     private String authServer;
 
     @Autowired
-    private OfferRepository offerRepository;
+    private OfferDataRepository offerRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
 

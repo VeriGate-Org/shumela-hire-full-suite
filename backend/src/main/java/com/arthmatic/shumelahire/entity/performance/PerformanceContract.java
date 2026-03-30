@@ -1,98 +1,66 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "performance_contracts")
 public class PerformanceContract extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cycle_id", nullable = false)
     @NotNull(message = "Performance cycle is required")
     private PerformanceCycle cycle;
     
-    @Column(name = "employee_id", nullable = false, length = 50)
     @NotNull(message = "Employee ID is required")
     private String employeeId;
     
-    @Column(name = "employee_name", nullable = false, length = 100)
     private String employeeName;
     
-    @Column(name = "employee_number", length = 20)
     private String employeeNumber;
     
-    @Column(name = "manager_id", nullable = false, length = 50)
     @NotNull(message = "Manager ID is required")
     private String managerId;
     
-    @Column(name = "manager_name", nullable = false, length = 100)
     private String managerName;
     
-    @Column(name = "department", length = 100)
     private String department;
     
-    @Column(name = "job_title", length = 100)
     private String jobTitle;
     
-    @Column(name = "job_level", length = 50)
     private String jobLevel;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id")
     private PerformanceTemplate template;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ContractStatus status = ContractStatus.DRAFT;
     
-    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
     
-    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
     
-    @Column(name = "approved_by", length = 50)
     private String approvedBy;
     
-    @Column(name = "approval_comments", columnDefinition = "TEXT")
     private String approvalComments;
     
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
     
     // Versioning for amendments
-    @Column(name = "version")
     private Integer version = 1;
     
-    @Column(name = "amendment_reason", columnDefinition = "TEXT")
     private String amendmentReason;
     
-    @Column(name = "amended_at")
     private LocalDateTime amendedAt;
     
-    @Column(name = "amended_by", length = 50)
     private String amendedBy;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
     // Relationships
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PerformanceGoal> goals;
     
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PerformanceReview> reviews;
     
     // Constructors
@@ -108,7 +76,6 @@ public class PerformanceContract extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

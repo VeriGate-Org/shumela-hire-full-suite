@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.Notification;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @GetMapping
     public ResponseEntity<?> getNotifications(

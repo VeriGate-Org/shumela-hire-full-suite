@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.NotificationRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.NotificationDataRepository;
 import com.arthmatic.shumelahire.service.integration.EmailService;
 import com.arthmatic.shumelahire.service.integration.MsTeamsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +31,10 @@ public class NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @Autowired
-    private NotificationRepository notificationRepository;
+    private NotificationDataRepository notificationRepository;
 
     @Autowired
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -369,7 +369,7 @@ public class NotificationService {
     private void sendNotificationDirect(Long applicantId, String subject, String message,
                                         NotificationType type, NotificationPriority priority) {
         try {
-            Applicant applicant = applicantRepository.findById(applicantId)
+            Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
                     .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + applicantId));
 
             Notification notification = new Notification();
@@ -428,7 +428,7 @@ public class NotificationService {
     private void sendNotification(Long applicantId, String subject, String message,
                                  NotificationChannel channel, String eventType) {
         try {
-            Applicant applicant = applicantRepository.findById(applicantId)
+            Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
                     .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + applicantId));
 
             NotificationType notificationType = mapEventTypeToNotificationType(eventType);
@@ -542,14 +542,14 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<Notification> getNotificationsForApplicant(Long applicantId, int limit) {
-        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(applicantId)
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(String.valueOf(applicantId))
                 .stream()
                 .limit(limit)
                 .toList();
     }
 
     public void markNotificationAsRead(Long notificationId) {
-        notificationRepository.findById(notificationId)
+        notificationRepository.findById(String.valueOf(notificationId))
                 .ifPresent(notification -> {
                     notification.markAsRead();
                     notificationRepository.save(notification);
@@ -558,20 +558,20 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public Page<Notification> getNotificationsForUser(Long userId, Pageable pageable) {
-        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId, pageable);
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(String.valueOf(userId), pageable);
     }
 
     @Transactional(readOnly = true)
     public long getUnreadCount(Long userId) {
-        return notificationRepository.countUnreadByRecipient(userId);
+        return notificationRepository.countUnreadByRecipient(String.valueOf(userId));
     }
 
     public void markAllAsRead(Long userId) {
-        notificationRepository.markAllAsReadForRecipient(userId, LocalDateTime.now());
+        notificationRepository.markAllAsReadForRecipient(String.valueOf(userId), LocalDateTime.now());
     }
 
     public void deleteNotification(Long notificationId) {
-        notificationRepository.deleteById(notificationId);
+        notificationRepository.deleteById(String.valueOf(notificationId));
     }
 
     private NotificationType mapEventTypeToNotificationType(String eventType) {

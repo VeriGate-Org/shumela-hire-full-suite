@@ -82,7 +82,7 @@ export const checkServiceHealth = async () => {
   };
 
   try {
-    await apiClient.get('/api/health');
+    await apiClient.get('/api/actuator/health');
     results.api = true;
   } catch (error) {
     console.error('API health check failed:', error);

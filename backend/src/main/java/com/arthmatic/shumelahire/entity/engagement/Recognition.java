@@ -2,42 +2,25 @@ package com.arthmatic.shumelahire.entity.engagement;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "recognitions")
 public class Recognition extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_employee_id", nullable = false)
     private Employee fromEmployee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_employee_id", nullable = false)
     private Employee toEmployee;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private RecognitionCategory category;
 
-    @Column(columnDefinition = "TEXT")
     private String message;
 
-    @Column(nullable = false)
     private Integer points = 0;
 
-    @Column(name = "is_public", nullable = false)
     private Boolean isPublic = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Long getId() { return id; }

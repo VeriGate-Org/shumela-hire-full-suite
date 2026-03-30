@@ -7,9 +7,6 @@ import com.arthmatic.shumelahire.service.leave.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -145,21 +142,17 @@ public class LeaveController {
     }
 
     @GetMapping("/requests")
-    public ResponseEntity<Page<LeaveRequestResponse>> getRequests(
+    public ResponseEntity<List<LeaveRequestResponse>> getRequests(
             @RequestParam(required = false) Long employeeId,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
+            @RequestParam(required = false) String status) {
         if (employeeId != null) {
-            return ResponseEntity.ok(leaveRequestService.getByEmployee(employeeId, pageable));
+            return ResponseEntity.ok(leaveRequestService.getByEmployee(employeeId));
         }
         if (status != null) {
             return ResponseEntity.ok(leaveRequestService.getAllByStatus(
-                    LeaveRequestStatus.valueOf(status), pageable));
+                    LeaveRequestStatus.valueOf(status)));
         }
-        return ResponseEntity.ok(leaveRequestService.getAllByStatus(LeaveRequestStatus.PENDING, pageable));
+        return ResponseEntity.ok(leaveRequestService.getAllByStatus(LeaveRequestStatus.PENDING));
     }
 
     @GetMapping("/requests/{id}")
@@ -173,12 +166,9 @@ public class LeaveController {
 
     @GetMapping("/requests/pending")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<Page<LeaveRequestResponse>> getPendingApprovals(
-            @RequestParam Long managerId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(leaveRequestService.getPendingApprovals(managerId, pageable));
+    public ResponseEntity<List<LeaveRequestResponse>> getPendingApprovals(
+            @RequestParam Long managerId) {
+        return ResponseEntity.ok(leaveRequestService.getPendingApprovals(managerId));
     }
 
     @PutMapping("/requests/{id}/approve")

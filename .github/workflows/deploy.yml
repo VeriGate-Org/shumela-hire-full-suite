@@ -18,21 +18,10 @@ on:
         required: false
         type: string
         default: ""
-    secrets:
-      AWS_ROLE_ARN:
-        required: true
-      CERTIFICATE_ARN:
+      ref:
         required: false
-      API_CERTIFICATE_ARN:
-        required: false
-      WILDCARD_CERTIFICATE_ARN:
-        required: false
-      LINKEDIN_CLIENT_ID:
-        required: false
-      LINKEDIN_CLIENT_SECRET:
-        required: false
-      CLAUDE_API_KEY:
-        required: false
+        type: string
+        default: ''
 
 permissions:
   id-token: write
@@ -45,22 +34,14 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ inputs.aws-region }}
-
-      # ── Set Spring profile ───────────────────────────────────────────────
-      - name: Set Spring profile
-        id: spring-profile
-        run: |
-          if [ "${{ inputs.environment }}" = "dev" ]; then
-            echo "profile=cloud" >> $GITHUB_OUTPUT
-          else
-            echo "profile=${{ inputs.environment }}" >> $GITHUB_OUTPUT
-          fi
 
       # ── Backend JAR ────────────────────────────────────────────────────
       - uses: actions/setup-java@v4
@@ -124,7 +105,7 @@ jobs:
             echo "app_url=https://${{ inputs.environment }}.${{ inputs.domain-name }}" >> $GITHUB_OUTPUT
           fi
 
-      # ── Phase 1: Deploy foundation (VPC, DB, ECR repos, Cognito) ──────
+      # ── Phase 1: Deploy foundation (Cognito, S3, Secrets) ──────────────
       - name: Cleanup foundation stack and orphaned resources
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
@@ -166,12 +147,6 @@ jobs:
           # Delete any resources not managed by the stack.
           # No existence checks — just try to delete and ignore errors.
 
-          # Log group
-          if ! resource_in_stack "EcsLogGroupD0138CE7"; then
-            echo "Removing orphaned log group /ecs/${PREFIX} (if exists)..."
-            aws logs delete-log-group --log-group-name "/ecs/${PREFIX}" --region "$REGION" 2>&1 || true
-          fi
-
           # S3 buckets — delete bucket policy first (CDK AutoDeleteObjects adds a
           # restrictive policy), then empty and remove the bucket.
           for bucket_info in "fs-docs:DocumentsBucket9EC9DEB9" "fs-file-uploads:UploadsBucket5E5E9B64"; do
@@ -182,16 +157,6 @@ jobs:
               echo "Removing orphaned S3 bucket ${BUCKET} (if exists)..."
               aws s3api delete-bucket-policy --bucket "$BUCKET" --region "$REGION" 2>&1 || true
               aws s3 rb "s3://${BUCKET}" --force --region "$REGION" 2>&1 || true
-            fi
-          done
-
-          # ECR repos
-          for repo_info in "shumelahire-backend:BackendRepo7FFBAD06" "shumelahire-frontend:FrontendRepoF80FCC01"; do
-            REPO="${repo_info%%:*}"
-            LOGICAL_ID="${repo_info##*:}"
-            if ! resource_in_stack "$LOGICAL_ID"; then
-              echo "Removing orphaned ECR repo ${REPO} (if exists)..."
-              aws ecr delete-repository --repository-name "$REPO" --region "$REGION" --force 2>&1 || true
             fi
           done
 
@@ -276,52 +241,85 @@ jobs:
           echo "user_pool_client_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "cognito_domain=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`CognitoDomain`].OutputValue' --output text)" >> $GITHUB_OUTPUT
 
-      # ── Phase 2: Push Docker images (ECR repos now exist) ──────────────
-      - name: Login to ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push backend Docker image
-        working-directory: backend
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-          SPRING_PROFILES_ACTIVE: ${{ steps.spring-profile.outputs.profile }}
-        run: |
-          docker build \
-            --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
-            -t $ECR_REGISTRY/shumelahire-backend:$IMAGE_TAG \
-            -t $ECR_REGISTRY/shumelahire-backend:latest \
-            .
-          docker push --all-tags $ECR_REGISTRY/shumelahire-backend
-
+      # ── Phase 2: Build frontend + deploy ─────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
 
-      - name: Build and push frontend Docker image
+      - name: Build frontend static export
         env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          STATIC_EXPORT: "true"
+          NEXT_PUBLIC_API_URL: ""
+          NEXT_PUBLIC_APP_URL: ${{ steps.urls.outputs.app_url }}
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ steps.cdk-outputs.outputs.user_pool_id }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ steps.cdk-outputs.outputs.user_pool_client_id }}
+          NEXT_PUBLIC_COGNITO_DOMAIN: ${{ steps.cdk-outputs.outputs.cognito_domain }}
+          NEXT_PUBLIC_REGION: ${{ inputs.aws-region }}
         run: |
-          docker build \
-            --build-arg NEXT_PUBLIC_API_URL="" \
-            --build-arg NEXT_PUBLIC_APP_URL=${{ steps.urls.outputs.app_url }} \
-            --build-arg NEXT_PUBLIC_COGNITO_USER_POOL_ID=${{ steps.cdk-outputs.outputs.user_pool_id }} \
-            --build-arg NEXT_PUBLIC_COGNITO_CLIENT_ID=${{ steps.cdk-outputs.outputs.user_pool_client_id }} \
-            --build-arg NEXT_PUBLIC_COGNITO_DOMAIN=${{ steps.cdk-outputs.outputs.cognito_domain }} \
-            --build-arg NEXT_PUBLIC_REGION=${{ inputs.aws-region }} \
-            -t $ECR_REGISTRY/shumelahire-frontend:$IMAGE_TAG \
-            -t $ECR_REGISTRY/shumelahire-frontend:latest \
-            .
-          docker push --all-tags $ECR_REGISTRY/shumelahire-frontend
+          npm ci
+          npm run build
 
-      # ── Phase 3: Deploy compute, API, frontend stacks ──────────────────
+      - name: Deploy frontend to S3
+        run: |
+          PREFIX="shumelahire-${{ inputs.environment }}"
+          FRONTEND_BUCKET="${PREFIX}-frontend"
+          REGION="${{ inputs.aws-region }}"
+
+          echo "Syncing static export to s3://${FRONTEND_BUCKET}/ ..."
+          aws s3 sync out/ "s3://${FRONTEND_BUCKET}/" --delete --region "$REGION"
+
+          # Invalidate CloudFront cache
+          CF_DIST_ID=$(aws cloudformation describe-stacks \
+            --stack-name "${PREFIX}-frontend" \
+            --region "$REGION" \
+            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$CF_DIST_ID" ] && [ "$CF_DIST_ID" != "None" ]; then
+            echo "Invalidating CloudFront distribution ${CF_DIST_ID}..."
+            aws cloudfront create-invalidation \
+              --distribution-id "$CF_DIST_ID" \
+              --paths "/*"
+          else
+            echo "CloudFront distribution not found — skipping invalidation."
+          fi
+
+      # ── Deploy Lambda function ───────────────────────────────────────
+      - name: Deploy Lambda function
+        run: |
+          PREFIX="shumelahire-${{ inputs.environment }}"
+          FUNCTION_NAME="${PREFIX}-api"
+          JAR_PATH="backend/target/shumelahire-backend.jar"
+          REGION="${{ inputs.aws-region }}"
+
+          # Check if the Lambda function exists (created by CDK serverless stack)
+          if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2>/dev/null; then
+            echo "Updating Lambda function code..."
+            aws lambda update-function-code \
+              --function-name "$FUNCTION_NAME" \
+              --zip-file "fileb://${JAR_PATH}" \
+              --region "$REGION"
+
+            echo "Waiting for function update..."
+            aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME" --region "$REGION"
+
+            echo "Publishing new version (activates SnapStart)..."
+            VERSION=$(aws lambda publish-version \
+              --function-name "$FUNCTION_NAME" \
+              --description "Deploy ${{ github.sha }}" \
+              --region "$REGION" \
+              --query 'Version' --output text)
+            echo "Published Lambda version: $VERSION"
+          else
+            echo "Lambda function $FUNCTION_NAME not found — serverless stack not yet deployed. Skipping."
+          fi
+
+      # ── Phase 3: Deploy all remaining stacks ─────────────────────────
       - name: Cleanup ROLLBACK_COMPLETE stacks
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
-          for STACK_NAME in "${PREFIX}-compute" "${PREFIX}-api" "${PREFIX}-frontend"; do
+          for STACK_NAME in "${PREFIX}-api" "${PREFIX}-frontend" "${PREFIX}-serverless" "${PREFIX}-analytics"; do
             STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
               --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
             if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
@@ -355,25 +353,3 @@ jobs:
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
-      # ── Ensure log group exists (repair CloudFormation drift) ─────────
-      # The log group has RemovalPolicy.RETAIN so CloudFormation may think
-      # it exists even if it was deleted out-of-band.  Create it if missing.
-      - name: Ensure ECS log group exists
-        run: |
-          LOG_GROUP="/ecs/shumelahire-${{ inputs.environment }}"
-          aws logs create-log-group --log-group-name "$LOG_GROUP" \
-            --region ${{ inputs.aws-region }} 2>/dev/null || true
-
-      # ── Start ECS Services ─────────────────────────────────────────────
-      # CDK creates services with desiredCount=0 so the stack succeeds even
-      # when tasks need a running ALB / secrets / DB.  This step sets the
-      # real desired count and forces a fresh deployment with the latest image.
-      - name: Start ECS services
-        run: |
-          CLUSTER="shumelahire-${{ inputs.environment }}"
-          ENV="${{ inputs.environment }}"
-          if [ "$ENV" = "prod" ]; then BACKEND_COUNT=2; else BACKEND_COUNT=1; fi
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-${ENV} \
-            --desired-count $BACKEND_COUNT --force-new-deployment
-          aws ecs update-service --cluster $CLUSTER --service shumelahire-${ENV}-frontend \
-            --desired-count 1 --force-new-deployment

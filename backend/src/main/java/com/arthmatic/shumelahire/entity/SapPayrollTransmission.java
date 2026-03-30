@@ -1,79 +1,51 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sap_payroll_transmissions")
 public class SapPayrollTransmission extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "offer_id", nullable = false)
     private Offer offer;
 
-    @Column(name = "transmission_id", unique = true, nullable = false, length = 50)
     private String transmissionId;
 
-    @Column(name = "sap_employee_number", length = 20)
     private String sapEmployeeNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
     private TransmissionStatus status = TransmissionStatus.PENDING;
 
-    @Column(name = "payload_json", columnDefinition = "TEXT")
     private String payloadJson;
 
-    @Column(name = "response_json", columnDefinition = "TEXT")
     private String responseJson;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "retry_count", nullable = false)
     private Integer retryCount = 0;
 
-    @Column(name = "max_retries", nullable = false)
     private Integer maxRetries = 3;
 
-    @Column(name = "next_retry_at")
     private LocalDateTime nextRetryAt;
 
-    @Column(name = "initiated_by")
     private Long initiatedBy;
 
-    @Column(name = "sap_company_code", length = 10)
     private String sapCompanyCode;
 
-    @Column(name = "sap_payroll_area", length = 10)
     private String sapPayrollArea;
 
-    @Column(name = "validation_errors", columnDefinition = "TEXT")
     private String validationErrors;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "transmitted_at")
     private LocalDateTime transmittedAt;
 
-    @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
 
-    @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "cancelled_by")
     private Long cancelledBy;
 
-    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
 
     // Constructors
@@ -81,7 +53,6 @@ public class SapPayrollTransmission extends TenantAwareEntity {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

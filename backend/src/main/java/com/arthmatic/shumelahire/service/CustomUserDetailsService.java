@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
  * Active only in dev profile — deployed environments use Cognito.
  */
 @Service
-@Profile({"dev", "test", "hybrid"})
+@Profile({"dev", "test"})
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Override
     @Transactional
@@ -46,7 +46,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Transactional
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(String.valueOf(id)).orElse(null);
     }
 
     /**

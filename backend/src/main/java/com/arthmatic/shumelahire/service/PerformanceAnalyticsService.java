@@ -1,5 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
+import com.arthmatic.shumelahire.service.analytics.AthenaQueryService;
+import com.arthmatic.shumelahire.service.analytics.AthenaQueryTemplates;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -8,10 +11,11 @@ import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.Interview;
 import com.arthmatic.shumelahire.entity.InterviewStatus;
 import com.arthmatic.shumelahire.entity.InterviewType;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,16 +25,77 @@ import java.util.stream.Collectors;
 public class PerformanceAnalyticsService {
 
     @Autowired
-
-    private ApplicationRepository applicationRepository;
-
-    @Autowired
-
-    private InterviewRepository interviewRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
+    private InterviewDataRepository interviewRepository;
 
-    private ApplicantRepository applicantRepository;
+    @Autowired
+    private ApplicantDataRepository applicantRepository;
+
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
+    private boolean useAthena() {
+        return athenaQueryService != null;
+    }
+
+    private Map<String, String> tenantParams() {
+        return Map.of("tenantId", TenantContext.getCurrentTenant());
+    }
+
+    /**
+     * Athena-backed: get hired applications with dates for time-to-hire calculation.
+     */
+    public List<Map<String, String>> getHiredApplicationsAthena() {
+        if (!useAthena()) return List.of();
+        return athenaQueryService.executeQuery(
+                AthenaQueryTemplates.HIRED_APPLICATIONS_WITH_DATES, tenantParams());
+    }
+
+    /**
+     * Athena-backed: get applications grouped by source and status.
+     */
+    public List<Map<String, String>> getApplicationsBySourceAthena(LocalDate startDate) {
+        if (!useAthena()) return List.of();
+        Map<String, String> params = new HashMap<>(tenantParams());
+        params.put("startDate", startDate.toString());
+        return athenaQueryService.executeQuery(
+                AthenaQueryTemplates.APPLICATIONS_BY_SOURCE, params);
+    }
+
+    /**
+     * Athena-backed: get monthly hiring trends.
+     */
+    public List<Map<String, String>> getMonthlyHiringTrendsAthena(LocalDate startDate) {
+        if (!useAthena()) return List.of();
+        Map<String, String> params = new HashMap<>(tenantParams());
+        params.put("startDate", startDate.toString());
+        return athenaQueryService.executeQuery(
+                AthenaQueryTemplates.MONTHLY_HIRING_TRENDS, params);
+    }
+
+    /**
+     * Athena-backed: get hires grouped by department.
+     */
+    public List<Map<String, String>> getHiresByDepartmentAthena(LocalDate startDate) {
+        if (!useAthena()) return List.of();
+        Map<String, String> params = new HashMap<>(tenantParams());
+        params.put("startDate", startDate.toString());
+        return athenaQueryService.executeQuery(
+                AthenaQueryTemplates.HIRES_BY_DEPARTMENT, params);
+    }
+
+    /**
+     * Athena-backed: get interview pass rates.
+     */
+    public List<Map<String, String>> getInterviewPassRatesAthena(LocalDate startDate) {
+        if (!useAthena()) return List.of();
+        Map<String, String> params = new HashMap<>(tenantParams());
+        params.put("startDate", startDate.toString());
+        return athenaQueryService.executeQuery(
+                AthenaQueryTemplates.INTERVIEW_PASS_RATES, params);
+    }
 
     public Map<String, Object> getRecruitmentMetrics() {
         Map<String, Object> metrics = new HashMap<>();

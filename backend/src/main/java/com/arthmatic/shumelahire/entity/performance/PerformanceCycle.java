@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,55 +8,38 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "performance_cycles")
 public class PerformanceCycle extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @NotBlank(message = "Cycle name is required")
-    @Column(nullable = false, length = 100)
     private String name;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
     @NotNull(message = "Start date is required")
-    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
     
     @NotNull(message = "End date is required")
-    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
     
     @NotNull(message = "Mid-year deadline is required")
-    @Column(name = "mid_year_deadline", nullable = false)
     private LocalDate midYearDeadline;
     
     @NotNull(message = "Final review deadline is required")
-    @Column(name = "final_review_deadline", nullable = false)
     private LocalDate finalReviewDeadline;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private CycleStatus status = CycleStatus.PLANNING;
     
-    @Column(name = "is_default")
     private Boolean isDefault = false;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @Column(name = "created_by", nullable = false)
     private String createdBy;
     
     // Relationships
-    @OneToMany(mappedBy = "cycle", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PerformanceContract> contracts;
     
     // Constructors
@@ -74,7 +56,6 @@ public class PerformanceCycle extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

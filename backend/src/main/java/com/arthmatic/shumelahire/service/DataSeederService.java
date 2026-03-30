@@ -4,9 +4,9 @@ import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +27,13 @@ public class DataSeederService implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(DataSeederService.class);
     
     @Autowired
-    private ApplicantRepository applicantRepository;
-    
+    private ApplicantDataRepository applicantRepository;
+
     @Autowired
-    private ApplicationRepository applicationRepository;
-    
+    private ApplicationDataRepository applicationRepository;
+
     @Autowired
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
     
     @Autowired
     private AuditLogService auditLogService;
@@ -283,7 +283,7 @@ public class DataSeederService implements CommandLineRunner {
                                                String coverLetter) {
         try {
             // Find the job posting
-            JobPosting jobPosting = jobPostingRepository.findById(jobPostingId).orElse(null);
+            JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(jobPostingId)).orElse(null);
             
             Application application = new Application();
             application.setApplicant(applicant);

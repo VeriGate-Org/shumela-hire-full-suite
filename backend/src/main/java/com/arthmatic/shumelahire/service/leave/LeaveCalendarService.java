@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service.leave;
 
 import com.arthmatic.shumelahire.dto.leave.LeaveCalendarEntry;
 import com.arthmatic.shumelahire.entity.leave.LeaveRequest;
-import com.arthmatic.shumelahire.repository.leave.LeaveRequestRepository;
+import com.arthmatic.shumelahire.repository.LeaveRequestDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 public class LeaveCalendarService {
 
     @Autowired
-    private LeaveRequestRepository leaveRequestRepository;
+    private LeaveRequestDataRepository leaveRequestRepository;
 
     public List<LeaveCalendarEntry> getCalendarEntries(LocalDate startDate, LocalDate endDate, String department) {
         List<LeaveRequest> requests;
         if (department != null && !department.isBlank()) {
             requests = leaveRequestRepository.findByDepartmentAndDateRange(department, startDate, endDate);
         } else {
-            requests = leaveRequestRepository.findOverlapping(startDate, endDate);
+            requests = leaveRequestRepository.findAllOverlapping(startDate, endDate);
         }
 
         return requests.stream()

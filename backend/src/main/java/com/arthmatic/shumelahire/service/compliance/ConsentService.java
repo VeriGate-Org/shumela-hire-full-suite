@@ -3,14 +3,12 @@ package com.arthmatic.shumelahire.service.compliance;
 import com.arthmatic.shumelahire.dto.compliance.ConsentRecordResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.compliance.ConsentRecord;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.compliance.ConsentRecordRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.ConsentRecordDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,21 +25,21 @@ public class ConsentService {
     private static final Logger logger = LoggerFactory.getLogger(ConsentService.class);
 
     @Autowired
-    private ConsentRecordRepository consentRecordRepository;
+    private ConsentRecordDataRepository consentRecordRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
 
     public ConsentRecordResponse grantConsent(Long employeeId, String consentType,
                                               String purpose, String ipAddress) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         ConsentRecord record = consentRecordRepository
-                .findByEmployeeIdAndConsentType(employeeId, consentType)
+                .findByEmployeeIdAndConsentType(String.valueOf(employeeId), consentType)
                 .orElse(new ConsentRecord());
 
         record.setEmployee(employee);
@@ -63,7 +61,7 @@ public class ConsentService {
 
     public ConsentRecordResponse withdrawConsent(Long employeeId, String consentType) {
         ConsentRecord record = consentRecordRepository
-                .findByEmployeeIdAndConsentType(employeeId, consentType)
+                .findByEmployeeIdAndConsentType(String.valueOf(employeeId), consentType)
                 .orElseThrow(() -> new IllegalArgumentException("Consent record not found"));
 
         record.setIsGranted(false);
@@ -79,14 +77,16 @@ public class ConsentService {
 
     @Transactional(readOnly = true)
     public List<ConsentRecordResponse> getConsentsForEmployee(Long employeeId) {
-        return consentRecordRepository.findByEmployeeId(employeeId).stream()
+        return consentRecordRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
                 .map(ConsentRecordResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<ConsentRecordResponse> getAllConsents(Pageable pageable) {
-        return consentRecordRepository.findAll(pageable).map(ConsentRecordResponse::fromEntity);
+    public List<ConsentRecordResponse> getAllConsents() {
+        return consentRecordRepository.findAll().stream()
+                .map(ConsentRecordResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +94,7 @@ public class ConsentService {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalGranted", consentRecordRepository.countByIsGrantedTrue());
         stats.put("totalWithdrawn", consentRecordRepository.countByIsGrantedFalse());
-        stats.put("totalRecords", consentRecordRepository.count());
+        stats.put("totalRecords", (long) consentRecordRepository.findAll().size());
         return stats;
     }
 }

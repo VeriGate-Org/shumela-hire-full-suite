@@ -4,7 +4,7 @@ import com.arthmatic.shumelahire.dto.employee.EmployeeDocumentResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeDocument;
 import com.arthmatic.shumelahire.entity.EmployeeDocumentType;
-import com.arthmatic.shumelahire.repository.EmployeeDocumentRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class EmployeeDocumentService {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     @Autowired
-    private EmployeeDocumentRepository documentRepository;
+    private EmployeeDocumentDataRepository documentRepository;
 
     @Autowired
     private EmployeeService employeeService;
@@ -48,7 +48,7 @@ public class EmployeeDocumentService {
 
         // Determine version
         List<EmployeeDocument> existing = documentRepository
-                .findLatestByEmployeeAndType(employeeId, type);
+                .findLatestByEmployeeAndType(String.valueOf(employeeId), type);
         int version = existing.isEmpty() ? 1 : existing.get(0).getVersion() + 1;
 
         EmployeeDocument document = new EmployeeDocument();
@@ -75,7 +75,7 @@ public class EmployeeDocumentService {
     @Transactional(readOnly = true)
     public List<EmployeeDocumentResponse> getDocuments(Long employeeId) {
         List<EmployeeDocument> documents = documentRepository
-                .findByEmployeeIdAndIsActiveTrueOrderByCreatedAtDesc(employeeId);
+                .findActiveByEmployee(String.valueOf(employeeId));
         return documents.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -84,7 +84,7 @@ public class EmployeeDocumentService {
     @Transactional(readOnly = true)
     public List<EmployeeDocumentResponse> getDocumentsByType(Long employeeId, EmployeeDocumentType type) {
         List<EmployeeDocument> documents = documentRepository
-                .findByEmployeeIdAndDocumentTypeAndIsActiveTrue(employeeId, type);
+                .findActiveByEmployeeAndType(String.valueOf(employeeId), type);
         return documents.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class EmployeeDocumentService {
     public void deleteDocument(Long employeeId, Long documentId) {
         logger.info("Deleting document {} for employee: {}", documentId, employeeId);
 
-        EmployeeDocument document = documentRepository.findById(documentId)
+        EmployeeDocument document = documentRepository.findById(String.valueOf(documentId))
                 .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
 
         if (!document.getEmployee().getId().equals(employeeId)) {

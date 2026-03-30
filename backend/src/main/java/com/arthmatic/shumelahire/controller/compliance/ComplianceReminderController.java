@@ -4,9 +4,6 @@ import com.arthmatic.shumelahire.annotation.FeatureGate;
 import com.arthmatic.shumelahire.dto.compliance.ComplianceReminderResponse;
 import com.arthmatic.shumelahire.service.compliance.ComplianceReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,19 +51,16 @@ public class ComplianceReminderController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ComplianceReminderResponse>> getReminders(
+    public ResponseEntity<List<ComplianceReminderResponse>> getReminders(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long employeeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("dueDate").ascending());
+            @RequestParam(required = false) Long employeeId) {
         if (status != null) {
-            return ResponseEntity.ok(reminderService.getRemindersByStatus(status, pageRequest));
+            return ResponseEntity.ok(reminderService.getRemindersByStatus(status));
         }
         if (employeeId != null) {
-            return ResponseEntity.ok(reminderService.getRemindersByEmployee(employeeId, pageRequest));
+            return ResponseEntity.ok(reminderService.getRemindersByEmployee(employeeId));
         }
-        return ResponseEntity.ok(reminderService.getAllReminders(pageRequest));
+        return ResponseEntity.ok(reminderService.getAllReminders());
     }
 
     @GetMapping("/upcoming")

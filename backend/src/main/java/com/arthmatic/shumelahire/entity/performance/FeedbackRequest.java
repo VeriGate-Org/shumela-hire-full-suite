@@ -2,46 +2,26 @@ package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "feedback_requests")
 public class FeedbackRequest extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester_id", nullable = false)
     private Employee requester;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "feedback_type", nullable = false, length = 20)
     private FeedbackType feedbackType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private FeedbackStatus status = FeedbackStatus.PENDING;
 
-    @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Long getId() { return id; }

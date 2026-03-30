@@ -2,67 +2,42 @@ package com.arthmatic.shumelahire.entity.attendance;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "attendance_records")
 public class AttendanceRecord extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @NotNull
-    @Column(name = "clock_in", nullable = false)
     private LocalDateTime clockIn;
 
-    @Column(name = "clock_out")
     private LocalDateTime clockOut;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "clock_method", nullable = false, length = 20)
     private ClockMethod clockMethod = ClockMethod.MANUAL;
 
-    @Column(name = "clock_in_latitude")
     private Double clockInLatitude;
 
-    @Column(name = "clock_in_longitude")
     private Double clockInLongitude;
 
-    @Column(name = "clock_out_latitude")
     private Double clockOutLatitude;
 
-    @Column(name = "clock_out_longitude")
     private Double clockOutLongitude;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private AttendanceStatus status = AttendanceStatus.PRESENT;
 
-    @Column(name = "total_hours", precision = 5, scale = 2)
     private BigDecimal totalHours;
 
-    @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Long getId() { return id; }

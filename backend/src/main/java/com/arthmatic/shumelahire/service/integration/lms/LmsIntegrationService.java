@@ -2,16 +2,12 @@ package com.arthmatic.shumelahire.service.integration.lms;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.integration.*;
-import com.arthmatic.shumelahire.repository.integration.LmsConnectorConfigRepository;
-import com.arthmatic.shumelahire.repository.integration.LmsSyncLogRepository;
+import com.arthmatic.shumelahire.repository.LmsConnectorConfigDataRepository;
+import com.arthmatic.shumelahire.repository.LmsSyncLogDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +22,10 @@ public class LmsIntegrationService {
     private static final Logger logger = LoggerFactory.getLogger(LmsIntegrationService.class);
 
     @Autowired
-    private LmsConnectorConfigRepository connectorConfigRepository;
+    private LmsConnectorConfigDataRepository connectorConfigRepository;
 
     @Autowired
-    private LmsSyncLogRepository syncLogRepository;
+    private LmsSyncLogDataRepository syncLogRepository;
 
     @Autowired
     private LmsConnector lmsConnector;
@@ -47,7 +43,7 @@ public class LmsIntegrationService {
 
     @Transactional(readOnly = true)
     public LmsConnectorConfig getConnectorById(Long id) {
-        return connectorConfigRepository.findById(id)
+        return connectorConfigRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("LMS connector not found: " + id));
     }
 
@@ -88,7 +84,7 @@ public class LmsIntegrationService {
 
     public void deleteConnector(Long id) {
         LmsConnectorConfig config = getConnectorById(id);
-        connectorConfigRepository.delete(config);
+        connectorConfigRepository.deleteById(String.valueOf(config.getId()));
 
         auditLogService.logSystemAction("DELETE", "LMS_CONNECTOR",
                 "Deleted LMS connector: " + config.getName());
@@ -170,15 +166,13 @@ public class LmsIntegrationService {
     // ==================== Sync Logs ====================
 
     @Transactional(readOnly = true)
-    public Page<LmsSyncLog> getSyncLogs(int page, int size) {
+    public List<LmsSyncLog> getSyncLogs() {
         String tenantId = TenantContext.requireCurrentTenant();
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        return syncLogRepository.findByTenantIdOrderByStartedAtDesc(tenantId, pageable);
+        return syncLogRepository.findByTenantIdOrderByStartedAtDesc(tenantId);
     }
 
     @Transactional(readOnly = true)
-    public Page<LmsSyncLog> getSyncLogsByConnector(Long connectorId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startedAt"));
-        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(connectorId, pageable);
+    public List<LmsSyncLog> getSyncLogsByConnector(Long connectorId) {
+        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(String.valueOf(connectorId));
     }
 }

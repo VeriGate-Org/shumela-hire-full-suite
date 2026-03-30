@@ -4,7 +4,7 @@ import com.arthmatic.shumelahire.dto.*;
 import com.arthmatic.shumelahire.entity.JobAdHistory;
 import com.arthmatic.shumelahire.entity.JobAdStatus;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.JobAdService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class JobAdController {
     private JobAdService jobAdService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
     
     /**
      * GET /ads/internal - List published internal job ads (any authenticated user)

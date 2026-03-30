@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.BackgroundCheckRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,10 +26,10 @@ import static org.mockito.Mockito.*;
 class DotsAfricaServiceTest {
 
     @Mock
-    private BackgroundCheckRepository backgroundCheckRepository;
+    private BackgroundCheckDataRepository backgroundCheckRepository;
 
     @Mock
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -56,7 +56,7 @@ class DotsAfricaServiceTest {
     @Test
     void testInitiateCheckWithConsent() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("screeningId", "SCR-12345");
@@ -118,7 +118,7 @@ class DotsAfricaServiceTest {
     @Test
     void testInitiateCheckWithoutConsent() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
         when(backgroundCheckRepository.save(any(BackgroundCheck.class))).thenAnswer(inv -> {
             BackgroundCheck bc = inv.getArgument(0);
             bc.setId(101L);
@@ -141,7 +141,7 @@ class DotsAfricaServiceTest {
     @Test
     void testInitiateCheckApiFailure() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
         when(restTemplate.exchange(contains("/screenings"), eq(HttpMethod.POST), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("Dots Africa API unavailable"));
 

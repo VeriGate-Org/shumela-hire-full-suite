@@ -1,56 +1,40 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "talent_pools")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TalentPool extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "pool_name", nullable = false, unique = true)
     private String poolName;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "department")
     private String department;
 
-    @Column(name = "skills_criteria", columnDefinition = "TEXT")
     private String skillsCriteria;
 
-    @Column(name = "experience_level")
     private String experienceLevel;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "auto_add_enabled", nullable = false)
     private Boolean autoAddEnabled = false;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public TalentPool() {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

@@ -1,29 +1,19 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "user_preferences")
 public class UserPreference extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
-    @Column(columnDefinition = "JSONB", nullable = false)
     private String preferences = "{}";
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

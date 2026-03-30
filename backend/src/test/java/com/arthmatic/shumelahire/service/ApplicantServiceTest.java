@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.Applicant;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.dto.ApplicantCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.never;
 class ApplicantServiceTest {
 
     @Mock
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -127,7 +127,7 @@ class ApplicantServiceTest {
         updatedApplicant.setSurname("Smith");
         updatedApplicant.setEmail("jane.smith@example.com");
 
-        when(applicantRepository.findById(applicantId)).thenReturn(Optional.of(testApplicant));
+        when(applicantRepository.findById(String.valueOf(applicantId))).thenReturn(Optional.of(testApplicant));
         when(applicantRepository.existsByEmail(updateRequest.getEmail())).thenReturn(false);
         when(applicantRepository.save(any(Applicant.class))).thenReturn(updatedApplicant);
 
@@ -139,7 +139,7 @@ class ApplicantServiceTest {
         assertThat(result.getName()).isEqualTo("Jane");
         assertThat(result.getSurname()).isEqualTo("Smith");
         assertThat(result.getEmail()).isEqualTo("jane.smith@example.com");
-        verify(applicantRepository, times(1)).findById(applicantId);
+        verify(applicantRepository, times(1)).findById(String.valueOf(applicantId));
         verify(applicantRepository, times(1)).save(any(Applicant.class));
         verify(auditLogService, times(1)).logApplicantAction(applicantId, "UPDATED", "APPLICANT", "Jane Smith");
     }
@@ -153,7 +153,7 @@ class ApplicantServiceTest {
         updateRequest.setSurname("Smith");
         updateRequest.setEmail("existing.email@example.com");
 
-        when(applicantRepository.findById(applicantId)).thenReturn(Optional.of(testApplicant));
+        when(applicantRepository.findById(String.valueOf(applicantId))).thenReturn(Optional.of(testApplicant));
         when(applicantRepository.existsByEmail(updateRequest.getEmail())).thenReturn(true);
 
         // When & Then
@@ -163,7 +163,7 @@ class ApplicantServiceTest {
         );
 
         assertThat(exception.getMessage()).contains("Email already exists");
-        verify(applicantRepository, times(1)).findById(applicantId);
+        verify(applicantRepository, times(1)).findById(String.valueOf(applicantId));
         verify(applicantRepository, times(1)).existsByEmail(updateRequest.getEmail());
         verify(applicantRepository, never()).save(any(Applicant.class));
     }
@@ -172,7 +172,7 @@ class ApplicantServiceTest {
     void getApplicant_ExistingId_ReturnsApplicantResponse() {
         // Given
         Long applicantId = 1L;
-        when(applicantRepository.findById(applicantId)).thenReturn(Optional.of(testApplicant));
+        when(applicantRepository.findById(String.valueOf(applicantId))).thenReturn(Optional.of(testApplicant));
 
         // When
         ApplicantResponse result = applicantService.getApplicant(applicantId);
@@ -182,14 +182,14 @@ class ApplicantServiceTest {
         assertThat(result.getName()).isEqualTo("John");
         assertThat(result.getSurname()).isEqualTo("Doe");
         assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
-        verify(applicantRepository, times(1)).findById(applicantId);
+        verify(applicantRepository, times(1)).findById(String.valueOf(applicantId));
     }
 
     @Test
     void findApplicantById_NonExistingId_ThrowsRuntimeException() {
         // Given
         Long nonExistingId = 999L;
-        when(applicantRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+        when(applicantRepository.findById(String.valueOf(nonExistingId))).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(
@@ -197,7 +197,7 @@ class ApplicantServiceTest {
                 () -> applicantService.getApplicant(nonExistingId)
         );
 
-        verify(applicantRepository, times(1)).findById(nonExistingId);
+        verify(applicantRepository, times(1)).findById(String.valueOf(nonExistingId));
     }
 
     @Test

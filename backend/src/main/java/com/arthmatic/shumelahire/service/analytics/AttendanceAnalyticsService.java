@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service.analytics;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -18,17 +21,108 @@ public class AttendanceAnalyticsService {
     @Autowired
     private AuditLogService auditLogService;
 
-    /**
-     * Compute attendance analytics: average hours worked, late arrival rate,
-     * absence rate, overtime trends, department-level attendance.
-     */
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
     public Map<String, Object> getAttendanceMetrics() {
         logger.info("Computing attendance analytics");
         auditLogService.logSystemAction("VIEW", "ATTENDANCE_ANALYTICS", "Attendance metrics requested");
 
+        if (useAthena()) {
+            try {
+                return getAttendanceMetricsFromAthena();
+            } catch (Exception e) {
+                logger.warn("Athena query failed, falling back to mock data: {}", e.getMessage());
+            }
+        }
+
+        return getAttendanceMetricsMock();
+    }
+
+    private Map<String, Object> getAttendanceMetricsFromAthena() {
+        String tenantId = TenantContext.requireCurrentTenant();
+        LocalDate yearStart = LocalDate.now().withDayOfYear(1);
+        LocalDate monthStart = LocalDate.now().withDayOfMonth(1);
+
         Map<String, Object> metrics = new LinkedHashMap<>();
 
-        // Overall attendance KPIs
+        // Overall attendance summary
+        List<Map<String, String>> summaryRows = athenaQueryService.executeQuery(
+                AthenaQueryTemplates.ATTENDANCE_SUMMARY,
+                Map.of("tenantId", tenantId, "startDate", monthStart.toString()));
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        double totalHours = 0;
+        int totalRecords = 0;
+        int uniqueEmployees = summaryRows.size();
+        for (Map<String, String> row : summaryRows) {
+            totalHours += parseDouble(row.get("total_hours"));
+            totalRecords += parseInt(row.get("total_records"));
+        }
+        double avgHoursPerDay = totalRecords > 0 ? totalHours / totalRecords : 0;
+        summary.put("averageHoursPerDay", Math.round(avgHoursPerDay * 10) / 10.0);
+        summary.put("averageHoursPerWeek", Math.round(avgHoursPerDay * 5 * 10) / 10.0);
+        summary.put("totalWorkingDaysThisMonth", totalRecords > 0 ? totalRecords / Math.max(uniqueEmployees, 1) : 0);
+        metrics.put("summary", summary);
+
+        // Monthly trends
+        List<Map<String, String>> monthlyRows = athenaQueryService.executeQuery(
+                AthenaQueryTemplates.ATTENDANCE_MONTHLY_TRENDS,
+                Map.of("tenantId", tenantId, "startDate", yearStart.toString()));
+
+        DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMM");
+        List<Map<String, Object>> monthlyTrends = new ArrayList<>();
+        for (Map<String, String> row : monthlyRows) {
+            int yr = parseInt(row.get("yr"));
+            int mo = parseInt(row.get("mo"));
+            LocalDate monthDate = LocalDate.of(yr, mo, 1);
+            monthlyTrends.add(Map.of(
+                    "month", monthDate.format(monthFmt),
+                    "avgHours", Math.round(parseDouble(row.get("avg_hours")) * 10) / 10.0,
+                    "totalRecords", parseInt(row.get("total_records")),
+                    "uniqueEmployees", parseInt(row.get("unique_employees"))
+            ));
+        }
+        metrics.put("monthlyTrends", monthlyTrends);
+
+        // Department-level attendance
+        List<Map<String, String>> deptRows = athenaQueryService.executeQuery(
+                AthenaQueryTemplates.ATTENDANCE_DEPARTMENT_SUMMARY,
+                Map.of("tenantId", tenantId, "startDate", monthStart.toString()));
+
+        List<Map<String, Object>> deptAttendance = new ArrayList<>();
+        for (Map<String, String> row : deptRows) {
+            deptAttendance.add(Map.of(
+                    "department", row.getOrDefault("department", "Unknown"),
+                    "avgHours", Math.round(parseDouble(row.get("avg_hours")) * 10) / 10.0,
+                    "totalHours", Math.round(parseDouble(row.get("total_hours")) * 10) / 10.0,
+                    "totalRecords", parseInt(row.get("total_records"))
+            ));
+        }
+        metrics.put("departmentAttendance", deptAttendance);
+
+        // Overtime summary
+        List<Map<String, String>> overtimeRows = athenaQueryService.executeQuery(
+                AthenaQueryTemplates.ATTENDANCE_OVERTIME,
+                Map.of("tenantId", tenantId, "startDate", monthStart.toString()));
+
+        Map<String, Object> overtime = new LinkedHashMap<>();
+        if (!overtimeRows.isEmpty()) {
+            Map<String, String> ot = overtimeRows.get(0);
+            overtime.put("totalOvertimeHoursThisMonth", (int) Math.round(parseDouble(ot.get("total_overtime_hours"))));
+            overtime.put("employeesWithOvertime", parseInt(ot.get("employees_with_overtime")));
+            int empOt = parseInt(ot.get("employees_with_overtime"));
+            double totalOt = parseDouble(ot.get("total_overtime_hours"));
+            overtime.put("averageOvertimePerEmployee", empOt > 0 ? Math.round(totalOt / empOt * 10) / 10.0 : 0);
+        }
+        metrics.put("overtime", overtime);
+
+        return metrics;
+    }
+
+    private Map<String, Object> getAttendanceMetricsMock() {
+        Map<String, Object> metrics = new LinkedHashMap<>();
+
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("averageHoursPerDay", 8.2);
         summary.put("averageHoursPerWeek", 40.8);
@@ -39,7 +133,6 @@ public class AttendanceAnalyticsService {
         summary.put("totalWorkingDaysThisMonth", 22);
         metrics.put("summary", summary);
 
-        // Monthly attendance trends
         metrics.put("monthlyTrends", List.of(
                 Map.of("month", "Jan", "avgHours", 8.1, "lateRate", 7.2, "absenceRate", 3.5),
                 Map.of("month", "Feb", "avgHours", 8.3, "lateRate", 5.8, "absenceRate", 2.9),
@@ -55,7 +148,6 @@ public class AttendanceAnalyticsService {
                 Map.of("month", "Dec", "avgHours", 7.8, "lateRate", 8.0, "absenceRate", 4.5)
         ));
 
-        // Department-level attendance
         metrics.put("departmentAttendance", List.of(
                 Map.of("department", "Engineering", "avgHours", 8.5, "lateRate", 4.2, "absenceRate", 2.1),
                 Map.of("department", "Sales", "avgHours", 8.8, "lateRate", 3.8, "absenceRate", 2.5),
@@ -66,7 +158,6 @@ public class AttendanceAnalyticsService {
                 Map.of("department", "Customer Support", "avgHours", 7.9, "lateRate", 8.5, "absenceRate", 4.2)
         ));
 
-        // Day of week distribution
         metrics.put("dayOfWeekDistribution", List.of(
                 Map.of("day", "Monday", "avgHours", 8.4, "lateRate", 8.1),
                 Map.of("day", "Tuesday", "avgHours", 8.3, "lateRate", 5.5),
@@ -75,7 +166,6 @@ public class AttendanceAnalyticsService {
                 Map.of("day", "Friday", "avgHours", 7.8, "lateRate", 7.8)
         ));
 
-        // Overtime summary
         Map<String, Object> overtime = new LinkedHashMap<>();
         overtime.put("totalOvertimeHoursThisMonth", 485);
         overtime.put("employeesWithOvertime", 72);
@@ -84,5 +174,19 @@ public class AttendanceAnalyticsService {
         metrics.put("overtime", overtime);
 
         return metrics;
+    }
+
+    private boolean useAthena() {
+        return athenaQueryService != null;
+    }
+
+    private static int parseInt(String value) {
+        if (value == null || value.isBlank()) return 0;
+        try { return Integer.parseInt(value); } catch (NumberFormatException e) { return 0; }
+    }
+
+    private static double parseDouble(String value) {
+        if (value == null || value.isBlank()) return 0.0;
+        try { return Double.parseDouble(value); } catch (NumberFormatException e) { return 0.0; }
     }
 }

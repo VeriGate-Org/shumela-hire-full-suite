@@ -1,56 +1,39 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "performance_templates")
 public class PerformanceTemplate extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @NotBlank(message = "Template name is required")
-    @Column(nullable = false, length = 100)
     private String name;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
-    @Column(length = 100)
     private String department;
     
-    @Column(name = "job_level", length = 50)
     private String jobLevel;
     
-    @Column(name = "job_family", length = 100)
     private String jobFamily;
     
     // JSON structure defining goal categories and KPIs
-    @Column(name = "goal_template", columnDefinition = "TEXT")
     private String goalTemplate;
     
     // JSON structure defining KPI definitions
-    @Column(name = "kpi_template", columnDefinition = "TEXT")
     private String kpiTemplate;
     
-    @Column(name = "is_active")
     private Boolean isActive = true;
     
-    @Column(name = "is_default")
     private Boolean isDefault = false;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @Column(name = "created_by", nullable = false, length = 50)
     private String createdBy;
     
     // Constructors
@@ -65,7 +48,6 @@ public class PerformanceTemplate extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

@@ -1,20 +1,17 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.dto.employee.EmployeeCreateRequest;
 import com.arthmatic.shumelahire.dto.employee.EmployeeResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeStatus;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,7 +29,7 @@ import static org.mockito.Mockito.*;
 class EmployeeServiceTest {
 
     @Mock
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -120,7 +117,7 @@ class EmployeeServiceTest {
         updatedEmployee.setCreatedAt(LocalDateTime.now());
         updatedEmployee.setUpdatedAt(LocalDateTime.now());
 
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+        when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
         when(employeeRepository.existsByEmail("jane.smith@company.com")).thenReturn(false);
         when(employeeRepository.save(any(Employee.class))).thenReturn(updatedEmployee);
 
@@ -136,7 +133,7 @@ class EmployeeServiceTest {
     void updateEmployee_SelfReporting_ThrowsIllegalArgumentException() {
         testRequest.setReportingManagerId(1L);
 
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+        when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -148,19 +145,19 @@ class EmployeeServiceTest {
 
     @Test
     void getEmployee_ExistingId_ReturnsResponse() {
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+        when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
 
         EmployeeResponse result = employeeService.getEmployee(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstName()).isEqualTo("John");
         assertThat(result.getEmployeeNumber()).isEqualTo("UTW-2026-0001");
-        verify(employeeRepository, times(1)).findById(1L);
+        verify(employeeRepository, times(1)).findById("1");
     }
 
     @Test
     void getEmployee_NonExistingId_ThrowsIllegalArgumentException() {
-        when(employeeRepository.findById(999L)).thenReturn(Optional.empty());
+        when(employeeRepository.findById("999")).thenReturn(Optional.empty());
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -170,27 +167,25 @@ class EmployeeServiceTest {
 
     @Test
     void searchEmployees_WithSearchTerm_ReturnsFilteredResults() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Employee> page = new PageImpl<>(List.of(testEmployee));
+        CursorPage<Employee> cursorPage = new CursorPage<>(List.of(testEmployee), null, false, 1, 1L);
 
-        when(employeeRepository.findBySearchTerm("John", pageable)).thenReturn(page);
+        when(employeeRepository.findBySearchTerm("John", null, 10)).thenReturn(cursorPage);
 
-        Page<EmployeeResponse> result = employeeService.searchEmployees("John", pageable);
+        CursorPage<EmployeeResponse> result = employeeService.searchEmployees("John", null, 10);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getFirstName()).isEqualTo("John");
+        assertThat(result.content()).hasSize(1);
+        assertThat(result.content().get(0).getFirstName()).isEqualTo("John");
     }
 
     @Test
     void searchEmployees_NoSearchTerm_ReturnsAllResults() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Employee> page = new PageImpl<>(List.of(testEmployee));
+        CursorPage<Employee> cursorPage = new CursorPage<>(List.of(testEmployee), null, false, 1, 1L);
 
-        when(employeeRepository.findAll(pageable)).thenReturn(page);
+        when(employeeRepository.findActiveDirectory(null, 10)).thenReturn(cursorPage);
 
-        Page<EmployeeResponse> result = employeeService.searchEmployees(null, pageable);
+        CursorPage<EmployeeResponse> result = employeeService.searchEmployees(null, null, 10);
 
-        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.content()).hasSize(1);
     }
 
     @Test
@@ -207,7 +202,7 @@ class EmployeeServiceTest {
         report.setCreatedAt(LocalDateTime.now());
         report.setUpdatedAt(LocalDateTime.now());
 
-        when(employeeRepository.findByReportingManagerId(1L)).thenReturn(List.of(report));
+        when(employeeRepository.findByReportingManagerId("1")).thenReturn(List.of(report));
 
         List<EmployeeResponse> reports = employeeService.getDirectReports(1L);
 
@@ -217,7 +212,7 @@ class EmployeeServiceTest {
 
     @Test
     void updateStatus_ToTerminated_SetsTerminationFields() {
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+        when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
         when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         EmployeeResponse result = employeeService.updateStatus(1L, EmployeeStatus.TERMINATED, "Performance");

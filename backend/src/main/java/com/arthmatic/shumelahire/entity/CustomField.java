@@ -1,66 +1,42 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "custom_fields")
 public class CustomField extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "field_name", nullable = false, length = 100)
     private String fieldName;
 
     @NotBlank
-    @Column(name = "field_label", nullable = false, length = 200)
     private String fieldLabel;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "entity_type", nullable = false, length = 50)
     private CustomFieldEntityType entityType;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "data_type", nullable = false, length = 30)
     private CustomFieldDataType dataType;
 
-    @Column(name = "is_required", nullable = false)
     private Boolean isRequired = false;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "display_order", nullable = false)
     private Integer displayOrder = 0;
 
-    @Column(columnDefinition = "TEXT")
     private String options; // JSON array for SELECT/MULTI_SELECT types
 
-    @Column(name = "default_value", length = 500)
     private String defaultValue;
 
-    @Column(name = "validation_regex", length = 500)
     private String validationRegex;
 
-    @Column(name = "help_text", columnDefinition = "TEXT")
     private String helpText;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

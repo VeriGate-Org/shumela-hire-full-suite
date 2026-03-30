@@ -1,206 +1,137 @@
 package com.arthmatic.shumelahire.entity;
 
-import com.arthmatic.shumelahire.entity.converter.EncryptedFieldConverter;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "employees")
 public class Employee extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "employee_number", nullable = false, length = 50)
     private String employeeNumber;
 
-    @Column(length = 20)
     private String title;
 
     @NotBlank
-    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotBlank
-    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "preferred_name", length = 100)
     private String preferredName;
 
     @NotBlank
     @Email
-    @Column(nullable = false, length = 255)
     private String email;
 
-    @Column(name = "personal_email", length = 255)
     private String personalEmail;
 
-    @Column(length = 20)
     private String phone;
 
-    @Column(name = "mobile_phone", length = 20)
     private String mobilePhone;
 
-    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(length = 20)
     private String gender;
 
-    @Column(length = 50)
     private String race;
 
-    @Column(name = "disability_status", length = 50)
     private String disabilityStatus;
 
-    @Column(name = "citizenship_status", length = 50)
     private String citizenshipStatus;
 
-    @Column(length = 100)
     private String nationality;
 
-    @Column(name = "marital_status", length = 30)
     private String maritalStatus;
 
     // Encrypted PII fields
-    @Convert(converter = EncryptedFieldConverter.class)
-    @Column(name = "id_number", columnDefinition = "TEXT")
     private String idNumber;
 
-    @Convert(converter = EncryptedFieldConverter.class)
-    @Column(name = "tax_number", columnDefinition = "TEXT")
     private String taxNumber;
 
-    @Convert(converter = EncryptedFieldConverter.class)
-    @Column(name = "bank_account_number", columnDefinition = "TEXT")
     private String bankAccountNumber;
 
-    @Column(name = "bank_name", length = 100)
     private String bankName;
 
-    @Column(name = "bank_branch_code", length = 20)
     private String bankBranchCode;
 
     // Address
-    @Column(name = "physical_address", columnDefinition = "TEXT")
     private String physicalAddress;
 
-    @Column(name = "postal_address", columnDefinition = "TEXT")
     private String postalAddress;
 
-    @Column(length = 100)
     private String city;
 
-    @Column(length = 100)
     private String province;
 
-    @Column(name = "postal_code", length = 20)
     private String postalCode;
 
-    @Column(length = 100)
     private String country;
 
     // Employment details
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private EmployeeStatus status = EmployeeStatus.ACTIVE;
 
-    @Column(length = 200)
     private String department;
 
-    @Column(length = 200)
     private String division;
 
-    @Column(name = "job_title", length = 200)
     private String jobTitle;
 
-    @Column(name = "job_grade", length = 50)
     private String jobGrade;
 
-    @Column(name = "employment_type", length = 50)
     private String employmentType;
 
     @NotNull
-    @Column(name = "hire_date", nullable = false)
     private LocalDate hireDate;
 
-    @Column(name = "probation_end_date")
     private LocalDate probationEndDate;
 
-    @Column(name = "termination_date")
     private LocalDate terminationDate;
 
-    @Column(name = "termination_reason", columnDefinition = "TEXT")
     private String terminationReason;
 
-    @Column(name = "contract_end_date")
     private LocalDate contractEndDate;
 
     // Org structure
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reporting_manager_id")
     private Employee reportingManager;
 
-    @Column(name = "cost_centre", length = 100)
     private String costCentre;
 
-    @Column(length = 200)
     private String location;
 
-    @Column(length = 200)
     private String site;
 
     // Source tracking
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id")
     private Applicant applicant;
 
-    @Column(name = "profile_photo_url", length = 500)
     private String profilePhotoUrl;
 
     // Emergency contact
-    @Column(name = "emergency_contact_name", length = 200)
     private String emergencyContactName;
 
-    @Column(name = "emergency_contact_phone", length = 20)
     private String emergencyContactPhone;
 
-    @Column(name = "emergency_contact_relationship", length = 100)
     private String emergencyContactRelationship;
 
     // POPIA consent
-    @Column(name = "demographics_consent")
     private Boolean demographicsConsent;
 
-    @Column(name = "demographics_consent_date")
     private LocalDateTime demographicsConsentDate;
 
     // Relationships
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EmployeeDocument> documents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EmploymentEvent> employmentEvents = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public String getFullName() {

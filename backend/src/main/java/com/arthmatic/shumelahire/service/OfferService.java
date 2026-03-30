@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.OfferRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class OfferService {
 
-  @Autowired private OfferRepository offerRepository;
+  @Autowired private OfferDataRepository offerRepository;
 
-  @Autowired private ApplicationRepository applicationRepository;
+  @Autowired private ApplicationDataRepository applicationRepository;
 
   @Autowired private AuditLogService auditLogService;
 
@@ -37,7 +37,7 @@ public class OfferService {
   public Offer createOffer(Long applicationId, Offer offerData, Long createdBy) {
     Application application =
         applicationRepository
-            .findById(applicationId)
+            .findById(String.valueOf(applicationId))
             .orElseThrow(() -> new RuntimeException("Application not found"));
 
     // Validate application state
@@ -80,22 +80,22 @@ public class OfferService {
 
   @Transactional(readOnly = true)
   public Optional<Offer> getOfferById(Long id) {
-    return offerRepository.findByIdWithDetails(id);
+    return offerRepository.findByIdWithDetails(String.valueOf(id));
   }
 
   @Transactional(readOnly = true)
   public List<Offer> getOffersByApplication(Long applicationId) {
-    return offerRepository.findActiveOffersByApplication(applicationId);
+    return offerRepository.findActiveOffersByApplication(String.valueOf(applicationId));
   }
 
   @Transactional(readOnly = true)
   public List<Offer> getOffersByApplicant(Long applicantId) {
-    return offerRepository.findActiveOffersByApplicantId(applicantId);
+    return offerRepository.findActiveOffersByApplicantId(String.valueOf(applicantId));
   }
 
   public Offer updateOffer(Long id, Offer updateData, Long updatedBy) {
     Offer existingOffer =
-        offerRepository.findById(id).orElseThrow(() -> new RuntimeException("Offer not found"));
+        offerRepository.findById(String.valueOf(id)).orElseThrow(() -> new RuntimeException("Offer not found"));
 
     if (!existingOffer.canBeEdited()) {
       throw new RuntimeException(
@@ -561,7 +561,7 @@ public class OfferService {
   // Helper methods
   private Offer getOfferOrThrow(Long id) {
     return offerRepository
-        .findById(id)
+        .findById(String.valueOf(id))
         .orElseThrow(() -> new RuntimeException("Offer not found with id: " + id));
   }
 

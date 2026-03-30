@@ -7,7 +7,7 @@ import com.arthmatic.shumelahire.dto.CanApplyResponse;
 import com.arthmatic.shumelahire.dto.DocumentResponse;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
-import com.arthmatic.shumelahire.repository.DocumentRepository;
+import com.arthmatic.shumelahire.repository.DocumentDataRepository;
 import com.arthmatic.shumelahire.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -32,9 +32,9 @@ public class ApplicationController {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
 
     private final ApplicationService applicationService;
-    private final DocumentRepository documentRepository;
+    private final DocumentDataRepository documentRepository;
 
-    public ApplicationController(ApplicationService applicationService, DocumentRepository documentRepository) {
+    public ApplicationController(ApplicationService applicationService, DocumentDataRepository documentRepository) {
         this.applicationService = applicationService;
         this.documentRepository = documentRepository;
     }
@@ -255,7 +255,7 @@ public class ApplicationController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationDocuments(@PathVariable Long id) {
         try {
-            List<DocumentResponse> documents = documentRepository.findByApplicationId(id)
+            List<DocumentResponse> documents = documentRepository.findByApplicationId(String.valueOf(id))
                     .stream()
                     .map(DocumentResponse::fromEntity)
                     .collect(Collectors.toList());

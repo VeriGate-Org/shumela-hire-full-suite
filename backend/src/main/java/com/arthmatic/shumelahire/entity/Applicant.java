@@ -2,106 +2,72 @@ package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "applicants")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Applicant extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Column(nullable = false, length = 100)
     private String name;
 
     @NotBlank(message = "Surname is required")
-    @Column(nullable = false, length = 100)
     private String surname;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Valid email is required")
-    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(length = 20)
     private String phone;
 
-    @Column(name = "id_passport_number", length = 50)
     private String idPassportNumber;
 
-    @Column(columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "location")
     private String location;
 
-    @Column(name = "education", columnDefinition = "TEXT")
     private String education;
 
-    @Column(name = "experience", columnDefinition = "TEXT")
     private String experience;
 
-    @Column(name = "skills", columnDefinition = "TEXT")
     private String skills;
 
-    @Column(name = "linkedin_url")
     private String linkedinUrl;
 
-    @Column(name = "portfolio_url")
     private String portfolioUrl;
 
-    @Column(name = "resume_url")
     private String resumeUrl;
 
-    @Column(name = "cover_letter", columnDefinition = "TEXT")
     private String coverLetter;
 
-    @Column(name = "source")
     private String source;
 
-    @Column(name = "user_id")
     private Long userId;
 
     // Employment Equity demographic fields (optional, POPIA-compliant)
-    @Column(name = "gender")
     private String gender;
 
-    @Column(name = "race")
     private String race;
 
-    @Column(name = "disability_status")
     private String disabilityStatus;
 
-    @Column(name = "citizenship_status")
     private String citizenshipStatus;
 
-    @Column(name = "demographics_consent")
     private Boolean demographicsConsent;
 
-    @Column(name = "demographics_consent_date")
     private LocalDateTime demographicsConsentDate;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Document> documents = new ArrayList<>();
 
     // Constructors

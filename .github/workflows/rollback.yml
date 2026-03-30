@@ -1,0 +1,31 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+      commit-sha:
+        description: 'Commit SHA to roll back to'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  rollback:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      aws-region: af-south-1
+      domain-name: shumelahire.co.za
+      hosted-zone-name: ${{ inputs.environment == 'dev' && 'dev.shumelahire.co.za' || '' }}
+      ref: ${{ inputs.commit-sha }}
+    secrets: inherit

@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.*;
 class LinkedInConnectorTest {
 
     @Mock
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Mock
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -91,7 +91,7 @@ class LinkedInConnectorTest {
     @Test
     void testPostWithFullJobData() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         // Mock OAuth token response
         Map<String, Object> tokenResponse = new HashMap<>();
@@ -160,7 +160,7 @@ class LinkedInConnectorTest {
     void testPostWithRemoteJob() {
         // Given
         mockJobPosting.setRemoteWorkAllowed(true);
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> tokenResponse = new HashMap<>();
         tokenResponse.put("access_token", "mock-token");
@@ -198,7 +198,7 @@ class LinkedInConnectorTest {
     @Test
     void testPostFailure() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         // Mock OAuth to fail — connector should fall back to apiKey
         when(restTemplate.exchange(contains("oauth"), eq(HttpMethod.POST), any(), eq(Map.class)))
@@ -223,7 +223,7 @@ class LinkedInConnectorTest {
     @Test
     void testPostJobNotFound() {
         // Given
-        when(jobPostingRepository.findById(999L)).thenReturn(Optional.empty());
+        when(jobPostingRepository.findById("999")).thenReturn(Optional.empty());
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
@@ -247,7 +247,7 @@ class LinkedInConnectorTest {
         existingPosting.setExternalPostId("LI-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
-        when(repository.findById(50L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("50")).thenReturn(Optional.of(existingPosting));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
@@ -269,7 +269,7 @@ class LinkedInConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
 
-        when(repository.findById(60L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("60")).thenReturn(Optional.of(existingPosting));
 
         Map<String, Object> analytics = new HashMap<>();
         analytics.put("viewCount", 150);
@@ -306,7 +306,7 @@ class LinkedInConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().minusDays(1));
 
-        when(repository.findById(61L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("61")).thenReturn(Optional.of(existingPosting));
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("Network error"));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -321,7 +321,7 @@ class LinkedInConnectorTest {
     @Test
     void testDescriptionContainsAllFields() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> tokenResponse = new HashMap<>();
         tokenResponse.put("access_token", "mock-token");

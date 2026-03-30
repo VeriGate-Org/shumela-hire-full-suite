@@ -6,8 +6,8 @@ import com.arthmatic.shumelahire.dto.employee.CustomFieldValueRequest;
 import com.arthmatic.shumelahire.entity.CustomField;
 import com.arthmatic.shumelahire.entity.CustomFieldEntityType;
 import com.arthmatic.shumelahire.entity.CustomFieldValue;
-import com.arthmatic.shumelahire.repository.CustomFieldRepository;
-import com.arthmatic.shumelahire.repository.CustomFieldValueRepository;
+import com.arthmatic.shumelahire.repository.CustomFieldDataRepository;
+import com.arthmatic.shumelahire.repository.CustomFieldValueDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,10 @@ public class CustomFieldService {
     private static final Logger logger = LoggerFactory.getLogger(CustomFieldService.class);
 
     @Autowired
-    private CustomFieldRepository customFieldRepository;
+    private CustomFieldDataRepository customFieldRepository;
 
     @Autowired
-    private CustomFieldValueRepository customFieldValueRepository;
+    private CustomFieldValueDataRepository customFieldValueRepository;
 
     public CustomFieldResponse createField(CustomFieldRequest request) {
         logger.info("Creating custom field: {} for {}", request.getFieldName(), request.getEntityType());
@@ -50,7 +50,7 @@ public class CustomFieldService {
     public CustomFieldResponse updateField(Long id, CustomFieldRequest request) {
         logger.info("Updating custom field: {}", id);
 
-        CustomField field = customFieldRepository.findById(id)
+        CustomField field = customFieldRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + id));
 
         mapRequestToEntity(request, field);
@@ -62,7 +62,7 @@ public class CustomFieldService {
     public void deleteField(Long id) {
         logger.info("Deleting custom field: {}", id);
 
-        CustomField field = customFieldRepository.findById(id)
+        CustomField field = customFieldRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + id));
 
         field.setIsActive(false);
@@ -71,7 +71,7 @@ public class CustomFieldService {
 
     @Transactional(readOnly = true)
     public List<CustomFieldResponse> getFieldsByEntityType(CustomFieldEntityType entityType) {
-        List<CustomField> fields = customFieldRepository.findByEntityTypeAndIsActiveTrueOrderByDisplayOrder(entityType);
+        List<CustomField> fields = customFieldRepository.findByEntityTypeAndActive(entityType);
         return fields.stream()
                 .map(CustomFieldResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -79,7 +79,7 @@ public class CustomFieldService {
 
     @Transactional(readOnly = true)
     public List<CustomFieldResponse> getAllFieldsByEntityType(CustomFieldEntityType entityType) {
-        List<CustomField> fields = customFieldRepository.findByEntityTypeOrderByDisplayOrder(entityType);
+        List<CustomField> fields = customFieldRepository.findByEntityType(entityType);
         return fields.stream()
                 .map(CustomFieldResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class CustomFieldService {
         logger.info("Setting {} custom field values for {} {}", values.size(), entityType, entityId);
 
         for (CustomFieldValueRequest valueReq : values) {
-            CustomField field = customFieldRepository.findById(valueReq.getCustomFieldId())
+            CustomField field = customFieldRepository.findById(String.valueOf(valueReq.getCustomFieldId()))
                     .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + valueReq.getCustomFieldId()));
 
             Optional<CustomFieldValue> existing = customFieldValueRepository

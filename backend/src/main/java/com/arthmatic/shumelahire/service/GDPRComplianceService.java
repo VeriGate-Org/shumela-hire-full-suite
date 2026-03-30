@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class GDPRComplianceService {
     private static final Logger logger = LoggerFactory.getLogger(GDPRComplianceService.class);
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Autowired
     private DataEncryptionService encryptionService;
@@ -38,7 +38,7 @@ public class GDPRComplianceService {
     public Map<String, Object> exportUserData(Long userId) {
         logger.info("Starting data export for user ID: {}", userId);
         
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userRepository.findById(String.valueOf(userId)).orElse(null);
         if (user == null) {
             logger.warn("User not found for data export: {}", userId);
             return null;
@@ -125,7 +125,7 @@ public class GDPRComplianceService {
         logger.info("Starting data deletion for user ID: {} with reason: {}", userId, reason);
         
         try {
-            User user = userRepository.findById(userId).orElse(null);
+            User user = userRepository.findById(String.valueOf(userId)).orElse(null);
             if (user == null) {
                 logger.warn("User not found for data deletion: {}", userId);
                 return false;
@@ -185,7 +185,7 @@ public class GDPRComplianceService {
     public Map<String, Object> generatePrivacyReport(Long userId) {
         logger.info("Generating privacy report for user ID: {}", userId);
         
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userRepository.findById(String.valueOf(userId)).orElse(null);
         if (user == null) {
             return null;
         }

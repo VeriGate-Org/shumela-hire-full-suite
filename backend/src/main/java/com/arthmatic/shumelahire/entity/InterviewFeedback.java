@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,81 +8,54 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "interview_feedbacks",
-       uniqueConstraints = @UniqueConstraint(
-           columnNames = {"interview_id", "submitted_by"},
-           name = "uk_interview_feedback_interviewer"
-       ))
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class InterviewFeedback extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "interview_id", nullable = false)
     @JsonIgnoreProperties({"feedbacks", "hibernateLazyInitializer", "handler"})
     private Interview interview;
 
-    @Column(name = "submitted_by", nullable = false)
     private Long submittedBy;
 
-    @Column(name = "interviewer_name")
     private String interviewerName;
 
-    @Column(name = "feedback", columnDefinition = "TEXT", nullable = false)
     @NotBlank(message = "Feedback text is required")
     private String feedback;
 
-    @Column(name = "rating")
     @Min(1) @Max(5)
     private Integer rating;
 
-    @Column(name = "communication_skills")
     @Min(1) @Max(5)
     private Integer communicationSkills;
 
-    @Column(name = "technical_skills")
     @Min(1) @Max(5)
     private Integer technicalSkills;
 
-    @Column(name = "cultural_fit")
     @Min(1) @Max(5)
     private Integer culturalFit;
 
-    @Column(name = "overall_impression", columnDefinition = "TEXT")
     private String overallImpression;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "recommendation", nullable = false)
     @NotNull(message = "Recommendation is required")
     private InterviewRecommendation recommendation;
 
-    @Column(name = "next_steps", columnDefinition = "TEXT")
     private String nextSteps;
 
-    @Column(name = "technical_assessment", columnDefinition = "TEXT")
     private String technicalAssessment;
 
-    @Column(name = "candidate_questions", columnDefinition = "TEXT")
     private String candidateQuestions;
 
-    @Column(name = "interviewer_notes", columnDefinition = "TEXT")
     private String interviewerNotes;
 
-    @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public InterviewFeedback() {
         this.submittedAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

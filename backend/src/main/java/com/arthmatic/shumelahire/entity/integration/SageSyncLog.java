@@ -1,54 +1,33 @@
 package com.arthmatic.shumelahire.entity.integration;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sage_sync_logs")
 public class SageSyncLog extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "schedule_id")
     private SageSyncSchedule schedule;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "connector_id", nullable = false)
     private SageConnectorConfig connector;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "entity_type", nullable = false, length = 50)
     private SageSyncEntityType entityType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "direction", nullable = false, length = 20)
     private SyncDirection direction;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
     private SyncStatus status = SyncStatus.RUNNING;
 
-    @Column(name = "records_processed")
     private Integer recordsProcessed = 0;
 
-    @Column(name = "records_succeeded")
     private Integer recordsSucceeded = 0;
 
-    @Column(name = "records_failed")
     private Integer recordsFailed = 0;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     public SageSyncLog() {

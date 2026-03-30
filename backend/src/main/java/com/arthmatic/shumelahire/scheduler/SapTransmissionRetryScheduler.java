@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.scheduler;
 
 import com.arthmatic.shumelahire.entity.SapPayrollTransmission;
 import com.arthmatic.shumelahire.entity.TransmissionStatus;
-import com.arthmatic.shumelahire.repository.SapPayrollTransmissionRepository;
+import com.arthmatic.shumelahire.repository.SapPayrollTransmissionDataRepository;
 import com.arthmatic.shumelahire.service.SapPayrollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class SapTransmissionRetryScheduler {
     private static final Logger log = LoggerFactory.getLogger(SapTransmissionRetryScheduler.class);
 
     @Autowired
-    private SapPayrollTransmissionRepository transmissionRepository;
+    private SapPayrollTransmissionDataRepository transmissionRepository;
 
     @Autowired
     private SapPayrollService sapPayrollService;

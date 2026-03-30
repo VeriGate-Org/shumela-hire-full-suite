@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.OfferRepository;
-import com.arthmatic.shumelahire.repository.SapPayrollTransmissionRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
+import com.arthmatic.shumelahire.repository.SapPayrollTransmissionDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,10 +29,10 @@ import static org.mockito.Mockito.*;
 class SapPayrollConnectorTest {
 
     @Mock
-    private OfferRepository offerRepository;
+    private OfferDataRepository offerRepository;
 
     @Mock
-    private SapPayrollTransmissionRepository transmissionRepository;
+    private SapPayrollTransmissionDataRepository transmissionRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -105,8 +105,8 @@ class SapPayrollConnectorTest {
     @Test
     void testSendNewHireDataSuccess() {
         // Given
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
 
         Map<String, Object> sapResponse = new HashMap<>();
         sapResponse.put("personIdExternal", "EMP-10001");
@@ -195,7 +195,7 @@ class SapPayrollConnectorTest {
     void testSendNewHireDataOfferNotAccepted() {
         // Given
         mockOffer.setStatus(OfferStatus.SENT);
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         // When / Then
         RuntimeException ex = assertThrows(RuntimeException.class,
@@ -206,12 +206,12 @@ class SapPayrollConnectorTest {
     @Test
     void testSendNewHireDataDuplicateTransmission() {
         // Given
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         SapPayrollTransmission existingActive = new SapPayrollTransmission();
         existingActive.setTransmissionId("SAP-EXISTING1");
         existingActive.setStatus(TransmissionStatus.TRANSMITTED);
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L))
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200"))
                 .thenReturn(List.of(existingActive));
 
         // When / Then
@@ -225,8 +225,8 @@ class SapPayrollConnectorTest {
         // Given — offer with missing mandatory fields
         mockOffer.setStartDate(null);
         mockApplicant.setIdPassportNumber(null);
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
             if (t.getId() == null) t.setId(2L);
@@ -250,8 +250,8 @@ class SapPayrollConnectorTest {
     @Test
     void testSendNewHireDataApiFailure() {
         // Given
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
         when(restTemplate.exchange(contains("/odata/v2/PerPerson"), eq(HttpMethod.POST), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("SAP service unavailable"));
 
@@ -305,7 +305,7 @@ class SapPayrollConnectorTest {
     @Test
     void testValidateEmployeeData() {
         // Given — complete valid data
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         // When
         Map<String, String> errors = connector.validateEmployeeData(200L);
@@ -320,7 +320,7 @@ class SapPayrollConnectorTest {
         mockApplicant.setName(null);
         mockApplicant.setEmail(null);
         mockOffer.setBaseSalary(null);
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         // When
         Map<String, String> errors = connector.validateEmployeeData(200L);
@@ -445,8 +445,8 @@ class SapPayrollConnectorTest {
         // Given — contract employee
         mockOffer.setEmploymentType("CONTRACT");
         mockOffer.setContractEndDate(LocalDate.of(2026, 12, 31));
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
 
         Map<String, Object> sapResponse = Map.of("personIdExternal", "EMP-40004");
         when(restTemplate.exchange(contains("/odata/v2/PerPerson"), eq(HttpMethod.POST), any(), eq(Map.class)))
@@ -479,8 +479,8 @@ class SapPayrollConnectorTest {
         // Given — monthly salary frequency
         mockOffer.setSalaryFrequency("MONTHLY");
         mockOffer.setBaseSalary(new BigDecimal("70000"));
-        when(offerRepository.findById(200L)).thenReturn(Optional.of(mockOffer));
-        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc(200L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
+        when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
 
         Map<String, Object> sapResponse = Map.of("personIdExternal", "EMP-50005");
         when(restTemplate.exchange(contains("/odata/v2/PerPerson"), eq(HttpMethod.POST), any(), eq(Map.class)))

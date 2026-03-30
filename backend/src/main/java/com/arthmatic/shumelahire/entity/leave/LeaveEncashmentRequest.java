@@ -2,66 +2,40 @@ package com.arthmatic.shumelahire.entity.leave;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "leave_encashment_requests")
 public class LeaveEncashmentRequest extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-    @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal days;
 
-    @Column(name = "rate_per_day", nullable = false, precision = 10, scale = 2)
     private BigDecimal ratePerDay;
 
-    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private LeaveEncashmentStatus status = LeaveEncashmentStatus.PENDING;
 
-    @Column(columnDefinition = "TEXT")
     private String reason;
 
-    @CreationTimestamp
-    @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hr_approved_by")
     private Employee hrApprovedBy;
 
-    @Column(name = "hr_approved_at")
     private LocalDateTime hrApprovedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "finance_approved_by")
     private Employee financeApprovedBy;
 
-    @Column(name = "finance_approved_at")
     private LocalDateTime financeApprovedAt;
 
-    @Column(name = "decision_comment", columnDefinition = "TEXT")
     private String decisionComment;
 
-    @Column(name = "cycle_year", nullable = false)
     private Integer cycleYear;
 
     // Getters and Setters

@@ -1,38 +1,25 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "job_ad_history")
 public class JobAdHistory extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_ad_id", nullable = false)
     @NotNull(message = "Job ad is required")
     private JobAd jobAd;
     
     @NotBlank(message = "Action is required")
-    @Column(nullable = false, length = 50)
     private String action;
     
     @NotBlank(message = "Actor user ID is required")
-    @Column(name = "actor_user_id", nullable = false, length = 100)
     private String actorUserId;
     
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
     
-    @Column(columnDefinition = "TEXT")
     private String details;
     
     // Constructors

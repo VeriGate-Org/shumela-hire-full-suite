@@ -1,16 +1,15 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.dto.employee.EmploymentEventRequest;
 import com.arthmatic.shumelahire.dto.employee.EmploymentEventResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmploymentEvent;
 import com.arthmatic.shumelahire.entity.EmploymentEventType;
-import com.arthmatic.shumelahire.repository.EmploymentEventRepository;
+import com.arthmatic.shumelahire.repository.EmploymentEventDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,7 @@ public class EmploymentEventService {
     private static final Logger logger = LoggerFactory.getLogger(EmploymentEventService.class);
 
     @Autowired
-    private EmploymentEventRepository eventRepository;
+    private EmploymentEventDataRepository eventRepository;
 
     @Autowired
     private EmployeeService employeeService;
@@ -75,21 +74,25 @@ public class EmploymentEventService {
 
     @Transactional(readOnly = true)
     public List<EmploymentEventResponse> getEmployeeHistory(Long employeeId) {
-        List<EmploymentEvent> events = eventRepository.findByEmployeeIdOrderByEventDateDesc(employeeId);
+        List<EmploymentEvent> events = eventRepository.findByEmployeeOrderByEventDateDesc(String.valueOf(employeeId));
         return events.stream()
                 .map(EmploymentEventResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<EmploymentEventResponse> getEmployeeHistoryPaged(Long employeeId, Pageable pageable) {
-        Page<EmploymentEvent> events = eventRepository.findByEmployeeId(employeeId, pageable);
-        return events.map(EmploymentEventResponse::fromEntity);
+    public CursorPage<EmploymentEventResponse> getEmployeeHistoryPaged(Long employeeId, String cursor, int pageSize) {
+        CursorPage<EmploymentEvent> events = eventRepository.findByEmployee(String.valueOf(employeeId), cursor, pageSize);
+        List<EmploymentEventResponse> content = events.content().stream()
+                .map(EmploymentEventResponse::fromEntity)
+                .collect(Collectors.toList());
+        return new CursorPage<>(content, events.nextCursor(), events.hasMore(),
+                events.size(), events.totalElements());
     }
 
     @Transactional(readOnly = true)
     public List<EmploymentEventResponse> getEmployeeEventsByType(Long employeeId, EmploymentEventType eventType) {
-        List<EmploymentEvent> events = eventRepository.findByEmployeeIdAndEventType(employeeId, eventType);
+        List<EmploymentEvent> events = eventRepository.findByEmployeeAndEventType(String.valueOf(employeeId), eventType);
         return events.stream()
                 .map(EmploymentEventResponse::fromEntity)
                 .collect(Collectors.toList());

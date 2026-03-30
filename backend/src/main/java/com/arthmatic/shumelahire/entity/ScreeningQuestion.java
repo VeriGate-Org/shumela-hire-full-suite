@@ -1,67 +1,44 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "screening_questions")
 public class ScreeningQuestion extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @NotNull(message = "Job posting ID is required")
-    @Column(name = "job_posting_id", nullable = false)
     private Long jobPostingId;
     
     @NotBlank(message = "Question text is required")
-    @Column(name = "question_text", nullable = false, length = 1000)
     private String questionText;
     
-    @Enumerated(EnumType.STRING)
     @NotNull(message = "Question type is required")
-    @Column(name = "question_type", nullable = false)
     private QuestionType questionType;
     
-    @Column(name = "is_required", nullable = false)
     private Boolean isRequired = false;
     
-    @Column(name = "display_order", nullable = false)
     private Integer displayOrder = 0;
     
-    @Column(name = "question_options", columnDefinition = "TEXT")
     private String questionOptions; // JSON array for dropdown/multiple choice options
     
-    @Column(name = "validation_rules", columnDefinition = "TEXT")
     private String validationRules; // JSON for custom validation
     
-    @Column(name = "help_text", length = 500)
     private String helpText;
     
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
     
     @NotBlank(message = "Created by is required")
-    @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
     
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    @OneToMany(mappedBy = "screeningQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<com.arthmatic.shumelahire.entity.ScreeningAnswer> answers = new ArrayList<>();
     
     // Constructors

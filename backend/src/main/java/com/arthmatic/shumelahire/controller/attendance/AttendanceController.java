@@ -7,9 +7,6 @@ import com.arthmatic.shumelahire.entity.attendance.OvertimeRecord;
 import com.arthmatic.shumelahire.service.attendance.AttendanceService;
 import com.arthmatic.shumelahire.service.attendance.OvertimeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,11 +57,8 @@ public class AttendanceController {
     }
 
     @GetMapping("/records")
-    public ResponseEntity<Page<AttendanceRecord>> getRecords(@RequestParam Long employeeId,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(attendanceService.getByEmployee(employeeId,
-                PageRequest.of(page, size, Sort.by("clockIn").descending())));
+    public ResponseEntity<List<AttendanceRecord>> getRecords(@RequestParam Long employeeId) {
+        return ResponseEntity.ok(attendanceService.getByEmployee(employeeId));
     }
 
     @GetMapping("/team")
@@ -113,18 +107,14 @@ public class AttendanceController {
     }
 
     @GetMapping("/overtime")
-    public ResponseEntity<Page<OvertimeRecord>> getOvertime(@RequestParam Long employeeId,
-                                                             @RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(overtimeService.getByEmployee(employeeId,
-                PageRequest.of(page, size, Sort.by("date").descending())));
+    public ResponseEntity<List<OvertimeRecord>> getOvertime(@RequestParam Long employeeId) {
+        return ResponseEntity.ok(overtimeService.getByEmployee(employeeId));
     }
 
     @GetMapping("/overtime/pending")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<Page<OvertimeRecord>> getPendingOvertime(@RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(overtimeService.getPending(PageRequest.of(page, size)));
+    public ResponseEntity<List<OvertimeRecord>> getPendingOvertime() {
+        return ResponseEntity.ok(overtimeService.getPending());
     }
 
     // ---- Status ----

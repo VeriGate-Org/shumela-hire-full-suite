@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.dto.employee.*;
 import com.arthmatic.shumelahire.entity.EmployeeDocumentType;
 import com.arthmatic.shumelahire.entity.EmployeeStatus;
@@ -9,10 +10,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -99,14 +96,10 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<?> searchEmployees(
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "lastName") String sort,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-            Page<EmployeeResponse> results = employeeService.searchEmployees(search, pageable);
+            CursorPage<EmployeeResponse> results = employeeService.searchEmployees(search, cursor, size);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error searching employees", e);
@@ -121,11 +114,10 @@ public class EmployeeController {
             @RequestParam(required = false) EmployeeStatus status,
             @RequestParam(required = false) String jobTitle,
             @RequestParam(required = false) String location,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "10") int size) {
         try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("lastName"));
-            Page<EmployeeResponse> results = employeeService.filterEmployees(department, status, jobTitle, location, pageable);
+            CursorPage<EmployeeResponse> results = employeeService.filterEmployees(department, status, jobTitle, location, cursor, size);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error filtering employees", e);
@@ -136,11 +128,10 @@ public class EmployeeController {
 
     @GetMapping("/directory")
     public ResponseEntity<?> getDirectory(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") int size) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<EmployeeResponse> results = employeeService.getDirectory(pageable);
+            CursorPage<EmployeeResponse> results = employeeService.getDirectory(cursor, size);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error getting directory", e);

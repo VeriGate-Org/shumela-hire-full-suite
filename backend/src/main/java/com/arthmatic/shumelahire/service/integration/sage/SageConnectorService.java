@@ -4,7 +4,7 @@ import com.arthmatic.shumelahire.dto.integration.SageConnectionTestResult;
 import com.arthmatic.shumelahire.dto.integration.SageConnectorConfigRequest;
 import com.arthmatic.shumelahire.entity.integration.SageConnectorConfig;
 import com.arthmatic.shumelahire.entity.integration.SageConnectorType;
-import com.arthmatic.shumelahire.repository.integration.SageConnectorConfigRepository;
+import com.arthmatic.shumelahire.repository.SageConnectorConfigDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class SageConnectorService {
     private static final Logger logger = LoggerFactory.getLogger(SageConnectorService.class);
 
     @Autowired
-    private SageConnectorConfigRepository connectorConfigRepository;
+    private SageConnectorConfigDataRepository connectorConfigRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -40,7 +40,7 @@ public class SageConnectorService {
 
     @Transactional(readOnly = true)
     public SageConnectorConfig getConnectorById(Long id) {
-        return connectorConfigRepository.findById(id)
+        return connectorConfigRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
     }
 
@@ -71,7 +71,7 @@ public class SageConnectorService {
     }
 
     public SageConnectorConfig updateConnector(Long id, SageConnectorConfigRequest request) {
-        SageConnectorConfig config = connectorConfigRepository.findById(id)
+        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
 
         config.setName(request.getName());
@@ -92,18 +92,18 @@ public class SageConnectorService {
     }
 
     public void deleteConnector(Long id) {
-        SageConnectorConfig config = connectorConfigRepository.findById(id)
+        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
 
         String name = config.getName();
-        connectorConfigRepository.delete(config);
+        connectorConfigRepository.deleteById(String.valueOf(config.getId()));
         auditLogService.logSystemAction("DELETE", "SAGE_CONNECTOR",
                 "Deleted Sage connector: " + name + " (id=" + id + ")");
         logger.info("Deleted Sage connector config: {} (id={})", name, id);
     }
 
     public SageConnectionTestResult testConnection(Long connectorId) {
-        SageConnectorConfig config = connectorConfigRepository.findById(connectorId)
+        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(connectorId))
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + connectorId));
 
         SageConnector connector = resolveConnector(config.getConnectorType());

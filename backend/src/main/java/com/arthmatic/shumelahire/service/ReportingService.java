@@ -2,9 +2,9 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.Interview;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +21,13 @@ import java.util.zip.ZipOutputStream;
 public class ReportingService {
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @Autowired
     private PerformanceAnalyticsService performanceAnalyticsService;

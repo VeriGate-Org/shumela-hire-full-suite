@@ -1,12 +1,10 @@
 package com.arthmatic.shumelahire.service.performance;
 
 import com.arthmatic.shumelahire.entity.performance.*;
-import com.arthmatic.shumelahire.repository.performance.PerformanceCycleRepository;
-import com.arthmatic.shumelahire.repository.performance.PerformanceContractRepository;
-import com.arthmatic.shumelahire.repository.performance.PerformanceTemplateRepository;
+import com.arthmatic.shumelahire.repository.PerformanceCycleDataRepository;
+import com.arthmatic.shumelahire.repository.PerformanceContractDataRepository;
+import com.arthmatic.shumelahire.repository.PerformanceTemplateDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +17,13 @@ import java.util.Optional;
 public class PerformanceManagementService {
 
     @Autowired
-    private PerformanceCycleRepository cycleRepository;
-    
+    private PerformanceCycleDataRepository cycleRepository;
+
     @Autowired
-    private PerformanceContractRepository contractRepository;
-    
+    private PerformanceContractDataRepository contractRepository;
+
     @Autowired
-    private PerformanceTemplateRepository templateRepository;
+    private PerformanceTemplateDataRepository templateRepository;
     
     // ========== PERFORMANCE CYCLES ==========
     
@@ -46,16 +44,16 @@ public class PerformanceManagementService {
         return cycleRepository.save(cycle);
     }
     
-    public Page<PerformanceCycle> getCycles(String tenantId, Pageable pageable) {
-        return cycleRepository.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable);
+    public List<PerformanceCycle> getCycles(String tenantId) {
+        return cycleRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
     }
     
     public Optional<PerformanceCycle> getCycle(Long id, String tenantId) {
-        return cycleRepository.findByIdAndTenantId(id, tenantId);
+        return cycleRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
     }
     
     public void activateCycle(Long id, String tenantId) {
-        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(id, tenantId)
+        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance cycle not found"));
         
         if (!cycle.canBeActivated()) {
@@ -69,7 +67,7 @@ public class PerformanceManagementService {
     // ========== PERFORMANCE CONTRACTS ==========
     
     public PerformanceContract createContract(CreateContractRequest request, String tenantId) {
-        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(request.getCycleId(), tenantId)
+        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(String.valueOf(request.getCycleId()), tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance cycle not found"));
         
         if (!cycle.isActive()) {
@@ -89,16 +87,16 @@ public class PerformanceManagementService {
         return contractRepository.save(contract);
     }
     
-    public Page<PerformanceContract> getContracts(String tenantId, Pageable pageable) {
-        return contractRepository.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable);
+    public List<PerformanceContract> getContracts(String tenantId) {
+        return contractRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
     }
     
     public Optional<PerformanceContract> getContract(Long id, String tenantId) {
-        return contractRepository.findByIdAndTenantId(id, tenantId);
+        return contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
     }
     
     public void submitContract(Long id, String tenantId) {
-        PerformanceContract contract = contractRepository.findByIdAndTenantId(id, tenantId)
+        PerformanceContract contract = contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance contract not found"));
         
         contract.submit();
@@ -106,7 +104,7 @@ public class PerformanceManagementService {
     }
     
     public void approveContract(Long id, String approverId, String comments, String tenantId) {
-        PerformanceContract contract = contractRepository.findByIdAndTenantId(id, tenantId)
+        PerformanceContract contract = contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance contract not found"));
         
         contract.approve(approverId, comments);
@@ -127,12 +125,12 @@ public class PerformanceManagementService {
         return templateRepository.save(template);
     }
     
-    public Page<PerformanceTemplate> getTemplates(String tenantId, Pageable pageable) {
-        return templateRepository.findByTenantIdAndIsActiveOrderByNameAsc(tenantId, true, pageable);
+    public List<PerformanceTemplate> getTemplates(String tenantId) {
+        return templateRepository.findByTenantIdAndIsActiveOrderByNameAsc(tenantId);
     }
     
     public Optional<PerformanceTemplate> getTemplate(Long id, String tenantId) {
-        return templateRepository.findByIdAndTenantId(id, tenantId);
+        return templateRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
     }
     
     // ========== PRIVATE HELPER METHODS ==========

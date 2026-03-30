@@ -1,9 +1,9 @@
 package com.arthmatic.shumelahire.service.performance;
 
 import com.arthmatic.shumelahire.entity.performance.*;
-import com.arthmatic.shumelahire.repository.performance.PerformanceCycleRepository;
-import com.arthmatic.shumelahire.repository.performance.PerformanceContractRepository;
-import com.arthmatic.shumelahire.repository.performance.PerformanceTemplateRepository;
+import com.arthmatic.shumelahire.repository.PerformanceCycleDataRepository;
+import com.arthmatic.shumelahire.repository.PerformanceContractDataRepository;
+import com.arthmatic.shumelahire.repository.PerformanceTemplateDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,13 +28,13 @@ import static org.mockito.Mockito.*;
 class PerformanceManagementServiceTest {
 
     @Mock
-    private PerformanceCycleRepository cycleRepository;
-    
+    private PerformanceCycleDataRepository cycleRepository;
+
     @Mock
-    private PerformanceContractRepository contractRepository;
-    
+    private PerformanceContractDataRepository contractRepository;
+
     @Mock
-    private PerformanceTemplateRepository templateRepository;
+    private PerformanceTemplateDataRepository templateRepository;
     
     @InjectMocks
     private PerformanceManagementService performanceService;
@@ -117,7 +117,7 @@ class PerformanceManagementServiceTest {
     void activateCycle_ShouldActivateValidCycle() {
         // Given
         testCycle.setStatus(CycleStatus.PLANNING);
-        when(cycleRepository.findByIdAndTenantId(1L, tenantId)).thenReturn(Optional.of(testCycle));
+        when(cycleRepository.findByIdAndTenantId("1", tenantId)).thenReturn(Optional.of(testCycle));
         when(cycleRepository.save(any(PerformanceCycle.class))).thenReturn(testCycle);
         
         // When
@@ -140,7 +140,7 @@ class PerformanceManagementServiceTest {
         request.setDepartment("IT");
         request.setJobTitle("Software Engineer");
         
-        when(cycleRepository.findByIdAndTenantId(1L, tenantId)).thenReturn(Optional.of(testCycle));
+        when(cycleRepository.findByIdAndTenantId("1", tenantId)).thenReturn(Optional.of(testCycle));
         when(contractRepository.save(any(PerformanceContract.class))).thenReturn(testContract);
         
         // When
@@ -158,7 +158,7 @@ class PerformanceManagementServiceTest {
     void submitContract_ShouldSubmitValidContract() {
         // Given
         testContract.setStatus(ContractStatus.DRAFT);
-        when(contractRepository.findByIdAndTenantId(1L, tenantId)).thenReturn(Optional.of(testContract));
+        when(contractRepository.findByIdAndTenantId("1", tenantId)).thenReturn(Optional.of(testContract));
         when(contractRepository.save(any(PerformanceContract.class))).thenReturn(testContract);
         
         // When
@@ -174,7 +174,7 @@ class PerformanceManagementServiceTest {
     void approveContract_ShouldApproveSubmittedContract() {
         // Given
         testContract.setStatus(ContractStatus.SUBMITTED);
-        when(contractRepository.findByIdAndTenantId(1L, tenantId)).thenReturn(Optional.of(testContract));
+        when(contractRepository.findByIdAndTenantId("1", tenantId)).thenReturn(Optional.of(testContract));
         when(contractRepository.save(any(PerformanceContract.class))).thenReturn(testContract);
         
         // When

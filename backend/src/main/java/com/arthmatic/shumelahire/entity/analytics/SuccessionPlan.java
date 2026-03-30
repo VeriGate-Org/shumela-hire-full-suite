@@ -2,51 +2,29 @@ package com.arthmatic.shumelahire.entity.analytics;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "succession_plans")
 public class SuccessionPlan extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "position_title", nullable = false, length = 200)
     private String positionTitle;
 
-    @Column(name = "department", length = 200)
     private String department;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "current_holder_id")
     private Employee currentHolder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "successor_id")
     private Employee successor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "readiness_level", nullable = false, length = 30)
     private ReadinessLevel readinessLevel;
 
-    @Column(name = "development_actions", columnDefinition = "TEXT")
     private String developmentActions;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
     private SuccessionPlanStatus status = SuccessionPlanStatus.DRAFT;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public SuccessionPlan() {}

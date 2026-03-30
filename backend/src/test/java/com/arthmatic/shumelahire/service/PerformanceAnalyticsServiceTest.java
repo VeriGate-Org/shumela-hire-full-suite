@@ -4,9 +4,9 @@ import com.arthmatic.shumelahire.entity.Interview;
 import com.arthmatic.shumelahire.entity.InterviewStatus;
 import com.arthmatic.shumelahire.entity.InterviewType;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,13 +26,13 @@ import static org.mockito.Mockito.when;
 class PerformanceAnalyticsServiceTest {
 
     @Mock
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Mock
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Mock
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @InjectMocks
     private PerformanceAnalyticsService performanceAnalyticsService;

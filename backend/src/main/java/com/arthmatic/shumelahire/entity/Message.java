@@ -1,155 +1,104 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "messages")
 public class Message extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "sender_id", nullable = false)
     @NotNull(message = "Sender is required")
     private Long senderId;
 
-    @Column(name = "sender_name")
     private String senderName;
 
-    @Column(name = "sender_role")
     private String senderRole;
 
-    @Column(name = "recipient_ids", columnDefinition = "TEXT")
     private String recipientIds; // JSON array of recipient IDs
 
-    @Column(name = "recipient_type")
-    @Enumerated(EnumType.STRING)
     private MessageRecipientType recipientType = MessageRecipientType.DIRECT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "message_type", nullable = false)
     private MessageType messageType = MessageType.DIRECT_MESSAGE;
 
-    @Column(name = "subject")
     private String subject;
 
-    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "message_format")
-    @Enumerated(EnumType.STRING)
     private MessageFormat messageFormat = MessageFormat.TEXT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority", nullable = false)
     private MessagePriority priority = MessagePriority.NORMAL;
 
     // Thread and conversation management
-    @Column(name = "thread_id")
     private String threadId;
 
-    @Column(name = "parent_message_id")
     private Long parentMessageId;
 
-    @Column(name = "conversation_id")
     private String conversationId;
 
-    @Column(name = "is_thread_starter")
     private Boolean isThreadStarter = false;
 
     // Related entities
-    @Column(name = "application_id")
     private Long applicationId;
 
-    @Column(name = "interview_id")
     private Long interviewId;
 
-    @Column(name = "job_posting_id")
     private Long jobPostingId;
 
-    @Column(name = "offer_id")
     private Long offerId;
 
     // Status and tracking
-    @Column(name = "is_read")
     private Boolean isRead = false;
 
-    @Column(name = "read_by", columnDefinition = "TEXT")
     private String readBy; // JSON object with read status per recipient
 
-    @Column(name = "is_delivered")
     private Boolean isDelivered = false;
 
-    @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
-    @Column(name = "is_archived")
     private Boolean isArchived = false;
 
-    @Column(name = "archived_at")
     private LocalDateTime archivedAt;
 
-    @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "deleted_by")
     private Long deletedBy;
 
     // Message features
-    @Column(name = "has_attachments")
     private Boolean hasAttachments = false;
 
-    @Column(name = "attachment_urls", columnDefinition = "TEXT")
     private String attachmentUrls; // JSON array of attachment URLs
 
-    @Column(name = "is_urgent")
     private Boolean isUrgent = false;
 
-    @Column(name = "requires_response")
     private Boolean requiresResponse = false;
 
-    @Column(name = "response_deadline")
     private LocalDateTime responseDeadline;
 
-    @Column(name = "is_confidential")
     private Boolean isConfidential = false;
 
-    @Column(name = "auto_delete_at")
     private LocalDateTime autoDeleteAt;
 
     // Scheduling
-    @Column(name = "scheduled_for")
     private LocalDateTime scheduledFor;
 
-    @Column(name = "is_scheduled")
     private Boolean isScheduled = false;
 
     // Tags and categories
-    @Column(name = "tags", columnDefinition = "TEXT")
     private String tags; // JSON array of tags
 
-    @Column(name = "category")
     private String category;
 
     // Tracking metadata
-    @Column(name = "metadata", columnDefinition = "TEXT")
     private String metadata; // JSON for additional data
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
     // Constructors
@@ -172,7 +121,6 @@ public class Message extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

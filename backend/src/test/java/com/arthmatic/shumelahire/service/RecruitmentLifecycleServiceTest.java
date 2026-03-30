@@ -3,7 +3,15 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.LifecycleEvent;
 import com.arthmatic.shumelahire.dto.RecruitmentLifecycle;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.*;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
+import com.arthmatic.shumelahire.repository.SalaryRecommendationDataRepository;
+import com.arthmatic.shumelahire.repository.PipelineTransitionDataRepository;
+import com.arthmatic.shumelahire.repository.AuditLogDataRepository;
+import com.arthmatic.shumelahire.repository.JobAdDataRepository;
+import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
+import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,15 +31,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RecruitmentLifecycleServiceTest {
 
-    @Mock private ApplicationRepository applicationRepository;
-    @Mock private InterviewRepository interviewRepository;
-    @Mock private OfferRepository offerRepository;
-    @Mock private SalaryRecommendationRepository salaryRecommendationRepository;
-    @Mock private PipelineTransitionRepository pipelineTransitionRepository;
-    @Mock private AuditLogRepository auditLogRepository;
-    @Mock private JobAdRepository jobAdRepository;
-    @Mock private RequisitionRepository requisitionRepository;
-    @Mock private BackgroundCheckRepository backgroundCheckRepository;
+    @Mock private ApplicationDataRepository applicationRepository;
+    @Mock private InterviewDataRepository interviewRepository;
+    @Mock private OfferDataRepository offerRepository;
+    @Mock private SalaryRecommendationDataRepository salaryRecommendationRepository;
+    @Mock private PipelineTransitionDataRepository pipelineTransitionRepository;
+    @Mock private AuditLogDataRepository auditLogRepository;
+    @Mock private JobAdDataRepository jobAdRepository;
+    @Mock private RequisitionDataRepository requisitionRepository;
+    @Mock private BackgroundCheckDataRepository backgroundCheckRepository;
 
     @InjectMocks
     private RecruitmentLifecycleService service;
@@ -66,12 +74,12 @@ class RecruitmentLifecycleServiceTest {
     @Test
     void testGetByApplicationId_BasicLifecycle() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
-        when(interviewRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(offerRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(salaryRecommendationRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
-        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
+        when(interviewRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(offerRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(salaryRecommendationRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
+        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When
@@ -91,7 +99,7 @@ class RecruitmentLifecycleServiceTest {
     @Test
     void testGetByApplicationId_FullLifecycle() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
 
         // Interviews
         Interview interview1 = new Interview();
@@ -108,7 +116,7 @@ class RecruitmentLifecycleServiceTest {
         interview1.setRecommendation(InterviewRecommendation.HIRE);
         interview1.setRating(4);
 
-        when(interviewRepository.findByApplicationId(1L)).thenReturn(List.of(interview1));
+        when(interviewRepository.findByApplicationId("1")).thenReturn(List.of(interview1));
 
         // Offer
         Offer offer = new Offer();
@@ -121,7 +129,7 @@ class RecruitmentLifecycleServiceTest {
         offer.setCreatedAt(LocalDateTime.of(2026, 1, 22, 14, 0));
         offer.setOfferSentAt(LocalDateTime.of(2026, 1, 23, 9, 0));
 
-        when(offerRepository.findByApplicationId(1L)).thenReturn(List.of(offer));
+        when(offerRepository.findByApplicationId("1")).thenReturn(List.of(offer));
 
         // Pipeline transitions
         PipelineTransition pt1 = new PipelineTransition();
@@ -143,14 +151,14 @@ class RecruitmentLifecycleServiceTest {
         pt2.setCreatedBy(42L);
         pt2.setDurationInPreviousStageHours(72L);
 
-        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc(1L))
+        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1"))
                 .thenReturn(List.of(pt2, pt1));
 
         // Salary recommendations
-        when(salaryRecommendationRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
+        when(salaryRecommendationRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
 
         // Background checks
-        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
+        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
 
         // Audit logs
         AuditLog log1 = new AuditLog();
@@ -210,11 +218,11 @@ class RecruitmentLifecycleServiceTest {
     @Test
     void testGetByApplicationId_WithBackgroundCheck() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
-        when(interviewRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(offerRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(salaryRecommendationRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
+        when(interviewRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(offerRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(salaryRecommendationRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         BackgroundCheck bc = new BackgroundCheck();
@@ -227,7 +235,7 @@ class RecruitmentLifecycleServiceTest {
         bc.setCreatedAt(LocalDateTime.of(2026, 1, 25, 9, 0));
         bc.setCompletedAt(LocalDateTime.of(2026, 1, 28, 14, 0));
 
-        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(bc));
+        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(List.of(bc));
 
         // When
         RecruitmentLifecycle lifecycle = service.getByApplicationId(1L);
@@ -248,7 +256,7 @@ class RecruitmentLifecycleServiceTest {
 
     @Test
     void testGetByApplicationId_NotFound() {
-        when(applicationRepository.findById(999L)).thenReturn(Optional.empty());
+        when(applicationRepository.findById("999")).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> service.getByApplicationId(999L));
     }
@@ -256,12 +264,12 @@ class RecruitmentLifecycleServiceTest {
     @Test
     void testGetEventsByApplicationId() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
-        when(interviewRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(offerRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(salaryRecommendationRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
-        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
+        when(interviewRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(offerRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(salaryRecommendationRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
+        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When
@@ -275,7 +283,7 @@ class RecruitmentLifecycleServiceTest {
     @Test
     void testLifecycleEventColorAndIconMapping() {
         // Given
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
 
         Interview interview = new Interview();
         interview.setId(100L);
@@ -283,12 +291,12 @@ class RecruitmentLifecycleServiceTest {
         interview.setCreatedAt(LocalDateTime.of(2026, 1, 16, 9, 0));
         interview.setScheduledAt(LocalDateTime.of(2026, 1, 18, 10, 0));
         interview.setDurationMinutes(30);
-        when(interviewRepository.findByApplicationId(1L)).thenReturn(List.of(interview));
+        when(interviewRepository.findByApplicationId("1")).thenReturn(List.of(interview));
 
-        when(offerRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(salaryRecommendationRepository.findByApplicationId(1L)).thenReturn(Collections.emptyList());
-        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
-        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(1L)).thenReturn(Collections.emptyList());
+        when(offerRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(salaryRecommendationRepository.findByApplicationId("1")).thenReturn(Collections.emptyList());
+        when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
+        when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(Collections.emptyList());
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When

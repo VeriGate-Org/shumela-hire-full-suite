@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 
@@ -9,271 +8,183 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "offers")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Offer extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @NotNull(message = "Application is required")
     private Application application;
 
-    @Column(name = "offer_number", unique = true, nullable = false)
     private String offerNumber;
 
-    @Column(name = "version", nullable = false)
     private Integer version = 1;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private OfferStatus status = OfferStatus.DRAFT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "offer_type", nullable = false)
     private OfferType offerType = OfferType.FULL_TIME_PERMANENT;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "negotiation_status", nullable = false)
     private NegotiationStatus negotiationStatus = NegotiationStatus.NOT_STARTED;
 
     // Position Details
-    @Column(name = "job_title", nullable = false)
     private String jobTitle;
 
-    @Column(name = "department", nullable = false)
     private String department;
 
-    @Column(name = "reporting_manager")
     private String reportingManager;
 
-    @Column(name = "work_location")
     private String workLocation;
 
-    @Column(name = "remote_work_allowed")
     private Boolean remoteWorkAllowed = false;
 
     // Compensation Details
-    @Column(name = "base_salary", precision = 15, scale = 2, nullable = false)
     @DecimalMin(value = "0.0", message = "Base salary must be positive")
     private BigDecimal baseSalary;
 
-    @Column(name = "currency", nullable = false)
     private String currency = "ZAR";
 
-    @Column(name = "salary_frequency")
     private String salaryFrequency = "ANNUALLY"; // ANNUALLY, MONTHLY, HOURLY
 
-    @Column(name = "bonus_eligible")
     private Boolean bonusEligible = false;
 
-    @Column(name = "bonus_target_percentage")
     private BigDecimal bonusTargetPercentage;
 
-    @Column(name = "bonus_maximum_percentage")
     private BigDecimal bonusMaximumPercentage;
 
-    @Column(name = "commission_eligible")
     private Boolean commissionEligible = false;
 
-    @Column(name = "commission_structure", columnDefinition = "TEXT")
     private String commissionStructure;
 
-    @Column(name = "equity_eligible")
     private Boolean equityEligible = false;
 
-    @Column(name = "equity_details", columnDefinition = "TEXT")
     private String equityDetails;
 
-    @Column(name = "signing_bonus", precision = 15, scale = 2)
     private BigDecimal signingBonus;
 
-    @Column(name = "relocation_allowance", precision = 15, scale = 2)
     private BigDecimal relocationAllowance;
 
     // Benefits
-    @Column(name = "benefits_package", columnDefinition = "TEXT")
     private String benefitsPackage;
 
-    @Column(name = "vacation_days_annual")
     private Integer vacationDaysAnnual;
 
-    @Column(name = "sick_days_annual")
     private Integer sickDaysAnnual;
 
-    @Column(name = "health_insurance")
     private Boolean healthInsurance = false;
 
-    @Column(name = "retirement_plan")
     private Boolean retirementPlan = false;
 
-    @Column(name = "retirement_contribution_percentage")
     private BigDecimal retirementContributionPercentage;
 
-    @Column(name = "other_benefits", columnDefinition = "TEXT")
     private String otherBenefits;
 
     // Contract Terms
-    @Column(name = "employment_type")
     private String employmentType; // PERMANENT, CONTRACT, TEMPORARY
 
-    @Column(name = "contract_duration_months")
     private Integer contractDurationMonths;
 
-    @Column(name = "contract_end_date")
     private LocalDate contractEndDate;
 
-    @Column(name = "probationary_period_days")
     private Integer probationaryPeriodDays;
 
-    @Column(name = "notice_period_days")
     private Integer noticePeriodDays = 30;
 
-    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name = "start_date_flexible")
     private Boolean startDateFlexible = false;
 
-    @Column(name = "earliest_start_date")
     private LocalDate earliestStartDate;
 
-    @Column(name = "latest_start_date")
     private LocalDate latestStartDate;
 
     // Offer Lifecycle
-    @Column(name = "offer_expiry_date")
     private LocalDateTime offerExpiryDate;
 
-    @Column(name = "offer_sent_at")
     private LocalDateTime offerSentAt;
 
-    @Column(name = "candidate_viewed_at")
     private LocalDateTime candidateViewedAt;
 
-    @Column(name = "candidate_response_at")
     private LocalDateTime candidateResponseAt;
 
-    @Column(name = "accepted_at")
     private LocalDateTime acceptedAt;
 
-    @Column(name = "declined_at")
     private LocalDateTime declinedAt;
 
-    @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
     // Approval Workflow
-    @Column(name = "requires_approval")
     private Boolean requiresApproval = true;
 
-    @Column(name = "approval_level_required")
     private Integer approvalLevelRequired = 1;
 
-    @Column(name = "approved_by")
     private Long approvedBy;
 
-    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(name = "approval_notes", columnDefinition = "TEXT")
     private String approvalNotes;
 
-    @Column(name = "rejected_by")
     private Long rejectedBy;
 
-    @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
     // Negotiation Details
-    @Column(name = "negotiation_rounds")
     private Integer negotiationRounds = 0;
 
-    @Column(name = "last_negotiation_at")
     private LocalDateTime lastNegotiationAt;
 
-    @Column(name = "negotiation_notes", columnDefinition = "TEXT")
     private String negotiationNotes;
 
-    @Column(name = "candidate_counter_offer", columnDefinition = "TEXT")
     private String candidateCounterOffer;
 
-    @Column(name = "company_response", columnDefinition = "TEXT")
     private String companyResponse;
 
     // Additional Terms
-    @Column(name = "special_conditions", columnDefinition = "TEXT")
     private String specialConditions;
 
-    @Column(name = "confidentiality_agreement")
     private Boolean confidentialityAgreement = false;
 
-    @Column(name = "non_compete_agreement")
     private Boolean nonCompeteAgreement = false;
 
-    @Column(name = "non_compete_duration_months")
     private Integer nonCompeteDurationMonths;
 
-    @Column(name = "intellectual_property_agreement")
     private Boolean intellectualPropertyAgreement = false;
 
     // Document References
-    @Column(name = "offer_letter_template_id")
     private Long offerLetterTemplateId;
 
-    @Column(name = "contract_template_id")
     private Long contractTemplateId;
 
-    @Column(name = "offer_document_path")
     private String offerDocumentPath;
 
-    @Column(name = "signed_document_path")
     private String signedDocumentPath;
 
     // E-Signature
-    @Column(name = "e_signature_envelope_id")
     private String eSignatureEnvelopeId;
 
-    @Column(name = "e_signature_status")
     private String eSignatureStatus;
 
-    @Column(name = "e_signature_sent_at")
     private LocalDateTime eSignatureSentAt;
 
-    @Column(name = "e_signature_completed_at")
     private LocalDateTime eSignatureCompletedAt;
 
-    @Column(name = "e_signature_provider")
     private String eSignatureProvider;
 
-    @Column(name = "e_signature_signer_email")
     private String eSignatureSignerEmail;
 
     // Tracking
-    @Column(name = "created_by", nullable = false)
     private Long createdBy;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_by")
     private Long updatedBy;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "superseded_by_offer_id")
     private Long supersededByOfferId;
 
-    @Column(name = "supersedes_offer_id")
     private Long supersedesOfferId;
 
     // Constructors
@@ -295,7 +206,6 @@ public class Offer extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

@@ -6,8 +6,8 @@ import com.arthmatic.shumelahire.entity.InterviewType;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.InterviewRecommendation;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.arthmatic.shumelahire.service.integration.OutlookCalendarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ public class InterviewSchedulingService {
     private static final Logger logger = LoggerFactory.getLogger(InterviewSchedulingService.class);
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -51,7 +51,7 @@ public class InterviewSchedulingService {
             throw new IllegalArgumentException("Application is required for interview scheduling");
         }
 
-        Application application = applicationRepository.findById(interview.getApplication().getId())
+        Application application = applicationRepository.findById(String.valueOf(interview.getApplication().getId()))
             .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         interview.setApplication(application);
@@ -123,7 +123,7 @@ public class InterviewSchedulingService {
      * Reschedule an existing interview
      */
     public Interview rescheduleInterview(Long interviewId, LocalDateTime newDate, String reason) {
-        Interview interview = interviewRepository.findById(interviewId)
+        Interview interview = interviewRepository.findById(String.valueOf(interviewId))
             .orElseThrow(() -> new IllegalArgumentException("Interview not found"));
 
         if (newDate.isBefore(LocalDateTime.now())) {
@@ -162,7 +162,7 @@ public class InterviewSchedulingService {
      * Cancel an interview
      */
     public void cancelInterview(Long interviewId, String reason) {
-        Interview interview = interviewRepository.findById(interviewId)
+        Interview interview = interviewRepository.findById(String.valueOf(interviewId))
             .orElseThrow(() -> new IllegalArgumentException("Interview not found"));
 
         interview.setStatus(InterviewStatus.CANCELLED);
@@ -192,9 +192,9 @@ public class InterviewSchedulingService {
      * Complete an interview with feedback
      */
     public Interview completeInterview(Long interviewId, String feedback, Integer rating,
-                                     Integer technicalScore, Integer communicationScore, 
+                                     Integer technicalScore, Integer communicationScore,
                                      Integer culturalFitScore, String recommendation) {
-        Interview interview = interviewRepository.findById(interviewId)
+        Interview interview = interviewRepository.findById(String.valueOf(interviewId))
             .orElseThrow(() -> new IllegalArgumentException("Interview not found"));
 
         interview.setStatus(InterviewStatus.COMPLETED);

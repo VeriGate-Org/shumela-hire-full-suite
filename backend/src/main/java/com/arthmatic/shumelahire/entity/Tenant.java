@@ -1,54 +1,36 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tenants")
 public class Tenant {
 
-    @Id
     @Size(max = 50)
     private String id;
 
     @NotBlank
-    @Column(nullable = false)
     private String name;
 
     @NotBlank
     @Size(max = 63)
-    @Column(nullable = false, unique = true)
     private String subdomain;
 
-    @Column(nullable = false, length = 20)
     private String status = "ACTIVE";
 
-    @Column(nullable = false, length = 30)
     private String plan = "STANDARD";
 
     @NotBlank
-    @Column(name = "contact_email", nullable = false)
     private String contactEmail;
 
-    @Column(name = "contact_name")
     private String contactName;
 
-    @Column(name = "max_users")
     private Integer maxUsers = 50;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "settings")
     private String settings = "{}";
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public Tenant() {
@@ -63,7 +45,6 @@ public class Tenant {
         this.contactEmail = contactEmail;
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

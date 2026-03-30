@@ -1,7 +1,6 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -10,58 +9,39 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "performance_goals")
 public class PerformanceGoal extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contract_id", nullable = false)
     @NotNull(message = "Performance contract is required")
     private PerformanceContract contract;
     
-    @Column(nullable = false, length = 200)
     private String title;
     
-    @Column(columnDefinition = "TEXT")
     private String description;
     
     // SMART criteria stored as JSON
-    @Column(name = "smart_criteria", columnDefinition = "TEXT")
     private String smartCriteria;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "goal_type", nullable = false)
     private GoalType type;
     
-    @Column(precision = 5, scale = 2)
     @DecimalMin(value = "0.0", message = "Weighting must be positive")
     @DecimalMax(value = "100.0", message = "Weighting cannot exceed 100%")
     private BigDecimal weighting;
     
-    @Column(name = "target_value", columnDefinition = "TEXT")
     private String targetValue;
     
-    @Column(name = "measurement_criteria", columnDefinition = "TEXT")
     private String measurementCriteria;
     
-    @Column(name = "is_active")
     private Boolean isActive = true;
     
-    @Column(name = "sort_order")
     private Integer sortOrder;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
     // Relationships
-    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GoalKPI> kpis;
     
     // Constructors
@@ -78,7 +58,6 @@ public class PerformanceGoal extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

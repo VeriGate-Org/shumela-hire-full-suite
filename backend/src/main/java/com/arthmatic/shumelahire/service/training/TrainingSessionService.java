@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.training.TrainingSessionResponse;
 import com.arthmatic.shumelahire.entity.training.SessionStatus;
 import com.arthmatic.shumelahire.entity.training.TrainingCourse;
 import com.arthmatic.shumelahire.entity.training.TrainingSession;
-import com.arthmatic.shumelahire.repository.training.TrainingCourseRepository;
-import com.arthmatic.shumelahire.repository.training.TrainingSessionRepository;
+import com.arthmatic.shumelahire.repository.TrainingCourseDataRepository;
+import com.arthmatic.shumelahire.repository.TrainingSessionDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +25,10 @@ public class TrainingSessionService {
     private static final Logger logger = LoggerFactory.getLogger(TrainingSessionService.class);
 
     @Autowired
-    private TrainingSessionRepository trainingSessionRepository;
+    private TrainingSessionDataRepository trainingSessionRepository;
 
     @Autowired
-    private TrainingCourseRepository trainingCourseRepository;
+    private TrainingCourseDataRepository trainingCourseRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -42,21 +42,21 @@ public class TrainingSessionService {
 
     @Transactional(readOnly = true)
     public List<TrainingSessionResponse> getByCourse(Long courseId) {
-        return trainingSessionRepository.findByCourseId(courseId).stream()
+        return trainingSessionRepository.findByCourseId(String.valueOf(courseId)).stream()
                 .map(TrainingSessionResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public TrainingSessionResponse getById(Long id) {
-        TrainingSession session = trainingSessionRepository.findById(id)
+        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         return TrainingSessionResponse.fromEntity(session);
     }
 
     @Transactional(readOnly = true)
     public List<TrainingSessionResponse> getUpcoming() {
-        return trainingSessionRepository.findUpcomingSessions(LocalDateTime.now()).stream()
+        return trainingSessionRepository.findUpcomingSessions().stream()
                 .map(TrainingSessionResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -69,7 +69,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse create(TrainingSessionRequest request, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(request.getCourseId())
+        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(request.getCourseId()))
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + request.getCourseId()));
 
         if (request.getEndDate().isBefore(request.getStartDate())) {
@@ -94,7 +94,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse update(Long id, TrainingSessionRequest request, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(id)
+        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
 
         session.setTrainerName(request.getTrainerName());
@@ -116,7 +116,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse openSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(id)
+        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.OPEN);
         TrainingSession saved = trainingSessionRepository.save(session);
@@ -125,7 +125,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse closeSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(id)
+        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.COMPLETED);
         TrainingSession saved = trainingSessionRepository.save(session);
@@ -134,7 +134,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse cancelSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(id)
+        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.CANCELLED);
         TrainingSession saved = trainingSessionRepository.save(session);

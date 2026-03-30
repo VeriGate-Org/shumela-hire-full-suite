@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.ReportTemplateResponse;
 import com.arthmatic.shumelahire.entity.ReportTemplate;
-import com.arthmatic.shumelahire.repository.ReportTemplateRepository;
+import com.arthmatic.shumelahire.repository.ReportTemplateDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,9 @@ public class ReportTemplateService {
     private static final Logger log = LoggerFactory.getLogger(ReportTemplateService.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final ReportTemplateRepository repository;
+    private final ReportTemplateDataRepository repository;
 
-    public ReportTemplateService(ReportTemplateRepository repository) {
+    public ReportTemplateService(ReportTemplateDataRepository repository) {
         this.repository = repository;
     }
 
@@ -33,7 +33,7 @@ public class ReportTemplateService {
     }
 
     public ReportTemplateResponse getReport(Long id) {
-        return repository.findById(id)
+        return repository.findById(String.valueOf(id))
                 .map(ReportTemplateResponse::new)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
     }
@@ -50,7 +50,7 @@ public class ReportTemplateService {
 
     @Transactional
     public ReportTemplateResponse updateReport(Long id, Map<String, Object> config) {
-        ReportTemplate template = repository.findById(id)
+        ReportTemplate template = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         mapConfigToEntity(template, config);
         ReportTemplate saved = repository.save(template);
@@ -59,7 +59,7 @@ public class ReportTemplateService {
 
     @Transactional
     public void deleteReport(Long id) {
-        ReportTemplate template = repository.findById(id)
+        ReportTemplate template = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         if (template.isSystem()) {
             throw new IllegalStateException("Cannot delete system report templates");
@@ -70,7 +70,7 @@ public class ReportTemplateService {
 
     @Transactional
     public ReportTemplateResponse incrementRunCount(Long id) {
-        ReportTemplate template = repository.findById(id)
+        ReportTemplate template = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         template.setRunCount(template.getRunCount() + 1);
         template.setLastRun(LocalDateTime.now());
@@ -79,7 +79,7 @@ public class ReportTemplateService {
 
     @Transactional
     public ReportTemplateResponse duplicateReport(Long id, String createdBy) {
-        ReportTemplate original = repository.findById(id)
+        ReportTemplate original = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
 
         ReportTemplate copy = new ReportTemplate();
@@ -100,7 +100,7 @@ public class ReportTemplateService {
 
     @Transactional
     public ReportTemplateResponse shareReport(Long id) {
-        ReportTemplate template = repository.findById(id)
+        ReportTemplate template = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         template.setShared(true);
         return new ReportTemplateResponse(repository.save(template));

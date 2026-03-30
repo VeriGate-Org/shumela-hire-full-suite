@@ -2,10 +2,9 @@ package com.arthmatic.shumelahire.service.leave;
 
 import com.arthmatic.shumelahire.entity.leave.LeaveRequest;
 import com.arthmatic.shumelahire.entity.leave.LeaveRequestStatus;
-import com.arthmatic.shumelahire.repository.leave.LeaveBalanceRepository;
-import com.arthmatic.shumelahire.repository.leave.LeaveRequestRepository;
+import com.arthmatic.shumelahire.repository.LeaveBalanceDataRepository;
+import com.arthmatic.shumelahire.repository.LeaveRequestDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,25 +20,24 @@ import java.util.stream.Collectors;
 public class LeaveAnalyticsService {
 
     @Autowired
-    private LeaveRequestRepository leaveRequestRepository;
+    private LeaveRequestDataRepository leaveRequestRepository;
 
     @Autowired
-    private LeaveBalanceRepository leaveBalanceRepository;
+    private LeaveBalanceDataRepository leaveBalanceRepository;
 
     public Map<String, Object> getAnalytics() {
         Map<String, Object> analytics = new HashMap<>();
 
         // Pending requests count
         long pendingCount = leaveRequestRepository
-                .findByStatus(LeaveRequestStatus.PENDING, PageRequest.of(0, 1))
-                .getTotalElements();
+                .findByStatus(LeaveRequestStatus.PENDING).size();
         analytics.put("pendingRequests", pendingCount);
 
         // Current month leave distribution
         LocalDate now = LocalDate.now();
         LocalDate monthStart = now.withDayOfMonth(1);
         LocalDate monthEnd = now.withDayOfMonth(now.lengthOfMonth());
-        List<LeaveRequest> currentMonthLeave = leaveRequestRepository.findOverlapping(monthStart, monthEnd);
+        List<LeaveRequest> currentMonthLeave = leaveRequestRepository.findAllOverlapping(monthStart, monthEnd);
 
         Map<String, Long> leaveByType = currentMonthLeave.stream()
                 .collect(Collectors.groupingBy(
@@ -62,7 +60,7 @@ public class LeaveAnalyticsService {
         analytics.put("totalDaysTakenThisMonth", totalDaysTaken);
 
         analytics.put("employeesOnLeaveToday", leaveRequestRepository
-                .findOverlapping(now, now).stream()
+                .findAllOverlapping(now, now).stream()
                 .filter(r -> r.getStatus() == LeaveRequestStatus.APPROVED)
                 .count());
 

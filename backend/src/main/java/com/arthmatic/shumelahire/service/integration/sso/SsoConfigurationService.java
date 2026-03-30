@@ -4,7 +4,7 @@ import com.arthmatic.shumelahire.dto.integration.SsoConfigRequest;
 import com.arthmatic.shumelahire.dto.integration.SsoTestResult;
 import com.arthmatic.shumelahire.entity.integration.SsoConfiguration;
 import com.arthmatic.shumelahire.entity.integration.SsoProvider;
-import com.arthmatic.shumelahire.repository.integration.SsoConfigurationRepository;
+import com.arthmatic.shumelahire.repository.SsoConfigurationDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class SsoConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(SsoConfigurationService.class);
 
     @Autowired
-    private SsoConfigurationRepository ssoConfigurationRepository;
+    private SsoConfigurationDataRepository ssoConfigurationRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -36,7 +36,7 @@ public class SsoConfigurationService {
 
     @Transactional(readOnly = true)
     public Optional<SsoConfiguration> getConfigurationById(Long id) {
-        return ssoConfigurationRepository.findById(id);
+        return ssoConfigurationRepository.findById(String.valueOf(id));
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +71,7 @@ public class SsoConfigurationService {
     }
 
     public SsoConfiguration updateConfiguration(Long id, SsoConfigRequest request) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(id)
+        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         config.setProvider(request.getProvider());
@@ -108,11 +108,11 @@ public class SsoConfigurationService {
     }
 
     public void deleteConfiguration(Long id) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(id)
+        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         String displayName = config.getDisplayName();
-        ssoConfigurationRepository.delete(config);
+        ssoConfigurationRepository.deleteById(String.valueOf(config.getId()));
         auditLogService.logSystemAction("DELETE", "SSO_CONFIGURATION",
                 "Deleted SSO configuration: " + displayName + " (id=" + id + ")");
         logger.info("Deleted SSO configuration: {} (id={})", displayName, id);
@@ -122,7 +122,7 @@ public class SsoConfigurationService {
      * Test SSO connection - mock implementation that returns success with sample endpoints.
      */
     public SsoTestResult testConnection(Long id) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(id)
+        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         Map<String, String> discoveredEndpoints = new HashMap<>();

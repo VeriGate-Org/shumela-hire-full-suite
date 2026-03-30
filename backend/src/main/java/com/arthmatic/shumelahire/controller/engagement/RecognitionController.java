@@ -5,8 +5,6 @@ import com.arthmatic.shumelahire.dto.engagement.RecognitionCreateRequest;
 import com.arthmatic.shumelahire.dto.engagement.RecognitionResponse;
 import com.arthmatic.shumelahire.service.engagement.RecognitionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,26 +33,20 @@ public class RecognitionController {
     }
 
     @GetMapping("/received")
-    public ResponseEntity<Page<RecognitionResponse>> getRecognitionsFor(
-            @RequestParam Long employeeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(recognitionService.getRecognitionsFor(employeeId, PageRequest.of(page, size)));
+    public ResponseEntity<List<RecognitionResponse>> getRecognitionsFor(
+            @RequestParam Long employeeId) {
+        return ResponseEntity.ok(recognitionService.getRecognitionsFor(employeeId));
     }
 
     @GetMapping("/given")
-    public ResponseEntity<Page<RecognitionResponse>> getRecognitionsFrom(
-            @RequestParam Long employeeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(recognitionService.getRecognitionsFrom(employeeId, PageRequest.of(page, size)));
+    public ResponseEntity<List<RecognitionResponse>> getRecognitionsFrom(
+            @RequestParam Long employeeId) {
+        return ResponseEntity.ok(recognitionService.getRecognitionsFrom(employeeId));
     }
 
     @GetMapping("/public")
-    public ResponseEntity<Page<RecognitionResponse>> getPublicRecognitions(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(recognitionService.getPublicRecognitions(PageRequest.of(page, size)));
+    public ResponseEntity<List<RecognitionResponse>> getPublicRecognitions() {
+        return ResponseEntity.ok(recognitionService.getPublicRecognitions());
     }
 
     @GetMapping("/leaderboard")

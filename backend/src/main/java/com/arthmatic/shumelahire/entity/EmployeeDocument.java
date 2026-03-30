@@ -1,80 +1,52 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "employee_documents")
 public class EmployeeDocument extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "document_type", nullable = false, length = 50)
     private EmployeeDocumentType documentType;
 
     @NotBlank
-    @Column(nullable = false, length = 255)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotBlank
-    @Column(nullable = false, length = 255)
     private String filename;
 
     @NotBlank
-    @Column(name = "file_url", nullable = false, length = 500)
     private String fileUrl;
 
-    @Column(name = "file_size")
     private Long fileSize;
 
-    @Column(name = "content_type", length = 100)
     private String contentType;
 
-    @Column(nullable = false)
     private Integer version = 1;
 
-    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "uploaded_by", length = 255)
     private String uploadedBy;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_verified")
     private Boolean isVerified = false;
 
-    @Column(name = "verified_by", length = 255)
     private String verifiedBy;
 
-    @Column(name = "verified_at")
     private LocalDateTime verifiedAt;
 
     public boolean isExpired() {

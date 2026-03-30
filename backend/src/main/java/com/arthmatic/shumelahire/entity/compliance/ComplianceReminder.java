@@ -2,60 +2,36 @@ package com.arthmatic.shumelahire.entity.compliance;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "compliance_reminders")
 public class ComplianceReminder extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "reminder_type", nullable = false, length = 30)
     private ReminderType reminderType;
 
-    @Column(name = "entity_type", length = 50)
     private String entityType;
 
-    @Column(name = "entity_id")
     private Long entityId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private ReminderStatus status = ReminderStatus.PENDING;
 
-    @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
-    @Column(name = "acknowledged_at")
     private LocalDateTime acknowledgedAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Long getId() { return id; }

@@ -2,8 +2,8 @@ package com.arthmatic.shumelahire.security;
 
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,11 +27,11 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(CognitoUserProvisioningFilter.class);
 
-    private final UserRepository userRepository;
-    private final ApplicantRepository applicantRepository;
+    private final UserDataRepository userRepository;
+    private final ApplicantDataRepository applicantRepository;
 
-    public CognitoUserProvisioningFilter(UserRepository userRepository,
-                                          ApplicantRepository applicantRepository) {
+    public CognitoUserProvisioningFilter(UserDataRepository userRepository,
+                                          ApplicantDataRepository applicantRepository) {
         this.userRepository = userRepository;
         this.applicantRepository = applicantRepository;
     }
@@ -60,7 +60,7 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
 
         if (email == null || tenantId == null) return;
 
-        if (!userRepository.existsByEmailAndTenantId(email, tenantId)) {
+        if (!userRepository.existsByEmail(email)) {
             User user = new User();
             user.setEmail(email);
             user.setUsername(email);
@@ -98,7 +98,7 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
                 log.info("JIT provisioned applicant profile for: {}", email);
             }
         } else {
-            userRepository.findByEmailAndTenantId(email, tenantId).ifPresent(user -> {
+            userRepository.findByEmail(email).ifPresent(user -> {
                 user.setLastLogin(LocalDateTime.now());
 
                 // Sync role from JWT if it provides a more authoritative role

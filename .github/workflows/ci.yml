@@ -4,8 +4,6 @@ on:
   workflow_call:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
 
 jobs:
   backend:
@@ -87,6 +85,8 @@ jobs:
         run: npm run test:ci
 
       - name: Build
+        env:
+          STATIC_EXPORT: "false"
         run: npm run build
 
       - name: Security Audit

@@ -1,58 +1,37 @@
 package com.arthmatic.shumelahire.entity.training;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "training_sessions")
 public class TrainingSession extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
     private TrainingCourse course;
 
-    @Column(name = "trainer_name", length = 200)
     private String trainerName;
 
-    @Column(length = 300)
     private String location;
 
     @NotNull
-    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
     @NotNull
-    @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private SessionStatus status = SessionStatus.PLANNED;
 
-    @Column(name = "available_seats")
     private Integer availableSeats;
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainingEnrollment> enrollments = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

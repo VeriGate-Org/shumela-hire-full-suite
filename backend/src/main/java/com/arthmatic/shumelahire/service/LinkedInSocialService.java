@@ -6,8 +6,8 @@ import com.arthmatic.shumelahire.dto.LinkedInConnectionStatus;
 import com.arthmatic.shumelahire.dto.LinkedInPostResponse;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.LinkedInOrgConnection;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
-import com.arthmatic.shumelahire.repository.LinkedInOrgConnectionRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
+import com.arthmatic.shumelahire.repository.LinkedInOrgConnectionDataRepository;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -39,13 +39,13 @@ public class LinkedInSocialService {
     private LinkedInSocialConfig config;
 
     @Autowired
-    private LinkedInOrgConnectionRepository connectionRepository;
+    private LinkedInOrgConnectionDataRepository connectionRepository;
 
     @Autowired
     private DataEncryptionService encryptionService;
 
     @Autowired
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -144,7 +144,7 @@ public class LinkedInSocialService {
         LinkedInOrgConnection connection = connectionRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new RuntimeException("LinkedIn organization not connected. Ask your admin to connect the company LinkedIn page."));
 
-        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+        JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(jobPostingId))
                 .orElseThrow(() -> new RuntimeException("Job posting not found: " + jobPostingId));
 
         // Refresh token if needed

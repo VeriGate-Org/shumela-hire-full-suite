@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.*;
 class IndeedConnectorTest {
 
     @Mock
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Mock
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -88,7 +88,7 @@ class IndeedConnectorTest {
     @Test
     void testPostWithFullJobData() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobKey", "IND-ABC12345XYZ");
@@ -146,7 +146,7 @@ class IndeedConnectorTest {
     @Test
     void testPostDescriptionContainsAllFields() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobKey", "IND-DESC123");
@@ -178,7 +178,7 @@ class IndeedConnectorTest {
     @Test
     void testPostFailure() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("Indeed API timeout"));
 
@@ -204,7 +204,7 @@ class IndeedConnectorTest {
         existingPosting.setExternalPostId("IND-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
-        when(repository.findById(50L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("50")).thenReturn(Optional.of(existingPosting));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
@@ -224,7 +224,7 @@ class IndeedConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
 
-        when(repository.findById(60L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("60")).thenReturn(Optional.of(existingPosting));
 
         Map<String, Object> analytics = new HashMap<>();
         analytics.put("impressions", 500);
@@ -261,7 +261,7 @@ class IndeedConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().minusDays(2));
 
-        when(repository.findById(61L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("61")).thenReturn(Optional.of(existingPosting));
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("Network error"));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));

@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.Offer;
-import com.arthmatic.shumelahire.repository.OfferRepository;
+import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import com.arthmatic.shumelahire.service.ESignatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,14 +21,14 @@ public class ESignatureController {
     private ESignatureService eSignatureService;
 
     @Autowired
-    private OfferRepository offerRepository;
+    private OfferDataRepository offerRepository;
 
     @PostMapping("/offers/{offerId}/send")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> sendForSignature(
             @PathVariable Long offerId,
             @RequestBody Map<String, String> request) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         String signerEmail = request.get("signerEmail");
@@ -49,7 +49,7 @@ public class ESignatureController {
     @GetMapping("/offers/{offerId}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> getSignatureStatus(@PathVariable Long offerId) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {
@@ -67,7 +67,7 @@ public class ESignatureController {
     @GetMapping("/offers/{offerId}/document")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<byte[]> getSignedDocument(@PathVariable Long offerId) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {
@@ -94,7 +94,7 @@ public class ESignatureController {
     public ResponseEntity<?> voidEnvelope(
             @PathVariable Long offerId,
             @RequestBody Map<String, String> request) {
-        Offer offer = offerRepository.findById(offerId)
+        Offer offer = offerRepository.findById(String.valueOf(offerId))
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {

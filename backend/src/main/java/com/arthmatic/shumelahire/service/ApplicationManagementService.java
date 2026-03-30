@@ -3,18 +3,18 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.PipelineStage;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 @Transactional
 public class ApplicationManagementService {
 
-    private final ApplicationRepository applicationRepository;
-    private final ApplicantRepository applicantRepository;
+    private final ApplicationDataRepository applicationRepository;
+    private final ApplicantDataRepository applicantRepository;
     private final NotificationService notificationService;
 
     @Autowired(required = false)
     private BackgroundCheckService backgroundCheckService;
 
-    public ApplicationManagementService(ApplicationRepository applicationRepository,
-                                       ApplicantRepository applicantRepository,
+    public ApplicationManagementService(ApplicationDataRepository applicationRepository,
+                                       ApplicantDataRepository applicantRepository,
                                        NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.applicantRepository = applicantRepository;
@@ -58,67 +58,51 @@ public class ApplicationManagementService {
             String sortDirection,
             Pageable pageable) {
 
-        Specification<Application> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        List<Application> filtered = new ArrayList<>(applicationRepository.searchApplicationsFiltered(
+            searchTerm, statuses, departments, jobTitle, dateFrom, dateTo, minRating, maxRating));
 
-            // Text search across applicant name, job title, and cover letter
-            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-                String likePattern = "%" + searchTerm.toLowerCase() + "%";
-                Predicate searchPredicate = criteriaBuilder.or(
-                    criteriaBuilder.like(
-                        criteriaBuilder.lower(
-                            criteriaBuilder.concat(
-                                criteriaBuilder.concat(root.get("applicant").get("name"), " "),
-                                root.get("applicant").get("surname")
-                            )
-                        ),
-                        likePattern
-                    ),
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("jobTitle")), likePattern),
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("coverLetter")), likePattern),
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("applicant").get("email")), likePattern)
-                );
-                predicates.add(searchPredicate);
-            }
+        // Apply sorting
+        Comparator<Application> comparator = getComparator(sortBy, sortDirection);
+        if (comparator != null) {
+            filtered.sort(comparator);
+        }
 
-            // Status filtering
-            if (statuses != null && !statuses.isEmpty()) {
-                predicates.add(root.get("status").in(statuses));
-            }
+        // Apply pagination
+        if (pageable.isUnpaged()) {
+            return new PageImpl<>(filtered);
+        }
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<Application> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
+        return new PageImpl<>(pageContent, pageable, filtered.size());
+    }
 
-            // Department filtering
-            if (departments != null && !departments.isEmpty()) {
-                predicates.add(root.get("department").in(departments));
-            }
-
-            // Job title filtering
-            if (jobTitle != null && !jobTitle.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("jobTitle")),
-                    "%" + jobTitle.toLowerCase() + "%"
-                ));
-            }
-
-            // Date range filtering
-            if (dateFrom != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("submittedAt"), dateFrom));
-            }
-            if (dateTo != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("submittedAt"), dateTo));
-            }
-
-            // Rating filtering
-            if (minRating != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("rating"), minRating));
-            }
-            if (maxRating != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("rating"), maxRating));
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-
-        return applicationRepository.findAll(spec, pageable);
+    private Comparator<Application> getComparator(String sortBy, String sortDirection) {
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            return Comparator.comparing(Application::getSubmittedAt, Comparator.nullsLast(Comparator.reverseOrder()));
+        }
+        Comparator<Application> comparator;
+        switch (sortBy) {
+            case "submittedAt":
+                comparator = Comparator.comparing(Application::getSubmittedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "updatedAt":
+                comparator = Comparator.comparing(Application::getUpdatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "rating":
+                comparator = Comparator.comparing(Application::getRating, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "status":
+                comparator = Comparator.comparing(a -> a.getStatus() != null ? a.getStatus().name() : "", Comparator.naturalOrder());
+                break;
+            default:
+                comparator = Comparator.comparing(Application::getSubmittedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+        }
+        if ("desc".equalsIgnoreCase(sortDirection)) {
+            comparator = comparator.reversed();
+        }
+        return comparator;
     }
 
     /**
@@ -130,7 +114,7 @@ public class ApplicationManagementService {
             ApplicationStatus newStatus,
             String reason) {
 
-        List<Application> applications = applicationRepository.findAllById(applicationIds);
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
         List<Long> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
@@ -181,7 +165,7 @@ public class ApplicationManagementService {
             List<Long> applicationIds,
             PipelineStage pipelineStage) {
 
-        List<Application> applications = applicationRepository.findAllById(applicationIds);
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
         List<Long> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
@@ -233,7 +217,7 @@ public class ApplicationManagementService {
                     continue;
                 }
 
-                Application application = applicationRepository.findById(applicationId)
+                Application application = applicationRepository.findById(String.valueOf(applicationId))
                     .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
                 application.setRating(rating);
@@ -261,7 +245,7 @@ public class ApplicationManagementService {
      */
     @Transactional
     public Map<String, Object> bulkAddScreeningNotes(List<Long> applicationIds, String notes) {
-        List<Application> applications = applicationRepository.findAllById(applicationIds);
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
         List<Long> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
@@ -364,7 +348,7 @@ public class ApplicationManagementService {
             List<String> fields) {
 
         List<Application> applications = applicationIds != null && !applicationIds.isEmpty() ?
-            applicationRepository.findAllById(applicationIds) :
+            applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList())) :
             applicationRepository.findAll();
 
         return applications.stream().map(app -> {

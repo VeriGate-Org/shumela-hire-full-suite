@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.*;
 class CareerJunctionConnectorTest {
 
     @Mock
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Mock
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -92,7 +92,7 @@ class CareerJunctionConnectorTest {
     @Test
     void testPostWithFullJobData() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobId", "CJ-HR789012");
@@ -156,7 +156,7 @@ class CareerJunctionConnectorTest {
     void testPostWithRemoteJob() {
         // Given
         mockJobPosting.setRemoteWorkAllowed(true);
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobId", "CJ-REMOTE123");
@@ -186,7 +186,7 @@ class CareerJunctionConnectorTest {
     @Test
     void testPostDescriptionContainsAllFields() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobId", "CJ-DESC123");
@@ -220,7 +220,7 @@ class CareerJunctionConnectorTest {
     @Test
     void testPostFailure() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(Map.class)))
                 .thenThrow(new RuntimeException("CareerJunction API rate limit exceeded"));
 
@@ -246,7 +246,7 @@ class CareerJunctionConnectorTest {
         existingPosting.setExternalPostId("CJ-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
-        when(repository.findById(50L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("50")).thenReturn(Optional.of(existingPosting));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
@@ -268,7 +268,7 @@ class CareerJunctionConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
 
-        when(repository.findById(60L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("60")).thenReturn(Optional.of(existingPosting));
 
         Map<String, Object> analytics = new HashMap<>();
         analytics.put("views", 250);
@@ -305,7 +305,7 @@ class CareerJunctionConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(5));
 
-        when(repository.findById(61L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("61")).thenReturn(Optional.of(existingPosting));
 
         Map<String, Object> analytics = new HashMap<>();
         analytics.put("views", 100);
@@ -332,7 +332,7 @@ class CareerJunctionConnectorTest {
     void testSeniorityLevelMapping() {
         // Given — test Entry Level mapping
         mockJobPosting.setExperienceLevel(ExperienceLevel.ENTRY_LEVEL);
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("jobId", "CJ-ENTRY123");

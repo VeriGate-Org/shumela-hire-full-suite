@@ -2,43 +2,27 @@ package com.arthmatic.shumelahire.entity.compliance;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "consent_records")
 public class ConsentRecord extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column(name = "consent_type", nullable = false, length = 50)
     private String consentType;
 
-    @Column(columnDefinition = "TEXT")
     private String purpose;
 
-    @Column(name = "is_granted", nullable = false)
     private Boolean isGranted = false;
 
-    @Column(name = "granted_at")
     private LocalDateTime grantedAt;
 
-    @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
-    @Column(name = "ip_address", length = 50)
     private String ipAddress;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Long getId() { return id; }

@@ -1,40 +1,25 @@
 package com.arthmatic.shumelahire.entity.integration;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "lms_sync_logs")
 public class LmsSyncLog extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "connector_id", nullable = false)
     private LmsConnectorConfig connector;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sync_type", nullable = false, length = 30)
     private LmsSyncType syncType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
     private LmsSyncStatus status;
 
-    @Column(name = "records_synced")
     private Integer recordsSynced = 0;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     public LmsSyncLog() {}

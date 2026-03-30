@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.DepartmentRequest;
 import com.arthmatic.shumelahire.entity.Department;
-import com.arthmatic.shumelahire.repository.DepartmentRepository;
+import com.arthmatic.shumelahire.repository.DepartmentDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import java.util.List;
 public class DepartmentService {
 
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private DepartmentDataRepository departmentRepository;
 
     @Autowired
     private SlugGeneratorService slugGeneratorService;
@@ -40,7 +40,7 @@ public class DepartmentService {
     }
 
     public Department update(Long id, DepartmentRequest request) {
-        Department department = departmentRepository.findById(id)
+        Department department = departmentRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
 
         boolean nameChanged = !department.getName().equals(request.getName());
@@ -65,18 +65,18 @@ public class DepartmentService {
 
     @Transactional(readOnly = true)
     public Department getById(Long id) {
-        return departmentRepository.findById(id)
+        return departmentRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<Department> getAll() {
-        return departmentRepository.findAllByOrderByNameAsc();
+        return departmentRepository.findAllOrderByName();
     }
 
     @Transactional(readOnly = true)
     public List<Department> getActive() {
-        return departmentRepository.findByIsActiveTrueOrderByNameAsc();
+        return departmentRepository.findActiveOrderByName();
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +85,7 @@ public class DepartmentService {
     }
 
     public Department deactivate(Long id) {
-        Department department = departmentRepository.findById(id)
+        Department department = departmentRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
         department.setIsActive(false);
         Department saved = departmentRepository.save(department);
@@ -95,7 +95,7 @@ public class DepartmentService {
     }
 
     public Department activate(Long id) {
-        Department department = departmentRepository.findById(id)
+        Department department = departmentRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
         department.setIsActive(true);
         Department saved = departmentRepository.save(department);

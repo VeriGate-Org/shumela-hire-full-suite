@@ -18,8 +18,6 @@ public sealed class EnvironmentConfig
     public string[] CorsOrigins => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}", $"https://*.{DomainName}" },
-        "ppe" => new[] { $"https://ppe.{DomainName}", $"https://*.ppe.{DomainName}" },
-        // sbx environment removed — dev handles cloud deployments via "cloud" Spring profile
         "dev" => new[] { $"https://dev.{DomainName}", $"https://*.dev.{DomainName}", "http://localhost:3000", "http://*.localhost:3000" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001", "http://*.localhost:3000" }
     };

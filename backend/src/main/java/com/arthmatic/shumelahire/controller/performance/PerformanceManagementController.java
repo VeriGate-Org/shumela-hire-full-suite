@@ -6,15 +6,13 @@ import com.arthmatic.shumelahire.entity.performance.PerformanceContract;
 import com.arthmatic.shumelahire.entity.performance.PerformanceTemplate;
 import com.arthmatic.shumelahire.service.performance.PerformanceManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -42,13 +40,10 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/cycles")
-    public ResponseEntity<Page<PerformanceCycle>> getCycles(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<PerformanceCycle>> getCycles() {
 
         String tenantId = TenantContext.requireCurrentTenant();
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceCycle> cycles = performanceService.getCycles(tenantId, pageable);
+        List<PerformanceCycle> cycles = performanceService.getCycles(tenantId);
         return ResponseEntity.ok(cycles);
     }
 
@@ -91,13 +86,10 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/contracts")
-    public ResponseEntity<Page<PerformanceContract>> getContracts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<PerformanceContract>> getContracts() {
 
         String tenantId = TenantContext.requireCurrentTenant();
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceContract> contracts = performanceService.getContracts(tenantId, pageable);
+        List<PerformanceContract> contracts = performanceService.getContracts(tenantId);
         return ResponseEntity.ok(contracts);
     }
 
@@ -158,13 +150,10 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/templates")
-    public ResponseEntity<Page<PerformanceTemplate>> getTemplates(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<PerformanceTemplate>> getTemplates() {
 
         String tenantId = TenantContext.requireCurrentTenant();
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceTemplate> templates = performanceService.getTemplates(tenantId, pageable);
+        List<PerformanceTemplate> templates = performanceService.getTemplates(tenantId);
         return ResponseEntity.ok(templates);
     }
 

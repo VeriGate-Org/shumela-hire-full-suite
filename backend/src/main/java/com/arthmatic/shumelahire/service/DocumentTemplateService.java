@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.DocumentTemplateRequest;
 import com.arthmatic.shumelahire.dto.DocumentTemplateResponse;
 import com.arthmatic.shumelahire.entity.DocumentTemplate;
-import com.arthmatic.shumelahire.repository.DocumentTemplateRepository;
+import com.arthmatic.shumelahire.repository.DocumentTemplateDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class DocumentTemplateService {
 
     @Autowired
-    private DocumentTemplateRepository repository;
+    private DocumentTemplateDataRepository repository;
 
     @Transactional
     public DocumentTemplateResponse create(DocumentTemplateRequest.Create request) {
@@ -41,7 +41,7 @@ public class DocumentTemplateService {
     }
 
     public DocumentTemplateResponse get(Long id) {
-        return repository.findById(id)
+        return repository.findById(String.valueOf(id))
                 .map(DocumentTemplateResponse::fromEntity)
                 .orElse(null);
     }
@@ -55,7 +55,7 @@ public class DocumentTemplateService {
 
     @Transactional
     public DocumentTemplateResponse update(Long id, DocumentTemplateRequest.Update request) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(id);
+        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -79,14 +79,14 @@ public class DocumentTemplateService {
 
     @Transactional
     public boolean delete(Long id) {
-        if (!repository.existsById(id)) return false;
-        repository.deleteById(id);
+        if (!repository.existsById(String.valueOf(id))) return false;
+        repository.deleteById(String.valueOf(id));
         return true;
     }
 
     @Transactional
     public DocumentTemplateResponse duplicate(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(id);
+        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate original = optTemplate.get();
@@ -105,7 +105,7 @@ public class DocumentTemplateService {
 
     @Transactional
     public DocumentTemplateResponse archive(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(id);
+        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -116,7 +116,7 @@ public class DocumentTemplateService {
 
     @Transactional
     public DocumentTemplateResponse setDefault(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(id);
+        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -142,13 +142,13 @@ public class DocumentTemplateService {
     }
 
     public String previewTemplate(Long id, Map<String, String> sampleData) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(id);
+        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
         if (optTemplate.isEmpty()) return null;
         return replacePlaceholders(optTemplate.get().getContent(), sampleData);
     }
 
     private void unsetDefaultForType(String type) {
-        repository.findByTypeAndIsDefaultTrue(type).ifPresent(existing -> {
+        repository.findDefaultByType(type).ifPresent(existing -> {
             existing.setIsDefault(false);
             repository.save(existing);
         });
