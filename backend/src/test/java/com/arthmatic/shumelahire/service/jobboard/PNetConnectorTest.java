@@ -1,8 +1,8 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +28,10 @@ import static org.mockito.Mockito.*;
 class PNetConnectorTest {
 
     @Mock
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Mock
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Mock
     private AuditLogService auditLogService;
@@ -87,7 +87,7 @@ class PNetConnectorTest {
     @Test
     void testPostWithFullXmlPayload() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         String xmlResponse = "<response><jobId>PNET-DATA123</jobId><status>active</status></response>";
         when(restTemplate.exchange(contains("/jobs"), eq(HttpMethod.POST), any(), eq(String.class)))
@@ -145,7 +145,7 @@ class PNetConnectorTest {
     void testPostWithXmlSpecialCharacters() {
         // Given
         mockJobPosting.setTitle("Data Analyst & Reporting Lead <Senior>");
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         String xmlResponse = "<response><jobId>PNET-ESC123</jobId></response>";
         when(restTemplate.exchange(contains("/jobs"), eq(HttpMethod.POST), any(), eq(String.class)))
@@ -175,7 +175,7 @@ class PNetConnectorTest {
     @Test
     void testPostFailure() {
         // Given
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
                 .thenThrow(new RuntimeException("PNet API unavailable"));
 
@@ -201,7 +201,7 @@ class PNetConnectorTest {
         existingPosting.setExternalPostId("PNET-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
-        when(repository.findById(50L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("50")).thenReturn(Optional.of(existingPosting));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
@@ -221,7 +221,7 @@ class PNetConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
 
-        when(repository.findById(60L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("60")).thenReturn(Optional.of(existingPosting));
 
         String xmlResponse = "<job><views>300</views><clicks>85</clicks><applications>15</applications><status>active</status></job>";
         when(restTemplate.exchange(contains("PNET-SYNC123"), eq(HttpMethod.GET), any(), eq(String.class)))
@@ -248,7 +248,7 @@ class PNetConnectorTest {
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(5));
 
-        when(repository.findById(61L)).thenReturn(Optional.of(existingPosting));
+        when(repository.findById("61")).thenReturn(Optional.of(existingPosting));
 
         String xmlResponse = "<job><views>100</views><clicks>20</clicks><applications>5</applications><status>expired</status></job>";
         when(restTemplate.exchange(contains("PNET-EXP123"), eq(HttpMethod.GET), any(), eq(String.class)))
@@ -267,7 +267,7 @@ class PNetConnectorTest {
     void testContractTypeMapping() {
         // Given — test Part-Time mapping
         mockJobPosting.setEmploymentType(EmploymentType.PART_TIME);
-        when(jobPostingRepository.findById(1L)).thenReturn(Optional.of(mockJobPosting));
+        when(jobPostingRepository.findById("1")).thenReturn(Optional.of(mockJobPosting));
 
         String xmlResponse = "<response><jobId>PNET-PT123</jobId></response>";
         when(restTemplate.exchange(contains("/jobs"), eq(HttpMethod.POST), any(), eq(String.class)))
