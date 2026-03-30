@@ -3,8 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.ReportExportJobResponse;
 import com.arthmatic.shumelahire.dto.ReportExportRequest;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.ReportExportJobRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.ReportExportJobDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +22,10 @@ public class ReportExportService {
     private static final Logger logger = LoggerFactory.getLogger(ReportExportService.class);
 
     @Autowired
-    private ReportExportJobRepository exportJobRepository;
+    private ReportExportJobDataRepository exportJobRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -35,7 +35,7 @@ public class ReportExportService {
      * immediately marks it as completed with a placeholder file URL.
      */
     public ReportExportJobResponse queueExport(ReportExportRequest request) {
-        Employee requestedBy = employeeRepository.findById(request.getRequestedBy())
+        Employee requestedBy = employeeRepository.findById(String.valueOf(request.getRequestedBy()))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getRequestedBy()));
 
         ReportExportJob job = new ReportExportJob();
@@ -64,14 +64,14 @@ public class ReportExportService {
 
     @Transactional(readOnly = true)
     public List<ReportExportJobResponse> getByUser(Long employeeId) {
-        return exportJobRepository.findByRequestedByIdOrderByCreatedAtDesc(employeeId).stream()
+        return exportJobRepository.findByRequestedByIdOrderByCreatedAtDesc(String.valueOf(employeeId)).stream()
                 .map(ReportExportJobResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public ReportExportJobResponse getById(Long id) {
-        ReportExportJob job = exportJobRepository.findById(id)
+        ReportExportJob job = exportJobRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Export job not found: " + id));
         return ReportExportJobResponse.fromEntity(job);
     }

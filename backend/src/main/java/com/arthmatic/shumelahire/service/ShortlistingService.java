@@ -3,8 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.ShortlistScore;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.ShortlistScoreRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.ShortlistScoreDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ public class ShortlistingService {
     private static final double KEYWORD_WEIGHT = 0.10;
 
     @Autowired
-    private ShortlistScoreRepository shortlistScoreRepository;
+    private ShortlistScoreDataRepository shortlistScoreRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -40,10 +40,10 @@ public class ShortlistingService {
 
     @Transactional
     public ShortlistScore calculateScore(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
+        Application application = applicationRepository.findById(String.valueOf(applicationId))
             .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
-        ShortlistScore score = shortlistScoreRepository.findByApplicationId(applicationId)
+        ShortlistScore score = shortlistScoreRepository.findByApplicationId(String.valueOf(applicationId))
             .orElse(new ShortlistScore());
 
         double skillsScore = calculateSkillsScore(application);
@@ -83,7 +83,7 @@ public class ShortlistingService {
 
     @Transactional
     public List<ShortlistScore> calculateScoresForJobPosting(Long jobPostingId) {
-        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobPostingId);
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(String.valueOf(jobPostingId));
         return applications.stream()
             .map(app -> calculateScore(app.getId()))
             .toList();
@@ -93,7 +93,7 @@ public class ShortlistingService {
     public List<ShortlistScore> autoShortlist(Long jobPostingId, double threshold) {
         calculateScoresForJobPosting(jobPostingId);
 
-        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
+        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(String.valueOf(jobPostingId));
         for (ShortlistScore score : scores) {
             boolean shortlisted = score.getTotalScore() >= threshold;
             score.setIsShortlisted(shortlisted);
@@ -114,7 +114,7 @@ public class ShortlistingService {
 
     @Transactional
     public ShortlistScore overrideShortlistDecision(Long scoreId, boolean include, String reason, Long userId) {
-        ShortlistScore score = shortlistScoreRepository.findById(scoreId)
+        ShortlistScore score = shortlistScoreRepository.findById(String.valueOf(scoreId))
             .orElseThrow(() -> new RuntimeException("Score not found: " + scoreId));
 
         score.setIsShortlisted(include);
@@ -126,7 +126,7 @@ public class ShortlistingService {
     }
 
     public Map<String, Object> getShortlistingSummary(Long jobPostingId) {
-        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
+        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(String.valueOf(jobPostingId));
 
         long shortlisted = scores.stream().filter(ShortlistScore::getIsShortlisted).count();
         double avgScore = scores.stream().mapToDouble(ShortlistScore::getTotalScore).average().orElse(0);

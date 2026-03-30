@@ -15,6 +15,17 @@ import JobDetailClient from '@/components/JobDetailClient';
 import { formatSalaryRange } from '@/utils/currency';
 import { fetchJobBySlug } from '@/lib/jobs-api';
 
+/**
+ * Static export: return empty array so the build succeeds.
+ * Job detail pages will be pre-rendered at build time if slugs are enumerable,
+ * but for now jobs are dynamic API data. Direct URL access to /jobs/[slug]
+ * requires a CloudFront fallback rule to serve index.html for SPA routing,
+ * or this page should be converted to a 'use client' component in a follow-up.
+ */
+export function generateStaticParams() {
+  return [];
+}
+
 const stripHtmlTags = (html: string): string =>
   html.replace(/<[^>]*>/g, '').trim();
 

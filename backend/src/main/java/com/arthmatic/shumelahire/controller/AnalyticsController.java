@@ -29,9 +29,12 @@ public class AnalyticsController {
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboardMetrics(
             @RequestParam(required = false) String department,
-            @RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}") 
+            @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        
+
+        if (date == null) {
+            date = LocalDate.now();
+        }
         Map<String, Object> dashboard = analyticsService.getDashboardMetrics(department, date);
         return ResponseEntity.ok(dashboard);
     }

@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class SecurityMonitoringService {
     private static final Logger securityLogger = LoggerFactory.getLogger("SECURITY");
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Autowired
     private AuditLogService auditLogService;

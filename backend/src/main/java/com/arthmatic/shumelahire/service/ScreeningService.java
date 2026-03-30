@@ -3,8 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.ScreeningAnswer;
 import com.arthmatic.shumelahire.entity.ScreeningQuestion;
 import com.arthmatic.shumelahire.entity.QuestionType;
-import com.arthmatic.shumelahire.repository.ScreeningAnswerRepository;
-import com.arthmatic.shumelahire.repository.ScreeningQuestionRepository;
+import com.arthmatic.shumelahire.repository.ScreeningAnswerDataRepository;
+import com.arthmatic.shumelahire.repository.ScreeningQuestionDataRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ import java.util.regex.Pattern;
 public class ScreeningService {
     
     @Autowired
-    private ScreeningQuestionRepository questionRepository;
-    
+    private ScreeningQuestionDataRepository questionRepository;
+
     @Autowired
-    private ScreeningAnswerRepository answerRepository;
+    private ScreeningAnswerDataRepository answerRepository;
     
     @Autowired
     private AuditLogService auditLogService;
@@ -35,7 +35,7 @@ public class ScreeningService {
         validateQuestion(question);
         
         if (question.getDisplayOrder() == null || question.getDisplayOrder() == 0) {
-            Integer maxOrder = questionRepository.findMaxDisplayOrderByJobPostingId(question.getJobPostingId());
+            Integer maxOrder = questionRepository.findMaxDisplayOrderByJobPostingId(String.valueOf(question.getJobPostingId()));
             question.setDisplayOrder(maxOrder != null ? maxOrder + 1 : 1);
         }
         
@@ -51,7 +51,7 @@ public class ScreeningService {
     }
     
     public ScreeningQuestion updateQuestion(Long questionId, ScreeningQuestion questionUpdate) {
-        ScreeningQuestion existing = questionRepository.findById(questionId)
+        ScreeningQuestion existing = questionRepository.findById(String.valueOf(questionId))
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
         existing.setQuestionText(questionUpdate.getQuestionText());
@@ -76,7 +76,7 @@ public class ScreeningService {
     }
     
     public void deleteQuestion(Long questionId) {
-        ScreeningQuestion question = questionRepository.findById(questionId)
+        ScreeningQuestion question = questionRepository.findById(String.valueOf(questionId))
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
         question.setIsActive(false);
@@ -90,15 +90,15 @@ public class ScreeningService {
     }
     
     public List<ScreeningQuestion> getQuestionsByJobPosting(Long jobPostingId) {
-        return questionRepository.findActiveQuestionsByJobPostingIdOrderedByDisplay(jobPostingId);
+        return questionRepository.findActiveQuestionsByJobPostingIdOrderedByDisplay(String.valueOf(jobPostingId));
     }
     
     // Answer Management
     public ScreeningAnswer saveAnswer(Long applicationId, Long questionId, String answerValue, String answerFileUrl, String answerFileName) {
-        ScreeningQuestion question = questionRepository.findById(questionId)
+        ScreeningQuestion question = questionRepository.findById(String.valueOf(questionId))
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
-        Optional<ScreeningAnswer> existingAnswer = answerRepository.findByApplicationIdAndScreeningQuestionId(applicationId, questionId);
+        Optional<ScreeningAnswer> existingAnswer = answerRepository.findByApplicationIdAndScreeningQuestionId(String.valueOf(applicationId), String.valueOf(questionId));
         
         ScreeningAnswer answer;
         if (existingAnswer.isPresent()) {
@@ -126,11 +126,11 @@ public class ScreeningService {
     }
     
     public List<ScreeningAnswer> getAnswersByApplication(Long applicationId) {
-        return answerRepository.findByApplicationIdOrderedByQuestionDisplay(applicationId);
+        return answerRepository.findByApplicationIdOrderedByQuestionDisplay(String.valueOf(applicationId));
     }
     
     public void deleteAnswersByApplication(Long applicationId) {
-        answerRepository.deleteByApplicationId(applicationId);
+        answerRepository.deleteByApplicationId(String.valueOf(applicationId));
         
         auditLogService.logSystemAction(
             "SCREENING_ANSWERS_DELETED",
@@ -141,15 +141,15 @@ public class ScreeningService {
     
     // Validation
     public boolean validateApplicationAnswers(Long applicationId) {
-        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(applicationId);
-        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(applicationId);
+        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(String.valueOf(applicationId));
+        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(String.valueOf(applicationId));
         
         return missingRequired == 0 && invalidAnswers == 0;
     }
     
     public String getValidationSummary(Long applicationId) {
-        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(applicationId);
-        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(applicationId);
+        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(String.valueOf(applicationId));
+        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(String.valueOf(applicationId));
         
         if (missingRequired == 0 && invalidAnswers == 0) {
             return "All screening questions completed successfully";
@@ -191,7 +191,7 @@ public class ScreeningService {
             }
         }
         
-        if (questionRepository.existsByJobPostingIdAndQuestionTextAndIsActiveTrue(question.getJobPostingId(), question.getQuestionText())) {
+        if (questionRepository.existsByJobPostingIdAndQuestionTextAndIsActiveTrue(String.valueOf(question.getJobPostingId()), question.getQuestionText())) {
             throw new IllegalArgumentException("A question with this text already exists for this job posting");
         }
     }

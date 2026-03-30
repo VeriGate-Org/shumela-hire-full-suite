@@ -3,12 +3,13 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.PlatformFeature;
 import com.arthmatic.shumelahire.entity.Tenant;
 import com.arthmatic.shumelahire.entity.TenantFeatureEntitlement;
-import com.arthmatic.shumelahire.repository.PlatformFeatureRepository;
-import com.arthmatic.shumelahire.repository.TenantFeatureEntitlementRepository;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.PlatformFeatureDataRepository;
+import com.arthmatic.shumelahire.repository.TenantFeatureEntitlementDataRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +23,13 @@ public class PlatformAdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlatformAdminService.class);
 
-    private final PlatformFeatureRepository featureRepository;
-    private final TenantFeatureEntitlementRepository entitlementRepository;
-    private final TenantRepository tenantRepository;
+    private final PlatformFeatureDataRepository featureRepository;
+    private final TenantFeatureEntitlementDataRepository entitlementRepository;
+    private final TenantDataRepository tenantRepository;
 
-    public PlatformAdminService(PlatformFeatureRepository featureRepository,
-                                 TenantFeatureEntitlementRepository entitlementRepository,
-                                 TenantRepository tenantRepository) {
+    public PlatformAdminService(PlatformFeatureDataRepository featureRepository,
+                                 TenantFeatureEntitlementDataRepository entitlementRepository,
+                                 TenantDataRepository tenantRepository) {
         this.featureRepository = featureRepository;
         this.entitlementRepository = entitlementRepository;
         this.tenantRepository = tenantRepository;
@@ -57,7 +58,7 @@ public class PlatformAdminService {
     }
 
     public PlatformFeature updateFeature(Long id, UpdateFeatureRequest request) {
-        PlatformFeature feature = featureRepository.findById(id)
+        PlatformFeature feature = featureRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Feature not found: " + id));
 
         if (request.name() != null) feature.setName(request.name());
@@ -70,16 +71,21 @@ public class PlatformAdminService {
     }
 
     public void deleteFeature(Long id) {
-        if (!featureRepository.existsById(id)) {
+        if (!featureRepository.existsById(String.valueOf(id))) {
             throw new IllegalArgumentException("Feature not found: " + id);
         }
-        featureRepository.deleteById(id);
+        featureRepository.deleteById(String.valueOf(id));
     }
 
     // --- Tenant Management ---
 
     public Page<Tenant> listAllTenants(Pageable pageable) {
-        return tenantRepository.findAll(pageable);
+        // TenantDataRepository only exposes findAll(); paginate in-memory
+        List<Tenant> all = tenantRepository.findAll();
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), all.size());
+        List<Tenant> pageContent = start >= all.size() ? List.of() : all.subList(start, end);
+        return new PageImpl<>(pageContent, pageable, all.size());
     }
 
     public Tenant getTenant(String tenantId) {
@@ -132,12 +138,12 @@ public class PlatformAdminService {
         if (!tenantRepository.existsById(tenantId)) {
             throw new IllegalArgumentException("Tenant not found: " + tenantId);
         }
-        if (!featureRepository.existsById(featureId)) {
+        if (!featureRepository.existsById(String.valueOf(featureId))) {
             throw new IllegalArgumentException("Feature not found: " + featureId);
         }
 
         TenantFeatureEntitlement entitlement = entitlementRepository
-                .findByTenantIdAndFeatureId(tenantId, featureId)
+                .findByTenantIdAndFeatureId(tenantId, String.valueOf(featureId))
                 .orElseGet(() -> {
                     TenantFeatureEntitlement e = new TenantFeatureEntitlement();
                     e.setTenantId(tenantId);
@@ -158,7 +164,7 @@ public class PlatformAdminService {
 
     @Transactional
     public void removeEntitlement(String tenantId, Long featureId) {
-        entitlementRepository.deleteByTenantIdAndFeatureId(tenantId, featureId);
+        entitlementRepository.deleteByTenantIdAndFeatureId(tenantId, String.valueOf(featureId));
         logger.info("Removed feature entitlement override: tenant={}, featureId={}", tenantId, featureId);
     }
 

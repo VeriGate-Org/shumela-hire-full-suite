@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.PostingStatus;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +34,10 @@ public class PNetConnector implements JobBoardConnector {
     private String apiKey;
 
     @Autowired
-    private JobBoardPostingRepository repository;
+    private JobBoardPostingDataRepository repository;
 
     @Autowired
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -201,7 +201,7 @@ public class PNetConnector implements JobBoardConnector {
 
         try {
             // Load full job posting data
-            JobPosting jp = jobPostingRepository.findById(Long.parseLong(jobPostingId))
+            JobPosting jp = jobPostingRepository.findById(jobPostingId)
                     .orElseThrow(() -> new RuntimeException("Job posting not found: " + jobPostingId));
 
             HttpHeaders headers = new HttpHeaders();
@@ -249,7 +249,7 @@ public class PNetConnector implements JobBoardConnector {
 
     @Override
     public JobBoardPosting remove(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
         try {
@@ -278,7 +278,7 @@ public class PNetConnector implements JobBoardConnector {
 
     @Override
     public JobBoardPosting sync(Long postingId) {
-        JobBoardPosting posting = repository.findById(postingId)
+        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
         try {

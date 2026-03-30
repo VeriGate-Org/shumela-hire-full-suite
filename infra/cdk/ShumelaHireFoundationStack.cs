@@ -1,9 +1,5 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
-using Amazon.CDK.AWS.ECR;
-using Amazon.CDK.AWS.Logs;
-using Amazon.CDK.AWS.RDS;
-using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.SQS;
 using Amazon.CDK.AWS.SecretsManager;
@@ -17,18 +13,11 @@ namespace ShumelaHire.Infra;
 public class ShumelaHireFoundationStack : Stack
 {
     public IVpc Vpc { get; }
-    public ISecurityGroup EcsSecurityGroup { get; }
-    public ISecurityGroup AlbSecurityGroup { get; }
-    public DatabaseCluster Database { get; }
     public Bucket DocumentsBucket { get; }
     public Bucket UploadsBucket { get; }
     public Queue NotificationQueue { get; }
     public UserPool UserPool { get; }
     public UserPoolClient AppClient { get; }
-    public string RedisEndpointAddress { get; }
-    public Repository BackendEcrRepo { get; }
-    public Repository FrontendEcrRepo { get; }
-    public ILogGroup EcsLogGroup { get; }
     public Secret JwtSecret { get; }
     public Secret EncryptionKeySecret { get; }
     public Secret AiKeysSecret { get; }
@@ -36,12 +25,12 @@ public class ShumelaHireFoundationStack : Stack
     public ShumelaHireFoundationStack(Construct scope, string id, EnvironmentConfig config,
         IStackProps? props = null) : base(scope, id, props)
     {
-        // ── VPC ──────────────────────────────────────────────────────────────
+        // ── VPC (no NAT — Lambda uses VPC endpoints or runs outside VPC) ────
         Vpc = new Vpc(this, "Vpc", new VpcProps
         {
             VpcName = $"{config.Prefix}-vpc",
             MaxAzs = 2,
-            NatGateways = config.IsProduction ? 2 : 1,
+            NatGateways = 0,
             SubnetConfiguration = new[]
             {
                 new SubnetConfiguration
@@ -52,109 +41,12 @@ public class ShumelaHireFoundationStack : Stack
                 },
                 new SubnetConfiguration
                 {
-                    Name = "private",
-                    SubnetType = SubnetType.PRIVATE_WITH_EGRESS,
-                    CidrMask = 24
-                },
-                new SubnetConfiguration
-                {
                     Name = "isolated",
                     SubnetType = SubnetType.PRIVATE_ISOLATED,
                     CidrMask = 24
                 }
             }
         });
-
-        // ── Security Groups ──────────────────────────────────────────────────
-        var dbSecurityGroup = new SecurityGroup(this, "DbSecurityGroup", new SecurityGroupProps
-        {
-            Vpc = Vpc,
-            SecurityGroupName = $"{config.Prefix}-db-sg",
-            Description = "Security group for Aurora database",
-            AllowAllOutbound = false
-        });
-
-        var redisSecurityGroup = new SecurityGroup(this, "RedisSecurityGroup", new SecurityGroupProps
-        {
-            Vpc = Vpc,
-            SecurityGroupName = $"{config.Prefix}-redis-sg",
-            Description = "Security group for ElastiCache Redis",
-            AllowAllOutbound = false
-        });
-
-        EcsSecurityGroup = new SecurityGroup(this, "EcsSecurityGroup", new SecurityGroupProps
-        {
-            Vpc = Vpc,
-            SecurityGroupName = $"{config.Prefix}-ecs-sg",
-            Description = "Security group for ECS tasks"
-        });
-
-        AlbSecurityGroup = new SecurityGroup(this, "AlbSecurityGroup", new SecurityGroupProps
-        {
-            Vpc = Vpc,
-            SecurityGroupName = $"{config.Prefix}-alb-sg",
-            Description = "Security group for ALB",
-            AllowAllOutbound = true
-        });
-        AlbSecurityGroup.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(443), "HTTPS");
-        AlbSecurityGroup.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(80), "HTTP redirect");
-
-        dbSecurityGroup.AddIngressRule(EcsSecurityGroup, Port.Tcp(5432), "Allow ECS to Aurora");
-        redisSecurityGroup.AddIngressRule(EcsSecurityGroup, Port.Tcp(6379), "Allow ECS to Redis");
-
-        // ── Aurora Serverless v2 (PostgreSQL 15) ─────────────────────────────
-        Database = new DatabaseCluster(this, "Database", new DatabaseClusterProps
-        {
-            ClusterIdentifier = $"{config.Prefix}-db",
-            Engine = DatabaseClusterEngine.AuroraPostgres(new AuroraPostgresClusterEngineProps
-            {
-                Version = AuroraPostgresEngineVersion.VER_15_8
-            }),
-            ServerlessV2MinCapacity = config.IsProduction ? 2 : 0.5,
-            ServerlessV2MaxCapacity = config.IsProduction ? 16 : 2,
-            Writer = ClusterInstance.ServerlessV2("writer", new ServerlessV2ClusterInstanceProps
-            {
-                PubliclyAccessible = false
-            }),
-            Readers = config.IsProduction
-                ? new[] { ClusterInstance.ServerlessV2("reader", new ServerlessV2ClusterInstanceProps { ScaleWithWriter = true }) }
-                : System.Array.Empty<IClusterInstance>(),
-            Vpc = Vpc,
-            VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PRIVATE_ISOLATED },
-            SecurityGroups = new[] { dbSecurityGroup },
-            DefaultDatabaseName = "shumelahire",
-            StorageEncrypted = true,
-            DeletionProtection = config.IsProduction,
-            RemovalPolicy = config.IsProduction ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-            Credentials = Credentials.FromGeneratedSecret("shumelahire_admin", new CredentialsBaseOptions
-            {
-                SecretName = $"{config.Prefix}/db-credentials"
-            })
-        });
-
-        // ── ElastiCache Redis ────────────────────────────────────────────────
-        var redisSubnetGroup = new CfnSubnetGroup(this, "RedisSubnetGroup", new CfnSubnetGroupProps
-        {
-            CacheSubnetGroupName = $"{config.Prefix}-redis-subnet",
-            Description = "Subnet group for Redis",
-            SubnetIds = Vpc.SelectSubnets(new SubnetSelection
-            {
-                SubnetType = SubnetType.PRIVATE_ISOLATED
-            }).SubnetIds
-        });
-
-        var redis = new CfnCacheCluster(this, "Redis", new CfnCacheClusterProps
-        {
-            ClusterName = $"{config.Prefix}-redis",
-            Engine = "redis",
-            EngineVersion = "7.1",
-            CacheNodeType = config.IsProduction ? "cache.r7g.large" : "cache.t3.micro",
-            NumCacheNodes = 1,
-            CacheSubnetGroupName = redisSubnetGroup.CacheSubnetGroupName,
-            VpcSecurityGroupIds = new[] { redisSecurityGroup.SecurityGroupId }
-        });
-        redis.AddDependency(redisSubnetGroup);
-        RedisEndpointAddress = redis.AttrRedisEndpointAddress;
 
         // ── S3 Buckets ───────────────────────────────────────────────────────
         DocumentsBucket = new Bucket(this, "DocumentsBucket", new BucketProps
@@ -397,47 +289,8 @@ public class ShumelaHireFoundationStack : Stack
             (AppClient.Node.DefaultChild as CfnUserPoolClient)?.AddDependency(linkedInIdp);
         }
 
-        // ── ECR Repositories ───────────────────────────────────────────────
-        BackendEcrRepo = new Repository(this, "BackendRepo", new RepositoryProps
-        {
-            RepositoryName = "shumelahire-backend",
-            RemovalPolicy = RemovalPolicy.RETAIN,
-            LifecycleRules = new[]
-            {
-                new Amazon.CDK.AWS.ECR.LifecycleRule
-                {
-                    MaxImageCount = 10,
-                    Description = "Keep last 10 images"
-                }
-            }
-        });
-
-        FrontendEcrRepo = new Repository(this, "FrontendRepo", new RepositoryProps
-        {
-            RepositoryName = "shumelahire-frontend",
-            RemovalPolicy = RemovalPolicy.RETAIN,
-            LifecycleRules = new[]
-            {
-                new Amazon.CDK.AWS.ECR.LifecycleRule
-                {
-                    MaxImageCount = 10,
-                    Description = "Keep last 10 images"
-                }
-            }
-        });
-
-        // ── ECS Log Group ──────────────────────────────────────────────────
-        EcsLogGroup = new LogGroup(this, "EcsLogGroup", new LogGroupProps
-        {
-            LogGroupName = $"/ecs/{config.Prefix}",
-            Retention = config.IsProduction ? RetentionDays.THREE_MONTHS : RetentionDays.ONE_WEEK,
-            RemovalPolicy = RemovalPolicy.RETAIN
-        });
-
         // ── CfnOutputs ──────────────────────────────────────────────────────
         new CfnOutput(this, "VpcId", new CfnOutputProps { Value = Vpc.VpcId });
-        new CfnOutput(this, "DatabaseEndpoint", new CfnOutputProps { Value = Database.ClusterEndpoint.Hostname });
-        new CfnOutput(this, "RedisEndpoint", new CfnOutputProps { Value = RedisEndpointAddress });
         new CfnOutput(this, "DocumentsBucketName", new CfnOutputProps { Value = DocumentsBucket.BucketName });
         new CfnOutput(this, "UploadsBucketName", new CfnOutputProps { Value = UploadsBucket.BucketName });
         new CfnOutput(this, "NotificationQueueUrl", new CfnOutputProps { Value = NotificationQueue.QueueUrl });
@@ -447,7 +300,5 @@ public class ShumelaHireFoundationStack : Stack
         {
             Value = $"{config.CognitoDomainPrefix}.auth.{config.Region}.amazoncognito.com"
         });
-        new CfnOutput(this, "BackendEcrRepoUri", new CfnOutputProps { Value = BackendEcrRepo.RepositoryUri });
-        new CfnOutput(this, "FrontendEcrRepoUri", new CfnOutputProps { Value = FrontendEcrRepo.RepositoryUri });
     }
 }

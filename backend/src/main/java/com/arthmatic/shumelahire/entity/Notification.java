@@ -1,142 +1,96 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "notifications")
 public class Notification extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "recipient_id", nullable = false)
     @NotNull(message = "Recipient is required")
     private Long recipientId;
 
-    @Column(name = "sender_id")
     private Long senderId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
     private NotificationType type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "channel", nullable = false)
     private NotificationChannel channel = NotificationChannel.IN_APP;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority", nullable = false)
     private NotificationPriority priority = NotificationPriority.MEDIUM;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "message", columnDefinition = "TEXT", nullable = false)
     private String message;
 
-    @Column(name = "action_url")
     private String actionUrl;
 
-    @Column(name = "action_label")
     private String actionLabel;
 
-    @Column(name = "icon")
     private String icon;
 
-    @Column(name = "metadata", columnDefinition = "TEXT")
     private String metadata; // JSON string for additional data
 
     // Related entities
-    @Column(name = "application_id")
     private Long applicationId;
 
-    @Column(name = "interview_id")
     private Long interviewId;
 
-    @Column(name = "job_posting_id")
     private Long jobPostingId;
 
-    @Column(name = "offer_id")
     private Long offerId;
 
     // Delivery tracking
-    @Column(name = "is_read")
     private Boolean isRead = false;
 
-    @Column(name = "read_at")
     private LocalDateTime readAt;
 
-    @Column(name = "is_delivered")
     private Boolean isDelivered = false;
 
-    @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
-    @Column(name = "delivery_attempts")
     private Integer deliveryAttempts = 0;
 
-    @Column(name = "last_delivery_attempt")
     private LocalDateTime lastDeliveryAttempt;
 
-    @Column(name = "delivery_error")
     private String deliveryError;
 
     // Email specific fields
-    @Column(name = "email_to")
     private String emailTo;
 
-    @Column(name = "email_subject")
     private String emailSubject;
 
-    @Column(name = "email_template")
     private String emailTemplate;
 
     // SMS specific fields
-    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "sms_template")
     private String smsTemplate;
 
     // Push notification fields
-    @Column(name = "push_device_token")
     private String pushDeviceToken;
 
-    @Column(name = "push_payload", columnDefinition = "TEXT")
     private String pushPayload;
 
     // Scheduling
-    @Column(name = "scheduled_for")
     private LocalDateTime scheduledFor;
 
-    @Column(name = "is_scheduled")
     private Boolean isScheduled = false;
 
-    @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
     // Grouping and batching
-    @Column(name = "notification_group")
     private String notificationGroup;
 
-    @Column(name = "batch_id")
     private String batchId;
 
-    @Column(name = "is_batch_digest")
     private Boolean isBatchDigest = false;
 
     // Tracking
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
     // Constructors
@@ -160,7 +114,6 @@ public class Notification extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

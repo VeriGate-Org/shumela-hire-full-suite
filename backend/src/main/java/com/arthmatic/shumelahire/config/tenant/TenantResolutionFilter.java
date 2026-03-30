@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.config.tenant;
 
 import com.arthmatic.shumelahire.entity.Tenant;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,10 +25,15 @@ public class TenantResolutionFilter implements Filter {
             "/api/ads"
     );
 
-    private final TenantRepository tenantRepository;
+    /** Environment subdomains that are NOT tenant subdomains */
+    private static final Set<String> ENVIRONMENT_SUBDOMAINS = Set.of(
+            "dev", "ppe", "staging", "qa", "sandbox", "sbx"
+    );
+
+    private final TenantDataRepository tenantRepository;
     private final Environment environment;
 
-    public TenantResolutionFilter(TenantRepository tenantRepository, Environment environment) {
+    public TenantResolutionFilter(TenantDataRepository tenantRepository, Environment environment) {
         this.tenantRepository = tenantRepository;
         this.environment = environment;
     }
@@ -99,7 +104,20 @@ public class TenantResolutionFilter implements Filter {
             return "default";
         }
 
+        // 4. Environment base URL fallback (e.g. dev.shumelahire.co.za, ppe.shumelahire.co.za)
+        //    These are environment URLs with no tenant subdomain — use default tenant.
+        if (host != null && isEnvironmentBaseUrl(host)) {
+            logger.debug("Environment base URL detected ({}), using default tenant", host);
+            return "default";
+        }
+
         return null;
+    }
+
+    private boolean isEnvironmentBaseUrl(String host) {
+        String hostname = host.contains(":") ? host.substring(0, host.indexOf(':')) : host;
+        String[] parts = hostname.split("\\.");
+        return parts.length >= 4 && ENVIRONMENT_SUBDOMAINS.contains(parts[0]);
     }
 
     private String extractSubdomain(String host) {
@@ -114,8 +132,13 @@ public class TenantResolutionFilter implements Filter {
         // Extract subdomain from patterns like acme.shumelahire.co.za or acme.sbx.shumelahire.co.za
         String[] parts = hostname.split("\\.");
         if (parts.length >= 4) {
+            String candidate = parts[0];
+            // Environment prefixes (dev, ppe, staging, etc.) are not tenant subdomains
+            if (ENVIRONMENT_SUBDOMAINS.contains(candidate)) {
+                return null;
+            }
             // e.g., acme.shumelahire.co.za or acme.sbx.shumelahire.co.za
-            return parts[0];
+            return candidate;
         }
 
         return null;

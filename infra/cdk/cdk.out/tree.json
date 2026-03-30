@@ -45,7 +45,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1a",
+                        "availabilityZone": "af-south-1a",
                         "cidrBlock": "10.0.0.0/24",
                         "mapPublicIpOnLaunch": true,
                         "tags": [
@@ -205,7 +205,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1b",
+                        "availabilityZone": "af-south-1b",
                         "cidrBlock": "10.0.1.0/24",
                         "mapPublicIpOnLaunch": true,
                         "tags": [
@@ -317,7 +317,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1a",
+                        "availabilityZone": "af-south-1a",
                         "cidrBlock": "10.0.2.0/24",
                         "mapPublicIpOnLaunch": false,
                         "tags": [
@@ -429,7 +429,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1b",
+                        "availabilityZone": "af-south-1b",
                         "cidrBlock": "10.0.3.0/24",
                         "mapPublicIpOnLaunch": false,
                         "tags": [
@@ -541,7 +541,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1a",
+                        "availabilityZone": "af-south-1a",
                         "cidrBlock": "10.0.4.0/24",
                         "mapPublicIpOnLaunch": false,
                         "tags": [
@@ -633,7 +633,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
-                        "availabilityZone": "us-east-1b",
+                        "availabilityZone": "af-south-1b",
                         "cidrBlock": "10.0.5.0/24",
                         "mapPublicIpOnLaunch": false,
                         "tags": [
@@ -1000,6 +1000,35 @@
                   "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroupIngress",
                   "version": "2.173.4"
                 }
+              },
+              "from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:3000": {
+                "id": "from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:3000",
+                "path": "shumelahire-dev-foundation/EcsSecurityGroup/from shumelahiredevfoundationAlbSecurityGroupFC0C8B4E:3000",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroupIngress",
+                  "aws:cdk:cloudformation:props": {
+                    "description": "Load balancer to target",
+                    "fromPort": 3000,
+                    "groupId": {
+                      "Fn::GetAtt": [
+                        "EcsSecurityGroup44008BF1",
+                        "GroupId"
+                      ]
+                    },
+                    "ipProtocol": "tcp",
+                    "sourceSecurityGroupId": {
+                      "Fn::GetAtt": [
+                        "AlbSecurityGroup86A59E99",
+                        "GroupId"
+                      ]
+                    },
+                    "toPort": 3000
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroupIngress",
+                  "version": "2.173.4"
+                }
               }
             },
             "constructInfo": {
@@ -1188,7 +1217,7 @@
                     },
                     "deletionProtection": false,
                     "engine": "aurora-postgresql",
-                    "engineVersion": "15.4",
+                    "engineVersion": "15.8",
                     "masterUsername": "shumelahire_admin",
                     "masterUserPassword": {
                       "Fn::Join": [
@@ -1288,7 +1317,7 @@
             "attributes": {
               "aws:cdk:cloudformation:type": "AWS::ElastiCache::CacheCluster",
               "aws:cdk:cloudformation:props": {
-                "cacheNodeType": "cache.t4g.micro",
+                "cacheNodeType": "cache.t3.micro",
                 "cacheSubnetGroupName": "shumelahire-dev-redis-subnet",
                 "clusterName": "shumelahire-dev-redis",
                 "engine": "redis",
@@ -1328,7 +1357,7 @@
                         }
                       ]
                     },
-                    "bucketName": "shumelahire-dev-documents",
+                    "bucketName": "shumelahire-dev-fs-docs",
                     "corsConfiguration": {
                       "corsRules": [
                         {
@@ -1342,8 +1371,10 @@
                             "POST"
                           ],
                           "allowedOrigins": [
+                            "https://dev.shumelahire.co.za",
+                            "https://*.dev.shumelahire.co.za",
                             "http://localhost:3000",
-                            "http://localhost:3001"
+                            "http://*.localhost:3000"
                           ]
                         }
                       ]
@@ -1517,7 +1548,7 @@
                         }
                       ]
                     },
-                    "bucketName": "shumelahire-dev-uploads",
+                    "bucketName": "shumelahire-dev-fs-file-uploads",
                     "lifecycleConfiguration": {
                       "rules": [
                         {
@@ -1651,8 +1682,9 @@
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::SQS::Queue",
                   "aws:cdk:cloudformation:props": {
+                    "fifoQueue": true,
                     "messageRetentionPeriod": 1209600,
-                    "queueName": "shumelahire-dev-notification-dlq"
+                    "queueName": "shumelahire-dev-notification-dlq.fifo"
                   }
                 },
                 "constructInfo": {
@@ -1807,6 +1839,58 @@
               "version": "2.173.4"
             }
           },
+          "MicrosoftSecret": {
+            "id": "MicrosoftSecret",
+            "path": "shumelahire-dev-foundation/MicrosoftSecret",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/MicrosoftSecret/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SecretsManager::Secret",
+                  "aws:cdk:cloudformation:props": {
+                    "description": "Microsoft Graph credentials (Teams, Outlook)",
+                    "generateSecretString": {},
+                    "name": "shumelahire/dev/microsoft"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_secretsmanager.CfnSecret",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_secretsmanager.Secret",
+              "version": "2.173.4"
+            }
+          },
+          "JobBoardsSecret": {
+            "id": "JobBoardsSecret",
+            "path": "shumelahire-dev-foundation/JobBoardsSecret",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/JobBoardsSecret/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SecretsManager::Secret",
+                  "aws:cdk:cloudformation:props": {
+                    "description": "Job board API credentials (LinkedIn, Indeed, PNet, CareerJunction)",
+                    "generateSecretString": {},
+                    "name": "shumelahire/dev/job-boards"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_secretsmanager.CfnSecret",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_secretsmanager.Secret",
+              "version": "2.173.4"
+            }
+          },
           "UserPool": {
             "id": "UserPool",
             "path": "shumelahire-dev-foundation/UserPool",
@@ -1862,6 +1946,15 @@
                         "name": "given_name",
                         "mutable": true,
                         "required": true
+                      },
+                      {
+                        "name": "tenant_id",
+                        "attributeDataType": "String",
+                        "stringAttributeConstraints": {
+                          "minLength": "1",
+                          "maxLength": "50"
+                        },
+                        "mutable": true
                       }
                     ],
                     "smsVerificationMessage": "The verification code to your new account is {####}",
@@ -1882,6 +1975,33 @@
                   "version": "2.173.4"
                 }
               },
+              "Domain": {
+                "id": "Domain",
+                "path": "shumelahire-dev-foundation/UserPool/Domain",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "shumelahire-dev-foundation/UserPool/Domain/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Cognito::UserPoolDomain",
+                      "aws:cdk:cloudformation:props": {
+                        "domain": "shumelahire-fs-dev-auth",
+                        "userPoolId": {
+                          "Ref": "UserPool6BA7E5F2"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_cognito.CfnUserPoolDomain",
+                      "version": "2.173.4"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cognito.UserPoolDomain",
+                  "version": "2.173.4"
+                }
+              },
               "WebAppClient": {
                 "id": "WebAppClient",
                 "path": "shumelahire-dev-foundation/UserPool/WebAppClient",
@@ -1894,19 +2014,19 @@
                       "aws:cdk:cloudformation:props": {
                         "accessTokenValidity": 60,
                         "allowedOAuthFlows": [
-                          "implicit",
                           "code"
                         ],
                         "allowedOAuthFlowsUserPoolClient": true,
                         "allowedOAuthScopes": [
-                          "profile",
-                          "phone",
-                          "email",
                           "openid",
-                          "aws.cognito.signin.user.admin"
+                          "email",
+                          "profile"
                         ],
                         "callbackUrLs": [
-                          "https://example.com"
+                          "https://dev.shumelahire.co.za/login",
+                          "https://idc-demo.shumelahire.co.za/login",
+                          "https://uthukela-demo.shumelahire.co.za/login",
+                          "http://localhost:3000/login"
                         ],
                         "clientName": "shumelahire-dev-web",
                         "explicitAuthFlows": [
@@ -1916,6 +2036,12 @@
                         ],
                         "generateSecret": false,
                         "idTokenValidity": 60,
+                        "logoutUrLs": [
+                          "https://dev.shumelahire.co.za/login",
+                          "https://idc-demo.shumelahire.co.za/login",
+                          "https://uthukela-demo.shumelahire.co.za/login",
+                          "http://localhost:3000/login"
+                        ],
                         "preventUserExistenceErrors": "ENABLED",
                         "refreshTokenValidity": 43200,
                         "supportedIdentityProviders": [
@@ -2092,6 +2218,111 @@
               "version": "2.173.4"
             }
           },
+          "LinkedInOAuthSecret": {
+            "id": "LinkedInOAuthSecret",
+            "path": "shumelahire-dev-foundation/LinkedInOAuthSecret",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/LinkedInOAuthSecret/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SecretsManager::Secret",
+                  "aws:cdk:cloudformation:props": {
+                    "description": "LinkedIn OAuth credentials (client_id, client_secret) for OIDC sign-in",
+                    "generateSecretString": {},
+                    "name": "shumelahire/dev/linkedin-oauth"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_secretsmanager.CfnSecret",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_secretsmanager.Secret",
+              "version": "2.173.4"
+            }
+          },
+          "BackendRepo": {
+            "id": "BackendRepo",
+            "path": "shumelahire-dev-foundation/BackendRepo",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/BackendRepo/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECR::Repository",
+                  "aws:cdk:cloudformation:props": {
+                    "lifecyclePolicy": {
+                      "lifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+                    },
+                    "repositoryName": "shumelahire-backend"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecr.CfnRepository",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecr.Repository",
+              "version": "2.173.4"
+            }
+          },
+          "FrontendRepo": {
+            "id": "FrontendRepo",
+            "path": "shumelahire-dev-foundation/FrontendRepo",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/FrontendRepo/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECR::Repository",
+                  "aws:cdk:cloudformation:props": {
+                    "lifecyclePolicy": {
+                      "lifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+                    },
+                    "repositoryName": "shumelahire-frontend"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecr.CfnRepository",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecr.Repository",
+              "version": "2.173.4"
+            }
+          },
+          "EcsLogGroup": {
+            "id": "EcsLogGroup",
+            "path": "shumelahire-dev-foundation/EcsLogGroup",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-foundation/EcsLogGroup/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                  "aws:cdk:cloudformation:props": {
+                    "logGroupName": "/ecs/shumelahire-dev",
+                    "retentionInDays": 7
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+              "version": "2.173.4"
+            }
+          },
           "VpcId": {
             "id": "VpcId",
             "path": "shumelahire-dev-foundation/VpcId",
@@ -2156,6 +2387,30 @@
               "version": "2.173.4"
             }
           },
+          "CognitoDomain": {
+            "id": "CognitoDomain",
+            "path": "shumelahire-dev-foundation/CognitoDomain",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.173.4"
+            }
+          },
+          "BackendEcrRepoUri": {
+            "id": "BackendEcrRepoUri",
+            "path": "shumelahire-dev-foundation/BackendEcrRepoUri",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.173.4"
+            }
+          },
+          "FrontendEcrRepoUri": {
+            "id": "FrontendEcrRepoUri",
+            "path": "shumelahire-dev-foundation/FrontendEcrRepoUri",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.173.4"
+            }
+          },
           "CDKMetadata": {
             "id": "CDKMetadata",
             "path": "shumelahire-dev-foundation/CDKMetadata",
@@ -2205,6 +2460,78 @@
               "Output{\"Fn::GetAtt\":[\"UserPool6BA7E5F2\",\"Arn\"]}": {
                 "id": "Output{\"Fn::GetAtt\":[\"UserPool6BA7E5F2\",\"Arn\"]}",
                 "path": "shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"UserPool6BA7E5F2\",\"Arn\"]}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Fn::GetAtt\":[\"BackendRepo7FFBAD06\",\"Arn\"]}": {
+                "id": "Output{\"Fn::GetAtt\":[\"BackendRepo7FFBAD06\",\"Arn\"]}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"BackendRepo7FFBAD06\",\"Arn\"]}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Fn::GetAtt\":[\"FrontendRepoF80FCC01\",\"Arn\"]}": {
+                "id": "Output{\"Fn::GetAtt\":[\"FrontendRepoF80FCC01\",\"Arn\"]}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"FrontendRepoF80FCC01\",\"Arn\"]}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Fn::GetAtt\":[\"EcsLogGroupD0138CE7\",\"Arn\"]}": {
+                "id": "Output{\"Fn::GetAtt\":[\"EcsLogGroupD0138CE7\",\"Arn\"]}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Fn::GetAtt\":[\"EcsLogGroupD0138CE7\",\"Arn\"]}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"DatabaseSecretAttachmentE5D1B020\"}": {
+                "id": "Output{\"Ref\":\"DatabaseSecretAttachmentE5D1B020\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"DatabaseSecretAttachmentE5D1B020\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"AiKeysSecretDA83C826\"}": {
+                "id": "Output{\"Ref\":\"AiKeysSecretDA83C826\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"AiKeysSecretDA83C826\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"EncryptionKeySecretE7F1DBEA\"}": {
+                "id": "Output{\"Ref\":\"EncryptionKeySecretE7F1DBEA\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"EncryptionKeySecretE7F1DBEA\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"JwtSecretB8834B39\"}": {
+                "id": "Output{\"Ref\":\"JwtSecretB8834B39\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"JwtSecretB8834B39\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"BackendRepo7FFBAD06\"}": {
+                "id": "Output{\"Ref\":\"BackendRepo7FFBAD06\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"BackendRepo7FFBAD06\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Ref\":\"EcsLogGroupD0138CE7\"}": {
+                "id": "Output{\"Ref\":\"EcsLogGroupD0138CE7\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"EcsLogGroupD0138CE7\"}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnOutput",
                   "version": "2.173.4"
@@ -2313,6 +2640,14 @@
                   "fqn": "aws-cdk-lib.CfnOutput",
                   "version": "2.173.4"
                 }
+              },
+              "Output{\"Ref\":\"FrontendRepoF80FCC01\"}": {
+                "id": "Output{\"Ref\":\"FrontendRepoF80FCC01\"}",
+                "path": "shumelahire-dev-foundation/Exports/Output{\"Ref\":\"FrontendRepoF80FCC01\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
               }
             },
             "constructInfo": {
@@ -2346,33 +2681,6 @@
         "id": "shumelahire-dev-compute",
         "path": "shumelahire-dev-compute",
         "children": {
-          "BackendRepo": {
-            "id": "BackendRepo",
-            "path": "shumelahire-dev-compute/BackendRepo",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "shumelahire-dev-compute/BackendRepo/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ECR::Repository",
-                  "aws:cdk:cloudformation:props": {
-                    "lifecyclePolicy": {
-                      "lifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
-                    },
-                    "repositoryName": "shumelahire-backend"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_ecr.CfnRepository",
-                  "version": "2.173.4"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_ecr.Repository",
-              "version": "2.173.4"
-            }
-          },
           "Cluster": {
             "id": "Cluster",
             "path": "shumelahire-dev-compute/Cluster",
@@ -2512,14 +2820,14 @@
                                 "ses:SendRawEmail"
                               ],
                               "Effect": "Allow",
-                              "Resource": "arn:aws:ses:us-east-1:420747712978:identity/*"
+                              "Resource": "arn:aws:ses:af-south-1:601301273631:identity/*"
                             },
                             {
                               "Action": "secretsmanager:GetSecretValue",
                               "Effect": "Allow",
                               "Resource": [
-                                "arn:aws:secretsmanager:us-east-1:420747712978:secret:shumelahire-dev/db-credentials*",
-                                "arn:aws:secretsmanager:us-east-1:420747712978:secret:shumelahire/dev/*"
+                                "arn:aws:secretsmanager:af-south-1:601301273631:secret:shumelahire-dev/db-credentials*",
+                                "arn:aws:secretsmanager:af-south-1:601301273631:secret:shumelahire/dev/*"
                               ]
                             },
                             {
@@ -2529,11 +2837,15 @@
                                 "logs:PutLogEvents"
                               ],
                               "Effect": "Allow",
-                              "Resource": "arn:aws:logs:us-east-1:420747712978:log-group:/ecs/shumelahire-dev*"
+                              "Resource": "arn:aws:logs:af-south-1:601301273631:log-group:/ecs/shumelahire-dev*"
                             },
                             {
                               "Action": [
+                                "cognito-idp:AdminAddUserToGroup",
+                                "cognito-idp:AdminCreateUser",
                                 "cognito-idp:AdminGetUser",
+                                "cognito-idp:CreateGroup",
+                                "cognito-idp:GetGroup",
                                 "cognito-idp:GetUser",
                                 "cognito-idp:ListUsers"
                               ],
@@ -2638,8 +2950,8 @@
                               "Action": "secretsmanager:GetSecretValue",
                               "Effect": "Allow",
                               "Resource": [
-                                "arn:aws:secretsmanager:us-east-1:420747712978:secret:shumelahire-dev/db-credentials*",
-                                "arn:aws:secretsmanager:us-east-1:420747712978:secret:shumelahire/dev/*"
+                                "arn:aws:secretsmanager:af-south-1:601301273631:secret:shumelahire-dev/db-credentials*",
+                                "arn:aws:secretsmanager:af-south-1:601301273631:secret:shumelahire/dev/*"
                               ]
                             },
                             {
@@ -2649,12 +2961,14 @@
                                 "ecr:GetDownloadUrlForLayer"
                               ],
                               "Effect": "Allow",
-                              "Resource": {
-                                "Fn::GetAtt": [
-                                  "BackendRepo7FFBAD06",
-                                  "Arn"
-                                ]
-                              }
+                              "Resource": [
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219"
+                                },
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D"
+                                }
+                              ]
                             },
                             {
                               "Action": "ecr:GetAuthorizationToken",
@@ -2668,11 +2982,29 @@
                               ],
                               "Effect": "Allow",
                               "Resource": {
-                                "Fn::GetAtt": [
-                                  "LogGroupF5B46931",
-                                  "Arn"
-                                ]
+                                "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttEcsLogGroupD0138CE7ArnF7234D4C"
                               }
+                            },
+                            {
+                              "Action": [
+                                "secretsmanager:DescribeSecret",
+                                "secretsmanager:GetSecretValue"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": [
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefAiKeysSecretDA83C82639D4A896"
+                                },
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73"
+                                },
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefEncryptionKeySecretE7F1DBEA62B42E60"
+                                },
+                                {
+                                  "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefJwtSecretB8834B392B9A9162"
+                                }
+                              ]
                             }
                           ],
                           "Version": "2012-10-17"
@@ -2702,31 +3034,6 @@
               "version": "2.173.4"
             }
           },
-          "LogGroup": {
-            "id": "LogGroup",
-            "path": "shumelahire-dev-compute/LogGroup",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "shumelahire-dev-compute/LogGroup/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                  "aws:cdk:cloudformation:props": {
-                    "logGroupName": "/ecs/shumelahire-dev",
-                    "retentionInDays": 7
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                  "version": "2.173.4"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-              "version": "2.173.4"
-            }
-          },
           "TaskDef": {
             "id": "TaskDef",
             "path": "shumelahire-dev-compute/TaskDef",
@@ -2751,10 +3058,7 @@
                                     "Fn::Split": [
                                       ":",
                                       {
-                                        "Fn::GetAtt": [
-                                          "BackendRepo7FFBAD06",
-                                          "Arn"
-                                        ]
+                                        "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219"
                                       }
                                     ]
                                   }
@@ -2768,10 +3072,7 @@
                                     "Fn::Split": [
                                       ":",
                                       {
-                                        "Fn::GetAtt": [
-                                          "BackendRepo7FFBAD06",
-                                          "Arn"
-                                        ]
+                                        "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttBackendRepo7FFBAD06Arn33FD1219"
                                       }
                                     ]
                                   }
@@ -2783,7 +3084,7 @@
                               },
                               "/",
                               {
-                                "Ref": "BackendRepo7FFBAD06"
+                                "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefBackendRepo7FFBAD06405267DF"
                               },
                               ":latest"
                             ]
@@ -2800,16 +3101,16 @@
                           "logDriver": "awslogs",
                           "options": {
                             "awslogs-group": {
-                              "Ref": "LogGroupF5B46931"
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefEcsLogGroupD0138CE7D7B2389B"
                             },
                             "awslogs-stream-prefix": "backend",
-                            "awslogs-region": "us-east-1"
+                            "awslogs-region": "af-south-1"
                           }
                         },
                         "environment": [
                           {
                             "name": "SPRING_PROFILES_ACTIVE",
-                            "value": "dev"
+                            "value": "cloud"
                           },
                           {
                             "name": "DATABASE_URL",
@@ -2844,7 +3145,7 @@
                           },
                           {
                             "name": "S3_REGION",
-                            "value": "us-east-1"
+                            "value": "af-south-1"
                           },
                           {
                             "name": "STORAGE_PROVIDER",
@@ -2879,6 +3180,120 @@
                             "value": {
                               "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefUserPoolWebAppClientCD2D5CB13BAB4F14"
                             }
+                          },
+                          {
+                            "name": "COGNITO_ISSUER_URI",
+                            "value": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "https://cognito-idp.af-south-1.amazonaws.com/",
+                                  {
+                                    "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefUserPool6BA7E5F296FD7236"
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "name": "SES_ENABLED",
+                            "value": "true"
+                          },
+                          {
+                            "name": "SES_REGION",
+                            "value": "af-south-1"
+                          },
+                          {
+                            "name": "SES_FROM_EMAIL",
+                            "value": "noreply@shumelahire.co.za"
+                          },
+                          {
+                            "name": "SES_FROM_NAME",
+                            "value": "ShumelaHire"
+                          },
+                          {
+                            "name": "MICROSOFT_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "LINKEDIN_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "INDEED_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "PNET_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "CAREER_JUNCTION_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "AI_ENABLED",
+                            "value": "true"
+                          },
+                          {
+                            "name": "AI_PROVIDER",
+                            "value": "claude"
+                          },
+                          {
+                            "name": "LINKEDIN_SOCIAL_ENABLED",
+                            "value": "false"
+                          },
+                          {
+                            "name": "LINKEDIN_SOCIAL_REDIRECT_URI",
+                            "value": "https://api.shumelahire.co.za/api/linkedin/social/auth/callback"
+                          }
+                        ],
+                        "secrets": [
+                          {
+                            "name": "DATABASE_USER",
+                            "valueFrom": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73"
+                                  },
+                                  ":username::"
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "name": "DATABASE_PASS",
+                            "valueFrom": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73"
+                                  },
+                                  ":password::"
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "name": "JWT_SECRET",
+                            "valueFrom": {
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefJwtSecretB8834B392B9A9162"
+                            }
+                          },
+                          {
+                            "name": "ENCRYPTION_KEY",
+                            "valueFrom": {
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefEncryptionKeySecretE7F1DBEA62B42E60"
+                            }
+                          },
+                          {
+                            "name": "CLAUDE_API_KEY",
+                            "valueFrom": {
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefAiKeysSecretDA83C82639D4A896"
+                            }
                           }
                         ],
                         "healthCheck": {
@@ -2887,9 +3302,9 @@
                             "wget -qO- http://localhost:8080/actuator/health || exit 1"
                           ],
                           "interval": 30,
-                          "retries": 3,
-                          "startPeriod": 60,
-                          "timeout": 5
+                          "retries": 5,
+                          "startPeriod": 240,
+                          "timeout": 10
                         }
                       }
                     ],
@@ -2901,7 +3316,7 @@
                       ]
                     },
                     "family": "shumelahire-dev",
-                    "memory": "1024",
+                    "memory": "2048",
                     "networkMode": "awsvpc",
                     "requiresCompatibilities": [
                       "FARGATE"
@@ -2986,7 +3401,7 @@
                           {
                             "type": "forward",
                             "targetGroupArn": {
-                              "Ref": "AlbHttpBackendTargetGroupF834592E"
+                              "Ref": "AlbHttpFrontendTargetGroupEB76E5BA"
                             }
                           }
                         ],
@@ -3045,6 +3460,98 @@
                       "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationTargetGroup",
                       "version": "2.173.4"
                     }
+                  },
+                  "BackendTargetRule": {
+                    "id": "BackendTargetRule",
+                    "path": "shumelahire-dev-compute/Alb/Http/BackendTargetRule",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "shumelahire-dev-compute/Alb/Http/BackendTargetRule/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+                          "aws:cdk:cloudformation:props": {
+                            "actions": [
+                              {
+                                "type": "forward",
+                                "targetGroupArn": {
+                                  "Ref": "AlbHttpBackendTargetGroupF834592E"
+                                }
+                              }
+                            ],
+                            "conditions": [
+                              {
+                                "field": "path-pattern",
+                                "pathPatternConfig": {
+                                  "values": [
+                                    "/api/*",
+                                    "/actuator/*",
+                                    "/v3/api-docs*",
+                                    "/swagger-ui*"
+                                  ]
+                                }
+                              }
+                            ],
+                            "listenerArn": {
+                              "Ref": "AlbHttp7966E42E"
+                            },
+                            "priority": 10
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListenerRule",
+                          "version": "2.173.4"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListenerRule",
+                      "version": "2.173.4"
+                    }
+                  },
+                  "FrontendTargetGroup": {
+                    "id": "FrontendTargetGroup",
+                    "path": "shumelahire-dev-compute/Alb/Http/FrontendTargetGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "shumelahire-dev-compute/Alb/Http/FrontendTargetGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "healthCheckIntervalSeconds": 30,
+                            "healthCheckPath": "/api/health",
+                            "healthCheckTimeoutSeconds": 10,
+                            "healthyThresholdCount": 2,
+                            "port": 3000,
+                            "protocol": "HTTP",
+                            "targetGroupAttributes": [
+                              {
+                                "key": "deregistration_delay.timeout_seconds",
+                                "value": "30"
+                              },
+                              {
+                                "key": "stickiness.enabled",
+                                "value": "false"
+                              }
+                            ],
+                            "targetType": "ip",
+                            "unhealthyThresholdCount": 3,
+                            "vpcId": {
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefVpc8378EB38272D6E3A"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnTargetGroup",
+                          "version": "2.173.4"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationTargetGroup",
+                      "version": "2.173.4"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -3073,15 +3580,15 @@
                     },
                     "deploymentConfiguration": {
                       "maximumPercent": 200,
-                      "minimumHealthyPercent": 100,
+                      "minimumHealthyPercent": 0,
                       "deploymentCircuitBreaker": {
                         "enable": true,
-                        "rollback": true
+                        "rollback": false
                       }
                     },
                     "desiredCount": 1,
                     "enableEcsManagedTags": false,
-                    "healthCheckGracePeriodSeconds": 60,
+                    "healthCheckGracePeriodSeconds": 300,
                     "launchType": "FARGATE",
                     "loadBalancers": [
                       {
@@ -3163,7 +3670,7 @@
                                 ]
                               ]
                             },
-                            "roleArn": "arn:aws:iam::420747712978:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
+                            "roleArn": "arn:aws:iam::601301273631:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
                             "scalableDimension": "ecs:service:DesiredCount",
                             "serviceNamespace": "ecs"
                           }
@@ -3263,6 +3770,533 @@
               "version": "2.173.4"
             }
           },
+          "FrontendTaskDef": {
+            "id": "FrontendTaskDef",
+            "path": "shumelahire-dev-compute/FrontendTaskDef",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/FrontendTaskDef/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                  "aws:cdk:cloudformation:props": {
+                    "containerDefinitions": [
+                      {
+                        "essential": true,
+                        "image": {
+                          "Fn::Join": [
+                            "",
+                            [
+                              {
+                                "Fn::Select": [
+                                  4,
+                                  {
+                                    "Fn::Split": [
+                                      ":",
+                                      {
+                                        "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              ".dkr.ecr.",
+                              {
+                                "Fn::Select": [
+                                  3,
+                                  {
+                                    "Fn::Split": [
+                                      ":",
+                                      {
+                                        "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttFrontendRepoF80FCC01ArnD7253E0D"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              ".",
+                              {
+                                "Ref": "AWS::URLSuffix"
+                              },
+                              "/",
+                              {
+                                "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefFrontendRepoF80FCC01D2E9C93A"
+                              },
+                              ":latest"
+                            ]
+                          ]
+                        },
+                        "name": "frontend",
+                        "portMappings": [
+                          {
+                            "containerPort": 3000,
+                            "protocol": "tcp"
+                          }
+                        ],
+                        "logConfiguration": {
+                          "logDriver": "awslogs",
+                          "options": {
+                            "awslogs-group": {
+                              "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefEcsLogGroupD0138CE7D7B2389B"
+                            },
+                            "awslogs-stream-prefix": "frontend",
+                            "awslogs-region": "af-south-1"
+                          }
+                        }
+                      }
+                    ],
+                    "cpu": "256",
+                    "executionRoleArn": {
+                      "Fn::GetAtt": [
+                        "ExecutionRole605A040B",
+                        "Arn"
+                      ]
+                    },
+                    "family": "shumelahire-dev-frontend",
+                    "memory": "512",
+                    "networkMode": "awsvpc",
+                    "requiresCompatibilities": [
+                      "FARGATE"
+                    ],
+                    "taskRoleArn": {
+                      "Fn::GetAtt": [
+                        "TaskRole30FC0FBB",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                  "version": "2.173.4"
+                }
+              },
+              "frontend": {
+                "id": "frontend",
+                "path": "shumelahire-dev-compute/FrontendTaskDef/frontend",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.FargateTaskDefinition",
+              "version": "2.173.4"
+            }
+          },
+          "FrontendService": {
+            "id": "FrontendService",
+            "path": "shumelahire-dev-compute/FrontendService",
+            "children": {
+              "Service": {
+                "id": "Service",
+                "path": "shumelahire-dev-compute/FrontendService/Service",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::Service",
+                  "aws:cdk:cloudformation:props": {
+                    "cluster": {
+                      "Ref": "ClusterEB0386A7"
+                    },
+                    "deploymentConfiguration": {
+                      "maximumPercent": 200,
+                      "minimumHealthyPercent": 0,
+                      "deploymentCircuitBreaker": {
+                        "enable": true,
+                        "rollback": false
+                      }
+                    },
+                    "desiredCount": 1,
+                    "enableEcsManagedTags": false,
+                    "healthCheckGracePeriodSeconds": 180,
+                    "launchType": "FARGATE",
+                    "loadBalancers": [
+                      {
+                        "targetGroupArn": {
+                          "Ref": "AlbHttpFrontendTargetGroupEB76E5BA"
+                        },
+                        "containerName": "frontend",
+                        "containerPort": 3000
+                      }
+                    ],
+                    "networkConfiguration": {
+                      "awsvpcConfiguration": {
+                        "assignPublicIp": "DISABLED",
+                        "subnets": [
+                          {
+                            "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+                          },
+                          {
+                            "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+                          }
+                        ],
+                        "securityGroups": [
+                          {
+                            "Fn::ImportValue": "shumelahire-dev-foundation:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+                          }
+                        ]
+                      }
+                    },
+                    "serviceName": "shumelahire-dev-frontend",
+                    "taskDefinition": {
+                      "Ref": "FrontendTaskDef7D3FD156"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnService",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.FargateService",
+              "version": "2.173.4"
+            }
+          },
+          "AlarmTopic": {
+            "id": "AlarmTopic",
+            "path": "shumelahire-dev-compute/AlarmTopic",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/AlarmTopic/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SNS::Topic",
+                  "aws:cdk:cloudformation:props": {
+                    "displayName": "ShumelaHire dev Alarms",
+                    "topicName": "shumelahire-dev-alarms"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sns.CfnTopic",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_sns.Topic",
+              "version": "2.173.4"
+            }
+          },
+          "CpuAlarm": {
+            "id": "CpuAlarm",
+            "path": "shumelahire-dev-compute/CpuAlarm",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/CpuAlarm/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudWatch::Alarm",
+                  "aws:cdk:cloudformation:props": {
+                    "alarmActions": [
+                      {
+                        "Ref": "AlarmTopicD01E77F9"
+                      }
+                    ],
+                    "alarmDescription": "ECS CPU utilization above 80%",
+                    "alarmName": "shumelahire-dev-cpu-high",
+                    "comparisonOperator": "GreaterThanOrEqualToThreshold",
+                    "dimensions": [
+                      {
+                        "name": "ClusterName",
+                        "value": {
+                          "Ref": "ClusterEB0386A7"
+                        }
+                      },
+                      {
+                        "name": "ServiceName",
+                        "value": {
+                          "Fn::GetAtt": [
+                            "ServiceD69D759B",
+                            "Name"
+                          ]
+                        }
+                      }
+                    ],
+                    "evaluationPeriods": 3,
+                    "metricName": "CPUUtilization",
+                    "namespace": "AWS/ECS",
+                    "period": 300,
+                    "statistic": "Average",
+                    "threshold": 80,
+                    "treatMissingData": "notBreaching"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudwatch.CfnAlarm",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudwatch.Alarm",
+              "version": "2.173.4"
+            }
+          },
+          "MemoryAlarm": {
+            "id": "MemoryAlarm",
+            "path": "shumelahire-dev-compute/MemoryAlarm",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/MemoryAlarm/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudWatch::Alarm",
+                  "aws:cdk:cloudformation:props": {
+                    "alarmActions": [
+                      {
+                        "Ref": "AlarmTopicD01E77F9"
+                      }
+                    ],
+                    "alarmDescription": "ECS memory utilization above 85%",
+                    "alarmName": "shumelahire-dev-memory-high",
+                    "comparisonOperator": "GreaterThanOrEqualToThreshold",
+                    "dimensions": [
+                      {
+                        "name": "ClusterName",
+                        "value": {
+                          "Ref": "ClusterEB0386A7"
+                        }
+                      },
+                      {
+                        "name": "ServiceName",
+                        "value": {
+                          "Fn::GetAtt": [
+                            "ServiceD69D759B",
+                            "Name"
+                          ]
+                        }
+                      }
+                    ],
+                    "evaluationPeriods": 3,
+                    "metricName": "MemoryUtilization",
+                    "namespace": "AWS/ECS",
+                    "period": 300,
+                    "statistic": "Average",
+                    "threshold": 85,
+                    "treatMissingData": "notBreaching"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudwatch.CfnAlarm",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudwatch.Alarm",
+              "version": "2.173.4"
+            }
+          },
+          "Alb5xxAlarm": {
+            "id": "Alb5xxAlarm",
+            "path": "shumelahire-dev-compute/Alb5xxAlarm",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/Alb5xxAlarm/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudWatch::Alarm",
+                  "aws:cdk:cloudformation:props": {
+                    "alarmActions": [
+                      {
+                        "Ref": "AlarmTopicD01E77F9"
+                      }
+                    ],
+                    "alarmDescription": "ALB 5xx error rate above 1%",
+                    "alarmName": "shumelahire-dev-alb-5xx",
+                    "comparisonOperator": "GreaterThanOrEqualToThreshold",
+                    "dimensions": [
+                      {
+                        "name": "LoadBalancer",
+                        "value": {
+                          "Fn::GetAtt": [
+                            "Alb16C2F182",
+                            "LoadBalancerFullName"
+                          ]
+                        }
+                      }
+                    ],
+                    "evaluationPeriods": 2,
+                    "metricName": "HTTPCode_ELB_5XX_Count",
+                    "namespace": "AWS/ApplicationELB",
+                    "period": 300,
+                    "statistic": "Sum",
+                    "threshold": 10,
+                    "treatMissingData": "notBreaching"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudwatch.CfnAlarm",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudwatch.Alarm",
+              "version": "2.173.4"
+            }
+          },
+          "UnhealthyTargetsAlarm": {
+            "id": "UnhealthyTargetsAlarm",
+            "path": "shumelahire-dev-compute/UnhealthyTargetsAlarm",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/UnhealthyTargetsAlarm/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudWatch::Alarm",
+                  "aws:cdk:cloudformation:props": {
+                    "alarmActions": [
+                      {
+                        "Ref": "AlarmTopicD01E77F9"
+                      }
+                    ],
+                    "alarmDescription": "ALB has unhealthy targets",
+                    "alarmName": "shumelahire-dev-unhealthy-targets",
+                    "comparisonOperator": "GreaterThanOrEqualToThreshold",
+                    "dimensions": [
+                      {
+                        "name": "LoadBalancer",
+                        "value": {
+                          "Fn::GetAtt": [
+                            "Alb16C2F182",
+                            "LoadBalancerFullName"
+                          ]
+                        }
+                      }
+                    ],
+                    "evaluationPeriods": 2,
+                    "metricName": "UnHealthyHostCount",
+                    "namespace": "AWS/ApplicationELB",
+                    "period": 300,
+                    "statistic": "Maximum",
+                    "threshold": 1,
+                    "treatMissingData": "notBreaching"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudwatch.CfnAlarm",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudwatch.Alarm",
+              "version": "2.173.4"
+            }
+          },
+          "Dashboard": {
+            "id": "Dashboard",
+            "path": "shumelahire-dev-compute/Dashboard",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "shumelahire-dev-compute/Dashboard/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudWatch::Dashboard",
+                  "aws:cdk:cloudformation:props": {
+                    "dashboardBody": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":1,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ShumelaHire dev Dashboard\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":1,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS CPU Utilization\",\"region\":\"",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "\",\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ClusterName\",\"",
+                          {
+                            "Ref": "ClusterEB0386A7"
+                          },
+                          "\",\"ServiceName\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "ServiceD69D759B",
+                              "Name"
+                            ]
+                          },
+                          "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":1,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Memory Utilization\",\"region\":\"",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "\",\"metrics\":[[\"AWS/ECS\",\"MemoryUtilization\",\"ClusterName\",\"",
+                          {
+                            "Ref": "ClusterEB0386A7"
+                          },
+                          "\",\"ServiceName\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "ServiceD69D759B",
+                              "Name"
+                            ]
+                          },
+                          "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":0,\"y\":7,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Request Count\",\"region\":\"",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "\",\"metrics\":[[\"AWS/ApplicationELB\",\"RequestCount\",\"LoadBalancer\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "Alb16C2F182",
+                              "LoadBalancerFullName"
+                            ]
+                          },
+                          "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":8,\"y\":7,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Response Time\",\"region\":\"",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "\",\"metrics\":[[\"AWS/ApplicationELB\",\"TargetResponseTime\",\"LoadBalancer\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "Alb16C2F182",
+                              "LoadBalancerFullName"
+                            ]
+                          },
+                          "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":16,\"y\":7,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB HTTP Errors\",\"region\":\"",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "\",\"metrics\":[[\"AWS/ApplicationELB\",\"HTTPCode_ELB_5XX_Count\",\"LoadBalancer\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "Alb16C2F182",
+                              "LoadBalancerFullName"
+                            ]
+                          },
+                          "\",{\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_Target_4XX_Count\",\"LoadBalancer\",\"",
+                          {
+                            "Fn::GetAtt": [
+                              "Alb16C2F182",
+                              "LoadBalancerFullName"
+                            ]
+                          },
+                          "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}}]}"
+                        ]
+                      ]
+                    },
+                    "dashboardName": "shumelahire-dev-dashboard"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudwatch.CfnDashboard",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudwatch.Dashboard",
+              "version": "2.173.4"
+            }
+          },
+          "AlarmTopicArn": {
+            "id": "AlarmTopicArn",
+            "path": "shumelahire-dev-compute/AlarmTopicArn",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.173.4"
+            }
+          },
           "AlbDnsName": {
             "id": "AlbDnsName",
             "path": "shumelahire-dev-compute/AlbDnsName",
@@ -3295,9 +4329,9 @@
               "version": "2.173.4"
             }
           },
-          "EcrRepositoryUri": {
-            "id": "EcrRepositoryUri",
-            "path": "shumelahire-dev-compute/EcrRepositoryUri",
+          "FrontendServiceName": {
+            "id": "FrontendServiceName",
+            "path": "shumelahire-dev-compute/FrontendServiceName",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnOutput",
               "version": "2.173.4"
@@ -3312,6 +4346,32 @@
                 "path": "shumelahire-dev-compute/CDKMetadata/Default",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.173.4"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.4.2"
+            }
+          },
+          "Exports": {
+            "id": "Exports",
+            "path": "shumelahire-dev-compute/Exports",
+            "children": {
+              "Output{\"Ref\":\"Alb16C2F182\"}": {
+                "id": "Output{\"Ref\":\"Alb16C2F182\"}",
+                "path": "shumelahire-dev-compute/Exports/Output{\"Ref\":\"Alb16C2F182\"}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.173.4"
+                }
+              },
+              "Output{\"Fn::GetAtt\":[\"Alb16C2F182\",\"DNSName\"]}": {
+                "id": "Output{\"Fn::GetAtt\":[\"Alb16C2F182\",\"DNSName\"]}",
+                "path": "shumelahire-dev-compute/Exports/Output{\"Fn::GetAtt\":[\"Alb16C2F182\",\"DNSName\"]}",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
                   "version": "2.173.4"
                 }
               }
@@ -3433,7 +4493,7 @@
               "aws:cdk:cloudformation:type": "AWS::WAFv2::WebACLAssociation",
               "aws:cdk:cloudformation:props": {
                 "resourceArn": {
-                  "Fn::ImportValue": "shumelahire-dev-AlbArn"
+                  "Fn::ImportValue": "shumelahire-dev-compute:ExportsOutputRefAlb16C2F1822A94C303"
                 },
                 "webAclArn": {
                   "Fn::GetAtt": [
@@ -3500,262 +4560,6 @@
         "id": "shumelahire-dev-frontend",
         "path": "shumelahire-dev-frontend",
         "children": {
-          "UiBucket": {
-            "id": "UiBucket",
-            "path": "shumelahire-dev-frontend/UiBucket",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "shumelahire-dev-frontend/UiBucket/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
-                  "aws:cdk:cloudformation:props": {
-                    "bucketEncryption": {
-                      "serverSideEncryptionConfiguration": [
-                        {
-                          "serverSideEncryptionByDefault": {
-                            "sseAlgorithm": "AES256"
-                          }
-                        }
-                      ]
-                    },
-                    "publicAccessBlockConfiguration": {
-                      "blockPublicAcls": true,
-                      "blockPublicPolicy": true,
-                      "ignorePublicAcls": true,
-                      "restrictPublicBuckets": true
-                    },
-                    "tags": [
-                      {
-                        "key": "aws-cdk:auto-delete-objects",
-                        "value": "true"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_s3.CfnBucket",
-                  "version": "2.173.4"
-                }
-              },
-              "Policy": {
-                "id": "Policy",
-                "path": "shumelahire-dev-frontend/UiBucket/Policy",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "shumelahire-dev-frontend/UiBucket/Policy/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::S3::BucketPolicy",
-                      "aws:cdk:cloudformation:props": {
-                        "bucket": {
-                          "Ref": "UiBucket6890E4C3"
-                        },
-                        "policyDocument": {
-                          "Statement": [
-                            {
-                              "Action": [
-                                "s3:DeleteObject*",
-                                "s3:GetBucket*",
-                                "s3:List*",
-                                "s3:PutBucketPolicy"
-                              ],
-                              "Effect": "Allow",
-                              "Principal": {
-                                "AWS": {
-                                  "Fn::GetAtt": [
-                                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
-                                    "Arn"
-                                  ]
-                                }
-                              },
-                              "Resource": [
-                                {
-                                  "Fn::GetAtt": [
-                                    "UiBucket6890E4C3",
-                                    "Arn"
-                                  ]
-                                },
-                                {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      {
-                                        "Fn::GetAtt": [
-                                          "UiBucket6890E4C3",
-                                          "Arn"
-                                        ]
-                                      },
-                                      "/*"
-                                    ]
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "Action": [
-                                "s3:GetBucket*",
-                                "s3:GetObject*",
-                                "s3:List*"
-                              ],
-                              "Effect": "Allow",
-                              "Principal": {
-                                "CanonicalUser": {
-                                  "Fn::GetAtt": [
-                                    "OAIE1EFC67F",
-                                    "S3CanonicalUserId"
-                                  ]
-                                }
-                              },
-                              "Resource": [
-                                {
-                                  "Fn::GetAtt": [
-                                    "UiBucket6890E4C3",
-                                    "Arn"
-                                  ]
-                                },
-                                {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      {
-                                        "Fn::GetAtt": [
-                                          "UiBucket6890E4C3",
-                                          "Arn"
-                                        ]
-                                      },
-                                      "/*"
-                                    ]
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "Action": "s3:GetObject",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "CanonicalUser": {
-                                  "Fn::GetAtt": [
-                                    "OAIE1EFC67F",
-                                    "S3CanonicalUserId"
-                                  ]
-                                }
-                              },
-                              "Resource": {
-                                "Fn::Join": [
-                                  "",
-                                  [
-                                    {
-                                      "Fn::GetAtt": [
-                                        "UiBucket6890E4C3",
-                                        "Arn"
-                                      ]
-                                    },
-                                    "/*"
-                                  ]
-                                ]
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_s3.CfnBucketPolicy",
-                      "version": "2.173.4"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_s3.BucketPolicy",
-                  "version": "2.173.4"
-                }
-              },
-              "AutoDeleteObjectsCustomResource": {
-                "id": "AutoDeleteObjectsCustomResource",
-                "path": "shumelahire-dev-frontend/UiBucket/AutoDeleteObjectsCustomResource",
-                "children": {
-                  "Default": {
-                    "id": "Default",
-                    "path": "shumelahire-dev-frontend/UiBucket/AutoDeleteObjectsCustomResource/Default",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CfnResource",
-                      "version": "2.173.4"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.173.4"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_s3.Bucket",
-              "version": "2.173.4"
-            }
-          },
-          "Custom::S3AutoDeleteObjectsCustomResourceProvider": {
-            "id": "Custom::S3AutoDeleteObjectsCustomResourceProvider",
-            "path": "shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider",
-            "children": {
-              "Staging": {
-                "id": "Staging",
-                "path": "shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Staging",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.AssetStaging",
-                  "version": "2.173.4"
-                }
-              },
-              "Role": {
-                "id": "Role",
-                "path": "shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CfnResource",
-                  "version": "2.173.4"
-                }
-              },
-              "Handler": {
-                "id": "Handler",
-                "path": "shumelahire-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CfnResource",
-                  "version": "2.173.4"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CustomResourceProviderBase",
-              "version": "2.173.4"
-            }
-          },
-          "OAI": {
-            "id": "OAI",
-            "path": "shumelahire-dev-frontend/OAI",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "shumelahire-dev-frontend/OAI/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
-                  "aws:cdk:cloudformation:props": {
-                    "cloudFrontOriginAccessIdentityConfig": {
-                      "comment": "Allows CloudFront to reach the bucket"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_cloudfront.CfnCloudFrontOriginAccessIdentity",
-                  "version": "2.173.4"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_cloudfront.OriginAccessIdentity",
-              "version": "2.173.4"
-            }
-          },
           "Distribution": {
             "id": "Distribution",
             "path": "shumelahire-dev-frontend/Distribution",
@@ -3779,24 +4583,14 @@
                       "origins": [
                         {
                           "domainName": {
-                            "Fn::GetAtt": [
-                              "UiBucket6890E4C3",
-                              "RegionalDomainName"
-                            ]
+                            "Fn::ImportValue": "shumelahire-dev-compute:ExportsOutputFnGetAttAlb16C2F182DNSNameB67BDABC"
                           },
                           "id": "shumelahiredevfrontendDistributionOrigin186D95325",
-                          "s3OriginConfig": {
-                            "originAccessIdentity": {
-                              "Fn::Join": [
-                                "",
-                                [
-                                  "origin-access-identity/cloudfront/",
-                                  {
-                                    "Ref": "OAIE1EFC67F"
-                                  }
-                                ]
-                              ]
-                            }
+                          "customOriginConfig": {
+                            "originSslProtocols": [
+                              "TLSv1.2"
+                            ],
+                            "originProtocolPolicy": "http-only"
                           }
                         }
                       ],
@@ -3808,25 +4602,42 @@
                           "HEAD",
                           "OPTIONS"
                         ],
-                        "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                        "cachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
                         "compress": true,
+                        "originRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
                         "viewerProtocolPolicy": "redirect-to-https"
                       },
-                      "customErrorResponses": [
+                      "cacheBehaviors": [
                         {
-                          "errorCachingMinTtl": 0,
-                          "errorCode": 404,
-                          "responseCode": 200,
-                          "responsePagePath": "/index.html"
+                          "pathPattern": "/_next/static/*",
+                          "targetOriginId": "shumelahiredevfrontendDistributionOrigin186D95325",
+                          "allowedMethods": [
+                            "GET",
+                            "HEAD",
+                            "OPTIONS"
+                          ],
+                          "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                          "compress": true,
+                          "viewerProtocolPolicy": "redirect-to-https"
                         },
                         {
-                          "errorCachingMinTtl": 0,
-                          "errorCode": 403,
-                          "responseCode": 200,
-                          "responsePagePath": "/index.html"
+                          "pathPattern": "/api/*",
+                          "targetOriginId": "shumelahiredevfrontendDistributionOrigin186D95325",
+                          "allowedMethods": [
+                            "GET",
+                            "HEAD",
+                            "OPTIONS",
+                            "PUT",
+                            "PATCH",
+                            "POST",
+                            "DELETE"
+                          ],
+                          "cachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+                          "compress": true,
+                          "originRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
+                          "viewerProtocolPolicy": "redirect-to-https"
                         }
                       ],
-                      "defaultRootObject": "index.html",
                       "httpVersion": "http2and3",
                       "ipv6Enabled": true
                     }
@@ -3840,14 +4651,6 @@
             },
             "constructInfo": {
               "fqn": "aws-cdk-lib.aws_cloudfront.Distribution",
-              "version": "2.173.4"
-            }
-          },
-          "UiBucketName": {
-            "id": "UiBucketName",
-            "path": "shumelahire-dev-frontend/UiBucketName",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnOutput",
               "version": "2.173.4"
             }
           },

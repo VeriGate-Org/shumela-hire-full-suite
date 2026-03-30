@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.service.leave;
 import com.arthmatic.shumelahire.dto.leave.LeaveTypeRequest;
 import com.arthmatic.shumelahire.dto.leave.LeaveTypeResponse;
 import com.arthmatic.shumelahire.entity.leave.LeaveType;
-import com.arthmatic.shumelahire.repository.leave.LeaveTypeRepository;
+import com.arthmatic.shumelahire.repository.LeaveTypeDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class LeaveTypeService {
     private static final Logger logger = LoggerFactory.getLogger(LeaveTypeService.class);
 
     @Autowired
-    private LeaveTypeRepository leaveTypeRepository;
+    private LeaveTypeDataRepository leaveTypeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -43,7 +43,7 @@ public class LeaveTypeService {
     }
 
     public LeaveTypeResponse update(Long id, LeaveTypeRequest request, String userId) {
-        LeaveType leaveType = leaveTypeRepository.findById(id)
+        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + id));
 
         mapRequestToEntity(request, leaveType);
@@ -57,7 +57,7 @@ public class LeaveTypeService {
 
     @Transactional(readOnly = true)
     public LeaveTypeResponse getById(Long id) {
-        LeaveType leaveType = leaveTypeRepository.findById(id)
+        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + id));
         return LeaveTypeResponse.fromEntity(leaveType);
     }

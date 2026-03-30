@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.dto.*;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.JobAdTemplateService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class JobAdTemplateController {
     private JobAdTemplateService templateService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     /**
      * POST /api/job-templates - Create a new template

@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.SalaryRecommendationProvideRequest;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.SalaryRecommendation;
 import com.arthmatic.shumelahire.entity.SalaryRecommendationStatus;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.SalaryRecommendationRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.SalaryRecommendationDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +25,14 @@ public class SalaryRecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(SalaryRecommendationService.class);
     private static final BigDecimal EXECUTIVE_APPROVAL_THRESHOLD = new BigDecimal("200000");
 
-    private final SalaryRecommendationRepository repository;
-    private final ApplicationRepository applicationRepository;
+    private final SalaryRecommendationDataRepository repository;
+    private final ApplicationDataRepository applicationRepository;
     private final AuditLogService auditLogService;
 
     @Autowired
     public SalaryRecommendationService(
-            SalaryRecommendationRepository repository,
-            ApplicationRepository applicationRepository,
+            SalaryRecommendationDataRepository repository,
+            ApplicationDataRepository applicationRepository,
             AuditLogService auditLogService) {
         this.repository = repository;
         this.applicationRepository = applicationRepository;
@@ -57,7 +57,7 @@ public class SalaryRecommendationService {
         rec.setProposedTargetSalary(request.getProposedTargetSalary());
 
         if (request.getApplicationId() != null) {
-            Application app = applicationRepository.findById(request.getApplicationId()).orElse(null);
+            Application app = applicationRepository.findById(String.valueOf(request.getApplicationId())).orElse(null);
             rec.setApplication(app);
         }
 
@@ -76,7 +76,7 @@ public class SalaryRecommendationService {
     }
 
     public SalaryRecommendation submitForReview(Long id, String userId) {
-        SalaryRecommendation rec = repository.findById(id)
+        SalaryRecommendation rec = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.DRAFT && rec.getStatus() != SalaryRecommendationStatus.RETURNED) {
@@ -91,7 +91,7 @@ public class SalaryRecommendationService {
     }
 
     public SalaryRecommendation provideRecommendation(Long id, SalaryRecommendationProvideRequest request, String recommendedBy) {
-        SalaryRecommendation rec = repository.findById(id)
+        SalaryRecommendation rec = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_REVIEW) {
@@ -123,7 +123,7 @@ public class SalaryRecommendationService {
     }
 
     public SalaryRecommendation approveRecommendation(Long id, String approvedBy, String approvalNotes) {
-        SalaryRecommendation rec = repository.findById(id)
+        SalaryRecommendation rec = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_APPROVAL && rec.getStatus() != SalaryRecommendationStatus.RECOMMENDED) {
@@ -142,7 +142,7 @@ public class SalaryRecommendationService {
     }
 
     public SalaryRecommendation rejectRecommendation(Long id, String rejectedBy, String rejectionReason) {
-        SalaryRecommendation rec = repository.findById(id)
+        SalaryRecommendation rec = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_APPROVAL && rec.getStatus() != SalaryRecommendationStatus.RECOMMENDED) {
@@ -160,7 +160,7 @@ public class SalaryRecommendationService {
     }
 
     public SalaryRecommendation linkToOffer(Long id, Long offerId, String userId) {
-        SalaryRecommendation rec = repository.findById(id)
+        SalaryRecommendation rec = repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.APPROVED) {
@@ -183,7 +183,7 @@ public class SalaryRecommendationService {
 
     @Transactional(readOnly = true)
     public SalaryRecommendation getById(Long id) {
-        return repository.findById(id)
+        return repository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
     }
 

@@ -2,29 +2,17 @@ package com.arthmatic.shumelahire.entity.engagement;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "wellness_program_participants")
 public class WellnessProgramParticipant extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "program_id", nullable = false)
     private WellnessProgram program;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @CreationTimestamp
-    @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
 
     public Long getId() { return id; }

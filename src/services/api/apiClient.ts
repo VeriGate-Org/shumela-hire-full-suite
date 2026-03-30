@@ -19,17 +19,29 @@ export interface PaginationParams {
   size?: number;
   sort?: string;
   direction?: 'asc' | 'desc';
+  /** Opaque cursor for DynamoDB cursor-based pagination. When provided, `page` is ignored. */
+  cursor?: string;
 }
 
+/**
+ * Paginated response that supports both JPA page-based and DynamoDB cursor-based pagination.
+ * - JPA responses include `totalElements`, `totalPages`, `number`, `first`, `last`.
+ * - DynamoDB responses include `nextCursor` (opaque token) and may omit totals.
+ */
 export interface PaginatedResponse<T> {
   content: T[];
-  totalElements: number;
-  totalPages: number;
+  /** Total element count. Present for JPA; may be undefined for DynamoDB. */
+  totalElements?: number;
+  /** Total pages. Present for JPA; may be undefined for DynamoDB. */
+  totalPages?: number;
   size: number;
-  number: number;
+  /** Current page number (0-based). Present for JPA; may be undefined for DynamoDB. */
+  number?: number;
   first: boolean;
   last: boolean;
   empty: boolean;
+  /** Opaque cursor pointing to the next page. Present for DynamoDB cursor-based responses. */
+  nextCursor?: string;
 }
 
 export interface ApiClientConfig {

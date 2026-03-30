@@ -1,60 +1,39 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity(name = "TgJobBoardPosting")
-@Table(name = "tg_job_board_postings")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobBoardPosting extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "job_posting_id", nullable = false)
     private String jobPostingId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "board_type", nullable = false)
     private JobBoardType boardType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private PostingStatus status = PostingStatus.DRAFT;
 
-    @Column(name = "external_post_id")
     private String externalPostId;
 
-    @Column(name = "external_url")
     private String externalUrl;
 
-    @Column(name = "posted_at")
     private LocalDateTime postedAt;
 
-    @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
-    @Column(name = "view_count")
     private Integer viewCount = 0;
 
-    @Column(name = "click_count")
     private Integer clickCount = 0;
 
-    @Column(name = "application_count")
     private Integer applicationCount = 0;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "board_config", columnDefinition = "TEXT")
     private String boardConfig; // JSON config for board-specific settings
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public JobBoardPosting() {
@@ -62,7 +41,6 @@ public class JobBoardPosting extends TenantAwareEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

@@ -1,11 +1,9 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.Filter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,104 +17,71 @@ import java.util.Set;
  * User entity with Spring Security integration.
  * Uses @Filter from TenantAwareEntity's @FilterDef (cannot extend due to UserDetails).
  */
-@Entity
-@Table(name = "users")
-@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
     @Size(max = 50)
-    @Column(unique = true)
     private String username;
 
     @NotBlank
     @Email
     @Size(max = 100)
-    @Column(unique = true)
     private String email;
 
     @NotBlank
     @Size(max = 255)
     private String password;
 
-    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name")
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private Role role = Role.APPLICANT;
 
-    @Column(name = "is_enabled")
     private boolean enabled = true;
 
-    @Column(name = "account_non_expired")
     private boolean accountNonExpired = true;
 
-    @Column(name = "account_non_locked")
     private boolean accountNonLocked = true;
 
-    @Column(name = "credentials_non_expired")
     private boolean credentialsNonExpired = true;
 
-    @Column(name = "email_verified")
     private boolean emailVerified = false;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @Column(name = "failed_login_attempts")
     private int failedLoginAttempts = 0;
 
-    @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
-    @Column(name = "password_reset_token")
     private String passwordResetToken;
 
-    @Column(name = "password_reset_expires")
     private LocalDateTime passwordResetExpires;
 
-    @Column(name = "email_verification_token")
     private String emailVerificationToken;
 
-    @Column(name = "two_factor_enabled")
     private boolean twoFactorEnabled = false;
 
-    @Column(name = "two_factor_secret")
     private String twoFactorSecret;
 
-    @Column(name = "phone", length = 30)
     private String phone;
 
-    @Column(name = "location", length = 100)
     private String location;
 
-    @Column(name = "job_title", length = 100)
     private String jobTitle;
 
-    @Column(name = "department", length = 100)
     private String department;
 
-    @Column(name = "sso_provider")
     private String ssoProvider; // "AZURE_AD", "SAML2", null for local
 
-    @Column(name = "sso_user_id")
     private String ssoUserId; // External user ID from SSO
 
-    @Column(name = "tenant_id", nullable = false, length = 50)
     private String tenantId;
 
     // Constructors
@@ -176,14 +141,12 @@ public class User implements UserDetails {
                LocalDateTime.now().isBefore(passwordResetExpires);
     }
 
-    @PrePersist
     protected void prePersistTenant() {
         if (this.tenantId == null) {
             this.tenantId = TenantContext.requireCurrentTenant();
         }
     }
 
-    @PreUpdate
     public void setUpdatedAt() {
         this.updatedAt = LocalDateTime.now();
     }

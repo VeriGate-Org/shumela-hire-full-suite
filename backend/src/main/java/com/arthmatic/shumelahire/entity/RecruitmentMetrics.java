@@ -1,88 +1,58 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "recruitment_metrics")
 public class RecruitmentMetrics extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "metric_date", nullable = false)
     private LocalDate metricDate;
 
-    @Column(name = "metric_type", nullable = false)
-    @Enumerated(EnumType.STRING)
     private MetricType metricType;
 
-    @Column(name = "metric_category", nullable = false)
     private String metricCategory; // APPLICATIONS, INTERVIEWS, OFFERS, HIRES, PIPELINE
 
-    @Column(name = "metric_name", nullable = false)
     private String metricName;
 
-    @Column(name = "metric_value", precision = 15, scale = 4, nullable = false)
     private BigDecimal metricValue;
 
-    @Column(name = "department")
     private String department;
 
-    @Column(name = "job_posting_id")
     private Long jobPostingId;
 
-    @Column(name = "recruiter_id")
     private Long recruiterId;
 
-    @Column(name = "hiring_manager_id")
     private Long hiringManagerId;
 
-    @Column(name = "period_start_date")
     private LocalDate periodStartDate;
 
-    @Column(name = "period_end_date")
     private LocalDate periodEndDate;
 
-    @Column(name = "target_value", precision = 15, scale = 4)
     private BigDecimal targetValue;
 
-    @Column(name = "previous_period_value", precision = 15, scale = 4)
     private BigDecimal previousPeriodValue;
 
-    @Column(name = "variance_percentage", precision = 10, scale = 4)
     private BigDecimal variancePercentage;
 
-    @Column(name = "trend_direction")
-    @Enumerated(EnumType.STRING)
     private TrendDirection trendDirection;
 
-    @Column(name = "benchmark_value", precision = 15, scale = 4)
     private BigDecimal benchmarkValue;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "data_source")
     private String dataSource;
 
-    @Column(name = "calculation_method")
     private String calculationMethod;
 
-    @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
     // Constructors
@@ -101,7 +71,6 @@ public class RecruitmentMetrics extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

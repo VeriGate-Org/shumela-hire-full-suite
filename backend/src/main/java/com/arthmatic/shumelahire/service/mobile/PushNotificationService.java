@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.mobile.DevicePlatform;
 import com.arthmatic.shumelahire.entity.mobile.DeviceRegistration;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.mobile.DeviceRegistrationRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.DeviceRegistrationDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +24,10 @@ public class PushNotificationService {
     private static final Logger logger = LoggerFactory.getLogger(PushNotificationService.class);
 
     @Autowired
-    private DeviceRegistrationRepository deviceRegistrationRepository;
+    private DeviceRegistrationDataRepository deviceRegistrationRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -49,7 +49,7 @@ public class PushNotificationService {
             return deviceRegistrationRepository.save(reg);
         }
 
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new RuntimeException("Employee not found: " + employeeId));
 
         DeviceRegistration registration = new DeviceRegistration();
@@ -72,7 +72,7 @@ public class PushNotificationService {
      * Unregister a device (soft deactivate).
      */
     public void unregisterDevice(Long deviceId) {
-        DeviceRegistration registration = deviceRegistrationRepository.findById(deviceId)
+        DeviceRegistration registration = deviceRegistrationRepository.findById(String.valueOf(deviceId))
                 .orElseThrow(() -> new RuntimeException("Device registration not found: " + deviceId));
 
         registration.setIsActive(false);
@@ -89,7 +89,7 @@ public class PushNotificationService {
      */
     @Transactional(readOnly = true)
     public List<DeviceRegistration> getMyDevices(Long employeeId) {
-        return deviceRegistrationRepository.findByEmployeeIdOrderByRegisteredAtDesc(employeeId);
+        return deviceRegistrationRepository.findByEmployeeIdOrderByRegisteredAtDesc(String.valueOf(employeeId));
     }
 
     /**
@@ -100,7 +100,7 @@ public class PushNotificationService {
         logger.info("Sending push notification to employee: {} - title: {}", employeeId, title);
 
         List<DeviceRegistration> activeDevices = deviceRegistrationRepository
-                .findByEmployeeIdAndIsActiveOrderByRegisteredAtDesc(employeeId, true);
+                .findByEmployeeIdAndIsActiveOrderByRegisteredAtDesc(String.valueOf(employeeId), true);
 
         if (activeDevices.isEmpty()) {
             logger.warn("No active devices found for employee: {}", employeeId);

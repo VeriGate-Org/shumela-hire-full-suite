@@ -6,7 +6,7 @@ import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeStatus;
 import com.arthmatic.shumelahire.entity.EmploymentEvent;
 import com.arthmatic.shumelahire.entity.EmploymentEventType;
-import com.arthmatic.shumelahire.repository.EmploymentEventRepository;
+import com.arthmatic.shumelahire.repository.EmploymentEventDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 class EmploymentEventServiceTest {
 
     @Mock
-    private EmploymentEventRepository eventRepository;
+    private EmploymentEventDataRepository eventRepository;
 
     @Mock
     private EmployeeService employeeService;
@@ -159,7 +159,7 @@ class EmploymentEventServiceTest {
         event2.setEffectiveDate(LocalDate.of(2025, 6, 1));
         event2.setCreatedAt(LocalDateTime.now());
 
-        when(eventRepository.findByEmployeeIdOrderByEventDateDesc(1L)).thenReturn(List.of(event2, event1));
+        when(eventRepository.findByEmployeeOrderByEventDateDesc("1")).thenReturn(List.of(event2, event1));
 
         List<EmploymentEventResponse> history = eventService.getEmployeeHistory(1L);
 

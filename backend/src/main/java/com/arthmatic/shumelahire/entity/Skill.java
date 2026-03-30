@@ -1,39 +1,27 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "skills")
 public class Skill extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Skill name is required")
-    @Column(name = "name", nullable = false, length = 255)
     private String name;
 
     @NotBlank(message = "Skill code is required")
-    @Column(name = "code", nullable = false, length = 100)
     private String code;
 
-    @Column(name = "category", length = 100)
     private String category;
 
-    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Skill() {
@@ -49,7 +37,6 @@ public class Skill extends TenantAwareEntity {
         this.description = description;
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

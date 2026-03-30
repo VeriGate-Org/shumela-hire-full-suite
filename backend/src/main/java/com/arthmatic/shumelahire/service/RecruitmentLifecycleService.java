@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.dto.LifecycleEvent;
 import com.arthmatic.shumelahire.dto.RecruitmentLifecycle;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.*;
+import com.arthmatic.shumelahire.repository.PipelineTransitionDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,31 +29,31 @@ public class RecruitmentLifecycleService {
     private static final Logger logger = LoggerFactory.getLogger(RecruitmentLifecycleService.class);
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
-    private OfferRepository offerRepository;
+    private OfferDataRepository offerRepository;
 
     @Autowired
-    private SalaryRecommendationRepository salaryRecommendationRepository;
+    private SalaryRecommendationDataRepository salaryRecommendationRepository;
 
     @Autowired
-    private PipelineTransitionRepository pipelineTransitionRepository;
+    private PipelineTransitionDataRepository pipelineTransitionRepository;
 
     @Autowired
-    private AuditLogRepository auditLogRepository;
+    private AuditLogDataRepository auditLogRepository;
 
     @Autowired
-    private JobAdRepository jobAdRepository;
+    private JobAdDataRepository jobAdRepository;
 
     @Autowired
-    private RequisitionRepository requisitionRepository;
+    private RequisitionDataRepository requisitionRepository;
 
     @Autowired(required = false)
-    private BackgroundCheckRepository backgroundCheckRepository;
+    private BackgroundCheckDataRepository backgroundCheckRepository;
 
     // ── Color & icon mappings ──────────────────────────
 
@@ -86,7 +87,7 @@ public class RecruitmentLifecycleService {
      * Build a full recruitment lifecycle for an application.
      */
     public RecruitmentLifecycle getByApplicationId(Long applicationId) {
-        Application app = applicationRepository.findById(applicationId)
+        Application app = applicationRepository.findById(String.valueOf(applicationId))
                 .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
         List<LifecycleEvent> events = new ArrayList<>();
@@ -115,11 +116,11 @@ public class RecruitmentLifecycleService {
      * Build lifecycle views for all applications under a requisition.
      */
     public List<RecruitmentLifecycle> getByRequisitionId(Long requisitionId) {
-        Requisition req = requisitionRepository.findById(requisitionId)
+        Requisition req = requisitionRepository.findById(String.valueOf(requisitionId))
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + requisitionId));
 
         // Find JobAds for this requisition
-        List<JobAd> jobAds = jobAdRepository.findByRequisitionId(requisitionId);
+        List<JobAd> jobAds = jobAdRepository.findByRequisitionId(String.valueOf(requisitionId));
         if (jobAds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -203,7 +204,7 @@ public class RecruitmentLifecycleService {
     }
 
     private void addInterviewEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<Interview> interviews = interviewRepository.findByApplicationId(applicationId);
+        List<Interview> interviews = interviewRepository.findByApplicationId(String.valueOf(applicationId));
         for (Interview iv : interviews) {
             String ivId = iv.getId().toString();
 
@@ -239,7 +240,7 @@ public class RecruitmentLifecycleService {
     }
 
     private void addOfferEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<Offer> offers = offerRepository.findByApplicationId(applicationId);
+        List<Offer> offers = offerRepository.findByApplicationId(String.valueOf(applicationId));
         for (Offer offer : offers) {
             String offerId = offer.getId().toString();
 
@@ -292,7 +293,7 @@ public class RecruitmentLifecycleService {
     }
 
     private void addSalaryRecommendationEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<SalaryRecommendation> recs = salaryRecommendationRepository.findByApplicationId(applicationId);
+        List<SalaryRecommendation> recs = salaryRecommendationRepository.findByApplicationId(String.valueOf(applicationId));
         for (SalaryRecommendation rec : recs) {
             LifecycleEvent e = new LifecycleEvent("SALARY_REC", rec.getId().toString(), "CREATED",
                     "Salary Recommendation: " + rec.getRecommendationNumber(),
@@ -307,7 +308,7 @@ public class RecruitmentLifecycleService {
 
     private void addPipelineTransitionEvents(List<LifecycleEvent> events, Long applicationId) {
         List<PipelineTransition> transitions = pipelineTransitionRepository
-                .findByApplicationIdOrderByCreatedAtDesc(applicationId);
+                .findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
 
         for (PipelineTransition pt : transitions) {
             String fromStage = pt.getFromStage() != null ? pt.getFromStage().name() : "Start";
@@ -336,7 +337,7 @@ public class RecruitmentLifecycleService {
     private void addBackgroundCheckEvents(List<LifecycleEvent> events, Long applicationId) {
         if (backgroundCheckRepository == null) return;
 
-        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId);
+        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
         for (BackgroundCheck bc : checks) {
             // Check initiated
             LifecycleEvent initiated = new LifecycleEvent("BACKGROUND_CHECK", bc.getId().toString(), "INITIATED",

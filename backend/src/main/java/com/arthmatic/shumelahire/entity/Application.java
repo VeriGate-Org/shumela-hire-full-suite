@@ -2,110 +2,73 @@ package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "applications")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Application extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", nullable = false)
     @NotNull(message = "Applicant is required")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Applicant applicant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_posting_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private JobPosting jobPosting;
 
-    @Column(name = "job_posting_id", insertable = false, updatable = false)
     private Long jobPostingId;
 
-    @Column(name = "job_title")
     private String jobTitle;
 
-    @Column(name = "job_id")
     private String jobId;
 
-    @Column(name = "department")
     private String department;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private ApplicationStatus status = ApplicationStatus.SUBMITTED;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "pipeline_stage", nullable = false)
     private PipelineStage pipelineStage = PipelineStage.APPLICATION_RECEIVED;
 
-    @Column(name = "pipeline_stage_entered_at", nullable = false)
     private LocalDateTime pipelineStageEnteredAt;
 
-    @Column(name = "cover_letter", columnDefinition = "TEXT")
     private String coverLetter;
 
-    @Column(name = "application_source")
     private String applicationSource;
 
-    @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
-    @Column(name = "withdrawn_at")
     private LocalDateTime withdrawnAt;
 
-    @Column(name = "withdrawal_reason", columnDefinition = "TEXT")
     private String withdrawalReason;
 
-    @Column(name = "screening_notes", columnDefinition = "TEXT")
     private String screeningNotes;
 
-    @Column(name = "interview_feedback", columnDefinition = "TEXT")
     private String interviewFeedback;
 
-    @Column(name = "rating")
     private Integer rating;
 
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
-    @Column(name = "offer_details", columnDefinition = "TEXT")
     private String offerDetails;
 
-    @Column(name = "start_date")
     private LocalDateTime startDate;
 
-    @Column(name = "salary_expectation")
     private Double salaryExpectation;
 
-    @Column(name = "availability_date")
     private LocalDateTime availabilityDate;
 
-    @Column(name = "interviewed_at")
     private LocalDateTime interviewedAt;
 
-    @Column(name = "offer_extended_at")
     private LocalDateTime offerExtendedAt;
 
-    @Column(name = "response_deadline")
     private LocalDateTime responseDeadline;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Document> applicationDocuments;
 
@@ -131,7 +94,6 @@ public class Application extends TenantAwareEntity {
         this.jobTitle = jobTitle;
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

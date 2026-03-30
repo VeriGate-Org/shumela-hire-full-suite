@@ -9,6 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+/**
+ * Engagement analytics service.
+ * Currently returns mock data — Glue tables for surveys, recognitions,
+ * and sentiment data are not yet in the analytics pipeline. Once those entities
+ * flow through DynamoDB Streams → S3, the mock data will be replaced with real Athena queries.
+ */
 @Service
 @Transactional(readOnly = true)
 public class EngagementAnalyticsService {
@@ -18,17 +24,22 @@ public class EngagementAnalyticsService {
     @Autowired
     private AuditLogService auditLogService;
 
-    /**
-     * Compute engagement analytics: survey participation rates, recognition stats,
-     * eNPS score, engagement trends, department engagement levels.
-     */
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
     public Map<String, Object> getEngagementMetrics() {
         logger.info("Computing engagement analytics");
         auditLogService.logSystemAction("VIEW", "ENGAGEMENT_ANALYTICS", "Engagement metrics requested");
 
+        // No Glue tables for engagement entities yet — return mock data.
+        // When surveys, recognitions, and sentiment_responses tables are added
+        // to the analytics pipeline, this method will query Athena.
+        return getEngagementMetricsMock();
+    }
+
+    private Map<String, Object> getEngagementMetricsMock() {
         Map<String, Object> metrics = new LinkedHashMap<>();
 
-        // Summary KPIs
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("overallEngagementScore", 7.4);
         summary.put("eNPSScore", 32);
@@ -39,7 +50,6 @@ public class EngagementAnalyticsService {
         summary.put("averageSentimentScore", 3.8);
         metrics.put("summary", summary);
 
-        // Survey participation by department
         metrics.put("surveyParticipation", List.of(
                 Map.of("department", "Engineering", "invitedCount", 95, "respondedCount", 82, "participationRate", 86.3),
                 Map.of("department", "Sales", "invitedCount", 62, "respondedCount", 48, "participationRate", 77.4),
@@ -50,7 +60,6 @@ public class EngagementAnalyticsService {
                 Map.of("department", "Customer Support", "invitedCount", 42, "respondedCount", 32, "participationRate", 76.2)
         ));
 
-        // Recognition statistics
         Map<String, Object> recognition = new LinkedHashMap<>();
         recognition.put("totalRecognitions", 456);
         recognition.put("topRecognitionCategories", List.of(
@@ -69,7 +78,6 @@ public class EngagementAnalyticsService {
         ));
         metrics.put("recognition", recognition);
 
-        // Engagement trends (quarterly)
         metrics.put("engagementTrends", List.of(
                 Map.of("quarter", "Q1 2024", "engagementScore", 7.1, "eNPS", 28, "participationRate", 78.0),
                 Map.of("quarter", "Q2 2024", "engagementScore", 7.3, "eNPS", 30, "participationRate", 80.5),
@@ -77,7 +85,6 @@ public class EngagementAnalyticsService {
                 Map.of("quarter", "Q4 2024", "engagementScore", 7.4, "eNPS", 32, "participationRate", 82.5)
         ));
 
-        // Engagement drivers
         metrics.put("engagementDrivers", List.of(
                 Map.of("driver", "Work-Life Balance", "score", 7.8, "trend", "UP"),
                 Map.of("driver", "Career Growth", "score", 6.9, "trend", "STABLE"),

@@ -3,7 +3,7 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.JobAd;
 import com.arthmatic.shumelahire.entity.JobAdStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
-import com.arthmatic.shumelahire.repository.JobAdRepository;
+import com.arthmatic.shumelahire.repository.JobAdDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,10 +25,10 @@ public class JobAdSyncService {
 
     private static final Logger logger = LoggerFactory.getLogger(JobAdSyncService.class);
 
-    private final JobAdRepository jobAdRepository;
+    private final JobAdDataRepository jobAdRepository;
     private final SlugGeneratorService slugGeneratorService;
 
-    public JobAdSyncService(JobAdRepository jobAdRepository, SlugGeneratorService slugGeneratorService) {
+    public JobAdSyncService(JobAdDataRepository jobAdRepository, SlugGeneratorService slugGeneratorService) {
         this.jobAdRepository = jobAdRepository;
         this.slugGeneratorService = slugGeneratorService;
     }
@@ -37,7 +37,7 @@ public class JobAdSyncService {
      * Create or update a JobAd when a JobPosting is published.
      */
     public void onJobPostingPublished(JobPosting posting) {
-        JobAd ad = jobAdRepository.findByJobPostingId(posting.getId()).orElse(null);
+        JobAd ad = jobAdRepository.findByJobPostingId(String.valueOf(posting.getId())).orElse(null);
 
         if (ad == null) {
             ad = new JobAd();
@@ -68,7 +68,7 @@ public class JobAdSyncService {
      * Update the linked JobAd when a published JobPosting is edited.
      */
     public void onJobPostingUpdated(JobPosting posting) {
-        jobAdRepository.findByJobPostingId(posting.getId()).ifPresent(ad -> {
+        jobAdRepository.findByJobPostingId(String.valueOf(posting.getId())).ifPresent(ad -> {
             syncFields(ad, posting);
             jobAdRepository.save(ad);
             logger.info("Updated JobAd {} from JobPosting {}", ad.getId(), posting.getId());
@@ -79,7 +79,7 @@ public class JobAdSyncService {
      * Unpublish the linked JobAd when a JobPosting is unpublished.
      */
     public void onJobPostingUnpublished(JobPosting posting) {
-        jobAdRepository.findByJobPostingId(posting.getId()).ifPresent(ad -> {
+        jobAdRepository.findByJobPostingId(String.valueOf(posting.getId())).ifPresent(ad -> {
             if (ad.isPublished()) {
                 ad.setStatus(JobAdStatus.UNPUBLISHED);
                 jobAdRepository.save(ad);
@@ -92,7 +92,7 @@ public class JobAdSyncService {
      * Unpublish the linked JobAd when a JobPosting is closed.
      */
     public void onJobPostingClosed(JobPosting posting) {
-        jobAdRepository.findByJobPostingId(posting.getId()).ifPresent(ad -> {
+        jobAdRepository.findByJobPostingId(String.valueOf(posting.getId())).ifPresent(ad -> {
             if (ad.isPublished()) {
                 ad.setStatus(JobAdStatus.UNPUBLISHED);
                 jobAdRepository.save(ad);

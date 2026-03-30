@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.JobAd;
 import com.arthmatic.shumelahire.entity.JobAdStatus;
-import com.arthmatic.shumelahire.repository.JobAdRepository;
+import com.arthmatic.shumelahire.repository.JobAdDataRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class JobAdServiceTest {
 
     @Mock
-    private JobAdRepository jobAdRepository;
+    private JobAdDataRepository jobAdRepository;
 
     @InjectMocks
     private JobAdService jobAdService;
@@ -47,14 +47,14 @@ class JobAdServiceTest {
     @Test
     void testBasicRepositoryInteraction() {
         // Given
-        when(jobAdRepository.findById(1L)).thenReturn(Optional.of(mockJobAd));
+        when(jobAdRepository.findById("1")).thenReturn(Optional.of(mockJobAd));
 
         // When
-        Optional<JobAd> result = jobAdRepository.findById(1L);
+        Optional<JobAd> result = jobAdRepository.findById("1");
 
         // Then
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
-        verify(jobAdRepository).findById(1L);
+        verify(jobAdRepository).findById("1");
     }
 }

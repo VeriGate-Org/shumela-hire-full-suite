@@ -2,14 +2,12 @@ package com.arthmatic.shumelahire.service.attendance;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.attendance.*;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.attendance.AttendanceRecordRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.AttendanceRecordDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +24,10 @@ public class AttendanceService {
     private static final Logger logger = LoggerFactory.getLogger(AttendanceService.class);
 
     @Autowired
-    private AttendanceRecordRepository attendanceRecordRepository;
+    private AttendanceRecordDataRepository attendanceRecordRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private GeofenceService geofenceService;
@@ -38,11 +36,11 @@ public class AttendanceService {
     private AuditLogService auditLogService;
 
     public AttendanceRecord clockIn(Long employeeId, ClockMethod method, Double latitude, Double longitude) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         // Check for open session
-        attendanceRecordRepository.findOpenSession(employeeId)
+        attendanceRecordRepository.findOpenSession(String.valueOf(employeeId))
                 .ifPresent(r -> { throw new IllegalArgumentException("Already clocked in. Please clock out first."); });
 
         // Validate geofence if applicable
@@ -68,7 +66,7 @@ public class AttendanceService {
     }
 
     public AttendanceRecord clockOut(Long employeeId, Double latitude, Double longitude) {
-        AttendanceRecord record = attendanceRecordRepository.findOpenSession(employeeId)
+        AttendanceRecord record = attendanceRecordRepository.findOpenSession(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("No open clock-in session found"));
 
         record.setClockOut(LocalDateTime.now());
@@ -88,8 +86,8 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AttendanceRecord> getByEmployee(Long employeeId, Pageable pageable) {
-        return attendanceRecordRepository.findByEmployeeId(employeeId, pageable);
+    public List<AttendanceRecord> getByEmployee(Long employeeId) {
+        return attendanceRecordRepository.findByEmployeeId(String.valueOf(employeeId));
     }
 
     @Transactional(readOnly = true)
@@ -104,11 +102,11 @@ public class AttendanceService {
 
     @Transactional(readOnly = true)
     public java.util.Optional<AttendanceRecord> getOpenSession(Long employeeId) {
-        return attendanceRecordRepository.findOpenSession(employeeId);
+        return attendanceRecordRepository.findOpenSession(String.valueOf(employeeId));
     }
 
     public AttendanceRecord createManualEntry(Long employeeId, LocalDateTime clockIn, LocalDateTime clockOut, String notes) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         AttendanceRecord record = new AttendanceRecord();
@@ -135,7 +133,7 @@ public class AttendanceService {
     }
 
     public AttendanceRecord approveManualEntry(Long id) {
-        AttendanceRecord record = attendanceRecordRepository.findById(id)
+        AttendanceRecord record = attendanceRecordRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Attendance record not found: " + id));
 
         if (record.getStatus() != AttendanceStatus.PENDING_APPROVAL) {

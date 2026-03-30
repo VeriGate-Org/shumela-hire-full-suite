@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.dto.*;
 import com.arthmatic.shumelahire.entity.JobAd;
 import com.arthmatic.shumelahire.entity.JobAdHistory;
 import com.arthmatic.shumelahire.entity.JobAdStatus;
-import com.arthmatic.shumelahire.repository.JobAdHistoryRepository;
-import com.arthmatic.shumelahire.repository.JobAdRepository;
+import com.arthmatic.shumelahire.repository.JobAdHistoryDataRepository;
+import com.arthmatic.shumelahire.repository.JobAdDataRepository;
 import com.arthmatic.shumelahire.config.CacheConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +32,10 @@ public class JobAdService {
     private static final Logger logger = LoggerFactory.getLogger(JobAdService.class);
     
     @Autowired
-    private JobAdRepository jobAdRepository;
+    private JobAdDataRepository jobAdRepository;
     
     @Autowired
-    private JobAdHistoryRepository jobAdHistoryRepository;
+    private JobAdHistoryDataRepository jobAdHistoryRepository;
     
     @Autowired
     private AuditLogService auditLogService;
@@ -277,8 +278,12 @@ public class JobAdService {
      */
     @Transactional(readOnly = true)
     public Page<JobAdResponse> getPublishedInternalAds(Pageable pageable) {
-        Page<JobAd> jobAds = jobAdRepository.findActiveInternalAdsPaged(LocalDate.now(), pageable);
-        return jobAds.map(JobAdResponse::fromEntity);
+        CursorPage<JobAd> cursorPage = jobAdRepository.findActiveInternalAdsPaged(
+            LocalDate.now(), null, pageable.getPageSize());
+        List<JobAdResponse> content = cursorPage.content().stream()
+            .map(JobAdResponse::fromEntity)
+            .toList();
+        return new PageImpl<>(content, pageable, content.size());
     }
 
     /**
@@ -288,15 +293,19 @@ public class JobAdService {
     public Page<JobAdResponse> searchJobAds(JobAdStatus status, String channel, String query, Pageable pageable) {
         Boolean channelInternal = null;
         Boolean channelExternal = null;
-        
+
         if ("internal".equalsIgnoreCase(channel)) {
             channelInternal = true;
         } else if ("external".equalsIgnoreCase(channel)) {
             channelExternal = true;
         }
-        
-        Page<JobAd> jobAds = jobAdRepository.findWithFilters(status, channelInternal, channelExternal, query, pageable);
-        return jobAds.map(JobAdResponse::fromEntity);
+
+        CursorPage<JobAd> cursorPage = jobAdRepository.findWithFilters(
+            status, channelInternal, channelExternal, query, null, pageable.getPageSize());
+        List<JobAdResponse> content = cursorPage.content().stream()
+            .map(JobAdResponse::fromEntity)
+            .toList();
+        return new PageImpl<>(content, pageable, content.size());
     }
     
     /**
@@ -304,7 +313,7 @@ public class JobAdService {
      */
     @Transactional(readOnly = true)
     public List<JobAdHistory> getJobAdHistory(Long jobAdId) {
-        return jobAdHistoryRepository.findByJobAdIdOrderByTimestampDesc(jobAdId);
+        return jobAdHistoryRepository.findByJobAdIdOrderByTimestampDesc(String.valueOf(jobAdId));
     }
     
     /**
@@ -338,7 +347,7 @@ public class JobAdService {
     // Helper methods
     
     private JobAd findJobAdById(Long id) {
-        return jobAdRepository.findById(id)
+        return jobAdRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Job ad not found with ID: " + id));
     }
     

@@ -1,53 +1,32 @@
 package com.arthmatic.shumelahire.entity.compliance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "data_subject_requests")
 public class DataSubjectRequest extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "requester_name", nullable = false, length = 200)
     private String requesterName;
 
-    @Column(name = "requester_email", nullable = false, length = 200)
     private String requesterEmail;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "request_type", nullable = false, length = 30)
     private DsarRequestType requestType;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private DsarStatus status = DsarStatus.RECEIVED;
 
-    @Column(columnDefinition = "TEXT")
     private String response;
 
-    @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Long getId() { return id; }

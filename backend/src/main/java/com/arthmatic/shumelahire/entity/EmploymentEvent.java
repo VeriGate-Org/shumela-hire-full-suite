@@ -1,80 +1,53 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "employment_events")
 public class EmploymentEvent extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "event_type", nullable = false, length = 50)
     private EmploymentEventType eventType;
 
     @NotNull
-    @Column(name = "event_date", nullable = false)
     private LocalDate eventDate;
 
     @NotNull
-    @Column(name = "effective_date", nullable = false)
     private LocalDate effectiveDate;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
     private String notes;
 
     // Before/after snapshots
-    @Column(name = "previous_department", length = 200)
     private String previousDepartment;
 
-    @Column(name = "new_department", length = 200)
     private String newDepartment;
 
-    @Column(name = "previous_job_title", length = 200)
     private String previousJobTitle;
 
-    @Column(name = "new_job_title", length = 200)
     private String newJobTitle;
 
-    @Column(name = "previous_job_grade", length = 50)
     private String previousJobGrade;
 
-    @Column(name = "new_job_grade", length = 50)
     private String newJobGrade;
 
-    @Column(name = "previous_reporting_manager_id")
     private Long previousReportingManagerId;
 
-    @Column(name = "new_reporting_manager_id")
     private Long newReportingManagerId;
 
-    @Column(name = "previous_location", length = 200)
     private String previousLocation;
 
-    @Column(name = "new_location", length = 200)
     private String newLocation;
 
-    @Column(name = "recorded_by", length = 255)
     private String recordedBy;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     // Getters and Setters

@@ -1,45 +1,29 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tenant_feature_entitlements",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uq_tenant_feature",
-                columnNames = {"tenant_id", "feature_id"}))
 public class TenantFeatureEntitlement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tenant_id", nullable = false, length = 50)
     private String tenantId;
 
-    @Column(name = "feature_id", nullable = false)
     private Long featureId;
 
-    @Column(name = "is_enabled", nullable = false)
     private boolean isEnabled;
 
     @Size(max = 500)
-    @Column(length = 500)
     private String reason;
 
     @Size(max = 100)
-    @Column(name = "granted_by", length = 100)
     private String grantedBy;
 
-    @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public TenantFeatureEntitlement() {}
@@ -48,7 +32,6 @@ public class TenantFeatureEntitlement {
         return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

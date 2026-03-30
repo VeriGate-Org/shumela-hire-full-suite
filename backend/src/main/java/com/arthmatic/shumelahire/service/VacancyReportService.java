@@ -2,10 +2,10 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.AuditLogRepository;
-import com.arthmatic.shumelahire.repository.JobBoardPostingRepository;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.AuditLogDataRepository;
+import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -36,16 +36,16 @@ public class VacancyReportService {
 
     private static final String DEMO_TENANT_SUBDOMAIN = "idc-demo";
 
-    private final ApplicationRepository applicationRepository;
-    private final JobBoardPostingRepository jobBoardPostingRepository;
-    private final AuditLogRepository auditLogRepository;
-    private final TenantRepository tenantRepository;
+    private final ApplicationDataRepository applicationRepository;
+    private final JobBoardPostingDataRepository jobBoardPostingRepository;
+    private final AuditLogDataRepository auditLogRepository;
+    private final TenantDataRepository tenantRepository;
 
     @Autowired
-    public VacancyReportService(ApplicationRepository applicationRepository,
-                                JobBoardPostingRepository jobBoardPostingRepository,
-                                AuditLogRepository auditLogRepository,
-                                TenantRepository tenantRepository) {
+    public VacancyReportService(ApplicationDataRepository applicationRepository,
+                                JobBoardPostingDataRepository jobBoardPostingRepository,
+                                AuditLogDataRepository auditLogRepository,
+                                TenantDataRepository tenantRepository) {
         this.applicationRepository = applicationRepository;
         this.jobBoardPostingRepository = jobBoardPostingRepository;
         this.auditLogRepository = auditLogRepository;

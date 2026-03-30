@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.controller.analytics;
 import com.arthmatic.shumelahire.annotation.FeatureGate;
 import com.arthmatic.shumelahire.service.analytics.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class HRAnalyticsController {
     private AttendanceAnalyticsService attendanceAnalyticsService;
 
     @Autowired
+    @Qualifier("analyticsTrainingAnalyticsService")
     private TrainingAnalyticsService trainingAnalyticsService;
 
     @Autowired

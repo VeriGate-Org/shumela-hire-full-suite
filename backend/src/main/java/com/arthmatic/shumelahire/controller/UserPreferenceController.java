@@ -2,8 +2,8 @@ package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.User;
 import com.arthmatic.shumelahire.entity.UserPreference;
-import com.arthmatic.shumelahire.repository.UserPreferenceRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserPreferenceDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,10 +18,10 @@ import java.util.Optional;
 public class UserPreferenceController {
 
     @Autowired
-    private UserPreferenceRepository preferenceRepository;
+    private UserPreferenceDataRepository preferenceRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @GetMapping
     public ResponseEntity<?> getPreferences(Authentication authentication) {

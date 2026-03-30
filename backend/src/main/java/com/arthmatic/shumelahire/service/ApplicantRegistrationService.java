@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.dto.ApplicantRegistrationRequest;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,13 +20,13 @@ public class ApplicantRegistrationService {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicantRegistrationService.class);
 
-    private final UserRepository userRepository;
-    private final ApplicantRepository applicantRepository;
+    private final UserDataRepository userRepository;
+    private final ApplicantDataRepository applicantRepository;
     private final Optional<CognitoAdminService> cognitoAdminService;
     private final PasswordEncoder passwordEncoder;
 
-    public ApplicantRegistrationService(UserRepository userRepository,
-                                         ApplicantRepository applicantRepository,
+    public ApplicantRegistrationService(UserDataRepository userRepository,
+                                         ApplicantDataRepository applicantRepository,
                                          Optional<CognitoAdminService> cognitoAdminService,
                                          PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -41,7 +41,7 @@ public class ApplicantRegistrationService {
         String tenantId = TenantContext.requireCurrentTenant();
 
         // Check for existing accounts
-        if (userRepository.existsByEmailAndTenantId(email, tenantId)) {
+        if (userRepository.existsByEmail(email)) {
             return RegistrationResult.failure("An account with this email already exists. Please sign in instead.");
         }
         if (applicantRepository.existsByEmail(email)) {

@@ -4,9 +4,6 @@ import com.arthmatic.shumelahire.annotation.FeatureGate;
 import com.arthmatic.shumelahire.dto.engagement.*;
 import com.arthmatic.shumelahire.service.engagement.SurveyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,11 +43,8 @@ public class SurveyController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<SurveyResponse>> getAllSurveys(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(surveyService.getAllSurveys(
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<SurveyResponse>> getAllSurveys() {
+        return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
     @GetMapping("/active")

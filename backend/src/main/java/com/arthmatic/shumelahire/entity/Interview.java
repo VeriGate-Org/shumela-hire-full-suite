@@ -2,7 +2,6 @@ package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -10,195 +9,119 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "interviews")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@NamedEntityGraph(
-    name = "Interview.withApplicationDetails",
-    attributeNodes = {
-        @NamedAttributeNode(value = "application", subgraph = "application-details"),
-        @NamedAttributeNode("feedbacks")
-    },
-    subgraphs = {
-        @NamedSubgraph(name = "application-details", attributeNodes = {
-            @NamedAttributeNode("applicant"),
-            @NamedAttributeNode("jobPosting")
-        })
-    }
-)
 public class Interview extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Version
     private Long version;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application application;
 
-    @Transient
     private Long applicationId;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
     private InterviewType type = InterviewType.PHONE;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "round", nullable = false)
     private InterviewRound round = InterviewRound.SCREENING;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private InterviewStatus status = InterviewStatus.SCHEDULED;
 
-    @Column(name = "scheduled_at", nullable = false)
     @NotNull(message = "Interview date/time is required")
     private LocalDateTime scheduledAt;
 
-    @Column(name = "duration_minutes", nullable = false)
     private Integer durationMinutes = 60;
 
-    @Column(name = "location")
     private String location;
 
-    @Column(name = "meeting_link")
     private String meetingLink;
 
-    @Column(name = "meeting_url")
     private String meetingUrl;
 
-    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "meeting_room")
     private String meetingRoom;
 
-    @Column(name = "instructions", columnDefinition = "TEXT")
     private String instructions;
 
-    @Column(name = "agenda", columnDefinition = "TEXT")
     private String agenda;
 
-    @Column(name = "interviewer_id")
     private Long interviewerId;
 
-    @Column(name = "interviewer_name")
     private String interviewerName;
 
-    @Column(name = "interviewer_email")
     private String interviewerEmail;
 
-    @Column(name = "additional_interviewers")
     private String additionalInterviewers;
 
-    @Column(name = "feedback", columnDefinition = "TEXT")
     private String feedback;
 
-    @Column(name = "rating")
     private Integer rating;
 
-    @Column(name = "technical_assessment", columnDefinition = "TEXT")
     private String technicalAssessment;
 
-    @Column(name = "communication_skills")
     private Integer communicationSkills;
 
-    @Column(name = "technical_skills")
     private Integer technicalSkills;
 
-    @Column(name = "cultural_fit")
     private Integer culturalFit;
 
-    @Column(name = "technical_score")
     private Integer technicalScore;
 
-    @Column(name = "communication_score")
     private Integer communicationScore;
 
-    @Column(name = "cultural_fit_score")
     private Integer culturalFitScore;
 
-    @Column(name = "overall_impression", columnDefinition = "TEXT")
     private String overallImpression;
 
-    @Column(name = "recommendation")
-    @Enumerated(EnumType.STRING)
     private InterviewRecommendation recommendation;
 
-    @Column(name = "next_steps", columnDefinition = "TEXT")
     private String nextSteps;
 
-    @Column(name = "candidate_questions", columnDefinition = "TEXT")
     private String candidateQuestions;
 
-    @Column(name = "interviewer_notes", columnDefinition = "TEXT")
     private String interviewerNotes;
 
-    @Column(name = "questions", columnDefinition = "TEXT")
     private String questions;
 
-    @Column(name = "answers", columnDefinition = "TEXT")
     private String answers;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "preparation_notes", columnDefinition = "TEXT")
     private String preparationNotes;
 
-    @Column(name = "rescheduled_from")
     private LocalDateTime rescheduledFrom;
 
-    @Column(name = "reschedule_reason")
     private String rescheduleReason;
 
-    @Column(name = "reschedule_count")
     private Integer rescheduleCount = 0;
 
-    @Column(name = "reminder_sent")
     private Boolean reminderSent = false;
 
-    @Column(name = "confirmation_received")
     private Boolean confirmationReceived = false;
 
-    @Column(name = "reminder_sent_at")
     private LocalDateTime reminderSentAt;
 
-    @Column(name = "feedback_requested_at")
     private LocalDateTime feedbackRequestedAt;
 
-    @Column(name = "feedback_submitted_at")
     private LocalDateTime feedbackSubmittedAt;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "started_at")
     private LocalDateTime startedAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "cancellation_reason")
     private String cancellationReason;
 
-    @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"interview"})
     private List<InterviewFeedback> feedbacks = new ArrayList<>();
 
@@ -216,7 +139,6 @@ public class Interview extends TenantAwareEntity {
         this.title = generateDefaultTitle();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

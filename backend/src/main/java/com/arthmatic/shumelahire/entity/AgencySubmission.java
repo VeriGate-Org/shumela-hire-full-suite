@@ -1,60 +1,39 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "agency_submissions")
 public class AgencySubmission extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agency_id", nullable = false)
     private AgencyProfile agency;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_posting_id", nullable = false)
     private JobPosting jobPosting;
 
     @NotBlank
-    @Column(name = "candidate_name", nullable = false)
     private String candidateName;
 
     @NotBlank
     @Email
-    @Column(name = "candidate_email", nullable = false)
     private String candidateEmail;
 
-    @Column(name = "candidate_phone")
     private String candidatePhone;
 
-    @Column(name = "cv_file_key")
     private String cvFileKey;
 
-    @Column(name = "cover_note", columnDefinition = "TEXT")
     private String coverNote;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private AgencySubmissionStatus status = AgencySubmissionStatus.SUBMITTED;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "linked_application_id")
     private Application linkedApplication;
 
-    @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
-    @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
-    @Column(name = "reviewed_by")
     private Long reviewedBy;
 
     public AgencySubmission() {

@@ -5,9 +5,9 @@ import com.arthmatic.shumelahire.entity.PlatformFeature;
 import com.arthmatic.shumelahire.entity.Tenant;
 import com.arthmatic.shumelahire.entity.TenantFeatureEntitlement;
 import com.arthmatic.shumelahire.exception.FeatureNotEnabledException;
-import com.arthmatic.shumelahire.repository.PlatformFeatureRepository;
-import com.arthmatic.shumelahire.repository.TenantFeatureEntitlementRepository;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.PlatformFeatureDataRepository;
+import com.arthmatic.shumelahire.repository.TenantFeatureEntitlementDataRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,13 +22,13 @@ public class FeatureGateService {
     private static final Logger logger = LoggerFactory.getLogger(FeatureGateService.class);
     private static final String PLATFORM_TENANT = "platform";
 
-    private final PlatformFeatureRepository featureRepository;
-    private final TenantFeatureEntitlementRepository entitlementRepository;
-    private final TenantRepository tenantRepository;
+    private final PlatformFeatureDataRepository featureRepository;
+    private final TenantFeatureEntitlementDataRepository entitlementRepository;
+    private final TenantDataRepository tenantRepository;
 
-    public FeatureGateService(PlatformFeatureRepository featureRepository,
-                              TenantFeatureEntitlementRepository entitlementRepository,
-                              TenantRepository tenantRepository) {
+    public FeatureGateService(PlatformFeatureDataRepository featureRepository,
+                              TenantFeatureEntitlementDataRepository entitlementRepository,
+                              TenantDataRepository tenantRepository) {
         this.featureRepository = featureRepository;
         this.entitlementRepository = entitlementRepository;
         this.tenantRepository = tenantRepository;
@@ -55,7 +55,7 @@ public class FeatureGateService {
 
         // Check for tenant-specific override
         Optional<TenantFeatureEntitlement> overrideOpt =
-                entitlementRepository.findByTenantIdAndFeatureId(tenantId, feature.getId());
+                entitlementRepository.findByTenantIdAndFeatureId(tenantId, String.valueOf(feature.getId()));
 
         if (overrideOpt.isPresent()) {
             TenantFeatureEntitlement override = overrideOpt.get();

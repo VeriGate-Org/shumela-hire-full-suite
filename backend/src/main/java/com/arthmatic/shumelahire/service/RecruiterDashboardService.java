@@ -3,8 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.JobPostingRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 public class RecruiterDashboardService {
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
-    private JobPostingRepository jobPostingRepository;
+    private JobPostingDataRepository jobPostingRepository;
 
     /**
      * Get comprehensive recruiter metrics for dashboard

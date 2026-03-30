@@ -1,17 +1,16 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.dto.employee.EmployeeCreateRequest;
 import com.arthmatic.shumelahire.dto.employee.EmployeeResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeStatus;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,7 @@ public class EmployeeService {
     public static final String EMPLOYEES_CACHE = "employees";
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -105,32 +104,45 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<EmployeeResponse> searchEmployees(String searchTerm, Pageable pageable) {
-        Page<Employee> employees;
+    public CursorPage<EmployeeResponse> searchEmployees(String searchTerm, String cursor, int pageSize) {
+        CursorPage<Employee> employees;
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            employees = employeeRepository.findBySearchTerm(searchTerm, pageable);
+            employees = employeeRepository.findBySearchTerm(searchTerm, cursor, pageSize);
         } else {
-            employees = employeeRepository.findAll(pageable);
+            employees = employeeRepository.findActiveDirectory(cursor, pageSize);
         }
-        return employees.map(EmployeeResponse::fromEntity);
+        List<EmployeeResponse> content = employees.content().stream()
+                .map(EmployeeResponse::fromEntity)
+                .collect(Collectors.toList());
+        return new CursorPage<>(content, employees.nextCursor(), employees.hasMore(),
+                employees.size(), employees.totalElements());
     }
 
     @Transactional(readOnly = true)
-    public Page<EmployeeResponse> filterEmployees(String department, EmployeeStatus status,
-                                                   String jobTitle, String location, Pageable pageable) {
-        Page<Employee> employees = employeeRepository.findByFilters(department, status, jobTitle, location, pageable);
-        return employees.map(EmployeeResponse::fromEntity);
+    public CursorPage<EmployeeResponse> filterEmployees(String department, EmployeeStatus status,
+                                                         String jobTitle, String location,
+                                                         String cursor, int pageSize) {
+        CursorPage<Employee> employees = employeeRepository.findByFilters(department, status, jobTitle, location, cursor, pageSize);
+        List<EmployeeResponse> content = employees.content().stream()
+                .map(EmployeeResponse::fromEntity)
+                .collect(Collectors.toList());
+        return new CursorPage<>(content, employees.nextCursor(), employees.hasMore(),
+                employees.size(), employees.totalElements());
     }
 
     @Transactional(readOnly = true)
-    public Page<EmployeeResponse> getDirectory(Pageable pageable) {
-        Page<Employee> employees = employeeRepository.findActiveDirectory(pageable);
-        return employees.map(EmployeeResponse::directoryView);
+    public CursorPage<EmployeeResponse> getDirectory(String cursor, int pageSize) {
+        CursorPage<Employee> employees = employeeRepository.findActiveDirectory(cursor, pageSize);
+        List<EmployeeResponse> content = employees.content().stream()
+                .map(EmployeeResponse::directoryView)
+                .collect(Collectors.toList());
+        return new CursorPage<>(content, employees.nextCursor(), employees.hasMore(),
+                employees.size(), employees.totalElements());
     }
 
     @Transactional(readOnly = true)
     public List<EmployeeResponse> getDirectReports(Long managerId) {
-        List<Employee> reports = employeeRepository.findByReportingManagerId(managerId);
+        List<Employee> reports = employeeRepository.findByReportingManagerId(String.valueOf(managerId));
         return reports.stream().map(EmployeeResponse::directoryView).collect(Collectors.toList());
     }
 
@@ -179,7 +191,7 @@ public class EmployeeService {
     }
 
     public Employee findEmployeeById(Long id) {
-        return employeeRepository.findById(id)
+        return employeeRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + id));
     }
 

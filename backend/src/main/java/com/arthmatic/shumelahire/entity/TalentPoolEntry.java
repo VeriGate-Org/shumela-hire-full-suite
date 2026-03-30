@@ -1,60 +1,39 @@
 package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "talent_pool_entries",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"talent_pool_id", "applicant_id"}))
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TalentPoolEntry extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "talent_pool_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private TalentPool talentPool;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Applicant applicant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_application_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application sourceApplication;
 
-    @Column(name = "source_type")
     private String sourceType; // MANUAL, AUTO_REJECTED, AGENCY
 
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "rating")
     private Integer rating; // 1-5
 
-    @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = true;
 
-    @Column(name = "last_contacted_at")
     private LocalDateTime lastContactedAt;
 
-    @Column(name = "added_by")
     private Long addedBy;
 
-    @Column(name = "added_at", nullable = false)
     private LocalDateTime addedAt;
 
-    @Column(name = "removed_at")
     private LocalDateTime removedAt;
 
-    @Column(name = "removal_reason")
     private String removalReason;
 
     public TalentPoolEntry() {

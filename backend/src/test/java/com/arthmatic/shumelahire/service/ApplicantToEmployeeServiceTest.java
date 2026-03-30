@@ -6,9 +6,9 @@ import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeStatus;
 import com.arthmatic.shumelahire.entity.EmploymentEvent;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.EmploymentEventRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.EmploymentEventDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +29,13 @@ import static org.mockito.Mockito.*;
 class ApplicantToEmployeeServiceTest {
 
     @Mock
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @Mock
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Mock
-    private EmploymentEventRepository eventRepository;
+    private EmploymentEventDataRepository eventRepository;
 
     @Mock
     private EmployeeService employeeService;
@@ -87,8 +87,8 @@ class ApplicantToEmployeeServiceTest {
         savedEmployee.setCreatedAt(LocalDateTime.now());
         savedEmployee.setUpdatedAt(LocalDateTime.now());
 
-        when(applicantRepository.findById(1L)).thenReturn(Optional.of(testApplicant));
-        when(employeeRepository.findByApplicantId(1L)).thenReturn(Optional.empty());
+        when(applicantRepository.findById("1")).thenReturn(Optional.of(testApplicant));
+        when(employeeRepository.findByApplicantId("1")).thenReturn(Optional.empty());
         when(employeeService.generateEmployeeNumber()).thenReturn("UTW-2026-0001");
         when(employeeRepository.save(any(Employee.class))).thenReturn(savedEmployee);
         when(eventRepository.save(any(EmploymentEvent.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -109,7 +109,7 @@ class ApplicantToEmployeeServiceTest {
 
     @Test
     void convertApplicantToEmployee_ApplicantNotFound_ThrowsException() {
-        when(applicantRepository.findById(999L)).thenReturn(Optional.empty());
+        when(applicantRepository.findById("999")).thenReturn(Optional.empty());
         testRequest.setApplicantId(999L);
 
         assertThrows(
@@ -122,8 +122,8 @@ class ApplicantToEmployeeServiceTest {
 
     @Test
     void convertApplicantToEmployee_AlreadyConverted_ThrowsException() {
-        when(applicantRepository.findById(1L)).thenReturn(Optional.of(testApplicant));
-        when(employeeRepository.findByApplicantId(1L)).thenReturn(Optional.of(new Employee()));
+        when(applicantRepository.findById("1")).thenReturn(Optional.of(testApplicant));
+        when(employeeRepository.findByApplicantId("1")).thenReturn(Optional.of(new Employee()));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,

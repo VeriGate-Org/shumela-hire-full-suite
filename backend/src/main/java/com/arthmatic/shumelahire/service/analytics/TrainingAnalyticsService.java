@@ -9,7 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Service
+/**
+ * Training analytics service.
+ * Currently returns mock data — Glue tables for training courses, enrollments,
+ * and certifications are not yet in the analytics pipeline. Once those entities
+ * flow through DynamoDB Streams → S3, the mock data will be replaced with real Athena queries.
+ */
+@Service("analyticsTrainingAnalyticsService")
 @Transactional(readOnly = true)
 public class TrainingAnalyticsService {
 
@@ -18,17 +24,22 @@ public class TrainingAnalyticsService {
     @Autowired
     private AuditLogService auditLogService;
 
-    /**
-     * Compute training analytics: completion rates, popular courses,
-     * training spend, certification tracking, department participation.
-     */
+    @Autowired(required = false)
+    private AthenaQueryService athenaQueryService;
+
     public Map<String, Object> getTrainingMetrics() {
         logger.info("Computing training analytics");
         auditLogService.logSystemAction("VIEW", "TRAINING_ANALYTICS", "Training metrics requested");
 
+        // No Glue tables for training entities yet — return mock data.
+        // When training_courses, training_enrollments, and certifications tables
+        // are added to the analytics pipeline, this method will query Athena.
+        return getTrainingMetricsMock();
+    }
+
+    private Map<String, Object> getTrainingMetricsMock() {
         Map<String, Object> metrics = new LinkedHashMap<>();
 
-        // Summary KPIs
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("totalCourses", 45);
         summary.put("activeCourses", 32);
@@ -40,7 +51,6 @@ public class TrainingAnalyticsService {
         summary.put("costPerEmployee", 365.50);
         metrics.put("summary", summary);
 
-        // Popular courses
         metrics.put("popularCourses", List.of(
                 Map.of("courseName", "Leadership Fundamentals", "enrollments", 145, "completionRate", 85.5, "avgScore", 88.2),
                 Map.of("courseName", "Data Privacy & POPIA Compliance", "enrollments", 320, "completionRate", 92.0, "avgScore", 79.5),
@@ -52,7 +62,6 @@ public class TrainingAnalyticsService {
                 Map.of("courseName", "Cybersecurity Awareness", "enrollments", 295, "completionRate", 91.0, "avgScore", 77.8)
         ));
 
-        // Department participation
         metrics.put("departmentParticipation", List.of(
                 Map.of("department", "Engineering", "enrollments", 320, "completionRate", 82.1, "hoursSpent", 1450),
                 Map.of("department", "Sales", "enrollments", 215, "completionRate", 75.3, "hoursSpent", 890),
@@ -63,7 +72,6 @@ public class TrainingAnalyticsService {
                 Map.of("department", "Customer Support", "enrollments", 187, "completionRate", 73.5, "hoursSpent", 730)
         ));
 
-        // Monthly completion trends
         metrics.put("monthlyCompletions", List.of(
                 Map.of("month", "Jan", "completed", 85, "enrolled", 120),
                 Map.of("month", "Feb", "completed", 92, "enrolled", 115),
@@ -79,7 +87,6 @@ public class TrainingAnalyticsService {
                 Map.of("month", "Dec", "completed", 65, "enrolled", 90)
         ));
 
-        // Training spend breakdown
         metrics.put("spendBreakdown", List.of(
                 Map.of("category", "External Training", "amount", 52000.00, "percentage", 41.6),
                 Map.of("category", "Online Platforms", "amount", 28000.00, "percentage", 22.4),

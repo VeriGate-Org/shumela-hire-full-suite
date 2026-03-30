@@ -2,7 +2,6 @@ package com.arthmatic.shumelahire.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
@@ -11,152 +10,102 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "job_postings")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobPosting extends TenantAwareEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @NotBlank(message = "Job title is required")
-    @Column(name = "title", nullable = false, length = 255)
     private String title;
     
     @NotBlank(message = "Department is required")
-    @Column(name = "department", nullable = false, length = 100)
     private String department;
     
-    @Column(name = "location", length = 100)
     private String location;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "employment_type", nullable = false)
     private EmploymentType employmentType = EmploymentType.FULL_TIME;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "experience_level", nullable = false)
     private ExperienceLevel experienceLevel = ExperienceLevel.MID_LEVEL;
     
     @NotBlank(message = "Job description is required")
-    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
     
-    @Column(name = "requirements", columnDefinition = "TEXT")
     private String requirements;
     
-    @Column(name = "responsibilities", columnDefinition = "TEXT")
     private String responsibilities;
     
-    @Column(name = "qualifications", columnDefinition = "TEXT")
     private String qualifications;
     
-    @Column(name = "benefits", columnDefinition = "TEXT")
     private String benefits;
     
-    @Column(name = "salary_min", precision = 10, scale = 2)
     private BigDecimal salaryMin;
     
-    @Column(name = "salary_max", precision = 10, scale = 2)
     private BigDecimal salaryMax;
     
-    @Column(name = "salary_currency", length = 3)
     private String salaryCurrency = "ZAR";
     
-    @Column(name = "remote_work_allowed")
     private Boolean remoteWorkAllowed = false;
     
-    @Column(name = "travel_required")
     private Boolean travelRequired = false;
     
-    @Column(name = "application_deadline")
     private LocalDateTime applicationDeadline;
     
-    @Column(name = "positions_available")
     @Min(value = 1, message = "At least one position must be available")
     private Integer positionsAvailable = 1;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private JobPostingStatus status = JobPostingStatus.DRAFT;
     
-    @Column(name = "created_by", nullable = false)
     @NotNull(message = "Creator is required")
     private Long createdBy; // User ID who created the posting
     
-    @Column(name = "approved_by")
     private Long approvedBy; // User ID who approved the posting
     
-    @Column(name = "published_by")
     private Long publishedBy; // User ID who published the posting
     
-    @Column(name = "approval_notes", columnDefinition = "TEXT")
     private String approvalNotes;
     
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
     
-    @Column(name = "internal_notes", columnDefinition = "TEXT")
     private String internalNotes;
     
-    @Column(name = "external_job_boards")
     private String externalJobBoards; // JSON array of job board names
 
-    @Column(name = "required_check_types", columnDefinition = "TEXT")
     private String requiredCheckTypes; // JSON array of check type codes
 
-    @Column(name = "enforce_check_completion")
     private Boolean enforceCheckCompletion = false;
     
-    @Column(name = "seo_title", length = 60)
     private String seoTitle;
     
-    @Column(name = "seo_description", length = 160)
     private String seoDescription;
     
-    @Column(name = "seo_keywords")
     private String seoKeywords;
     
-    @Column(name = "slug", unique = true, length = 255)
     private String slug;
     
-    @Column(name = "featured")
     private Boolean featured = false;
     
-    @Column(name = "urgent")
     private Boolean urgent = false;
     
-    @Column(name = "views_count")
     private Long viewsCount = 0L;
     
-    @Column(name = "applications_count")
     private Long applicationsCount = 0L;
     
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @Column(name = "submitted_for_approval_at")
     private LocalDateTime submittedForApprovalAt;
     
-    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
     
-    @Column(name = "published_at")
     private LocalDateTime publishedAt;
     
-    @Column(name = "unpublished_at")
     private LocalDateTime unpublishedAt;
     
-    @Column(name = "closed_at")
     private LocalDateTime closedAt;
     
     // Relationships
     @JsonIgnore
-    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Application> applications;
     
     // Constructors
@@ -173,7 +122,6 @@ public class JobPosting extends TenantAwareEntity {
     }
     
     // Lifecycle callbacks
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

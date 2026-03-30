@@ -2,8 +2,8 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.VerificationSummaryDTO;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.BackgroundCheckRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -42,10 +42,10 @@ public class DotsAfricaService implements BackgroundCheckService {
     private String clientId;
 
     @Autowired
-    private BackgroundCheckRepository backgroundCheckRepository;
+    private BackgroundCheckDataRepository backgroundCheckRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -88,7 +88,7 @@ public class DotsAfricaService implements BackgroundCheckService {
                                           String candidateName, String candidateEmail,
                                           List<String> checkTypes, boolean consentObtained,
                                           Long initiatedBy) {
-        Application application = applicationRepository.findById(applicationId)
+        Application application = applicationRepository.findById(String.valueOf(applicationId))
                 .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
         // Create internal background check record
@@ -376,8 +376,9 @@ public class DotsAfricaService implements BackgroundCheckService {
             return Collections.emptyMap();
         }
 
-        List<Application> applications = applicationRepository.findAllById(applicationIds);
-        List<BackgroundCheck> allChecks = backgroundCheckRepository.findByApplicationIdIn(applicationIds);
+        List<String> stringIds = applicationIds.stream().map(String::valueOf).collect(java.util.stream.Collectors.toList());
+        List<Application> applications = applicationRepository.findAllByIds(stringIds);
+        List<BackgroundCheck> allChecks = backgroundCheckRepository.findByApplicationIdIn(stringIds);
 
         // Group checks by application ID
         Map<Long, List<BackgroundCheck>> checksByApp = new HashMap<>();
@@ -436,7 +437,7 @@ public class DotsAfricaService implements BackgroundCheckService {
         }
 
         List<BackgroundCheck> checks = backgroundCheckRepository
-                .findByApplicationIdOrderByCreatedAtDesc(application.getId());
+                .findByApplicationIdOrderByCreatedAtDesc(String.valueOf(application.getId()));
 
         Set<String> completedClearTypes = new HashSet<>();
         for (BackgroundCheck check : checks) {

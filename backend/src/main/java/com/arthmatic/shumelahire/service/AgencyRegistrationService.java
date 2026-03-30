@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.dto.AgencyRegistrationRequest;
 import com.arthmatic.shumelahire.entity.AgencyProfile;
 import com.arthmatic.shumelahire.entity.AgencyStatus;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.AgencyProfileRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.AgencyProfileDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,13 +21,13 @@ public class AgencyRegistrationService {
 
     private static final Logger log = LoggerFactory.getLogger(AgencyRegistrationService.class);
 
-    private final AgencyProfileRepository agencyProfileRepository;
-    private final UserRepository userRepository;
+    private final AgencyProfileDataRepository agencyProfileRepository;
+    private final UserDataRepository userRepository;
     private final Optional<CognitoAdminService> cognitoAdminService;
     private final PasswordEncoder passwordEncoder;
 
-    public AgencyRegistrationService(AgencyProfileRepository agencyProfileRepository,
-                                      UserRepository userRepository,
+    public AgencyRegistrationService(AgencyProfileDataRepository agencyProfileRepository,
+                                      UserDataRepository userRepository,
                                       Optional<CognitoAdminService> cognitoAdminService,
                                       PasswordEncoder passwordEncoder) {
         this.agencyProfileRepository = agencyProfileRepository;
@@ -42,7 +42,7 @@ public class AgencyRegistrationService {
         String tenantId = TenantContext.requireCurrentTenant();
 
         // Check for existing agency or user with this email
-        if (userRepository.existsByEmailAndTenantId(email, tenantId)) {
+        if (userRepository.existsByEmail(email)) {
             return RegistrationResult.failure("An account with this email already exists.");
         }
         if (agencyProfileRepository.findByContactEmail(email).isPresent()) {

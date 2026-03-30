@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.Tenant;
-import com.arthmatic.shumelahire.repository.TenantRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
 import com.arthmatic.shumelahire.service.FileStorageService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,7 @@ import java.util.Optional;
 public class PublicTenantController {
 
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantDataRepository tenantRepository;
 
     @Autowired
     private FileStorageService fileStorageService;

@@ -440,14 +440,6 @@ public class InterviewController {
         return ResponseEntity.ok(InterviewRecommendation.values());
     }
 
-    // Error handling
-    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<Map<String, String>> handleOptimisticLockingFailure(
-            org.springframework.orm.ObjectOptimisticLockingFailureException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "Interview was modified by another user. Please refresh and try again."));
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

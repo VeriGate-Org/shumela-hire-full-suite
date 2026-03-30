@@ -1,40 +1,25 @@
 package com.arthmatic.shumelahire.entity.performance;
 
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "competency_frameworks")
 public class CompetencyFramework extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "framework", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Competency> competencies = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public Long getId() { return id; }

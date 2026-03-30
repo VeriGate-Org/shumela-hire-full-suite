@@ -1,53 +1,34 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "requisitions")
 public class Requisition extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "job_title", nullable = false, length = 200)
     private String jobTitle;
 
-    @Column(length = 100)
     private String department;
 
-    @Column(length = 100)
     private String location;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "employment_type", length = 30)
     private EmploymentType employmentType;
 
-    @Column(name = "salary_min", precision = 12, scale = 2)
     private BigDecimal salaryMin;
 
-    @Column(name = "salary_max", precision = 12, scale = 2)
     private BigDecimal salaryMax;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
     private String justification;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
     private RequisitionStatus status = RequisitionStatus.DRAFT;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public enum RequisitionStatus {
@@ -59,7 +40,6 @@ public class Requisition extends TenantAwareEntity {
         REJECTED
     }
 
-    @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

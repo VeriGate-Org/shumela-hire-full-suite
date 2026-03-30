@@ -4,7 +4,7 @@ import com.arthmatic.shumelahire.dto.training.TrainingCourseRequest;
 import com.arthmatic.shumelahire.dto.training.TrainingCourseResponse;
 import com.arthmatic.shumelahire.entity.training.DeliveryMethod;
 import com.arthmatic.shumelahire.entity.training.TrainingCourse;
-import com.arthmatic.shumelahire.repository.training.TrainingCourseRepository;
+import com.arthmatic.shumelahire.repository.TrainingCourseDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class TrainingCourseService {
     private static final Logger logger = LoggerFactory.getLogger(TrainingCourseService.class);
 
     @Autowired
-    private TrainingCourseRepository trainingCourseRepository;
+    private TrainingCourseDataRepository trainingCourseRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -43,7 +43,7 @@ public class TrainingCourseService {
 
     @Transactional(readOnly = true)
     public TrainingCourseResponse getById(Long id) {
-        TrainingCourse course = trainingCourseRepository.findById(id)
+        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
         return TrainingCourseResponse.fromEntity(course);
     }
@@ -84,7 +84,7 @@ public class TrainingCourseService {
     }
 
     public TrainingCourseResponse update(Long id, TrainingCourseRequest request, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(id)
+        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
 
         course.setTitle(request.getTitle());
@@ -108,7 +108,7 @@ public class TrainingCourseService {
     }
 
     public void delete(Long id, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(id)
+        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
         course.setIsActive(false);
         trainingCourseRepository.save(course);

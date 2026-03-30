@@ -3,10 +3,14 @@ import { apiFetch } from '@/lib/api-fetch';
 
 export interface PaginatedAuditLogs {
   logs: AuditLogEntry[];
+  /** Total element count. Present for JPA; may be 0 for DynamoDB cursor-based responses. */
   totalElements: number;
+  /** Total pages. Present for JPA; may be 0 for DynamoDB cursor-based responses. */
   totalPages: number;
   currentPage: number;
   pageSize: number;
+  /** Opaque cursor for fetching the next page (DynamoDB cursor-based pagination). */
+  nextCursor?: string;
 }
 
 function parseAuditLog(raw: any): AuditLogEntry {
@@ -165,16 +169,24 @@ export class AuditLogService {
     return fetchAuditLogs(`/api/audit/all?size=${limit}&sort=timestamp&direction=DESC`);
   }
 
-  async getAllAuditLogs(page: number = 0, size: number = 50): Promise<PaginatedAuditLogs> {
+  /**
+   * Fetch audit logs with pagination. Supports both page-based (JPA) and
+   * cursor-based (DynamoDB) pagination. When `cursor` is provided, `page` is ignored.
+   */
+  async getAllAuditLogs(page: number = 0, size: number = 50, cursor?: string): Promise<PaginatedAuditLogs> {
     try {
-      const response = await apiFetch(`/api/audit/all?page=${page}&size=${size}&sort=timestamp&direction=DESC`);
+      // Prefer cursor-based pagination when a cursor is provided (DynamoDB)
+      const paginationParam = cursor
+        ? `cursor=${encodeURIComponent(cursor)}`
+        : `page=${page}`;
+      const response = await apiFetch(`/api/audit/all?${paginationParam}&size=${size}&sort=timestamp&direction=DESC`);
       if (!response.ok) {
         // Return empty result instead of throwing for API errors
         return { logs: [], totalElements: 0, totalPages: 0, currentPage: page, pageSize: size };
       }
       const result = await response.json();
 
-      // Parse Spring Data Page response format
+      // Parse Spring Data Page response format (JPA) or DynamoDB cursor response
       const items = result.content || result.data || result || [];
       const logs = Array.isArray(items) ? items.map(parseAuditLog) : [];
 
@@ -184,6 +196,7 @@ export class AuditLogService {
         totalPages: result.totalPages ?? 1,
         currentPage: result.number ?? page,
         pageSize: result.size ?? size,
+        nextCursor: result.nextCursor,
       };
     } catch {
       // Return graceful empty result on network/parse errors

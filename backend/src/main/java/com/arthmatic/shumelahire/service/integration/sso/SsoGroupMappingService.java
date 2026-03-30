@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service.integration.sso;
 
 import com.arthmatic.shumelahire.dto.integration.SsoGroupMapping;
 import com.arthmatic.shumelahire.entity.integration.SsoConfiguration;
-import com.arthmatic.shumelahire.repository.integration.SsoConfigurationRepository;
+import com.arthmatic.shumelahire.repository.SsoConfigurationDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +23,7 @@ public class SsoGroupMappingService {
     private static final Logger logger = LoggerFactory.getLogger(SsoGroupMappingService.class);
 
     @Autowired
-    private SsoConfigurationRepository ssoConfigurationRepository;
+    private SsoConfigurationDataRepository ssoConfigurationRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -35,7 +35,7 @@ public class SsoGroupMappingService {
      */
     @Transactional(readOnly = true)
     public List<SsoGroupMapping> getGroupMappings(Long configId) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(configId)
+        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(configId))
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + configId));
 
         return parseGroupMappings(config.getGroupMappings());
@@ -57,7 +57,7 @@ public class SsoGroupMappingService {
      * Update group mappings for a specific SSO configuration.
      */
     public List<SsoGroupMapping> updateGroupMappings(Long configId, List<SsoGroupMapping> mappings) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(configId)
+        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(configId))
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + configId));
 
         String mappingsJson = serializeGroupMappings(mappings);

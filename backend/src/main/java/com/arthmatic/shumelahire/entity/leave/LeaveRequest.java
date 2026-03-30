@@ -2,83 +2,52 @@ package com.arthmatic.shumelahire.entity.leave;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "leave_requests")
 public class LeaveRequest extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
     @NotNull
-    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
     @NotNull
-    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @NotNull
-    @Column(name = "total_days", nullable = false, precision = 5, scale = 2)
     private BigDecimal totalDays;
 
-    @Column(name = "is_half_day", nullable = false)
     private Boolean isHalfDay = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "half_day_period", length = 10)
     private HalfDayPeriod halfDayPeriod;
 
-    @Column(columnDefinition = "TEXT")
     private String reason;
 
-    @Column(name = "medical_certificate_url", length = 500)
     private String medicalCertificateUrl;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private LeaveRequestStatus status = LeaveRequestStatus.DRAFT;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approver_id")
     private Employee approver;
 
-    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
-    @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Getters and Setters

@@ -5,8 +5,8 @@ import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.PipelineStage;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,10 +34,10 @@ import static org.mockito.Mockito.*;
 class ApplicationManagementServiceTest {
 
     @Mock
-    private ApplicationRepository applicationRepository;
-    
+    private ApplicationDataRepository applicationRepository;
+
     @Mock
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
     
     @Mock
     private NotificationService notificationService;
@@ -80,28 +79,30 @@ class ApplicationManagementServiceTest {
     void testSearchApplications() {
         // Given
         List<Application> applications = List.of(mockApplication);
-        Page<Application> applicationPage = new PageImpl<>(applications);
-        when(applicationRepository.findAll(ArgumentMatchers.<Specification<Application>>any(), any(Pageable.class)))
-            .thenReturn(applicationPage);
+        when(applicationRepository.searchApplicationsFiltered(
+            eq("John Doe"), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+            .thenReturn(applications);
 
         // When
         Page<Application> result = applicationManagementService.searchApplications(
-            "John Doe", null, null, null, null, null, null, null, 
+            "John Doe", null, null, null, null, null, null, null,
             null, null, Pageable.unpaged());
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(mockApplication.getId(), result.getContent().get(0).getId());
-        verify(applicationRepository).findAll(ArgumentMatchers.<Specification<Application>>any(), any(Pageable.class));
+        verify(applicationRepository).searchApplicationsFiltered(
+            eq("John Doe"), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
     }
 
     @Test
     void testBulkUpdateStatus_Success() {
         // Given
         List<Long> applicationIds = Arrays.asList(1L, 2L);
+        List<String> stringIds = Arrays.asList("1", "2");
         List<Application> applications = Arrays.asList(mockApplication);
-        when(applicationRepository.findAllById(applicationIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -115,7 +116,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllById(applicationIds);
+        verify(applicationRepository).findAllByIds(stringIds);
         verify(applicationRepository).save(mockApplication);
         verify(notificationService).notifyStatusChange(mockApplication, ApplicationStatus.SCREENING);
     }
@@ -124,8 +125,9 @@ class ApplicationManagementServiceTest {
     void testBulkAssignPipelineStage() {
         // Given
         List<Long> applicationIds = Arrays.asList(1L);
+        List<String> stringIds = Arrays.asList("1");
         List<Application> applications = List.of(mockApplication);
-        when(applicationRepository.findAllById(applicationIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -139,7 +141,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllById(applicationIds);
+        verify(applicationRepository).findAllByIds(stringIds);
         verify(applicationRepository).save(mockApplication);
     }
 
@@ -148,7 +150,7 @@ class ApplicationManagementServiceTest {
         // Given
         Map<Long, Integer> ratings = new HashMap<>();
         ratings.put(1L, 5);
-        when(applicationRepository.findById(1L)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -161,7 +163,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findById(1L);
+        verify(applicationRepository).findById("1");
         verify(applicationRepository).save(mockApplication);
     }
 
@@ -181,15 +183,16 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertFalse(errors.isEmpty());
-        verify(applicationRepository, never()).findById(anyLong());
+        verify(applicationRepository, never()).findById(anyString());
     }
 
     @Test
     void testBulkAddScreeningNotes() {
         // Given
         List<Long> applicationIds = Arrays.asList(1L);
+        List<String> stringIds = Arrays.asList("1");
         List<Application> applications = List.of(mockApplication);
-        when(applicationRepository.findAllById(applicationIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -203,7 +206,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllById(applicationIds);
+        verify(applicationRepository).findAllByIds(stringIds);
         verify(applicationRepository).save(mockApplication);
     }
 
@@ -261,7 +264,8 @@ class ApplicationManagementServiceTest {
     void testExportApplications() {
         // Given
         List<Long> applicationIds = Arrays.asList(1L);
-        when(applicationRepository.findAllById(applicationIds)).thenReturn(List.of(mockApplication));
+        List<String> stringIds = Arrays.asList("1");
+        when(applicationRepository.findAllByIds(stringIds)).thenReturn(List.of(mockApplication));
 
         // When
         List<Map<String, Object>> result = applicationManagementService.exportApplications(
@@ -277,15 +281,16 @@ class ApplicationManagementServiceTest {
         assertTrue(exportedApp.containsKey("jobTitle"));
         assertTrue(exportedApp.containsKey("department"));
         assertTrue(exportedApp.containsKey("status"));
-        verify(applicationRepository).findAllById(applicationIds);
+        verify(applicationRepository).findAllByIds(stringIds);
     }
 
     @Test
     void testExportApplications_SpecificFields() {
         // Given
         List<Long> applicationIds = Arrays.asList(1L);
+        List<String> stringIds = Arrays.asList("1");
         List<String> fields = Arrays.asList("id", "applicantName", "status");
-        when(applicationRepository.findAllById(applicationIds)).thenReturn(List.of(mockApplication));
+        when(applicationRepository.findAllByIds(stringIds)).thenReturn(List.of(mockApplication));
 
         // When
         List<Map<String, Object>> result = applicationManagementService.exportApplications(
@@ -299,6 +304,6 @@ class ApplicationManagementServiceTest {
         assertTrue(exportedApp.containsKey("applicantName"));
         assertTrue(exportedApp.containsKey("status"));
         assertFalse(exportedApp.containsKey("department")); // Not requested
-        verify(applicationRepository).findAllById(applicationIds);
+        verify(applicationRepository).findAllByIds(stringIds);
     }
 }

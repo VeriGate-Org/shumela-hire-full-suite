@@ -2,39 +2,23 @@ package com.arthmatic.shumelahire.entity.engagement;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "survey_responses")
 public class SurveyResponse extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_id", nullable = false)
     private Survey survey;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
     private SurveyQuestion question;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column
     private Integer rating;
 
-    @Column(name = "text_response", columnDefinition = "TEXT")
     private String textResponse;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Long getId() { return id; }

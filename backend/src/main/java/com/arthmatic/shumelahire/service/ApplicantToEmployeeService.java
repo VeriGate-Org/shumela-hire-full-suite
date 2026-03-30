@@ -3,9 +3,9 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.employee.ApplicantToEmployeeRequest;
 import com.arthmatic.shumelahire.dto.employee.EmployeeResponse;
 import com.arthmatic.shumelahire.entity.*;
-import com.arthmatic.shumelahire.repository.ApplicantRepository;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.EmploymentEventRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.EmploymentEventDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ public class ApplicantToEmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicantToEmployeeService.class);
 
     @Autowired
-    private ApplicantRepository applicantRepository;
+    private ApplicantDataRepository applicantRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
-    private EmploymentEventRepository eventRepository;
+    private EmploymentEventDataRepository eventRepository;
 
     @Autowired
     private EmployeeService employeeService;
@@ -39,11 +39,11 @@ public class ApplicantToEmployeeService {
         logger.info("Converting applicant {} to employee", request.getApplicantId());
 
         // Verify applicant exists
-        Applicant applicant = applicantRepository.findById(request.getApplicantId())
+        Applicant applicant = applicantRepository.findById(String.valueOf(request.getApplicantId()))
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + request.getApplicantId()));
 
         // Check if already converted
-        if (employeeRepository.findByApplicantId(request.getApplicantId()).isPresent()) {
+        if (employeeRepository.findByApplicantId(String.valueOf(request.getApplicantId())).isPresent()) {
             throw new IllegalArgumentException("Applicant already converted to employee");
         }
 

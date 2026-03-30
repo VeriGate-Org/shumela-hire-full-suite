@@ -1,0 +1,17 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${COGNITO_ISSUER_URI}
+
+cognito:
+  admin:
+    enabled: true
+    user-pool-id: ${COGNITO_USER_POOL_ID}
+    region: af-south-1
+
+logging:
+  level:
+    com.arthmatic.shumelahire: INFO
+    org.springframework.web: INFO

@@ -1,7 +1,12 @@
 name: Deploy to Production
 
 on:
-  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
 
 permissions:
   id-token: write
@@ -18,10 +23,4 @@ jobs:
       environment: prod
       aws-region: af-south-1
       domain-name: shumelahire.co.za
-    secrets:
-      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-      CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
-      API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
-      WILDCARD_CERTIFICATE_ARN: ${{ secrets.WILDCARD_CERTIFICATE_ARN }}
-      LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
-      LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+    secrets: inherit

@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.dto.integration.SageSyncScheduleRequest;
 import com.arthmatic.shumelahire.entity.integration.SageConnectorConfig;
 import com.arthmatic.shumelahire.entity.integration.SageSyncSchedule;
 import com.arthmatic.shumelahire.entity.integration.SyncFrequency;
-import com.arthmatic.shumelahire.repository.integration.SageConnectorConfigRepository;
-import com.arthmatic.shumelahire.repository.integration.SageSyncScheduleRepository;
+import com.arthmatic.shumelahire.repository.SageConnectorConfigDataRepository;
+import com.arthmatic.shumelahire.repository.SageSyncScheduleDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +23,10 @@ public class SageSyncScheduleService {
     private static final Logger logger = LoggerFactory.getLogger(SageSyncScheduleService.class);
 
     @Autowired
-    private SageSyncScheduleRepository scheduleRepository;
+    private SageSyncScheduleDataRepository scheduleRepository;
 
     @Autowired
-    private SageConnectorConfigRepository connectorConfigRepository;
+    private SageConnectorConfigDataRepository connectorConfigRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -38,13 +38,13 @@ public class SageSyncScheduleService {
 
     @Transactional(readOnly = true)
     public SageSyncSchedule getScheduleById(Long id) {
-        return scheduleRepository.findById(id)
+        return scheduleRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public List<SageSyncSchedule> getSchedulesByConnector(Long connectorId) {
-        return scheduleRepository.findByConnectorId(connectorId);
+        return scheduleRepository.findByConnectorId(String.valueOf(connectorId));
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +53,7 @@ public class SageSyncScheduleService {
     }
 
     public SageSyncSchedule createSchedule(SageSyncScheduleRequest request) {
-        SageConnectorConfig connector = connectorConfigRepository.findById(request.getConnectorId())
+        SageConnectorConfig connector = connectorConfigRepository.findById(String.valueOf(request.getConnectorId()))
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + request.getConnectorId()));
 
         SageSyncSchedule schedule = new SageSyncSchedule();
@@ -75,11 +75,11 @@ public class SageSyncScheduleService {
     }
 
     public SageSyncSchedule updateSchedule(Long id, SageSyncScheduleRequest request) {
-        SageSyncSchedule schedule = scheduleRepository.findById(id)
+        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
 
         if (request.getConnectorId() != null) {
-            SageConnectorConfig connector = connectorConfigRepository.findById(request.getConnectorId())
+            SageConnectorConfig connector = connectorConfigRepository.findById(String.valueOf(request.getConnectorId()))
                     .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + request.getConnectorId()));
             schedule.setConnector(connector);
         }
@@ -106,10 +106,10 @@ public class SageSyncScheduleService {
     }
 
     public void deleteSchedule(Long id) {
-        SageSyncSchedule schedule = scheduleRepository.findById(id)
+        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
 
-        scheduleRepository.delete(schedule);
+        scheduleRepository.deleteById(String.valueOf(schedule.getId()));
         auditLogService.logSystemAction("DELETE", "SAGE_SYNC_SCHEDULE",
                 "Deleted sync schedule (id=" + id + ")");
         logger.info("Deleted Sage sync schedule (id={})", id);

@@ -1,65 +1,42 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "pipeline_transitions")
 public class PipelineTransition extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
     @NotNull(message = "Application is required")
     private Application application;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "from_stage")
     private PipelineStage fromStage;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "to_stage", nullable = false)
     @NotNull(message = "Target stage is required")
     private PipelineStage toStage;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "transition_type", nullable = false)
     private TransitionType transitionType = TransitionType.PROGRESSION;
 
-    @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "automated", nullable = false)
     private Boolean automated = false;
 
-    @Column(name = "triggered_by_interview_id")
     private Long triggeredByInterviewId;
 
-    @Column(name = "triggered_by_assessment_id")
     private Long triggeredByAssessmentId;
 
-    @Column(name = "metadata", columnDefinition = "TEXT")
     private String metadata; // JSON for additional data
 
-    @Column(name = "created_by", nullable = false)
     @NotNull(message = "Created by is required")
     private Long createdBy;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "effective_at")
     private LocalDateTime effectiveAt;
 
-    @Column(name = "duration_in_previous_stage_hours")
     private Long durationInPreviousStageHours;
 
     // Constructors
@@ -79,7 +56,6 @@ public class PipelineTransition extends TenantAwareEntity {
     }
 
     // Lifecycle callbacks
-    @PrePersist
     protected void onCreate() {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();

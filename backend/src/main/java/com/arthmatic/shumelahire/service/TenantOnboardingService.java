@@ -3,8 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.Tenant;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.TenantRepository;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.TenantDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,10 @@ import java.util.UUID;
 public class TenantOnboardingService {
 
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantDataRepository tenantRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

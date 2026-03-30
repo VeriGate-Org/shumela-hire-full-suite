@@ -17,7 +17,7 @@ import java.io.IOException;
  * Active only in dev profile — deployed environments use Cognito.
  */
 @Component
-@Profile({"dev", "test", "hybrid"})
+@Profile({"dev", "test"})
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);

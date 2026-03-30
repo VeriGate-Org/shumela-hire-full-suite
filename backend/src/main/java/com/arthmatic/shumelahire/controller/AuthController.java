@@ -5,7 +5,7 @@ import com.arthmatic.shumelahire.dto.JwtResponse;
 import com.arthmatic.shumelahire.dto.LoginRequest;
 import com.arthmatic.shumelahire.dto.SignupRequest;
 import com.arthmatic.shumelahire.entity.User;
-import com.arthmatic.shumelahire.repository.UserRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.security.JwtUtil;
 import com.arthmatic.shumelahire.service.AuthenticationService;
 import jakarta.validation.Valid;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/auth")
-@Profile({"dev", "test", "hybrid"})
+@Profile({"dev", "test"})
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -45,7 +45,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDataRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

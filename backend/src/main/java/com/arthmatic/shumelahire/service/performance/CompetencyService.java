@@ -4,16 +4,17 @@ import com.arthmatic.shumelahire.dto.performance.*;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.performance.*;
 import com.arthmatic.shumelahire.entity.training.TrainingCourse;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.performance.*;
-import com.arthmatic.shumelahire.repository.training.TrainingCourseRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.CompetencyFrameworkDataRepository;
+import com.arthmatic.shumelahire.repository.CompetencyDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeCompetencyDataRepository;
+import com.arthmatic.shumelahire.repository.TrainingCourseDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,19 +29,19 @@ public class CompetencyService {
     private static final Logger logger = LoggerFactory.getLogger(CompetencyService.class);
 
     @Autowired
-    private CompetencyFrameworkRepository frameworkRepository;
+    private CompetencyFrameworkDataRepository frameworkRepository;
 
     @Autowired
-    private CompetencyRepository competencyRepository;
+    private CompetencyDataRepository competencyRepository;
 
     @Autowired
-    private EmployeeCompetencyRepository employeeCompetencyRepository;
+    private EmployeeCompetencyDataRepository employeeCompetencyRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
-    private TrainingCourseRepository trainingCourseRepository;
+    private TrainingCourseDataRepository trainingCourseRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -76,13 +77,13 @@ public class CompetencyService {
 
     @Transactional(readOnly = true)
     public CompetencyFrameworkResponse getFramework(Long id) {
-        CompetencyFramework framework = frameworkRepository.findById(id)
+        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + id));
         return CompetencyFrameworkResponse.fromEntity(framework);
     }
 
     public void deactivateFramework(Long id) {
-        CompetencyFramework framework = frameworkRepository.findById(id)
+        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + id));
         framework.setIsActive(false);
         frameworkRepository.save(framework);
@@ -94,7 +95,7 @@ public class CompetencyService {
     // Competency CRUD
     public CompetencyResponse addCompetency(Long frameworkId, String name, String description,
                                             String category, String proficiencyLevels) {
-        CompetencyFramework framework = frameworkRepository.findById(frameworkId)
+        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(frameworkId))
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + frameworkId));
 
         Competency competency = new Competency();
@@ -112,7 +113,7 @@ public class CompetencyService {
 
     @Transactional(readOnly = true)
     public List<CompetencyResponse> getCompetenciesByFramework(Long frameworkId) {
-        return competencyRepository.findByFrameworkId(frameworkId).stream()
+        return competencyRepository.findByFrameworkId(String.valueOf(frameworkId)).stream()
                 .map(CompetencyResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -121,16 +122,16 @@ public class CompetencyService {
     public EmployeeCompetencyResponse assessCompetency(Long employeeId, Long competencyId,
                                                        Integer currentLevel, Integer targetLevel,
                                                        Long assessorId) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        Competency competency = competencyRepository.findById(competencyId)
+        Competency competency = competencyRepository.findById(String.valueOf(competencyId))
                 .orElseThrow(() -> new IllegalArgumentException("Competency not found: " + competencyId));
 
-        Employee assessor = assessorId != null ? employeeRepository.findById(assessorId).orElse(null) : null;
+        Employee assessor = assessorId != null ? employeeRepository.findById(String.valueOf(assessorId)).orElse(null) : null;
 
         EmployeeCompetency ec = employeeCompetencyRepository
-                .findByEmployeeIdAndCompetencyId(employeeId, competencyId)
+                .findByEmployeeIdAndCompetencyId(String.valueOf(employeeId), String.valueOf(competencyId))
                 .orElse(new EmployeeCompetency());
 
         ec.setEmployee(employee);
@@ -150,7 +151,7 @@ public class CompetencyService {
 
     @Transactional(readOnly = true)
     public List<EmployeeCompetencyResponse> getEmployeeCompetencies(Long employeeId) {
-        return employeeCompetencyRepository.findByEmployeeId(employeeId).stream()
+        return employeeCompetencyRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
                 .map(EmployeeCompetencyResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -159,10 +160,10 @@ public class CompetencyService {
 
     @Transactional(readOnly = true)
     public List<SkillGapDto> getSkillGaps(Long employeeId) {
-        employeeRepository.findById(employeeId)
+        employeeRepository.findById(String.valueOf(employeeId))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(employeeId);
+        List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(String.valueOf(employeeId));
         List<TrainingCourse> activeCourses = trainingCourseRepository.findByIsActiveTrue();
 
         return assessments.stream()
@@ -193,7 +194,7 @@ public class CompetencyService {
         // departmentId is used as a string lookup since Employee.department is a String
         // For convenience, we accept the department name as a query parameter in the controller
         List<Employee> employees = employeeRepository.findByDepartment(
-                departmentId.toString(), PageRequest.of(0, 1000)).getContent();
+                departmentId.toString(), null, 1000).content();
 
         if (employees.isEmpty()) {
             return Collections.emptyList();
@@ -202,7 +203,7 @@ public class CompetencyService {
         Map<Long, SkillGapDto> aggregatedGaps = new LinkedHashMap<>();
 
         for (Employee emp : employees) {
-            List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(emp.getId());
+            List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(String.valueOf(emp.getId()));
             for (EmployeeCompetency ec : assessments) {
                 if (ec.getTargetLevel() > ec.getCurrentLevel()) {
                     aggregatedGaps.compute(ec.getCompetency().getId(), (key, existing) -> {

@@ -1,15 +1,13 @@
 package com.arthmatic.shumelahire.service.integration.sage;
 
 import com.arthmatic.shumelahire.entity.integration.*;
-import com.arthmatic.shumelahire.repository.integration.SageConnectorConfigRepository;
-import com.arthmatic.shumelahire.repository.integration.SageSyncLogRepository;
-import com.arthmatic.shumelahire.repository.integration.SageSyncScheduleRepository;
+import com.arthmatic.shumelahire.repository.SageConnectorConfigDataRepository;
+import com.arthmatic.shumelahire.repository.SageSyncLogDataRepository;
+import com.arthmatic.shumelahire.repository.SageSyncScheduleDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +23,13 @@ public class SageSyncEngine {
     private static final Logger logger = LoggerFactory.getLogger(SageSyncEngine.class);
 
     @Autowired
-    private SageSyncScheduleRepository scheduleRepository;
+    private SageSyncScheduleDataRepository scheduleRepository;
 
     @Autowired
-    private SageSyncLogRepository syncLogRepository;
+    private SageSyncLogDataRepository syncLogRepository;
 
     @Autowired
-    private SageConnectorConfigRepository connectorConfigRepository;
+    private SageConnectorConfigDataRepository connectorConfigRepository;
 
     @Autowired
     private SageConnectorService connectorService;
@@ -44,7 +42,7 @@ public class SageSyncEngine {
      * Creates a log entry, calls the appropriate connector, and updates the log with results.
      */
     public SageSyncLog executeSyncJob(Long scheduleId) {
-        SageSyncSchedule schedule = scheduleRepository.findById(scheduleId)
+        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(scheduleId))
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + scheduleId));
 
         SageConnectorConfig connectorConfig = schedule.getConnector();
@@ -146,19 +144,19 @@ public class SageSyncEngine {
     }
 
     /**
-     * Get all sync logs with pagination.
+     * Get all sync logs.
      */
     @Transactional(readOnly = true)
-    public Page<SageSyncLog> getAllLogs(Pageable pageable) {
-        return syncLogRepository.findAll(pageable);
+    public List<SageSyncLog> getAllLogs() {
+        return syncLogRepository.findAll();
     }
 
     /**
      * Get sync logs for a specific connector.
      */
     @Transactional(readOnly = true)
-    public Page<SageSyncLog> getLogsByConnector(Long connectorId, Pageable pageable) {
-        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(connectorId, pageable);
+    public List<SageSyncLog> getLogsByConnector(Long connectorId) {
+        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(String.valueOf(connectorId));
     }
 
     /**

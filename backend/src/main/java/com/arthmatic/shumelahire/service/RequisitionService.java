@@ -2,7 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.Requisition;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
-import com.arthmatic.shumelahire.repository.RequisitionRepository;
+import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class RequisitionService {
 
     @Autowired
-    private RequisitionRepository requisitionRepository;
+    private RequisitionDataRepository requisitionRepository;
 
     public Page<Requisition> findAll(Pageable pageable) {
         return requisitionRepository.findAll(pageable);
@@ -27,7 +27,7 @@ public class RequisitionService {
     }
 
     public Optional<Requisition> findById(Long id) {
-        return requisitionRepository.findById(id);
+        return requisitionRepository.findById(String.valueOf(id));
     }
 
     public Requisition create(Requisition requisition) {
@@ -36,7 +36,7 @@ public class RequisitionService {
     }
 
     public Requisition update(Long id, Requisition updated) {
-        Requisition existing = requisitionRepository.findById(id)
+        Requisition existing = requisitionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
 
         existing.setJobTitle(updated.getJobTitle());
@@ -52,18 +52,18 @@ public class RequisitionService {
     }
 
     public void delete(Long id) {
-        requisitionRepository.deleteById(id);
+        requisitionRepository.deleteById(String.valueOf(id));
     }
 
     public Requisition submit(Long id) {
-        Requisition req = requisitionRepository.findById(id)
+        Requisition req = requisitionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
         req.setStatus(RequisitionStatus.PENDING_HR_APPROVAL);
         return requisitionRepository.save(req);
     }
 
     public Requisition approve(Long id) {
-        Requisition req = requisitionRepository.findById(id)
+        Requisition req = requisitionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
 
         if (req.getStatus() == RequisitionStatus.PENDING_HR_APPROVAL) {
@@ -75,7 +75,7 @@ public class RequisitionService {
     }
 
     public Requisition reject(Long id) {
-        Requisition req = requisitionRepository.findById(id)
+        Requisition req = requisitionRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
         req.setStatus(RequisitionStatus.REJECTED);
         return requisitionRepository.save(req);

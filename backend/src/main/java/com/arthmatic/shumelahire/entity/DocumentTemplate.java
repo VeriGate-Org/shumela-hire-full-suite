@@ -1,54 +1,35 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "document_templates")
 public class DocumentTemplate extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Template type is required")
-    @Column(nullable = false, length = 30)
     private String type;
 
     @NotBlank(message = "Template name is required")
-    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(length = 500)
     private String subject;
 
     @NotBlank(message = "Template content is required")
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(columnDefinition = "TEXT")
     private String placeholders;
 
-    @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
 
-    @Column(name = "is_archived", nullable = false)
     private Boolean isArchived = false;
 
     @NotBlank(message = "Created by is required")
-    @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     public DocumentTemplate() {}

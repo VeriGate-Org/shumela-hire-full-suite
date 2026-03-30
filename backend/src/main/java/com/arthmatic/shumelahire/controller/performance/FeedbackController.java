@@ -4,9 +4,6 @@ import com.arthmatic.shumelahire.annotation.FeatureGate;
 import com.arthmatic.shumelahire.dto.performance.*;
 import com.arthmatic.shumelahire.service.performance.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,29 +41,21 @@ public class FeedbackController {
     }
 
     @GetMapping("/requests/employee/{employeeId}")
-    public ResponseEntity<Page<FeedbackRequestResponse>> getRequestsForEmployee(
-            @PathVariable Long employeeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(feedbackService.getRequestsForEmployee(employeeId,
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<FeedbackRequestResponse>> getRequestsForEmployee(
+            @PathVariable Long employeeId) {
+        return ResponseEntity.ok(feedbackService.getRequestsForEmployee(employeeId));
     }
 
     @GetMapping("/requests/requester/{requesterId}")
-    public ResponseEntity<Page<FeedbackRequestResponse>> getRequestsByRequester(
-            @PathVariable Long requesterId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(feedbackService.getRequestsByRequester(requesterId,
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    public ResponseEntity<List<FeedbackRequestResponse>> getRequestsByRequester(
+            @PathVariable Long requesterId) {
+        return ResponseEntity.ok(feedbackService.getRequestsByRequester(requesterId));
     }
 
     @GetMapping("/requests/pending")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<Page<FeedbackRequestResponse>> getPendingRequests(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(feedbackService.getPendingRequests(PageRequest.of(page, size)));
+    public ResponseEntity<List<FeedbackRequestResponse>> getPendingRequests() {
+        return ResponseEntity.ok(feedbackService.getPendingRequests());
     }
 
     @PostMapping("/requests/{id}/submit")

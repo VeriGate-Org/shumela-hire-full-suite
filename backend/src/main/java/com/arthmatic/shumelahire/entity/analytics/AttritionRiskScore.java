@@ -2,39 +2,24 @@ package com.arthmatic.shumelahire.entity.analytics;
 
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.TenantAwareEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "attrition_risk_scores")
 public class AttritionRiskScore extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column(name = "risk_score", nullable = false, precision = 3, scale = 2)
     private BigDecimal riskScore;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "risk_level", nullable = false, length = 20)
     private RiskLevel riskLevel;
 
-    @Column(name = "factors", columnDefinition = "TEXT")
     private String factors;
 
-    @Column(name = "calculated_at", nullable = false)
     private LocalDateTime calculatedAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public AttritionRiskScore() {}

@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.InterviewRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.InterviewDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class DataVisualizationService {
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    private InterviewDataRepository interviewRepository;
 
     @Autowired
     private PerformanceAnalyticsService performanceAnalyticsService;

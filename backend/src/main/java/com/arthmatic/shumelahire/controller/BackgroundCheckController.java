@@ -4,8 +4,8 @@ import com.arthmatic.shumelahire.dto.VerificationSummaryDTO;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.BackgroundCheck;
 import com.arthmatic.shumelahire.entity.JobPosting;
-import com.arthmatic.shumelahire.repository.ApplicationRepository;
-import com.arthmatic.shumelahire.repository.BackgroundCheckRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.BackgroundCheckDataRepository;
 import com.arthmatic.shumelahire.service.BackgroundCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +29,10 @@ public class BackgroundCheckController {
     private BackgroundCheckService backgroundCheckService;
 
     @Autowired
-    private BackgroundCheckRepository backgroundCheckRepository;
+    private BackgroundCheckDataRepository backgroundCheckRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationDataRepository applicationRepository;
 
     /**
      * Initiate a background check for an application.
@@ -141,7 +141,7 @@ public class BackgroundCheckController {
     @GetMapping("/applications/{applicationId}/required-check-types")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
     public ResponseEntity<Map<String, Object>> getRequiredCheckTypes(@PathVariable Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
+        Application application = applicationRepository.findById(String.valueOf(applicationId))
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
 
         JobPosting jobPosting = application.getJobPosting();
@@ -168,7 +168,7 @@ public class BackgroundCheckController {
     @GetMapping("/applications/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
     public ResponseEntity<List<BackgroundCheck>> getByApplication(@PathVariable Long applicationId) {
-        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId);
+        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
         return ResponseEntity.ok(checks);
     }
 }

@@ -1,6 +1,5 @@
 package com.arthmatic.shumelahire.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -8,63 +7,44 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "agency_profiles")
 public class AgencyProfile extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "agency_name", nullable = false, unique = true)
     private String agencyName;
 
-    @Column(name = "registration_number", unique = true)
     private String registrationNumber;
 
     @NotBlank
-    @Column(name = "contact_person", nullable = false)
     private String contactPerson;
 
     @NotBlank
     @Email
-    @Column(name = "contact_email", nullable = false, unique = true)
     private String contactEmail;
 
-    @Column(name = "contact_phone")
     private String contactPhone;
 
-    @Column(name = "specializations", columnDefinition = "TEXT")
     private String specializations;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private AgencyStatus status = AgencyStatus.PENDING_APPROVAL;
 
-    @Column(name = "fee_percentage", precision = 5, scale = 2)
     private BigDecimal feePercentage;
 
-    @Column(name = "contract_start_date")
     private LocalDate contractStartDate;
 
-    @Column(name = "contract_end_date")
     private LocalDate contractEndDate;
 
-    @Column(name = "bee_level")
     private Integer beeLevel;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public AgencyProfile() {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

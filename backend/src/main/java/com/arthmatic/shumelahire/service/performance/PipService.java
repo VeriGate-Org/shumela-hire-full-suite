@@ -4,9 +4,9 @@ import com.arthmatic.shumelahire.dto.performance.PipCreateRequest;
 import com.arthmatic.shumelahire.dto.performance.PipResponse;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.performance.*;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.performance.PerformanceImprovementPlanRepository;
-import com.arthmatic.shumelahire.repository.performance.PipMilestoneRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.PerformanceImprovementPlanDataRepository;
+import com.arthmatic.shumelahire.repository.PipMilestoneDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -14,8 +14,8 @@ import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,13 +28,13 @@ public class PipService {
     private static final Logger logger = LoggerFactory.getLogger(PipService.class);
 
     @Autowired
-    private PerformanceImprovementPlanRepository pipRepository;
+    private PerformanceImprovementPlanDataRepository pipRepository;
 
     @Autowired
-    private PipMilestoneRepository milestoneRepository;
+    private PipMilestoneDataRepository milestoneRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -43,10 +43,10 @@ public class PipService {
     private NotificationService notificationService;
 
     public PipResponse createPip(PipCreateRequest request) {
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
+        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        Employee manager = employeeRepository.findById(request.getManagerId())
+        Employee manager = employeeRepository.findById(String.valueOf(request.getManagerId()))
                 .orElseThrow(() -> new IllegalArgumentException("Manager not found: " + request.getManagerId()));
 
         PerformanceImprovementPlan pip = new PerformanceImprovementPlan();
@@ -78,33 +78,39 @@ public class PipService {
         notificationService.notifyApprovalRequired(employee.getId(), "Performance Improvement Plan",
                 "PIP created by " + manager.getFullName());
 
-        return PipResponse.fromEntity(pipRepository.findById(pip.getId()).orElse(pip));
+        return PipResponse.fromEntity(pipRepository.findById(String.valueOf(pip.getId())).orElse(pip));
     }
 
     @Transactional(readOnly = true)
     public PipResponse getPip(Long id) {
-        PerformanceImprovementPlan pip = pipRepository.findById(id)
+        PerformanceImprovementPlan pip = pipRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("PIP not found: " + id));
         return PipResponse.fromEntity(pip);
     }
 
     @Transactional(readOnly = true)
-    public Page<PipResponse> getPipsByEmployee(Long employeeId, Pageable pageable) {
-        return pipRepository.findByEmployeeId(employeeId, pageable).map(PipResponse::fromEntity);
+    public List<PipResponse> getPipsByEmployee(Long employeeId) {
+        return pipRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+                .map(PipResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<PipResponse> getPipsByManager(Long managerId, Pageable pageable) {
-        return pipRepository.findByManagerId(managerId, pageable).map(PipResponse::fromEntity);
+    public List<PipResponse> getPipsByManager(Long managerId) {
+        return pipRepository.findByManagerId(String.valueOf(managerId)).stream()
+                .map(PipResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<PipResponse> getActivePips(Pageable pageable) {
-        return pipRepository.findByStatus(PipStatus.ACTIVE, pageable).map(PipResponse::fromEntity);
+    public List<PipResponse> getActivePips() {
+        return pipRepository.findByStatus(PipStatus.ACTIVE).stream()
+                .map(PipResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public PipResponse updatePipStatus(Long id, String status, String outcome) {
-        PerformanceImprovementPlan pip = pipRepository.findById(id)
+        PerformanceImprovementPlan pip = pipRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("PIP not found: " + id));
 
         pip.setStatus(PipStatus.valueOf(status));
@@ -125,7 +131,7 @@ public class PipService {
     }
 
     public void updateMilestoneStatus(Long milestoneId, String status, String evidence) {
-        PipMilestone milestone = milestoneRepository.findById(milestoneId)
+        PipMilestone milestone = milestoneRepository.findById(String.valueOf(milestoneId))
                 .orElseThrow(() -> new IllegalArgumentException("Milestone not found: " + milestoneId));
 
         milestone.setStatus(PipMilestoneStatus.valueOf(status));

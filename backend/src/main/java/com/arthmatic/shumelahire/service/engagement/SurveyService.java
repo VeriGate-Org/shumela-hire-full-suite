@@ -6,8 +6,10 @@ import com.arthmatic.shumelahire.entity.engagement.Survey;
 import com.arthmatic.shumelahire.entity.engagement.SurveyQuestion;
 import com.arthmatic.shumelahire.entity.engagement.SurveyStatus;
 import com.arthmatic.shumelahire.entity.engagement.QuestionType;
-import com.arthmatic.shumelahire.repository.EmployeeRepository;
-import com.arthmatic.shumelahire.repository.engagement.*;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.SurveyDataRepository;
+import com.arthmatic.shumelahire.repository.SurveyQuestionDataRepository;
+import com.arthmatic.shumelahire.repository.SurveyResponseDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -15,8 +17,6 @@ import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +31,16 @@ public class SurveyService {
     private static final Logger logger = LoggerFactory.getLogger(SurveyService.class);
 
     @Autowired
-    private SurveyRepository surveyRepository;
+    private SurveyDataRepository surveyRepository;
 
     @Autowired
-    private SurveyQuestionRepository surveyQuestionRepository;
+    private SurveyQuestionDataRepository surveyQuestionRepository;
 
     @Autowired
-    private SurveyResponseRepository surveyResponseRepository;
+    private SurveyResponseDataRepository surveyResponseRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -77,19 +77,21 @@ public class SurveyService {
                 survey.getId().toString(), "Created survey: " + survey.getTitle());
         logger.info("Survey created: {} by user {}", survey.getTitle(), createdBy);
 
-        return SurveyResponse.fromEntity(surveyRepository.findById(survey.getId()).orElse(survey));
+        return SurveyResponse.fromEntity(surveyRepository.findById(String.valueOf(survey.getId())).orElse(survey));
     }
 
     @Transactional(readOnly = true)
     public SurveyResponse getSurvey(Long id) {
-        Survey survey = surveyRepository.findById(id)
+        Survey survey = surveyRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         return SurveyResponse.fromEntity(survey);
     }
 
     @Transactional(readOnly = true)
-    public Page<SurveyResponse> getAllSurveys(Pageable pageable) {
-        return surveyRepository.findAll(pageable).map(SurveyResponse::fromEntity);
+    public List<SurveyResponse> getAllSurveys() {
+        return surveyRepository.findAll().stream()
+                .map(SurveyResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -100,7 +102,7 @@ public class SurveyService {
     }
 
     public SurveyResponse activateSurvey(Long id) {
-        Survey survey = surveyRepository.findById(id)
+        Survey survey = surveyRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         survey.setStatus(SurveyStatus.ACTIVE);
         survey = surveyRepository.save(survey);
@@ -116,7 +118,7 @@ public class SurveyService {
     }
 
     public SurveyResponse closeSurvey(Long id) {
-        Survey survey = surveyRepository.findById(id)
+        Survey survey = surveyRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         survey.setStatus(SurveyStatus.CLOSED);
         survey = surveyRepository.save(survey);
@@ -132,22 +134,22 @@ public class SurveyService {
     }
 
     public void submitResponse(Long surveyId, SurveySubmitRequest request) {
-        Survey survey = surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findById(String.valueOf(surveyId))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + surveyId));
 
         if (survey.getStatus() != SurveyStatus.ACTIVE) {
             throw new IllegalArgumentException("Survey is not active");
         }
 
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
+        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        if (surveyResponseRepository.existsBySurveyIdAndEmployeeId(surveyId, request.getEmployeeId())) {
+        if (surveyResponseRepository.existsBySurveyIdAndEmployeeId(String.valueOf(surveyId), String.valueOf(request.getEmployeeId()))) {
             throw new IllegalArgumentException("Employee has already responded to this survey");
         }
 
         for (SurveySubmitRequest.AnswerRequest answer : request.getAnswers()) {
-            SurveyQuestion question = surveyQuestionRepository.findById(answer.getQuestionId())
+            SurveyQuestion question = surveyQuestionRepository.findById(String.valueOf(answer.getQuestionId()))
                     .orElseThrow(() -> new IllegalArgumentException("Question not found: " + answer.getQuestionId()));
 
             com.arthmatic.shumelahire.entity.engagement.SurveyResponse response =
@@ -171,15 +173,15 @@ public class SurveyService {
 
     @Transactional(readOnly = true)
     public SurveyResultsResponse getSurveyResults(Long surveyId) {
-        Survey survey = surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findById(String.valueOf(surveyId))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + surveyId));
 
         SurveyResultsResponse results = new SurveyResultsResponse();
         results.setSurveyId(surveyId);
         results.setSurveyTitle(survey.getTitle());
-        results.setTotalRespondents(surveyResponseRepository.countDistinctRespondents(surveyId));
+        results.setTotalRespondents(surveyResponseRepository.countDistinctRespondents(String.valueOf(surveyId)));
 
-        List<SurveyQuestion> questions = surveyQuestionRepository.findBySurveyIdOrderByDisplayOrderAsc(surveyId);
+        List<SurveyQuestion> questions = surveyQuestionRepository.findBySurveyIdOrderByDisplayOrderAsc(String.valueOf(surveyId));
         List<SurveyResultsResponse.QuestionResult> questionResults = new ArrayList<>();
 
         for (SurveyQuestion question : questions) {
@@ -187,10 +189,10 @@ public class SurveyService {
             qr.setQuestionId(question.getId());
             qr.setQuestionText(question.getQuestionText());
             qr.setQuestionType(question.getQuestionType().name());
-            qr.setAverageRating(surveyResponseRepository.getAverageRating(surveyId, question.getId()));
+            qr.setAverageRating(surveyResponseRepository.getAverageRating(String.valueOf(surveyId), String.valueOf(question.getId())));
 
             List<com.arthmatic.shumelahire.entity.engagement.SurveyResponse> responses =
-                    surveyResponseRepository.findBySurveyIdAndQuestionId(surveyId, question.getId());
+                    surveyResponseRepository.findBySurveyIdAndQuestionId(String.valueOf(surveyId), String.valueOf(question.getId()));
             qr.setResponseCount((long) responses.size());
             qr.setTextResponses(responses.stream()
                     .map(com.arthmatic.shumelahire.entity.engagement.SurveyResponse::getTextResponse)
@@ -205,9 +207,9 @@ public class SurveyService {
     }
 
     public void deleteSurvey(Long id) {
-        Survey survey = surveyRepository.findById(id)
+        Survey survey = surveyRepository.findById(String.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
-        surveyRepository.delete(survey);
+        surveyRepository.deleteById(String.valueOf(survey.getId()));
 
         auditLogService.saveLog("SYSTEM", "DELETE", "SURVEY",
                 id.toString(), "Deleted survey: " + survey.getTitle());
