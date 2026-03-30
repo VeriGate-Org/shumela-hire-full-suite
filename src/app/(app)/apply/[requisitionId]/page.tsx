@@ -1,5 +1,9 @@
 'use client';
 
+export function generateStaticParams() {
+  return [];
+}
+
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
