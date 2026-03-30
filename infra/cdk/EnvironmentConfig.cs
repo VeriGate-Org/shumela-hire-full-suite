@@ -36,7 +36,7 @@ public sealed class EnvironmentConfig
 
     public string Prefix => IsProduction ? "shumelahire" : $"shumelahire-{EnvironmentName}";
 
-    public string CognitoDomainPrefix => EnvironmentName == "prod" ? "auth-shumelahire" : $"shumelahire-fs-{EnvironmentName}-auth";
+    public string CognitoDomainPrefix => EnvironmentName == "prod" ? "auth-shumelahire" : $"shumelahire-{EnvironmentName}-auth";
 
     public string[] OAuthCallbackUrls => EnvironmentName switch
     {
