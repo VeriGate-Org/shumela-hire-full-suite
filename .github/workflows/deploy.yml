@@ -249,6 +249,7 @@ jobs:
 
       - name: Build frontend static export
         env:
+          STATIC_EXPORT: "true"
           NEXT_PUBLIC_API_URL: ""
           NEXT_PUBLIC_APP_URL: ${{ steps.urls.outputs.app_url }}
           NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ steps.cdk-outputs.outputs.user_pool_id }}

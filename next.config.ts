@@ -5,7 +5,8 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig: NextConfig = {
   // Static export for S3/CloudFront deployment (also used by Capacitor native builds)
-  output: 'export',
+  // Disabled during CI type-check builds (STATIC_EXPORT=true enables it in deploy workflow)
+  ...(process.env.STATIC_EXPORT === 'true' ? { output: 'export' as const } : {}),
 
   // Strict mode for catching issues early
   reactStrictMode: true,
