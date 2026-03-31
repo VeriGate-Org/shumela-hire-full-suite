@@ -291,7 +291,7 @@ jobs:
             echo "Waiting for function update..."
             aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME" --region "$REGION"
 
-            echo "Publishing new version (activates SnapStart)..."
+            echo "Publishing new version..."
             VERSION=$(aws lambda publish-version \
               --function-name "$FUNCTION_NAME" \
               --description "Deploy ${{ github.sha }}" \

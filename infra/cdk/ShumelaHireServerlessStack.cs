@@ -135,7 +135,7 @@ public class ShumelaHireServerlessStack : Stack
             Handler = "com.arthmatic.shumelahire.ShumelaHireApplication",
             Code = Code.FromAsset("../../backend/target/shumelahire-backend.jar"),
             MemorySize = 2048,
-            Timeout = Duration.Seconds(30),
+            Timeout = Duration.Seconds(120),
             Role = lambdaRole,
             LogGroup = lambdaLogGroup,
             Environment = new Dictionary<string, string>
@@ -169,17 +169,10 @@ public class ShumelaHireServerlessStack : Stack
             }
         });
 
-        // Enable SnapStart via CfnFunction escape hatch
-        var cfnFunction = ApiFunction.Node.DefaultChild as CfnFunction;
-        if (cfnFunction != null)
-        {
-            cfnFunction.AddPropertyOverride("SnapStart", new Dictionary<string, string>
-            {
-                ["ApplyOn"] = "PublishedVersions"
-            });
-        }
-
-        // Publish a version to activate SnapStart
+        // Note: SnapStart is disabled because it's incompatible with Lambda Web Adapter.
+        // SnapStart tries to invoke the handler class directly during snapshot, but
+        // Spring Boot fat JARs have classes in BOOT-INF/ which Lambda's classloader
+        // can't access. LWA runs the JAR as a subprocess instead.
         var lambdaVersion = ApiFunction.CurrentVersion;
 
         // ── API Gateway HTTP API ───────────────────────────────────────────────
@@ -218,7 +211,7 @@ public class ShumelaHireServerlessStack : Stack
             IntegrationType = "AWS_PROXY",
             IntegrationUri = lambdaVersion.FunctionArn,
             PayloadFormatVersion = "2.0",
-            TimeoutInMillis = 30000
+            TimeoutInMillis = 120000
         });
 
         // Route: ANY /api/{proxy+} (authenticated)
