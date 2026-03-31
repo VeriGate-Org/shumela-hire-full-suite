@@ -270,10 +270,22 @@ jobs:
 
           # Check if the Lambda function exists (created by CDK serverless stack)
           if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2>/dev/null; then
-            echo "Updating Lambda function code..."
+            echo "Uploading JAR to S3..."
+            DEPLOY_BUCKET="${PREFIX}-deploy-artifacts"
+            S3_KEY="lambda/${FUNCTION_NAME}/${{ github.sha }}.jar"
+
+            # Create deploy bucket if it doesn't exist
+            aws s3api head-bucket --bucket "$DEPLOY_BUCKET" --region "$REGION" 2>/dev/null || \
+              aws s3api create-bucket --bucket "$DEPLOY_BUCKET" --region "$REGION" \
+                --create-bucket-configuration LocationConstraint="$REGION"
+
+            aws s3 cp "$JAR_PATH" "s3://${DEPLOY_BUCKET}/${S3_KEY}" --region "$REGION"
+
+            echo "Updating Lambda function code from S3..."
             aws lambda update-function-code \
               --function-name "$FUNCTION_NAME" \
-              --zip-file "fileb://${JAR_PATH}" \
+              --s3-bucket "$DEPLOY_BUCKET" \
+              --s3-key "$S3_KEY" \
               --region "$REGION"
 
             echo "Waiting for function update..."
