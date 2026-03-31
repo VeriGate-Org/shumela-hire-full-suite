@@ -31,7 +31,7 @@ public sealed class EnvironmentConfig
     public string[] ApiCorsOrigins => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}" },
-        "dev" => new[] { $"https://dev.{DomainName}", $"https://idc-demo.{DomainName}", $"https://uthukela-demo.{DomainName}", "http://localhost:3000" },
+        "dev" => new[] { $"https://dev.{DomainName}", $"https://idc-demo.{DomainName}", $"https://uthukela-demo.{DomainName}", "http://localhost:3000",$"https://uthukela.{DomainName}" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001" }
     };
 
