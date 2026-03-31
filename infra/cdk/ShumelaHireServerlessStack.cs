@@ -211,7 +211,7 @@ public class ShumelaHireServerlessStack : Stack
             IntegrationType = "AWS_PROXY",
             IntegrationUri = lambdaVersion.FunctionArn,
             PayloadFormatVersion = "2.0",
-            TimeoutInMillis = 120000
+            TimeoutInMillis = 30000
         });
 
         // Route: ANY /api/{proxy+} (authenticated)
