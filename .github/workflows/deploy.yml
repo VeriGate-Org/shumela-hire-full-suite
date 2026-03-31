@@ -260,31 +260,6 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy frontend to S3
-        run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
-          FRONTEND_BUCKET="${PREFIX}-frontend"
-          REGION="${{ inputs.aws-region }}"
-
-          echo "Syncing static export to s3://${FRONTEND_BUCKET}/ ..."
-          aws s3 sync out/ "s3://${FRONTEND_BUCKET}/" --delete --region "$REGION"
-
-          # Invalidate CloudFront cache
-          CF_DIST_ID=$(aws cloudformation describe-stacks \
-            --stack-name "${PREFIX}-frontend" \
-            --region "$REGION" \
-            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
-            --output text 2>/dev/null || echo "")
-
-          if [ -n "$CF_DIST_ID" ] && [ "$CF_DIST_ID" != "None" ]; then
-            echo "Invalidating CloudFront distribution ${CF_DIST_ID}..."
-            aws cloudfront create-invalidation \
-              --distribution-id "$CF_DIST_ID" \
-              --paths "/*"
-          else
-            echo "CloudFront distribution not found — skipping invalidation."
-          fi
-
       # ── Deploy Lambda function ───────────────────────────────────────
       - name: Deploy Lambda function
         run: |
@@ -352,4 +327,30 @@ jobs:
             -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
+
+      # ── Deploy frontend to S3 (after CDK creates the bucket) ────────
+      - name: Deploy frontend to S3
+        run: |
+          PREFIX="shumelahire-${{ inputs.environment }}"
+          FRONTEND_BUCKET="${PREFIX}-frontend"
+          REGION="${{ inputs.aws-region }}"
+
+          echo "Syncing static export to s3://${FRONTEND_BUCKET}/ ..."
+          aws s3 sync out/ "s3://${FRONTEND_BUCKET}/" --delete --region "$REGION"
+
+          # Invalidate CloudFront cache
+          CF_DIST_ID=$(aws cloudformation describe-stacks \
+            --stack-name "${PREFIX}-frontend" \
+            --region "$REGION" \
+            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$CF_DIST_ID" ] && [ "$CF_DIST_ID" != "None" ]; then
+            echo "Invalidating CloudFront distribution ${CF_DIST_ID}..."
+            aws cloudfront create-invalidation \
+              --distribution-id "$CF_DIST_ID" \
+              --paths "/*"
+          else
+            echo "CloudFront distribution not found — skipping invalidation."
+          fi
 
