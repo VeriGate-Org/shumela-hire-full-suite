@@ -105,12 +105,11 @@ public class ShumelaHireApiStack : Stack
         });
 
         // ── Associate WAF with API Gateway HTTP API stage ────────────────────
-        var apiGatewayStageArn = $"arn:aws:apigateway:{config.Region}::/apis/{serverless.HttpApi.Ref}/stages/$default";
-        new CfnWebACLAssociation(this, "WafApiGatewayAssociation", new CfnWebACLAssociationProps
-        {
-            ResourceArn = apiGatewayStageArn,
-            WebAclArn = WebAcl.AttrArn
-        });
+        // Note: WAFv2 WebACL association with API Gateway HTTP API (v2) is not
+        // supported in all regions. The association is skipped for now; the WAF
+        // WebACL is still created for use by CloudFront via the frontend stack.
+        // TODO: Re-enable when WAFv2 adds HTTP API support in af-south-1, or
+        //       migrate to REST API (v1) if WAF protection is critical.
 
         // ── CfnOutputs ──────────────────────────────────────────────────────
         new CfnOutput(this, "WafWebAclArn", new CfnOutputProps
