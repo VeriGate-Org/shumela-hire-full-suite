@@ -122,6 +122,14 @@ public class ShumelaHireFrontendStack : Stack
             {
                 domainNames.Add($"*.{config.DomainName}");
             }
+            else if (config.EnvironmentName == "dev")
+            {
+                // Demo tenant subdomains served from the same distribution
+                domainNames.Add($"idc-demo.{config.DomainName}");
+                domainNames.Add($"uthukela-demo.{config.DomainName}");
+                domainNames.Add($"uthukela.{config.DomainName}");
+                domainNames.Add($"demo.{config.DomainName}");
+            }
 
             distributionProps.DomainNames = domainNames.ToArray();
 

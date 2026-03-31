@@ -31,7 +31,7 @@ public sealed class EnvironmentConfig
     public string[] ApiCorsOrigins => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}" },
-        "dev" => new[] { $"https://dev.{DomainName}", $"https://idc-demo.{DomainName}", $"https://uthukela-demo.{DomainName}", "http://localhost:3000",$"https://uthukela.{DomainName}" },
+        "dev" => new[] { $"https://dev.{DomainName}", $"https://idc-demo.{DomainName}", $"https://uthukela-demo.{DomainName}", $"https://uthukela.{DomainName}", $"https://demo.{DomainName}", "http://localhost:3000" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001" }
     };
 
@@ -54,14 +54,14 @@ public sealed class EnvironmentConfig
     public string[] OAuthCallbackUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", "http://localhost:3000/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", $"https://uthukela.{DomainName}/login", $"https://demo.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 
     public string[] OAuthSignOutUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login", $"https://idc-demo.{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", "http://localhost:3000/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://idc-demo.{DomainName}/login", $"https://uthukela-demo.{DomainName}/login", $"https://uthukela.{DomainName}/login", $"https://demo.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 
