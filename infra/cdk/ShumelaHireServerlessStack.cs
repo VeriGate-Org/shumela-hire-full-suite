@@ -189,7 +189,7 @@ public class ShumelaHireServerlessStack : Stack
             ProtocolType = "HTTP",
             CorsConfiguration = new CfnApi.CorsProperty
             {
-                AllowOrigins = config.CorsOrigins,
+                AllowOrigins = config.ApiCorsOrigins,
                 AllowMethods = new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" },
                 AllowHeaders = new[] { "Content-Type", "Authorization", "X-Tenant-Id", "X-Correlation-Id" },
                 MaxAge = 3600,
