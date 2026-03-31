@@ -23,7 +23,7 @@ import { fetchJobBySlug } from '@/lib/jobs-api';
  * or this page should be converted to a 'use client' component in a follow-up.
  */
 export function generateStaticParams() {
-  return [];
+  return [{ slug: '_' }];
 }
 
 const stripHtmlTags = (html: string): string =>
