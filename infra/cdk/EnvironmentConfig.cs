@@ -15,11 +15,24 @@ public sealed class EnvironmentConfig
 
     public bool IsProduction => EnvironmentName == "prod";
 
+    /// <summary>
+    /// CORS origins for S3 buckets (supports wildcards).
+    /// </summary>
     public string[] CorsOrigins => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}", $"https://*.{DomainName}" },
         "dev" => new[] { $"https://dev.{DomainName}", $"https://*.dev.{DomainName}", "http://localhost:3000", "http://*.localhost:3000" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001", "http://*.localhost:3000" }
+    };
+
+    /// <summary>
+    /// CORS origins for API Gateway HTTP API (no wildcards allowed).
+    /// </summary>
+    public string[] ApiCorsOrigins => EnvironmentName switch
+    {
+        "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}" },
+        "dev" => new[] { $"https://dev.{DomainName}", $"https://idc-demo.{DomainName}", $"https://uthukela-demo.{DomainName}", "http://localhost:3000" },
+        _ => new[] { "http://localhost:3000", "http://localhost:3001" }
     };
 
     public string UiUrl => EnvironmentName switch
