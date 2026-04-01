@@ -132,7 +132,7 @@ public class ShumelaHireServerlessStack : Stack
         {
             FunctionName = $"{prefix}-api",
             Runtime = Runtime.JAVA_17,
-            Handler = "com.arthmatic.shumelahire.ShumelaHireApplication",
+            Handler = "com.arthmatic.shumelahire.lambda.ApiLambdaHandler",
             Code = Code.FromAsset("../../backend/target/shumelahire-backend.jar"),
             MemorySize = 2048,
             Timeout = Duration.Seconds(120),
@@ -142,8 +142,7 @@ public class ShumelaHireServerlessStack : Stack
             {
                 ["DYNAMODB_TABLE_NAME"] = DataTable.TableName,
                 ["SPRING_PROFILES_ACTIVE"] = $"{config.SpringProfile},lambda",
-                ["AWS_LWA_PORT"] = "8080",
-                ["AWS_LWA_READINESS_CHECK_PATH"] = "/api/actuator/health",
+                ["MAIN_CLASS"] = "com.arthmatic.shumelahire.ShumelaHireApplication",
                 ["COGNITO_USER_POOL_ID"] = foundation.UserPool.UserPoolId,
                 ["COGNITO_CLIENT_ID"] = foundation.AppClient.UserPoolClientId,
                 ["COGNITO_DOMAIN"] = $"{config.CognitoDomainPrefix}.auth.{config.Region}.amazoncognito.com",
@@ -157,22 +156,18 @@ public class ShumelaHireServerlessStack : Stack
                 ["AI_KEYS_SECRET_ARN"] = foundation.AiKeysSecret.SecretArn,
                 ["AWS_REGION_OVERRIDE"] = config.Region
             },
-            Layers = new[]
-            {
-                LayerVersion.FromLayerVersionArn(this, "WebAdapterLayer",
-                    $"arn:aws:lambda:{config.Region}:753240598075:layer:LambdaAdapterLayerX86:24")
-            },
+            // No Lambda Web Adapter layer — using aws-serverless-java-container
+            // which natively adapts Spring Boot to the Lambda runtime.
             CurrentVersionOptions = new VersionOptions
             {
                 RemovalPolicy = RemovalPolicy.RETAIN,
-                Description = "SnapStart version"
+                Description = "Deployed version"
             }
         });
 
-        // Note: SnapStart is disabled because it's incompatible with Lambda Web Adapter.
-        // SnapStart tries to invoke the handler class directly during snapshot, but
-        // Spring Boot fat JARs have classes in BOOT-INF/ which Lambda's classloader
-        // can't access. LWA runs the JAR as a subprocess instead.
+        // Uses aws-serverless-java-container-springboot3 to adapt Spring Boot
+        // to the Lambda runtime. The shade plugin produces a flat uber JAR
+        // so all classes are accessible from Lambda's root classloader.
         var lambdaVersion = ApiFunction.CurrentVersion;
 
         // ── API Gateway HTTP API ───────────────────────────────────────────────
