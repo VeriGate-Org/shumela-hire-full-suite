@@ -166,24 +166,29 @@ CREATE_TENANT_BODY=$(jq -n \
   }')
 
 TENANT_RESULT=$(api_post "/api/admin/tenants" -d "$CREATE_TENANT_BODY" 2>&1) || {
-  if echo "$TENANT_RESULT" | grep -qi "already exists\|duplicate\|conflict"; then
-    warn "Tenant '${TENANT_SUBDOMAIN}' already exists, continuing..."
-  else
-    fail "Failed to create tenant: $TENANT_RESULT"
-  fi
+  warn "Tenant creation returned an error — will try to resolve existing tenant..."
 }
 
 UTHUKELA_TENANT_ID=$(echo "$TENANT_RESULT" | jq -r '.id // empty' 2>/dev/null)
 if [ -n "$UTHUKELA_TENANT_ID" ]; then
   ok "Tenant created with ID: $UTHUKELA_TENANT_ID"
 else
-  # Try to resolve existing tenant
+  # Try to resolve existing tenant via public endpoint
+  log "Attempting to resolve existing tenant '${TENANT_SUBDOMAIN}'..."
   RESOLVE_RESULT=$(api_get "/api/public/tenants/resolve/${TENANT_SUBDOMAIN}" 2>&1) || true
   UTHUKELA_TENANT_ID=$(echo "$RESOLVE_RESULT" | jq -r '.id // empty' 2>/dev/null)
+
+  if [ -z "$UTHUKELA_TENANT_ID" ]; then
+    # Try authenticated tenant list as fallback
+    TENANTS_RESULT=$(api_get "/api/admin/tenants" 2>&1) || true
+    UTHUKELA_TENANT_ID=$(echo "$TENANTS_RESULT" | jq -r --arg sub "$TENANT_SUBDOMAIN" \
+      '.[] | select(.subdomain == $sub) | .id // empty' 2>/dev/null | head -1)
+  fi
+
   [ -n "$UTHUKELA_TENANT_ID" ] && ok "Resolved existing tenant: $UTHUKELA_TENANT_ID"
 fi
 
-[ -z "$UTHUKELA_TENANT_ID" ] && fail "Could not determine tenant ID"
+[ -z "$UTHUKELA_TENANT_ID" ] && fail "Could not determine tenant ID — check if /api/admin/tenants endpoint is working"
 
 # Switch API calls to the new tenant context
 CURRENT_TENANT_ID="$UTHUKELA_TENANT_ID"

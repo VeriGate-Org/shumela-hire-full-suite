@@ -387,12 +387,14 @@ jobs:
 
       - name: Seed demo data
         if: inputs.environment == 'dev'
+        continue-on-error: true
         env:
           COGNITO_USER_POOL_ID: ${{ steps.cdk-outputs.outputs.user_pool_id }}
           COGNITO_CLIENT_ID: ${{ steps.cdk-outputs.outputs.user_pool_client_id }}
           AWS_REGION: ${{ inputs.aws-region }}
           DEMO_PASSWORD: "Demo@2026!"
         run: |
+          set +e  # Don't exit on error — seed failures should not break deployment
           PREFIX="shumelahire-${{ inputs.environment }}"
           REGION="${{ inputs.aws-region }}"
 
@@ -445,14 +447,14 @@ jobs:
             export ADMIN_EMAIL="admin@uthukela.shumelahire.co.za"
             export ADMIN_PASSWORD="$DEMO_PASSWORD"
             chmod +x scripts/seed-uthukela-employees.sh
-            bash scripts/seed-uthukela-employees.sh
+            bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
           else
             echo "uThukela tenant does not exist — running full setup..."
 
             # Step 1: Create Cognito users first
             export TENANT_ID="uthukela"
             chmod +x scripts/seed-uthukela-water-cognito-users.sh
-            bash scripts/seed-uthukela-water-cognito-users.sh
+            bash scripts/seed-uthukela-water-cognito-users.sh || echo "WARNING: Cognito user seeding had errors (non-fatal)"
 
             # Step 2: Create tenant, departments, jobs, and additional users
             export API_BASE_URL="$API_URL"
@@ -460,11 +462,11 @@ jobs:
             export ADMIN_PASSWORD="$DEMO_PASSWORD"
             export TENANT_ADMIN_PASSWORD="$DEMO_PASSWORD"
             chmod +x scripts/seed-uthukela-demo.sh
-            bash scripts/seed-uthukela-demo.sh
+            bash scripts/seed-uthukela-demo.sh || echo "WARNING: Tenant/demo seeding had errors (non-fatal)"
 
             # Step 3: Create 10 employee profiles
             chmod +x scripts/seed-uthukela-employees.sh
-            bash scripts/seed-uthukela-employees.sh
+            bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
           fi
 
           echo "Demo data seeding complete."
