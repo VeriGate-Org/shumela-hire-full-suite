@@ -351,26 +351,26 @@ jobs:
             sleep 10
           done
 
-          # Warm up the Lambda to avoid cold-start timeouts during seeding.
-          # Spring Boot init takes ~25s on first invocation.
-          API_URL=$(aws cloudformation describe-stacks \
-            --stack-name "shumelahire-${{ inputs.environment }}-serverless" \
-            --region "$REGION" \
-            --query 'Stacks[0].Outputs[?OutputKey==`HttpApiUrl`].OutputValue' \
-            --output text 2>/dev/null || echo "")
-          if [ -n "$API_URL" ] && [ "$API_URL" != "None" ]; then
-            echo "Warming up Lambda (cold start may take ~25s)..."
-            for attempt in 1 2 3; do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 \
-                "${API_URL}/api/actuator/health" 2>/dev/null || echo "000")
-              echo "  Warmup attempt $attempt: HTTP $HTTP_CODE"
-              if [ "$HTTP_CODE" = "200" ]; then
-                echo "Lambda is warm."
-                break
-              fi
-              sleep 5
-            done
-          fi
+          # Warm up the Lambda by invoking it directly (bypasses API Gateway's
+          # 30s timeout). Spring Boot init takes ~25s on cold start.
+          echo "Warming up Lambda via direct invocation (cold start may take ~30s)..."
+          WARMUP_PAYLOAD='{"version":"2.0","routeKey":"GET /api/actuator/health","rawPath":"/api/actuator/health","rawQueryString":"","headers":{},"requestContext":{"http":{"method":"GET","path":"/api/actuator/health","protocol":"HTTP/1.1","sourceIp":"127.0.0.1"},"requestId":"warmup","routeKey":"GET /api/actuator/health","stage":"$default"},"isBase64Encoded":false}'
+          echo "$WARMUP_PAYLOAD" > /tmp/warmup-payload.json
+          for attempt in 1 2 3; do
+            aws lambda invoke \
+              --function-name "$FUNCTION_NAME" \
+              --payload 'fileb:///tmp/warmup-payload.json' \
+              --cli-read-timeout 120 \
+              --region "$REGION" \
+              /tmp/warmup-response.json >/dev/null 2>&1
+            STATUS_CODE=$(python3 -c "import json; print(json.load(open('/tmp/warmup-response.json')).get('statusCode','error'))" 2>/dev/null || echo "error")
+            echo "  Warmup attempt $attempt: Lambda returned $STATUS_CODE"
+            if [ "$STATUS_CODE" != "error" ]; then
+              echo "Lambda is warm."
+              break
+            fi
+            sleep 5
+          done
 
       - name: Seed demo data
         if: inputs.environment == 'dev'
