@@ -351,6 +351,27 @@ jobs:
             sleep 10
           done
 
+          # Warm up the Lambda to avoid cold-start timeouts during seeding.
+          # Spring Boot init takes ~25s on first invocation.
+          API_URL=$(aws cloudformation describe-stacks \
+            --stack-name "shumelahire-${{ inputs.environment }}-serverless" \
+            --region "$REGION" \
+            --query 'Stacks[0].Outputs[?OutputKey==`HttpApiUrl`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+          if [ -n "$API_URL" ] && [ "$API_URL" != "None" ]; then
+            echo "Warming up Lambda (cold start may take ~25s)..."
+            for attempt in 1 2 3; do
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 \
+                "${API_URL}/api/actuator/health" 2>/dev/null || echo "000")
+              echo "  Warmup attempt $attempt: HTTP $HTTP_CODE"
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "Lambda is warm."
+                break
+              fi
+              sleep 5
+            done
+          fi
+
       - name: Seed demo data
         if: inputs.environment == 'dev'
         continue-on-error: true
