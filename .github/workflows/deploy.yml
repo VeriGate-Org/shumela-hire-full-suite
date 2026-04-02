@@ -260,48 +260,6 @@ jobs:
           npm ci
           npm run build
 
-      # ── Deploy Lambda function ───────────────────────────────────────
-      - name: Deploy Lambda function
-        run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
-          FUNCTION_NAME="${PREFIX}-api"
-          JAR_PATH="backend/target/shumelahire-backend.jar"
-          REGION="${{ inputs.aws-region }}"
-
-          # Check if the Lambda function exists (created by CDK serverless stack)
-          if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2>/dev/null; then
-            echo "Uploading JAR to S3..."
-            DEPLOY_BUCKET="${PREFIX}-deploy-artifacts"
-            S3_KEY="lambda/${FUNCTION_NAME}/${{ github.sha }}.jar"
-
-            # Create deploy bucket if it doesn't exist
-            aws s3api head-bucket --bucket "$DEPLOY_BUCKET" --region "$REGION" 2>/dev/null || \
-              aws s3api create-bucket --bucket "$DEPLOY_BUCKET" --region "$REGION" \
-                --create-bucket-configuration LocationConstraint="$REGION"
-
-            aws s3 cp "$JAR_PATH" "s3://${DEPLOY_BUCKET}/${S3_KEY}" --region "$REGION"
-
-            echo "Updating Lambda function code from S3..."
-            aws lambda update-function-code \
-              --function-name "$FUNCTION_NAME" \
-              --s3-bucket "$DEPLOY_BUCKET" \
-              --s3-key "$S3_KEY" \
-              --region "$REGION"
-
-            echo "Waiting for function update..."
-            aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME" --region "$REGION"
-
-            echo "Publishing new version..."
-            VERSION=$(aws lambda publish-version \
-              --function-name "$FUNCTION_NAME" \
-              --description "Deploy ${{ github.sha }}" \
-              --region "$REGION" \
-              --query 'Version' --output text)
-            echo "Published Lambda version: $VERSION"
-          else
-            echo "Lambda function $FUNCTION_NAME not found — serverless stack not yet deployed. Skipping."
-          fi
-
       # ── Phase 3: Deploy all remaining stacks ─────────────────────────
       - name: Cleanup ROLLBACK_COMPLETE stacks
         run: |
@@ -371,9 +329,17 @@ jobs:
         if: inputs.environment == 'dev'
         run: |
           PREFIX="shumelahire-${{ inputs.environment }}"
-          FUNCTION_NAME="${PREFIX}-api"
           REGION="${{ inputs.aws-region }}"
-          echo "Waiting for Lambda to be ready..."
+          FUNCTION_NAME=$(aws cloudformation describe-stacks \
+            --stack-name "${PREFIX}-serverless" \
+            --region "$REGION" \
+            --query 'Stacks[0].Outputs[?OutputKey==`ApiLambdaFunctionName`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+          if [ -z "$FUNCTION_NAME" ] || [ "$FUNCTION_NAME" = "None" ]; then
+            echo "Could not resolve Lambda function name from CDK outputs — skipping."
+            exit 0
+          fi
+          echo "Waiting for Lambda $FUNCTION_NAME to be ready..."
           for i in $(seq 1 12); do
             STATUS=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" \
               --query 'Configuration.LastUpdateStatus' --output text 2>/dev/null || echo "NotFound")
