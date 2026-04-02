@@ -94,7 +94,9 @@ public class TenantResolutionFilter implements Filter {
             if ("platform".equals(headerTenantId)) {
                 return "platform";
             }
-            if (tenantRepository.existsById(headerTenantId)) {
+            // Use findTenantById (context-free) — existsById requires TenantContext
+            // which hasn't been set yet at this point in the filter chain.
+            if (tenantRepository.findTenantById(headerTenantId).filter(Tenant::isActive).isPresent()) {
                 return headerTenantId;
             }
         }
