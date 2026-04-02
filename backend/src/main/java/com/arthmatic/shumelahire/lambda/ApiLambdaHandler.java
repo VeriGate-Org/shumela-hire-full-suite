@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.lambda;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
-import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -14,16 +14,16 @@ import java.io.OutputStream;
 
 /**
  * Lambda entry point for the Spring Boot API.
- * Uses aws-serverless-java-container to adapt API Gateway HTTP API
+ * Uses aws-serverless-java-container to adapt API Gateway HTTP API v2
  * requests into Spring Boot servlet requests.
  */
 public class ApiLambdaHandler implements RequestStreamHandler {
 
-    private static final SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+    private static final SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse> handler;
 
     static {
         try {
-            handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(ShumelaHireApplication.class);
+            handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(ShumelaHireApplication.class);
         } catch (ContainerInitializationException e) {
             throw new RuntimeException("Failed to initialize Spring Boot in Lambda", e);
         }
