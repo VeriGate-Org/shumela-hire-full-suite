@@ -148,6 +148,7 @@ public class ShumelaHireServerlessStack : Stack
                 ["COGNITO_USER_POOL_ID"] = foundation.UserPool.UserPoolId,
                 ["COGNITO_CLIENT_ID"] = foundation.AppClient.UserPoolClientId,
                 ["COGNITO_DOMAIN"] = $"{config.CognitoDomainPrefix}.auth.{config.Region}.amazoncognito.com",
+                ["COGNITO_ISSUER_URI"] = $"https://cognito-idp.{config.Region}.amazonaws.com/{foundation.UserPool.UserPoolId}",
                 ["S3_DOCUMENTS_BUCKET"] = foundation.DocumentsBucket.BucketName,
                 ["S3_UPLOADS_BUCKET"] = foundation.UploadsBucket.BucketName,
                 ["SQS_NOTIFICATION_QUEUE_URL"] = foundation.NotificationQueue.QueueUrl,
