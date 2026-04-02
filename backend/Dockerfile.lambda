@@ -1,0 +1,5 @@
+FROM public.ecr.aws/lambda/java:17
+
+COPY target/shumelahire-backend.jar ${LAMBDA_TASK_ROOT}/lib/shumelahire-backend.jar
+
+CMD ["com.arthmatic.shumelahire.lambda.ApiLambdaHandler::handleRequest"]

@@ -62,7 +62,7 @@ public class ShumelaHireServerlessStack : Stack
             });
         }
 
-        // ── Lambda Function (Spring Boot + Web Adapter + SnapStart) ────────────
+        // ── Lambda Function (Spring Boot container image) ──────────────────────
         var lambdaLogGroup = new LogGroup(this, "ApiLambdaLogGroup", new LogGroupProps
         {
             LogGroupName = $"/aws/lambda/{prefix}-api",
@@ -128,12 +128,14 @@ public class ShumelaHireServerlessStack : Stack
             Resources = new[] { "*" }
         }));
 
-        ApiFunction = new Function(this, "ApiFunction", new FunctionProps
+        // Container image deployment bypasses Lambda's 250 MiB zip size limit
+        // (10 GB image limit). CDK builds & pushes the image to ECR automatically.
+        ApiFunction = new DockerImageFunction(this, "ApiFunction", new DockerImageFunctionProps
         {
-            FunctionName = $"{prefix}-api",
-            Runtime = Runtime.JAVA_17,
-            Handler = "com.arthmatic.shumelahire.lambda.ApiLambdaHandler",
-            Code = Code.FromAsset("../../backend/target/shumelahire-backend.jar"),
+            Code = DockerImageCode.FromImageAsset("../../backend", new AssetImageCodeProps
+            {
+                File = "Dockerfile.lambda"
+            }),
             MemorySize = 2048,
             Timeout = Duration.Seconds(120),
             Role = lambdaRole,
@@ -156,18 +158,12 @@ public class ShumelaHireServerlessStack : Stack
                 ["AI_KEYS_SECRET_ARN"] = foundation.AiKeysSecret.SecretArn,
                 ["AWS_REGION_OVERRIDE"] = config.Region
             },
-            // No Lambda Web Adapter layer — using aws-serverless-java-container
-            // which natively adapts Spring Boot to the Lambda runtime.
             CurrentVersionOptions = new VersionOptions
             {
                 RemovalPolicy = RemovalPolicy.RETAIN,
                 Description = "Deployed version"
             }
         });
-
-        // Uses aws-serverless-java-container-springboot3 to adapt Spring Boot
-        // to the Lambda runtime. The shade plugin produces a flat uber JAR
-        // so all classes are accessible from Lambda's root classloader.
         var lambdaVersion = ApiFunction.CurrentVersion;
 
         // ── API Gateway HTTP API ───────────────────────────────────────────────
