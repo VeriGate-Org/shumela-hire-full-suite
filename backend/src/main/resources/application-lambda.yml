@@ -8,6 +8,8 @@ dynamodb:
   table-name: ${DYNAMODB_TABLE_NAME}
 
 aws:
+  dynamodb:
+    table-name: ${DYNAMODB_TABLE_NAME}
   region: ${AWS_REGION_OVERRIDE:af-south-1}
 
 logging:
