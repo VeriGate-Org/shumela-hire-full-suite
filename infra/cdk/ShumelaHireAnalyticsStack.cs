@@ -186,12 +186,13 @@ public class ShumelaHireAnalyticsStack : Stack
         // Grant DynamoDB read/write for pre-computed metrics
         serverless.DataTable.GrantReadWriteData(streamProcessorRole);
 
-        var streamProcessor = new Function(this, "StreamProcessor", new FunctionProps
+        var streamProcessor = new DockerImageFunction(this, "StreamProcessor", new DockerImageFunctionProps
         {
-            FunctionName = $"{prefix}-stream-processor",
-            Runtime = Runtime.JAVA_17,
-            Handler = "com.arthmatic.shumelahire.lambda.StreamProcessorHandler::handleRequest",
-            Code = Code.FromAsset("../../backend/target/shumelahire-backend.jar"),
+            Code = DockerImageCode.FromImageAsset("../../backend", new AssetImageCodeProps
+            {
+                File = "Dockerfile.lambda",
+                Cmd = new[] { "com.arthmatic.shumelahire.lambda.StreamProcessorHandler::handleRequest" }
+            }),
             MemorySize = 1024,
             Timeout = Duration.Minutes(5),
             Role = streamProcessorRole,
