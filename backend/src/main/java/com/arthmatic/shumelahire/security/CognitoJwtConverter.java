@@ -60,8 +60,9 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
         String tenantId = jwt.getClaimAsString("custom:tenant_id");
         if (tenantId != null && !tenantId.isBlank()) {
             String currentTenant = TenantContext.getCurrentTenant();
-            if (currentTenant != null && !"default".equals(currentTenant) && !currentTenant.equals(tenantId)) {
-                // Only reject if the resolved tenant is a real tenant (not the dev fallback)
+            if (currentTenant != null && !"default".equals(currentTenant)
+                    && !"platform".equals(currentTenant) && !currentTenant.equals(tenantId)) {
+                // Only reject if the resolved tenant is a real tenant (not dev fallback or platform admin)
                 throw new SecurityException("JWT tenant_id does not match resolved tenant");
             }
             TenantContext.setCurrentTenant(tenantId);
