@@ -165,9 +165,13 @@ CREATE_TENANT_BODY=$(jq -n \
     settings: ($settings | tostring)
   }')
 
+# Use "platform" context for tenant creation — the uthukela tenant
+# doesn't exist in DynamoDB yet, so X-Tenant-Id: uthukela would be rejected.
+CURRENT_TENANT_ID="platform"
 TENANT_RESULT=$(api_post "/api/admin/tenants" -d "$CREATE_TENANT_BODY" 2>&1) || {
   warn "Tenant creation returned an error — will try to resolve existing tenant..."
 }
+unset CURRENT_TENANT_ID
 
 UTHUKELA_TENANT_ID=$(echo "$TENANT_RESULT" | jq -r '.id // empty' 2>/dev/null)
 if [ -n "$UTHUKELA_TENANT_ID" ]; then
