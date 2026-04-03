@@ -91,8 +91,11 @@ fi
 ok "Tenant ID: ${TENANT_ID}"
 
 # ============================================================
-# Helper: API call function
+# Helper: API call function (with retry for transient errors)
 # ============================================================
+MAX_RETRIES=3
+RETRY_DELAY=10
+
 api() {
   local method="$1"
   local path="$2"
@@ -101,19 +104,30 @@ api() {
   local headers=(-H "Authorization: Bearer $ID_TOKEN" -H "Content-Type: application/json")
   [ -n "$TENANT_ID" ] && headers+=(-H "X-Tenant-Id: $TENANT_ID")
 
-  local response
-  response=$(curl -s -w "\n%{http_code}" "${headers[@]}" -X "$method" "$url" "$@")
-  local http_code
-  http_code=$(echo "$response" | tail -1)
-  local body
-  body=$(echo "$response" | sed '$d')
+  local attempt
+  for attempt in $(seq 1 $MAX_RETRIES); do
+    local response
+    response=$(curl -s -w "\n%{http_code}" --max-time 60 "${headers[@]}" -X "$method" "$url" "$@")
+    local http_code
+    http_code=$(echo "$response" | tail -1)
+    local body
+    body=$(echo "$response" | sed '$d')
 
-  if [[ "$http_code" -ge 200 && "$http_code" -lt 300 ]]; then
-    echo "$body"
-  else
+    if [[ "$http_code" -ge 200 && "$http_code" -lt 300 ]]; then
+      echo "$body"
+      return 0
+    fi
+
+    # Retry on transient gateway errors (502, 503, 504) or curl failures (000)
+    if [[ "$http_code" =~ ^(502|503|504|000)$ ]] && [ "$attempt" -lt "$MAX_RETRIES" ]; then
+      warn "HTTP $http_code on $method $path — retrying in ${RETRY_DELAY}s (attempt $attempt/$MAX_RETRIES)..."
+      sleep "$RETRY_DELAY"
+      continue
+    fi
+
     echo "HTTP $http_code: $body" >&2
     return 1
-  fi
+  done
 }
 
 api_post() { api POST "$@"; }
@@ -132,6 +146,18 @@ echo " Tenant:   ${TENANT_SUBDOMAIN} (${TENANT_ID})"
 echo " Region:   ${AWS_REGION}"
 echo "=========================================="
 echo ""
+
+# Warm up the Lambda before making heavy requests
+log "Warming up API..."
+for i in 1 2 3; do
+  WARMUP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 "${API_BASE_URL}/api/actuator/health" 2>/dev/null || echo "000")
+  if [[ "$WARMUP_CODE" -ge 200 && "$WARMUP_CODE" -lt 300 ]]; then
+    ok "API is warm (HTTP $WARMUP_CODE)"
+    break
+  fi
+  warn "Warmup attempt $i returned HTTP $WARMUP_CODE — waiting 10s..."
+  sleep 10
+done
 
 log "Creating skill definitions..."
 
@@ -179,14 +205,21 @@ log "Creating employees..."
 
 EMPLOYEE_IDS=()
 
+SEED_FAILURES=0
+
 create_employee() {
   local body="$1"
   local name="$2"
   local result
-  result=$(api_post "/api/employees" -d "$body" 2>&1) || { warn "Failed to create employee: $name — $result"; echo ""; return 1; }
+  result=$(api_post "/api/employees" -d "$body" 2>&1) || { warn "Failed to create employee: $name — $result"; SEED_FAILURES=$((SEED_FAILURES+1)); echo ""; return 0; }
   local id
   id=$(echo "$result" | jq -r '.id // empty')
-  [ -z "$id" ] && { warn "No ID returned for $name"; echo ""; return 1; }
+  if [ -z "$id" ]; then
+    warn "No ID returned for $name"
+    SEED_FAILURES=$((SEED_FAILURES+1))
+    echo ""
+    return 0
+  fi
   EMPLOYEE_IDS+=("$id")
   ok "Employee #$id: $name"
   echo "$id"
@@ -937,4 +970,8 @@ log "  - Certifications"
 log "  - Documents (ID, contract, qualification — metadata only)"
 echo ""
 log "Skill definitions created: 20 across 8 categories"
+if [ "$SEED_FAILURES" -gt 0 ]; then
+  warn "$SEED_FAILURES employee(s) failed to seed"
+  exit 1
+fi
 log "============================================================"
