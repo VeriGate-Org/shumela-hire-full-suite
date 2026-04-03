@@ -19,6 +19,7 @@ import java.util.List;
  * that don't yet have a linked ad.
  */
 @Component
+@org.springframework.context.annotation.Profile("!lambda")
 public class JobAdSyncStartup {
 
     private static final Logger logger = LoggerFactory.getLogger(JobAdSyncStartup.class);

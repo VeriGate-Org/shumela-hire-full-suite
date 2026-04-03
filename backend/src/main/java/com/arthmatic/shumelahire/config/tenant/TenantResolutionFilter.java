@@ -13,10 +13,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TenantResolutionFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(TenantResolutionFilter.class);
+
+    /** In-memory cache: lookup key → tenantId (or "" for not-found). Avoids repeated DynamoDB queries. */
+    private final ConcurrentHashMap<String, String> tenantCache = new ConcurrentHashMap<>();
+    private static final String NOT_FOUND = "";
 
     private static final Set<String> EXEMPT_PREFIXES = Set.of(
             "/actuator/health",
@@ -81,10 +86,16 @@ public class TenantResolutionFilter implements Filter {
                 if ("platform".equals(subdomain)) {
                     return "platform";
                 }
+                String cachedId = tenantCache.get("sub:" + subdomain);
+                if (cachedId != null) {
+                    return NOT_FOUND.equals(cachedId) ? null : cachedId;
+                }
                 Tenant tenant = tenantRepository.findBySubdomain(subdomain).orElse(null);
                 if (tenant != null && tenant.isActive()) {
+                    tenantCache.put("sub:" + subdomain, tenant.getId());
                     return tenant.getId();
                 }
+                tenantCache.put("sub:" + subdomain, NOT_FOUND);
             }
         }
 
@@ -95,19 +106,26 @@ public class TenantResolutionFilter implements Filter {
             if ("platform".equals(headerTenantId)) {
                 return "platform";
             }
+            String cachedId = tenantCache.get("id:" + headerTenantId);
+            if (cachedId != null) {
+                return NOT_FOUND.equals(cachedId) ? null : cachedId;
+            }
             // Use findTenantById (context-free) — existsById requires TenantContext
             // which hasn't been set yet at this point in the filter chain.
             Optional<Tenant> tenant = tenantRepository.findTenantById(headerTenantId)
                     .filter(Tenant::isActive);
             if (tenant.isPresent()) {
+                tenantCache.put("id:" + headerTenantId, tenant.get().getId());
                 return tenant.get().getId();
             }
             // Fallback: X-Tenant-Id may be a subdomain rather than the generated ID
             tenant = tenantRepository.findBySubdomain(headerTenantId)
                     .filter(Tenant::isActive);
             if (tenant.isPresent()) {
+                tenantCache.put("id:" + headerTenantId, tenant.get().getId());
                 return tenant.get().getId();
             }
+            tenantCache.put("id:" + headerTenantId, NOT_FOUND);
         }
 
         // 3. Dev profile fallback: default tenant
