@@ -429,12 +429,21 @@ jobs:
               fi
             fi
 
-            echo "Tenant exists but no employees — running employee seeder..."
-            export API_BASE_URL="$API_URL"
-            export ADMIN_EMAIL="admin@uthukela.shumelahire.co.za"
-            export ADMIN_PASSWORD="$DEMO_PASSWORD"
-            chmod +x scripts/seed-uthukela-employees.sh
-            bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
+            echo "Tenant exists but no employees — seeding via direct DynamoDB write..."
+            # Resolve DynamoDB table name from CDK outputs
+            TABLE_NAME=$(aws cloudformation describe-stacks \
+              --stack-name "${PREFIX}-serverless" \
+              --region "$REGION" \
+              --query 'Stacks[0].Outputs[?OutputKey==`DynamoDbTableName`].OutputValue' \
+              --output text 2>/dev/null || echo "")
+            if [ -z "$TABLE_NAME" ] || [ "$TABLE_NAME" = "None" ]; then
+              TABLE_NAME="${PREFIX}-data"
+            fi
+            export DYNAMODB_TABLE_NAME="$TABLE_NAME"
+            export TENANT_ID="uthukela"
+            export AWS_REGION="$REGION"
+            pip install cryptography -q 2>/dev/null
+            python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
           else
             echo "uThukela tenant does not exist — running full setup..."
 
@@ -451,9 +460,19 @@ jobs:
             chmod +x scripts/seed-uthukela-demo.sh
             bash scripts/seed-uthukela-demo.sh || echo "WARNING: Tenant/demo seeding had errors (non-fatal)"
 
-            # Step 3: Create 10 employee profiles
-            chmod +x scripts/seed-uthukela-employees.sh
-            bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
+            # Step 3: Create 10 employee profiles (direct DynamoDB write)
+            TABLE_NAME=$(aws cloudformation describe-stacks \
+              --stack-name "${PREFIX}-serverless" \
+              --region "$REGION" \
+              --query 'Stacks[0].Outputs[?OutputKey==`DynamoDbTableName`].OutputValue' \
+              --output text 2>/dev/null || echo "")
+            if [ -z "$TABLE_NAME" ] || [ "$TABLE_NAME" = "None" ]; then
+              TABLE_NAME="${PREFIX}-data"
+            fi
+            export DYNAMODB_TABLE_NAME="$TABLE_NAME"
+            export TENANT_ID="uthukela"
+            pip install cryptography -q 2>/dev/null
+            python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
           fi
 
           echo "Demo data seeding complete."

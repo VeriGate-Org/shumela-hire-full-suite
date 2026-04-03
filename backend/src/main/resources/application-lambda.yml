@@ -3,6 +3,14 @@ spring:
     scheduling:
       pool:
         size: 1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Override issuer-uri with direct jwk-set-uri to skip OpenID Connect discovery
+          # and avoid repeated HTTP round-trips from Lambda to Cognito.
+          issuer-uri: ${COGNITO_ISSUER_URI}
+          jwk-set-uri: ${COGNITO_ISSUER_URI}/.well-known/jwks.json
 
 dynamodb:
   table-name: ${DYNAMODB_TABLE_NAME}
