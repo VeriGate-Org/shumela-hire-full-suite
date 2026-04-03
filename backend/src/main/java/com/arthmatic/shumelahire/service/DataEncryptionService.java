@@ -111,9 +111,16 @@ public class DataEncryptionService {
         }
     }
 
+    private volatile SecretKey cachedKey;
+
     private SecretKey getSecretKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(encryptionKey);
-        return new SecretKeySpec(keyBytes, ALGORITHM);
+        SecretKey key = cachedKey;
+        if (key == null) {
+            byte[] keyBytes = Base64.getDecoder().decode(encryptionKey);
+            key = new SecretKeySpec(keyBytes, ALGORITHM);
+            cachedKey = key;
+        }
+        return key;
     }
 
     public String generateNewKey() {
