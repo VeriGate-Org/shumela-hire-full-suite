@@ -136,7 +136,7 @@ public class ShumelaHireServerlessStack : Stack
             {
                 File = "Dockerfile.lambda"
             }),
-            MemorySize = 3072,
+            MemorySize = 3008,
             Timeout = Duration.Seconds(120),
             Role = lambdaRole,
             LogGroup = lambdaLogGroup,
