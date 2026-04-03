@@ -87,15 +87,17 @@ public class TenantResolutionFilter implements Filter {
                     return "platform";
                 }
                 String cachedId = tenantCache.get("sub:" + subdomain);
-                if (cachedId != null) {
-                    return NOT_FOUND.equals(cachedId) ? null : cachedId;
+                if (cachedId != null && !NOT_FOUND.equals(cachedId)) {
+                    return cachedId;
                 }
-                Tenant tenant = tenantRepository.findBySubdomain(subdomain).orElse(null);
-                if (tenant != null && tenant.isActive()) {
-                    tenantCache.put("sub:" + subdomain, tenant.getId());
-                    return tenant.getId();
+                if (cachedId == null) {
+                    Tenant tenant = tenantRepository.findBySubdomain(subdomain).orElse(null);
+                    if (tenant != null && tenant.isActive()) {
+                        tenantCache.put("sub:" + subdomain, tenant.getId());
+                        return tenant.getId();
+                    }
+                    tenantCache.put("sub:" + subdomain, NOT_FOUND);
                 }
-                tenantCache.put("sub:" + subdomain, NOT_FOUND);
             }
         }
 
