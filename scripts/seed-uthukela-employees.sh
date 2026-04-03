@@ -145,17 +145,52 @@ api_lambda() {
   local tmp_response="/tmp/seed-response-$$.json"
   echo "$payload" > "$tmp_payload"
 
-  aws lambda invoke \
+  local invoke_meta
+  invoke_meta=$(aws lambda invoke \
     --function-name "$LAMBDA_FUNCTION_NAME" \
     --payload "fileb://$tmp_payload" \
     --cli-read-timeout 120 \
     --region "$AWS_REGION" \
-    "$tmp_response" >/dev/null 2>&1
+    "$tmp_response" 2>&1)
+  local invoke_rc=$?
+
+  if [ "$invoke_rc" -ne 0 ]; then
+    warn "aws lambda invoke failed (exit $invoke_rc): $invoke_meta"
+    rm -f "$tmp_payload" "$tmp_response"
+    # Fall back to HTTP
+    api_http "$method" "$path" -d "$body"
+    return $?
+  fi
+
+  # Check for FunctionError in invoke metadata
+  local func_error
+  func_error=$(echo "$invoke_meta" | python3 -c "import sys,json; print(json.load(sys.stdin).get('FunctionError',''))" 2>/dev/null || echo "")
+  if [ -n "$func_error" ]; then
+    warn "Lambda FunctionError: $func_error"
+    log "  Response: $(head -c 300 "$tmp_response" 2>/dev/null)"
+    rm -f "$tmp_payload" "$tmp_response"
+    api_http "$method" "$path" -d "$body"
+    return $?
+  fi
+
+  if [ ! -f "$tmp_response" ]; then
+    warn "No Lambda response file"
+    rm -f "$tmp_payload"
+    api_http "$method" "$path" -d "$body"
+    return $?
+  fi
 
   local status_code
   status_code=$(python3 -c "import json; r=json.load(open('$tmp_response')); print(r.get('statusCode','error'))" 2>/dev/null || echo "error")
   local response_body
   response_body=$(python3 -c "import json; r=json.load(open('$tmp_response')); print(r.get('body','{}'))" 2>/dev/null || echo "{}")
+
+  # Debug: log first invocation's raw response
+  if [ "${_LAMBDA_DEBUG_LOGGED:-0}" = "0" ]; then
+    log "  [debug] Lambda raw response (first call): $(head -c 500 "$tmp_response" 2>/dev/null)"
+    log "  [debug] Parsed statusCode=$status_code"
+    _LAMBDA_DEBUG_LOGGED=1
+  fi
 
   rm -f "$tmp_payload" "$tmp_response"
 
