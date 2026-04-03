@@ -37,9 +37,6 @@ ADMIN_EMAIL="${ADMIN_EMAIL:-admin@uthukela.shumelahire.co.za}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}"
 COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:?Set COGNITO_USER_POOL_ID}"
 COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID:?Set COGNITO_CLIENT_ID}"
-# Optional: set to bypass API Gateway's 30s timeout via direct Lambda invocation
-LAMBDA_FUNCTION_NAME="${LAMBDA_FUNCTION_NAME:-}"
-
 TENANT_SUBDOMAIN="uthukela"
 
 # Colours
@@ -95,116 +92,10 @@ ok "Tenant ID: ${TENANT_ID}"
 # ============================================================
 # Helper: API call function (with retry for transient errors)
 # ============================================================
-MAX_RETRIES=3
-RETRY_DELAY=10
+MAX_RETRIES=4
+RETRY_DELAY=15
 
-# Direct Lambda invocation — bypasses API Gateway 30s timeout
-api_lambda() {
-  local method="$1"
-  local path="$2"
-  shift 2
-  # Extract -d body from remaining args
-  local body=""
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      -d) body="$2"; shift 2 ;;
-      *) shift ;;
-    esac
-  done
-
-  local headers_json
-  headers_json=$(jq -n \
-    --arg auth "Bearer $ID_TOKEN" \
-    --arg tid "$TENANT_ID" \
-    '{authorization: $auth, "content-type": "application/json", "x-tenant-id": $tid}')
-
-  local payload
-  payload=$(jq -n \
-    --arg method "$method" \
-    --arg path "$path" \
-    --arg routeKey "$method $path" \
-    --argjson headers "$headers_json" \
-    --arg body "$body" \
-    '{
-      version: "2.0",
-      routeKey: $routeKey,
-      rawPath: $path,
-      rawQueryString: "",
-      headers: $headers,
-      requestContext: {
-        http: {method: $method, path: $path, protocol: "HTTP/1.1", sourceIp: "127.0.0.1"},
-        requestId: "seed",
-        routeKey: $routeKey,
-        stage: "$default"
-      },
-      body: $body,
-      isBase64Encoded: false
-    }')
-
-  local tmp_payload="/tmp/seed-payload-$$.json"
-  local tmp_response="/tmp/seed-response-$$.json"
-  echo "$payload" > "$tmp_payload"
-
-  local invoke_meta
-  invoke_meta=$(aws lambda invoke \
-    --function-name "$LAMBDA_FUNCTION_NAME" \
-    --payload "fileb://$tmp_payload" \
-    --cli-read-timeout 120 \
-    --region "$AWS_REGION" \
-    "$tmp_response" 2>&1)
-  local invoke_rc=$?
-
-  if [ "$invoke_rc" -ne 0 ]; then
-    warn "aws lambda invoke failed (exit $invoke_rc): $invoke_meta"
-    rm -f "$tmp_payload" "$tmp_response"
-    # Fall back to HTTP
-    api_http "$method" "$path" -d "$body"
-    return $?
-  fi
-
-  # Check for FunctionError in invoke metadata
-  local func_error
-  func_error=$(echo "$invoke_meta" | python3 -c "import sys,json; print(json.load(sys.stdin).get('FunctionError',''))" 2>/dev/null || echo "")
-  if [ -n "$func_error" ]; then
-    warn "Lambda FunctionError: $func_error"
-    log "  Response: $(head -c 300 "$tmp_response" 2>/dev/null)"
-    rm -f "$tmp_payload" "$tmp_response"
-    api_http "$method" "$path" -d "$body"
-    return $?
-  fi
-
-  if [ ! -f "$tmp_response" ]; then
-    warn "No Lambda response file"
-    rm -f "$tmp_payload"
-    api_http "$method" "$path" -d "$body"
-    return $?
-  fi
-
-  local status_code
-  status_code=$(python3 -c "import json; r=json.load(open('$tmp_response')); print(r.get('statusCode','error'))" 2>/dev/null || echo "error")
-  local response_body
-  response_body=$(python3 -c "import json; r=json.load(open('$tmp_response')); print(r.get('body','{}'))" 2>/dev/null || echo "{}")
-
-  # Debug: log first invocation's raw response
-  if [ "${_LAMBDA_DEBUG_LOGGED:-0}" = "0" ]; then
-    log "  [debug] Lambda raw response (first call): $(head -c 500 "$tmp_response" 2>/dev/null)"
-    log "  [debug] Parsed statusCode=$status_code"
-    _LAMBDA_DEBUG_LOGGED=1
-  fi
-
-  rm -f "$tmp_payload" "$tmp_response"
-
-  if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]] 2>/dev/null; then
-    echo "$response_body"
-    return 0
-  fi
-
-  echo "HTTP $status_code: $response_body" >&2
-  return 1
-}
-
-# HTTP API call via curl (with retry)
-api_http() {
+api() {
   local method="$1"
   local path="$2"
   shift 2
@@ -238,15 +129,6 @@ api_http() {
   done
 }
 
-# Route to direct Lambda invocation when available, else fall back to HTTP
-api() {
-  if [ -n "$LAMBDA_FUNCTION_NAME" ]; then
-    api_lambda "$@"
-  else
-    api_http "$@"
-  fi
-}
-
 api_post() { api POST "$@"; }
 api_get()  { api GET "$@"; }
 api_put()  { api PUT "$@"; }
@@ -265,10 +147,6 @@ echo "=========================================="
 echo ""
 
 # Warm up the Lambda before making heavy requests
-if [ -n "$LAMBDA_FUNCTION_NAME" ]; then
-  log "Using direct Lambda invocation (bypassing API Gateway 30s limit)"
-  log "Lambda function: $LAMBDA_FUNCTION_NAME"
-fi
 log "Warming up API..."
 for i in 1 2 3; do
   WARMUP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 "${API_BASE_URL}/api/actuator/health" 2>/dev/null || echo "000")

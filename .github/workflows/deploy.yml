@@ -433,13 +433,6 @@ jobs:
             export API_BASE_URL="$API_URL"
             export ADMIN_EMAIL="admin@uthukela.shumelahire.co.za"
             export ADMIN_PASSWORD="$DEMO_PASSWORD"
-            # Pass Lambda function name so seeder can bypass API Gateway 30s timeout
-            FUNCTION_NAME=$(aws cloudformation describe-stacks \
-              --stack-name "${PREFIX}-serverless" \
-              --region "$REGION" \
-              --query 'Stacks[0].Outputs[?OutputKey==`ApiLambdaFunctionName`].OutputValue' \
-              --output text 2>/dev/null || echo "")
-            export LAMBDA_FUNCTION_NAME="$FUNCTION_NAME"
             chmod +x scripts/seed-uthukela-employees.sh
             bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
           else
@@ -458,13 +451,7 @@ jobs:
             chmod +x scripts/seed-uthukela-demo.sh
             bash scripts/seed-uthukela-demo.sh || echo "WARNING: Tenant/demo seeding had errors (non-fatal)"
 
-            # Step 3: Create 10 employee profiles (via direct Lambda invocation)
-            FUNCTION_NAME=$(aws cloudformation describe-stacks \
-              --stack-name "${PREFIX}-serverless" \
-              --region "$REGION" \
-              --query 'Stacks[0].Outputs[?OutputKey==`ApiLambdaFunctionName`].OutputValue' \
-              --output text 2>/dev/null || echo "")
-            export LAMBDA_FUNCTION_NAME="$FUNCTION_NAME"
+            # Step 3: Create 10 employee profiles
             chmod +x scripts/seed-uthukela-employees.sh
             bash scripts/seed-uthukela-employees.sh || echo "WARNING: Employee seeding had errors (non-fatal)"
           fi
