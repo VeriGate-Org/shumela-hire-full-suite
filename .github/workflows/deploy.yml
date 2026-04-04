@@ -445,6 +445,7 @@ jobs:
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
+            python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
           else
             echo "uThukela tenant does not exist — running full setup..."
 
@@ -475,6 +476,7 @@ jobs:
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
+            python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
           fi
 
           echo "Demo data seeding complete."
