@@ -449,6 +449,7 @@ jobs:
             python3 scripts/seed-performance-dynamodb.py || echo "WARNING: Performance review seeding had errors (non-fatal)"
             python3 scripts/seed-training-dynamodb.py || echo "WARNING: Training seeding had errors (non-fatal)"
             python3 scripts/seed-sage-dynamodb.py || echo "WARNING: Sage integration seeding had errors (non-fatal)"
+            python3 scripts/seed-sage-evolution-dynamodb.py || echo "WARNING: Sage Evolution seeding had errors (non-fatal)"
           else
             echo "uThukela tenant does not exist — running full setup..."
 
@@ -483,6 +484,7 @@ jobs:
             python3 scripts/seed-performance-dynamodb.py || echo "WARNING: Performance review seeding had errors (non-fatal)"
             python3 scripts/seed-training-dynamodb.py || echo "WARNING: Training seeding had errors (non-fatal)"
             python3 scripts/seed-sage-dynamodb.py || echo "WARNING: Sage integration seeding had errors (non-fatal)"
+            python3 scripts/seed-sage-evolution-dynamodb.py || echo "WARNING: Sage Evolution seeding had errors (non-fatal)"
           fi
 
           echo "Demo data seeding complete."
