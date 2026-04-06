@@ -47,6 +47,25 @@ public class ShumelaHireFrontendStack : Stack
             }
         });
 
+        // ── CloudFront Function: inject X-Tenant-Id from subdomain ─────────
+        var tenantHeaderFn = new Function(this, "TenantHeaderFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-tenant-header",
+            Comment = "Extracts tenant subdomain from Host and sets X-Tenant-Id header",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var host = request.headers.host ? request.headers.host.value : '';
+    var parts = host.split('.');
+    var envPrefixes = { dev:1, ppe:1, staging:1, qa:1, sandbox:1, sbx:1 };
+    if (parts.length >= 4 && !envPrefixes[parts[0]]) {
+        request.headers['x-tenant-id'] = { value: parts[0] };
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -106,7 +125,15 @@ public class ShumelaHireFrontendStack : Stack
                     ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     CachePolicy = CachePolicy.CACHING_DISABLED,
                     OriginRequestPolicy = OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-                    AllowedMethods = AllowedMethods.ALLOW_ALL
+                    AllowedMethods = AllowedMethods.ALLOW_ALL,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = tenantHeaderFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
                 }
             },
             MinimumProtocolVersion = SecurityPolicyProtocol.TLS_V1_2_2021,

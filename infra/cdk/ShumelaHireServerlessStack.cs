@@ -196,7 +196,7 @@ public class ShumelaHireServerlessStack : Stack
             }
         });
 
-        // Lambda integration (using published version for SnapStart)
+        // Lambda integration (using published version)
         var integration = new ApigwCfnIntegration(this, "LambdaIntegration", new ApigwCfnIntegrationProps
         {
             ApiId = HttpApi.Ref,
