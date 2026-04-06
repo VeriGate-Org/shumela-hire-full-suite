@@ -167,14 +167,6 @@ public class ShumelaHireServerlessStack : Stack
         });
         var lambdaVersion = ApiFunction.CurrentVersion;
 
-        // ── Provisioned Concurrency (eliminates cold-start 502s) ──────────────
-        var liveAlias = new Alias(this, "LiveAlias", new AliasProps
-        {
-            AliasName = "live",
-            Version = lambdaVersion,
-            ProvisionedConcurrentExecutions = config.IsProduction ? 2 : 1
-        });
-
         // ── API Gateway HTTP API ───────────────────────────────────────────────
         HttpApi = new CfnApi(this, "HttpApi", new CfnApiProps
         {
@@ -204,12 +196,12 @@ public class ShumelaHireServerlessStack : Stack
             }
         });
 
-        // Lambda integration (using provisioned-concurrency alias)
+        // Lambda integration (using published version)
         var integration = new ApigwCfnIntegration(this, "LambdaIntegration", new ApigwCfnIntegrationProps
         {
             ApiId = HttpApi.Ref,
             IntegrationType = "AWS_PROXY",
-            IntegrationUri = liveAlias.FunctionArn,
+            IntegrationUri = lambdaVersion.FunctionArn,
             PayloadFormatVersion = "2.0",
             TimeoutInMillis = 30000
         });
@@ -264,8 +256,8 @@ public class ShumelaHireServerlessStack : Stack
             }
         });
 
-        // Grant API Gateway permission to invoke Lambda alias
-        liveAlias.AddPermission("ApiGatewayInvoke", new Permission
+        // Grant API Gateway permission to invoke Lambda version
+        lambdaVersion.AddPermission("ApiGatewayInvoke", new Permission
         {
             Principal = new ServicePrincipal("apigateway.amazonaws.com"),
             SourceArn = $"arn:aws:execute-api:{config.Region}:{this.Account}:{HttpApi.Ref}/*"
