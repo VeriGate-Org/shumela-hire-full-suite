@@ -56,16 +56,22 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
         Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
         String principal = extractPrincipal(jwt);
 
-        // Extract tenant_id from JWT custom attribute and set in TenantContext
+        // Extract tenant_id from JWT custom attribute and set in TenantContext.
+        // The JWT may store the subdomain (e.g. "uthukela") while TenantResolutionFilter
+        // resolves it to the full DynamoDB ID (e.g. "97282820-uthukela"). Accept either form.
         String tenantId = jwt.getClaimAsString("custom:tenant_id");
         if (tenantId != null && !tenantId.isBlank()) {
             String currentTenant = TenantContext.getCurrentTenant();
             if (currentTenant != null && !"default".equals(currentTenant)
-                    && !"platform".equals(currentTenant) && !currentTenant.equals(tenantId)) {
-                // Only reject if the resolved tenant is a real tenant (not dev fallback or platform admin)
+                    && !"platform".equals(currentTenant)
+                    && !currentTenant.equals(tenantId)
+                    && !currentTenant.endsWith("-" + tenantId)) {
                 throw new SecurityException("JWT tenant_id does not match resolved tenant");
             }
-            TenantContext.setCurrentTenant(tenantId);
+            // Keep the full resolved tenant ID (not the JWT subdomain) so DynamoDB queries work
+            if (currentTenant == null || "default".equals(currentTenant)) {
+                TenantContext.setCurrentTenant(tenantId);
+            }
         }
 
         return new JwtAuthenticationToken(jwt, authorities, principal);
