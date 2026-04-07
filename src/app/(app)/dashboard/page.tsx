@@ -9,15 +9,24 @@ import { useToast } from '@/components/Toast';
 
 export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30days');
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
+
+  // Show nothing while auth is loading or redirecting to login
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500" />
+      </div>
+    );
+  }
 
   const userRole = user?.role || 'HIRING_MANAGER';
 
