@@ -81,7 +81,7 @@ const stripHtmlTags = (html: string): string => {
 };
 
 export default function InternalJobsBoard() {
-  const { user: _user, isAuthenticated } = useAuth();
+  const { user: _user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   
   const [jobs, setJobs] = useState<InternalJobAd[]>([]);
@@ -110,11 +110,11 @@ export default function InternalJobsBoard() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login');
       return;
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
   // Fetch jobs from backend
   const fetchJobs = useCallback(async () => {

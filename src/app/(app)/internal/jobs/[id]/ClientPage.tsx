@@ -75,7 +75,7 @@ const isJobClosingSoon = (closingDate?: string): boolean => {
 export default function InternalJobDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const jobId = params.id as string;
 
@@ -85,11 +85,11 @@ export default function InternalJobDetailPage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login');
       return;
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
   // Fetch job details
   useEffect(() => {

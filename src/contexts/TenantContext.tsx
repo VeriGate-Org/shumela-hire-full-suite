@@ -5,6 +5,11 @@ import { getTenantSubdomain } from '@/lib/tenant-utils';
 import { apiFetch } from '@/lib/api-fetch';
 import { TenantBranding, TenantSettings } from '@/types/tenantBranding';
 
+/** Static logos bundled in public/ for tenants that haven't uploaded to S3 yet */
+const STATIC_TENANT_LOGOS: Record<string, string> = {
+  uthukela: '/logos/uthukela-water-logo.png',
+};
+
 interface TenantInfo {
   id: string;
   name: string;
@@ -57,6 +62,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         setTenant(data);
 
         // Parse settings and extract branding
+        let brandingResolved = false;
         if (data.settings) {
           try {
             const parsed: TenantSettings = JSON.parse(data.settings);
@@ -74,11 +80,21 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
                   // Logo URL fetch failed — continue without it
                 }
               }
+              // Fall back to a static logo if no S3 logo was resolved
+              if (!brandingData.logoUrl && STATIC_TENANT_LOGOS[subdomain]) {
+                brandingData.logoUrl = STATIC_TENANT_LOGOS[subdomain];
+              }
               setBranding(brandingData);
+              brandingResolved = true;
             }
           } catch {
             // Settings JSON parse failed — ignore
           }
+        }
+
+        // Even if no branding settings exist, apply a static logo when available
+        if (!brandingResolved && STATIC_TENANT_LOGOS[subdomain]) {
+          setBranding({ logoUrl: STATIC_TENANT_LOGOS[subdomain] });
         }
       } else {
         setError('Organization not found');
