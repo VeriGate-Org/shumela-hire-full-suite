@@ -38,12 +38,18 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
 
     /**
      * Override tenantPk() — Tenant items use their own ID as the PK,
-     * not the current tenant context.
+     * not the current tenant context.  Most Tenant lookups use the
+     * context-free helpers (findTenantById, findBySubdomain) so this
+     * is only reached by inherited CRUD methods that assume tenant scoping.
      */
     @Override
     protected String tenantPk() {
-        // For Tenant, PK is always TENANT#{tenantId} from the entity itself
-        return "TENANT#" + currentTenantId();
+        String tenantId = com.arthmatic.shumelahire.config.tenant.TenantContext.getCurrentTenant();
+        if (tenantId == null || tenantId.isBlank()) {
+            throw new IllegalStateException(
+                    "TenantContext is not set. Use findTenantById() or findBySubdomain() instead of inherited CRUD methods.");
+        }
+        return "TENANT#" + tenantId;
     }
 
     // ── Custom queries ───────────────────────────────────────────────────
