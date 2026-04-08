@@ -61,12 +61,18 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
 
     @Override
     public List<JobAd> findByStatus(JobAdStatus status) {
-        return queryGsiAll("GSI1", "JOBAD_STATUS#" + status.name());
+        return findAll().stream()
+                .filter(ad -> ad.getStatus() == status)
+                .collect(Collectors.toList());
     }
 
     @Override
     public CursorPage<JobAd> findByStatusPaginated(JobAdStatus status, String cursor, int pageSize) {
-        return queryGsi("GSI1", "JOBAD_STATUS#" + status.name(), "JOB_AD#", cursor, pageSize);
+        List<JobAd> filtered = findAll().stream()
+                .filter(ad -> ad.getStatus() == status)
+                .sorted(Comparator.comparing(JobAd::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+        return paginateInMemory(filtered, cursor, pageSize);
     }
 
     @Override
