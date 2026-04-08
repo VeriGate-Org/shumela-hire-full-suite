@@ -27,8 +27,7 @@ public class TenantResolutionFilter implements Filter {
             "/actuator/health",
             "/swagger-ui",
             "/v3/api-docs",
-            "/api/public/",
-            "/api/ads"
+            "/api/public/"
     );
 
     /** Environment subdomains that are NOT tenant subdomains */
@@ -59,7 +58,17 @@ public class TenantResolutionFilter implements Filter {
                 return;
             }
 
-            String tenantId = resolveTenant(httpRequest);
+            String tenantId;
+            try {
+                tenantId = resolveTenant(httpRequest);
+            } catch (Exception e) {
+                logger.error("Tenant resolution failed: {}", e.getMessage(), e);
+                httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                httpResponse.setContentType("application/json");
+                httpResponse.getWriter().write("{\"error\":\"Tenant resolution failed\",\"message\":\"" +
+                        e.getMessage().replace("\"", "'") + "\"}");
+                return;
+            }
 
             if (tenantId == null) {
                 httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);

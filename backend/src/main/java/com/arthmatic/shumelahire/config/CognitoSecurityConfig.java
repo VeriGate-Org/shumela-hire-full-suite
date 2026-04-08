@@ -79,8 +79,7 @@ public class CognitoSecurityConfig {
             return Arrays.asList(
                     "https://dev.shumelahire.co.za",
                     "https://*.dev.shumelahire.co.za",
-                    "https://idc-demo.shumelahire.co.za",
-                    "https://uthukela-demo.shumelahire.co.za",
+                    "https://*.shumelahire.co.za",
                     "http://localhost:3000"
             );
         }
