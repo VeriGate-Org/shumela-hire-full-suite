@@ -66,7 +66,8 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     public List<Notification> findByRecipientIdOrderByCreatedAtDesc(String recipientId) {
         String tenantId = currentTenantId();
         return queryGsiAll("GSI8", "NOTIF_RECIPIENT#" + tenantId + "#" + recipientId).stream()
-                .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(Notification::getCreatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
     }
 
@@ -310,25 +311,53 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
             try {
                 entity.setId(Long.parseLong(item.getId()));
             } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — leave id null for entity
+                // DynamoDB UUID-based IDs — use hashCode as stable numeric ID
+                entity.setId((long) item.getId().hashCode());
             }
         }
         entity.setTenantId(item.getTenantId());
-        if (item.getRecipientId() != null) entity.setRecipientId(Long.parseLong(item.getRecipientId()));
-        if (item.getSenderId() != null) entity.setSenderId(Long.parseLong(item.getSenderId()));
-        if (item.getType() != null) entity.setType(NotificationType.valueOf(item.getType()));
-        if (item.getChannel() != null) entity.setChannel(NotificationChannel.valueOf(item.getChannel()));
-        if (item.getPriority() != null) entity.setPriority(NotificationPriority.valueOf(item.getPriority()));
+        if (item.getRecipientId() != null) {
+            try { entity.setRecipientId(Long.parseLong(item.getRecipientId())); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (item.getSenderId() != null) {
+            try { entity.setSenderId(Long.parseLong(item.getSenderId())); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (item.getType() != null) {
+            try { entity.setType(NotificationType.valueOf(item.getType())); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (item.getChannel() != null) {
+            try { entity.setChannel(NotificationChannel.valueOf(item.getChannel())); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (item.getPriority() != null) {
+            try { entity.setPriority(NotificationPriority.valueOf(item.getPriority())); }
+            catch (IllegalArgumentException ignored) {}
+        }
         entity.setTitle(item.getTitle());
         entity.setMessage(item.getMessage());
         entity.setActionUrl(item.getActionUrl());
         entity.setActionLabel(item.getActionLabel());
         entity.setIcon(item.getIcon());
         entity.setMetadata(item.getMetadata());
-        if (item.getApplicationId() != null) entity.setApplicationId(Long.parseLong(item.getApplicationId()));
-        if (item.getInterviewId() != null) entity.setInterviewId(Long.parseLong(item.getInterviewId()));
-        if (item.getJobPostingId() != null) entity.setJobPostingId(Long.parseLong(item.getJobPostingId()));
-        if (item.getOfferId() != null) entity.setOfferId(Long.parseLong(item.getOfferId()));
+        if (item.getApplicationId() != null) {
+            try { entity.setApplicationId(Long.parseLong(item.getApplicationId())); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (item.getInterviewId() != null) {
+            try { entity.setInterviewId(Long.parseLong(item.getInterviewId())); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (item.getJobPostingId() != null) {
+            try { entity.setJobPostingId(Long.parseLong(item.getJobPostingId())); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (item.getOfferId() != null) {
+            try { entity.setOfferId(Long.parseLong(item.getOfferId())); }
+            catch (NumberFormatException ignored) {}
+        }
         entity.setIsRead(item.getIsRead());
         if (item.getReadAt() != null) entity.setReadAt(LocalDateTime.parse(item.getReadAt(), ISO_FMT));
         entity.setIsDelivered(item.getIsDelivered());
@@ -351,7 +380,10 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         entity.setIsBatchDigest(item.getIsBatchDigest());
         if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
-        if (item.getCreatedBy() != null) entity.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+        if (item.getCreatedBy() != null) {
+            try { entity.setCreatedBy(Long.parseLong(item.getCreatedBy())); }
+            catch (NumberFormatException ignored) {}
+        }
         return entity;
     }
 
