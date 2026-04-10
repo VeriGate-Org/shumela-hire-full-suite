@@ -45,6 +45,14 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
     }
 
     @Override
+    public Optional<User> findByEmailAndTenantId(String email, String tenantId) {
+        // GSI5 is not tenant-scoped, so query all users with this email and filter by tenant
+        return queryGsiAll("GSI5", "USER_EMAIL#" + email).stream()
+                .filter(u -> tenantId.equals(u.getTenantId()))
+                .findFirst();
+    }
+
+    @Override
     public List<User> findByRole(User.Role role) {
         return queryGsiAll("GSI1", "USER_ROLE#" + role.name());
     }
@@ -129,7 +137,12 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
     protected User toEntity(UserItem item) {
         var entity = new User();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            try {
+                entity.setId(Long.parseLong(item.getId()));
+            } catch (NumberFormatException e) {
+                // DynamoDB UUID-based IDs — use hashCode as stable numeric ID
+                entity.setId((long) item.getId().hashCode());
+            }
         }
         entity.setUsername(item.getUsername());
         entity.setEmail(item.getEmail());

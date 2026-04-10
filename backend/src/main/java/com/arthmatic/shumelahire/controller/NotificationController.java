@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
+
 import java.util.Map;
 
 @RestController
@@ -114,6 +116,11 @@ public class NotificationController {
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             String email = jwt.getClaimAsString("email");
             if (email != null) {
+                String tenantId = TenantContext.getCurrentTenant();
+                if (tenantId != null) {
+                    return userRepository.findByEmailAndTenantId(email, tenantId)
+                            .map(User::getId).orElse(null);
+                }
                 return userRepository.findByEmail(email).map(User::getId).orElse(null);
             }
         } else if (authentication.getPrincipal() instanceof User user) {

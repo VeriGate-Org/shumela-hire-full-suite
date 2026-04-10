@@ -153,57 +153,60 @@ public class Notification extends TenantAwareEntity {
     }
 
     public long getMinutesSinceCreated() {
+        if (createdAt == null) return 0;
         return java.time.Duration.between(createdAt, LocalDateTime.now()).toMinutes();
     }
 
     public long getDaysSinceCreated() {
+        if (createdAt == null) return 0;
         return java.time.temporal.ChronoUnit.DAYS.between(createdAt.toLocalDate(), LocalDateTime.now().toLocalDate());
     }
 
     public String getDisplayTime() {
+        if (createdAt == null) return "Unknown";
         long minutes = getMinutesSinceCreated();
         if (minutes < 1) return "Just now";
         if (minutes < 60) return minutes + "m ago";
-        
+
         long hours = minutes / 60;
         if (hours < 24) return hours + "h ago";
-        
+
         long days = getDaysSinceCreated();
         if (days < 7) return days + "d ago";
-        
+
         return createdAt.toLocalDate().toString();
     }
 
     public String getTypeDisplayName() {
-        return type.getDisplayName();
+        return type != null ? type.getDisplayName() : null;
     }
 
     public String getTypeIcon() {
-        return type.getIcon();
+        return type != null ? type.getIcon() : null;
     }
 
     public String getTypeCssClass() {
-        return type.getCssClass();
+        return type != null ? type.getCssClass() : null;
     }
 
     public String getPriorityDisplayName() {
-        return priority.getDisplayName();
+        return priority != null ? priority.getDisplayName() : null;
     }
 
     public String getPriorityIcon() {
-        return priority.getIcon();
+        return priority != null ? priority.getIcon() : null;
     }
 
     public String getPriorityCssClass() {
-        return priority.getCssClass();
+        return priority != null ? priority.getCssClass() : null;
     }
 
     public String getChannelDisplayName() {
-        return channel.getDisplayName();
+        return channel != null ? channel.getDisplayName() : null;
     }
 
     public String getChannelIcon() {
-        return channel.name().toLowerCase();
+        return channel != null ? channel.name().toLowerCase() : null;
     }
 
     private void setRelatedEntity(NotificationType type, Long entityId) {

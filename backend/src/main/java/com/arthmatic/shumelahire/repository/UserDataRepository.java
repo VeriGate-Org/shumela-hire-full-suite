@@ -44,6 +44,9 @@ public interface UserDataRepository {
     /** Find a user by their unique email address. */
     Optional<User> findByEmail(String email);
 
+    /** Find a user by email scoped to a specific tenant. */
+    Optional<User> findByEmailAndTenantId(String email, String tenantId);
+
     /** Find all users with a given role. */
     List<User> findByRole(User.Role role);
 
