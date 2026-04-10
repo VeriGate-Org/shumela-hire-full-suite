@@ -8,11 +8,17 @@ async function getAuthToken(): Promise<string | null> {
     const session = await fetchAuthSession({ forceRefresh: false });
     // Prefer ID token because it reliably carries role/group and tenant claims
     // consumed by backend authorization and tenant resolution.
-    return session.tokens?.idToken?.toString()
+    const token = session.tokens?.idToken?.toString()
       || session.tokens?.accessToken?.toString()
       || null;
-  } catch {
-    // Cognito not configured
+    if (token) return token;
+  } catch (err: unknown) {
+    // Only swallow "Cognito not configured" style errors.
+    // Log auth session failures so expired/invalid tokens are visible.
+    const message = err instanceof Error ? err.message : String(err);
+    if (!message.includes('Auth') || !message.includes('configured')) {
+      console.warn('Failed to retrieve auth session:', message);
+    }
   }
   if (typeof window !== 'undefined') {
     return sessionStorage.getItem('jwt_token');
