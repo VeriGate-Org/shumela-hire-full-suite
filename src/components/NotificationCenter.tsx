@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BellSlashIcon } from '@heroicons/react/24/outline';
 import EmptyState from '@/components/EmptyState';
 import { apiFetch } from '@/lib/api-fetch';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Notification {
   id: string;
@@ -48,6 +49,7 @@ function mapBackendNotification(n: any): Notification {
 }
 
 const NotificationCenter: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -74,6 +76,8 @@ const NotificationCenter: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     let cancelled = false;
 
     async function fetchNotifications() {
@@ -100,7 +104,7 @@ const NotificationCenter: React.FC = () => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => { cancelled = true; clearInterval(interval); };
-  }, []);
+  }, [isAuthenticated]);
 
   const markAsRead = async (notificationId: string) => {
     try {
