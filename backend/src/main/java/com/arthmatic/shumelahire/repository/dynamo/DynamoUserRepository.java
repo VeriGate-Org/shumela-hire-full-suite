@@ -46,9 +46,18 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
 
     @Override
     public Optional<User> findByEmailAndTenantId(String email, String tenantId) {
-        // GSI5 is not tenant-scoped, so query all users with this email and filter by tenant
+        // GSI5 is not tenant-scoped, so query all users with this email and filter by tenant.
+        // Match both exact tenant ID and subdomain suffix to handle records that were
+        // provisioned with the subdomain-only value (e.g. "uthukela") before it was
+        // resolved to the full DynamoDB ID (e.g. "97282820-uthukela").
         return queryGsiAll("GSI5", "USER_EMAIL#" + email).stream()
-                .filter(u -> tenantId.equals(u.getTenantId()))
+                .filter(u -> {
+                    String userTenant = u.getTenantId();
+                    if (userTenant == null) return false;
+                    return tenantId.equals(userTenant)
+                            || tenantId.endsWith("-" + userTenant)
+                            || userTenant.endsWith("-" + tenantId);
+                })
                 .findFirst();
     }
 
