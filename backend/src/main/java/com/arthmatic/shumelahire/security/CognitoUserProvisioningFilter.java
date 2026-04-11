@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.security;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.User;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
@@ -56,9 +57,19 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
     @Transactional
     protected void provisionUserIfNeeded(Jwt jwt, Authentication auth) {
         String email = jwt.getClaimAsString("email");
-        String tenantId = jwt.getClaimAsString("custom:tenant_id");
+        String jwtTenantId = jwt.getClaimAsString("custom:tenant_id");
 
-        if (email == null || tenantId == null) return;
+        if (email == null || jwtTenantId == null) return;
+
+        // Prefer the fully-resolved tenant ID from TenantContext (e.g. "97282820-uthukela")
+        // over the raw JWT claim which may only contain the subdomain (e.g. "uthukela").
+        // TenantResolutionFilter runs before this filter and resolves the subdomain to the
+        // full DynamoDB ID. Using the resolved ID ensures the user record's tenantId matches
+        // what downstream queries (e.g. findByEmailAndTenantId) will use.
+        String resolvedTenant = TenantContext.getCurrentTenant();
+        String tenantId = (resolvedTenant != null && !"default".equals(resolvedTenant) && !"platform".equals(resolvedTenant))
+                ? resolvedTenant
+                : jwtTenantId;
 
         if (!userRepository.existsByEmail(email)) {
             User user = new User();
@@ -100,6 +111,14 @@ public class CognitoUserProvisioningFilter extends OncePerRequestFilter {
         } else {
             userRepository.findByEmail(email).ifPresent(user -> {
                 user.setLastLogin(LocalDateTime.now());
+
+                // Backfill resolved tenant ID for users provisioned with subdomain-only value
+                if (user.getTenantId() != null && !user.getTenantId().equals(tenantId)
+                        && tenantId.endsWith("-" + user.getTenantId())) {
+                    log.info("Upgrading tenantId for {} from '{}' to '{}'",
+                            email, user.getTenantId(), tenantId);
+                    user.setTenantId(tenantId);
+                }
 
                 // Sync role from JWT if it provides a more authoritative role
                 // than what's stored (e.g., user was JIT-provisioned as APPLICANT
