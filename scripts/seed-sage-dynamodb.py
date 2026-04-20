@@ -7,18 +7,26 @@ Creates a connected Sage 300 People integration with:
 - 5 sync schedules (employee, department, leave, payroll, attendance)
 - Recent sync history showing healthy sync status
 """
-import json, os, sys, uuid, subprocess
+import json, os, sys, uuid, subprocess, hashlib
 from datetime import datetime, timezone, timedelta
 
-TENANT_ID = os.environ.get('TENANT_ID', 'uthukela')
+TENANT_ID = os.environ.get('TENANT_ID', '97282820-uthukela')
 REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
 now = datetime.now(timezone.utc)
 now_iso = now.strftime('%Y-%m-%dT%H:%M:%S')
 
+_id_counter = 0
 
-def new_id(): return str(uuid.uuid4())
+def new_id(unique_key=None):
+    """Generate a deterministic UUID so re-runs produce the same IDs."""
+    global _id_counter
+    if unique_key is None:
+        _id_counter += 1
+        unique_key = f"sage-{_id_counter}"
+    seed = f"{TENANT_ID}:{unique_key}"
+    return str(uuid.UUID(hashlib.sha256(seed.encode()).hexdigest()[:32]))
 def iso(dt): return dt.strftime('%Y-%m-%dT%H:%M:%S')
 def hours_ago(n): return now - timedelta(hours=n)
 def days_ago(n): return now - timedelta(days=n)

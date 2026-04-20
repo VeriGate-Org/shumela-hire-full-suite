@@ -61,18 +61,14 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
 
     @Override
     public List<JobAd> findByStatus(JobAdStatus status) {
-        return findAll().stream()
-                .filter(ad -> ad.getStatus() == status)
-                .collect(Collectors.toList());
+        // Query GSI1 which is keyed by status (tenant-scoped via GSI1PK)
+        return queryGsiAll("GSI1", "JOBAD_STATUS#" + currentTenantId() + "#" + status.name());
     }
 
     @Override
     public CursorPage<JobAd> findByStatusPaginated(JobAdStatus status, String cursor, int pageSize) {
-        List<JobAd> filtered = findAll().stream()
-                .filter(ad -> ad.getStatus() == status)
-                .sorted(Comparator.comparing(JobAd::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .collect(Collectors.toList());
-        return paginateInMemory(filtered, cursor, pageSize);
+        return queryGsi("GSI1", "JOBAD_STATUS#" + currentTenantId() + "#" + status.name(),
+                "JOB_AD#", cursor, pageSize);
     }
 
     @Override
@@ -240,11 +236,11 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
         item.setPk("TENANT#" + tenantId);
         item.setSk("JOB_AD#" + id);
 
-        // GSI1: Status index
+        // GSI1: Status index (tenant-scoped for secure queries)
         String createdAtStr = entity.getCreatedAt() != null
                 ? entity.getCreatedAt().format(ISO_FMT)
                 : LocalDateTime.now().format(ISO_FMT);
-        item.setGsi1pk("JOBAD_STATUS#" + (entity.getStatus() != null ? entity.getStatus().name() : "DRAFT"));
+        item.setGsi1pk("JOBAD_STATUS#" + tenantId + "#" + (entity.getStatus() != null ? entity.getStatus().name() : "DRAFT"));
         item.setGsi1sk("JOB_AD#" + createdAtStr);
 
         // GSI2: FK lookup by jobPostingId

@@ -24,7 +24,7 @@ set -euo pipefail
 # ============================================================
 AWS_REGION="${AWS_REGION:-af-south-1}"
 COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:?Set COGNITO_USER_POOL_ID}"
-TENANT_ID="${TENANT_ID:-uthukela}"
+TENANT_ID="${TENANT_ID:-97282820-uthukela}"
 DEMO_PASSWORD="${DEMO_PASSWORD:-Demo@2026!}"
 
 # Colours

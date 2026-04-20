@@ -19,8 +19,16 @@ def encrypt_pii(plaintext, key_bytes):
     return base64.b64encode(iv + ct).decode('utf-8')
 
 
+def deterministic_id(tenant_id, entity_type, unique_key):
+    """Generate a deterministic UUID from tenant + entity type + unique key.
+    Re-running the script produces the same IDs, making it idempotent."""
+    import hashlib
+    seed = f"{tenant_id}:{entity_type}:{unique_key}"
+    return str(uuid.UUID(hashlib.sha256(seed.encode()).hexdigest()[:32]))
+
+
 def build_employee_item(emp, tenant_id, key_bytes):
-    eid = str(uuid.uuid4())
+    eid = deterministic_id(tenant_id, 'EMPLOYEE', emp['employeeNumber'])
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
     status = emp.get('status', 'ACTIVE')
     mgr_id = emp.get('reportingManagerId', 'NONE')

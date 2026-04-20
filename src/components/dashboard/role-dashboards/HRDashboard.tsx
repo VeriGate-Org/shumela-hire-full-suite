@@ -97,9 +97,11 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
   const [lifecycle, setLifecycle] = useState<LifecycleItem[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
+    setError(null);
 
     try {
       const days = getTimeframeDays(selectedTimeframe);
@@ -107,15 +109,25 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       // Fetch dashboard metrics and job posting data in parallel
-      const [dashboardRes, jobPostingsRes, applicationsRes] = await Promise.all([
+      const [dashboardRes, jobPostingsRes, applicationsRes] = await Promise.allSettled([
         apiFetch(`/api/analytics/dashboard?date=${endDate}`),
         apiFetch('/api/job-postings?size=200'),
         apiFetch(`/api/applications?size=1&startDate=${startDate}&endDate=${endDate}`),
       ]);
 
+      // Check if ALL requests failed (API is likely down)
+      const allFailed = [dashboardRes, jobPostingsRes, applicationsRes].every(
+        r => r.status === 'rejected' || (r.status === 'fulfilled' && r.value.status >= 500)
+      );
+      if (allFailed) {
+        setError('Unable to connect to the server. Please try again later.');
+        setLoading(false);
+        return;
+      }
+
       // Map KPIs to MetricItem format
-      if (dashboardRes.ok) {
-        const data = await dashboardRes.json();
+      if (dashboardRes.status === 'fulfilled' && dashboardRes.value.ok) {
+        const data = await dashboardRes.value.json();
         const kpis = data?.kpis || {};
 
         const mappedMetrics: MetricItem[] = Object.entries(kpis)
@@ -153,8 +165,8 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       }
 
       // Build pipeline data from job postings
-      if (jobPostingsRes.ok) {
-        const jpData = await jobPostingsRes.json();
+      if (jobPostingsRes.status === 'fulfilled' && jobPostingsRes.value.ok) {
+        const jpData = await jobPostingsRes.value.json();
         const postings = jpData?.content || jpData || [];
 
         if (Array.isArray(postings) && postings.length > 0) {
@@ -186,8 +198,8 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
       }
 
       // Build lifecycle counts from application stats
-      if (applicationsRes.ok) {
-        const appData = await applicationsRes.json();
+      if (applicationsRes.status === 'fulfilled' && applicationsRes.value.ok) {
+        const appData = await applicationsRes.value.json();
         const totalApps = appData?.totalElements ?? appData?.total ?? 0;
 
         // Fetch onboarding/status breakdowns
@@ -237,7 +249,7 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
         // Audit logs may not be available — keep empty
       }
     } catch {
-      // Keep default state on error
+      setError('Failed to load dashboard data. Please try again.');
     }
 
     setLoading(false);
@@ -259,6 +271,48 @@ export default function HRDashboard({ selectedTimeframe, onTimeframeChange: _onT
               <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded" />
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[2px] p-6">
+          <div className="flex items-center gap-3">
+            <svg className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">Dashboard Unavailable</h3>
+              <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error}</p>
+            </div>
+          </div>
+          <button
+            onClick={fetchDashboardData}
+            className="mt-4 px-4 py-2 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-[2px] text-sm font-medium hover:bg-red-200 dark:hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isEmpty = metrics.length === 0 && pipeline.length === 0 && lifecycle.length === 0 && activities.length === 0;
+  if (isEmpty) {
+    return (
+      <div className="space-y-6 max-w-full overflow-hidden">
+        <div className="bg-white dark:bg-charcoal rounded-[2px] border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <svg className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Welcome to ShumelaHire</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
+            Your HR dashboard will populate once employees, job postings, and leave data are configured.
+            Get started by adding employees or creating job postings.
+          </p>
         </div>
       </div>
     );

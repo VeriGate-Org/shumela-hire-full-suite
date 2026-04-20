@@ -456,7 +456,10 @@ ApiInterceptors.addRequestInterceptor(async (config) => {
   try {
     const { fetchAuthSession } = await import('aws-amplify/auth');
     const session = await fetchAuthSession({ forceRefresh: false });
-    token = session.tokens?.accessToken?.toString() || null;
+    // Use ID token consistently — it carries custom:tenant_id, cognito:groups,
+    // and other claims the backend reads for authorization and tenant resolution.
+    token = session.tokens?.idToken?.toString()
+      || session.tokens?.accessToken?.toString() || null;
   } catch {
     // Cognito not configured or no session — fall back to mock
   }

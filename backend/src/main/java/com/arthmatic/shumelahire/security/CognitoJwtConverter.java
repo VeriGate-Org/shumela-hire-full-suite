@@ -203,13 +203,16 @@ public class CognitoJwtConverter implements Converter<Jwt, AbstractAuthenticatio
     }
 
     private String resolveTenantId(Jwt jwt) {
+        // Prefer the fully resolved tenant ID from TenantResolutionFilter (e.g. "97282820-uthukela")
+        // over the JWT claim which may hold only the subdomain (e.g. "uthukela").
+        String currentTenant = TenantContext.getCurrentTenant();
+        if (currentTenant != null && !currentTenant.isBlank()
+                && !"default".equals(currentTenant) && !"platform".equals(currentTenant)) {
+            return currentTenant;
+        }
         String tenantId = jwt.getClaimAsString("custom:tenant_id");
         if (tenantId != null && !tenantId.isBlank()) {
             return tenantId;
-        }
-        String currentTenant = TenantContext.getCurrentTenant();
-        if (currentTenant != null && !currentTenant.isBlank()) {
-            return currentTenant;
         }
         return null;
     }

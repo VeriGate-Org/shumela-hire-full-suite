@@ -440,10 +440,12 @@ jobs:
               TABLE_NAME="${PREFIX}-data"
             fi
             export DYNAMODB_TABLE_NAME="$TABLE_NAME"
-            export TENANT_ID="uthukela"
+            # Use the resolved full tenant ID (e.g. "97282820-uthukela"), not just the subdomain
+            export TENANT_ID="${TENANT_ID}"
             export AWS_REGION="$REGION"
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
+            python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
             python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
             python3 scripts/seed-performance-dynamodb.py || echo "WARNING: Performance review seeding had errors (non-fatal)"
@@ -454,7 +456,7 @@ jobs:
           else
             echo "uThukela tenant does not exist — running full setup..."
 
-            # Step 1: Create Cognito users first
+            # Step 1: Create Cognito users (uses subdomain initially — updated after tenant creation)
             export TENANT_ID="uthukela"
             chmod +x scripts/seed-uthukela-water-cognito-users.sh
             bash scripts/seed-uthukela-water-cognito-users.sh || echo "WARNING: Cognito user seeding had errors (non-fatal)"
@@ -467,6 +469,28 @@ jobs:
             chmod +x scripts/seed-uthukela-demo.sh
             bash scripts/seed-uthukela-demo.sh || echo "WARNING: Tenant/demo seeding had errors (non-fatal)"
 
+            # Step 2b: Resolve the full tenant ID created by the demo script
+            TENANT_INFO=$(curl -s "${API_URL}/api/public/tenants/resolve/uthukela" 2>/dev/null)
+            RESOLVED_TENANT_ID=$(echo "$TENANT_INFO" | jq -r '.id // empty')
+            if [ -n "$RESOLVED_TENANT_ID" ]; then
+              export TENANT_ID="$RESOLVED_TENANT_ID"
+              echo "Resolved tenant ID: $TENANT_ID"
+
+              # Update Cognito users' custom:tenant_id to the full ID
+              for email in admin@uthukela.shumelahire.co.za hr.manager@uthukela.shumelahire.co.za \
+                           executive@uthukela.shumelahire.co.za line.manager@uthukela.shumelahire.co.za \
+                           employee@uthukela.shumelahire.co.za; do
+                aws cognito-idp admin-update-user-attributes \
+                  --user-pool-id "$COGNITO_USER_POOL_ID" \
+                  --username "$email" \
+                  --user-attributes Name=custom:tenant_id,Value="$TENANT_ID" \
+                  --region "$REGION" 2>/dev/null || true
+              done
+              echo "Updated Cognito users' tenant_id to $TENANT_ID"
+            else
+              echo "WARNING: Could not resolve tenant ID — using subdomain fallback"
+            fi
+
             # Step 3: Create 10 employee profiles (direct DynamoDB write)
             TABLE_NAME=$(aws cloudformation describe-stacks \
               --stack-name "${PREFIX}-serverless" \
@@ -477,9 +501,9 @@ jobs:
               TABLE_NAME="${PREFIX}-data"
             fi
             export DYNAMODB_TABLE_NAME="$TABLE_NAME"
-            export TENANT_ID="uthukela"
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
+            python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
             python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
             python3 scripts/seed-performance-dynamodb.py || echo "WARNING: Performance review seeding had errors (non-fatal)"

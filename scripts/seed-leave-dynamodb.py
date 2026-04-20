@@ -6,19 +6,26 @@ Seeds leave types, leave balances (2026 cycle), and leave requests at
 various stages (pending, approved, rejected, cancelled) for 10 uThukela
 Water demo employees.
 """
-import json, os, sys, uuid, subprocess
+import json, os, sys, uuid, subprocess, hashlib
 from datetime import datetime, timezone
 
-TENANT_ID = os.environ.get('TENANT_ID', 'uthukela')
+TENANT_ID = os.environ.get('TENANT_ID', '97282820-uthukela')
 REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
 now_epoch = int(datetime.now(timezone.utc).timestamp())
 now_iso = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
+_id_counter = 0
 
-def new_id():
-    return str(uuid.uuid4())
+def new_id(unique_key=None):
+    """Generate a deterministic UUID so re-runs produce the same IDs."""
+    global _id_counter
+    if unique_key is None:
+        _id_counter += 1
+        unique_key = f"leave-{_id_counter}"
+    seed = f"{TENANT_ID}:{unique_key}"
+    return str(uuid.UUID(hashlib.sha256(seed.encode()).hexdigest()[:32]))
 
 
 def put_item(item):
