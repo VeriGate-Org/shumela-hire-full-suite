@@ -14,6 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -401,7 +402,12 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         jp.setRemoteWorkAllowed(item.getRemoteWorkAllowed());
         jp.setTravelRequired(item.getTravelRequired());
         if (item.getApplicationDeadline() != null) {
-            jp.setApplicationDeadline(LocalDateTime.parse(item.getApplicationDeadline(), ISO_FMT));
+            try {
+                jp.setApplicationDeadline(LocalDateTime.parse(item.getApplicationDeadline(), ISO_FMT));
+            } catch (java.time.format.DateTimeParseException e) {
+                // Seed data may store date-only strings (e.g. "2026-06-19")
+                jp.setApplicationDeadline(LocalDate.parse(item.getApplicationDeadline()).atStartOfDay());
+            }
         }
         jp.setPositionsAvailable(item.getPositionsAvailable());
         if (item.getStatus() != null) {
