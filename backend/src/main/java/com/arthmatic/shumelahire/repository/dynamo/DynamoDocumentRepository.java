@@ -121,11 +121,11 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
     protected Document toEntity(DocumentItem item) {
         var entity = new Document();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(Long.parseLong(item.getApplicationId()));
+            entity.setApplicationId(safeParseLong(item.getApplicationId()));
         }
         if (item.getType() != null) {
             entity.setType(DocumentType.valueOf(item.getType()));

@@ -84,13 +84,13 @@ public class DynamoCompetencyRepository extends DynamoRepository<CompetencyItem,
 
         Competency entity = new Competency();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getFrameworkId() != null) {
             CompetencyFramework framework = new CompetencyFramework();
-            framework.setId(Long.parseLong(item.getFrameworkId()));
+            framework.setId(safeParseLong(item.getFrameworkId()));
             entity.setFramework(framework);
         }
 

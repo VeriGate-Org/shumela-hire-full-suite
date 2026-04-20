@@ -52,11 +52,7 @@ public class DynamoLmsConnectorConfigRepository extends DynamoRepository<LmsConn
     protected LmsConnectorConfig toEntity(LmsConnectorConfigItem item) {
         var e = new LmsConnectorConfig();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
         e.setName(item.getName());

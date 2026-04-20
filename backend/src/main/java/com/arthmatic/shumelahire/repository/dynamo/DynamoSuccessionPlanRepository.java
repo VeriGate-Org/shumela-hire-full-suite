@@ -71,20 +71,20 @@ public class DynamoSuccessionPlanRepository extends DynamoRepository<SuccessionP
     @Override
     protected SuccessionPlan toEntity(SuccessionPlanItem item) {
         var e = new SuccessionPlan();
-        if (item.getId() != null) try { e.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ex) {}
+        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
         e.setTenantId(item.getTenantId());
         e.setPositionTitle(item.getPositionTitle());
         e.setDepartment(item.getDepartment());
 
         if (item.getCurrentHolderId() != null) {
             var currentHolder = new Employee();
-            try { currentHolder.setId(Long.parseLong(item.getCurrentHolderId())); } catch (NumberFormatException ex) {}
+            currentHolder.setId(safeParseLong(item.getCurrentHolderId()));
             e.setCurrentHolder(currentHolder);
         }
 
         if (item.getSuccessorId() != null) {
             var successor = new Employee();
-            try { successor.setId(Long.parseLong(item.getSuccessorId())); } catch (NumberFormatException ex) {}
+            successor.setId(safeParseLong(item.getSuccessorId()));
             e.setSuccessor(successor);
         }
 

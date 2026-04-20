@@ -319,7 +319,7 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
     protected Offer toEntity(OfferItem item) {
         var offer = new Offer();
         if (item.getId() != null) {
-            offer.setId(Long.parseLong(item.getId()));
+            offer.setId(safeParseLong(item.getId()));
         }
         offer.setTenantId(item.getTenantId());
         offer.setOfferNumber(item.getOfferNumber());
@@ -413,14 +413,14 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setRequiresApproval(item.getRequiresApproval());
         offer.setApprovalLevelRequired(item.getApprovalLevelRequired());
         if (item.getApprovedBy() != null) {
-            offer.setApprovedBy(Long.parseLong(item.getApprovedBy()));
+            offer.setApprovedBy(safeParseLong(item.getApprovedBy()));
         }
         if (item.getApprovedAt() != null) {
             offer.setApprovedAt(LocalDateTime.parse(item.getApprovedAt(), ISO_FMT));
         }
         offer.setApprovalNotes(item.getApprovalNotes());
         if (item.getRejectedBy() != null) {
-            offer.setRejectedBy(Long.parseLong(item.getRejectedBy()));
+            offer.setRejectedBy(safeParseLong(item.getRejectedBy()));
         }
         if (item.getRejectedAt() != null) {
             offer.setRejectedAt(LocalDateTime.parse(item.getRejectedAt(), ISO_FMT));
@@ -439,10 +439,10 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setNonCompeteDurationMonths(item.getNonCompeteDurationMonths());
         offer.setIntellectualPropertyAgreement(item.getIntellectualPropertyAgreement());
         if (item.getOfferLetterTemplateId() != null) {
-            offer.setOfferLetterTemplateId(Long.parseLong(item.getOfferLetterTemplateId()));
+            offer.setOfferLetterTemplateId(safeParseLong(item.getOfferLetterTemplateId()));
         }
         if (item.getContractTemplateId() != null) {
-            offer.setContractTemplateId(Long.parseLong(item.getContractTemplateId()));
+            offer.setContractTemplateId(safeParseLong(item.getContractTemplateId()));
         }
         offer.setOfferDocumentPath(item.getOfferDocumentPath());
         offer.setSignedDocumentPath(item.getSignedDocumentPath());
@@ -457,22 +457,22 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setESignatureProvider(item.getESignatureProvider());
         offer.setESignatureSignerEmail(item.getESignatureSignerEmail());
         if (item.getCreatedBy() != null) {
-            offer.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+            offer.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         if (item.getCreatedAt() != null) {
             offer.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         }
         if (item.getUpdatedBy() != null) {
-            offer.setUpdatedBy(Long.parseLong(item.getUpdatedBy()));
+            offer.setUpdatedBy(safeParseLong(item.getUpdatedBy()));
         }
         if (item.getUpdatedAt() != null) {
             offer.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         }
         if (item.getSupersededByOfferId() != null) {
-            offer.setSupersededByOfferId(Long.parseLong(item.getSupersededByOfferId()));
+            offer.setSupersededByOfferId(safeParseLong(item.getSupersededByOfferId()));
         }
         if (item.getSupersedesOfferId() != null) {
-            offer.setSupersedesOfferId(Long.parseLong(item.getSupersedesOfferId()));
+            offer.setSupersedesOfferId(safeParseLong(item.getSupersedesOfferId()));
         }
         return offer;
     }

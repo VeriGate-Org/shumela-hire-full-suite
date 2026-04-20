@@ -110,11 +110,11 @@ public class DynamoScreeningQuestionRepository extends DynamoRepository<Screenin
     protected ScreeningQuestion toEntity(ScreeningQuestionItem item) {
         var entity = new ScreeningQuestion();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getJobPostingId() != null) {
-            entity.setJobPostingId(Long.parseLong(item.getJobPostingId()));
+            entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
         }
         entity.setQuestionText(item.getQuestionText());
         if (item.getQuestionType() != null) {

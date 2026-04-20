@@ -368,7 +368,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         List<Object[]> results = new ArrayList<>();
         byRecruiterAndMetric.forEach((key, metrics) -> {
             String[] parts = key.split("\\|");
-            Long recruiterId = Long.parseLong(parts[0]);
+            Long recruiterId = safeParseLong(parts[0]);
             String metricName = parts[1];
             BigDecimal avg = metrics.stream().map(RecruitmentMetrics::getMetricValue)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -381,7 +381,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
     @Override
     public List<RecruitmentMetrics> findByRecruiterAndDateRange(String recruiterId,
                                                                  LocalDate startDate, LocalDate endDate) {
-        Long recruiterIdLong = Long.parseLong(recruiterId);
+        Long recruiterIdLong = safeParseLong(recruiterId);
         return findAll().stream()
                 .filter(m -> Boolean.TRUE.equals(m.getIsActive()))
                 .filter(m -> recruiterIdLong.equals(m.getRecruiterId()))
@@ -403,7 +403,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         List<Object[]> results = new ArrayList<>();
         byManagerAndMetric.forEach((key, metrics) -> {
             String[] parts = key.split("\\|");
-            Long managerId = Long.parseLong(parts[0]);
+            Long managerId = safeParseLong(parts[0]);
             String metricName = parts[1];
             BigDecimal avg = metrics.stream().map(RecruitmentMetrics::getMetricValue)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -418,7 +418,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
     @Override
     public List<RecruitmentMetrics> findByJobPostingAndDateRange(String jobPostingId,
                                                                   LocalDate startDate, LocalDate endDate) {
-        Long jobPostingIdLong = Long.parseLong(jobPostingId);
+        Long jobPostingIdLong = safeParseLong(jobPostingId);
         return findAll().stream()
                 .filter(m -> Boolean.TRUE.equals(m.getIsActive()))
                 .filter(m -> jobPostingIdLong.equals(m.getJobPostingId()))
@@ -438,7 +438,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         List<Object[]> results = new ArrayList<>();
         byJobAndMetric.forEach((key, metrics) -> {
             String[] parts = key.split("\\|");
-            Long jobPostingId = Long.parseLong(parts[0]);
+            Long jobPostingId = safeParseLong(parts[0]);
             String metricName = parts[1];
             BigDecimal sum = metrics.stream().map(RecruitmentMetrics::getMetricValue)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -455,8 +455,8 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
                                                          String hiringManagerId,
                                                          LocalDate startDate, LocalDate endDate,
                                                          int page, int pageSize) {
-        Long recruiterIdLong = recruiterId != null ? Long.parseLong(recruiterId) : null;
-        Long hiringManagerIdLong = hiringManagerId != null ? Long.parseLong(hiringManagerId) : null;
+        Long recruiterIdLong = recruiterId != null ? safeParseLong(recruiterId) : null;
+        Long hiringManagerIdLong = hiringManagerId != null ? safeParseLong(hiringManagerId) : null;
 
         List<RecruitmentMetrics> all = findAll().stream()
                 .filter(m -> Boolean.TRUE.equals(m.getIsActive()))
@@ -541,11 +541,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
     protected RecruitmentMetrics toEntity(RecruitmentMetricsItem item) {
         var entity = new RecruitmentMetrics();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — leave id null for entity
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getMetricDate() != null) entity.setMetricDate(LocalDate.parse(item.getMetricDate(), DATE_FMT));
@@ -554,9 +550,9 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         entity.setMetricName(item.getMetricName());
         if (item.getMetricValue() != null) entity.setMetricValue(new BigDecimal(item.getMetricValue()));
         entity.setDepartment(item.getDepartment());
-        if (item.getJobPostingId() != null) entity.setJobPostingId(Long.parseLong(item.getJobPostingId()));
-        if (item.getRecruiterId() != null) entity.setRecruiterId(Long.parseLong(item.getRecruiterId()));
-        if (item.getHiringManagerId() != null) entity.setHiringManagerId(Long.parseLong(item.getHiringManagerId()));
+        if (item.getJobPostingId() != null) entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
+        if (item.getRecruiterId() != null) entity.setRecruiterId(safeParseLong(item.getRecruiterId()));
+        if (item.getHiringManagerId() != null) entity.setHiringManagerId(safeParseLong(item.getHiringManagerId()));
         if (item.getPeriodStartDate() != null) entity.setPeriodStartDate(LocalDate.parse(item.getPeriodStartDate(), DATE_FMT));
         if (item.getPeriodEndDate() != null) entity.setPeriodEndDate(LocalDate.parse(item.getPeriodEndDate(), DATE_FMT));
         if (item.getTargetValue() != null) entity.setTargetValue(new BigDecimal(item.getTargetValue()));
@@ -570,7 +566,7 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         entity.setIsActive(item.getIsActive());
         if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
-        if (item.getCreatedBy() != null) entity.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+        if (item.getCreatedBy() != null) entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
         return entity;
     }
 

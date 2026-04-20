@@ -115,17 +115,17 @@ public class DynamoTrainingEnrollmentRepository extends DynamoRepository<Trainin
     protected TrainingEnrollment toEntity(TrainingEnrollmentItem item) {
         TrainingEnrollment entity = new TrainingEnrollment();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getSessionId() != null) {
             TrainingSession session = new TrainingSession();
-            try { session.setId(Long.parseLong(item.getSessionId())); } catch (NumberFormatException ignored) {}
+            session.setId(safeParseLong(item.getSessionId()));
             entity.setSession(session);
         }
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            try { employee.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ignored) {}
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
         entity.setStatus(item.getStatus() != null ? EnrollmentStatus.valueOf(item.getStatus()) : null);

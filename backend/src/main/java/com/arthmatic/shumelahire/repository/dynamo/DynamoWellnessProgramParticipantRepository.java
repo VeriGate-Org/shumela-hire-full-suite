@@ -57,22 +57,14 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
     protected WellnessProgramParticipant toEntity(WellnessProgramParticipantItem item) {
         var e = new WellnessProgramParticipant();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create WellnessProgram stub
         if (item.getProgramId() != null) {
             var program = new WellnessProgram();
-            try {
-                program.setId(Long.parseLong(item.getProgramId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid program ID
-            }
+            program.setId(safeParseLong(item.getProgramId()));
             program.setTenantId(item.getTenantId());
             e.setProgram(program);
         }
@@ -80,11 +72,7 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            try {
-                employee.setId(Long.parseLong(item.getEmployeeId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid employee ID
-            }
+            employee.setId(safeParseLong(item.getEmployeeId()));
             employee.setTenantId(item.getTenantId());
             e.setEmployee(employee);
         }

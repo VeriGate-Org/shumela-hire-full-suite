@@ -547,20 +547,11 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
     protected Application toEntity(ApplicationItem item) {
         var app = new Application();
         if (item.getId() != null) {
-            try {
-                app.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // UUID-based ID from DynamoDB — store hash for compatibility
-                app.setId((long) item.getId().hashCode());
-            }
+            app.setId(safeParseLong(item.getId()));
         }
         app.setTenantId(item.getTenantId());
         if (item.getJobPostingId() != null) {
-            try {
-                app.setJobPostingId(Long.parseLong(item.getJobPostingId()));
-            } catch (NumberFormatException e) {
-                // leave null if not parseable
-            }
+            app.setJobPostingId(safeParseLong(item.getJobPostingId()));
         }
         app.setJobTitle(item.getJobTitle());
         app.setJobId(item.getJobId());

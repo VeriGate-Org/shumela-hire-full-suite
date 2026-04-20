@@ -77,12 +77,12 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
         }
 
         AttendanceRecord entity = new AttendanceRecord();
-        entity.setId(Long.parseLong(item.getId()));
+        if (item.getId() != null) { entity.setId(safeParseLong(item.getId())); }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 

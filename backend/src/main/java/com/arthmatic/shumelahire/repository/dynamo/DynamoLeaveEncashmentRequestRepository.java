@@ -101,31 +101,31 @@ public class DynamoLeaveEncashmentRequestRepository extends DynamoRepository<Lea
 
         LeaveEncashmentRequest entity = new LeaveEncashmentRequest();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            try { employee.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ignored) {}
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            try { leaveType.setId(Long.parseLong(item.getLeaveTypeId())); } catch (NumberFormatException ignored) {}
+            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
             entity.setLeaveType(leaveType);
         }
 
         if (item.getHrApprovedById() != null) {
             Employee hrApprovedBy = new Employee();
-            try { hrApprovedBy.setId(Long.parseLong(item.getHrApprovedById())); } catch (NumberFormatException ignored) {}
+            hrApprovedBy.setId(safeParseLong(item.getHrApprovedById()));
             entity.setHrApprovedBy(hrApprovedBy);
         }
 
         if (item.getFinanceApprovedById() != null) {
             Employee financeApprovedBy = new Employee();
-            try { financeApprovedBy.setId(Long.parseLong(item.getFinanceApprovedById())); } catch (NumberFormatException ignored) {}
+            financeApprovedBy.setId(safeParseLong(item.getFinanceApprovedById()));
             entity.setFinanceApprovedBy(financeApprovedBy);
         }
 

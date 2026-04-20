@@ -72,7 +72,7 @@ public class DynamoWorkflowDefinitionRepository extends DynamoRepository<Workflo
     protected WorkflowDefinition toEntity(WorkflowDefinitionItem item) {
         var entity = new WorkflowDefinition();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

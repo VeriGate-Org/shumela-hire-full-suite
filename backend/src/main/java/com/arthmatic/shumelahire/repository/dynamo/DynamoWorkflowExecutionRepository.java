@@ -68,13 +68,13 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
     protected WorkflowExecution toEntity(WorkflowExecutionItem item) {
         var entity = new WorkflowExecution();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         // WorkflowDefinition is a ManyToOne relationship — store only the FK in DynamoDB
         if (item.getWorkflowDefinitionId() != null) {
             var wfDef = new WorkflowDefinition();
-            wfDef.setId(Long.parseLong(item.getWorkflowDefinitionId()));
+            wfDef.setId(safeParseLong(item.getWorkflowDefinitionId()));
             entity.setWorkflowDefinition(wfDef);
         }
         entity.setStatus(item.getStatus());

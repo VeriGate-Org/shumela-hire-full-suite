@@ -92,13 +92,13 @@ public class DynamoLeavePolicyRepository extends DynamoRepository<LeavePolicyIte
 
         LeavePolicy entity = new LeavePolicy();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            try { leaveType.setId(Long.parseLong(item.getLeaveTypeId())); } catch (NumberFormatException ignored) {}
+            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
             entity.setLeaveType(leaveType);
         }
 

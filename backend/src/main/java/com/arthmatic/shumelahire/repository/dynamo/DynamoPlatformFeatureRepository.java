@@ -130,7 +130,7 @@ public class DynamoPlatformFeatureRepository extends DynamoRepository<PlatformFe
     protected PlatformFeature toEntity(PlatformFeatureItem item) {
         var feature = new PlatformFeature();
         if (item.getId() != null) {
-            feature.setId(Long.parseLong(item.getId()));
+            feature.setId(safeParseLong(item.getId()));
         }
         feature.setCode(item.getCode());
         feature.setName(item.getName());

@@ -40,6 +40,21 @@ public abstract class DynamoRepository<T, E> {
         this.table = enhancedClient.table(tableName, TableSchema.fromBean(itemClass));
     }
 
+    // ── ID conversion utility ─────────────────────────────────────────────────
+
+    /**
+     * Safely parse a DynamoDB string ID to Long.
+     * UUID-based IDs (from seed scripts) are converted via hashCode.
+     */
+    protected static Long safeParseLong(String value) {
+        if (value == null) return null;
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return (long) value.hashCode();
+        }
+    }
+
     // ── Abstract methods for entity/item conversion ──────────────────────────
 
     /** Convert DynamoDB item to JPA entity */

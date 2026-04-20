@@ -71,7 +71,7 @@ public class DynamoEmployeeDocumentTypeConfigRepository
     protected EmployeeDocumentTypeConfig toEntity(EmployeeDocumentTypeConfigItem item) {
         var config = new EmployeeDocumentTypeConfig();
         if (item.getId() != null) {
-            config.setId(Long.parseLong(item.getId()));
+            config.setId(safeParseLong(item.getId()));
         }
         config.setTenantId(item.getTenantId());
         config.setName(item.getName());

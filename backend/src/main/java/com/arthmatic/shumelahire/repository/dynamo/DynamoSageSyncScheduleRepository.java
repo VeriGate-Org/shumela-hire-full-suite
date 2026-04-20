@@ -54,22 +54,14 @@ public class DynamoSageSyncScheduleRepository extends DynamoRepository<SageSyncS
     protected SageSyncSchedule toEntity(SageSyncScheduleItem item) {
         var e = new SageSyncSchedule();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create connector stub
         if (item.getConnectorId() != null) {
             var connector = new SageConnectorConfig();
-            try {
-                connector.setId(Long.parseLong(item.getConnectorId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid connector ID
-            }
+            connector.setId(safeParseLong(item.getConnectorId()));
             e.setConnector(connector);
         }
 

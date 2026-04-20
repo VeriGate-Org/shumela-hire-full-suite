@@ -49,11 +49,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
     protected Survey toEntity(SurveyItem item) {
         var e = new Survey();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
         e.setTitle(item.getTitle());
@@ -65,11 +61,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
         e.setStartDate(item.getStartDate());
         e.setEndDate(item.getEndDate());
         if (item.getCreatedBy() != null) {
-            try {
-                e.setCreatedBy(Long.parseLong(item.getCreatedBy()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid createdBy
-            }
+            e.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         e.setCreatedAt(item.getCreatedAt());
         e.setUpdatedAt(item.getUpdatedAt());

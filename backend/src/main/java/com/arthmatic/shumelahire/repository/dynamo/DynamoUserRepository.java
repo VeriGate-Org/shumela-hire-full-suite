@@ -146,12 +146,7 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
     protected User toEntity(UserItem item) {
         var entity = new User();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — use hashCode as stable numeric ID
-                entity.setId((long) item.getId().hashCode());
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setUsername(item.getUsername());
         entity.setEmail(item.getEmail());

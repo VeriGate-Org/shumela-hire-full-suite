@@ -46,10 +46,10 @@ public class DynamoUserPreferenceRepository extends DynamoRepository<UserPrefere
     protected UserPreference toEntity(UserPreferenceItem item) {
         var entity = new UserPreference();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         if (item.getUserId() != null) {
-            entity.setUserId(Long.parseLong(item.getUserId()));
+            entity.setUserId(safeParseLong(item.getUserId()));
         }
         entity.setPreferences(item.getPreferences());
         entity.setTenantId(item.getTenantId());

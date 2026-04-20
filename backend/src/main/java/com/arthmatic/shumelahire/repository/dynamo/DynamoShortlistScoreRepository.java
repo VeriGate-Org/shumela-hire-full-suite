@@ -78,7 +78,7 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
     protected ShortlistScore toEntity(ShortlistScoreItem item) {
         var entity = new ShortlistScore();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setTotalScore(item.getTotalScore());

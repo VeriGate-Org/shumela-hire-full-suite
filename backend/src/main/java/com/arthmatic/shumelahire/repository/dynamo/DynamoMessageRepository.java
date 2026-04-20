@@ -292,14 +292,10 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     protected Message toEntity(MessageItem item) {
         var entity = new Message();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
-        if (item.getSenderId() != null) entity.setSenderId(Long.parseLong(item.getSenderId()));
+        if (item.getSenderId() != null) entity.setSenderId(safeParseLong(item.getSenderId()));
         entity.setSenderName(item.getSenderName());
         entity.setSenderRole(item.getSenderRole());
         entity.setRecipientIds(item.getRecipientIds());
@@ -310,13 +306,13 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (item.getMessageFormat() != null) entity.setMessageFormat(MessageFormat.valueOf(item.getMessageFormat()));
         if (item.getPriority() != null) entity.setPriority(MessagePriority.valueOf(item.getPriority()));
         entity.setThreadId(item.getThreadId());
-        if (item.getParentMessageId() != null) entity.setParentMessageId(Long.parseLong(item.getParentMessageId()));
+        if (item.getParentMessageId() != null) entity.setParentMessageId(safeParseLong(item.getParentMessageId()));
         entity.setConversationId(item.getConversationId());
         entity.setIsThreadStarter(item.getIsThreadStarter());
-        if (item.getApplicationId() != null) entity.setApplicationId(Long.parseLong(item.getApplicationId()));
-        if (item.getInterviewId() != null) entity.setInterviewId(Long.parseLong(item.getInterviewId()));
-        if (item.getJobPostingId() != null) entity.setJobPostingId(Long.parseLong(item.getJobPostingId()));
-        if (item.getOfferId() != null) entity.setOfferId(Long.parseLong(item.getOfferId()));
+        if (item.getApplicationId() != null) entity.setApplicationId(safeParseLong(item.getApplicationId()));
+        if (item.getInterviewId() != null) entity.setInterviewId(safeParseLong(item.getInterviewId()));
+        if (item.getJobPostingId() != null) entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
+        if (item.getOfferId() != null) entity.setOfferId(safeParseLong(item.getOfferId()));
         entity.setIsRead(item.getIsRead());
         entity.setReadBy(item.getReadBy());
         entity.setIsDelivered(item.getIsDelivered());
@@ -325,7 +321,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (item.getArchivedAt() != null) entity.setArchivedAt(LocalDateTime.parse(item.getArchivedAt(), ISO_FMT));
         entity.setIsDeleted(item.getIsDeleted());
         if (item.getDeletedAt() != null) entity.setDeletedAt(LocalDateTime.parse(item.getDeletedAt(), ISO_FMT));
-        if (item.getDeletedBy() != null) entity.setDeletedBy(Long.parseLong(item.getDeletedBy()));
+        if (item.getDeletedBy() != null) entity.setDeletedBy(safeParseLong(item.getDeletedBy()));
         entity.setHasAttachments(item.getHasAttachments());
         entity.setAttachmentUrls(item.getAttachmentUrls());
         entity.setIsUrgent(item.getIsUrgent());

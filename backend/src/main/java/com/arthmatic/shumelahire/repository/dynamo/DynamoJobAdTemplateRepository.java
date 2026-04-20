@@ -118,7 +118,7 @@ public class DynamoJobAdTemplateRepository extends DynamoRepository<JobAdTemplat
     protected JobAdTemplate toEntity(JobAdTemplateItem item) {
         var template = new JobAdTemplate();
         if (item.getId() != null) {
-            template.setId(Long.parseLong(item.getId()));
+            template.setId(safeParseLong(item.getId()));
         }
         template.setTenantId(item.getTenantId());
         template.setName(item.getName());

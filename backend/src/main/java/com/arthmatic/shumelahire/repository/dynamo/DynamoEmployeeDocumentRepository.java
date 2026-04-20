@@ -96,13 +96,13 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
     protected EmployeeDocument toEntity(EmployeeDocumentItem item) {
         var doc = new EmployeeDocument();
         if (item.getId() != null) {
-            doc.setId(Long.parseLong(item.getId()));
+            doc.setId(safeParseLong(item.getId()));
         }
         doc.setTenantId(item.getTenantId());
         // Employee is a relationship — store only the ID; service layer hydrates
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(Long.parseLong(item.getEmployeeId()));
+            emp.setId(safeParseLong(item.getEmployeeId()));
             doc.setEmployee(emp);
         }
         if (item.getDocumentType() != null) {
@@ -113,7 +113,7 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
         doc.setFilename(item.getFilename());
         doc.setFileUrl(item.getFileUrl());
         if (item.getFileSize() != null) {
-            doc.setFileSize(Long.parseLong(item.getFileSize()));
+            doc.setFileSize(safeParseLong(item.getFileSize()));
         }
         doc.setContentType(item.getContentType());
         doc.setVersion(item.getVersion());

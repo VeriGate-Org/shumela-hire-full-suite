@@ -57,12 +57,12 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
     @Override
     protected DisciplinaryCase toEntity(DisciplinaryCaseItem item) {
         var e = new DisciplinaryCase();
-        if (item.getId() != null) try { e.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ex) {}
+        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
         e.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            try { emp.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ex) {}
+            emp.setId(safeParseLong(item.getEmployeeId()));
             e.setEmployee(emp);
         }
 
@@ -74,7 +74,7 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
         if (item.getOutcome() != null) e.setOutcome(DisciplinaryOutcome.valueOf(item.getOutcome()));
         if (item.getOutcomeDate() != null) e.setOutcomeDate(LocalDate.parse(item.getOutcomeDate(), ISO_DATE_FMT));
         e.setNotes(item.getNotes());
-        if (item.getCreatedBy() != null) try { e.setCreatedBy(Long.parseLong(item.getCreatedBy())); } catch (NumberFormatException ex) {}
+        if (item.getCreatedBy() != null) e.setCreatedBy(safeParseLong(item.getCreatedBy()));
         if (item.getCreatedAt() != null) e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         return e;

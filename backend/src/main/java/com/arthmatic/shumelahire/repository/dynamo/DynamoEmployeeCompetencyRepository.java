@@ -103,19 +103,19 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
 
         EmployeeCompetency entity = new EmployeeCompetency();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getCompetencyId() != null) {
             Competency competency = new Competency();
-            competency.setId(Long.parseLong(item.getCompetencyId()));
+            competency.setId(safeParseLong(item.getCompetencyId()));
             entity.setCompetency(competency);
         }
 
@@ -125,7 +125,7 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
 
         if (item.getAssessorId() != null) {
             Employee assessor = new Employee();
-            assessor.setId(Long.parseLong(item.getAssessorId()));
+            assessor.setId(safeParseLong(item.getAssessorId()));
             entity.setAssessor(assessor);
         }
 

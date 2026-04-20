@@ -78,7 +78,7 @@ public class DynamoJobBoardPostingRepository extends DynamoRepository<JobBoardPo
     protected JobBoardPosting toEntity(JobBoardPostingItem item) {
         var entity = new JobBoardPosting();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setJobPostingId(item.getJobPostingId());

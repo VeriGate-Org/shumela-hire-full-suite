@@ -98,11 +98,11 @@ public class DynamoTenantFeatureEntitlementRepository
     protected TenantFeatureEntitlement toEntity(TenantFeatureEntitlementItem item) {
         var entitlement = new TenantFeatureEntitlement();
         if (item.getId() != null) {
-            entitlement.setId(Long.parseLong(item.getId()));
+            entitlement.setId(safeParseLong(item.getId()));
         }
         entitlement.setTenantId(item.getTenantId());
         if (item.getFeatureId() != null) {
-            entitlement.setFeatureId(Long.parseLong(item.getFeatureId()));
+            entitlement.setFeatureId(safeParseLong(item.getFeatureId()));
         }
         if (item.getIsEnabled() != null) {
             entitlement.setEnabled(item.getIsEnabled());

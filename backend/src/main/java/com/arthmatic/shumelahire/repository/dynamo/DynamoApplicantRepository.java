@@ -124,7 +124,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
     protected Applicant toEntity(ApplicantItem item) {
         var applicant = new Applicant();
         if (item.getId() != null) {
-            applicant.setId(Long.parseLong(item.getId()));
+            applicant.setId(safeParseLong(item.getId()));
         }
         applicant.setTenantId(item.getTenantId());
         applicant.setName(item.getName());
@@ -143,7 +143,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
         applicant.setCoverLetter(item.getCoverLetter());
         applicant.setSource(item.getSource());
         if (item.getUserId() != null) {
-            applicant.setUserId(Long.parseLong(item.getUserId()));
+            applicant.setUserId(safeParseLong(item.getUserId()));
         }
         applicant.setGender(item.getGender());
         applicant.setRace(item.getRace());

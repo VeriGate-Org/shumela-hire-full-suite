@@ -60,10 +60,7 @@ public class DynamoPublicHolidayRepository extends DynamoRepository<PublicHolida
     protected PublicHoliday toEntity(PublicHolidayItem item) {
         PublicHoliday entity = new PublicHoliday();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ignored) {
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

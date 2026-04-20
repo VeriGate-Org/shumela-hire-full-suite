@@ -100,7 +100,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
     protected Requisition toEntity(RequisitionItem item) {
         var entity = new Requisition();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setJobTitle(item.getJobTitle());
@@ -121,7 +121,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
             entity.setStatus(RequisitionStatus.valueOf(item.getStatus()));
         }
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));

@@ -75,7 +75,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
     protected ReportExportJob toEntity(ReportExportJobItem item) {
         var entity = new ReportExportJob();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setReportType(item.getReportType());
@@ -91,7 +91,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
         // requestedBy is a ManyToOne relationship — store only the FK in DynamoDB
         if (item.getRequestedById() != null) {
             var emp = new Employee();
-            emp.setId(Long.parseLong(item.getRequestedById()));
+            emp.setId(safeParseLong(item.getRequestedById()));
             entity.setRequestedBy(emp);
         }
         entity.setErrorMessage(item.getErrorMessage());

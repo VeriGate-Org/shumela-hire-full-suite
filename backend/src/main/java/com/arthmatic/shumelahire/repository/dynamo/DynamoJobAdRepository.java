@@ -186,14 +186,14 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     protected JobAd toEntity(JobAdItem item) {
         var ad = new JobAd();
         if (item.getId() != null) {
-            ad.setId(Long.parseLong(item.getId()));
+            ad.setId(safeParseLong(item.getId()));
         }
         ad.setTenantId(item.getTenantId());
         if (item.getRequisitionId() != null) {
-            ad.setRequisitionId(Long.parseLong(item.getRequisitionId()));
+            ad.setRequisitionId(safeParseLong(item.getRequisitionId()));
         }
         if (item.getJobPostingId() != null) {
-            ad.setJobPostingId(Long.parseLong(item.getJobPostingId()));
+            ad.setJobPostingId(safeParseLong(item.getJobPostingId()));
         }
         ad.setTitle(item.getTitle());
         ad.setHtmlBody(item.getHtmlBody());

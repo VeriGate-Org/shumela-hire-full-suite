@@ -84,19 +84,19 @@ public class DynamoFeedbackResponseRepository extends DynamoRepository<FeedbackR
 
         FeedbackResponse entity = new FeedbackResponse();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getRequestId() != null) {
             FeedbackRequest request = new FeedbackRequest();
-            try { request.setId(Long.parseLong(item.getRequestId())); } catch (NumberFormatException ignored) {}
+            request.setId(safeParseLong(item.getRequestId()));
             entity.setRequest(request);
         }
 
         if (item.getRespondentId() != null) {
             Employee respondent = new Employee();
-            try { respondent.setId(Long.parseLong(item.getRespondentId())); } catch (NumberFormatException ignored) {}
+            respondent.setId(safeParseLong(item.getRespondentId()));
             entity.setRespondent(respondent);
         }
 

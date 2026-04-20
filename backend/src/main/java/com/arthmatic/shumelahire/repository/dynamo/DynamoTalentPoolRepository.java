@@ -72,7 +72,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
     protected TalentPool toEntity(TalentPoolItem item) {
         var entity = new TalentPool();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setPoolName(item.getPoolName());
@@ -83,7 +83,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
         entity.setIsActive(item.getIsActive());
         entity.setAutoAddEnabled(item.getAutoAddEnabled());
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));

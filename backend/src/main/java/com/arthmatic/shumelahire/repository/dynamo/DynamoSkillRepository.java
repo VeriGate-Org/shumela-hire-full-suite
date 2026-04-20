@@ -105,7 +105,7 @@ public class DynamoSkillRepository extends DynamoRepository<SkillItem, Skill>
     protected Skill toEntity(SkillItem item) {
         var skill = new Skill();
         if (item.getId() != null) {
-            skill.setId(Long.parseLong(item.getId()));
+            skill.setId(safeParseLong(item.getId()));
         }
         skill.setTenantId(item.getTenantId());
         skill.setName(item.getName());

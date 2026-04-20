@@ -49,11 +49,7 @@ public class DynamoSsoConfigurationRepository extends DynamoRepository<SsoConfig
     protected SsoConfiguration toEntity(SsoConfigurationItem item) {
         var e = new SsoConfiguration();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
         if (item.getProvider() != null) {

@@ -65,12 +65,12 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
     @Override
     protected Grievance toEntity(GrievanceItem item) {
         var e = new Grievance();
-        if (item.getId() != null) try { e.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ex) {}
+        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
         e.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            try { emp.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ex) {}
+            emp.setId(safeParseLong(item.getEmployeeId()));
             e.setEmployee(emp);
         }
 
@@ -81,7 +81,7 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
 
         if (item.getAssignedToId() != null) {
             var assignedTo = new Employee();
-            try { assignedTo.setId(Long.parseLong(item.getAssignedToId())); } catch (NumberFormatException ex) {}
+            assignedTo.setId(safeParseLong(item.getAssignedToId()));
             e.setAssignedTo(assignedTo);
         }
 

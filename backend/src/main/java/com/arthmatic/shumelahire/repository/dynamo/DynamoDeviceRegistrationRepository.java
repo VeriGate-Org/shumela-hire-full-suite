@@ -98,7 +98,7 @@ public class DynamoDeviceRegistrationRepository extends DynamoRepository<DeviceR
     protected DeviceRegistration toEntity(DeviceRegistrationItem item) {
         var entity = new DeviceRegistration();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setDeviceToken(item.getDeviceToken());
         if (item.getPlatform() != null) {

@@ -261,11 +261,11 @@ public class DynamoInterviewRepository extends DynamoRepository<InterviewItem, I
     protected Interview toEntity(InterviewItem item) {
         var entity = new Interview();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(Long.parseLong(item.getApplicationId()));
+            entity.setApplicationId(safeParseLong(item.getApplicationId()));
         }
         entity.setTitle(item.getTitle());
         if (item.getType() != null) {
@@ -289,7 +289,7 @@ public class DynamoInterviewRepository extends DynamoRepository<InterviewItem, I
         entity.setInstructions(item.getInstructions());
         entity.setAgenda(item.getAgenda());
         if (item.getInterviewerId() != null) {
-            entity.setInterviewerId(Long.parseLong(item.getInterviewerId()));
+            entity.setInterviewerId(safeParseLong(item.getInterviewerId()));
         }
         entity.setInterviewerName(item.getInterviewerName());
         entity.setInterviewerEmail(item.getInterviewerEmail());
@@ -333,7 +333,7 @@ public class DynamoInterviewRepository extends DynamoRepository<InterviewItem, I
             entity.setFeedbackSubmittedAt(LocalDateTime.parse(item.getFeedbackSubmittedAt(), ISO_FMT));
         }
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));

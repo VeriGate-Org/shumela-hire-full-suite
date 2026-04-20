@@ -72,7 +72,7 @@ public class DynamoAgencyProfileRepository extends DynamoRepository<AgencyProfil
     protected AgencyProfile toEntity(AgencyProfileItem item) {
         var entity = new AgencyProfile();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setAgencyName(item.getAgencyName());

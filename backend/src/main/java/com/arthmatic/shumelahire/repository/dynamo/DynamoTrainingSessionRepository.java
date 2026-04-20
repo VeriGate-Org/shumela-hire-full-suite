@@ -91,12 +91,12 @@ public class DynamoTrainingSessionRepository extends DynamoRepository<TrainingSe
     protected TrainingSession toEntity(TrainingSessionItem item) {
         TrainingSession entity = new TrainingSession();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getCourseId() != null) {
             TrainingCourse course = new TrainingCourse();
-            try { course.setId(Long.parseLong(item.getCourseId())); } catch (NumberFormatException ignored) {}
+            course.setId(safeParseLong(item.getCourseId()));
             entity.setCourse(course);
         }
         entity.setTrainerName(item.getTrainerName());

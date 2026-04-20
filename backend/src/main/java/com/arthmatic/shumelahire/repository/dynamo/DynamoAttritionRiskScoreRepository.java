@@ -74,11 +74,11 @@ public class DynamoAttritionRiskScoreRepository extends DynamoRepository<Attriti
     @Override
     protected AttritionRiskScore toEntity(AttritionRiskScoreItem item) {
         var e = new AttritionRiskScore();
-        if (item.getId() != null) try { e.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ex) {}
+        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            try { emp.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ex) {}
+            emp.setId(safeParseLong(item.getEmployeeId()));
             e.setEmployee(emp);
         }
         if (item.getRiskScore() != null) e.setRiskScore(new BigDecimal(item.getRiskScore()));

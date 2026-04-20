@@ -155,25 +155,25 @@ public class DynamoLeaveRequestRepository extends DynamoRepository<LeaveRequestI
 
         LeaveRequest entity = new LeaveRequest();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            try { employee.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ignored) {}
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getApproverId() != null) {
             Employee approver = new Employee();
-            try { approver.setId(Long.parseLong(item.getApproverId())); } catch (NumberFormatException ignored) {}
+            approver.setId(safeParseLong(item.getApproverId()));
             entity.setApprover(approver);
         }
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            try { leaveType.setId(Long.parseLong(item.getLeaveTypeId())); } catch (NumberFormatException ignored) {}
+            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
             entity.setLeaveType(leaveType);
         }
 

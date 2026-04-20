@@ -138,13 +138,13 @@ public class DynamoSapPayrollTransmissionRepository extends DynamoRepository<Sap
     protected SapPayrollTransmission toEntity(SapPayrollTransmissionItem item) {
         var entity = new SapPayrollTransmission();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         // Offer is a ManyToOne relationship — store only the FK in DynamoDB
         if (item.getOfferId() != null) {
             var offer = new Offer();
-            offer.setId(Long.parseLong(item.getOfferId()));
+            offer.setId(safeParseLong(item.getOfferId()));
             entity.setOffer(offer);
         }
         entity.setTransmissionId(item.getTransmissionId());
@@ -161,7 +161,7 @@ public class DynamoSapPayrollTransmissionRepository extends DynamoRepository<Sap
             entity.setNextRetryAt(LocalDateTime.parse(item.getNextRetryAt(), ISO_FMT));
         }
         if (item.getInitiatedBy() != null) {
-            entity.setInitiatedBy(Long.parseLong(item.getInitiatedBy()));
+            entity.setInitiatedBy(safeParseLong(item.getInitiatedBy()));
         }
         entity.setSapCompanyCode(item.getSapCompanyCode());
         entity.setSapPayrollArea(item.getSapPayrollArea());
@@ -182,7 +182,7 @@ public class DynamoSapPayrollTransmissionRepository extends DynamoRepository<Sap
             entity.setCancelledAt(LocalDateTime.parse(item.getCancelledAt(), ISO_FMT));
         }
         if (item.getCancelledBy() != null) {
-            entity.setCancelledBy(Long.parseLong(item.getCancelledBy()));
+            entity.setCancelledBy(safeParseLong(item.getCancelledBy()));
         }
         entity.setCancellationReason(item.getCancellationReason());
         return entity;

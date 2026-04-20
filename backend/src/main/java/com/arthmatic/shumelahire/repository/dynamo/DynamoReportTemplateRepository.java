@@ -75,11 +75,7 @@ public class DynamoReportTemplateRepository extends DynamoRepository<ReportTempl
     protected ReportTemplate toEntity(ReportTemplateItem item) {
         var entity = new ReportTemplate();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — leave id null for entity
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

@@ -63,7 +63,7 @@ public class DynamoLinkedInOrgConnectionRepository extends DynamoRepository<Link
     protected LinkedInOrgConnection toEntity(LinkedInOrgConnectionItem item) {
         var entity = new LinkedInOrgConnection();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setAccessToken(item.getAccessToken());
         entity.setRefreshToken(item.getRefreshToken());

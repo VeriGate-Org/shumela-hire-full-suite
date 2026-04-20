@@ -57,33 +57,21 @@ public class DynamoSageSyncLogRepository extends DynamoRepository<SageSyncLogIte
     protected SageSyncLog toEntity(SageSyncLogItem item) {
         var e = new SageSyncLog();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create schedule stub
         if (item.getScheduleId() != null) {
             var schedule = new SageSyncSchedule();
-            try {
-                schedule.setId(Long.parseLong(item.getScheduleId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid schedule ID
-            }
+            schedule.setId(safeParseLong(item.getScheduleId()));
             e.setSchedule(schedule);
         }
 
         // Create connector stub
         if (item.getConnectorId() != null) {
             var connector = new SageConnectorConfig();
-            try {
-                connector.setId(Long.parseLong(item.getConnectorId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid connector ID
-            }
+            connector.setId(safeParseLong(item.getConnectorId()));
             e.setConnector(connector);
         }
 

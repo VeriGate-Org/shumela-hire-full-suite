@@ -84,18 +84,18 @@ public class DynamoShiftScheduleRepository extends DynamoRepository<ShiftSchedul
         }
 
         ShiftSchedule entity = new ShiftSchedule();
-        entity.setId(Long.parseLong(item.getId()));
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getShiftId() != null) {
             var shift = new Shift();
-            shift.setId(Long.parseLong(item.getShiftId()));
+            shift.setId(safeParseLong(item.getShiftId()));
             entity.setShift(shift);
         }
 

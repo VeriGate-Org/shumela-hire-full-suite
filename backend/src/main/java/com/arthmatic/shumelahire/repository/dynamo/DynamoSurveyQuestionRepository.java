@@ -47,22 +47,14 @@ public class DynamoSurveyQuestionRepository extends DynamoRepository<SurveyQuest
     protected SurveyQuestion toEntity(SurveyQuestionItem item) {
         var e = new SurveyQuestion();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create Survey stub
         if (item.getSurveyId() != null) {
             var survey = new Survey();
-            try {
-                survey.setId(Long.parseLong(item.getSurveyId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid survey ID
-            }
+            survey.setId(safeParseLong(item.getSurveyId()));
             survey.setTenantId(item.getTenantId());
             e.setSurvey(survey);
         }

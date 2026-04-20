@@ -127,16 +127,16 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
     protected ScreeningAnswer toEntity(ScreeningAnswerItem item) {
         var entity = new ScreeningAnswer();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(Long.parseLong(item.getApplicationId()));
+            entity.setApplicationId(safeParseLong(item.getApplicationId()));
         }
         // FK: ScreeningQuestion is stored as ID only; set a stub with the ID
         if (item.getScreeningQuestionId() != null) {
             var question = new ScreeningQuestion();
-            question.setId(Long.parseLong(item.getScreeningQuestionId()));
+            question.setId(safeParseLong(item.getScreeningQuestionId()));
             entity.setScreeningQuestion(question);
         }
         entity.setAnswerValue(item.getAnswerValue());

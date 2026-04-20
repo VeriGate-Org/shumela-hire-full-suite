@@ -89,22 +89,14 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
     protected SurveyResponse toEntity(SurveyResponseItem item) {
         var e = new SurveyResponse();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create Survey stub
         if (item.getSurveyId() != null) {
             var survey = new Survey();
-            try {
-                survey.setId(Long.parseLong(item.getSurveyId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid survey ID
-            }
+            survey.setId(safeParseLong(item.getSurveyId()));
             survey.setTenantId(item.getTenantId());
             e.setSurvey(survey);
         }
@@ -112,11 +104,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
         // Create SurveyQuestion stub
         if (item.getQuestionId() != null) {
             var question = new SurveyQuestion();
-            try {
-                question.setId(Long.parseLong(item.getQuestionId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid question ID
-            }
+            question.setId(safeParseLong(item.getQuestionId()));
             question.setTenantId(item.getTenantId());
             e.setQuestion(question);
         }
@@ -124,11 +112,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            try {
-                employee.setId(Long.parseLong(item.getEmployeeId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid employee ID
-            }
+            employee.setId(safeParseLong(item.getEmployeeId()));
             employee.setTenantId(item.getTenantId());
             e.setEmployee(employee);
         }

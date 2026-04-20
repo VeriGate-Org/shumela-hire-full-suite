@@ -56,20 +56,20 @@ public class DynamoPerformanceImprovementPlanRepository extends DynamoRepository
         if (item == null) return null;
 
         PerformanceImprovementPlan entity = new PerformanceImprovementPlan();
-        entity.setId(item.getId() != null ? Long.parseLong(item.getId()) : null);
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
 
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         // Create Manager stub
         if (item.getManagerId() != null) {
             Employee manager = new Employee();
-            manager.setId(Long.parseLong(item.getManagerId()));
+            manager.setId(safeParseLong(item.getManagerId()));
             entity.setManager(manager);
         }
 

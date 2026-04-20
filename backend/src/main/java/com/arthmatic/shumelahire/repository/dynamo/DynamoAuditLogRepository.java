@@ -146,11 +146,7 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
     protected AuditLog toEntity(AuditLogItem item) {
         var entity = new AuditLog();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — leave id null for entity
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getTimestamp() != null) entity.setTimestamp(LocalDateTime.parse(item.getTimestamp(), ISO_FMT));

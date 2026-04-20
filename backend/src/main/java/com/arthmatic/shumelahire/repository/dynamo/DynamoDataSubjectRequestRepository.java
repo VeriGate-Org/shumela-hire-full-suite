@@ -61,7 +61,7 @@ public class DynamoDataSubjectRequestRepository extends DynamoRepository<DataSub
         }
 
         DataSubjectRequest entity = new DataSubjectRequest();
-        entity.setId(Long.parseLong(item.getId()));
+        if (item.getId() != null) { entity.setId(safeParseLong(item.getId())); }
         entity.setTenantId(item.getTenantId());
         entity.setRequesterName(item.getRequesterName());
         entity.setRequesterEmail(item.getRequesterEmail());

@@ -105,7 +105,7 @@ public class DynamoSalaryRecommendationRepository
     protected SalaryRecommendation toEntity(SalaryRecommendationItem item) {
         var entity = new SalaryRecommendation();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setRecommendationNumber(item.getRecommendationNumber());
@@ -156,7 +156,7 @@ public class DynamoSalaryRecommendationRepository
         entity.setRejectionReason(item.getRejectionReason());
         entity.setCurrency(item.getCurrency());
         if (item.getOfferId() != null) {
-            entity.setOfferId(Long.parseLong(item.getOfferId()));
+            entity.setOfferId(safeParseLong(item.getOfferId()));
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));

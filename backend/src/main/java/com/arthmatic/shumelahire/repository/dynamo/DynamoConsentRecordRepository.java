@@ -83,13 +83,13 @@ public class DynamoConsentRecordRepository extends DynamoRepository<ConsentRecor
 
         ConsentRecord entity = new ConsentRecord();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 

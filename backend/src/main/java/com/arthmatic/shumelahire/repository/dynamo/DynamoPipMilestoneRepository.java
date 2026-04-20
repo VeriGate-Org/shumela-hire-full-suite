@@ -52,13 +52,13 @@ public class DynamoPipMilestoneRepository extends DynamoRepository<PipMilestoneI
         if (item == null) return null;
 
         PipMilestone entity = new PipMilestone();
-        entity.setId(item.getId() != null ? Long.parseLong(item.getId()) : null);
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
 
         // Create PIP stub
         if (item.getPipId() != null) {
             PerformanceImprovementPlan pip = new PerformanceImprovementPlan();
-            pip.setId(Long.parseLong(item.getPipId()));
+            pip.setId(safeParseLong(item.getPipId()));
             entity.setPip(pip);
         }
 

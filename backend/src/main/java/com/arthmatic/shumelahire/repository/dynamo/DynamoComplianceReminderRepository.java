@@ -94,15 +94,15 @@ public class DynamoComplianceReminderRepository extends DynamoRepository<Complia
         }
 
         ComplianceReminder entity = new ComplianceReminder();
-        entity.setId(Long.parseLong(item.getId()));
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
         entity.setReminderType(ReminderType.valueOf(item.getReminderType()));
         entity.setEntityType(item.getEntityType());
-        entity.setEntityId(item.getEntityId() != null ? Long.parseLong(item.getEntityId()) : null);
+        entity.setEntityId(safeParseLong(item.getEntityId()));
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 

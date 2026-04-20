@@ -74,7 +74,7 @@ public class DynamoPerformanceCycleRepository extends DynamoRepository<Performan
         if (item == null) return null;
 
         PerformanceCycle entity = new PerformanceCycle();
-        entity.setId(item.getId() != null ? Long.parseLong(item.getId()) : null);
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
         entity.setDescription(item.getDescription());

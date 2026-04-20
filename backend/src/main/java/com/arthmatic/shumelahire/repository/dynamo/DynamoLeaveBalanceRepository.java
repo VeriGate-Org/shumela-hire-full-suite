@@ -109,19 +109,19 @@ public class DynamoLeaveBalanceRepository extends DynamoRepository<LeaveBalanceI
     protected LeaveBalance toEntity(LeaveBalanceItem item) {
         LeaveBalance entity = new LeaveBalance();
         if (item.getId() != null && !item.getId().isEmpty()) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null && !item.getEmployeeId().isEmpty()) {
             Employee employee = new Employee();
-            try { employee.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ignored) {}
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getLeaveTypeId() != null && !item.getLeaveTypeId().isEmpty()) {
             LeaveType leaveType = new LeaveType();
-            try { leaveType.setId(Long.parseLong(item.getLeaveTypeId())); } catch (NumberFormatException ignored) {}
+            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
             entity.setLeaveType(leaveType);
         }
 

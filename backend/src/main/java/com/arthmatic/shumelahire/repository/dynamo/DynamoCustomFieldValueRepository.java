@@ -62,10 +62,10 @@ public class DynamoCustomFieldValueRepository extends DynamoRepository<CustomFie
     protected CustomFieldValue toEntity(CustomFieldValueItem item) {
         var entity = new CustomFieldValue();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         if (item.getEntityId() != null) {
-            entity.setEntityId(Long.parseLong(item.getEntityId()));
+            entity.setEntityId(safeParseLong(item.getEntityId()));
         }
         if (item.getEntityType() != null) {
             entity.setEntityType(CustomFieldEntityType.valueOf(item.getEntityType()));

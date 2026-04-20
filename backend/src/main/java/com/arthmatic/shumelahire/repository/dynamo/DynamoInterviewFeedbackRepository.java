@@ -92,11 +92,11 @@ public class DynamoInterviewFeedbackRepository extends DynamoRepository<Intervie
     protected InterviewFeedback toEntity(InterviewFeedbackItem item) {
         var entity = new InterviewFeedback();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getSubmittedBy() != null) {
-            entity.setSubmittedBy(Long.parseLong(item.getSubmittedBy()));
+            entity.setSubmittedBy(safeParseLong(item.getSubmittedBy()));
         }
         entity.setInterviewerName(item.getInterviewerName());
         entity.setFeedback(item.getFeedback());

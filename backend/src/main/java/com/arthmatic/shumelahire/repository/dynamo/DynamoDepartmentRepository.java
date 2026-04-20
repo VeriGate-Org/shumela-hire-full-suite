@@ -100,7 +100,7 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
     protected Department toEntity(DepartmentItem item) {
         var dept = new Department();
         if (item.getId() != null) {
-            dept.setId(Long.parseLong(item.getId()));
+            dept.setId(safeParseLong(item.getId()));
         }
         dept.setTenantId(item.getTenantId());
         dept.setName(item.getName());

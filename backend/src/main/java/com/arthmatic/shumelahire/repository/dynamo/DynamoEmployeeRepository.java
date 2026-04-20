@@ -198,7 +198,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
     protected Employee toEntity(EmployeeItem item) {
         var emp = new Employee();
         if (item.getId() != null) {
-            emp.setId(Long.parseLong(item.getId()));
+            emp.setId(safeParseLong(item.getId()));
         }
         emp.setTenantId(item.getTenantId());
         emp.setEmployeeNumber(item.getEmployeeNumber());
@@ -255,7 +255,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
         // the service layer can hydrate if needed
         if (item.getReportingManagerId() != null) {
             var mgr = new Employee();
-            mgr.setId(Long.parseLong(item.getReportingManagerId()));
+            mgr.setId(safeParseLong(item.getReportingManagerId()));
             emp.setReportingManager(mgr);
         }
         emp.setCostCentre(item.getCostCentre());
@@ -264,7 +264,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
         // applicant is a relationship — store only the ID
         if (item.getApplicantId() != null) {
             var applicant = new com.arthmatic.shumelahire.entity.Applicant();
-            applicant.setId(Long.parseLong(item.getApplicantId()));
+            applicant.setId(safeParseLong(item.getApplicantId()));
             emp.setApplicant(applicant);
         }
         emp.setProfilePhotoUrl(item.getProfilePhotoUrl());

@@ -79,13 +79,13 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
     protected EmploymentEvent toEntity(EmploymentEventItem item) {
         var evt = new EmploymentEvent();
         if (item.getId() != null) {
-            evt.setId(Long.parseLong(item.getId()));
+            evt.setId(safeParseLong(item.getId()));
         }
         evt.setTenantId(item.getTenantId());
         // Employee is a relationship — store only the ID
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(Long.parseLong(item.getEmployeeId()));
+            emp.setId(safeParseLong(item.getEmployeeId()));
             evt.setEmployee(emp);
         }
         if (item.getEventType() != null) {
@@ -106,10 +106,10 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
         evt.setPreviousJobGrade(item.getPreviousJobGrade());
         evt.setNewJobGrade(item.getNewJobGrade());
         if (item.getPreviousReportingManagerId() != null) {
-            evt.setPreviousReportingManagerId(Long.parseLong(item.getPreviousReportingManagerId()));
+            evt.setPreviousReportingManagerId(safeParseLong(item.getPreviousReportingManagerId()));
         }
         if (item.getNewReportingManagerId() != null) {
-            evt.setNewReportingManagerId(Long.parseLong(item.getNewReportingManagerId()));
+            evt.setNewReportingManagerId(safeParseLong(item.getNewReportingManagerId()));
         }
         evt.setPreviousLocation(item.getPreviousLocation());
         evt.setNewLocation(item.getNewLocation());

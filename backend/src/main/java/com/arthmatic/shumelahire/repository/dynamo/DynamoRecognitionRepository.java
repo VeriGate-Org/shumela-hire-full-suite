@@ -90,22 +90,14 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
     protected Recognition toEntity(RecognitionItem item) {
         var e = new Recognition();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
 
         // Create fromEmployee stub
         if (item.getFromEmployeeId() != null) {
             var fromEmployee = new Employee();
-            try {
-                fromEmployee.setId(Long.parseLong(item.getFromEmployeeId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid from employee ID
-            }
+            fromEmployee.setId(safeParseLong(item.getFromEmployeeId()));
             fromEmployee.setTenantId(item.getTenantId());
             e.setFromEmployee(fromEmployee);
         }
@@ -113,11 +105,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
         // Create toEmployee stub
         if (item.getToEmployeeId() != null) {
             var toEmployee = new Employee();
-            try {
-                toEmployee.setId(Long.parseLong(item.getToEmployeeId()));
-            } catch (NumberFormatException ex) {
-                // Skip invalid to employee ID
-            }
+            toEmployee.setId(safeParseLong(item.getToEmployeeId()));
             toEmployee.setTenantId(item.getTenantId());
             e.setToEmployee(toEmployee);
         }

@@ -85,7 +85,7 @@ public class DynamoLeaveTypeRepository extends DynamoRepository<LeaveTypeItem, L
 
         LeaveType entity = new LeaveType();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

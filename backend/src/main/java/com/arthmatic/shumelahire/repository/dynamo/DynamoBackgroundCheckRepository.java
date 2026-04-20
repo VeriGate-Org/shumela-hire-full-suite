@@ -138,7 +138,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
     protected BackgroundCheck toEntity(BackgroundCheckItem item) {
         var entity = new BackgroundCheck();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setReferenceId(item.getReferenceId());
@@ -160,7 +160,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
             entity.setConsentObtainedAt(LocalDateTime.parse(item.getConsentObtainedAt(), ISO_FMT));
         }
         if (item.getInitiatedBy() != null) {
-            entity.setInitiatedBy(Long.parseLong(item.getInitiatedBy()));
+            entity.setInitiatedBy(safeParseLong(item.getInitiatedBy()));
         }
         entity.setProvider(item.getProvider());
         entity.setExternalScreeningId(item.getExternalScreeningId());

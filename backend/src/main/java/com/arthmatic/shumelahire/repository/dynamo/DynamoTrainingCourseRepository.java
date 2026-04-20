@@ -115,7 +115,7 @@ public class DynamoTrainingCourseRepository extends DynamoRepository<TrainingCou
     protected TrainingCourse toEntity(TrainingCourseItem item) {
         TrainingCourse entity = new TrainingCourse();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setTitle(item.getTitle());

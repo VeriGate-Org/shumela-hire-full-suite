@@ -102,12 +102,12 @@ public class DynamoCertificationRepository extends DynamoRepository<Certificatio
     protected Certification toEntity(CertificationItem item) {
         Certification entity = new Certification();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            try { employee.setId(Long.parseLong(item.getEmployeeId())); } catch (NumberFormatException ignored) {}
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
         entity.setName(item.getName());

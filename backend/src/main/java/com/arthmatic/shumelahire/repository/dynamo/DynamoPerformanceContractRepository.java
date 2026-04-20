@@ -106,13 +106,13 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         if (item == null) return null;
 
         PerformanceContract entity = new PerformanceContract();
-        entity.setId(item.getId() != null ? Long.parseLong(item.getId()) : null);
+        entity.setId(safeParseLong(item.getId()));
         entity.setTenantId(item.getTenantId());
 
         // Create PerformanceCycle stub
         if (item.getCycleId() != null) {
             PerformanceCycle cycle = new PerformanceCycle();
-            cycle.setId(Long.parseLong(item.getCycleId()));
+            cycle.setId(safeParseLong(item.getCycleId()));
             entity.setCycle(cycle);
         }
 
@@ -128,7 +128,7 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         // Create PerformanceTemplate stub (nullable)
         if (item.getTemplateId() != null) {
             PerformanceTemplate template = new PerformanceTemplate();
-            template.setId(Long.parseLong(item.getTemplateId()));
+            template.setId(safeParseLong(item.getTemplateId()));
             entity.setTemplate(template);
         }
 

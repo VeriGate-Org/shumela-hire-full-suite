@@ -372,7 +372,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     protected JobPosting toEntity(JobPostingItem item) {
         var jp = new JobPosting();
         if (item.getId() != null) {
-            jp.setId(Long.parseLong(item.getId()));
+            jp.setId(safeParseLong(item.getId()));
         }
         jp.setTenantId(item.getTenantId());
         jp.setTitle(item.getTitle());
@@ -406,13 +406,13 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
             jp.setStatus(JobPostingStatus.valueOf(item.getStatus()));
         }
         if (item.getCreatedBy() != null) {
-            jp.setCreatedBy(Long.parseLong(item.getCreatedBy()));
+            jp.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         if (item.getApprovedBy() != null) {
-            jp.setApprovedBy(Long.parseLong(item.getApprovedBy()));
+            jp.setApprovedBy(safeParseLong(item.getApprovedBy()));
         }
         if (item.getPublishedBy() != null) {
-            jp.setPublishedBy(Long.parseLong(item.getPublishedBy()));
+            jp.setPublishedBy(safeParseLong(item.getPublishedBy()));
         }
         jp.setApprovalNotes(item.getApprovalNotes());
         jp.setRejectionReason(item.getRejectionReason());

@@ -91,28 +91,28 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
     protected TalentPoolEntry toEntity(TalentPoolEntryItem item) {
         var entity = new TalentPoolEntry();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         // Set talentPool reference (lazy — just the ID)
         if (item.getTalentPoolId() != null) {
             var pool = new TalentPool();
-            pool.setId(Long.parseLong(item.getTalentPoolId()));
+            pool.setId(safeParseLong(item.getTalentPoolId()));
             entity.setTalentPool(pool);
         }
 
         // Set applicant reference (lazy — just the ID)
         if (item.getApplicantId() != null) {
             var applicant = new Applicant();
-            applicant.setId(Long.parseLong(item.getApplicantId()));
+            applicant.setId(safeParseLong(item.getApplicantId()));
             entity.setApplicant(applicant);
         }
 
         // Set source application reference (lazy — just the ID)
         if (item.getSourceApplicationId() != null) {
             var app = new Application();
-            app.setId(Long.parseLong(item.getSourceApplicationId()));
+            app.setId(safeParseLong(item.getSourceApplicationId()));
             entity.setSourceApplication(app);
         }
 
@@ -124,7 +124,7 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
             entity.setLastContactedAt(LocalDateTime.parse(item.getLastContactedAt(), ISO_FMT));
         }
         if (item.getAddedBy() != null) {
-            entity.setAddedBy(Long.parseLong(item.getAddedBy()));
+            entity.setAddedBy(safeParseLong(item.getAddedBy()));
         }
         if (item.getAddedAt() != null) {
             entity.setAddedAt(LocalDateTime.parse(item.getAddedAt(), ISO_FMT));

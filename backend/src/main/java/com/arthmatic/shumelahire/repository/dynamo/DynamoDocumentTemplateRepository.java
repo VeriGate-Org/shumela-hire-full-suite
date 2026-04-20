@@ -93,7 +93,7 @@ public class DynamoDocumentTemplateRepository extends DynamoRepository<DocumentT
     protected DocumentTemplate toEntity(DocumentTemplateItem item) {
         var entity = new DocumentTemplate();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setType(item.getType());
         entity.setName(item.getName());

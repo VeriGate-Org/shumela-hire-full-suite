@@ -92,21 +92,21 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
     protected AgencySubmission toEntity(AgencySubmissionItem item) {
         var entity = new AgencySubmission();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         // Set agency reference (lazy — just the ID)
         if (item.getAgencyId() != null) {
             var agency = new AgencyProfile();
-            agency.setId(Long.parseLong(item.getAgencyId()));
+            agency.setId(safeParseLong(item.getAgencyId()));
             entity.setAgency(agency);
         }
 
         // Set job posting reference (lazy — just the ID)
         if (item.getJobPostingId() != null) {
             var jobPosting = new JobPosting();
-            jobPosting.setId(Long.parseLong(item.getJobPostingId()));
+            jobPosting.setId(safeParseLong(item.getJobPostingId()));
             entity.setJobPosting(jobPosting);
         }
 
@@ -122,7 +122,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
         // Set linked application reference (lazy — just the ID)
         if (item.getLinkedApplicationId() != null) {
             var app = new Application();
-            app.setId(Long.parseLong(item.getLinkedApplicationId()));
+            app.setId(safeParseLong(item.getLinkedApplicationId()));
             entity.setLinkedApplication(app);
         }
 
@@ -133,7 +133,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
             entity.setReviewedAt(LocalDateTime.parse(item.getReviewedAt(), ISO_FMT));
         }
         if (item.getReviewedBy() != null) {
-            entity.setReviewedBy(Long.parseLong(item.getReviewedBy()));
+            entity.setReviewedBy(safeParseLong(item.getReviewedBy()));
         }
         return entity;
     }

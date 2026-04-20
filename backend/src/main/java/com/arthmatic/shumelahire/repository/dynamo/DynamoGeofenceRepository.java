@@ -44,7 +44,7 @@ public class DynamoGeofenceRepository extends DynamoRepository<GeofenceItem, Geo
 
         Geofence entity = new Geofence();
         if (item.getId() != null) {
-            try { entity.setId(Long.parseLong(item.getId())); } catch (NumberFormatException ignored) {}
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

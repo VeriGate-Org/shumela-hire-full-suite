@@ -308,21 +308,14 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     protected Notification toEntity(NotificationItem item) {
         var entity = new Notification();
         if (item.getId() != null) {
-            try {
-                entity.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException e) {
-                // DynamoDB UUID-based IDs — use hashCode as stable numeric ID
-                entity.setId((long) item.getId().hashCode());
-            }
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         if (item.getRecipientId() != null) {
-            try { entity.setRecipientId(Long.parseLong(item.getRecipientId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setRecipientId(safeParseLong(item.getRecipientId()));
         }
         if (item.getSenderId() != null) {
-            try { entity.setSenderId(Long.parseLong(item.getSenderId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setSenderId(safeParseLong(item.getSenderId()));
         }
         if (item.getType() != null) {
             try { entity.setType(NotificationType.valueOf(item.getType())); }
@@ -343,20 +336,16 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         entity.setIcon(item.getIcon());
         entity.setMetadata(item.getMetadata());
         if (item.getApplicationId() != null) {
-            try { entity.setApplicationId(Long.parseLong(item.getApplicationId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setApplicationId(safeParseLong(item.getApplicationId()));
         }
         if (item.getInterviewId() != null) {
-            try { entity.setInterviewId(Long.parseLong(item.getInterviewId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setInterviewId(safeParseLong(item.getInterviewId()));
         }
         if (item.getJobPostingId() != null) {
-            try { entity.setJobPostingId(Long.parseLong(item.getJobPostingId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
         }
         if (item.getOfferId() != null) {
-            try { entity.setOfferId(Long.parseLong(item.getOfferId())); }
-            catch (NumberFormatException ignored) {}
+            entity.setOfferId(safeParseLong(item.getOfferId()));
         }
         entity.setIsRead(item.getIsRead());
         if (item.getReadAt() != null) entity.setReadAt(LocalDateTime.parse(item.getReadAt(), ISO_FMT));
@@ -381,8 +370,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         if (item.getCreatedBy() != null) {
-            try { entity.setCreatedBy(Long.parseLong(item.getCreatedBy())); }
-            catch (NumberFormatException ignored) {}
+            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
         }
         return entity;
     }

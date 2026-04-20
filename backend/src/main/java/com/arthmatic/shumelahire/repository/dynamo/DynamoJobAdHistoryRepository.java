@@ -97,7 +97,7 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
     protected JobAdHistory toEntity(JobAdHistoryItem item) {
         var entity = new JobAdHistory();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
         entity.setAction(item.getAction());
@@ -109,7 +109,7 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
         // FK: JobAd is stored as ID only; set a stub with the ID
         if (item.getJobAdId() != null) {
             var jobAd = new JobAd();
-            jobAd.setId(Long.parseLong(item.getJobAdId()));
+            jobAd.setId(safeParseLong(item.getJobAdId()));
             entity.setJobAd(jobAd);
         }
         return entity;

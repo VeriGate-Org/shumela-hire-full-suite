@@ -50,11 +50,7 @@ public class DynamoSageConnectorConfigRepository extends DynamoRepository<SageCo
     protected SageConnectorConfig toEntity(SageConnectorConfigItem item) {
         var e = new SageConnectorConfig();
         if (item.getId() != null) {
-            try {
-                e.setId(Long.parseLong(item.getId()));
-            } catch (NumberFormatException ex) {
-                // skip invalid ID
-            }
+            e.setId(safeParseLong(item.getId()));
         }
         e.setTenantId(item.getTenantId());
         e.setName(item.getName());

@@ -113,19 +113,19 @@ public class DynamoFeedbackRequestRepository extends DynamoRepository<FeedbackRe
 
         FeedbackRequest entity = new FeedbackRequest();
         if (item.getId() != null) {
-            entity.setId(Long.parseLong(item.getId()));
+            entity.setId(safeParseLong(item.getId()));
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(Long.parseLong(item.getEmployeeId()));
+            employee.setId(safeParseLong(item.getEmployeeId()));
             entity.setEmployee(employee);
         }
 
         if (item.getRequesterId() != null) {
             Employee requester = new Employee();
-            requester.setId(Long.parseLong(item.getRequesterId()));
+            requester.setId(safeParseLong(item.getRequesterId()));
             entity.setRequester(requester);
         }
 
