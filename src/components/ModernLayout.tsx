@@ -4,6 +4,7 @@ import ModernSidebar from './ModernSidebar';
 import NotificationCenter from './NotificationCenter';
 import UserProfile from './UserProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { Bars3Icon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -22,7 +23,9 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { user } = useAuth();
+  const { branding } = useTenant();
   const { showOverlay, setShowOverlay, shortcutList } = useKeyboardShortcuts();
 
   return (
@@ -41,10 +44,21 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
             </button>
 
             <div className="flex items-center gap-2.5">
-              <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
-              <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
-                <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
-              </span>
+              {branding?.logoUrl && !logoError ? (
+                <img
+                  src={branding.logoUrl}
+                  alt="Organization logo"
+                  className="h-8 w-auto max-w-[180px] object-contain"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <>
+                  <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
+                  <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
+                    <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+                  </span>
+                </>
+              )}
             </div>
 
             {title && (
