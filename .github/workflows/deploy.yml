@@ -404,6 +404,11 @@ jobs:
           if [ "$HTTP_CODE" = "200" ]; then
             echo "uThukela tenant already exists — checking employee count..."
 
+            # Resolve the full tenant ID (public endpoint, no auth needed)
+            TENANT_INFO=$(curl -s "${API_URL}/api/public/tenants/resolve/uthukela" 2>/dev/null)
+            TENANT_ID=$(echo "$TENANT_INFO" | jq -r '.id // empty')
+            echo "Resolved tenant ID: $TENANT_ID"
+
             # Authenticate to check employee count
             AUTH_RESULT=$(aws cognito-idp initiate-auth \
               --client-id "$COGNITO_CLIENT_ID" \
@@ -415,9 +420,6 @@ jobs:
             ID_TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.IdToken // empty')
 
             if [ -n "$ID_TOKEN" ]; then
-              TENANT_INFO=$(curl -s "${API_URL}/api/public/tenants/resolve/uthukela" 2>/dev/null)
-              TENANT_ID=$(echo "$TENANT_INFO" | jq -r '.id // empty')
-
               EMP_RESPONSE=$(curl -s -H "Authorization: Bearer $ID_TOKEN" \
                 -H "X-Tenant-Id: $TENANT_ID" \
                 "${API_URL}/api/employees?size=1" 2>/dev/null)
@@ -440,7 +442,6 @@ jobs:
               TABLE_NAME="${PREFIX}-data"
             fi
             export DYNAMODB_TABLE_NAME="$TABLE_NAME"
-            # Use the resolved full tenant ID (e.g. "97282820-uthukela"), not just the subdomain
             export TENANT_ID="${TENANT_ID}"
             export AWS_REGION="$REGION"
             pip install cryptography -q 2>/dev/null
