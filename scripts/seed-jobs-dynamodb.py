@@ -238,7 +238,7 @@ JOBS = [
         "department": "Community Services",
         "location": "Ladysmith, KZN",
         "employmentType": "FULL_TIME",
-        "experienceLevel": "ENTRY",
+        "experienceLevel": "ENTRY_LEVEL",
         "description": (
             "Engage with communities across the uThukela District to promote "
             "water conservation, manage service delivery queries, and facilitate "

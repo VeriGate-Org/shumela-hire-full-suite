@@ -379,10 +379,12 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         jp.setDepartment(item.getDepartment());
         jp.setLocation(item.getLocation());
         if (item.getEmploymentType() != null) {
-            jp.setEmploymentType(EmploymentType.valueOf(item.getEmploymentType()));
+            try { jp.setEmploymentType(EmploymentType.valueOf(item.getEmploymentType())); }
+            catch (IllegalArgumentException ignored) {}
         }
         if (item.getExperienceLevel() != null) {
-            jp.setExperienceLevel(ExperienceLevel.valueOf(item.getExperienceLevel()));
+            try { jp.setExperienceLevel(ExperienceLevel.valueOf(item.getExperienceLevel())); }
+            catch (IllegalArgumentException ignored) {}
         }
         jp.setDescription(item.getDescription());
         jp.setRequirements(item.getRequirements());
