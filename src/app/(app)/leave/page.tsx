@@ -23,7 +23,7 @@ export default function LeaveDashboardPage() {
   const [recentRequests, setRecentRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, hasPermission } = useAuth();
   const router = useRouter();
   const employeeId = user?.id ? parseInt(user.id, 10) : 0;
 
@@ -78,9 +78,11 @@ export default function LeaveDashboardPage() {
             <Link href="/leave/calendar" className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground">
               <CalendarIcon className="w-5 h-5 text-green-500" /> Calendar
             </Link>
-            <Link href="/leave/analytics" className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground">
-              <ChartBarIcon className="w-5 h-5 text-purple-500" /> Analytics
-            </Link>
+            {hasPermission('view_analytics') && (
+              <Link href="/leave/analytics" className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground">
+                <ChartBarIcon className="w-5 h-5 text-purple-500" /> Analytics
+              </Link>
+            )}
             <Link href="/leave/policies" className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground">
               <Cog6ToothIcon className="w-5 h-5 text-muted-foreground" /> Policies
             </Link>

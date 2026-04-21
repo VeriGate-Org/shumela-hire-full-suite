@@ -9,9 +9,10 @@ interface CycleManagementProps {
   tenantId: string;
   userId: string;
   onCycleSelect?: (cycle: PerformanceCycle) => void;
+  canManage?: boolean;
 }
 
-export default function CycleManagement({ tenantId, userId, onCycleSelect }: CycleManagementProps) {
+export default function CycleManagement({ tenantId, userId, onCycleSelect, canManage = false }: CycleManagementProps) {
   const [cycles, setCycles] = useState<PerformanceCycle[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -119,12 +120,14 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect }: Cyc
               Manage performance review cycles and timelines
             </p>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
-          >
-            Create New Cycle
-          </button>
+          {canManage && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
+            >
+              Create New Cycle
+            </button>
+          )}
         </div>
 
         {error && (

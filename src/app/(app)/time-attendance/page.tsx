@@ -25,10 +25,15 @@ export default function TimeAttendancePage() {
   const [error, setError] = useState('');
 
   const { user } = useAuth();
-  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const parsedId = user?.id ? parseInt(user.id, 10) : 0;
+  const employeeId = Number.isFinite(parsedId) ? parsedId : 0;
 
   useEffect(() => {
-    if (!employeeId) return;
+    if (!employeeId) {
+      setError('Your employee profile could not be resolved. Please contact your administrator.');
+      setLoading(false);
+      return;
+    }
     attendanceService.getRecords(employeeId, 0, 10).then((data) => {
       const records = Array.isArray(data?.content) ? data.content : [];
       setRecentRecords(records);

@@ -19,9 +19,14 @@ export default function LeaveApprovalsPage() {
 
   const loadPending = async () => {
     setLoading(true);
-    const result = await leaveService.getPendingApprovals(managerId);
-    setRequests(result.content);
-    setLoading(false);
+    try {
+      const result = await leaveService.getPendingApprovals(managerId);
+      setRequests(Array.isArray(result?.content) ? result.content : []);
+    } catch {
+      setRequests([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { if (managerId) loadPending(); }, [managerId]);

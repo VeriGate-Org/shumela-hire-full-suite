@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import { apiFetch } from '@/lib/api-fetch';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   AcademicCapIcon,
   PlayCircleIcon,
@@ -65,6 +66,8 @@ export default function TrainingPage() {
   const [selectedView, setSelectedView] = useState<'modules' | 'paths' | 'progress'>('modules');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const { hasPermission } = useAuth();
+  const canManageTraining = hasPermission('manage_training');
 
   const categories = [
     { id: 'all', name: 'All Training', count: 0 },
@@ -192,7 +195,7 @@ export default function TrainingPage() {
     ));
   };
 
-  const actions = (
+  const actions = canManageTraining ? (
     <div className="flex items-center gap-3">
       <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
         <CalendarIcon className="w-4 h-4 mr-2" />
@@ -203,7 +206,7 @@ export default function TrainingPage() {
         Create Module
       </button>
     </div>
-  );
+  ) : undefined;
 
   return (
     <PageWrapper
@@ -297,7 +300,7 @@ export default function TrainingPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 flex-wrap">
                 {categories.map(category => (
                   <button
                     key={category.id}

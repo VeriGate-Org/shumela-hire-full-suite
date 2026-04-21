@@ -11,7 +11,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_applications', 'manage_workflow', 'view_salary_data',
     'view_analytics', 'view_recruiter_analytics', 'view_reports',
     'manage_permissions', 'view_audit_logs', 'manage_departments',
-    'view_training', 'manage_integrations', 'manage_requisitions',
+    'view_training', 'manage_training', 'manage_integrations', 'manage_requisitions',
     // HR module permissions
     'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',
@@ -28,7 +28,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'manage_applications', 'manage_workflow', 'view_salary_data',
     'view_analytics', 'view_recruiter_analytics', 'view_reports',
-    'view_training', 'manage_departments', 'manage_integrations', 'manage_requisitions',
+    'view_training', 'manage_training', 'manage_departments', 'manage_integrations', 'manage_requisitions',
     // HR module permissions
     'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',

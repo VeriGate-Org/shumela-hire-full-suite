@@ -6,9 +6,13 @@ import { FeatureGate } from '@/components/FeatureGate';
 import LeaveAnalyticsCharts from '@/components/leave/LeaveAnalyticsCharts';
 import { aiLeaveService } from '@/services/aiLeaveService';
 import { LeavePatternResult } from '@/types/ai';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LeaveAnalyticsPage() {
+  const { hasPermission } = useAuth();
+  const canViewAnalytics = hasPermission('view_analytics');
+
   const [aiInsights, setAiInsights] = useState<LeavePatternResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -28,6 +32,19 @@ export default function LeaveAnalyticsPage() {
     } finally {
       setAiLoading(false);
     }
+  }
+
+  if (!canViewAnalytics) {
+    return (
+      <FeatureGate feature="LEAVE_MANAGEMENT">
+        <PageWrapper title="Access Denied" subtitle="You do not have permission to view Leave Analytics.">
+          <div className="text-center py-12">
+            <ShieldExclamationIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <p className="text-muted-foreground">Contact your administrator if you believe this is an error.</p>
+          </div>
+        </PageWrapper>
+      </FeatureGate>
+    );
   }
 
   return (

@@ -137,9 +137,18 @@ export const leaveService = {
   // Leave Types
   async getLeaveTypes(activeOnly?: boolean): Promise<LeaveType[]> {
     const params = activeOnly ? '?activeOnly=true' : '';
-    const response = await apiFetch(`/api/leave/types${params}`);
-    if (!response.ok) return [];
-    return await response.json();
+    try {
+      const response = await apiFetch(`/api/leave/types${params}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch leave types: ${response.status} ${response.statusText}`);
+        return [];
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching leave types:', error);
+      return [];
+    }
   },
 
   async createLeaveType(data: Partial<LeaveType>): Promise<LeaveType> {
@@ -169,9 +178,18 @@ export const leaveService = {
   // Leave Policies
   async getLeavePolicies(leaveTypeId?: number): Promise<LeavePolicy[]> {
     const params = leaveTypeId ? `?leaveTypeId=${leaveTypeId}` : '';
-    const response = await apiFetch(`/api/leave/policies${params}`);
-    if (!response.ok) return [];
-    return await response.json();
+    try {
+      const response = await apiFetch(`/api/leave/policies${params}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch leave policies: ${response.status} ${response.statusText}`);
+        return [];
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching leave policies:', error);
+      return [];
+    }
   },
 
   async createLeavePolicy(data: any): Promise<LeavePolicy> {
@@ -190,9 +208,18 @@ export const leaveService = {
   async getBalances(employeeId: number, year?: number): Promise<LeaveBalance[]> {
     const params = new URLSearchParams({ employeeId: employeeId.toString() });
     if (year) params.set('year', year.toString());
-    const response = await apiFetch(`/api/leave/balances?${params}`);
-    if (!response.ok) return [];
-    return await response.json();
+    try {
+      const response = await apiFetch(`/api/leave/balances?${params}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch leave balances: ${response.status} ${response.statusText}`);
+        return [];
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching leave balances:', error);
+      return [];
+    }
   },
 
   // Leave Requests

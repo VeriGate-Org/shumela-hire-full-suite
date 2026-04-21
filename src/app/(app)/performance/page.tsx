@@ -21,8 +21,9 @@ export default function PerformanceDashboard() {
   const [showAiPanel, setShowAiPanel] = useState(false);
 
   const { tenantId } = useTenant();
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const userId = user?.id || 'anonymous';
+  const canManagePerformance = hasPermission('manage_performance');
 
   const handleCycleSelect = (cycle: PerformanceCycle) => {
     setSelectedCycle(cycle);
@@ -77,12 +78,14 @@ export default function PerformanceDashboard() {
       <span className="text-sm text-muted-foreground">
         <span className="font-medium">Active Cycle:</span> {selectedCycle.name}
       </span>
-      <button
-        onClick={handleCreateContract}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-control bg-cta text-cta-foreground hover:bg-cta/90 transition-colors"
-      >
-        Create Contract
-      </button>
+      {canManagePerformance && (
+        <button
+          onClick={handleCreateContract}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-control bg-cta text-cta-foreground hover:bg-cta/90 transition-colors"
+        >
+          Create Contract
+        </button>
+      )}
     </div>
   ) : undefined;
 
@@ -99,6 +102,7 @@ export default function PerformanceDashboard() {
             tenantId={tenantId}
             userId={userId}
             onCycleSelect={handleCycleSelect}
+            canManage={canManagePerformance}
           />
         </div>
 

@@ -25,11 +25,13 @@ export default function RecognitionPage() {
         engagementService.getPublicRecognitions(page, 10),
         engagementService.getLeaderboard(10),
       ]);
-      setRecognitions(recData.content);
-      setTotalPages(recData.totalPages);
-      setLeaderboard(leaders);
+      setRecognitions(Array.isArray(recData?.content) ? recData.content : []);
+      setTotalPages(recData?.totalPages ?? 0);
+      setLeaderboard(Array.isArray(leaders) ? leaders : []);
     } catch (error) {
       console.error('Failed to load recognition data:', error);
+      setRecognitions([]);
+      setLeaderboard([]);
     } finally {
       setLoading(false);
     }
@@ -72,22 +74,22 @@ export default function RecognitionPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-gray-900 dark:text-white">
-                          <span className="font-semibold">{rec.fromEmployeeName}</span>{' '}
-                          recognized <span className="font-semibold">{rec.toEmployeeName}</span>
+                          <span className="font-semibold">{rec.fromEmployeeName || 'Unknown'}</span>{' '}
+                          recognized <span className="font-semibold">{rec.toEmployeeName || 'Unknown'}</span>
                         </p>
                         {rec.message && (
                           <p className="text-gray-600 dark:text-gray-300 mt-2 italic">&ldquo;{rec.message}&rdquo;</p>
                         )}
                       </div>
                       <span className={`px-2 py-1 text-xs rounded-full ${categoryColors[rec.category] || 'bg-gray-100 text-gray-800'}`}>
-                        {rec.category.replace(/_/g, ' ')}
+                        {rec.category?.replace(/_/g, ' ') || 'General'}
                       </span>
                     </div>
                     <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <SparklesIcon className="h-4 w-4 mr-1 text-yellow-500" />
                       {rec.points} points
                       <span className="mx-2">|</span>
-                      {new Date(rec.createdAt).toLocaleDateString()}
+                      {rec.createdAt ? new Date(rec.createdAt).toLocaleDateString() : 'Unknown date'}
                     </div>
                   </div>
                 ))}
