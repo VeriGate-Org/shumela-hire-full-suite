@@ -164,10 +164,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const meData = await meRes.json();
           if (meData.id != null) {
             dbUserId = String(meData.id);
+          } else {
+            console.warn(
+              'Backend /api/auth/me did not return a database id — user may not be provisioned. Falling back to Cognito userId.',
+              { sub: authUser.userId }
+            );
           }
         }
-      } catch {
-        // Fall back to Cognito UUID if backend is unreachable
+      } catch (err) {
+        console.warn('Failed to fetch /api/auth/me, falling back to Cognito userId:', err);
       }
 
       const userData: User = {

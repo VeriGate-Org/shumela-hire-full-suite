@@ -26,15 +26,21 @@ export default function LeaveRequestsPage() {
 
   const loadRequests = async () => {
     setLoading(true);
-    const result = await leaveService.getLeaveRequests({
-      employeeId,
-      status: statusFilter || undefined,
-      page,
-      size: 20,
-    });
-    setRequests(result.content);
-    setTotalPages(result.totalPages);
-    setLoading(false);
+    try {
+      const result = await leaveService.getLeaveRequests({
+        employeeId,
+        status: statusFilter || undefined,
+        page,
+        size: 20,
+      });
+      setRequests(Array.isArray(result?.content) ? result.content : []);
+      setTotalPages(result?.totalPages ?? 0);
+    } catch {
+      setRequests([]);
+      setTotalPages(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { if (employeeId) loadRequests(); }, [employeeId, page, statusFilter]);

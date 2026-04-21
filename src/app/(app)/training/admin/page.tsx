@@ -10,9 +10,14 @@ import {
   PencilSquareIcon,
   TrashIcon,
   CalendarDaysIcon,
+  ShieldExclamationIcon,
 } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TrainingAdminPage() {
+  const { hasPermission } = useAuth();
+  const canManage = hasPermission('manage_training');
+
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +35,8 @@ export default function TrainingAdminPage() {
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (canManage) loadData();
+  }, [canManage]);
 
   const loadData = async () => {
     setLoading(true);
@@ -100,6 +105,19 @@ export default function TrainingAdminPage() {
       alert(err.message);
     }
   };
+
+  if (!canManage) {
+    return (
+      <FeatureGate feature="TRAINING_MANAGEMENT">
+        <PageWrapper title="Access Denied" subtitle="You do not have permission to access Training Administration.">
+          <div className="text-center py-12">
+            <ShieldExclamationIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <p className="text-muted-foreground">Contact your administrator if you believe this is an error.</p>
+          </div>
+        </PageWrapper>
+      </FeatureGate>
+    );
+  }
 
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">

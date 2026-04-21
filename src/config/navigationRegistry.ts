@@ -45,7 +45,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { ComponentType } from 'react';
 
-export type NavSection = 'overview' | 'recruitment' | 'candidates' | 'scheduling' | 'hr_core' | 'talent' | 'engagement' | 'workflow' | 'analytics' | 'administration' | 'personal' | 'system' | 'platform';
+export type NavSection = 'overview' | 'recruitment' | 'hr_core' | 'talent' | 'engagement' | 'workflow' | 'analytics' | 'administration' | 'personal' | 'system' | 'platform';
 
 export interface NavigationEntry {
   id: string;
@@ -70,17 +70,17 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'internal-jobs', label: 'Internal Jobs', href: '/internal/jobs', icon: BuildingOfficeIcon, section: 'recruitment', requiredPermissions: ['view_internal_jobs'] },
 
   // Candidates — people and pipeline
-  { id: 'applications', label: 'Applications', href: '/applications', icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid, section: 'candidates', requiredPermissions: ['view_applications'] },
-  { id: 'applicants', label: 'Applicants', href: '/applicants', icon: UsersIcon, iconSolid: UsersIconSolid, section: 'candidates', requiredPermissions: ['view_applicants'] },
-  { id: 'pipeline', label: 'Pipeline', href: '/pipeline', icon: Squares2X2Icon, section: 'candidates', requiredPermissions: ['manage_pipeline'] },
-  { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'candidates', requiredPermissions: ['manage_applications'] },
-  { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'candidates', requiredPermissions: ['view_applicants'] },
-  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'candidates', requiredPermissions: ['view_applicants'] },
+  { id: 'applications', label: 'Applications', href: '/applications', icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid, section: 'recruitment', requiredPermissions: ['view_applications'] },
+  { id: 'applicants', label: 'Applicants', href: '/applicants', icon: UsersIcon, iconSolid: UsersIconSolid, section: 'recruitment', requiredPermissions: ['view_applicants'] },
+  { id: 'pipeline', label: 'Pipeline', href: '/pipeline', icon: Squares2X2Icon, section: 'recruitment', requiredPermissions: ['manage_pipeline'] },
+  { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'recruitment', requiredPermissions: ['manage_applications'] },
+  { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'recruitment', requiredPermissions: ['view_applicants'] },
+  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applicants'] },
 
   // Scheduling — interviews, offers, compensation
-  { id: 'interviews', label: 'Interviews', href: '/interviews', icon: CalendarIcon, iconSolid: CalendarIconSolid, section: 'scheduling', requiredPermissions: ['view_interviews'] },
-  { id: 'offers', label: 'Offers', href: '/offers', icon: CurrencyDollarIcon, section: 'scheduling', requiredPermissions: ['manage_offers'] },
-  { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'scheduling', requiredPermissions: ['view_salary_data'] },
+  { id: 'interviews', label: 'Interviews', href: '/interviews', icon: CalendarIcon, iconSolid: CalendarIconSolid, section: 'recruitment', requiredPermissions: ['view_interviews'] },
+  { id: 'offers', label: 'Offers', href: '/offers', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['manage_offers'] },
+  { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['view_salary_data'] },
 
   // HR Core — leave, time & attendance, employee self-service
   { id: 'leave', label: 'Leave Management', href: '/leave', icon: CalendarIcon, section: 'hr_core', requiredPermissions: ['manage_leave'], requiredFeature: 'LEAVE_MANAGEMENT' },
@@ -92,6 +92,7 @@ export const navigationRegistry: NavigationEntry[] = [
   // Talent & Performance — training, performance, competencies
   { id: 'performance', label: 'Performance', href: '/performance', icon: PresentationChartBarIcon, section: 'talent', requiredPermissions: ['view_performance'] },
   { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: 'training-admin', label: 'Training Admin', href: '/training/admin', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['manage_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'competencies', label: 'Competency Framework', href: '/competencies', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'COMPETENCY_MAPPING' },
 
   // Engagement — surveys, recognition, wellness
@@ -140,8 +141,6 @@ export const navigationRegistry: NavigationEntry[] = [
 export const sectionLabels: Record<NavSection, string> = {
   overview: 'Overview',
   recruitment: 'Recruitment',
-  candidates: 'Candidates',
-  scheduling: 'Scheduling',
   hr_core: 'HR Management',
   talent: 'Talent & Performance',
   engagement: 'Engagement',

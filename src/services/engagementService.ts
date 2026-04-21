@@ -180,9 +180,15 @@ export const engagementService = {
   },
 
   async getLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
-    const response = await apiFetch(`/api/engagement/recognitions/leaderboard?limit=${limit}`);
-    if (!response.ok) return [];
-    return await response.json();
+    try {
+      const response = await apiFetch(`/api/engagement/recognitions/leaderboard?limit=${limit}`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : (data?.content || []);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      return [];
+    }
   },
 
   // ---- Wellness Programs ----
