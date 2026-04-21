@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
+import EmptyState from '@/components/EmptyState';
 import {
   DocumentTextIcon,
   ArrowUpTrayIcon,
@@ -112,27 +113,27 @@ export default function EmployeeDocumentsPage() {
               <h3 className="text-sm font-semibold text-foreground">Upload New Document</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Document Title *</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Document Title *</label>
                   <input type="text" required value={uploadForm.title}
                     onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Filename *</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Filename *</label>
                   <input type="text" required value={uploadForm.filename}
                     onChange={e => setUploadForm({ ...uploadForm, filename: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm"
                     placeholder="document.pdf" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">File URL *</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">File URL *</label>
                   <input type="url" required value={uploadForm.fileUrl}
                     onChange={e => setUploadForm({ ...uploadForm, fileUrl: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm"
                     placeholder="https://..." />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
                   <textarea rows={2} value={uploadForm.description}
                     onChange={e => setUploadForm({ ...uploadForm, description: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
@@ -151,13 +152,10 @@ export default function EmployeeDocumentsPage() {
           {loading ? (
             <div className="enterprise-card p-6"><TableSkeleton /></div>
           ) : documents.length === 0 ? (
-            <div className="text-center py-12 enterprise-card">
-              <DocumentTextIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="text-muted-foreground">No documents found. Upload your first document to get started.</p>
-            </div>
+            <EmptyState icon={DocumentTextIcon} title="No Documents" description="No documents found. Upload your first document to get started." />
           ) : (
-            <div className="enterprise-card overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="enterprise-card overflow-x-auto">
+              <table className="min-w-full divide-y divide-border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Document</th>
@@ -169,30 +167,30 @@ export default function EmployeeDocumentsPage() {
                     <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {documents.map(doc => (
-                    <tr key={doc.id} className="hover:bg-gray-50">
+                    <tr key={doc.id} className="hover:bg-muted">
                       <td className="px-4 py-3 text-sm">
                         <div className="flex items-center gap-2">
                           <DocumentTextIcon className="w-4 h-4 text-blue-500" />
                           <div>
-                            <p className="font-medium text-gray-900">{doc.title}</p>
-                            <p className="text-xs text-gray-500">{doc.filename}</p>
+                            <p className="font-medium text-foreground">{doc.title}</p>
+                            <p className="text-xs text-muted-foreground">{doc.filename}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{doc.documentType?.replace('_', ' ') || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatFileSize(doc.fileSize)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">v{doc.version}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{doc.documentType?.replace('_', ' ') || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{formatFileSize(doc.fileSize)}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">v{doc.version}</td>
                       <td className="px-4 py-3 text-sm">
                         {doc.expiryDate ? (
-                          <span className={`flex items-center gap-1 ${isExpired(doc.expiryDate) ? 'text-red-600' : 'text-gray-600'}`}>
+                          <span className={`flex items-center gap-1 ${isExpired(doc.expiryDate) ? 'text-red-600' : 'text-muted-foreground'}`}>
                             {isExpired(doc.expiryDate) && <ExclamationTriangleIcon className="w-4 h-4" />}
                             {doc.expiryDate}
                           </span>
                         ) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {new Date(doc.createdAt).toLocaleDateString('en-ZA')}
                       </td>
                       <td className="px-4 py-3 text-sm text-right">

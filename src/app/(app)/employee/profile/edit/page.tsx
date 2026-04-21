@@ -87,6 +87,8 @@ export default function EditProfilePage() {
         });
       }
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [employeeId]);
 
@@ -186,31 +188,31 @@ export default function EditProfilePage() {
               <h3 className="text-sm font-semibold text-foreground">Personal Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Preferred Name</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Preferred Name</label>
                   <input type="text" value={personalForm.preferredName}
                     onChange={e => setPersonalForm({ ...personalForm, preferredName: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Personal Email</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Personal Email</label>
                   <input type="email" value={personalForm.personalEmail}
                     onChange={e => setPersonalForm({ ...personalForm, personalEmail: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Phone</label>
                   <input type="tel" value={personalForm.phone}
                     onChange={e => setPersonalForm({ ...personalForm, phone: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Mobile Phone</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Mobile Phone</label>
                   <input type="tel" value={personalForm.mobilePhone}
                     onChange={e => setPersonalForm({ ...personalForm, mobilePhone: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Marital Status</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Marital Status</label>
                   <select value={personalForm.maritalStatus}
                     onChange={e => setPersonalForm({ ...personalForm, maritalStatus: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm">
@@ -223,40 +225,40 @@ export default function EditProfilePage() {
                   </select>
                 </div>
               </div>
-              <h4 className="text-xs font-semibold text-gray-700 pt-2">Address</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground pt-2">Address</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Physical Address</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Physical Address</label>
                   <textarea rows={2} value={personalForm.physicalAddress}
                     onChange={e => setPersonalForm({ ...personalForm, physicalAddress: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Postal Address</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Postal Address</label>
                   <textarea rows={2} value={personalForm.postalAddress}
                     onChange={e => setPersonalForm({ ...personalForm, postalAddress: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">City</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">City</label>
                   <input type="text" value={personalForm.city}
                     onChange={e => setPersonalForm({ ...personalForm, city: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Province</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Province</label>
                   <input type="text" value={personalForm.province}
                     onChange={e => setPersonalForm({ ...personalForm, province: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Postal Code</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Postal Code</label>
                   <input type="text" value={personalForm.postalCode}
                     onChange={e => setPersonalForm({ ...personalForm, postalCode: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Country</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Country</label>
                   <input type="text" value={personalForm.country}
                     onChange={e => setPersonalForm({ ...personalForm, country: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
@@ -279,19 +281,19 @@ export default function EditProfilePage() {
               <h3 className="text-sm font-semibold text-foreground">Banking Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Bank Name</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Bank Name</label>
                   <input type="text" value={bankingForm.bankName}
                     onChange={e => setBankingForm({ ...bankingForm, bankName: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Branch Code</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Branch Code</label>
                   <input type="text" value={bankingForm.bankBranchCode}
                     onChange={e => setBankingForm({ ...bankingForm, bankBranchCode: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Account Number</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Account Number</label>
                   <input type="text" value={bankingForm.bankAccountNumber}
                     onChange={e => setBankingForm({ ...bankingForm, bankAccountNumber: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm"
@@ -315,19 +317,19 @@ export default function EditProfilePage() {
               <h3 className="text-sm font-semibold text-foreground">Emergency Contact</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Contact Name</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Contact Name</label>
                   <input type="text" value={emergencyForm.emergencyContactName}
                     onChange={e => setEmergencyForm({ ...emergencyForm, emergencyContactName: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Contact Phone</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Contact Phone</label>
                   <input type="tel" value={emergencyForm.emergencyContactPhone}
                     onChange={e => setEmergencyForm({ ...emergencyForm, emergencyContactPhone: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Relationship</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Relationship</label>
                   <select value={emergencyForm.emergencyContactRelationship}
                     onChange={e => setEmergencyForm({ ...emergencyForm, emergencyContactRelationship: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg text-sm">

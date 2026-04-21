@@ -55,8 +55,8 @@ export default function LeavePoliciesPage() {
             {loading ? (
               <div className="enterprise-card p-6"><TableSkeleton /></div>
             ) : (
-              <div className="enterprise-card overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="enterprise-card overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type</th>
@@ -67,7 +67,7 @@ export default function LeavePoliciesPage() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {leaveTypes.map((type) => (
                       <tr key={type.id} className="hover:bg-muted">
                         <td className="px-4 py-3 text-sm">
@@ -81,7 +81,7 @@ export default function LeavePoliciesPage() {
                         <td className="px-4 py-3 text-sm text-muted-foreground">{type.maxCarryForwardDays}</td>
                         <td className="px-4 py-3 text-sm">{type.isPaid ? 'Yes' : 'No'}</td>
                         <td className="px-4 py-3 text-sm">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${type.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-muted-foreground'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${type.isActive ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                             {type.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </td>

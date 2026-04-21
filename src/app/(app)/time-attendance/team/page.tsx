@@ -54,8 +54,8 @@ export default function TeamAttendancePage() {
 
           {/* Results */}
           {records.length > 0 && (
-            <div className="enterprise-card overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="enterprise-card overflow-x-auto">
+              <table className="min-w-full divide-y divide-border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Employee</th>
@@ -66,7 +66,7 @@ export default function TeamAttendancePage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {records.map((rec) => (
                     <tr key={rec.id} className="hover:bg-muted">
                       <td className="px-4 py-3 text-sm font-medium text-foreground">{rec.employeeName}</td>

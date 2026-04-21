@@ -56,6 +56,8 @@ export default function EmployeePortalPage() {
       .then(data => {
         setProfile(data);
         setLoading(false);
+      }).catch(() => {
+        setLoading(false);
       });
   }, [employeeId]);
 
@@ -88,7 +90,7 @@ export default function EmployeePortalPage() {
                   <div className={`p-2 rounded-lg ${link.color}`}>
                     <link.icon className="w-5 h-5" />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{link.label}</span>
+                  <span className="text-sm font-medium text-muted-foreground">{link.label}</span>
                 </Link>
               ))}
             </div>
@@ -96,7 +98,7 @@ export default function EmployeePortalPage() {
             {/* Profile Card */}
             <div className="enterprise-card p-6">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                   {profile.profilePhotoUrl ? (
                     <img src={profile.profilePhotoUrl} alt="" className="w-16 h-16 rounded-full object-cover" />
                   ) : (
@@ -113,7 +115,7 @@ export default function EmployeePortalPage() {
                   <p className="text-sm text-muted-foreground mt-1">{profile.jobTitle || 'No job title'}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{profile.employeeNumber}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${profile.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${profile.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                       {profile.status}
                     </span>
                   </div>

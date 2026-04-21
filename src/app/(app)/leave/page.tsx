@@ -15,15 +15,23 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import StatusPill from '@/components/StatusPill';
-import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
+import { TableSkeleton } from '@/components/LoadingComponents';
+import { useRouter } from 'next/navigation';
 
 export default function LeaveDashboardPage() {
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
   const [recentRequests, setRecentRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     if (!employeeId) return;
@@ -31,11 +39,21 @@ export default function LeaveDashboardPage() {
       leaveService.getBalances(employeeId),
       leaveService.getLeaveRequests({ employeeId, page: 0, size: 5 }),
     ]).then(([bal, req]) => {
-      setBalances(bal);
-      setRecentRequests(req.content);
+      setBalances(Array.isArray(bal) ? bal : []);
+      setRecentRequests(Array.isArray(req?.content) ? req.content : []);
+      setLoading(false);
+    }).catch(() => {
       setLoading(false);
     });
   }, [employeeId]);
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta" />
+      </div>
+    );
+  }
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
@@ -89,8 +107,8 @@ export default function LeaveDashboardPage() {
                 No leave requests yet.
               </div>
             ) : (
-              <div className="enterprise-card overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="enterprise-card overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type</th>
@@ -99,7 +117,7 @@ export default function LeaveDashboardPage() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {recentRequests.map((req) => (
                       <tr key={req.id} className="hover:bg-muted">
                         <td className="px-4 py-3 text-sm">

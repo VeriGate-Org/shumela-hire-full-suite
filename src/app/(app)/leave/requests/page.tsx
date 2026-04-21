@@ -66,7 +66,7 @@ export default function LeaveRequestsPage() {
               <button
                 key={s}
                 onClick={() => { setStatusFilter(s); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-md border ${statusFilter === s ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300 text-muted-foreground hover:bg-muted'}`}
+                className={`px-3 py-1.5 text-sm rounded-md border ${statusFilter === s ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-card border-border text-muted-foreground hover:bg-muted'}`}
               >
                 {s || 'All'}
               </button>
@@ -78,8 +78,8 @@ export default function LeaveRequestsPage() {
           ) : requests.length === 0 ? (
             <div className="enterprise-card p-8 text-center text-muted-foreground">No requests found.</div>
           ) : (
-            <div className="enterprise-card overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="enterprise-card overflow-x-auto">
+              <table className="min-w-full divide-y divide-border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type</th>
@@ -90,7 +90,7 @@ export default function LeaveRequestsPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {requests.map((req) => (
                     <tr key={req.id} className="hover:bg-muted">
                       <td className="px-4 py-3 text-sm">

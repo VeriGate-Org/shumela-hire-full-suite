@@ -37,6 +37,8 @@ export default function TimeAttendancePage() {
       );
       setTodayRecord(openRecord || null);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [employeeId]);
 
@@ -144,7 +146,7 @@ export default function TimeAttendancePage() {
                 <>
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">You are not clocked in</p>
-                    <p className="text-lg font-semibold text-gray-400">--:--:--</p>
+                    <p className="text-lg font-semibold text-muted-foreground">--:--:--</p>
                   </div>
                   <button
                     onClick={handleClockIn}
@@ -173,8 +175,8 @@ export default function TimeAttendancePage() {
                 No attendance records yet.
               </div>
             ) : (
-              <div className="enterprise-card overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="enterprise-card overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
@@ -184,7 +186,7 @@ export default function TimeAttendancePage() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {recentRecords.map((rec) => (
                       <tr key={rec.id} className="hover:bg-muted">
                         <td className="px-4 py-3 text-sm text-foreground">

@@ -44,6 +44,8 @@ export default function ShiftSchedulingPage() {
       setSchedules(sched);
       setShifts(sh);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [startDate, endDate, department]);
 
@@ -120,22 +122,22 @@ export default function ShiftSchedulingPage() {
             </div>
           ) : (
             <div className="enterprise-card overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase sticky left-0 bg-muted min-w-[150px]">Employee</th>
                     {weekDates.map((d, i) => (
                       <th key={i} className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase min-w-[100px]">
                         <div>{dayNames[i]}</div>
-                        <div className="text-gray-400">{d.getDate()}</div>
+                        <div className="text-muted-foreground">{d.getDate()}</div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {Array.from(employeeMap.entries()).map(([name, empSchedules]) => (
                     <tr key={name} className="hover:bg-muted">
-                      <td className="px-4 py-3 text-sm font-medium text-foreground sticky left-0 bg-white">{name}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-foreground sticky left-0 bg-card">{name}</td>
                       {weekDates.map((d, i) => {
                         const dateStr = formatDate(d);
                         const daySchedule = empSchedules.find((s) => s.scheduleDate === dateStr);
@@ -150,7 +152,7 @@ export default function ShiftSchedulingPage() {
                                 {daySchedule.shiftCode || daySchedule.shiftName}
                               </div>
                             ) : (
-                              <span className="text-gray-300">—</span>
+                              <span className="text-muted-foreground">—</span>
                             )}
                           </td>
                         );

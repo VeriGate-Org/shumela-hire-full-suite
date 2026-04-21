@@ -30,6 +30,12 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!isHalfDay && endDate && startDate && endDate < startDate) {
+      setError('End date must be on or after the start date.');
+      return;
+    }
+
     setSubmitting(true);
 
     try {

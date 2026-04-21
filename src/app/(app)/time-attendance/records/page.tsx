@@ -26,6 +26,8 @@ export default function AttendanceRecordsPage() {
       setRecords(data.content);
       setTotalPages(data.totalPages);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [employeeId, page]);
 
@@ -38,8 +40,8 @@ export default function AttendanceRecordsPage() {
           <EmptyState icon={ClipboardDocumentListIcon} title="No Records" description="No attendance records found." />
         ) : (
           <>
-            <div className="enterprise-card overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="enterprise-card overflow-x-auto">
+              <table className="min-w-full divide-y divide-border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
@@ -50,7 +52,7 @@ export default function AttendanceRecordsPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {records.map((rec) => (
                     <tr key={rec.id} className="hover:bg-muted">
                       <td className="px-4 py-3 text-sm text-foreground">{new Date(rec.clockIn).toLocaleDateString()}</td>

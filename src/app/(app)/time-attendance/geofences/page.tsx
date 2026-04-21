@@ -24,18 +24,42 @@ export default function GeofencesPage() {
     attendanceService.getGeofences().then((data) => {
       setGeofences(data);
       setLoading(false);
+    }).catch(() => {
+      toast('Failed to load geofences', 'error');
+      setLoading(false);
     });
   }, []);
 
   const handleCreate = async () => {
     setSubmitting(true);
     setError('');
+
+    const lat = parseFloat(form.latitude);
+    const lng = parseFloat(form.longitude);
+    const radius = parseInt(form.radiusMeters);
+
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      setError('Latitude must be between -90 and 90.');
+      setSubmitting(false);
+      return;
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      setError('Longitude must be between -180 and 180.');
+      setSubmitting(false);
+      return;
+    }
+    if (isNaN(radius) || radius <= 0) {
+      setError('Radius must be greater than 0.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const geofence = await attendanceService.createGeofence({
         name: form.name,
-        latitude: parseFloat(form.latitude),
-        longitude: parseFloat(form.longitude),
-        radiusMeters: parseInt(form.radiusMeters) || 100,
+        latitude: lat,
+        longitude: lng,
+        radiusMeters: radius,
         address: form.address || undefined,
       });
       setGeofences((prev) => [...prev, geofence]);
@@ -138,7 +162,7 @@ export default function GeofencesPage() {
                     <p>Lat: {g.latitude}, Lng: {g.longitude}</p>
                     <p>Radius: {g.radiusMeters}m</p>
                   </div>
-                  <span className={`inline-flex mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${g.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-muted-foreground'}`}>
+                  <span className={`inline-flex mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${g.isActive ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                     {g.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
