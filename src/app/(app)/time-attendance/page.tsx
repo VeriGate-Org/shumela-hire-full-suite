@@ -25,7 +25,8 @@ export default function TimeAttendancePage() {
   const [error, setError] = useState('');
 
   const { user } = useAuth();
-  const parsedId = user?.id ? parseInt(user.id, 10) : 0;
+  const rawId = user?.employeeId || user?.id;
+  const parsedId = rawId ? parseInt(rawId, 10) : 0;
   const employeeId = Number.isFinite(parsedId) ? parsedId : 0;
 
   useEffect(() => {

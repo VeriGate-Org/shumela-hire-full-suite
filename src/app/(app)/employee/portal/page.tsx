@@ -94,7 +94,8 @@ function getElapsedHours(clockIn: string): string {
 
 export default function EmployeePortalPage() {
   const { user } = useAuth();
-  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const rawId = user?.employeeId || user?.id;
+  const employeeId = rawId ? parseInt(rawId, 10) : 0;
 
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [balances, setBalances] = useState<LeaveBalance[]>([]);

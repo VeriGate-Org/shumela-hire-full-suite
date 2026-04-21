@@ -1,6 +1,8 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.User;
+import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class UserInfoController {
 
     @Autowired
     private UserDataRepository userRepository;
+
+    @Autowired
+    private EmployeeDataRepository employeeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -133,6 +138,12 @@ public class UserInfoController {
         info.put("department", user.getDepartment());
         info.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : null);
         info.put("lastLogin", user.getLastLogin() != null ? user.getLastLogin().toString() : null);
+
+        // Resolve the linked Employee record so the frontend can call employee APIs
+        if (user.getEmail() != null) {
+            employeeRepository.findByEmail(user.getEmail())
+                    .ifPresent(emp -> info.put("employeeId", emp.getId()));
+        }
     }
 
     @GetMapping("/interviewers")
