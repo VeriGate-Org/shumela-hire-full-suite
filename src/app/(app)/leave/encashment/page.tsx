@@ -29,7 +29,8 @@ export default function LeaveEncashmentPage() {
   const [rejectTarget, setRejectTarget] = useState<number | null>(null);
   const [rejectComment, setRejectComment] = useState('');
 
-  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const rawId = user?.employeeId || user?.id;
+  const employeeId = rawId ? parseInt(rawId, 10) : 0;
   const isManager = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER';
 
   useEffect(() => {

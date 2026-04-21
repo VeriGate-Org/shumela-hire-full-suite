@@ -20,7 +20,8 @@ export default function LeaveRequestsPage() {
   const [totalPages, setTotalPages] = useState(0);
 
   const { user } = useAuth();
-  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const rawId = user?.employeeId || user?.id;
+  const employeeId = rawId ? parseInt(rawId, 10) : 0;
   const { toast } = useToast();
   const [cancelTarget, setCancelTarget] = useState<number | null>(null);
 

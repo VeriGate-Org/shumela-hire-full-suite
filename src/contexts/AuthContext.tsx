@@ -39,6 +39,7 @@ export const ALL_ROLES: UserRole[] = [
 
 interface User {
   id: string;
+  employeeId?: string;
   name: string;
   email: string;
   role: UserRole;
@@ -156,8 +157,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const tokenStr = idToken.toString();
       setToken(tokenStr);
 
-      // Fetch the numeric DB user ID from the backend
+      // Fetch the numeric DB user ID and employee ID from the backend
       let dbUserId: string = authUser.userId;
+      let dbEmployeeId: string | undefined;
       try {
         const meRes = await apiFetch('/api/auth/me');
         if (meRes.ok) {
@@ -170,6 +172,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               { sub: authUser.userId }
             );
           }
+          if (meData.employeeId != null) {
+            dbEmployeeId = String(meData.employeeId);
+          }
         }
       } catch (err) {
         console.warn('Failed to fetch /api/auth/me, falling back to Cognito userId:', err);
@@ -177,6 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const userData: User = {
         id: dbUserId,
+        employeeId: dbEmployeeId,
         name: attrs.name || attrs.email || authUser.username,
         email: attrs.email || '',
         role,
