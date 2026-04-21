@@ -46,7 +46,7 @@ describe('Authorization alignment', () => {
   it('aligns new HR module nav entries with correct roles', () => {
     expectNavRoles('leave', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
     expectNavRoles('time-attendance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
-    expectNavRoles('shift-scheduling', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
+    expectNavRoles('shift-scheduling', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER']);
     expectNavRoles('employee-self-service', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE', 'APPLICANT']);
     expectNavRoles('training', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);
     expectNavRoles('performance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);

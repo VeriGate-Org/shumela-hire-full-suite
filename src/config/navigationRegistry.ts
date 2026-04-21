@@ -84,7 +84,7 @@ export const navigationRegistry: NavigationEntry[] = [
 
   // HR Core — leave, time & attendance, employee self-service
   { id: 'leave', label: 'Leave Management', href: '/leave', icon: CalendarIcon, section: 'hr_core', requiredPermissions: ['manage_leave'], requiredFeature: 'LEAVE_MANAGEMENT' },
-  { id: 'time-attendance', label: 'Time & Attendance', href: '/time-attendance', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
+  { id: 'time-attendance', label: 'Time & Attendance', href: '/time-attendance', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
   { id: 'shift-scheduling', label: 'Shift Scheduling', href: '/shift-scheduling', icon: ArrowPathIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'SHIFT_SCHEDULING' },
   { id: 'employee-self-service', label: 'My HR Portal', href: '/employee/portal', icon: UserIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
