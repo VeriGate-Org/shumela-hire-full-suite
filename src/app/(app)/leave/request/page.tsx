@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import LeaveRequestForm from '@/components/leave/LeaveRequestForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LeaveRequestPage() {
   const router = useRouter();
-  // TODO: Get from auth context
-  const employeeId = 1;
+  const { user } = useAuth();
+  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">

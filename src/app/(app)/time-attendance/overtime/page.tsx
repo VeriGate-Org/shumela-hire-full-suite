@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { OvertimeRecord, attendanceService, PageResponse } from '@/services/attendanceService';
-import { PlusIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CheckIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
+import StatusPill from '@/components/StatusPill';
+import { TableSkeleton } from '@/components/LoadingComponents';
+import EmptyState from '@/components/EmptyState';
 
 export default function OvertimePage() {
   const [records, setRecords] = useState<OvertimeRecord[]>([]);
@@ -16,9 +21,12 @@ export default function OvertimePage() {
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'my' | 'pending'>('my');
 
-  const employeeId = 1; // TODO: Get from auth context
+  const { user } = useAuth();
+  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const { toast } = useToast();
 
   useEffect(() => {
+    if (!employeeId) return;
     Promise.all([
       attendanceService.getOvertime(employeeId, 0, 20),
       attendanceService.getPendingOvertime(0, 20),
@@ -26,8 +34,11 @@ export default function OvertimePage() {
       setRecords(myData.content);
       setPendingRecords(pendingData.content);
       setLoading(false);
+    }).catch(() => {
+      toast('Failed to load overtime data', 'error');
+      setLoading(false);
     });
-  }, []);
+  }, [employeeId]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -51,26 +62,22 @@ export default function OvertimePage() {
 
   const handleApprove = async (id: number) => {
     try {
-      const updated = await attendanceService.approveOvertime(id, employeeId);
+      await attendanceService.approveOvertime(id, employeeId);
       setPendingRecords((prev) => prev.filter((r) => r.id !== id));
+      toast('Overtime approved', 'success');
     } catch (e: any) {
-      alert(e.message);
+      toast(e.message || 'Failed to approve overtime', 'error');
     }
   };
 
   const handleReject = async (id: number) => {
     try {
-      const updated = await attendanceService.rejectOvertime(id, employeeId);
+      await attendanceService.rejectOvertime(id, employeeId);
       setPendingRecords((prev) => prev.filter((r) => r.id !== id));
+      toast('Overtime rejected', 'success');
     } catch (e: any) {
-      alert(e.message);
+      toast(e.message || 'Failed to reject overtime', 'error');
     }
-  };
-
-  const statusColors: Record<string, string> = {
-    PENDING: 'bg-yellow-100 text-yellow-700',
-    APPROVED: 'bg-green-100 text-green-700',
-    REJECTED: 'bg-red-100 text-red-700',
   };
 
   return (
@@ -81,7 +88,7 @@ export default function OvertimePage() {
         actions={
           <button
             onClick={() => setShowForm(!showForm)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            className="btn-cta inline-flex items-center gap-2"
           >
             <PlusIcon className="w-4 h-4" /> Submit Overtime
           </button>
@@ -89,32 +96,32 @@ export default function OvertimePage() {
       >
         <div className="space-y-6">
           {showForm && (
-            <div className="bg-white rounded-lg shadow border p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Submit Overtime</h3>
+            <div className="enterprise-card p-6">
+              <h3 className="text-lg font-medium text-foreground mb-4">Submit Overtime</h3>
               {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Date</label>
                   <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
                     className="w-full border rounded-md px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Hours</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Hours</label>
                   <input type="number" step="0.5" value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })}
                     className="w-full border rounded-md px-3 py-2 text-sm" placeholder="e.g. 2.5" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Reason</label>
                   <input type="text" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })}
                     className="w-full border rounded-md px-3 py-2 text-sm" placeholder="Optional reason" />
                 </div>
               </div>
               <div className="flex gap-3 mt-4">
                 <button onClick={handleSubmit} disabled={submitting || !form.date || !form.hours}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {submitting ? 'Submitting...' : 'Submit'}
                 </button>
-                <button onClick={() => setShowForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-gray-50">Cancel</button>
+                <button onClick={() => setShowForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-muted">Cancel</button>
               </div>
             </div>
           )}
@@ -122,39 +129,39 @@ export default function OvertimePage() {
           {/* Tabs */}
           <div className="flex border-b">
             <button onClick={() => setTab('my')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'my' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'my' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
               My Overtime
             </button>
             <button onClick={() => setTab('pending')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'pending' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'pending' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
               Pending Approvals {pendingRecords.length > 0 && <span className="ml-1 bg-yellow-100 text-yellow-700 rounded-full px-2 py-0.5 text-xs">{pendingRecords.length}</span>}
             </button>
           </div>
 
           {loading ? (
-            <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">Loading...</div>
+            <div className="enterprise-card p-6"><TableSkeleton /></div>
           ) : tab === 'my' ? (
             records.length === 0 ? (
-              <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">No overtime records found.</div>
+              <EmptyState icon={ClockIcon} title="No Overtime" description="No overtime records found." />
             ) : (
-              <div className="bg-white rounded-lg shadow border overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="enterprise-card overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Hours</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Reason</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {records.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">{rec.date}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{rec.hours}h</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{rec.reason || '—'}</td>
+                      <tr key={rec.id} className="hover:bg-muted">
+                        <td className="px-4 py-3 text-sm text-foreground">{rec.date}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{rec.hours}h</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{rec.reason || '—'}</td>
                         <td className="px-4 py-3 text-sm">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[rec.status] || ''}`}>{rec.status}</span>
+                          <StatusPill value={rec.status} domain="overtimeStatus" />
                         </td>
                       </tr>
                     ))}
@@ -164,15 +171,15 @@ export default function OvertimePage() {
             )
           ) : (
             pendingRecords.length === 0 ? (
-              <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">No pending overtime approvals.</div>
+              <EmptyState icon={ClockIcon} title="No Pending Approvals" description="No pending overtime approvals." />
             ) : (
               <div className="space-y-3">
                 {pendingRecords.map((rec) => (
-                  <div key={rec.id} className="bg-white rounded-lg shadow border p-4 flex items-center justify-between">
+                  <div key={rec.id} className="enterprise-card p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{rec.employeeName}</p>
-                      <p className="text-sm text-gray-500">{rec.date} — {rec.hours}h</p>
-                      {rec.reason && <p className="text-sm text-gray-500">{rec.reason}</p>}
+                      <p className="font-medium text-foreground">{rec.employeeName}</p>
+                      <p className="text-sm text-muted-foreground">{rec.date} — {rec.hours}h</p>
+                      {rec.reason && <p className="text-sm text-muted-foreground">{rec.reason}</p>}
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => handleApprove(rec.id)}

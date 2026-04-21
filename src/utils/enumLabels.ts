@@ -387,6 +387,37 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     ON_SITE: 'On-Site',
     REMOTE_FIRST: 'Remote-First',
   },
+
+  leaveStatus: {
+    DRAFT: 'Draft',
+    PENDING: 'Pending',
+    APPROVED: 'Approved',
+    REJECTED: 'Rejected',
+    CANCELLED: 'Cancelled',
+    RECALLED: 'Recalled',
+  },
+
+  attendanceStatus: {
+    PRESENT: 'Present',
+    LATE: 'Late',
+    ABSENT: 'Absent',
+    HALF_DAY: 'Half Day',
+    ON_LEAVE: 'On Leave',
+  },
+
+  overtimeStatus: {
+    PENDING: 'Pending',
+    APPROVED: 'Approved',
+    REJECTED: 'Rejected',
+  },
+
+  encashmentStatus: {
+    PENDING: 'Pending',
+    HR_APPROVED: 'HR Approved',
+    FINANCE_APPROVED: 'Finance Approved',
+    REJECTED: 'Rejected',
+    PROCESSED: 'Processed',
+  },
 };
 
 /** Universal fallback: SCREAMING_SNAKE_CASE to Title Case */

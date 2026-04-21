@@ -6,5 +6,6 @@ public enum ClockMethod {
     GEOFENCE,
     QR_CODE,
     NFC,
-    MOBILE
+    MOBILE,
+    WEB
 }

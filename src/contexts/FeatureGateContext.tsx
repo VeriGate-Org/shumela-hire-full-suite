@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
+import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface FeatureGateContextType {
@@ -21,8 +23,24 @@ export function useFeatureGate() {
   return context;
 }
 
+const PLAN_RANK: Record<string, number> = { STARTER: 0, STANDARD: 1, ENTERPRISE: 2 };
+
+/**
+ * Derive enabled features from the tenant plan using the client-side
+ * feature-plan map. Used as a fallback when the backend API is unavailable.
+ */
+function deriveFromPlan(plan: string | undefined): string[] {
+  if (!plan) return [];
+  const tenantRank = PLAN_RANK[plan.toUpperCase()] ?? -1;
+  if (tenantRank < 0) return [];
+  return Object.entries(FEATURE_MINIMUM_PLAN)
+    .filter(([, minPlan]) => (PLAN_RANK[minPlan.toUpperCase()] ?? Infinity) <= tenantRank)
+    .map(([code]) => code);
+}
+
 export function FeatureGateProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
+  const { tenant } = useTenant();
   const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,17 +61,18 @@ export function FeatureGateProvider({ children }: { children: ReactNode }) {
       const response = await apiFetch('/api/features/enabled');
       if (response.ok) {
         const features: string[] = await response.json();
-        setEnabledFeatures(features);
+        // Use API response when it returns features; fall back to plan
+        // derivation when backend returns empty (e.g. features not seeded).
+        setEnabledFeatures(features.length > 0 ? features : deriveFromPlan(tenant?.plan));
       } else {
-        // Fail closed — no features enabled on error
-        setEnabledFeatures([]);
+        setEnabledFeatures(deriveFromPlan(tenant?.plan));
       }
     } catch {
-      setEnabledFeatures([]);
+      setEnabledFeatures(deriveFromPlan(tenant?.plan));
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, user?.role]);
+  }, [isAuthenticated, user?.role, tenant?.plan]);
 
   useEffect(() => {
     fetchFeatures();
