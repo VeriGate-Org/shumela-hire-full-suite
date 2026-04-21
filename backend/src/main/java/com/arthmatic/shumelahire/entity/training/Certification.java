@@ -30,6 +30,12 @@ public class Certification extends TenantAwareEntity {
 
     private String documentUrl;
 
+    private LocalDate renewalDate;
+
+    private String renewalStatus;
+
+    private Boolean renewalNotificationSent = false;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -76,4 +82,13 @@ public class Certification extends TenantAwareEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public LocalDate getRenewalDate() { return renewalDate; }
+    public void setRenewalDate(LocalDate renewalDate) { this.renewalDate = renewalDate; }
+
+    public String getRenewalStatus() { return renewalStatus; }
+    public void setRenewalStatus(String renewalStatus) { this.renewalStatus = renewalStatus; }
+
+    public Boolean getRenewalNotificationSent() { return renewalNotificationSent; }
+    public void setRenewalNotificationSent(Boolean renewalNotificationSent) { this.renewalNotificationSent = renewalNotificationSent; }
 }

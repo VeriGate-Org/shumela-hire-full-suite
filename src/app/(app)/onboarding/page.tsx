@@ -1,152 +1,297 @@
 'use client';
 
-import React, { useState } from 'react';
-import OnboardingWizard from '@/components/OnboardingWizard';
-import { useRouter } from 'next/navigation';
-import { aiHrGeneralService } from '@/services/aiHrGeneralService';
-import { OnboardingPlanResult } from '@/types/ai';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import PageWrapper from '@/components/PageWrapper';
+import { FeatureGate } from '@/components/FeatureGate';
+import {
+  onboardingService,
+  OnboardingChecklist,
+  OnboardingTemplate,
+} from '@/services/onboardingService';
+import {
+  PlusIcon,
+  ClipboardDocumentCheckIcon,
+  CalendarDaysIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline';
 
-export default function OnboardingPage() {
-  const router = useRouter();
-  const [aiPlan, setAiPlan] = useState<OnboardingPlanResult | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [showPlanModal, setShowPlanModal] = useState(false);
-  const [planForm, setPlanForm] = useState({ employeeName: '', jobTitle: '', department: '', startDate: '', experienceLevel: 'Mid-level' });
+type TabFilter = 'all' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
 
-  const handleComplete = () => {
-    router.push('/dashboard');
-  };
+export default function OnboardingChecklistsPage() {
+  const [checklists, setChecklists] = useState<OnboardingChecklist[]>([]);
+  const [templates, setTemplates] = useState<OnboardingTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabFilter>('all');
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [newForm, setNewForm] = useState({ employeeId: '', templateId: '' });
+  const [creating, setCreating] = useState(false);
+  const [progressMap, setProgressMap] = useState<Record<number, { completed: number; total: number; percent: number }>>({});
 
-  async function generatePlan() {
-    if (!planForm.employeeName || !planForm.jobTitle) return;
-    setAiLoading(true);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function loadData() {
+    setLoading(true);
     try {
-      const result = await aiHrGeneralService.generateOnboardingPlan({
-        employeeName: planForm.employeeName,
-        jobTitle: planForm.jobTitle,
-        department: planForm.department,
-        startDate: planForm.startDate,
-        experienceLevel: planForm.experienceLevel,
-      });
-      setAiPlan(result);
-      setShowPlanModal(false);
+      const [checklistData, templateData] = await Promise.all([
+        onboardingService.getChecklists(),
+        onboardingService.getTemplates(),
+      ]);
+      setChecklists(checklistData);
+      setTemplates(templateData);
+
+      // Load progress for each checklist
+      const progressEntries = await Promise.all(
+        checklistData.map(async (cl) => {
+          const progress = await onboardingService.getProgress(cl.id);
+          return [cl.id, progress] as const;
+        })
+      );
+      const map: Record<number, { completed: number; total: number; percent: number }> = {};
+      for (const [id, progress] of progressEntries) {
+        map[id] = progress;
+      }
+      setProgressMap(map);
     } catch (error) {
-      console.error('AI onboarding plan generation failed:', error);
+      console.error('Failed to load onboarding data:', error);
     } finally {
-      setAiLoading(false);
+      setLoading(false);
     }
   }
 
+  async function handleCreate() {
+    if (!newForm.employeeId || !newForm.templateId) return;
+    setCreating(true);
+    try {
+      await onboardingService.createChecklist(
+        parseInt(newForm.employeeId, 10),
+        parseInt(newForm.templateId, 10)
+      );
+      setShowNewForm(false);
+      setNewForm({ employeeId: '', templateId: '' });
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to create checklist');
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  const filteredChecklists = activeTab === 'all'
+    ? checklists
+    : checklists.filter((cl) => cl.status === activeTab);
+
+  const statusColors: Record<string, string> = {
+    IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+    COMPLETED: 'bg-green-100 text-green-800',
+    OVERDUE: 'bg-red-100 text-red-800',
+    PENDING: 'bg-gray-100 text-gray-700',
+  };
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '--';
+    return new Date(dateStr).toLocaleDateString('en-ZA', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const getTemplateName = (templateId: number) => {
+    const tpl = templates.find((t) => t.id === templateId);
+    return tpl?.name || `Template #${templateId}`;
+  };
+
+  const tabs: { key: TabFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'IN_PROGRESS', label: 'In Progress' },
+    { key: 'COMPLETED', label: 'Completed' },
+    { key: 'OVERDUE', label: 'Overdue' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header with logo */}
-      <header className="w-full px-6 py-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
-            <span className="font-extrabold text-sm tracking-[-0.03em]">
-              <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
-            </span>
-          </div>
-          <button onClick={() => setShowPlanModal(true)}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center gap-1">
-            <SparklesIcon className="h-4 w-4" />
-            AI Onboarding Plan
-          </button>
-        </div>
-      </header>
-
-      {/* AI Plan Modal */}
-      {showPlanModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-            <h3 className="text-lg font-medium mb-4">AI Onboarding Plan Generator</h3>
-            <div className="space-y-3">
-              <input value={planForm.employeeName} onChange={e => setPlanForm(f => ({...f, employeeName: e.target.value}))}
-                placeholder="Employee Name" className="w-full px-3 py-2 border rounded-lg text-sm" />
-              <input value={planForm.jobTitle} onChange={e => setPlanForm(f => ({...f, jobTitle: e.target.value}))}
-                placeholder="Job Title" className="w-full px-3 py-2 border rounded-lg text-sm" />
-              <div className="grid grid-cols-2 gap-3">
-                <input value={planForm.department} onChange={e => setPlanForm(f => ({...f, department: e.target.value}))}
-                  placeholder="Department" className="px-3 py-2 border rounded-lg text-sm" />
-                <input type="date" value={planForm.startDate} onChange={e => setPlanForm(f => ({...f, startDate: e.target.value}))}
-                  className="px-3 py-2 border rounded-lg text-sm" />
-              </div>
-              <select value={planForm.experienceLevel} onChange={e => setPlanForm(f => ({...f, experienceLevel: e.target.value}))}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
-                <option>Junior</option><option>Mid-level</option><option>Senior</option><option>Executive</option>
-              </select>
+    <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
+      <PageWrapper
+        title="Onboarding Checklists"
+        subtitle="Manage employee onboarding checklists and track progress"
+        actions={
+          <Link
+            href="/onboarding/templates"
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+          >
+            Manage Templates
+          </Link>
+        }
+      >
+        <div className="space-y-6">
+          {/* Tabs and New Button */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2 text-sm rounded-lg font-medium ${
+                    activeTab === tab.key
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 border hover:bg-gray-50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setShowPlanModal(false)} className="px-4 py-2 text-gray-600 text-sm">Cancel</button>
-              <button onClick={generatePlan} disabled={aiLoading || !planForm.employeeName || !planForm.jobTitle}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm disabled:opacity-50">
-                {aiLoading ? 'Generating...' : 'Generate Plan'}
-              </button>
-            </div>
+            <button
+              onClick={() => setShowNewForm(true)}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" /> New Checklist
+            </button>
           </div>
-        </div>
-      )}
 
-      {/* AI Plan Results */}
-      {aiPlan && (
-        <div className="mx-6 mb-4 bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-medium text-purple-900 flex items-center gap-2">
-              <SparklesIcon className="h-5 w-5" />
-              AI Onboarding Plan
-            </h3>
-            <button onClick={() => setAiPlan(null)} className="text-purple-400 hover:text-purple-600 text-sm">Dismiss</button>
-          </div>
-          <p className="text-sm text-gray-700 mb-3">{aiPlan.welcomeMessage}</p>
-          <div className="space-y-3">
-            <div className="bg-white p-3 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-700 mb-2">Weekly Plan</h4>
-              <div className="space-y-2">
-                {aiPlan.weeklyPlan?.map((week, i) => (
-                  <div key={i} className="border-l-2 border-blue-300 pl-3">
-                    <p className="text-xs font-semibold text-gray-800">Week {week.week}: {week.theme}</p>
-                    <ul className="text-xs text-gray-600 mt-1 space-y-0.5">
-                      {week.tasks?.map((task, j) => <li key={j}>- {task}</li>)}
-                    </ul>
+          {/* New Checklist Modal */}
+          {showNewForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-sm font-semibold text-foreground mb-4">
+                  Create New Onboarding Checklist
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Employee ID
+                    </label>
+                    <input
+                      type="number"
+                      value={newForm.employeeId}
+                      onChange={(e) => setNewForm((f) => ({ ...f, employeeId: e.target.value }))}
+                      placeholder="Enter employee ID"
+                      className="w-full px-3 py-2 border rounded-lg text-sm"
+                    />
                   </div>
-                ))}
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Onboarding Template
+                    </label>
+                    <select
+                      value={newForm.templateId}
+                      onChange={(e) => setNewForm((f) => ({ ...f, templateId: e.target.value }))}
+                      className="w-full px-3 py-2 border rounded-lg text-sm"
+                    >
+                      <option value="">Select a template</option>
+                      {templates.filter((t) => t.isActive).map((tpl) => (
+                        <option key={tpl.id} value={tpl.id}>
+                          {tpl.name} {tpl.department ? `(${tpl.department})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowNewForm(false);
+                      setNewForm({ employeeId: '', templateId: '' });
+                    }}
+                    className="px-4 py-2 text-gray-600 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreate}
+                    disabled={creating || !newForm.employeeId || !newForm.templateId}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm disabled:opacity-50"
+                  >
+                    {creating ? 'Creating...' : 'Create Checklist'}
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="bg-white p-3 rounded-lg">
-                <h4 className="text-sm font-medium text-amber-700 mb-1">Required Training</h4>
-                <ul className="text-xs text-gray-600 space-y-1">
-                  {aiPlan.requiredTraining?.map((t, i) => <li key={i}>- {t}</li>)}
-                </ul>
-              </div>
-              <div className="bg-white p-3 rounded-lg">
-                <h4 className="text-sm font-medium text-green-700 mb-1">Key Meetings</h4>
-                <ul className="text-xs text-gray-600 space-y-1">
-                  {aiPlan.keyMeetings?.map((m, i) => <li key={i}>- {m}</li>)}
-                </ul>
-              </div>
-              <div className="bg-white p-3 rounded-lg">
-                <h4 className="text-sm font-medium text-purple-700 mb-1">Success Metrics</h4>
-                <ul className="text-xs text-gray-600 space-y-1">
-                  {aiPlan.successMetrics?.map((s, i) => <li key={i}>- {s}</li>)}
-                </ul>
-              </div>
+          )}
+
+          {/* Checklists List */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
-          </div>
+          ) : filteredChecklists.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <ClipboardDocumentCheckIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No onboarding checklists found</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredChecklists.map((cl) => {
+                const progress = progressMap[cl.id];
+                return (
+                  <Link
+                    key={cl.id}
+                    href={`/onboarding/${cl.id}`}
+                    className="block enterprise-card p-6 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {getTemplateName(cl.templateId)}
+                          </h3>
+                          <span
+                            className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                              statusColors[cl.status] || 'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {cl.status?.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-2">
+                          <span className="flex items-center gap-1">
+                            <UserIcon className="w-3.5 h-3.5" />
+                            Employee #{cl.employeeId}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <CalendarDaysIcon className="w-3.5 h-3.5" />
+                            Start: {formatDate(cl.startDate)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <CalendarDaysIcon className="w-3.5 h-3.5" />
+                            Due: {formatDate(cl.dueDate)}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Progress Bar */}
+                      <div className="w-full sm:w-48">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                          <span>Progress</span>
+                          <span>
+                            {progress ? `${progress.completed}/${progress.total}` : '--'}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              cl.status === 'COMPLETED'
+                                ? 'bg-green-500'
+                                : cl.status === 'OVERDUE'
+                                ? 'bg-red-500'
+                                : 'bg-blue-600'
+                            }`}
+                            style={{ width: `${progress?.percent || 0}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 text-right">
+                          {progress?.percent || 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Centered wizard */}
-      <main className="flex-1 flex items-center justify-center px-4 pb-12">
-        <OnboardingWizard companyName="ShumelaHire" onComplete={handleComplete} />
-      </main>
-
-      {/* Minimal footer */}
-      <footer className="w-full px-6 py-4 text-center">
-        <p className="text-xs text-gray-400">&copy; 2026 <span className="text-primary">Shumela</span><span className="text-cta">Hire</span> by Arthmatic DevWorks</p>
-      </footer>
-    </div>
+      </PageWrapper>
+    </FeatureGate>
   );
 }

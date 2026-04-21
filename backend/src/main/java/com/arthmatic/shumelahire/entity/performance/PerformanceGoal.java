@@ -36,7 +36,11 @@ public class PerformanceGoal extends TenantAwareEntity {
     private Boolean isActive = true;
     
     private Integer sortOrder;
-    
+
+    private Long parentGoalId;
+
+    private Integer cascadeLevel = 0;
+
     private LocalDateTime createdAt;
     
     private LocalDateTime updatedAt;
@@ -121,4 +125,10 @@ public class PerformanceGoal extends TenantAwareEntity {
     
     public List<GoalKPI> getKpis() { return kpis; }
     public void setKpis(List<GoalKPI> kpis) { this.kpis = kpis; }
+
+    public Long getParentGoalId() { return parentGoalId; }
+    public void setParentGoalId(Long parentGoalId) { this.parentGoalId = parentGoalId; }
+
+    public Integer getCascadeLevel() { return cascadeLevel; }
+    public void setCascadeLevel(Integer cascadeLevel) { this.cascadeLevel = cascadeLevel; }
 }

@@ -40,6 +40,10 @@ public class LeavePolicy extends TenantAwareEntity {
 
     private Boolean isActive = true;
 
+    private Integer escalationDays;
+
+    private String escalateToRole;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -86,6 +90,12 @@ public class LeavePolicy extends TenantAwareEntity {
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+    public Integer getEscalationDays() { return escalationDays; }
+    public void setEscalationDays(Integer escalationDays) { this.escalationDays = escalationDays; }
+
+    public String getEscalateToRole() { return escalateToRole; }
+    public void setEscalateToRole(String escalateToRole) { this.escalateToRole = escalateToRole; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

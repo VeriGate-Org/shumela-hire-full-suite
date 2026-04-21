@@ -27,4 +27,5 @@ export const FEATURE_MINIMUM_PLAN: Record<string, string> = {
   DOCUMENT_TEMPLATES: 'Standard',
   SAGE_300_PEOPLE: 'Standard',
   AD_SSO: 'Standard',
+  SOCIAL_FEED: 'Standard',
 };

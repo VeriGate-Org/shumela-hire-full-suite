@@ -68,6 +68,64 @@ export interface Certification {
   updatedAt: string;
 }
 
+export interface TrainingAttendanceRecord {
+  id: number;
+  sessionId: number;
+  enrollmentId: number | null;
+  employeeId: number;
+  employeeName?: string;
+  attended: boolean;
+  checkInTime: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface TrainingEvaluation {
+  id: number;
+  sessionId: number;
+  employeeId: number;
+  overallRating: number;
+  contentRating: number | null;
+  instructorRating: number | null;
+  relevanceRating: number | null;
+  comments: string | null;
+  createdAt: string;
+}
+
+export interface EvaluationSummary {
+  count: number;
+  averageOverall: number;
+  averageContent: number;
+  averageInstructor: number;
+  averageRelevance: number;
+}
+
+export interface IDPGoal {
+  id?: number;
+  planId?: number;
+  title: string;
+  description: string | null;
+  targetDate: string | null;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  linkedCourseId: number | null;
+  linkedCertificationId: number | null;
+  sortOrder: number;
+}
+
+export interface IndividualDevelopmentPlan {
+  id: number;
+  employeeId: number;
+  title: string;
+  description: string | null;
+  startDate: string | null;
+  targetDate: string | null;
+  status: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  managerId: number | null;
+  goals: IDPGoal[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TrainingAnalytics {
   totalCourses: number;
   activeCourses: number;
@@ -278,6 +336,125 @@ export const trainingService = {
   async revokeCertification(id: number): Promise<void> {
     const response = await apiFetch(`/api/training/certifications/${id}/revoke`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to revoke certification');
+  },
+
+  // Attendance
+  async getAttendance(sessionId: number): Promise<TrainingAttendanceRecord[]> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async recordAttendance(sessionId: number, records: Partial<TrainingAttendanceRecord>[]): Promise<TrainingAttendanceRecord[]> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance`, {
+      method: 'POST',
+      body: JSON.stringify(records),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to record attendance');
+    }
+    return await response.json();
+  },
+
+  async updateAttendanceRecord(sessionId: number, attendanceId: number, data: { attended?: boolean; notes?: string }): Promise<TrainingAttendanceRecord> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance/${attendanceId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update attendance');
+    return await response.json();
+  },
+
+  // Evaluations
+  async getEvaluations(sessionId: number): Promise<TrainingEvaluation[]> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async submitEvaluation(sessionId: number, data: Partial<TrainingEvaluation>): Promise<TrainingEvaluation> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to submit evaluation');
+    }
+    return await response.json();
+  },
+
+  async getEvaluationSummary(sessionId: number): Promise<EvaluationSummary> {
+    const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations/summary`);
+    if (!response.ok) return { count: 0, averageOverall: 0, averageContent: 0, averageInstructor: 0, averageRelevance: 0 };
+    return await response.json();
+  },
+
+  // IDPs
+  async getIDPs(params: { employeeId?: number; managerId?: number }): Promise<IndividualDevelopmentPlan[]> {
+    const searchParams = new URLSearchParams();
+    if (params.employeeId) searchParams.set('employeeId', params.employeeId.toString());
+    if (params.managerId) searchParams.set('managerId', params.managerId.toString());
+    const response = await apiFetch(`/api/training/idps?${searchParams}`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getIDP(id: number): Promise<IndividualDevelopmentPlan> {
+    const response = await apiFetch(`/api/training/idps/${id}`);
+    if (!response.ok) throw new Error('IDP not found');
+    return await response.json();
+  },
+
+  async createIDP(data: Partial<IndividualDevelopmentPlan>): Promise<IndividualDevelopmentPlan> {
+    const response = await apiFetch('/api/training/idps', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to create IDP');
+    }
+    return await response.json();
+  },
+
+  async updateIDP(id: number, data: Partial<IndividualDevelopmentPlan>): Promise<IndividualDevelopmentPlan> {
+    const response = await apiFetch(`/api/training/idps/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to update IDP');
+    }
+    return await response.json();
+  },
+
+  async deleteIDP(id: number): Promise<void> {
+    const response = await apiFetch(`/api/training/idps/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Failed to delete IDP');
+  },
+
+  async addIDPGoal(planId: number, goal: Partial<IDPGoal>): Promise<IndividualDevelopmentPlan> {
+    const response = await apiFetch(`/api/training/idps/${planId}/goals`, {
+      method: 'POST',
+      body: JSON.stringify(goal),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to add goal');
+    }
+    return await response.json();
+  },
+
+  async updateIDPGoal(planId: number, goalId: number, data: { status?: string; title?: string }): Promise<IndividualDevelopmentPlan> {
+    const response = await apiFetch(`/api/training/idps/${planId}/goals/${goalId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update goal');
+    return await response.json();
   },
 
   // Analytics

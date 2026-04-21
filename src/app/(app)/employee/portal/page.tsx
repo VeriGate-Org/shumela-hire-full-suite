@@ -25,6 +25,8 @@ import { leaveService, LeaveBalance, LeaveRequest } from '@/services/leaveServic
 import { attendanceService, AttendanceRecord } from '@/services/attendanceService';
 import { trainingService, TrainingEnrollment } from '@/services/trainingService';
 import { engagementService, Recognition } from '@/services/engagementService';
+import { onboardingService, OnboardingChecklist } from '@/services/onboardingService';
+import { feedService, FeedPost } from '@/services/feedService';
 
 interface EmployeeProfile {
   id: number;
@@ -104,6 +106,8 @@ export default function EmployeePortalPage() {
   const [enrollments, setEnrollments] = useState<TrainingEnrollment[]>([]);
   const [recognitions, setRecognitions] = useState<Recognition[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [onboardingChecklist, setOnboardingChecklist] = useState<OnboardingChecklist | null>(null);
+  const [announcements, setAnnouncements] = useState<FeedPost[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +137,8 @@ export default function EmployeePortalPage() {
     const fetchEnrollments = trainingService.getEnrollments({ employeeId }).catch(() => []);
     const fetchRecognitions = engagementService.getRecognitionsReceived(employeeId, 0, 3)
       .catch(() => ({ content: [], totalElements: 0 }));
+    const fetchOnboarding = onboardingService.getChecklistsByEmployee(employeeId).catch(() => []);
+    const fetchAnnouncements = feedService.getFeed(0, 3, 'ANNOUNCEMENT').catch(() => ({ content: [] }));
 
     Promise.allSettled([
       fetchProfile,
@@ -141,7 +147,9 @@ export default function EmployeePortalPage() {
       fetchAttendance,
       fetchEnrollments,
       fetchRecognitions,
-    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes]) => {
+      fetchOnboarding,
+      fetchAnnouncements,
+    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes]) => {
       // Profile is required
       if (profileRes.status === 'fulfilled') {
         setProfile(profileRes.value);
@@ -158,6 +166,14 @@ export default function EmployeePortalPage() {
         setTotalPoints(
           (recognitionsRes.value.content || []).reduce((sum: number, r: Recognition) => sum + r.points, 0)
         );
+      }
+      if (onboardingRes.status === 'fulfilled') {
+        const checklists = onboardingRes.value;
+        const active = checklists.find((c: OnboardingChecklist) => c.status === 'IN_PROGRESS');
+        if (active) setOnboardingChecklist(active);
+      }
+      if (announcementsRes.status === 'fulfilled') {
+        setAnnouncements(announcementsRes.value.content || []);
       }
     }).finally(() => {
       setLoading(false);
@@ -471,7 +487,72 @@ export default function EmployeePortalPage() {
               </div>
             </div>
 
-            {/* 6. Emergency Contact (compact footer) */}
+            {/* 6. Onboarding Progress + Announcements */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Onboarding Progress */}
+              {onboardingChecklist && (
+                <div className="enterprise-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-foreground">Onboarding Progress</h3>
+                    <Link href={`/onboarding/${onboardingChecklist.id}`} className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                      View all <ArrowRightIcon className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>
+                        {onboardingChecklist.items?.filter(i => i.status === 'COMPLETED').length || 0} of {onboardingChecklist.items?.length || 0} tasks completed
+                      </span>
+                      <span>
+                        {onboardingChecklist.items
+                          ? Math.round(((onboardingChecklist.items.filter(i => i.status === 'COMPLETED').length) / (onboardingChecklist.items.length || 1)) * 100)
+                          : 0}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full">
+                      <div
+                        className="h-2 bg-blue-600 rounded-full transition-all"
+                        style={{
+                          width: `${onboardingChecklist.items
+                            ? Math.round(((onboardingChecklist.items.filter(i => i.status === 'COMPLETED').length) / (onboardingChecklist.items.length || 1)) * 100)
+                            : 0}%`
+                        }}
+                      />
+                    </div>
+                    {onboardingChecklist.dueDate && (
+                      <p className="text-xs text-muted-foreground">
+                        Due by {new Date(onboardingChecklist.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Latest Announcements */}
+              {announcements.length > 0 && (
+                <div className="enterprise-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-foreground">Latest Announcements</h3>
+                    <Link href="/feed" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                      View all <ArrowRightIcon className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  <div className="space-y-3">
+                    {announcements.map(post => (
+                      <Link key={post.id} href={`/feed/${post.id}`} className="block py-2 border-b last:border-b-0 hover:bg-muted/30 -mx-2 px-2 rounded">
+                        <p className="text-sm font-medium text-foreground truncate">{post.title || 'Announcement'}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{post.content}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {new Date(post.publishedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 7. Emergency Contact (compact footer) */}
             {profile.emergencyContactName && (
               <div className="enterprise-card px-6 py-3 flex items-center gap-2 text-sm">
                 <PhoneIcon className="w-4 h-4 text-muted-foreground shrink-0" />

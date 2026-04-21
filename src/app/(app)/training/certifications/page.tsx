@@ -59,6 +59,22 @@ export default function CertificationsPage() {
     ACTIVE: 'bg-green-100 text-green-700',
     EXPIRED: 'bg-red-100 text-red-700',
     REVOKED: 'bg-gray-100 text-gray-500',
+    PENDING_RENEWAL: 'bg-amber-100 text-amber-700',
+  };
+
+  const renewalStatusColors: Record<string, string> = {
+    PENDING_RENEWAL: 'bg-amber-100 text-amber-700',
+    RENEWAL_SUBMITTED: 'bg-blue-100 text-blue-700',
+    RENEWED: 'bg-green-100 text-green-700',
+  };
+
+  const handleRenewal = async (certId: number) => {
+    try {
+      await trainingService.updateCertification(certId, { renewalStatus: 'RENEWAL_SUBMITTED' } as any);
+      loadCertifications();
+    } catch (err: any) {
+      alert(err.message || 'Failed to initiate renewal');
+    }
   };
 
   return (
@@ -154,6 +170,8 @@ export default function CertificationsPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiry Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Renewal</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -178,6 +196,25 @@ export default function CertificationsPage() {
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[cert.status] || ''}`}>
                           {cert.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {(cert as any).renewalStatus ? (
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${renewalStatusColors[(cert as any).renewalStatus] || 'bg-gray-100 text-gray-600'}`}>
+                            {(cert as any).renewalStatus.replace(/_/g, ' ')}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {(cert.expiringSoon || cert.expired) && !(cert as any).renewalStatus && (
+                          <button
+                            onClick={() => handleRenewal(cert.id)}
+                            className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100"
+                          >
+                            Renew
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

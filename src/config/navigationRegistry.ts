@@ -34,6 +34,9 @@ import {
   LightBulbIcon,
   SwatchIcon,
   DocumentDuplicateIcon,
+  RocketLaunchIcon,
+  MegaphoneIcon,
+  AdjustmentsHorizontalIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -88,17 +91,20 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'shift-scheduling', label: 'Shift Scheduling', href: '/shift-scheduling', icon: ArrowPathIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'SHIFT_SCHEDULING' },
   { id: 'employee-self-service', label: 'My HR Portal', href: '/employee/portal', icon: UserIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
+  { id: 'onboarding', label: 'Onboarding', href: '/onboarding', icon: RocketLaunchIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Talent & Performance — training, performance, competencies
   { id: 'performance', label: 'Performance', href: '/performance', icon: PresentationChartBarIcon, section: 'talent', requiredPermissions: ['view_performance'] },
   { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-admin', label: 'Training Admin', href: '/training/admin', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['manage_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: 'training-idps', label: 'Development Plans', href: '/training/idps', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'competencies', label: 'Competency Framework', href: '/competencies', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'COMPETENCY_MAPPING' },
 
-  // Engagement — surveys, recognition, wellness
+  // Engagement — surveys, recognition, social feed
   { id: 'engagement', label: 'Engagement', href: '/engagement', icon: HeartIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'EMPLOYEE_ENGAGEMENT' },
   { id: 'surveys', label: 'Pulse Surveys', href: '/engagement/surveys', icon: ChatBubbleLeftRightIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'PULSE_SURVEYS' },
   { id: 'recognition', label: 'Recognition', href: '/engagement/recognition', icon: TrophyIcon, section: 'engagement', requiredPermissions: ['view_own_profile'], requiredFeature: 'RECOGNITION_REWARDS' },
+  { id: 'social-feed', label: 'Social Feed', href: '/feed', icon: MegaphoneIcon, section: 'engagement', requiredPermissions: ['feed:view'], requiredFeature: 'SOCIAL_FEED' },
 
   // Workflow & AI — automation tools
   { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'workflow', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },
@@ -119,6 +125,7 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'labour-relations', label: 'Labour Relations', href: '/admin/labour-relations', icon: HandThumbUpIcon, section: 'administration', requiredPermissions: ['manage_compliance'], requiredFeature: 'LABOUR_RELATIONS' },
   { id: 'branding', label: 'Branding', href: '/admin/branding', icon: SwatchIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'CUSTOM_BRANDING' },
   { id: 'document-templates', label: 'Document Templates', href: '/admin/document-templates', icon: DocumentDuplicateIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'DOCUMENT_TEMPLATES' },
+  { id: 'custom-fields', label: 'Custom Fields', href: '/settings/custom-fields', icon: AdjustmentsHorizontalIcon, section: 'administration', requiredPermissions: ['custom_fields:manage'] },
 
   // Personal (Applicant-facing)
   { id: 'browse-jobs', label: 'Browse Jobs', href: '/candidate/jobs', icon: MagnifyingGlassIcon, section: 'personal', requiredPermissions: ['browse_jobs'] },

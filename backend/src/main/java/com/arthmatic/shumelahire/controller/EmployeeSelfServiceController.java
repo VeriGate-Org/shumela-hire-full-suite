@@ -5,9 +5,13 @@ import com.arthmatic.shumelahire.dto.employee.*;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeDocument;
 import com.arthmatic.shumelahire.entity.EmployeeDocumentTypeConfig;
+import com.arthmatic.shumelahire.entity.employee.EmployeeSkill;
+import com.arthmatic.shumelahire.entity.employee.EmployeeEducation;
 import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
 import com.arthmatic.shumelahire.repository.EmployeeDocumentTypeConfigDataRepository;
 import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeSkillDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeEducationDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +41,12 @@ public class EmployeeSelfServiceController {
 
     @Autowired
     private EmployeeDocumentTypeConfigDataRepository documentTypeConfigRepository;
+
+    @Autowired
+    private EmployeeSkillDataRepository skillRepository;
+
+    @Autowired
+    private EmployeeEducationDataRepository educationRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -158,6 +168,100 @@ public class EmployeeSelfServiceController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    // ---- Skills ----
+
+    @GetMapping("/skills")
+    public ResponseEntity<?> getSkills(@RequestParam Long employeeId) {
+        List<EmployeeSkill> skills = skillRepository.findByEmployeeId(String.valueOf(employeeId));
+        return ResponseEntity.ok(skills);
+    }
+
+    @PostMapping("/skills")
+    public ResponseEntity<?> addSkill(@RequestParam Long employeeId,
+                                      @RequestBody EmployeeSkill skill) {
+        try {
+            skill.setEmployeeId(employeeId);
+            EmployeeSkill saved = skillRepository.save(skill);
+            auditLogService.saveLog(employeeId.toString(), "CREATE", "EMPLOYEE_SKILL",
+                    saved.getId().toString(), "Added skill: " + saved.getSkillName());
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/skills/{id}")
+    public ResponseEntity<?> updateSkill(@PathVariable Long id,
+                                         @RequestParam Long employeeId,
+                                         @RequestBody EmployeeSkill request) {
+        try {
+            EmployeeSkill skill = skillRepository.findById(String.valueOf(id))
+                    .orElseThrow(() -> new IllegalArgumentException("Skill not found: " + id));
+            if (request.getSkillName() != null) skill.setSkillName(request.getSkillName());
+            if (request.getProficiencyLevel() != null) skill.setProficiencyLevel(request.getProficiencyLevel());
+            if (request.getYearsExperience() != null) skill.setYearsExperience(request.getYearsExperience());
+            if (request.getCertified() != null) skill.setCertified(request.getCertified());
+            skill.setUpdatedAt(java.time.LocalDateTime.now());
+            return ResponseEntity.ok(skillRepository.save(skill));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/skills/{id}")
+    public ResponseEntity<?> deleteSkill(@PathVariable Long id) {
+        skillRepository.deleteById(String.valueOf(id));
+        return ResponseEntity.noContent().build();
+    }
+
+    // ---- Education ----
+
+    @GetMapping("/education")
+    public ResponseEntity<?> getEducation(@RequestParam Long employeeId) {
+        List<EmployeeEducation> education = educationRepository.findByEmployeeId(String.valueOf(employeeId));
+        return ResponseEntity.ok(education);
+    }
+
+    @PostMapping("/education")
+    public ResponseEntity<?> addEducation(@RequestParam Long employeeId,
+                                          @RequestBody EmployeeEducation education) {
+        try {
+            education.setEmployeeId(employeeId);
+            EmployeeEducation saved = educationRepository.save(education);
+            auditLogService.saveLog(employeeId.toString(), "CREATE", "EMPLOYEE_EDUCATION",
+                    saved.getId().toString(), "Added education: " + saved.getQualification());
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/education/{id}")
+    public ResponseEntity<?> updateEducation(@PathVariable Long id,
+                                             @RequestParam Long employeeId,
+                                             @RequestBody EmployeeEducation request) {
+        try {
+            EmployeeEducation education = educationRepository.findById(String.valueOf(id))
+                    .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+            if (request.getInstitution() != null) education.setInstitution(request.getInstitution());
+            if (request.getQualification() != null) education.setQualification(request.getQualification());
+            if (request.getFieldOfStudy() != null) education.setFieldOfStudy(request.getFieldOfStudy());
+            if (request.getStartDate() != null) education.setStartDate(request.getStartDate());
+            if (request.getEndDate() != null) education.setEndDate(request.getEndDate());
+            if (request.getGrade() != null) education.setGrade(request.getGrade());
+            education.setUpdatedAt(java.time.LocalDateTime.now());
+            return ResponseEntity.ok(educationRepository.save(education));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/education/{id}")
+    public ResponseEntity<?> deleteEducation(@PathVariable Long id) {
+        educationRepository.deleteById(String.valueOf(id));
+        return ResponseEntity.noContent().build();
     }
 
     // ---- Documents ----
