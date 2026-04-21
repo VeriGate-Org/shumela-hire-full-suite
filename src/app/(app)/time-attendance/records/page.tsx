@@ -23,8 +23,8 @@ export default function AttendanceRecordsPage() {
     if (!employeeId) return;
     setLoading(true);
     attendanceService.getRecords(employeeId, page, 20).then((data) => {
-      setRecords(data.content);
-      setTotalPages(data.totalPages);
+      setRecords(Array.isArray(data?.content) ? data.content : []);
+      setTotalPages(data?.totalPages ?? 0);
       setLoading(false);
     }).catch(() => {
       setLoading(false);

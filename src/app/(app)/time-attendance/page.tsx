@@ -30,9 +30,10 @@ export default function TimeAttendancePage() {
   useEffect(() => {
     if (!employeeId) return;
     attendanceService.getRecords(employeeId, 0, 10).then((data) => {
-      setRecentRecords(data.content);
+      const records = Array.isArray(data?.content) ? data.content : [];
+      setRecentRecords(records);
       const today = new Date().toISOString().split('T')[0];
-      const openRecord = data.content.find(
+      const openRecord = records.find(
         (r) => r.clockIn.startsWith(today) && !r.clockOut
       );
       setTodayRecord(openRecord || null);
