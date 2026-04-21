@@ -6,6 +6,11 @@ import { FeatureGate } from '@/components/FeatureGate';
 import { LeaveRequest, leaveService } from '@/services/leaveService';
 import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import StatusPill from '@/components/StatusPill';
+import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
 
 export default function LeaveRequestsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
@@ -14,7 +19,10 @@ export default function LeaveRequestsPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const employeeId = 1;
+  const { user } = useAuth();
+  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
+  const { toast } = useToast();
+  const [cancelTarget, setCancelTarget] = useState<number | null>(null);
 
   const loadRequests = async () => {
     setLoading(true);
@@ -29,25 +37,16 @@ export default function LeaveRequestsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { loadRequests(); }, [page, statusFilter]);
+  useEffect(() => { if (employeeId) loadRequests(); }, [employeeId, page, statusFilter]);
 
   const handleCancel = async (id: number) => {
-    if (!confirm('Are you sure you want to cancel this request?')) return;
     try {
       await leaveService.cancelRequest(id, employeeId);
+      toast('Leave request cancelled', 'success');
       loadRequests();
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || 'Failed to cancel request', 'error');
     }
-  };
-
-  const statusColors: Record<string, string> = {
-    DRAFT: 'bg-gray-100 text-gray-700',
-    PENDING: 'bg-yellow-100 text-yellow-700',
-    APPROVED: 'bg-green-100 text-green-700',
-    REJECTED: 'bg-red-100 text-red-700',
-    CANCELLED: 'bg-gray-100 text-gray-500',
-    RECALLED: 'bg-orange-100 text-orange-700',
   };
 
   return (
@@ -56,7 +55,7 @@ export default function LeaveRequestsPage() {
         title="My Leave Requests"
         subtitle="View and manage your leave requests"
         actions={
-          <Link href="/leave/request" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+          <Link href="/leave/request" className="btn-cta inline-flex items-center gap-2">
             <PlusIcon className="w-4 h-4" /> New Request
           </Link>
         }
@@ -67,7 +66,7 @@ export default function LeaveRequestsPage() {
               <button
                 key={s}
                 onClick={() => { setStatusFilter(s); setPage(0); }}
-                className={`px-3 py-1.5 text-sm rounded-md border ${statusFilter === s ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                className={`px-3 py-1.5 text-sm rounded-md border ${statusFilter === s ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300 text-muted-foreground hover:bg-muted'}`}
               >
                 {s || 'All'}
               </button>
@@ -75,42 +74,40 @@ export default function LeaveRequestsPage() {
           </div>
 
           {loading ? (
-            <div className="bg-white rounded-lg shadow border p-8 text-center text-gray-500">Loading...</div>
+            <div className="enterprise-card p-6"><TableSkeleton /></div>
           ) : requests.length === 0 ? (
-            <div className="bg-white rounded-lg shadow border p-8 text-center text-gray-500">No requests found.</div>
+            <div className="enterprise-card p-8 text-center text-muted-foreground">No requests found.</div>
           ) : (
-            <div className="bg-white rounded-lg shadow border overflow-hidden">
+            <div className="enterprise-card overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-muted">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">From</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">To</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Days</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {requests.map((req) => (
-                    <tr key={req.id} className="hover:bg-gray-50">
+                    <tr key={req.id} className="hover:bg-muted">
                       <td className="px-4 py-3 text-sm">
                         <span className="inline-flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: req.colorCode }} />
                           {req.leaveTypeName}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{req.startDate}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{req.endDate}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{req.totalDays}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{req.startDate}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{req.endDate}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{req.totalDays}</td>
                       <td className="px-4 py-3 text-sm">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[req.status] || ''}`}>
-                          {req.status}
-                        </span>
+                        <StatusPill value={req.status} domain="leaveStatus" />
                       </td>
                       <td className="px-4 py-3 text-sm">
                         {(req.status === 'PENDING' || req.status === 'APPROVED') && (
-                          <button onClick={() => handleCancel(req.id)} className="text-red-600 hover:underline text-xs">Cancel</button>
+                          <button onClick={() => setCancelTarget(req.id)} className="text-red-600 hover:underline text-xs">Cancel</button>
                         )}
                       </td>
                     </tr>
@@ -128,6 +125,15 @@ export default function LeaveRequestsPage() {
             </div>
           )}
         </div>
+        <ConfirmDialog
+          open={cancelTarget !== null}
+          title="Cancel Leave Request"
+          message="Are you sure you want to cancel this request?"
+          confirmLabel="Cancel Request"
+          variant="danger"
+          onConfirm={() => { if (cancelTarget !== null) { handleCancel(cancelTarget); setCancelTarget(null); } }}
+          onCancel={() => setCancelTarget(null)}
+        />
       </PageWrapper>
     </FeatureGate>
   );

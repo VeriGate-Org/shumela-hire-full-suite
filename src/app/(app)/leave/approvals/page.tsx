@@ -7,12 +7,15 @@ import LeaveApprovalCard from '@/components/leave/LeaveApprovalCard';
 import { LeaveRequest, leaveService } from '@/services/leaveService';
 import EmptyState from '@/components/EmptyState';
 import { CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
+import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
 
 export default function LeaveApprovalsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const managerId = 1; // TODO: Get from auth context
+  const { user } = useAuth();
+  const managerId = user?.id ? parseInt(user.id, 10) : 0;
 
   const loadPending = async () => {
     setLoading(true);
@@ -21,13 +24,13 @@ export default function LeaveApprovalsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { loadPending(); }, []);
+  useEffect(() => { if (managerId) loadPending(); }, [managerId]);
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">
       <PageWrapper title="Leave Approvals" subtitle="Review and approve pending leave requests">
         {loading ? (
-          <div className="bg-white rounded-lg shadow border p-8 text-center text-gray-500">Loading...</div>
+          <div className="enterprise-card p-6"><InlineLoading /></div>
         ) : requests.length === 0 ? (
           <EmptyState
             icon={CheckBadgeIcon}

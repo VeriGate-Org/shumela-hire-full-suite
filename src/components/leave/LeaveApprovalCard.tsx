@@ -40,11 +40,11 @@ export default function LeaveApprovalCard({ request, approverId, onDecision }: L
   };
 
   return (
-    <div className="bg-white rounded-lg shadow border p-4">
+    <div className="enterprise-card p-4">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-gray-900">{request.employeeName}</h3>
-          <p className="text-sm text-gray-500">{request.employeeDepartment}</p>
+          <h3 className="font-semibold text-foreground">{request.employeeName}</h3>
+          <p className="text-sm text-muted-foreground">{request.employeeDepartment}</p>
         </div>
         <span
           className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
@@ -56,21 +56,21 @@ export default function LeaveApprovalCard({ request, approverId, onDecision }: L
 
       <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
         <div>
-          <p className="text-gray-500">From</p>
+          <p className="text-muted-foreground">From</p>
           <p className="font-medium">{request.startDate}</p>
         </div>
         <div>
-          <p className="text-gray-500">To</p>
+          <p className="text-muted-foreground">To</p>
           <p className="font-medium">{request.endDate}</p>
         </div>
         <div>
-          <p className="text-gray-500">Days</p>
+          <p className="text-muted-foreground">Days</p>
           <p className="font-medium">{request.totalDays}{request.isHalfDay ? ' (half)' : ''}</p>
         </div>
       </div>
 
       {request.reason && (
-        <p className="mt-2 text-sm text-gray-600 italic">{request.reason}</p>
+        <p className="mt-2 text-sm text-muted-foreground italic">{request.reason}</p>
       )}
 
       {showRejectForm ? (
@@ -80,7 +80,7 @@ export default function LeaveApprovalCard({ request, approverId, onDecision }: L
             onChange={(e) => setRejectionReason(e.target.value)}
             placeholder="Reason for rejection"
             rows={2}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            className="w-full border border-border rounded-md px-3 py-2 text-sm"
           />
           <div className="flex gap-2">
             <button
@@ -92,7 +92,7 @@ export default function LeaveApprovalCard({ request, approverId, onDecision }: L
             </button>
             <button
               onClick={() => setShowRejectForm(false)}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border rounded-md hover:bg-gray-50"
+              className="px-3 py-1.5 text-sm font-medium text-foreground bg-card border rounded-md hover:bg-muted"
             >
               Back
             </button>

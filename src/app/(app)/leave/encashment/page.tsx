@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { leaveService, LeaveType, LeaveEncashmentRequest } from '@/services/leaveService';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
 import { BanknotesIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 export default function LeaveEncashmentPage() {
@@ -23,8 +24,11 @@ export default function LeaveEncashmentPage() {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { toast } = useToast();
+  const [rejectTarget, setRejectTarget] = useState<number | null>(null);
+  const [rejectComment, setRejectComment] = useState('');
 
-  const employeeId = user?.id ? parseInt(user.id) : 1;
+  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
   const isManager = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER';
 
   useEffect(() => {
@@ -100,12 +104,14 @@ export default function LeaveEncashmentPage() {
   }
 
   async function handleReject(id: number) {
-    const comment = prompt('Rejection reason (optional):');
     try {
-      await leaveService.rejectEncashment(id, employeeId, comment || undefined);
+      await leaveService.rejectEncashment(id, employeeId, rejectComment || undefined);
+      setRejectTarget(null);
+      setRejectComment('');
+      toast('Encashment request rejected', 'success');
       await loadData();
     } catch (err: any) {
-      setError(err.message || 'Failed to reject');
+      toast(err.message || 'Failed to reject', 'error');
     }
   }
 
@@ -165,7 +171,7 @@ export default function LeaveEncashmentPage() {
             <CheckCircleIcon className="h-4 w-4" /> Approve
           </button>
           <button
-            onClick={() => handleReject(req.id)}
+            onClick={() => setRejectTarget(req.id)}
             className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
           >
             <XCircleIcon className="h-4 w-4" /> Reject
@@ -362,6 +368,32 @@ export default function LeaveEncashmentPage() {
                 )}
               </div>
             )}
+          </div>
+        )}
+        {/* Reject Dialog */}
+        {rejectTarget !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="mx-4 w-full max-w-md rounded-md border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-medium text-foreground">Reject Encashment</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Provide an optional reason for rejection.</p>
+              <textarea
+                value={rejectComment}
+                onChange={(e) => setRejectComment(e.target.value)}
+                placeholder="Rejection reason (optional)"
+                rows={3}
+                className="mt-3 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+              <div className="mt-4 flex justify-end gap-3">
+                <button onClick={() => { setRejectTarget(null); setRejectComment(''); }}
+                  className="px-4 py-2 text-sm font-medium text-foreground border border-border rounded-full hover:bg-accent">
+                  Cancel
+                </button>
+                <button onClick={() => handleReject(rejectTarget)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-full">
+                  Reject
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </PageWrapper>

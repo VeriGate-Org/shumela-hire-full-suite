@@ -12,6 +12,7 @@ import {
   BanknotesIcon,
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -46,10 +47,11 @@ export default function EditProfilePage() {
     emergencyContactRelationship: '',
   });
 
-  // TODO: Get from auth context
-  const employeeId = 1;
+  const { user } = useAuth();
+  const employeeId = user?.id ? parseInt(user.id, 10) : 0;
 
   useEffect(() => {
+    if (!employeeId) return;
     Promise.all([
       apiFetch(`/api/employee/profile?employeeId=${employeeId}`).then(r => r.ok ? r.json() : null),
       apiFetch(`/api/employee/banking?employeeId=${employeeId}`).then(r => r.ok ? r.json() : null),
@@ -86,7 +88,7 @@ export default function EditProfilePage() {
       }
       setLoading(false);
     });
-  }, []);
+  }, [employeeId]);
 
   const handleSavePersonal = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,7 +148,7 @@ export default function EditProfilePage() {
     return (
       <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
         <PageWrapper title="Edit Profile" subtitle="Loading...">
-          <div className="text-center py-12 text-gray-500">Loading profile...</div>
+          <div className="text-center py-12 text-muted-foreground">Loading profile...</div>
         </PageWrapper>
       </FeatureGate>
     );
@@ -171,7 +173,7 @@ export default function EditProfilePage() {
             {sections.map(s => (
               <button key={s.key} onClick={() => { setActiveSection(s.key); setMessage(null); }}
                 className={`flex items-center gap-2 px-4 py-2 text-sm rounded-t-lg font-medium ${
-                  activeSection === s.key ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+                  activeSection === s.key ? 'bg-blue-600 text-white' : 'text-muted-foreground hover:bg-muted'
                 }`}>
                 <s.icon className="w-4 h-4" /> {s.label}
               </button>
@@ -180,8 +182,8 @@ export default function EditProfilePage() {
 
           {/* Personal Details */}
           {activeSection === 'personal' && (
-            <form onSubmit={handleSavePersonal} className="bg-white rounded-lg shadow border p-6 space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900">Personal Information</h3>
+            <form onSubmit={handleSavePersonal} className="enterprise-card p-6 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground">Personal Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Preferred Name</label>
@@ -262,9 +264,9 @@ export default function EditProfilePage() {
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => router.push('/employee/portal')}
-                  className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                  className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">Cancel</button>
                 <button type="submit" disabled={saving}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
@@ -273,8 +275,8 @@ export default function EditProfilePage() {
 
           {/* Banking Details */}
           {activeSection === 'banking' && (
-            <form onSubmit={handleSaveBanking} className="bg-white rounded-lg shadow border p-6 space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900">Banking Details</h3>
+            <form onSubmit={handleSaveBanking} className="enterprise-card p-6 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground">Banking Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Bank Name</label>
@@ -298,9 +300,9 @@ export default function EditProfilePage() {
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => router.push('/employee/portal')}
-                  className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                  className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">Cancel</button>
                 <button type="submit" disabled={saving}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {saving ? 'Saving...' : 'Update Banking Details'}
                 </button>
               </div>
@@ -309,8 +311,8 @@ export default function EditProfilePage() {
 
           {/* Emergency Contact */}
           {activeSection === 'emergency' && (
-            <form onSubmit={handleSaveEmergency} className="bg-white rounded-lg shadow border p-6 space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900">Emergency Contact</h3>
+            <form onSubmit={handleSaveEmergency} className="enterprise-card p-6 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground">Emergency Contact</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Contact Name</label>
@@ -341,9 +343,9 @@ export default function EditProfilePage() {
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => router.push('/employee/portal')}
-                  className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                  className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">Cancel</button>
                 <button type="submit" disabled={saving}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {saving ? 'Saving...' : 'Update Emergency Contact'}
                 </button>
               </div>

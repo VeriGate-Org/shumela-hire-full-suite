@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
+import { TableSkeleton, InlineLoading } from '@/components/LoadingComponents';
+import EmptyState from '@/components/EmptyState';
 import { Shift, shiftService } from '@/services/shiftService';
 import { PlusIcon, ClockIcon } from '@heroicons/react/24/outline';
 
@@ -79,11 +81,11 @@ export default function ManageShiftsPage() {
         actions={
           <div className="flex gap-2">
             <button onClick={() => { setShowAssignForm(!showAssignForm); setShowForm(false); }}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-50">
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-md hover:bg-muted">
               <ClockIcon className="w-4 h-4" /> Assign Shift
             </button>
             <button onClick={() => { setShowForm(!showForm); setShowAssignForm(false); }}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+              className="btn-cta inline-flex items-center gap-2">
               <PlusIcon className="w-4 h-4" /> New Shift
             </button>
           </div>
@@ -92,8 +94,8 @@ export default function ManageShiftsPage() {
         <div className="space-y-6">
           {/* Create Shift Form */}
           {showForm && (
-            <div className="bg-white rounded-lg shadow border p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Create New Shift</h3>
+            <div className="enterprise-card p-6">
+              <h3 className="text-lg font-medium text-foreground mb-4">Create New Shift</h3>
               {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
@@ -129,18 +131,18 @@ export default function ManageShiftsPage() {
               </div>
               <div className="flex gap-3 mt-4">
                 <button onClick={handleCreateShift} disabled={submitting || !form.name || !form.code}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {submitting ? 'Creating...' : 'Create Shift'}
                 </button>
-                <button onClick={() => setShowForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-gray-50">Cancel</button>
+                <button onClick={() => setShowForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-muted">Cancel</button>
               </div>
             </div>
           )}
 
           {/* Assign Shift Form */}
           {showAssignForm && (
-            <div className="bg-white rounded-lg shadow border p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Assign Shift to Employee</h3>
+            <div className="enterprise-card p-6">
+              <h3 className="text-lg font-medium text-foreground mb-4">Assign Shift to Employee</h3>
               {assignError && <p className="mb-3 text-sm text-red-600">{assignError}</p>}
               {assignSuccess && <p className="mb-3 text-sm text-green-600">{assignSuccess}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -167,33 +169,36 @@ export default function ManageShiftsPage() {
               </div>
               <div className="flex gap-3 mt-4">
                 <button onClick={handleAssignShift} disabled={assigning || !assignForm.employeeId || !assignForm.shiftId || !assignForm.date}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50">
+                  className="btn-cta disabled:opacity-50">
                   {assigning ? 'Assigning...' : 'Assign'}
                 </button>
-                <button onClick={() => setShowAssignForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-gray-50">Cancel</button>
+                <button onClick={() => setShowAssignForm(false)} className="px-4 py-2 border text-sm rounded-md hover:bg-muted">Cancel</button>
               </div>
             </div>
           )}
 
           {/* Shift List */}
           {loading ? (
-            <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">Loading...</div>
+            <InlineLoading />
           ) : shifts.length === 0 ? (
-            <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">
-              No shifts configured. Create one to get started.
-            </div>
+            <EmptyState
+              icon={ClockIcon}
+              title="No shifts configured"
+              description="Create one to get started."
+              action={{ label: 'New Shift', onClick: () => { setShowForm(true); setShowAssignForm(false); } }}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {shifts.map((shift) => (
-                <div key={shift.id} className="bg-white rounded-lg shadow border p-4">
+                <div key={shift.id} className="enterprise-card p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded" style={{ backgroundColor: shift.colorCode || '#6366f1' }} />
                     <div>
-                      <h3 className="font-medium text-gray-900">{shift.name}</h3>
-                      <p className="text-xs text-gray-500">Code: {shift.code}</p>
+                      <h3 className="font-medium text-foreground">{shift.name}</h3>
+                      <p className="text-xs text-muted-foreground">Code: {shift.code}</p>
                     </div>
                   </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-600">
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                     <div>
                       <span className="text-gray-400">Start:</span> {shift.startTime}
                     </div>

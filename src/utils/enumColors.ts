@@ -295,6 +295,42 @@ export const ENUM_COLORS: Record<string, Record<string, string>> = {
     pending: 'orange',
     needs_info: 'yellow',
   },
+
+  leaveStatus: {
+    DRAFT: 'gray',
+    PENDING: 'yellow',
+    APPROVED: 'green',
+    REJECTED: 'red',
+    CANCELLED: 'gray',
+    RECALLED: 'orange',
+  },
+
+  attendanceStatus: {
+    PRESENT: 'green',
+    LATE: 'yellow',
+    ABSENT: 'red',
+    HALF_DAY: 'orange',
+    ON_LEAVE: 'blue',
+  },
+
+  overtimeStatus: {
+    PENDING: 'yellow',
+    APPROVED: 'green',
+    REJECTED: 'red',
+  },
+
+  encashmentStatus: {
+    PENDING: 'yellow',
+    HR_APPROVED: 'blue',
+    FINANCE_APPROVED: 'green',
+    REJECTED: 'red',
+    PROCESSED: 'gray',
+  },
+
+  shiftStatus: {
+    ACTIVE: 'green',
+    INACTIVE: 'gray',
+  },
 };
 
 /** Get Tailwind classes for an enum value's pill color. Tries exact match, then uppercase. */
