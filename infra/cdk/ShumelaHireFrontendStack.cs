@@ -47,6 +47,34 @@ public class ShumelaHireFrontendStack : Stack
             }
         });
 
+        // ── CloudFront Function: rewrite extensionless URLs to .html ─────────
+        // Next.js static export generates dashboard.html, admin/permissions.html,
+        // etc. Without this rewrite, S3 returns 403 for /dashboard and the error
+        // response fallback serves /index.html (the marketing page).
+        var urlRewriteFn = new Function(this, "UrlRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-url-rewrite",
+            Comment = "Appends .html to extensionless paths so S3 can find Next.js static export files",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // Root path — DefaultRootObject handles /index.html
+    if (uri === '/') return request;
+
+    // Skip files that already have an extension (.js, .css, .png, etc.)
+    if (uri.includes('.')) return request;
+
+    // Strip trailing slash then append .html
+    if (uri.endsWith('/')) uri = uri.slice(0, -1);
+    request.uri = uri + '.html';
+
+    return request;
+}
+")
+        });
+
         // ── CloudFront Function: inject X-Tenant-Id from subdomain ─────────
         var tenantHeaderFn = new Function(this, "TenantHeaderFunction", new FunctionProps
         {
@@ -86,7 +114,15 @@ function handler(event) {
                 ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 Compress = true,
                 CachePolicy = CachePolicy.CACHING_OPTIMIZED,
-                AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS
+                AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                FunctionAssociations = new[]
+                {
+                    new FunctionAssociation
+                    {
+                        Function = urlRewriteFn,
+                        EventType = FunctionEventType.VIEWER_REQUEST
+                    }
+                }
             },
             DefaultRootObject = "index.html",
             // SPA routing: serve index.html for 403/404 (S3 returns 403 for missing keys)
