@@ -202,9 +202,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         )}
       </div>
 
-      {onToggleCollapse && (
-        <div className="sticky bottom-0 border-t border-border bg-card p-2 space-y-1">
-          <ThemeToggle collapsed={isCollapsed} />
+      <div className="sticky bottom-0 border-t border-border bg-card p-2 space-y-1">
+        <ThemeToggle collapsed={isCollapsed} />
+        {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -213,17 +213,17 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
             {!isCollapsed && <span>Collapse</span>}
           </button>
-          {!isCollapsed && (
-            <div className="border-t border-border pt-2 mt-1">
-              <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
-                Powered by
-                <img src="/icons/shumelahire-icon.svg" alt="" className="h-3.5 w-3.5" />
-                <span className="font-semibold">ShumelaHire</span>
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+        {!isCollapsed && (
+          <div className="border-t border-border pt-2 mt-1">
+            <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
+              Powered by
+              <img src="/icons/shumelahire-icon.svg" alt="" className="h-3.5 w-3.5" />
+              <span className="font-semibold">ShumelaHire</span>
+            </p>
+          </div>
+        )}
+      </div>
     </aside>
   );
 };
