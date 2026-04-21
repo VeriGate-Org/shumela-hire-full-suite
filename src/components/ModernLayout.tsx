@@ -5,7 +5,8 @@ import NotificationCenter from './NotificationCenter';
 import UserProfile from './UserProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant } from '@/contexts/TenantContext';
-import { Bars3Icon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, QuestionMarkCircleIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface ModernLayoutProps {
@@ -27,6 +28,8 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   const { user } = useAuth();
   const { branding } = useTenant();
   const { showOverlay, setShowOverlay, shortcutList } = useKeyboardShortcuts();
+  const { colorMode, setColorMode } = useTheme();
+  const ThemeIcon = colorMode === 'light' ? SunIcon : colorMode === 'dark' ? MoonIcon : ComputerDesktopIcon;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -48,7 +51,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                 <img
                   src={branding.logoUrl}
                   alt="Organization logo"
-                  className="h-8 w-auto max-w-[180px] object-contain"
+                  className="h-8 w-auto max-w-[180px] object-contain dark:rounded dark:bg-white/90 dark:px-1.5 dark:py-0.5"
                   onError={() => setLogoError(true)}
                 />
               ) : (
@@ -80,6 +83,18 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
             >
               <QuestionMarkCircleIcon className="h-4 w-4 text-muted-foreground" />
             </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                const next = colorMode === 'light' ? 'dark' : colorMode === 'dark' ? 'system' : 'light';
+                setColorMode(next);
+              }}
+              aria-label={`Theme: ${colorMode}`}
+              className="p-2 rounded-control hover:bg-accent transition-colors"
+            >
+              <ThemeIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
 
             <UserProfile user={user ? { name: user.name, email: user.email, role: user.role } : undefined} />
           </div>

@@ -493,6 +493,17 @@ ApiInterceptors.addRequestInterceptor(async (config) => {
 ApiInterceptors.addResponseInterceptor(async (response) => {
   if (response.status === 401) {
     if (typeof window !== 'undefined') {
+      // Clean up auth state before redirecting
+      sessionStorage.removeItem('jwt_token');
+      sessionStorage.removeItem('mock_user');
+      sessionStorage.removeItem('dev_user');
+      localStorage.removeItem('auth_token');
+      try {
+        const { webSocketService } = await import('@/services/webSocketService');
+        webSocketService.disconnect();
+      } catch {
+        // Ignore if WebSocket service is unavailable
+      }
       window.location.href = '/login';
     }
   }

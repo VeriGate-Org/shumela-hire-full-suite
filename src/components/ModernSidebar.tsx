@@ -14,7 +14,7 @@ import {
   LockClosedIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
-import ThemeToggle from './ThemeToggle';
+
 
 interface SidebarNavItem extends NavigationEntry {
   locked: boolean;
@@ -293,7 +293,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           {!isCollapsed && <span>Settings</span>}
         </Link>
 
-        <ThemeToggle collapsed={isCollapsed} />
+
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}

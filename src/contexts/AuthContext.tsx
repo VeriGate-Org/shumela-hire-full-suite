@@ -271,6 +271,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       sessionStorage.removeItem('jwt_token');
       sessionStorage.removeItem('mock_user');
       sessionStorage.removeItem('dev_user');
+      localStorage.removeItem('auth_token');
+      // Disconnect WebSocket to prevent stale-token reconnects
+      try {
+        const { webSocketService } = await import('@/services/webSocketService');
+        webSocketService.disconnect();
+      } catch {
+        // Ignore if WebSocket service is unavailable
+      }
     }
   }, []);
 

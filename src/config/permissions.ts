@@ -13,7 +13,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_permissions', 'view_audit_logs', 'manage_departments',
     'view_training', 'manage_integrations', 'manage_requisitions',
     // HR module permissions
-    'manage_leave', 'manage_attendance', 'manage_documents',
+    'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',
     'manage_compliance', 'view_own_profile',
   ],
@@ -30,7 +30,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_analytics', 'view_recruiter_analytics', 'view_reports',
     'view_training', 'manage_departments', 'manage_integrations', 'manage_requisitions',
     // HR module permissions
-    'manage_leave', 'manage_attendance', 'manage_documents',
+    'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',
     'manage_compliance', 'view_own_profile',
   ],
@@ -38,7 +38,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_dashboard', 'view_internal_jobs', 'view_own_profile',
     'view_training', 'view_performance',
     // Manager-specific
-    'manage_leave', 'manage_attendance',
+    'manage_leave', 'view_attendance', 'manage_attendance',
     // Self-service
     'manage_documents',
   ],
@@ -59,7 +59,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
   EMPLOYEE: [
     'view_dashboard', 'view_internal_jobs', 'view_own_profile', 'view_training',
     // Self-service access
-    'manage_leave', 'manage_attendance', 'manage_documents',
+    'manage_leave', 'view_attendance', 'manage_documents',
     'view_performance',
   ],
   APPLICANT: [
