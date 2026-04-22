@@ -11,7 +11,8 @@ REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
 now = datetime.now(timezone.utc)
-now_iso = now.strftime('%Y-%m-%dT%H:%M:%S')
+now_iso = now.strftime('%Y-%m-%dT%H:%M:%S')      # LocalDateTime (PIP, PipMilestone)
+now_instant = now.strftime('%Y-%m-%dT%H:%M:%SZ')  # Instant (IDP)
 
 
 def new_id(unique_key):
@@ -61,7 +62,7 @@ def date_ahead(days):
 
 
 def dt_ago(days):
-    return (now - timedelta(days=days)).strftime('%Y-%m-%dT%H:%M:%S')
+    return (now - timedelta(days=days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 # ── PIPs ───────────────────────────────────────────────────────────
@@ -249,8 +250,8 @@ def seed_idps():
             'status':    {'S': idp['status']},
             'managerId': {'S': mid},
             'goalsJson': {'S': goals_json},
-            'createdAt': {'S': now_iso},
-            'updatedAt': {'S': now_iso},
+            'createdAt': {'S': now_instant},
+            'updatedAt': {'S': now_instant},
         }
         success, err = put_item(item)
         if success:

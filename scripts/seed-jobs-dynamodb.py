@@ -413,7 +413,7 @@ def seed_job_ad(posting_id, job, slug, created, published, creator_id):
     item = {
         'PK':     {'S': f'TENANT#{TENANT_ID}'},
         'SK':     {'S': f'JOB_AD#{ad_id}'},
-        'GSI1PK': {'S': 'JOBAD_STATUS#PUBLISHED'},
+        'GSI1PK': {'S': f'JOBAD_STATUS#{TENANT_ID}#PUBLISHED'},
         'GSI1SK': {'S': f'JOB_AD#{published}'},
         'GSI2PK': {'S': f'JOBAD_POSTING#{posting_id}'},
         'GSI2SK': {'S': f'JOB_AD#{ad_id}'},

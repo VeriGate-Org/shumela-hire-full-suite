@@ -10,7 +10,7 @@ REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
 now = datetime.now(timezone.utc)
-now_iso = now.strftime('%Y-%m-%dT%H:%M:%S')
+now_iso = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def new_id(unique_key):
@@ -119,7 +119,7 @@ def make_checklist_items(template_items_json, completed_count):
     result = []
     for i, item in enumerate(items):
         status = "COMPLETED" if i < completed_count else "PENDING"
-        completed_at = (now - timedelta(days=len(items) - i)).strftime('%Y-%m-%dT%H:%M:%S') if status == "COMPLETED" else None
+        completed_at = (now - timedelta(days=len(items) - i)).strftime('%Y-%m-%dT%H:%M:%SZ') if status == "COMPLETED" else None
         entry = {"title": item["title"], "description": item["description"], "category": item.get("category", ""), "order": item.get("order", i + 1), "status": status}
         if completed_at:
             entry["completedAt"] = completed_at
