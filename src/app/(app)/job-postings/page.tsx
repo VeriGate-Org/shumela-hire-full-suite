@@ -16,7 +16,7 @@ import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import LinkedInPostToCompany from '@/components/LinkedInPostToCompany';
 
 interface JobPosting {
-  id: number;
+  id: string | number;
   title: string;
   department: string;
   status: string;
@@ -88,9 +88,7 @@ export default function JobPostingsPage() {
   const { setCurrentRole } = useTheme();
   const { user } = useAuth();
   const currentUserId = useMemo(() => {
-    if (!user?.id) return null;
-    const parsedId = Number.parseInt(user.id, 10);
-    return Number.isFinite(parsedId) ? parsedId : null;
+    return user?.id || null;
   }, [user?.id]);
 
   // Debounce timer ref
@@ -168,13 +166,13 @@ export default function JobPostingsPage() {
     };
   }, [searchTerm]);
 
-  const handleJobPostingSaved = (jobPosting: { id: number; title: string; status: string }) => {
+  const handleJobPostingSaved = (jobPosting: { id: string | number; title: string; status: string }) => {
     console.log('Job posting saved:', jobPosting);
     setView('list');
     loadJobPostings(0);
   };
 
-  const handleStatusChange = async (jobPostingId: number, _newStatus: string) => {
+  const handleStatusChange = async (jobPostingId: string | number, _newStatus: string) => {
     // Refresh the list to get server-authoritative data
     await loadJobPostings();
 
