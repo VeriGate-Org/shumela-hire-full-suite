@@ -65,7 +65,7 @@ public class HRAnalyticsController {
         return ResponseEntity.ok(metrics);
     }
 
-    @GetMapping("/performance")
+    @GetMapping("/performance-reviews")
     public ResponseEntity<Map<String, Object>> getPerformanceAnalytics() {
         Map<String, Object> metrics = performanceAnalyticsService.getPerformanceMetrics();
         return ResponseEntity.ok(metrics);

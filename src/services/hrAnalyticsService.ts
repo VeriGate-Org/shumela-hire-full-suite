@@ -36,7 +36,7 @@ export const hrAnalyticsService = {
   },
 
   async getPerformanceAnalytics(): Promise<AnalyticsMetrics> {
-    const response = await apiFetch('/api/analytics/performance');
+    const response = await apiFetch('/api/analytics/performance-reviews');
     if (!response.ok) return {};
     return await response.json();
   },
