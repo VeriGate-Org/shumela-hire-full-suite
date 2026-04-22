@@ -11,9 +11,9 @@ import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
-public class PerformanceAnalyticsService {
+public class PerformanceReviewAnalyticsService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PerformanceAnalyticsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceReviewAnalyticsService.class);
 
     @Autowired
     private AuditLogService auditLogService;

@@ -33,7 +33,7 @@ public class HRAnalyticsController {
     private ComplianceAnalyticsService complianceAnalyticsService;
 
     @Autowired
-    private PerformanceAnalyticsService performanceAnalyticsService;
+    private PerformanceReviewAnalyticsService performanceAnalyticsService;
 
     @GetMapping("/hr-overview")
     public ResponseEntity<Map<String, Object>> getHROverview() {
