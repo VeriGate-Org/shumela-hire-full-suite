@@ -122,8 +122,8 @@ def seed_courses():
             'cost': {'S': c['cost']},
             'isMandatory': {'BOOL': c['mandatory']},
             'isActive': {'BOOL': True},
-            'createdAt': {'N': epoch(days_ago(90))},
-            'updatedAt': {'N': epoch(now)},
+            'createdAt': {'S': iso(days_ago(90))},
+            'updatedAt': {'S': iso(now)},
         }
         ok, err = put_item(item)
         print(f"  {'OK' if ok else 'FAIL'}  {c['code']:10s} {c['title']}")
@@ -159,12 +159,12 @@ def seed_sessions(course_ids):
             'courseId': {'S': cid},
             'trainerName': {'S': s['trainer']},
             'location': {'S': s['location']},
-            'startDate': {'N': epoch(s['start'])},
-            'endDate': {'N': epoch(s['end'])},
+            'startDate': {'S': iso(s['start'])},
+            'endDate': {'S': iso(s['end'])},
             'status': {'S': s['status']},
             'availableSeats': {'N': str(s['seats'])},
-            'createdAt': {'N': epoch(days_ago(90))},
-            'updatedAt': {'N': epoch(now)},
+            'createdAt': {'S': iso(days_ago(90))},
+            'updatedAt': {'S': iso(now)},
         }
         ok, err = put_item(item)
         icon = {'COMPLETED': '+', 'IN_PROGRESS': '~', 'OPEN': 'o', 'PLANNED': ' '}[s['status']]
@@ -246,14 +246,14 @@ def seed_enrollments(session_ids, course_ids, employees):
             'sessionId': {'S': sid},
             'employeeId': {'S': emp['id']},
             'status': {'S': status},
-            'enrolledAt': {'N': epoch(days_ago(70))},
-            'createdAt': {'N': epoch(days_ago(70))},
-            'updatedAt': {'N': epoch(now)},
+            'enrolledAt': {'S': iso(days_ago(70))},
+            'createdAt': {'S': iso(days_ago(70))},
+            'updatedAt': {'S': iso(now)},
         }
         if score:
             item['score'] = {'S': score}
         if status == 'COMPLETED':
-            item['completedAt'] = {'N': epoch(days_ago(15))}
+            item['completedAt'] = {'S': iso(days_ago(15))}
             item['certificateUrl'] = {'S': f's3://shumelahire-dev-documents/training/cert-{eid[:8]}.pdf'}
             completed += 1
         elif status in ('ATTENDED',):
