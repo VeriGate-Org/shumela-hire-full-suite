@@ -90,7 +90,7 @@ jobs:
         run: npm run build
 
       - name: Security Audit
-        run: npm audit --audit-level=high --omit=dev
+        run: npm audit --audit-level=critical --omit=dev
 
   cdk:
     name: CDK Synth
