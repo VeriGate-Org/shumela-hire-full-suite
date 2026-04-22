@@ -140,6 +140,12 @@ export default function TimeAttendancePage() {
                 <ExclamationTriangleIcon className="w-5 h-5" /> {error}
               </div>
             )}
+            {/* BUG-002 fix: hide clock buttons when employee profile is unresolved to prevent orphaned records */}
+            {!employeeId ? (
+              <p className="text-sm text-muted-foreground">
+                Resolve your employee profile to use clock in/out.
+              </p>
+            ) : (
             <div className="flex items-center gap-4">
               {todayRecord ? (
                 <>
@@ -173,6 +179,7 @@ export default function TimeAttendancePage() {
                 </>
               )}
             </div>
+            )}
           </div>
 
           {/* Location Map */}

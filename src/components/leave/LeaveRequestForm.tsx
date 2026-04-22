@@ -20,6 +20,8 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
   const [medicalCertificateUrl, setMedicalCertificateUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  // BUG-004 fix: track inline date validation error separately
+  const [dateError, setDateError] = useState('');
 
   useEffect(() => {
     leaveService.getLeaveTypes(true).then(setLeaveTypes);
@@ -27,12 +29,32 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
 
   const selectedType = leaveTypes.find((t) => t.id === leaveTypeId);
 
+  // BUG-004 fix: validate dates in real-time as user changes either field
+  const validateDates = (start: string, end: string) => {
+    if (!isHalfDay && end && start && end < start) {
+      setDateError('End date must be on or after the start date.');
+    } else {
+      setDateError('');
+    }
+  };
+
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    validateDates(val, endDate);
+  };
+
+  const handleEndDateChange = (val: string) => {
+    setEndDate(val);
+    validateDates(startDate, val);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // BUG-004 fix: block submission when date validation fails
     if (!isHalfDay && endDate && startDate && endDate < startDate) {
-      setError('End date must be on or after the start date.');
+      setDateError('End date must be on or after the start date.');
       return;
     }
 
@@ -116,7 +138,7 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
           <input
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => handleStartDateChange(e.target.value)}
             required
             className="w-full border border-border rounded-md px-3 py-2 text-sm"
           />
@@ -127,11 +149,15 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
             <input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => handleEndDateChange(e.target.value)}
               required
               min={startDate}
-              className="w-full border border-border rounded-md px-3 py-2 text-sm"
+              className={`w-full border rounded-md px-3 py-2 text-sm ${dateError ? 'border-red-400 focus:ring-red-300' : 'border-border'}`}
             />
+            {/* BUG-004 fix: inline error message below the End Date field */}
+            {dateError && (
+              <p className="text-xs text-red-600 mt-1">{dateError}</p>
+            )}
           </div>
         )}
       </div>
@@ -175,7 +201,7 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
         </button>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !!dateError}
           className="btn-cta disabled:opacity-50"
         >
           {submitting ? 'Submitting...' : 'Submit Request'}

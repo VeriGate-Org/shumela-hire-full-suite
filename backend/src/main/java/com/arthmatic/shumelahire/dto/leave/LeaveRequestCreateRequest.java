@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.dto.leave;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -13,6 +14,13 @@ public class LeaveRequestCreateRequest {
 
     @NotNull(message = "End date is required")
     private LocalDate endDate;
+
+    // BUG-004 fix: server-side validation — end date must not be before start date
+    @AssertTrue(message = "End date must be on or after the start date")
+    public boolean isDateRangeValid() {
+        if (startDate == null || endDate == null) return true;
+        return !endDate.isBefore(startDate);
+    }
 
     private Boolean isHalfDay;
     private String halfDayPeriod;

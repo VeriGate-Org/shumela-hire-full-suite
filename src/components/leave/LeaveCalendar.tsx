@@ -24,7 +24,11 @@ export default function LeaveCalendar({ department }: LeaveCalendarProps) {
 
     setLoading(true);
     leaveService.getCalendar(startDate, endDate, department).then((data) => {
-      setEntries(data);
+      setEntries(Array.isArray(data) ? data : []);
+      setLoading(false);
+    }).catch(() => {
+      // BUG-003 fix: gracefully handle fetch failures
+      setEntries([]);
       setLoading(false);
     });
   }, [year, month, daysInMonth, department]);
@@ -81,16 +85,20 @@ export default function LeaveCalendar({ department }: LeaveCalendarProps) {
                 >
                   <span className="text-xs font-medium text-gray-700">{day}</span>
                   <div className="mt-1 space-y-0.5">
-                    {dayEntries.slice(0, 3).map((entry) => (
+                    {dayEntries.slice(0, 3).map((entry) => {
+                      // BUG-003 fix: guard against null/undefined employeeName and leaveTypeName
+                      const displayName = entry.employeeName || entry.leaveTypeName || 'Leave';
+                      return (
                       <div
                         key={entry.id}
                         className="text-[10px] px-1 py-0.5 rounded truncate text-white"
-                        style={{ backgroundColor: entry.colorCode }}
-                        title={`${entry.employeeName} - ${entry.leaveTypeName}`}
+                        style={{ backgroundColor: entry.colorCode || '#3b82f6' }}
+                        title={`${entry.employeeName ?? 'Unknown'} - ${entry.leaveTypeName ?? 'Leave'}`}
                       >
-                        {entry.employeeName.split(' ')[0]}
+                        {displayName.split(' ')[0]}
                       </div>
-                    ))}
+                      );
+                    })}
                     {dayEntries.length > 3 && (
                       <div className="text-[10px] text-gray-500">
                         +{dayEntries.length - 3} more

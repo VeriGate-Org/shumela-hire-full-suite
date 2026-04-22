@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EmployeeDashboardProps {
   selectedTimeframe: string;
@@ -28,10 +29,13 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   selectedTimeframe: _selectedTimeframe,
   onTimeframeChange: _onTimeframeChange,
 }) => {
+  const { user } = useAuth();
   const [internalJobs, setInternalJobs] = useState<InternalJob[]>([]);
   // Training modules endpoint does not exist yet — initialize as empty
   const [trainingModules] = useState<TrainingModule[]>([]);
   const [myApplicationsCount, setMyApplicationsCount] = useState(0);
+  // BUG-005 fix: compute profile completeness from employee profile data
+  const [profileCompleteness, setProfileCompleteness] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,6 +81,28 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           }
         } catch {
           // Endpoint may not exist yet
+        }
+
+        // BUG-005 fix: fetch employee profile to compute completeness
+        const employeeId = user?.employeeId || user?.id;
+        if (employeeId) {
+          try {
+            const profileRes = await apiFetch(`/api/employee/profile?employeeId=${employeeId}`);
+            if (profileRes.ok) {
+              const profile = await profileRes.json();
+              // Compute completeness based on key profile fields
+              const fields = [
+                profile.firstName, profile.lastName, profile.email,
+                profile.phone, profile.department, profile.jobTitle,
+                profile.hireDate, profile.physicalAddress, profile.city,
+                profile.emergencyContactName,
+              ];
+              const filled = fields.filter((f) => f != null && f !== '').length;
+              setProfileCompleteness(Math.round((filled / fields.length) * 100));
+            }
+          } catch {
+            // Profile endpoint may fail — leave as null
+          }
         }
       } catch {
         // On error, keep empty defaults
@@ -129,7 +155,10 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         </div>
         <div className="bg-white rounded-sm border border-gray-200 p-5">
           <h4 className="text-sm font-medium text-gray-500">Profile Completeness</h4>
-          <p className="text-2xl font-bold text-teal-600 mt-1">—</p>
+          {/* BUG-005 fix: show computed percentage or graceful fallback instead of hardcoded dash */}
+          <p className="text-2xl font-bold text-teal-600 mt-1">
+            {profileCompleteness != null ? `${profileCompleteness}%` : 'N/A'}
+          </p>
         </div>
       </div>
 

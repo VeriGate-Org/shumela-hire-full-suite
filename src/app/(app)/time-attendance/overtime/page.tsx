@@ -25,18 +25,26 @@ export default function OvertimePage() {
   const rawId = user?.employeeId || user?.id;
   const employeeId = rawId || '';
   const { toast } = useToast();
+  // BUG-001 fix: track whether profile is resolved to prevent rendering actions
+  const profileResolved = !!employeeId;
 
   useEffect(() => {
-    if (!employeeId) return;
+    if (!employeeId) {
+      // BUG-001 fix: gracefully handle missing profile instead of crashing
+      setError('Your employee profile could not be resolved. Please contact your administrator.');
+      setLoading(false);
+      return;
+    }
     Promise.all([
       attendanceService.getOvertime(employeeId, 0, 20),
       attendanceService.getPendingOvertime(0, 20),
     ]).then(([myData, pendingData]) => {
-      setRecords(myData.content);
-      setPendingRecords(pendingData.content);
+      // BUG-001 fix: defensive guard — API may return unexpected shape
+      setRecords(Array.isArray(myData?.content) ? myData.content : []);
+      setPendingRecords(Array.isArray(pendingData?.content) ? pendingData.content : []);
       setLoading(false);
-    }).catch(() => {
-      toast('Failed to load overtime data', 'error');
+    }).catch((e) => {
+      setError(e?.message || 'Failed to load overtime data');
       setLoading(false);
     });
   }, [employeeId]);
@@ -89,14 +97,21 @@ export default function OvertimePage() {
         actions={
           <button
             onClick={() => setShowForm(!showForm)}
-            className="btn-cta inline-flex items-center gap-2"
+            disabled={!profileResolved}
+            className="btn-cta inline-flex items-center gap-2 disabled:opacity-50"
           >
             <PlusIcon className="w-4 h-4" /> Submit Overtime
           </button>
         }
       >
         <div className="space-y-6">
-          {showForm && (
+          {/* BUG-001 fix: show error banner when profile unresolved or fetch failed */}
+          {error && (
+            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+              {error}
+            </div>
+          )}
+          {showForm && profileResolved && (
             <div className="enterprise-card p-6">
               <h3 className="text-lg font-medium text-foreground mb-4">Submit Overtime</h3>
               {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
