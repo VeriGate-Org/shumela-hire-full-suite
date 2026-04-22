@@ -172,6 +172,26 @@ def main():
     ok, fail = delete_by_prefix(pk, 'PIP_MILE#', 'PIP milestone')
     total_ok += ok; total_fail += fail
 
+    # ── Old-PK employees: initial seeding used TENANT_ID='uthukela' ──
+    # Records were created with PK=TENANT#uthukela but the correct tenant ID
+    # is 97282820-uthukela. Delete orphans so only the correct records remain.
+    old_pk = 'TENANT#uthukela'
+    if old_pk != pk:
+        print("Cleaning up old-PK employee records (TENANT#uthukela)...")
+        for prefix, label in [
+            ('EMPLOYEE#', 'employee'),
+            ('USER#', 'user'),
+        ]:
+            ok, fail = delete_by_prefix(old_pk, prefix, label)
+            total_ok += ok; total_fail += fail
+
+    # ── User records: delete so seed script re-creates with correct fields ──
+    # CognitoUserProvisioningFilter may have auto-created users with incomplete data.
+    # The seed script creates proper records with all GSI keys.
+    print("Deleting user records (will be re-seeded)...")
+    ok, fail = delete_by_prefix(pk, 'USER#', 'user')
+    total_ok += ok; total_fail += fail
+
     # ── Job Ads: fix GSI1PK (was missing tenant ID) ──
     # seed-jobs-dynamodb.py calls new_id() for 6 postings (counters 1-6),
     # then 6 ads (counters 7-12)

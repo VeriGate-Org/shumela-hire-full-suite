@@ -460,6 +460,7 @@ jobs:
             pip install cryptography -q 2>/dev/null
             python3 scripts/migrate-employee-emails.py || echo "WARNING: Employee email migration had errors (non-fatal)"
             python3 scripts/migrate-fix-seed-data.py || echo "WARNING: Seed data fix migration had errors (non-fatal)"
+            python3 scripts/seed-platform-features-dynamodb.py || echo "WARNING: Platform features seeding had errors (non-fatal)"
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
             python3 scripts/seed-users-dynamodb.py || echo "WARNING: User seeding had errors (non-fatal)"
             python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"
@@ -527,6 +528,7 @@ jobs:
             pip install cryptography -q 2>/dev/null
             python3 scripts/migrate-employee-emails.py || echo "WARNING: Employee email migration had errors (non-fatal)"
             python3 scripts/migrate-fix-seed-data.py || echo "WARNING: Seed data fix migration had errors (non-fatal)"
+            python3 scripts/seed-platform-features-dynamodb.py || echo "WARNING: Platform features seeding had errors (non-fatal)"
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
             python3 scripts/seed-users-dynamodb.py || echo "WARNING: User seeding had errors (non-fatal)"
             python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"

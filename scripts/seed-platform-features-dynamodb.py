@@ -207,6 +207,24 @@ FEATURES = [
     ('DOCUMENT_TEMPLATES', 'Document Templates',
      'Pre-built and customisable templates for offer letters, contracts, policies, and other HR documents with merge field support.',
      'administration', 'STANDARD,ENTERPRISE'),
+
+    # Recruitment features (from V016, used by @FeatureGate in controllers)
+    ('AI_JOB_DESCRIPTION', 'AI Job Description Generator',
+     'AI-powered job description generation with role-specific templates, skills extraction, and inclusive language analysis.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SCREENING', 'AI Candidate Screening',
+     'Automated CV screening and candidate scoring using AI models. Matches candidate profiles against job requirements.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('BACKGROUND_CHECKS', 'Background Checks',
+     'Integrated background verification including criminal checks, qualification verification, and reference checks via third-party providers.',
+     'compliance', 'STANDARD,ENTERPRISE'),
+
+    # Social & Collaboration
+    ('SOCIAL_FEED', 'Social Feed & Collaboration',
+     'Employee social feed for announcements, discussions, kudos, and team collaboration. Supports comments, reactions, and content moderation.',
+     'engagement', 'STARTER,STANDARD,ENTERPRISE'),
 ]
 
 
