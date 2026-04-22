@@ -15,7 +15,7 @@ export interface LinkedInPostResponse {
 }
 
 export interface LinkedInPostRequest {
-  jobPostingId: number;
+  jobPostingId: string | number;
   customText?: string;
 }
 

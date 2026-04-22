@@ -7,7 +7,7 @@ import ExecutiveTimeline, { TimelineItem } from '@/components/ExecutiveTimeline'
 
 interface JobPostingWorkflowProps {
   jobPosting: {
-    id: number;
+    id: string | number;
     title: string;
     department: string;
     status: string;
@@ -28,16 +28,16 @@ interface JobPostingWorkflowProps {
     closedAt?: string;
     approvalNotes?: string;
     rejectionReason?: string;
-    createdBy: number;
-    approvedBy?: number;
-    publishedBy?: number;
+    createdBy: string | number;
+    approvedBy?: string | number;
+    publishedBy?: string | number;
     daysFromCreation: number;
     daysFromPublication: number;
     applicationsCount: number;
     viewsCount: number;
   };
-  onStatusChange?: (jobPostingId: number, newStatus: string) => void;
-  currentUserId?: number;
+  onStatusChange?: (jobPostingId: string | number, newStatus: string) => void;
+  currentUserId?: string | number;
 }
 
 export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId }: JobPostingWorkflowProps) {

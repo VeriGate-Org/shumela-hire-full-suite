@@ -8,7 +8,7 @@ import { useAuth, UserRole } from './AuthContext';
  */
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   firstName: string;
@@ -40,7 +40,7 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const auth = useAuth();
 
   const user: User | null = auth.user ? {
-    id: parseInt(auth.user.id, 10) || 0,
+    id: auth.user.id || '',
     username: auth.user.email,
     email: auth.user.email,
     firstName: auth.user.name.split(' ')[0] || '',

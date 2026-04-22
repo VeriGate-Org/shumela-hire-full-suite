@@ -6,7 +6,7 @@ import { useToast } from './Toast';
 import { linkedInSocialService, LinkedInConnectionStatus } from '@/services/linkedInSocialService';
 
 interface JobPostingInfo {
-  id: number;
+  id: string | number;
   title: string;
   department?: string;
   location?: string;

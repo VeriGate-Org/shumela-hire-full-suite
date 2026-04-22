@@ -11,9 +11,9 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import WizardShell, { WizardStep } from '@/components/WizardShell';
 
 interface JobPostingFormProps {
-  jobPostingId?: number;
-  currentUserId?: number | null;
-  onSuccess?: (jobPosting: { id: number; title: string; status: string }) => void;
+  jobPostingId?: string | number;
+  currentUserId?: string | number | null;
+  onSuccess?: (jobPosting: { id: string | number; title: string; status: string }) => void;
   onCancel?: () => void;
 }
 
@@ -129,12 +129,8 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const actorId = useMemo(() => {
-    if (typeof currentUserId === 'number' && Number.isFinite(currentUserId)) {
-      return currentUserId;
-    }
-    if (!user?.id) return null;
-    const parsedId = Number.parseInt(user.id, 10);
-    return Number.isFinite(parsedId) ? parsedId : null;
+    if (currentUserId) return String(currentUserId);
+    return user?.id || null;
   }, [currentUserId, user?.id]);
 
   const loadJobPosting = useCallback(async () => {
