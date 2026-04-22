@@ -75,6 +75,33 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: SPA fallback for S3 origin only ────────────
+        // When S3 returns 403/404 (missing .html file), redirect to root.
+        // This replaces the distribution-level ErrorResponses which also
+        // intercepted API 403/404 responses, breaking JSON error handling.
+        var spaFallbackFn = new Function(this, "SpaFallbackFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-spa-fallback",
+            Comment = "Redirects S3 403/404 to root for SPA routing (does not affect /api/* behavior)",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var response = event.response;
+    var request = event.request;
+    var status = response.statusCode;
+    if (status === 403 || status === 404) {
+        var uri = request.uri;
+        var isPage = !uri.includes('.') || uri.endsWith('.html');
+        if (isPage) {
+            response.statusCode = 302;
+            response.statusDescription = 'Found';
+            response.headers['location'] = { value: '/' };
+        }
+    }
+    return response;
+}
+")
+        });
+
         // ── CloudFront Function: inject X-Tenant-Id from subdomain ─────────
         var tenantHeaderFn = new Function(this, "TenantHeaderFunction", new FunctionProps
         {
@@ -121,28 +148,15 @@ function handler(event) {
                     {
                         Function = urlRewriteFn,
                         EventType = FunctionEventType.VIEWER_REQUEST
+                    },
+                    new FunctionAssociation
+                    {
+                        Function = spaFallbackFn,
+                        EventType = FunctionEventType.VIEWER_RESPONSE
                     }
                 }
             },
             DefaultRootObject = "index.html",
-            // SPA routing: serve index.html for 403/404 (S3 returns 403 for missing keys)
-            ErrorResponses = new[]
-            {
-                new ErrorResponse
-                {
-                    HttpStatus = 403,
-                    ResponseHttpStatus = 200,
-                    ResponsePagePath = "/index.html",
-                    Ttl = Duration.Seconds(0)
-                },
-                new ErrorResponse
-                {
-                    HttpStatus = 404,
-                    ResponseHttpStatus = 200,
-                    ResponsePagePath = "/index.html",
-                    Ttl = Duration.Seconds(0)
-                }
-            },
             AdditionalBehaviors = new Dictionary<string, IBehaviorOptions>
             {
                 // Static assets → long cache (immutable JS/CSS from Next.js build)
