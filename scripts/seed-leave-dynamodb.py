@@ -13,7 +13,6 @@ TENANT_ID = os.environ.get('TENANT_ID', '97282820-uthukela')
 REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
-now_epoch = int(datetime.now(timezone.utc).timestamp())
 now_iso = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 _id_counter = 0
@@ -118,8 +117,8 @@ def seed_leave_types():
             'allowEncashment': {'BOOL': lt['code'] == 'AL'},
             'isActive': {'BOOL': True},
             'colorCode': {'S': lt['color']},
-            'createdAt': {'N': str(now_epoch)},
-            'updatedAt': {'N': str(now_epoch)},
+            'createdAt': {'S': now_iso},
+            'updatedAt': {'S': now_iso},
         }
         if lt['code'] == 'AL':
             item['encashmentRate'] = {'S': '850.00'}
@@ -178,8 +177,8 @@ def seed_leave_balances(employees, type_ids):
                 'carriedForwardDays':{'S': carry},
                 'adjustmentDays':    {'S': '0'},
                 'encashedDays':      {'S': '0'},
-                'createdAt': {'N': str(now_epoch)},
-                'updatedAt': {'N': str(now_epoch)},
+                'createdAt': {'S': now_iso},
+                'updatedAt': {'S': now_iso},
             }
             ok, err = put_item(item)
             if ok:
@@ -255,8 +254,8 @@ def seed_leave_requests(employees, type_ids):
             'totalDays':  {'S': req['days']},
             'status':     {'S': req['status']},
             'reason':     {'S': req['reason']},
-            'createdAt':  {'N': str(now_epoch - 86400 * 7)},
-            'updatedAt':  {'N': str(now_epoch)},
+            'createdAt':  {'S': now_iso},
+            'updatedAt':  {'S': now_iso},
         }
         if req.get('halfDay'):
             item['isHalfDay'] = {'BOOL': True}
@@ -264,12 +263,12 @@ def seed_leave_requests(employees, type_ids):
         if approver_id:
             item['approverId'] = {'S': approver_id}
         if req['status'] == 'APPROVED' and approver_id:
-            item['approvedAt'] = {'N': str(now_epoch - 86400 * 5)}
+            item['approvedAt'] = {'S': now_iso}
         if req.get('rejectionReason'):
             item['rejectionReason'] = {'S': req['rejectionReason']}
         if req.get('cancelReason'):
             item['cancellationReason'] = {'S': req['cancelReason']}
-            item['cancelledAt'] = {'N': str(now_epoch - 86400 * 3)}
+            item['cancelledAt'] = {'S': now_iso}
         if req.get('medCert'):
             item['medicalCertificateUrl'] = {'S': f's3://shumelahire-dev-documents/leave/medical-cert-{rid[:8]}.pdf'}
 

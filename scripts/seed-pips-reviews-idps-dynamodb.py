@@ -62,7 +62,7 @@ def date_ahead(days):
 
 
 def dt_ago(days):
-    return (now - timedelta(days=days)).strftime('%Y-%m-%dT%H:%M:%SZ')
+    return (now - timedelta(days=days)).strftime('%Y-%m-%dT%H:%M:%S')
 
 
 # ── PIPs ───────────────────────────────────────────────────────────

@@ -125,7 +125,7 @@ def main():
 
     region = os.environ.get('AWS_REGION', 'af-south-1')
     table_name = os.environ.get('DYNAMODB_TABLE_NAME', '')
-    tenant_id = os.environ.get('TENANT_ID', 'uthukela')
+    tenant_id = os.environ.get('TENANT_ID', '97282820-uthukela')
     enc_key_arn = os.environ.get('ENCRYPTION_KEY_ARN', '')
 
     if not table_name:
