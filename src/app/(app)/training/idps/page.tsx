@@ -31,7 +31,7 @@ function formatDate(dateStr: string | null): string {
 
 export default function IDPsPage() {
   const { user } = useAuth();
-  const employeeId = user?.employeeId ? Number(user.employeeId) : null;
+  const employeeId = user?.employeeId || null;
 
   const [idps, setIdps] = useState<IndividualDevelopmentPlan[]>([]);
   const [loading, setLoading] = useState(true);

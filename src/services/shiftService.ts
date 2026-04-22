@@ -1,7 +1,7 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface Shift {
-  id: number;
+  id: string;
   name: string;
   code: string;
   startTime: string;
@@ -13,11 +13,11 @@ export interface Shift {
 }
 
 export interface ShiftSchedule {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
   department: string | null;
-  shiftId: number;
+  shiftId: string;
   shiftName: string;
   shiftCode: string;
   shiftColorCode: string;
@@ -79,9 +79,9 @@ export const shiftService = {
     return await response.json();
   },
 
-  async getEmployeeSchedules(employeeId: number, startDate: string, endDate: string): Promise<ShiftSchedule[]> {
+  async getEmployeeSchedules(employeeId: string, startDate: string, endDate: string): Promise<ShiftSchedule[]> {
     const params = new URLSearchParams({
-      employeeId: employeeId.toString(),
+      employeeId,
       startDate,
       endDate,
     });
@@ -90,7 +90,7 @@ export const shiftService = {
     return await response.json();
   },
 
-  async swapSchedules(scheduleId1: number, scheduleId2: number): Promise<void> {
+  async swapSchedules(scheduleId1: string, scheduleId2: string): Promise<void> {
     const response = await apiFetch('/api/shifts/schedules/swap', {
       method: 'POST',
       body: JSON.stringify({ scheduleId1, scheduleId2 }),

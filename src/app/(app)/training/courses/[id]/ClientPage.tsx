@@ -48,14 +48,14 @@ const sessionStatusColors: Record<string, string> = {
 
 export default function CourseDetailPage() {
   const params = useParams();
-  const courseId = Number(params.id);
+  const courseId = params.id as string;
 
   const [course, setCourse] = useState<TrainingCourse | null>(null);
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [enrollingSessionId, setEnrollingSessionId] = useState<number | null>(null);
+  const [enrollingSessionId, setEnrollingSessionId] = useState<string | null>(null);
   const [employeeIdInput, setEmployeeIdInput] = useState('');
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [enrollSuccess, setEnrollSuccess] = useState<string | null>(null);
@@ -87,9 +87,9 @@ export default function CourseDetailPage() {
     }
   }, [courseId, fetchData]);
 
-  async function handleEnroll(sessionId: number) {
-    const empId = Number(employeeIdInput);
-    if (!empId || isNaN(empId)) {
+  async function handleEnroll(sessionId: string) {
+    const empId = employeeIdInput.trim();
+    if (!empId) {
       setEnrollError('Please enter a valid employee ID.');
       return;
     }

@@ -30,11 +30,11 @@ const categoryColors: Record<string, string> = {
 export default function OnboardingTemplatesPage() {
   const [templates, setTemplates] = useState<OnboardingTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createForm, setCreateForm] = useState({ name: '', description: '', department: '' });
   const [creating, setCreating] = useState(false);
-  const [showAddItem, setShowAddItem] = useState<number | null>(null);
+  const [showAddItem, setShowAddItem] = useState<string | null>(null);
   const [itemForm, setItemForm] = useState({
     title: '',
     description: '',
@@ -81,7 +81,7 @@ export default function OnboardingTemplatesPage() {
     }
   }
 
-  async function handleAddItem(templateId: number) {
+  async function handleAddItem(templateId: string) {
     if (!itemForm.title) return;
     setAddingItem(true);
     try {
@@ -126,7 +126,7 @@ export default function OnboardingTemplatesPage() {
     }
   }
 
-  async function handleDeleteTemplate(id: number) {
+  async function handleDeleteTemplate(id: string) {
     if (!confirm('Are you sure you want to delete this template?')) return;
     try {
       await onboardingService.deleteTemplate(id);
@@ -136,7 +136,7 @@ export default function OnboardingTemplatesPage() {
     }
   }
 
-  function toggleExpanded(id: number) {
+  function toggleExpanded(id: string) {
     setExpandedId(expandedId === id ? null : id);
     setShowAddItem(null);
   }

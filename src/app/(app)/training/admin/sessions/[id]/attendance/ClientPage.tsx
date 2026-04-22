@@ -28,7 +28,7 @@ function formatTime(dateStr: string | null): string {
 
 export default function AttendanceRegisterPage() {
   const params = useParams();
-  const sessionId = Number(params.id);
+  const sessionId = params.id as string;
 
   const [session, setSession] = useState<TrainingSession | null>(null);
   const [attendanceRecords, setAttendanceRecords] = useState<TrainingAttendanceRecord[]>([]);
@@ -38,8 +38,8 @@ export default function AttendanceRegisterPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   // Local edits keyed by attendance record id
-  const [localAttended, setLocalAttended] = useState<Record<number, boolean>>({});
-  const [localNotes, setLocalNotes] = useState<Record<number, string>>({});
+  const [localAttended, setLocalAttended] = useState<Record<string, boolean>>({});
+  const [localNotes, setLocalNotes] = useState<Record<string, string>>({});
 
   const fetchData = useCallback(async () => {
     try {
@@ -57,8 +57,8 @@ export default function AttendanceRegisterPage() {
       setEnrollments(enrollmentData);
 
       // Initialize local state from fetched data
-      const attendedMap: Record<number, boolean> = {};
-      const notesMap: Record<number, string> = {};
+      const attendedMap: Record<string, boolean> = {};
+      const notesMap: Record<string, string> = {};
       attendanceData.forEach(rec => {
         attendedMap[rec.id] = rec.attended;
         notesMap[rec.id] = rec.notes || '';
@@ -78,7 +78,7 @@ export default function AttendanceRegisterPage() {
     }
   }, [sessionId, fetchData]);
 
-  const handleToggleAttended = (recordId: number) => {
+  const handleToggleAttended = (recordId: string) => {
     setLocalAttended(prev => ({
       ...prev,
       [recordId]: !prev[recordId],
@@ -86,7 +86,7 @@ export default function AttendanceRegisterPage() {
     setSaveSuccess(false);
   };
 
-  const handleNotesChange = (recordId: number, value: string) => {
+  const handleNotesChange = (recordId: string, value: string) => {
     setLocalNotes(prev => ({
       ...prev,
       [recordId]: value,
@@ -117,7 +117,7 @@ export default function AttendanceRegisterPage() {
   };
 
   // Build a lookup from employeeId to enrollment
-  const enrollmentByEmployee = new Map<number, TrainingEnrollment>();
+  const enrollmentByEmployee = new Map<string, TrainingEnrollment>();
   enrollments.forEach(e => enrollmentByEmployee.set(e.employeeId, e));
 
   const attendedCount = Object.values(localAttended).filter(Boolean).length;

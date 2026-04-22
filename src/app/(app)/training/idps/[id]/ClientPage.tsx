@@ -41,14 +41,14 @@ function formatDate(dateStr: string | null): string {
 
 export default function IDPDetailPage() {
   const params = useParams();
-  const planId = Number(params.id);
+  const planId = params.id as string;
 
   const [idp, setIdp] = useState<IndividualDevelopmentPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [submittingGoal, setSubmittingGoal] = useState(false);
-  const [togglingGoalId, setTogglingGoalId] = useState<number | null>(null);
+  const [togglingGoalId, setTogglingGoalId] = useState<string | null>(null);
   const [goalForm, setGoalForm] = useState({
     title: '',
     description: '',

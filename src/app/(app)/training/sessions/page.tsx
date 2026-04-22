@@ -15,10 +15,10 @@ export default function TrainingSessionsPage() {
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'all' | 'upcoming' | 'open'>('upcoming');
-  const [enrolling, setEnrolling] = useState<number | null>(null);
+  const [enrolling, setEnrolling] = useState<string | null>(null);
 
   // TODO: Get from auth context
-  const employeeId = 1;
+  const employeeId = '1';
 
   useEffect(() => {
     loadSessions();
@@ -38,7 +38,7 @@ export default function TrainingSessionsPage() {
     setLoading(false);
   };
 
-  const handleEnroll = async (sessionId: number) => {
+  const handleEnroll = async (sessionId: string) => {
     try {
       setEnrolling(sessionId);
       await trainingService.enroll(sessionId, employeeId);

@@ -40,12 +40,12 @@ const statusColors: Record<string, string> = {
 
 export default function ChecklistDetailPage() {
   const params = useParams();
-  const checklistId = Number(params.checklistId);
+  const checklistId = params.checklistId as string;
 
   const [checklist, setChecklist] = useState<OnboardingChecklist | null>(null);
   const [progress, setProgress] = useState<ChecklistProgress | null>(null);
   const [loading, setLoading] = useState(true);
-  const [updatingItem, setUpdatingItem] = useState<number | null>(null);
+  const [updatingItem, setUpdatingItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (checklistId) {

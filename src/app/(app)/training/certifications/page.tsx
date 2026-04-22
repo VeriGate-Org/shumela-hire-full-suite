@@ -16,7 +16,7 @@ export default function CertificationsPage() {
   const [filter, setFilter] = useState<'all' | 'expiring' | 'expired'>('all');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
-    employeeId: 1,
+    employeeId: '1',
     name: '',
     issuingBody: '',
     certificationNumber: '',
@@ -26,7 +26,7 @@ export default function CertificationsPage() {
   });
 
   // TODO: Get from auth context
-  const employeeId = 1;
+  const employeeId = '1';
 
   useEffect(() => {
     loadCertifications();
@@ -48,7 +48,7 @@ export default function CertificationsPage() {
     try {
       await trainingService.createCertification(form);
       setShowForm(false);
-      setForm({ employeeId: 1, name: '', issuingBody: '', certificationNumber: '', issueDate: '', expiryDate: '', documentUrl: '' });
+      setForm({ employeeId: '1', name: '', issuingBody: '', certificationNumber: '', issueDate: '', expiryDate: '', documentUrl: '' });
       loadCertifications();
     } catch (err: any) {
       alert(err.message || 'Failed to create certification');
@@ -68,7 +68,7 @@ export default function CertificationsPage() {
     RENEWED: 'bg-green-100 text-green-700',
   };
 
-  const handleRenewal = async (certId: number) => {
+  const handleRenewal = async (certId: string) => {
     try {
       await trainingService.updateCertification(certId, { renewalStatus: 'RENEWAL_SUBMITTED' } as any);
       loadCertifications();

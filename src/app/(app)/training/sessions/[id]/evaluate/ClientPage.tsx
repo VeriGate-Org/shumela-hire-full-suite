@@ -55,9 +55,9 @@ function StarRating({ label, value, onChange }: StarRatingProps) {
 export default function EvaluationPage() {
   const params = useParams();
   const router = useRouter();
-  const sessionId = Number(params.id);
+  const sessionId = params.id as string;
   const { user } = useAuth();
-  const employeeId = user?.employeeId ? Number(user.employeeId) : null;
+  const employeeId = user?.employeeId || null;
 
   const [overallRating, setOverallRating] = useState(0);
   const [contentRating, setContentRating] = useState(0);

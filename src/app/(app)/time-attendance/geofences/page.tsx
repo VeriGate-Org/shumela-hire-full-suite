@@ -19,7 +19,7 @@ export default function GeofencesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const { toast } = useToast();
-  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   useEffect(() => {
     attendanceService.getGeofences().then((data) => {
@@ -73,7 +73,7 @@ export default function GeofencesPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await attendanceService.deleteGeofence(id);
       setGeofences((prev) => prev.filter((g) => g.id !== id));

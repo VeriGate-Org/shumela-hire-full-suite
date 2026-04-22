@@ -27,7 +27,7 @@ function formatDate(d: Date): string {
 
 interface PopoverState {
   employeeName: string;
-  employeeId: number;
+  employeeId: string;
   dateStr: string;
   dayIndex: number;
   existing?: ShiftSchedule;
@@ -87,7 +87,7 @@ export default function ShiftSchedulingPage() {
 
   // Group schedules by employee
   const employeeMap = useMemo(() => {
-    const map = new Map<string, { id: number; schedules: ShiftSchedule[] }>();
+    const map = new Map<string, { id: string; schedules: ShiftSchedule[] }>();
     schedules.forEach((s) => {
       const key = s.employeeName;
       if (!map.has(key)) map.set(key, { id: s.employeeId, schedules: [] });
@@ -96,11 +96,11 @@ export default function ShiftSchedulingPage() {
     return map;
   }, [schedules]);
 
-  const handleCellClick = (employeeName: string, employeeId: number, dateStr: string, dayIndex: number, existing?: ShiftSchedule) => {
+  const handleCellClick = (employeeName: string, employeeId: string, dateStr: string, dayIndex: number, existing?: ShiftSchedule) => {
     setPopover({ employeeName, employeeId, dateStr, dayIndex, existing });
   };
 
-  const handleAssign = async (shiftId: number) => {
+  const handleAssign = async (shiftId: string) => {
     if (!popover) return;
     setSaving(true);
     try {

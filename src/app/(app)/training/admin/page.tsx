@@ -70,7 +70,7 @@ export default function TrainingAdminPage() {
     e.preventDefault();
     try {
       await trainingService.createSession({
-        courseId: parseInt(sessionForm.courseId),
+        courseId: sessionForm.courseId,
         trainerName: sessionForm.trainerName || null,
         location: sessionForm.location || null,
         startDate: sessionForm.startDate,
@@ -85,7 +85,7 @@ export default function TrainingAdminPage() {
     }
   };
 
-  const handleDeleteCourse = async (id: number) => {
+  const handleDeleteCourse = async (id: string) => {
     if (!confirm('Are you sure you want to deactivate this course?')) return;
     try {
       await trainingService.deleteCourse(id);
@@ -95,7 +95,7 @@ export default function TrainingAdminPage() {
     }
   };
 
-  const handleSessionAction = async (id: number, action: 'open' | 'close' | 'cancel') => {
+  const handleSessionAction = async (id: string, action: 'open' | 'close' | 'cancel') => {
     try {
       if (action === 'open') await trainingService.openSession(id);
       else if (action === 'close') await trainingService.closeSession(id);
