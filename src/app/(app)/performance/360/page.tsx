@@ -40,8 +40,8 @@ export default function FeedbackPage() {
     setSubmitting(true);
     try {
       await performanceEnhancementService.createFeedbackRequest({
-        employeeId: parseInt(formData.employeeId),
-        requesterId: parseInt(formData.requesterId),
+        employeeId: formData.employeeId,
+        requesterId: formData.requesterId,
         feedbackType: formData.feedbackType,
         dueDate: formData.dueDate || null,
       });
@@ -222,13 +222,13 @@ export default function FeedbackPage() {
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID (to evaluate)</label>
-                  <input type="number" required value={formData.employeeId}
+                  <input type="text" required value={formData.employeeId}
                     onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Requester ID</label>
-                  <input type="number" required value={formData.requesterId}
+                  <input type="text" required value={formData.requesterId}
                     onChange={(e) => setFormData({ ...formData, requesterId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>

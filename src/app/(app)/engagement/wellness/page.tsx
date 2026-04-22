@@ -27,11 +27,11 @@ export default function WellnessPage() {
     }
   }
 
-  async function handleJoin(programId: number) {
+  async function handleJoin(programId: string) {
     const employeeId = prompt('Enter your employee ID:');
     if (!employeeId) return;
     try {
-      await engagementService.joinWellnessProgram(programId, parseInt(employeeId));
+      await engagementService.joinWellnessProgram(programId, employeeId);
       loadPrograms();
     } catch (error: any) {
       alert(error.message || 'Failed to join program');

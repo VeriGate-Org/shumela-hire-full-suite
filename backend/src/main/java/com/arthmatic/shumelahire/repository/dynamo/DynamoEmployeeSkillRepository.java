@@ -42,7 +42,7 @@ public class DynamoEmployeeSkillRepository extends DynamoRepository<EmployeeSkil
         }
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
-            e.setEmployeeId(safeParseLong(item.getEmployeeId()));
+            e.setEmployeeId(item.getEmployeeId());
         }
         e.setSkillName(item.getSkillName());
         if (item.getProficiencyLevel() != null) {

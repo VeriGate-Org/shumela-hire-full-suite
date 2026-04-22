@@ -33,7 +33,7 @@ export default function SurveysPage() {
     }
   }
 
-  async function handleActivate(id: number) {
+  async function handleActivate(id: string) {
     try {
       await engagementService.activateSurvey(id);
       loadSurveys();
@@ -42,7 +42,7 @@ export default function SurveysPage() {
     }
   }
 
-  async function handleClose(id: number) {
+  async function handleClose(id: string) {
     try {
       await engagementService.closeSurvey(id);
       loadSurveys();
@@ -51,7 +51,7 @@ export default function SurveysPage() {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this survey?')) return;
     try {
       await engagementService.deleteSurvey(id);

@@ -39,8 +39,8 @@ export default function SkillGapsPage() {
     setViewMode('employee');
     try {
       const [gapData, recData] = await Promise.all([
-        performanceEnhancementService.getSkillGaps(Number(employeeId)),
-        performanceEnhancementService.getTrainingRecommendations(Number(employeeId)),
+        performanceEnhancementService.getSkillGaps(employeeId),
+        performanceEnhancementService.getTrainingRecommendations(employeeId),
       ]);
       setGaps(gapData);
       setRecommendations(recData);
@@ -62,7 +62,7 @@ export default function SkillGapsPage() {
     setSearched(true);
     setViewMode('department');
     try {
-      const gapData = await performanceEnhancementService.getDepartmentGaps(Number(departmentId));
+      const gapData = await performanceEnhancementService.getDepartmentGaps(departmentId);
       setGaps(gapData);
       setRecommendations([]);
     } catch (err: any) {
@@ -112,7 +112,7 @@ export default function SkillGapsPage() {
               </h3>
               <div className="flex gap-2">
                 <input
-                  type="number"
+                  type="text"
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
                   placeholder="Employee ID"
@@ -136,7 +136,7 @@ export default function SkillGapsPage() {
               </h3>
               <div className="flex gap-2">
                 <input
-                  type="number"
+                  type="text"
                   value={departmentId}
                   onChange={(e) => setDepartmentId(e.target.value)}
                   placeholder="Department ID"

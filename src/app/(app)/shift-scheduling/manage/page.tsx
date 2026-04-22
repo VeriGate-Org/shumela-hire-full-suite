@@ -69,8 +69,8 @@ export default function ManageShiftsPage() {
     setAssignSuccess('');
     try {
       await shiftService.assignShift(
-        parseInt(assignForm.employeeId),
-        parseInt(assignForm.shiftId),
+        assignForm.employeeId,
+        assignForm.shiftId,
         assignForm.date,
       );
       setAssignSuccess('Shift assigned successfully');
@@ -157,7 +157,7 @@ export default function ManageShiftsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-muted-foreground mb-1">Employee ID</label>
-                  <input type="number" value={assignForm.employeeId} onChange={(e) => setAssignForm({ ...assignForm, employeeId: e.target.value })}
+                  <input type="text" value={assignForm.employeeId} onChange={(e) => setAssignForm({ ...assignForm, employeeId: e.target.value })}
                     className="w-full border rounded-md px-3 py-2 text-sm" placeholder="Employee ID" />
                 </div>
                 <div>

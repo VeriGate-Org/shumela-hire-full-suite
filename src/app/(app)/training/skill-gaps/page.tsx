@@ -36,15 +36,14 @@ export default function SkillGapsPage() {
     setAiInsights(null);
     try {
       if (viewMode === 'employee') {
-        const id = parseInt(employeeId);
         const [gapData, recData] = await Promise.all([
-          performanceEnhancementService.getSkillGaps(id),
-          performanceEnhancementService.getTrainingRecommendations(id),
+          performanceEnhancementService.getSkillGaps(employeeId),
+          performanceEnhancementService.getTrainingRecommendations(employeeId),
         ]);
         setGaps(gapData);
         setRecommendations(recData);
       } else {
-        const gapData = await performanceEnhancementService.getDepartmentGaps(parseInt(departmentId));
+        const gapData = await performanceEnhancementService.getDepartmentGaps(departmentId);
         setGaps(gapData);
         setRecommendations([]);
       }
@@ -120,7 +119,7 @@ export default function SkillGapsPage() {
             <div className="flex gap-4">
               {viewMode === 'employee' ? (
                 <input
-                  type="number"
+                  type="text"
                   placeholder="Enter Employee ID"
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}

@@ -1,7 +1,7 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface LeaveType {
-  id: number;
+  id: string;
   name: string;
   code: string;
   description: string | null;
@@ -19,8 +19,8 @@ export interface LeaveType {
 }
 
 export interface LeavePolicy {
-  id: number;
-  leaveTypeId: number;
+  id: string;
+  leaveTypeId: string;
   leaveTypeName: string;
   name: string;
   description: string | null;
@@ -39,10 +39,10 @@ export interface LeavePolicy {
 }
 
 export interface LeaveBalance {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
-  leaveTypeId: number;
+  leaveTypeId: string;
   leaveTypeName: string;
   leaveTypeCode: string;
   colorCode: string;
@@ -57,10 +57,10 @@ export interface LeaveBalance {
 }
 
 export interface LeaveEncashmentRequest {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
-  leaveTypeId: number;
+  leaveTypeId: string;
   leaveTypeName: string;
   days: number;
   ratePerDay: number;
@@ -68,10 +68,10 @@ export interface LeaveEncashmentRequest {
   status: string;
   reason: string | null;
   requestedAt: string;
-  hrApprovedById: number | null;
+  hrApprovedById: string | null;
   hrApprovedByName: string | null;
   hrApprovedAt: string | null;
-  financeApprovedById: number | null;
+  financeApprovedById: string | null;
   financeApprovedByName: string | null;
   financeApprovedAt: string | null;
   decisionComment: string | null;
@@ -79,11 +79,11 @@ export interface LeaveEncashmentRequest {
 }
 
 export interface LeaveRequest {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
   employeeDepartment: string | null;
-  leaveTypeId: number;
+  leaveTypeId: string;
   leaveTypeName: string;
   leaveTypeCode: string;
   colorCode: string;
@@ -95,7 +95,7 @@ export interface LeaveRequest {
   reason: string | null;
   medicalCertificateUrl: string | null;
   status: string;
-  approverId: number | null;
+  approverId: string | null;
   approverName: string | null;
   approvedAt: string | null;
   rejectionReason: string | null;
@@ -106,7 +106,7 @@ export interface LeaveRequest {
 }
 
 export interface LeaveCalendarEntry {
-  id: number;
+  id: string;
   employeeName: string;
   department: string | null;
   leaveTypeName: string;
@@ -117,7 +117,7 @@ export interface LeaveCalendarEntry {
 }
 
 export interface PublicHoliday {
-  id: number;
+  id: string;
   name: string;
   holidayDate: string;
   isRecurring: boolean;
@@ -163,7 +163,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async updateLeaveType(id: number, data: Partial<LeaveType>): Promise<LeaveType> {
+  async updateLeaveType(id: string, data: Partial<LeaveType>): Promise<LeaveType> {
     const response = await apiFetch(`/api/leave/types/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -176,7 +176,7 @@ export const leaveService = {
   },
 
   // Leave Policies
-  async getLeavePolicies(leaveTypeId?: number): Promise<LeavePolicy[]> {
+  async getLeavePolicies(leaveTypeId?: string): Promise<LeavePolicy[]> {
     const params = leaveTypeId ? `?leaveTypeId=${leaveTypeId}` : '';
     try {
       const response = await apiFetch(`/api/leave/policies${params}`);
@@ -205,8 +205,8 @@ export const leaveService = {
   },
 
   // Balances
-  async getBalances(employeeId: number, year?: number): Promise<LeaveBalance[]> {
-    const params = new URLSearchParams({ employeeId: employeeId.toString() });
+  async getBalances(employeeId: string, year?: number): Promise<LeaveBalance[]> {
+    const params = new URLSearchParams({ employeeId });
     if (year) params.set('year', year.toString());
     try {
       const response = await apiFetch(`/api/leave/balances?${params}`);
@@ -223,7 +223,7 @@ export const leaveService = {
   },
 
   // Leave Requests
-  async createLeaveRequest(employeeId: number, data: any): Promise<LeaveRequest> {
+  async createLeaveRequest(employeeId: string, data: any): Promise<LeaveRequest> {
     const response = await apiFetch(`/api/leave/requests?employeeId=${employeeId}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -236,13 +236,13 @@ export const leaveService = {
   },
 
   async getLeaveRequests(params: {
-    employeeId?: number;
+    employeeId?: string;
     status?: string;
     page?: number;
     size?: number;
   }): Promise<PageResponse<LeaveRequest>> {
     const searchParams = new URLSearchParams();
-    if (params.employeeId) searchParams.set('employeeId', params.employeeId.toString());
+    if (params.employeeId) searchParams.set('employeeId', params.employeeId);
     if (params.status) searchParams.set('status', params.status);
     searchParams.set('page', (params.page ?? 0).toString());
     searchParams.set('size', (params.size ?? 20).toString());
@@ -251,19 +251,19 @@ export const leaveService = {
     return await response.json();
   },
 
-  async getLeaveRequest(id: number): Promise<LeaveRequest> {
+  async getLeaveRequest(id: string): Promise<LeaveRequest> {
     const response = await apiFetch(`/api/leave/requests/${id}`);
     if (!response.ok) throw new Error('Leave request not found');
     return await response.json();
   },
 
-  async getPendingApprovals(managerId: number, page = 0, size = 20): Promise<PageResponse<LeaveRequest>> {
+  async getPendingApprovals(managerId: string, page = 0, size = 20): Promise<PageResponse<LeaveRequest>> {
     const response = await apiFetch(`/api/leave/requests/pending?managerId=${managerId}&page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
   },
 
-  async approveRequest(id: number, approverId: number): Promise<LeaveRequest> {
+  async approveRequest(id: string, approverId: string): Promise<LeaveRequest> {
     const response = await apiFetch(`/api/leave/requests/${id}/approve?approverId=${approverId}`, {
       method: 'PUT',
     });
@@ -274,7 +274,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async rejectRequest(id: number, approverId: number, reason?: string): Promise<LeaveRequest> {
+  async rejectRequest(id: string, approverId: string, reason?: string): Promise<LeaveRequest> {
     const response = await apiFetch(`/api/leave/requests/${id}/reject?approverId=${approverId}`, {
       method: 'PUT',
       body: JSON.stringify({ reason }),
@@ -286,7 +286,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async cancelRequest(id: number, employeeId: number, reason?: string): Promise<LeaveRequest> {
+  async cancelRequest(id: string, employeeId: string, reason?: string): Promise<LeaveRequest> {
     const response = await apiFetch(`/api/leave/requests/${id}/cancel?employeeId=${employeeId}`, {
       method: 'PUT',
       body: JSON.stringify({ reason }),
@@ -339,13 +339,13 @@ export const leaveService = {
     return await response.json();
   },
 
-  async deleteHoliday(id: number): Promise<void> {
+  async deleteHoliday(id: string): Promise<void> {
     const response = await apiFetch(`/api/leave/holidays/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete holiday');
   },
 
   // Leave Encashment
-  async requestEncashment(employeeId: number, data: { leaveTypeId: number; days: number; reason?: string }): Promise<LeaveEncashmentRequest> {
+  async requestEncashment(employeeId: string, data: { leaveTypeId: string; days: number; reason?: string }): Promise<LeaveEncashmentRequest> {
     const response = await apiFetch(`/api/leave/encashment?employeeId=${employeeId}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -357,7 +357,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async getEncashmentRequests(employeeId: number): Promise<LeaveEncashmentRequest[]> {
+  async getEncashmentRequests(employeeId: string): Promise<LeaveEncashmentRequest[]> {
     const response = await apiFetch(`/api/leave/encashment?employeeId=${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
@@ -375,7 +375,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async hrApproveEncashment(id: number, approverId: number): Promise<LeaveEncashmentRequest> {
+  async hrApproveEncashment(id: string, approverId: string): Promise<LeaveEncashmentRequest> {
     const response = await apiFetch(`/api/leave/encashment/${id}/hr-approve?approverId=${approverId}`, {
       method: 'PUT',
     });
@@ -386,7 +386,7 @@ export const leaveService = {
     return await response.json();
   },
 
-  async financeApproveEncashment(id: number, approverId: number): Promise<LeaveEncashmentRequest> {
+  async financeApproveEncashment(id: string, approverId: string): Promise<LeaveEncashmentRequest> {
     const response = await apiFetch(`/api/leave/encashment/${id}/finance-approve?approverId=${approverId}`, {
       method: 'PUT',
     });
@@ -397,8 +397,8 @@ export const leaveService = {
     return await response.json();
   },
 
-  async rejectEncashment(id: number, approverId: number, comment?: string): Promise<LeaveEncashmentRequest> {
-    const params = new URLSearchParams({ approverId: approverId.toString() });
+  async rejectEncashment(id: string, approverId: string, comment?: string): Promise<LeaveEncashmentRequest> {
+    const params = new URLSearchParams({ approverId });
     if (comment) params.set('comment', comment);
     const response = await apiFetch(`/api/leave/encashment/${id}/reject?${params}`, {
       method: 'PUT',

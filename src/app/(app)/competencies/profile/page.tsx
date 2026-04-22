@@ -17,7 +17,7 @@ export default function CompetencyProfilePage() {
     setLoading(true);
     setSearched(true);
     try {
-      const data = await performanceEnhancementService.getEmployeeCompetencies(parseInt(employeeId));
+      const data = await performanceEnhancementService.getEmployeeCompetencies(employeeId);
       setCompetencies(data);
     } catch (error) {
       console.error('Failed to load competency profile:', error);
@@ -45,7 +45,7 @@ export default function CompetencyProfilePage() {
           {/* Search */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex gap-4">
-              <input type="number" placeholder="Enter Employee ID" value={employeeId}
+              <input type="text" placeholder="Enter Employee ID" value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
               <button onClick={loadProfile}

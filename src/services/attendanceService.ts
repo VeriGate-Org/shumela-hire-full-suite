@@ -1,8 +1,8 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface AttendanceRecord {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
   department: string | null;
   clockIn: string;
@@ -19,7 +19,7 @@ export interface AttendanceRecord {
 }
 
 export interface Geofence {
-  id: number;
+  id: string;
   name: string;
   latitude: number;
   longitude: number;
@@ -30,14 +30,14 @@ export interface Geofence {
 }
 
 export interface OvertimeRecord {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
   date: string;
   hours: number;
   reason: string | null;
   status: string;
-  approverId: number | null;
+  approverId: string | null;
   approverName: string | null;
   approvedAt: string | null;
   createdAt: string;
@@ -53,8 +53,8 @@ export interface PageResponse<T> {
 
 export const attendanceService = {
   // Clock In/Out
-  async clockIn(employeeId: number, method = 'MANUAL', latitude?: number, longitude?: number): Promise<AttendanceRecord> {
-    const params = new URLSearchParams({ employeeId: employeeId.toString(), method });
+  async clockIn(employeeId: string, method = 'MANUAL', latitude?: number, longitude?: number): Promise<AttendanceRecord> {
+    const params = new URLSearchParams({ employeeId, method });
     if (latitude != null) params.set('latitude', latitude.toString());
     if (longitude != null) params.set('longitude', longitude.toString());
     const response = await apiFetch(`/api/attendance/clock-in?${params}`, { method: 'POST' });
@@ -65,8 +65,8 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async clockOut(employeeId: number, latitude?: number, longitude?: number): Promise<AttendanceRecord> {
-    const params = new URLSearchParams({ employeeId: employeeId.toString() });
+  async clockOut(employeeId: string, latitude?: number, longitude?: number): Promise<AttendanceRecord> {
+    const params = new URLSearchParams({ employeeId });
     if (latitude != null) params.set('latitude', latitude.toString());
     if (longitude != null) params.set('longitude', longitude.toString());
     const response = await apiFetch(`/api/attendance/clock-out?${params}`, { method: 'POST' });
@@ -78,7 +78,7 @@ export const attendanceService = {
   },
 
   // Records
-  async getRecords(employeeId: number, page = 0, size = 20): Promise<PageResponse<AttendanceRecord>> {
+  async getRecords(employeeId: string, page = 0, size = 20): Promise<PageResponse<AttendanceRecord>> {
     const response = await apiFetch(`/api/attendance/records?employeeId=${employeeId}&page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
@@ -92,8 +92,8 @@ export const attendanceService = {
   },
 
   // Overtime
-  async submitOvertime(employeeId: number, date: string, hours: number, reason?: string): Promise<OvertimeRecord> {
-    const params = new URLSearchParams({ employeeId: employeeId.toString(), date, hours: hours.toString() });
+  async submitOvertime(employeeId: string, date: string, hours: number, reason?: string): Promise<OvertimeRecord> {
+    const params = new URLSearchParams({ employeeId, date, hours: hours.toString() });
     if (reason) params.set('reason', reason);
     const response = await apiFetch(`/api/attendance/overtime?${params}`, { method: 'POST' });
     if (!response.ok) {
@@ -103,7 +103,7 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async approveOvertime(id: number, approverId: number): Promise<OvertimeRecord> {
+  async approveOvertime(id: string, approverId: string): Promise<OvertimeRecord> {
     const response = await apiFetch(`/api/attendance/overtime/${id}/approve?approverId=${approverId}`, { method: 'PUT' });
     if (!response.ok) {
       const err = await response.json();
@@ -112,7 +112,7 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async rejectOvertime(id: number, approverId: number): Promise<OvertimeRecord> {
+  async rejectOvertime(id: string, approverId: string): Promise<OvertimeRecord> {
     const response = await apiFetch(`/api/attendance/overtime/${id}/reject?approverId=${approverId}`, { method: 'PUT' });
     if (!response.ok) {
       const err = await response.json();
@@ -121,7 +121,7 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async getOvertime(employeeId: number, page = 0, size = 20): Promise<PageResponse<OvertimeRecord>> {
+  async getOvertime(employeeId: string, page = 0, size = 20): Promise<PageResponse<OvertimeRecord>> {
     const response = await apiFetch(`/api/attendance/overtime?employeeId=${employeeId}&page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
@@ -153,14 +153,14 @@ export const attendanceService = {
   },
 
   // Status
-  async getStatus(employeeId: number): Promise<AttendanceRecord | { clockedIn: false }> {
+  async getStatus(employeeId: string): Promise<AttendanceRecord | { clockedIn: false }> {
     const response = await apiFetch(`/api/attendance/status?employeeId=${employeeId}`);
     if (!response.ok) throw new Error('Failed to get status');
     return await response.json();
   },
 
   // Manual Entry
-  async createManualEntry(data: { employeeId: number; clockIn: string; clockOut: string; notes?: string }): Promise<AttendanceRecord> {
+  async createManualEntry(data: { employeeId: string; clockIn: string; clockOut: string; notes?: string }): Promise<AttendanceRecord> {
     const response = await apiFetch('/api/attendance/manual', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -172,13 +172,13 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async approveManualEntry(id: number): Promise<AttendanceRecord> {
+  async approveManualEntry(id: string): Promise<AttendanceRecord> {
     const response = await apiFetch(`/api/attendance/manual/${id}/approve`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to approve entry');
     return await response.json();
   },
 
-  async deleteGeofence(id: number): Promise<void> {
+  async deleteGeofence(id: string): Promise<void> {
     const response = await apiFetch(`/api/geofences/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete geofence');
   },

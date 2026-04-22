@@ -1,8 +1,8 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface FeedPost {
-  id: number;
-  authorId: number;
+  id: string;
+  authorId: string;
   authorName: string | null;
   title: string | null;
   content: string;
@@ -19,18 +19,18 @@ export interface FeedPost {
 }
 
 export interface FeedComment {
-  id: number;
-  postId: number;
-  authorId: number;
+  id: string;
+  postId: string;
+  authorId: string;
   authorName: string | null;
   content: string;
   createdAt: string;
 }
 
 export interface FeedReaction {
-  id: number;
-  postId: number;
-  userId: number;
+  id: string;
+  postId: string;
+  userId: string;
   reactionType: 'LIKE' | 'CELEBRATE' | 'SUPPORT';
   createdAt: string;
 }
@@ -57,13 +57,13 @@ export const feedService = {
     return await response.json();
   },
 
-  async getPost(id: number): Promise<FeedPost> {
+  async getPost(id: string): Promise<FeedPost> {
     const response = await apiFetch(`/api/feed/${id}`);
     if (!response.ok) throw new Error('Post not found');
     return await response.json();
   },
 
-  async createPost(data: { authorId: number; title?: string; content: string; category: string }): Promise<FeedPost> {
+  async createPost(data: { authorId: string; title?: string; content: string; category: string }): Promise<FeedPost> {
     const response = await apiFetch('/api/feed', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -75,7 +75,7 @@ export const feedService = {
     return await response.json();
   },
 
-  async updatePost(id: number, data: Partial<FeedPost>): Promise<FeedPost> {
+  async updatePost(id: string, data: Partial<FeedPost>): Promise<FeedPost> {
     const response = await apiFetch(`/api/feed/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -87,19 +87,19 @@ export const feedService = {
     return await response.json();
   },
 
-  async deletePost(id: number): Promise<void> {
+  async deletePost(id: string): Promise<void> {
     const response = await apiFetch(`/api/feed/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete post');
   },
 
-  async togglePin(id: number): Promise<FeedPost> {
+  async togglePin(id: string): Promise<FeedPost> {
     const response = await apiFetch(`/api/feed/${id}/pin`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to toggle pin');
     return await response.json();
   },
 
   // Comments
-  async addComment(postId: number, data: { authorId: number; content: string }): Promise<FeedComment> {
+  async addComment(postId: string, data: { authorId: string; content: string }): Promise<FeedComment> {
     const response = await apiFetch(`/api/feed/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -111,13 +111,13 @@ export const feedService = {
     return await response.json();
   },
 
-  async deleteComment(postId: number, commentId: number): Promise<void> {
+  async deleteComment(postId: string, commentId: string): Promise<void> {
     const response = await apiFetch(`/api/feed/${postId}/comments/${commentId}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete comment');
   },
 
   // Reactions
-  async toggleReaction(postId: number, userId: number, reactionType: string): Promise<{ action: string }> {
+  async toggleReaction(postId: string, userId: string, reactionType: string): Promise<{ action: string }> {
     const response = await apiFetch(`/api/feed/${postId}/reactions`, {
       method: 'POST',
       body: JSON.stringify({ userId, reactionType }),

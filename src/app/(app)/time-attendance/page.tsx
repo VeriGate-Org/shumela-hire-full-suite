@@ -28,8 +28,7 @@ export default function TimeAttendancePage() {
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const parsedId = rawId ? parseInt(rawId, 10) : 0;
-  const employeeId = Number.isFinite(parsedId) ? parsedId : 0;
+  const employeeId = rawId || '';
 
   useEffect(() => {
     if (!employeeId) {

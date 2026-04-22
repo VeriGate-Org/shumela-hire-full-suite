@@ -10,7 +10,7 @@ export default function LeaveRequestPage() {
   const router = useRouter();
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
 
   return (
     <FeatureGate feature="LEAVE_MANAGEMENT">

@@ -43,7 +43,7 @@ public class DynamoEmployeeEducationRepository extends DynamoRepository<Employee
         }
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
-            e.setEmployeeId(safeParseLong(item.getEmployeeId()));
+            e.setEmployeeId(item.getEmployeeId());
         }
         e.setInstitution(item.getInstitution());
         e.setQualification(item.getQualification());

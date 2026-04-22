@@ -1,22 +1,22 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface Survey {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   status: string;
   isAnonymous: boolean;
   startDate: string | null;
   endDate: string | null;
-  createdBy: number | null;
+  createdBy: string | null;
   questions: SurveyQuestion[] | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface SurveyQuestion {
-  id: number;
-  surveyId: number;
+  id: string;
+  surveyId: string;
   questionText: string;
   questionType: string;
   options: string | null;
@@ -26,14 +26,14 @@ export interface SurveyQuestion {
 }
 
 export interface SurveyResults {
-  surveyId: number;
+  surveyId: string;
   surveyTitle: string;
   totalRespondents: number;
   questionResults: QuestionResult[];
 }
 
 export interface QuestionResult {
-  questionId: number;
+  questionId: string;
   questionText: string;
   questionType: string;
   averageRating: number | null;
@@ -42,10 +42,10 @@ export interface QuestionResult {
 }
 
 export interface Recognition {
-  id: number;
-  fromEmployeeId: number;
+  id: string;
+  fromEmployeeId: string;
   fromEmployeeName: string;
-  toEmployeeId: number;
+  toEmployeeId: string;
   toEmployeeName: string;
   category: string;
   message: string | null;
@@ -55,7 +55,7 @@ export interface Recognition {
 }
 
 export interface WellnessProgram {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   programType: string;
@@ -77,14 +77,14 @@ export interface PageResponse<T> {
 }
 
 export interface LeaderboardEntry {
-  employeeId: number;
+  employeeId: string;
   employeeName: string;
   totalPoints: number;
 }
 
 export const engagementService = {
   // ---- Surveys ----
-  async createSurvey(createdBy: number, data: any): Promise<Survey> {
+  async createSurvey(createdBy: string, data: any): Promise<Survey> {
     const response = await apiFetch(`/api/engagement/surveys?createdBy=${createdBy}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -96,7 +96,7 @@ export const engagementService = {
     return await response.json();
   },
 
-  async getSurvey(id: number): Promise<Survey> {
+  async getSurvey(id: string): Promise<Survey> {
     const response = await apiFetch(`/api/engagement/surveys/${id}`);
     if (!response.ok) throw new Error('Survey not found');
     return await response.json();
@@ -114,19 +114,19 @@ export const engagementService = {
     return await response.json();
   },
 
-  async activateSurvey(id: number): Promise<Survey> {
+  async activateSurvey(id: string): Promise<Survey> {
     const response = await apiFetch(`/api/engagement/surveys/${id}/activate`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to activate survey');
     return await response.json();
   },
 
-  async closeSurvey(id: number): Promise<Survey> {
+  async closeSurvey(id: string): Promise<Survey> {
     const response = await apiFetch(`/api/engagement/surveys/${id}/close`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to close survey');
     return await response.json();
   },
 
-  async submitSurveyResponse(surveyId: number, data: any): Promise<void> {
+  async submitSurveyResponse(surveyId: string, data: any): Promise<void> {
     const response = await apiFetch(`/api/engagement/surveys/${surveyId}/respond`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -137,13 +137,13 @@ export const engagementService = {
     }
   },
 
-  async getSurveyResults(surveyId: number): Promise<SurveyResults> {
+  async getSurveyResults(surveyId: string): Promise<SurveyResults> {
     const response = await apiFetch(`/api/engagement/surveys/${surveyId}/results`);
     if (!response.ok) throw new Error('Failed to get results');
     return await response.json();
   },
 
-  async deleteSurvey(id: number): Promise<void> {
+  async deleteSurvey(id: string): Promise<void> {
     const response = await apiFetch(`/api/engagement/surveys/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete survey');
   },
@@ -161,13 +161,13 @@ export const engagementService = {
     return await response.json();
   },
 
-  async getRecognitionsReceived(employeeId: number, page = 0, size = 20): Promise<PageResponse<Recognition>> {
+  async getRecognitionsReceived(employeeId: string, page = 0, size = 20): Promise<PageResponse<Recognition>> {
     const response = await apiFetch(`/api/engagement/recognitions/received?employeeId=${employeeId}&page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
   },
 
-  async getRecognitionsGiven(employeeId: number, page = 0, size = 20): Promise<PageResponse<Recognition>> {
+  async getRecognitionsGiven(employeeId: string, page = 0, size = 20): Promise<PageResponse<Recognition>> {
     const response = await apiFetch(`/api/engagement/recognitions/given?employeeId=${employeeId}&page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
@@ -216,7 +216,7 @@ export const engagementService = {
     return await response.json();
   },
 
-  async joinWellnessProgram(programId: number, employeeId: number): Promise<void> {
+  async joinWellnessProgram(programId: string, employeeId: string): Promise<void> {
     const response = await apiFetch(`/api/engagement/wellness/${programId}/join?employeeId=${employeeId}`, {
       method: 'POST',
     });
@@ -226,7 +226,7 @@ export const engagementService = {
     }
   },
 
-  async leaveWellnessProgram(programId: number, employeeId: number): Promise<void> {
+  async leaveWellnessProgram(programId: string, employeeId: string): Promise<void> {
     const response = await apiFetch(`/api/engagement/wellness/${programId}/leave?employeeId=${employeeId}`, {
       method: 'POST',
     });

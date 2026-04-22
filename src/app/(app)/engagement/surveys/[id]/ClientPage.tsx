@@ -28,13 +28,13 @@ function formatDate(dateString: string): string {
 
 export default function SurveyDetailPage() {
   const params = useParams();
-  const surveyId = Number(params.id);
+  const surveyId = params.id as string;
   const { user } = useAuth();
 
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [responses, setResponses] = useState<Record<number, string | number>>({});
+  const [responses, setResponses] = useState<Record<string, string | number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export default function SurveyDetailPage() {
     }
   }, [surveyId, fetchSurvey]);
 
-  function handleResponseChange(questionId: number, value: string | number) {
+  function handleResponseChange(questionId: string, value: string | number) {
     setResponses((prev) => ({ ...prev, [questionId]: value }));
   }
 
@@ -82,7 +82,7 @@ export default function SurveyDetailPage() {
       setSubmitError(null);
 
       const responseData = Object.entries(responses).map(([questionId, value]) => ({
-        questionId: Number(questionId),
+        questionId,
         value: String(value),
       }));
 

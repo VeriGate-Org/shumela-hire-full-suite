@@ -20,17 +20,17 @@ export default function LeaveEncashmentPage() {
   const [activeTab, setActiveTab] = useState<'request' | 'hr' | 'finance'>('request');
 
   // Form state
-  const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState<number | ''>('');
+  const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState<string>('');
   const [days, setDays] = useState('');
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { toast } = useToast();
-  const [rejectTarget, setRejectTarget] = useState<number | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
 
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
   const isManager = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER';
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function LeaveEncashmentPage() {
     setSuccess('');
     try {
       await leaveService.requestEncashment(employeeId, {
-        leaveTypeId: selectedLeaveTypeId as number,
+        leaveTypeId: selectedLeaveTypeId,
         days: parseFloat(days),
         reason: reason || undefined,
       });
@@ -92,7 +92,7 @@ export default function LeaveEncashmentPage() {
     }
   }
 
-  async function handleApprove(id: number, type: 'hr' | 'finance') {
+  async function handleApprove(id: string, type: 'hr' | 'finance') {
     try {
       if (type === 'hr') {
         await leaveService.hrApproveEncashment(id, employeeId);
@@ -105,7 +105,7 @@ export default function LeaveEncashmentPage() {
     }
   }
 
-  async function handleReject(id: number) {
+  async function handleReject(id: string) {
     try {
       await leaveService.rejectEncashment(id, employeeId, rejectComment || undefined);
       setRejectTarget(null);
@@ -246,7 +246,7 @@ export default function LeaveEncashmentPage() {
                         </label>
                         <select
                           value={selectedLeaveTypeId}
-                          onChange={(e) => setSelectedLeaveTypeId(e.target.value ? parseInt(e.target.value) : '')}
+                          onChange={(e) => setSelectedLeaveTypeId(e.target.value)}
                           className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground"
                           required
                         >

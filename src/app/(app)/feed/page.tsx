@@ -118,11 +118,10 @@ export default function FeedPage() {
     loadFeed(nextPage, activeCategory, true);
   }
 
-  async function handleToggleReaction(postId: number, reactionType: 'LIKE' | 'CELEBRATE' | 'SUPPORT') {
+  async function handleToggleReaction(postId: string, reactionType: 'LIKE' | 'CELEBRATE' | 'SUPPORT') {
     if (!user) return;
     try {
-      const userId = Number(user.id);
-      await feedService.toggleReaction(postId, userId, reactionType);
+      await feedService.toggleReaction(postId, user.id, reactionType);
       // Refresh the post in both lists
       const updatedPost = await feedService.getPost(postId);
       setPosts((prev) => prev.map((p) => (p.id === postId ? updatedPost : p)));
@@ -134,8 +133,7 @@ export default function FeedPage() {
 
   function hasUserReacted(post: FeedPost, reactionType: string): boolean {
     if (!user) return false;
-    const userId = Number(user.id);
-    return post.reactions.some((r) => r.userId === userId && r.reactionType === reactionType);
+    return post.reactions.some((r) => r.userId === user.id && r.reactionType === reactionType);
   }
 
   function getReactionCount(post: FeedPost, reactionType: string): number {

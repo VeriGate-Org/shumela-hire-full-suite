@@ -12,7 +12,7 @@ public class EmployeeEducation extends TenantAwareEntity {
     private Long id;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     @NotBlank
     private String institution;
@@ -40,8 +40,8 @@ public class EmployeeEducation extends TenantAwareEntity {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getInstitution() { return institution; }
     public void setInstitution(String institution) { this.institution = institution; }

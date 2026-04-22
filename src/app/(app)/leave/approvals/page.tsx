@@ -16,7 +16,7 @@ export default function LeaveApprovalsPage() {
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const managerId = rawId ? parseInt(rawId, 10) : 0;
+  const managerId = rawId || '';
 
   const loadPending = async () => {
     setLoading(true);

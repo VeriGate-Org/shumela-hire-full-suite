@@ -23,7 +23,7 @@ export default function OvertimePage() {
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
   const { toast } = useToast();
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function OvertimePage() {
     }
   };
 
-  const handleApprove = async (id: number) => {
+  const handleApprove = async (id: string) => {
     try {
       await attendanceService.approveOvertime(id, employeeId);
       setPendingRecords((prev) => prev.filter((r) => r.id !== id));
@@ -71,7 +71,7 @@ export default function OvertimePage() {
     }
   };
 
-  const handleReject = async (id: number) => {
+  const handleReject = async (id: string) => {
     try {
       await attendanceService.rejectOvertime(id, employeeId);
       setPendingRecords((prev) => prev.filter((r) => r.id !== id));

@@ -54,9 +54,9 @@ public class EmployeeSelfServiceController {
     // ---- Profile ----
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@RequestParam Long employeeId) {
+    public ResponseEntity<?> getProfile(@RequestParam String employeeId) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(EmployeeProfileResponse.fromEntity(employee));
         } catch (IllegalArgumentException e) {
@@ -65,10 +65,10 @@ public class EmployeeSelfServiceController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestParam Long employeeId,
+    public ResponseEntity<?> updateProfile(@RequestParam String employeeId,
                                            @RequestBody EmployeeProfileUpdateRequest request) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getPersonalEmail() != null) employee.setPersonalEmail(request.getPersonalEmail());
@@ -84,8 +84,8 @@ public class EmployeeSelfServiceController {
             if (request.getMaritalStatus() != null) employee.setMaritalStatus(request.getMaritalStatus());
 
             Employee saved = employeeRepository.save(employee);
-            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_PROFILE",
-                    employeeId.toString(), "Employee updated own profile");
+            auditLogService.saveLog(employeeId, "UPDATE", "EMPLOYEE_PROFILE",
+                    employeeId, "Employee updated own profile");
             logger.info("Employee {} updated their profile", employee.getFullName());
 
             return ResponseEntity.ok(EmployeeProfileResponse.fromEntity(saved));
@@ -97,9 +97,9 @@ public class EmployeeSelfServiceController {
     // ---- Banking Details ----
 
     @GetMapping("/banking")
-    public ResponseEntity<?> getBankingDetails(@RequestParam Long employeeId) {
+    public ResponseEntity<?> getBankingDetails(@RequestParam String employeeId) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(Map.of(
                     "bankName", employee.getBankName() != null ? employee.getBankName() : "",
@@ -112,10 +112,10 @@ public class EmployeeSelfServiceController {
     }
 
     @PutMapping("/banking")
-    public ResponseEntity<?> updateBankingDetails(@RequestParam Long employeeId,
+    public ResponseEntity<?> updateBankingDetails(@RequestParam String employeeId,
                                                   @RequestBody BankingDetailsRequest request) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getBankName() != null) employee.setBankName(request.getBankName());
@@ -123,8 +123,8 @@ public class EmployeeSelfServiceController {
             if (request.getBankAccountNumber() != null) employee.setBankAccountNumber(request.getBankAccountNumber());
 
             employeeRepository.save(employee);
-            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_BANKING",
-                    employeeId.toString(), "Employee updated banking details");
+            auditLogService.saveLog(employeeId, "UPDATE", "EMPLOYEE_BANKING",
+                    employeeId, "Employee updated banking details");
 
             return ResponseEntity.ok(Map.of("message", "Banking details updated successfully"));
         } catch (IllegalArgumentException e) {
@@ -135,9 +135,9 @@ public class EmployeeSelfServiceController {
     // ---- Emergency Contact ----
 
     @GetMapping("/emergency-contact")
-    public ResponseEntity<?> getEmergencyContact(@RequestParam Long employeeId) {
+    public ResponseEntity<?> getEmergencyContact(@RequestParam String employeeId) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
             return ResponseEntity.ok(Map.of(
                     "emergencyContactName", employee.getEmergencyContactName() != null ? employee.getEmergencyContactName() : "",
@@ -150,10 +150,10 @@ public class EmployeeSelfServiceController {
     }
 
     @PutMapping("/emergency-contact")
-    public ResponseEntity<?> updateEmergencyContact(@RequestParam Long employeeId,
+    public ResponseEntity<?> updateEmergencyContact(@RequestParam String employeeId,
                                                     @RequestBody EmergencyContactRequest request) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             if (request.getEmergencyContactName() != null) employee.setEmergencyContactName(request.getEmergencyContactName());
@@ -161,8 +161,8 @@ public class EmployeeSelfServiceController {
             if (request.getEmergencyContactRelationship() != null) employee.setEmergencyContactRelationship(request.getEmergencyContactRelationship());
 
             employeeRepository.save(employee);
-            auditLogService.saveLog(employeeId.toString(), "UPDATE", "EMPLOYEE_EMERGENCY_CONTACT",
-                    employeeId.toString(), "Employee updated emergency contact details");
+            auditLogService.saveLog(employeeId, "UPDATE", "EMPLOYEE_EMERGENCY_CONTACT",
+                    employeeId, "Employee updated emergency contact details");
 
             return ResponseEntity.ok(Map.of("message", "Emergency contact updated successfully"));
         } catch (IllegalArgumentException e) {
@@ -173,18 +173,18 @@ public class EmployeeSelfServiceController {
     // ---- Skills ----
 
     @GetMapping("/skills")
-    public ResponseEntity<?> getSkills(@RequestParam Long employeeId) {
-        List<EmployeeSkill> skills = skillRepository.findByEmployeeId(String.valueOf(employeeId));
+    public ResponseEntity<?> getSkills(@RequestParam String employeeId) {
+        List<EmployeeSkill> skills = skillRepository.findByEmployeeId(employeeId);
         return ResponseEntity.ok(skills);
     }
 
     @PostMapping("/skills")
-    public ResponseEntity<?> addSkill(@RequestParam Long employeeId,
+    public ResponseEntity<?> addSkill(@RequestParam String employeeId,
                                       @RequestBody EmployeeSkill skill) {
         try {
             skill.setEmployeeId(employeeId);
             EmployeeSkill saved = skillRepository.save(skill);
-            auditLogService.saveLog(employeeId.toString(), "CREATE", "EMPLOYEE_SKILL",
+            auditLogService.saveLog(employeeId, "CREATE", "EMPLOYEE_SKILL",
                     saved.getId().toString(), "Added skill: " + saved.getSkillName());
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
@@ -194,7 +194,7 @@ public class EmployeeSelfServiceController {
 
     @PutMapping("/skills/{id}")
     public ResponseEntity<?> updateSkill(@PathVariable Long id,
-                                         @RequestParam Long employeeId,
+                                         @RequestParam String employeeId,
                                          @RequestBody EmployeeSkill request) {
         try {
             EmployeeSkill skill = skillRepository.findById(String.valueOf(id))
@@ -219,18 +219,18 @@ public class EmployeeSelfServiceController {
     // ---- Education ----
 
     @GetMapping("/education")
-    public ResponseEntity<?> getEducation(@RequestParam Long employeeId) {
-        List<EmployeeEducation> education = educationRepository.findByEmployeeId(String.valueOf(employeeId));
+    public ResponseEntity<?> getEducation(@RequestParam String employeeId) {
+        List<EmployeeEducation> education = educationRepository.findByEmployeeId(employeeId);
         return ResponseEntity.ok(education);
     }
 
     @PostMapping("/education")
-    public ResponseEntity<?> addEducation(@RequestParam Long employeeId,
+    public ResponseEntity<?> addEducation(@RequestParam String employeeId,
                                           @RequestBody EmployeeEducation education) {
         try {
             education.setEmployeeId(employeeId);
             EmployeeEducation saved = educationRepository.save(education);
-            auditLogService.saveLog(employeeId.toString(), "CREATE", "EMPLOYEE_EDUCATION",
+            auditLogService.saveLog(employeeId, "CREATE", "EMPLOYEE_EDUCATION",
                     saved.getId().toString(), "Added education: " + saved.getQualification());
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
@@ -240,7 +240,7 @@ public class EmployeeSelfServiceController {
 
     @PutMapping("/education/{id}")
     public ResponseEntity<?> updateEducation(@PathVariable Long id,
-                                             @RequestParam Long employeeId,
+                                             @RequestParam String employeeId,
                                              @RequestBody EmployeeEducation request) {
         try {
             EmployeeEducation education = educationRepository.findById(String.valueOf(id))
@@ -267,8 +267,8 @@ public class EmployeeSelfServiceController {
     // ---- Documents ----
 
     @GetMapping("/documents")
-    public ResponseEntity<List<EmployeeDocumentResponse>> getDocuments(@RequestParam Long employeeId) {
-        List<EmployeeDocument> docs = documentRepository.findActiveByEmployee(String.valueOf(employeeId));
+    public ResponseEntity<List<EmployeeDocumentResponse>> getDocuments(@RequestParam String employeeId) {
+        List<EmployeeDocument> docs = documentRepository.findActiveByEmployee(employeeId);
         List<EmployeeDocumentResponse> responses = docs.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -276,10 +276,10 @@ public class EmployeeSelfServiceController {
     }
 
     @PostMapping("/documents")
-    public ResponseEntity<?> uploadDocument(@RequestParam Long employeeId,
+    public ResponseEntity<?> uploadDocument(@RequestParam String employeeId,
                                             @RequestBody Map<String, Object> request) {
         try {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
             EmployeeDocument doc = new EmployeeDocument();
@@ -289,10 +289,10 @@ public class EmployeeSelfServiceController {
             doc.setFilename((String) request.get("filename"));
             doc.setFileUrl((String) request.get("fileUrl"));
             doc.setContentType((String) request.get("contentType"));
-            doc.setUploadedBy(employeeId.toString());
+            doc.setUploadedBy(employeeId);
 
             EmployeeDocument saved = documentRepository.save(doc);
-            auditLogService.saveLog(employeeId.toString(), "UPLOAD", "EMPLOYEE_DOCUMENT",
+            auditLogService.saveLog(employeeId, "UPLOAD", "EMPLOYEE_DOCUMENT",
                     saved.getId().toString(), "Employee uploaded document: " + saved.getTitle());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(EmployeeDocumentResponse.fromEntity(saved));

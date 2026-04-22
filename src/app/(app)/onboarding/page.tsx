@@ -26,7 +26,7 @@ export default function OnboardingChecklistsPage() {
   const [showNewForm, setShowNewForm] = useState(false);
   const [newForm, setNewForm] = useState({ employeeId: '', templateId: '' });
   const [creating, setCreating] = useState(false);
-  const [progressMap, setProgressMap] = useState<Record<number, { completed: number; total: number; percent: number }>>({});
+  const [progressMap, setProgressMap] = useState<Record<string, { completed: number; total: number; percent: number }>>({});
 
   useEffect(() => {
     loadData();
@@ -49,7 +49,7 @@ export default function OnboardingChecklistsPage() {
           return [cl.id, progress] as const;
         })
       );
-      const map: Record<number, { completed: number; total: number; percent: number }> = {};
+      const map: Record<string, { completed: number; total: number; percent: number }> = {};
       for (const [id, progress] of progressEntries) {
         map[id] = progress;
       }
@@ -66,8 +66,8 @@ export default function OnboardingChecklistsPage() {
     setCreating(true);
     try {
       await onboardingService.createChecklist(
-        parseInt(newForm.employeeId, 10),
-        parseInt(newForm.templateId, 10)
+        newForm.employeeId,
+        newForm.templateId
       );
       setShowNewForm(false);
       setNewForm({ employeeId: '', templateId: '' });
@@ -99,7 +99,7 @@ export default function OnboardingChecklistsPage() {
     });
   };
 
-  const getTemplateName = (templateId: number) => {
+  const getTemplateName = (templateId: string) => {
     const tpl = templates.find((t) => t.id === templateId);
     return tpl?.name || `Template #${templateId}`;
   };
@@ -164,7 +164,7 @@ export default function OnboardingChecklistsPage() {
                       Employee ID
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       value={newForm.employeeId}
                       onChange={(e) => setNewForm((f) => ({ ...f, employeeId: e.target.value }))}
                       placeholder="Enter employee ID"

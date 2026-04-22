@@ -2,7 +2,7 @@ import { apiFetch } from '@/lib/api-fetch';
 
 export interface EmployeeSkill {
   id?: number;
-  employeeId: number;
+  employeeId: string;
   skillName: string;
   proficiencyLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
   yearsExperience: number | null;
@@ -13,7 +13,7 @@ export interface EmployeeSkill {
 
 export interface EmployeeEducation {
   id?: number;
-  employeeId: number;
+  employeeId: string;
   institution: string;
   qualification: string;
   fieldOfStudy: string | null;
@@ -26,13 +26,13 @@ export interface EmployeeEducation {
 
 export const employeeService = {
   // Skills
-  async getSkills(employeeId: number): Promise<EmployeeSkill[]> {
+  async getSkills(employeeId: string): Promise<EmployeeSkill[]> {
     const response = await apiFetch(`/api/employee/skills?employeeId=${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async addSkill(employeeId: number, skill: Partial<EmployeeSkill>): Promise<EmployeeSkill> {
+  async addSkill(employeeId: string, skill: Partial<EmployeeSkill>): Promise<EmployeeSkill> {
     const response = await apiFetch(`/api/employee/skills?employeeId=${employeeId}`, {
       method: 'POST',
       body: JSON.stringify(skill),
@@ -44,7 +44,7 @@ export const employeeService = {
     return await response.json();
   },
 
-  async updateSkill(id: number, employeeId: number, skill: Partial<EmployeeSkill>): Promise<EmployeeSkill> {
+  async updateSkill(id: number, employeeId: string, skill: Partial<EmployeeSkill>): Promise<EmployeeSkill> {
     const response = await apiFetch(`/api/employee/skills/${id}?employeeId=${employeeId}`, {
       method: 'PUT',
       body: JSON.stringify(skill),
@@ -62,13 +62,13 @@ export const employeeService = {
   },
 
   // Education
-  async getEducation(employeeId: number): Promise<EmployeeEducation[]> {
+  async getEducation(employeeId: string): Promise<EmployeeEducation[]> {
     const response = await apiFetch(`/api/employee/education?employeeId=${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async addEducation(employeeId: number, education: Partial<EmployeeEducation>): Promise<EmployeeEducation> {
+  async addEducation(employeeId: string, education: Partial<EmployeeEducation>): Promise<EmployeeEducation> {
     const response = await apiFetch(`/api/employee/education?employeeId=${employeeId}`, {
       method: 'POST',
       body: JSON.stringify(education),
@@ -80,7 +80,7 @@ export const employeeService = {
     return await response.json();
   },
 
-  async updateEducation(id: number, employeeId: number, education: Partial<EmployeeEducation>): Promise<EmployeeEducation> {
+  async updateEducation(id: number, employeeId: string, education: Partial<EmployeeEducation>): Promise<EmployeeEducation> {
     const response = await apiFetch(`/api/employee/education/${id}?employeeId=${employeeId}`, {
       method: 'PUT',
       body: JSON.stringify(education),

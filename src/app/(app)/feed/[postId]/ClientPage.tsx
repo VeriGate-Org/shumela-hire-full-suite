@@ -63,7 +63,7 @@ function categoryLabel(category: string): string {
 
 export default function PostDetailPage() {
   const params = useParams();
-  const postId = Number(params.postId);
+  const postId = params.postId as string;
   const { user } = useAuth();
 
   const [post, setPost] = useState<FeedPost | null>(null);
@@ -93,8 +93,7 @@ export default function PostDetailPage() {
   async function handleToggleReaction(reactionType: 'LIKE' | 'CELEBRATE' | 'SUPPORT') {
     if (!user || !post) return;
     try {
-      const userId = Number(user.id);
-      await feedService.toggleReaction(post.id, userId, reactionType);
+      await feedService.toggleReaction(post.id, user.id, reactionType);
       await loadPost();
     } catch (err) {
       console.error('Failed to toggle reaction:', err);
@@ -105,8 +104,7 @@ export default function PostDetailPage() {
     if (!user || !post || !commentText.trim()) return;
     setSubmittingComment(true);
     try {
-      const authorId = Number(user.id);
-      await feedService.addComment(post.id, { authorId, content: commentText.trim() });
+      await feedService.addComment(post.id, { authorId: user.id, content: commentText.trim() });
       setCommentText('');
       await loadPost();
     } catch (err) {
@@ -116,7 +114,7 @@ export default function PostDetailPage() {
     }
   }
 
-  async function handleDeleteComment(commentId: number) {
+  async function handleDeleteComment(commentId: string) {
     if (!post) return;
     try {
       await feedService.deleteComment(post.id, commentId);
@@ -128,8 +126,7 @@ export default function PostDetailPage() {
 
   function hasUserReacted(reactionType: string): boolean {
     if (!user || !post) return false;
-    const userId = Number(user.id);
-    return post.reactions.some((r) => r.userId === userId && r.reactionType === reactionType);
+    return post.reactions.some((r) => r.userId === user.id && r.reactionType === reactionType);
   }
 
   function getReactionCount(reactionType: string): number {
@@ -311,7 +308,7 @@ export default function PostDetailPage() {
             ) : (
               <div className="space-y-4">
                 {post.comments.map((comment: FeedComment) => {
-                  const isOwnComment = user && Number(user.id) === comment.authorId;
+                  const isOwnComment = user && user.id === comment.authorId;
                   return (
                     <div
                       key={comment.id}

@@ -6,7 +6,7 @@ import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface LeaveApprovalCardProps {
   request: LeaveRequest;
-  approverId: number;
+  approverId: string;
   onDecision: () => void;
 }
 

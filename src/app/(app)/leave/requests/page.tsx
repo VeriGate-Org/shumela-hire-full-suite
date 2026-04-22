@@ -21,9 +21,9 @@ export default function LeaveRequestsPage() {
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
   const { toast } = useToast();
-  const [cancelTarget, setCancelTarget] = useState<number | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
 
   const loadRequests = async () => {
     setLoading(true);
@@ -46,7 +46,7 @@ export default function LeaveRequestsPage() {
 
   useEffect(() => { if (employeeId) loadRequests(); }, [employeeId, page, statusFilter]);
 
-  const handleCancel = async (id: number) => {
+  const handleCancel = async (id: string) => {
     try {
       await leaveService.cancelRequest(id, employeeId);
       toast('Leave request cancelled', 'success');

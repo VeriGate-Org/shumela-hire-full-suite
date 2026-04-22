@@ -18,7 +18,7 @@ export default function AttendanceRecordsPage() {
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
 
   useEffect(() => {
     if (!employeeId) return;

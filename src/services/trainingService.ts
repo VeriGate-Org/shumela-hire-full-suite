@@ -1,7 +1,7 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface TrainingCourse {
-  id: number;
+  id: string;
   title: string;
   code: string;
   description: string | null;
@@ -19,8 +19,8 @@ export interface TrainingCourse {
 }
 
 export interface TrainingSession {
-  id: number;
-  courseId: number;
+  id: string;
+  courseId: string;
   courseTitle: string;
   courseCode: string;
   trainerName: string | null;
@@ -35,11 +35,11 @@ export interface TrainingSession {
 }
 
 export interface TrainingEnrollment {
-  id: number;
-  sessionId: number;
+  id: string;
+  sessionId: string;
   courseTitle: string;
   courseCode: string;
-  employeeId: number;
+  employeeId: string;
   employeeName: string;
   status: string;
   score: number | null;
@@ -52,8 +52,8 @@ export interface TrainingEnrollment {
 }
 
 export interface Certification {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   employeeName: string;
   name: string;
   issuingBody: string | null;
@@ -69,10 +69,10 @@ export interface Certification {
 }
 
 export interface TrainingAttendanceRecord {
-  id: number;
-  sessionId: number;
-  enrollmentId: number | null;
-  employeeId: number;
+  id: string;
+  sessionId: string;
+  enrollmentId: string | null;
+  employeeId: string;
   employeeName?: string;
   attended: boolean;
   checkInTime: string | null;
@@ -81,9 +81,9 @@ export interface TrainingAttendanceRecord {
 }
 
 export interface TrainingEvaluation {
-  id: number;
-  sessionId: number;
-  employeeId: number;
+  id: string;
+  sessionId: string;
+  employeeId: string;
   overallRating: number;
   contentRating: number | null;
   instructorRating: number | null;
@@ -101,26 +101,26 @@ export interface EvaluationSummary {
 }
 
 export interface IDPGoal {
-  id?: number;
-  planId?: number;
+  id?: string;
+  planId?: string;
   title: string;
   description: string | null;
   targetDate: string | null;
   status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  linkedCourseId: number | null;
-  linkedCertificationId: number | null;
+  linkedCourseId: string | null;
+  linkedCertificationId: string | null;
   sortOrder: number;
 }
 
 export interface IndividualDevelopmentPlan {
-  id: number;
-  employeeId: number;
+  id: string;
+  employeeId: string;
   title: string;
   description: string | null;
   startDate: string | null;
   targetDate: string | null;
   status: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
-  managerId: number | null;
+  managerId: string | null;
   goals: IDPGoal[];
   createdAt: string;
   updatedAt: string;
@@ -153,7 +153,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async getCourse(id: number): Promise<TrainingCourse> {
+  async getCourse(id: string): Promise<TrainingCourse> {
     const response = await apiFetch(`/api/training/courses/${id}`);
     if (!response.ok) throw new Error('Course not found');
     return await response.json();
@@ -177,7 +177,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateCourse(id: number, data: Partial<TrainingCourse>): Promise<TrainingCourse> {
+  async updateCourse(id: string, data: Partial<TrainingCourse>): Promise<TrainingCourse> {
     const response = await apiFetch(`/api/training/courses/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -189,15 +189,15 @@ export const trainingService = {
     return await response.json();
   },
 
-  async deleteCourse(id: number): Promise<void> {
+  async deleteCourse(id: string): Promise<void> {
     const response = await apiFetch(`/api/training/courses/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete course');
   },
 
   // Sessions
-  async getSessions(params?: { courseId?: number; upcoming?: boolean; openOnly?: boolean }): Promise<TrainingSession[]> {
+  async getSessions(params?: { courseId?: string; upcoming?: boolean; openOnly?: boolean }): Promise<TrainingSession[]> {
     const searchParams = new URLSearchParams();
-    if (params?.courseId) searchParams.set('courseId', params.courseId.toString());
+    if (params?.courseId) searchParams.set('courseId', params.courseId);
     if (params?.upcoming) searchParams.set('upcoming', 'true');
     if (params?.openOnly) searchParams.set('openOnly', 'true');
     const query = searchParams.toString();
@@ -206,7 +206,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async getSession(id: number): Promise<TrainingSession> {
+  async getSession(id: string): Promise<TrainingSession> {
     const response = await apiFetch(`/api/training/sessions/${id}`);
     if (!response.ok) throw new Error('Session not found');
     return await response.json();
@@ -224,7 +224,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateSession(id: number, data: any): Promise<TrainingSession> {
+  async updateSession(id: string, data: any): Promise<TrainingSession> {
     const response = await apiFetch(`/api/training/sessions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -236,35 +236,35 @@ export const trainingService = {
     return await response.json();
   },
 
-  async openSession(id: number): Promise<TrainingSession> {
+  async openSession(id: string): Promise<TrainingSession> {
     const response = await apiFetch(`/api/training/sessions/${id}/open`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to open session');
     return await response.json();
   },
 
-  async closeSession(id: number): Promise<TrainingSession> {
+  async closeSession(id: string): Promise<TrainingSession> {
     const response = await apiFetch(`/api/training/sessions/${id}/close`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to close session');
     return await response.json();
   },
 
-  async cancelSession(id: number): Promise<TrainingSession> {
+  async cancelSession(id: string): Promise<TrainingSession> {
     const response = await apiFetch(`/api/training/sessions/${id}/cancel`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to cancel session');
     return await response.json();
   },
 
   // Enrollments
-  async getEnrollments(params: { sessionId?: number; employeeId?: number }): Promise<TrainingEnrollment[]> {
+  async getEnrollments(params: { sessionId?: string; employeeId?: string }): Promise<TrainingEnrollment[]> {
     const searchParams = new URLSearchParams();
-    if (params.sessionId) searchParams.set('sessionId', params.sessionId.toString());
-    if (params.employeeId) searchParams.set('employeeId', params.employeeId.toString());
+    if (params.sessionId) searchParams.set('sessionId', params.sessionId);
+    if (params.employeeId) searchParams.set('employeeId', params.employeeId);
     const response = await apiFetch(`/api/training/enrollments?${searchParams}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async enroll(sessionId: number, employeeId: number): Promise<TrainingEnrollment> {
+  async enroll(sessionId: string, employeeId: string): Promise<TrainingEnrollment> {
     const response = await apiFetch('/api/training/enrollments', {
       method: 'POST',
       body: JSON.stringify({ sessionId, employeeId }),
@@ -276,13 +276,13 @@ export const trainingService = {
     return await response.json();
   },
 
-  async markAttended(id: number): Promise<TrainingEnrollment> {
+  async markAttended(id: string): Promise<TrainingEnrollment> {
     const response = await apiFetch(`/api/training/enrollments/${id}/attended`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to mark attended');
     return await response.json();
   },
 
-  async markCompleted(id: number, score?: number, certificateUrl?: string): Promise<TrainingEnrollment> {
+  async markCompleted(id: string, score?: number, certificateUrl?: string): Promise<TrainingEnrollment> {
     const params = new URLSearchParams();
     if (score !== undefined) params.set('score', score.toString());
     if (certificateUrl) params.set('certificateUrl', certificateUrl);
@@ -291,16 +291,16 @@ export const trainingService = {
     return await response.json();
   },
 
-  async cancelEnrollment(id: number): Promise<TrainingEnrollment> {
+  async cancelEnrollment(id: string): Promise<TrainingEnrollment> {
     const response = await apiFetch(`/api/training/enrollments/${id}/cancel`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to cancel enrollment');
     return await response.json();
   },
 
   // Certifications
-  async getCertifications(params?: { employeeId?: number; expiring?: boolean; expired?: boolean }): Promise<Certification[]> {
+  async getCertifications(params?: { employeeId?: string; expiring?: boolean; expired?: boolean }): Promise<Certification[]> {
     const searchParams = new URLSearchParams();
-    if (params?.employeeId) searchParams.set('employeeId', params.employeeId.toString());
+    if (params?.employeeId) searchParams.set('employeeId', params.employeeId);
     if (params?.expiring) searchParams.set('expiring', 'true');
     if (params?.expired) searchParams.set('expired', 'true');
     const query = searchParams.toString();
@@ -321,7 +321,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateCertification(id: number, data: any): Promise<Certification> {
+  async updateCertification(id: string, data: any): Promise<Certification> {
     const response = await apiFetch(`/api/training/certifications/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -333,19 +333,19 @@ export const trainingService = {
     return await response.json();
   },
 
-  async revokeCertification(id: number): Promise<void> {
+  async revokeCertification(id: string): Promise<void> {
     const response = await apiFetch(`/api/training/certifications/${id}/revoke`, { method: 'PUT' });
     if (!response.ok) throw new Error('Failed to revoke certification');
   },
 
   // Attendance
-  async getAttendance(sessionId: number): Promise<TrainingAttendanceRecord[]> {
+  async getAttendance(sessionId: string): Promise<TrainingAttendanceRecord[]> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async recordAttendance(sessionId: number, records: Partial<TrainingAttendanceRecord>[]): Promise<TrainingAttendanceRecord[]> {
+  async recordAttendance(sessionId: string, records: Partial<TrainingAttendanceRecord>[]): Promise<TrainingAttendanceRecord[]> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance`, {
       method: 'POST',
       body: JSON.stringify(records),
@@ -357,7 +357,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateAttendanceRecord(sessionId: number, attendanceId: number, data: { attended?: boolean; notes?: string }): Promise<TrainingAttendanceRecord> {
+  async updateAttendanceRecord(sessionId: string, attendanceId: string, data: { attended?: boolean; notes?: string }): Promise<TrainingAttendanceRecord> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/attendance/${attendanceId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -367,13 +367,13 @@ export const trainingService = {
   },
 
   // Evaluations
-  async getEvaluations(sessionId: number): Promise<TrainingEvaluation[]> {
+  async getEvaluations(sessionId: string): Promise<TrainingEvaluation[]> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async submitEvaluation(sessionId: number, data: Partial<TrainingEvaluation>): Promise<TrainingEvaluation> {
+  async submitEvaluation(sessionId: string, data: Partial<TrainingEvaluation>): Promise<TrainingEvaluation> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -385,23 +385,23 @@ export const trainingService = {
     return await response.json();
   },
 
-  async getEvaluationSummary(sessionId: number): Promise<EvaluationSummary> {
+  async getEvaluationSummary(sessionId: string): Promise<EvaluationSummary> {
     const response = await apiFetch(`/api/training/sessions/${sessionId}/evaluations/summary`);
     if (!response.ok) return { count: 0, averageOverall: 0, averageContent: 0, averageInstructor: 0, averageRelevance: 0 };
     return await response.json();
   },
 
   // IDPs
-  async getIDPs(params: { employeeId?: number; managerId?: number }): Promise<IndividualDevelopmentPlan[]> {
+  async getIDPs(params: { employeeId?: string; managerId?: string }): Promise<IndividualDevelopmentPlan[]> {
     const searchParams = new URLSearchParams();
-    if (params.employeeId) searchParams.set('employeeId', params.employeeId.toString());
-    if (params.managerId) searchParams.set('managerId', params.managerId.toString());
+    if (params.employeeId) searchParams.set('employeeId', params.employeeId);
+    if (params.managerId) searchParams.set('managerId', params.managerId);
     const response = await apiFetch(`/api/training/idps?${searchParams}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async getIDP(id: number): Promise<IndividualDevelopmentPlan> {
+  async getIDP(id: string): Promise<IndividualDevelopmentPlan> {
     const response = await apiFetch(`/api/training/idps/${id}`);
     if (!response.ok) throw new Error('IDP not found');
     return await response.json();
@@ -419,7 +419,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateIDP(id: number, data: Partial<IndividualDevelopmentPlan>): Promise<IndividualDevelopmentPlan> {
+  async updateIDP(id: string, data: Partial<IndividualDevelopmentPlan>): Promise<IndividualDevelopmentPlan> {
     const response = await apiFetch(`/api/training/idps/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -431,12 +431,12 @@ export const trainingService = {
     return await response.json();
   },
 
-  async deleteIDP(id: number): Promise<void> {
+  async deleteIDP(id: string): Promise<void> {
     const response = await apiFetch(`/api/training/idps/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete IDP');
   },
 
-  async addIDPGoal(planId: number, goal: Partial<IDPGoal>): Promise<IndividualDevelopmentPlan> {
+  async addIDPGoal(planId: string, goal: Partial<IDPGoal>): Promise<IndividualDevelopmentPlan> {
     const response = await apiFetch(`/api/training/idps/${planId}/goals`, {
       method: 'POST',
       body: JSON.stringify(goal),
@@ -448,7 +448,7 @@ export const trainingService = {
     return await response.json();
   },
 
-  async updateIDPGoal(planId: number, goalId: number, data: { status?: string; title?: string }): Promise<IndividualDevelopmentPlan> {
+  async updateIDPGoal(planId: string, goalId: string, data: { status?: string; title?: string }): Promise<IndividualDevelopmentPlan> {
     const response = await apiFetch(`/api/training/idps/${planId}/goals/${goalId}`, {
       method: 'PUT',
       body: JSON.stringify(data),

@@ -12,11 +12,11 @@ import {
 export default function LeaveSettingsPage() {
   const [policies, setPolicies] = useState<LeavePolicy[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<number | null>(null);
+  const [saving, setSaving] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Escalation form state per policy
-  const [escalationForms, setEscalationForms] = useState<Record<number, {
+  const [escalationForms, setEscalationForms] = useState<Record<string, {
     enabled: boolean;
     escalationDays: number;
     escalateToRole: string;
@@ -43,7 +43,7 @@ export default function LeaveSettingsPage() {
     setLoading(false);
   };
 
-  const handleSaveEscalation = async (policyId: number) => {
+  const handleSaveEscalation = async (policyId: string) => {
     setSaving(policyId);
     setMessage(null);
     try {
@@ -64,7 +64,7 @@ export default function LeaveSettingsPage() {
     setSaving(null);
   };
 
-  const updateEscalation = (policyId: number, field: string, value: any) => {
+  const updateEscalation = (policyId: string, field: string, value: any) => {
     setEscalationForms(prev => ({
       ...prev,
       [policyId]: { ...prev[policyId], [field]: value },

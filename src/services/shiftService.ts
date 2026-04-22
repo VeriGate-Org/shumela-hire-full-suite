@@ -65,10 +65,10 @@ export const shiftService = {
     return await response.json();
   },
 
-  async assignShift(employeeId: number, shiftId: number, date: string): Promise<ShiftSchedule> {
+  async assignShift(employeeId: string, shiftId: string, date: string): Promise<ShiftSchedule> {
     const params = new URLSearchParams({
-      employeeId: employeeId.toString(),
-      shiftId: shiftId.toString(),
+      employeeId,
+      shiftId,
       date,
     });
     const response = await apiFetch(`/api/shifts/schedules?${params}`, { method: 'POST' });

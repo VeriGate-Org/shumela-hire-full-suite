@@ -38,7 +38,7 @@ export default function ComposePostPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const authorId = Number(user.id);
+      const authorId = user.id;
       await feedService.createPost({
         authorId,
         title: title.trim() || undefined,

@@ -1,8 +1,8 @@
 import { apiFetch } from '@/lib/api-fetch';
 
 export interface OnboardingTemplateItem {
-  id?: number;
-  templateId?: number;
+  id?: string;
+  templateId?: string;
   title: string;
   description: string | null;
   category: 'DOCUMENTS' | 'IT_SETUP' | 'ORIENTATION' | 'COMPLIANCE' | 'BENEFITS';
@@ -12,7 +12,7 @@ export interface OnboardingTemplateItem {
 }
 
 export interface OnboardingTemplate {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   department: string | null;
@@ -23,9 +23,9 @@ export interface OnboardingTemplate {
 }
 
 export interface OnboardingChecklistItem {
-  id: number;
-  checklistId: number;
-  templateItemId: number | null;
+  id: string;
+  checklistId: string;
+  templateItemId: string | null;
   title: string;
   description: string | null;
   category: string;
@@ -39,13 +39,13 @@ export interface OnboardingChecklistItem {
 }
 
 export interface OnboardingChecklist {
-  id: number;
-  employeeId: number;
-  templateId: number;
+  id: string;
+  employeeId: string;
+  templateId: string;
   startDate: string;
   dueDate: string | null;
   status: string;
-  assignedHrId: number | null;
+  assignedHrId: string | null;
   items: OnboardingChecklistItem[];
   createdAt: string;
   updatedAt: string;
@@ -66,7 +66,7 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async getTemplate(id: number): Promise<OnboardingTemplate> {
+  async getTemplate(id: string): Promise<OnboardingTemplate> {
     const response = await apiFetch(`/api/onboarding/templates/${id}`);
     if (!response.ok) throw new Error('Template not found');
     return await response.json();
@@ -84,7 +84,7 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async updateTemplate(id: number, data: Partial<OnboardingTemplate>): Promise<OnboardingTemplate> {
+  async updateTemplate(id: string, data: Partial<OnboardingTemplate>): Promise<OnboardingTemplate> {
     const response = await apiFetch(`/api/onboarding/templates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -96,7 +96,7 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async deleteTemplate(id: number): Promise<void> {
+  async deleteTemplate(id: string): Promise<void> {
     const response = await apiFetch(`/api/onboarding/templates/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete template');
   },
@@ -109,19 +109,19 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async getChecklistsByEmployee(employeeId: number): Promise<OnboardingChecklist[]> {
+  async getChecklistsByEmployee(employeeId: string): Promise<OnboardingChecklist[]> {
     const response = await apiFetch(`/api/onboarding/checklists/employee/${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async getChecklist(id: number): Promise<OnboardingChecklist> {
+  async getChecklist(id: string): Promise<OnboardingChecklist> {
     const response = await apiFetch(`/api/onboarding/checklists/${id}`);
     if (!response.ok) throw new Error('Checklist not found');
     return await response.json();
   },
 
-  async createChecklist(employeeId: number, templateId: number): Promise<OnboardingChecklist> {
+  async createChecklist(employeeId: string, templateId: string): Promise<OnboardingChecklist> {
     const response = await apiFetch('/api/onboarding/checklists', {
       method: 'POST',
       body: JSON.stringify({ employeeId, templateId }),
@@ -133,7 +133,7 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async updateChecklistItem(checklistId: number, itemId: number, data: { status?: string; completedBy?: string; notes?: string }): Promise<OnboardingChecklist> {
+  async updateChecklistItem(checklistId: string, itemId: string, data: { status?: string; completedBy?: string; notes?: string }): Promise<OnboardingChecklist> {
     const response = await apiFetch(`/api/onboarding/checklists/${checklistId}/items/${itemId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -145,7 +145,7 @@ export const onboardingService = {
     return await response.json();
   },
 
-  async getProgress(checklistId: number): Promise<ChecklistProgress> {
+  async getProgress(checklistId: string): Promise<ChecklistProgress> {
     const response = await apiFetch(`/api/onboarding/checklists/${checklistId}/progress`);
     if (!response.ok) return { completed: 0, total: 0, percent: 0, status: 'UNKNOWN' };
     return await response.json();

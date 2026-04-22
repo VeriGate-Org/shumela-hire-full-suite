@@ -29,7 +29,7 @@ import { onboardingService, OnboardingChecklist } from '@/services/onboardingSer
 import { feedService, FeedPost } from '@/services/feedService';
 
 interface EmployeeProfile {
-  id: number;
+  id: string;
   employeeNumber: string;
   title: string | null;
   firstName: string;
@@ -97,7 +97,7 @@ function getElapsedHours(clockIn: string): string {
 export default function EmployeePortalPage() {
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
 
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [balances, setBalances] = useState<LeaveBalance[]>([]);

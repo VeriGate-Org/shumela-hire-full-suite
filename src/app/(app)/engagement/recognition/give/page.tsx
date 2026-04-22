@@ -36,8 +36,8 @@ export default function GiveRecognitionPage() {
 
     try {
       await engagementService.giveRecognition({
-        fromEmployeeId: parseInt(formData.fromEmployeeId),
-        toEmployeeId: parseInt(formData.toEmployeeId),
+        fromEmployeeId: formData.fromEmployeeId,
+        toEmployeeId: formData.toEmployeeId,
         category: formData.category,
         message: formData.message,
         points: parseInt(formData.points),
@@ -71,13 +71,13 @@ export default function GiveRecognitionPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Employee ID</label>
-                  <input type="number" required value={formData.fromEmployeeId}
+                  <input type="text" required value={formData.fromEmployeeId}
                     onChange={(e) => setFormData({ ...formData, fromEmployeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recognize Employee ID</label>
-                  <input type="number" required value={formData.toEmployeeId}
+                  <input type="text" required value={formData.toEmployeeId}
                     onChange={(e) => setFormData({ ...formData, toEmployeeId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                 </div>

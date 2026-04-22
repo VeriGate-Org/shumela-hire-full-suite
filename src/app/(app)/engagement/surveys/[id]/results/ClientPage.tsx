@@ -19,7 +19,7 @@ import {
 
 export default function SurveyResultsPage() {
   const params = useParams();
-  const surveyId = Number(params.id);
+  const surveyId = params.id as string;
 
   const [results, setResults] = useState<SurveyResults | null>(null);
   const [loading, setLoading] = useState(true);

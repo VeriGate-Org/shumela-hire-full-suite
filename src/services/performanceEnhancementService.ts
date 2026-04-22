@@ -315,7 +315,7 @@ export const performanceEnhancementService = {
     return await response.json();
   },
 
-  async getEmployeeCompetencies(employeeId: number): Promise<EmployeeCompetency[]> {
+  async getEmployeeCompetencies(employeeId: string): Promise<EmployeeCompetency[]> {
     const response = await apiFetch(`/api/competencies/employees/${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
@@ -334,19 +334,19 @@ export const performanceEnhancementService = {
   },
 
   // Skill Gap Analysis
-  async getSkillGaps(employeeId: number): Promise<SkillGap[]> {
+  async getSkillGaps(employeeId: string): Promise<SkillGap[]> {
     const response = await apiFetch(`/api/competencies/gaps/employee/${employeeId}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async getDepartmentGaps(departmentId: number): Promise<SkillGap[]> {
+  async getDepartmentGaps(departmentId: string): Promise<SkillGap[]> {
     const response = await apiFetch(`/api/competencies/gaps/department/${departmentId}`);
     if (!response.ok) return [];
     return await response.json();
   },
 
-  async getTrainingRecommendations(employeeId: number): Promise<TrainingRecommendation[]> {
+  async getTrainingRecommendations(employeeId: string): Promise<TrainingRecommendation[]> {
     const response = await apiFetch(`/api/competencies/training/recommendations/${employeeId}`);
     if (!response.ok) return [];
     return await response.json();

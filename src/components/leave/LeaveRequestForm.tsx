@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import { LeaveType, leaveService } from '@/services/leaveService';
 
 interface LeaveRequestFormProps {
-  employeeId: number;
+  employeeId: string;
   onSubmit: () => void;
   onCancel: () => void;
 }
 
 export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: LeaveRequestFormProps) {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-  const [leaveTypeId, setLeaveTypeId] = useState<number | ''>('');
+  const [leaveTypeId, setLeaveTypeId] = useState<string>('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isHalfDay, setIsHalfDay] = useState(false);
@@ -70,7 +70,7 @@ export default function LeaveRequestForm({ employeeId, onSubmit, onCancel }: Lea
         <label className="block text-sm font-medium text-foreground mb-1">Leave Type</label>
         <select
           value={leaveTypeId}
-          onChange={(e) => setLeaveTypeId(Number(e.target.value))}
+          onChange={(e) => setLeaveTypeId(e.target.value)}
           required
           className="w-full border border-border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:border-ring"
         >

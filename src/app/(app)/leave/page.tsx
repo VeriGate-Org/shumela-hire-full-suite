@@ -26,7 +26,7 @@ export default function LeaveDashboardPage() {
   const { user, isAuthenticated, isLoading: authLoading, hasPermission } = useAuth();
   const router = useRouter();
   const rawId = user?.employeeId || user?.id;
-  const employeeId = rawId ? parseInt(rawId, 10) : 0;
+  const employeeId = rawId || '';
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
