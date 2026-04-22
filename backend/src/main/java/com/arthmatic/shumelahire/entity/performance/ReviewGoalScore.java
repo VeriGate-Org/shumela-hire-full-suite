@@ -20,6 +20,22 @@ public class ReviewGoalScore extends TenantAwareEntity {
 
     private String comment;
 
+    @DecimalMin("0.0")
+    @DecimalMax("5.0")
+    private BigDecimal selfScore;
+
+    private String selfComment;
+
+    @DecimalMin("0.0")
+    @DecimalMax("5.0")
+    private BigDecimal managerScore;
+
+    private String managerComment;
+
+    @DecimalMin("0.0")
+    @DecimalMax("5.0")
+    private BigDecimal finalScore;
+
     // Constructors
     public ReviewGoalScore() {}
 
@@ -44,4 +60,19 @@ public class ReviewGoalScore extends TenantAwareEntity {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+
+    public BigDecimal getSelfScore() { return selfScore; }
+    public void setSelfScore(BigDecimal selfScore) { this.selfScore = selfScore; }
+
+    public String getSelfComment() { return selfComment; }
+    public void setSelfComment(String selfComment) { this.selfComment = selfComment; }
+
+    public BigDecimal getManagerScore() { return managerScore; }
+    public void setManagerScore(BigDecimal managerScore) { this.managerScore = managerScore; }
+
+    public String getManagerComment() { return managerComment; }
+    public void setManagerComment(String managerComment) { this.managerComment = managerComment; }
+
+    public BigDecimal getFinalScore() { return finalScore; }
+    public void setFinalScore(BigDecimal finalScore) { this.finalScore = finalScore; }
 }

@@ -9,6 +9,7 @@ import { useToast } from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import EmptyState from '@/components/EmptyState';
+import LocationMap from '@/components/maps/LocationMap';
 
 export default function GeofencesPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -128,6 +129,18 @@ export default function GeofencesPage() {
                     className="w-full border rounded-md px-3 py-2 text-sm" />
                 </div>
               </div>
+              {/* Click-to-set map */}
+              <div className="col-span-1 sm:col-span-2 mt-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Click map to set location</label>
+                <LocationMap
+                  center={[form.latitude ? parseFloat(form.latitude) : -28.73, form.longitude ? parseFloat(form.longitude) : 29.78]}
+                  zoom={12}
+                  height="200px"
+                  markers={form.latitude && form.longitude ? [{ lat: parseFloat(form.latitude), lng: parseFloat(form.longitude), label: form.name || 'New Geofence' }] : []}
+                  circles={form.latitude && form.longitude ? [{ lat: parseFloat(form.latitude), lng: parseFloat(form.longitude), radius: parseInt(form.radiusMeters) || 100 }] : []}
+                  onClick={(lat, lng) => setForm({ ...form, latitude: lat.toFixed(6), longitude: lng.toFixed(6) })}
+                />
+              </div>
               <div className="flex gap-3 mt-4">
                 <button onClick={handleCreate} disabled={submitting || !form.name || !form.latitude || !form.longitude}
                   className="btn-cta disabled:opacity-50">
@@ -145,6 +158,22 @@ export default function GeofencesPage() {
           ) : geofences.length === 0 ? (
             <EmptyState icon={MapPinIcon} title="No Geofences" description="No geofences configured. Add one to enable location-based attendance validation." />
           ) : (
+            <>
+            {/* Geofence Overview Map */}
+            <div className="enterprise-card p-4 mb-4">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Geofence Map Overview</h3>
+              <LocationMap
+                center={[
+                  geofences.reduce((s, g) => s + g.latitude, 0) / geofences.length || -28.73,
+                  geofences.reduce((s, g) => s + g.longitude, 0) / geofences.length || 29.78,
+                ]}
+                zoom={10}
+                height="300px"
+                markers={geofences.map((g) => ({ lat: g.latitude, lng: g.longitude, label: g.name }))}
+                circles={geofences.map((g) => ({ lat: g.latitude, lng: g.longitude, radius: g.radiusMeters, label: `${g.name} (${g.radiusMeters}m)` }))}
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {geofences.map((g) => (
                 <div key={g.id} className="enterprise-card p-4">
@@ -168,6 +197,7 @@ export default function GeofencesPage() {
                 </div>
               ))}
             </div>
+            </>
           )}
         </div>
         <ConfirmDialog

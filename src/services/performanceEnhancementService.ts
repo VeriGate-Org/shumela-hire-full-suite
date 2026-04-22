@@ -219,6 +219,71 @@ export const performanceEnhancementService = {
     if (!response.ok) throw new Error('Failed to update milestone');
   },
 
+  // ---- Reviews ----
+  async getReviews(params?: { cycleId?: number; employeeId?: string; status?: string }): Promise<any[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.cycleId) searchParams.set('cycleId', params.cycleId.toString());
+    if (params?.employeeId) searchParams.set('employeeId', params.employeeId);
+    if (params?.status) searchParams.set('status', params.status);
+    const qs = searchParams.toString();
+    const response = await apiFetch(`/api/performance/reviews${qs ? `?${qs}` : ''}`);
+    if (!response.ok) return [];
+    return await response.json();
+  },
+
+  async getReview(id: number): Promise<any> {
+    const response = await apiFetch(`/api/performance/reviews/${id}`);
+    if (!response.ok) throw new Error('Review not found');
+    return await response.json();
+  },
+
+  async createReview(contractId: number, reviewType: string): Promise<any> {
+    const response = await apiFetch('/api/performance/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ contractId, reviewType }),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to create review');
+    }
+    return await response.json();
+  },
+
+  async submitSelfAssessment(id: number, data: { notes: string; rating: number; goalScores?: any[] }): Promise<any> {
+    const response = await apiFetch(`/api/performance/reviews/${id}/self-assessment`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to submit self assessment');
+    }
+    return await response.json();
+  },
+
+  async submitManagerAssessment(id: number, data: { notes: string; rating: number; goalScores?: any[] }): Promise<any> {
+    const response = await apiFetch(`/api/performance/reviews/${id}/manager-assessment`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to submit manager assessment');
+    }
+    return await response.json();
+  },
+
+  async completeReview(id: number): Promise<any> {
+    const response = await apiFetch(`/api/performance/reviews/${id}/complete`, {
+      method: 'PUT',
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Failed to complete review');
+    }
+    return await response.json();
+  },
+
   // ---- Competencies ----
   async createFramework(name: string, description?: string): Promise<CompetencyFramework> {
     const params = new URLSearchParams({ name });

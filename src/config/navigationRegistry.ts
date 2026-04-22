@@ -98,6 +98,8 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-admin', label: 'Training Admin', href: '/training/admin', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['manage_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-idps', label: 'Development Plans', href: '/training/idps', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: 'performance-reviews', label: 'Reviews', href: '/performance/reviews', icon: ClipboardDocumentListIcon, section: 'talent', requiredPermissions: ['manage_performance'] },
+  { id: 'performance-pips', label: 'Improvement Plans', href: '/performance/pips', icon: ExclamationTriangleIcon, section: 'talent', requiredPermissions: ['manage_performance'] },
   { id: 'competencies', label: 'Competency Framework', href: '/competencies', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'COMPETENCY_MAPPING' },
 
   // Engagement — surveys, recognition, social feed
@@ -113,6 +115,7 @@ export const navigationRegistry: NavigationEntry[] = [
   // Analytics
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
   { id: 'hr-analytics', label: 'HR Analytics', href: '/analytics/hr-overview', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'ADVANCED_ANALYTICS' },
+  { id: 'performance-analytics', label: 'Performance Analytics', href: '/performance-analytics', icon: ChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'ADVANCED_ANALYTICS' },
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'] },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
   { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT' },

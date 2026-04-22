@@ -314,6 +314,12 @@ export const leaveService = {
     return await response.json();
   },
 
+  async getAnalyticsTrends(): Promise<Record<string, any>> {
+    const response = await apiFetch('/api/leave/analytics/trends');
+    if (!response.ok) return {};
+    return await response.json();
+  },
+
   // Public Holidays
   async getHolidays(): Promise<PublicHoliday[]> {
     const response = await apiFetch('/api/leave/holidays');

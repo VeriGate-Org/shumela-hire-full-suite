@@ -226,6 +226,12 @@ public class LeaveController {
         return ResponseEntity.ok(leaveAnalyticsService.getAnalytics());
     }
 
+    @GetMapping("/analytics/trends")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+    public ResponseEntity<Map<String, Object>> getAnalyticsTrends() {
+        return ResponseEntity.ok(leaveAnalyticsService.getAnalyticsTrends());
+    }
+
     // ---- Public Holidays ----
 
     @GetMapping("/holidays")

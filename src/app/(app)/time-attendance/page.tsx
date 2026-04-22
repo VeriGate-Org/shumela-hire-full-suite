@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import StatusPill from '@/components/StatusPill';
 import { TableSkeleton } from '@/components/LoadingComponents';
+import LocationMap from '@/components/maps/LocationMap';
 
 export default function TimeAttendancePage() {
   const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
@@ -23,6 +24,7 @@ export default function TimeAttendancePage() {
   const [clockingIn, setClockingIn] = useState(false);
   const [clockingOut, setClockingOut] = useState(false);
   const [error, setError] = useState('');
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const { user } = useAuth();
   const rawId = user?.employeeId || user?.id;
@@ -34,6 +36,13 @@ export default function TimeAttendancePage() {
       setError('Your employee profile could not be resolved. Please contact your administrator.');
       setLoading(false);
       return;
+    }
+    // Capture current location for map display
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setCurrentLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {} // ignore errors silently
+      );
     }
     attendanceService.getRecords(employeeId, 0, 10).then((data) => {
       const records = Array.isArray(data?.content) ? data.content : [];
@@ -166,6 +175,29 @@ export default function TimeAttendancePage() {
               )}
             </div>
           </div>
+
+          {/* Location Map */}
+          {currentLocation && (
+            <div className="enterprise-card p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4">Your Location</h2>
+              <LocationMap
+                center={[currentLocation.lat, currentLocation.lng]}
+                zoom={15}
+                height="250px"
+                markers={[
+                  { lat: currentLocation.lat, lng: currentLocation.lng, label: 'Current Location' },
+                  ...recentRecords
+                    .filter((r) => r.clockInLatitude && r.clockInLongitude)
+                    .slice(0, 5)
+                    .map((r) => ({
+                      lat: r.clockInLatitude!,
+                      lng: r.clockInLongitude!,
+                      label: `Clock-in: ${new Date(r.clockIn).toLocaleString()}`,
+                    })),
+                ]}
+              />
+            </div>
+          )}
 
           {/* Recent Records */}
           <div>

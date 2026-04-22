@@ -28,4 +28,5 @@ export const FEATURE_MINIMUM_PLAN: Record<string, string> = {
   SAGE_300_PEOPLE: 'Standard',
   AD_SSO: 'Standard',
   SOCIAL_FEED: 'Standard',
+  GEOFENCING: 'Standard',
 };

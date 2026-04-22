@@ -35,6 +35,12 @@ export const hrAnalyticsService = {
     return await response.json();
   },
 
+  async getPerformanceAnalytics(): Promise<AnalyticsMetrics> {
+    const response = await apiFetch('/api/analytics/performance');
+    if (!response.ok) return {};
+    return await response.json();
+  },
+
   async getAttritionRisk(): Promise<AnalyticsMetrics[]> {
     const response = await apiFetch('/api/analytics/attrition-risk');
     if (!response.ok) return [];

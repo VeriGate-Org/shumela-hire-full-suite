@@ -90,6 +90,7 @@ LEAVE_TYPES = [
     {"name": "Family Responsibility Leave", "code": "FRL", "defaultDays": "3", "maxCarry": "0", "color": "#8B5CF6", "paid": True, "medCert": False, "medThreshold": 0},
     {"name": "Maternity Leave", "code": "ML",  "defaultDays": "120","maxCarry": "0",  "color": "#EC4899", "paid": True,  "medCert": True,  "medThreshold": 0},
     {"name": "Study Leave",     "code": "STL", "defaultDays": "10", "maxCarry": "0",  "color": "#F59E0B", "paid": True,  "medCert": False, "medThreshold": 0},
+    {"name": "Paternity Leave", "code": "PL",  "defaultDays": "10", "maxCarry": "0",  "color": "#0EA5E9", "paid": True,  "medCert": False, "medThreshold": 0},
     {"name": "Unpaid Leave",    "code": "UL",  "defaultDays": "0",  "maxCarry": "0",  "color": "#6B7280", "paid": False, "medCert": False, "medThreshold": 0},
 ]
 

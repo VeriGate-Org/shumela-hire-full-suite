@@ -32,6 +32,9 @@ public class HRAnalyticsController {
     @Autowired
     private ComplianceAnalyticsService complianceAnalyticsService;
 
+    @Autowired
+    private PerformanceAnalyticsService performanceAnalyticsService;
+
     @GetMapping("/hr-overview")
     public ResponseEntity<Map<String, Object>> getHROverview() {
         Map<String, Object> metrics = hrOverviewAnalyticsService.getOverviewMetrics();
@@ -59,6 +62,12 @@ public class HRAnalyticsController {
     @GetMapping("/compliance")
     public ResponseEntity<Map<String, Object>> getComplianceAnalytics() {
         Map<String, Object> metrics = complianceAnalyticsService.getComplianceMetrics();
+        return ResponseEntity.ok(metrics);
+    }
+
+    @GetMapping("/performance")
+    public ResponseEntity<Map<String, Object>> getPerformanceAnalytics() {
+        Map<String, Object> metrics = performanceAnalyticsService.getPerformanceMetrics();
         return ResponseEntity.ok(metrics);
     }
 }
