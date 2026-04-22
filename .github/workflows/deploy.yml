@@ -459,6 +459,7 @@ jobs:
             export AWS_REGION="$REGION"
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
+            python3 scripts/seed-users-dynamodb.py || echo "WARNING: User seeding had errors (non-fatal)"
             python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
             python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
@@ -467,6 +468,12 @@ jobs:
             python3 scripts/seed-sage-dynamodb.py || echo "WARNING: Sage integration seeding had errors (non-fatal)"
             python3 scripts/seed-sage-evolution-dynamodb.py || echo "WARNING: Sage Evolution seeding had errors (non-fatal)"
             python3 scripts/seed-engagement-dynamodb.py || echo "WARNING: Engagement seeding had errors (non-fatal)"
+            python3 scripts/seed-onboarding-dynamodb.py || echo "WARNING: Onboarding seeding had errors (non-fatal)"
+            python3 scripts/seed-feed-dynamodb.py || echo "WARNING: Feed seeding had errors (non-fatal)"
+            python3 scripts/seed-shifts-geofences-dynamodb.py || echo "WARNING: Shifts/geofences seeding had errors (non-fatal)"
+            python3 scripts/seed-labour-compliance-dynamodb.py || echo "WARNING: Labour compliance seeding had errors (non-fatal)"
+            python3 scripts/seed-pips-reviews-idps-dynamodb.py || echo "WARNING: PIPs/IDPs seeding had errors (non-fatal)"
+            python3 scripts/seed-custom-fields-dynamodb.py || echo "WARNING: Custom fields seeding had errors (non-fatal)"
           else
             echo "uThukela tenant does not exist — running full setup..."
 
@@ -517,6 +524,7 @@ jobs:
             export DYNAMODB_TABLE_NAME="$TABLE_NAME"
             pip install cryptography -q 2>/dev/null
             python3 scripts/seed-employees-dynamodb.py || echo "WARNING: Employee seeding had errors (non-fatal)"
+            python3 scripts/seed-users-dynamodb.py || echo "WARNING: User seeding had errors (non-fatal)"
             python3 scripts/seed-jobs-dynamodb.py || echo "WARNING: Job postings seeding had errors (non-fatal)"
             python3 scripts/seed-leave-dynamodb.py || echo "WARNING: Leave seeding had errors (non-fatal)"
             python3 scripts/seed-recruitment-dynamodb.py || echo "WARNING: Recruitment seeding had errors (non-fatal)"
@@ -525,6 +533,12 @@ jobs:
             python3 scripts/seed-sage-dynamodb.py || echo "WARNING: Sage integration seeding had errors (non-fatal)"
             python3 scripts/seed-sage-evolution-dynamodb.py || echo "WARNING: Sage Evolution seeding had errors (non-fatal)"
             python3 scripts/seed-engagement-dynamodb.py || echo "WARNING: Engagement seeding had errors (non-fatal)"
+            python3 scripts/seed-onboarding-dynamodb.py || echo "WARNING: Onboarding seeding had errors (non-fatal)"
+            python3 scripts/seed-feed-dynamodb.py || echo "WARNING: Feed seeding had errors (non-fatal)"
+            python3 scripts/seed-shifts-geofences-dynamodb.py || echo "WARNING: Shifts/geofences seeding had errors (non-fatal)"
+            python3 scripts/seed-labour-compliance-dynamodb.py || echo "WARNING: Labour compliance seeding had errors (non-fatal)"
+            python3 scripts/seed-pips-reviews-idps-dynamodb.py || echo "WARNING: PIPs/IDPs seeding had errors (non-fatal)"
+            python3 scripts/seed-custom-fields-dynamodb.py || echo "WARNING: Custom fields seeding had errors (non-fatal)"
           fi
 
           echo "Demo data seeding complete."
