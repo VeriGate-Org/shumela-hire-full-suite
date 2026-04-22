@@ -357,12 +357,15 @@ jobs:
           WARMUP_PAYLOAD='{"version":"2.0","routeKey":"GET /api/actuator/health","rawPath":"/api/actuator/health","rawQueryString":"","headers":{},"requestContext":{"http":{"method":"GET","path":"/api/actuator/health","protocol":"HTTP/1.1","sourceIp":"127.0.0.1"},"requestId":"warmup","routeKey":"GET /api/actuator/health","stage":"$default"},"isBase64Encoded":false}'
           echo "$WARMUP_PAYLOAD" > /tmp/warmup-payload.json
           for attempt in 1 2 3; do
-            aws lambda invoke \
+            INVOKE_OUTPUT=$(aws lambda invoke \
               --function-name "$FUNCTION_NAME" \
               --payload 'fileb:///tmp/warmup-payload.json' \
               --cli-read-timeout 120 \
               --region "$REGION" \
-              /tmp/warmup-response.json >/dev/null 2>&1
+              /tmp/warmup-response.json 2>&1) || true
+            echo "  Invoke output: $INVOKE_OUTPUT"
+            RESPONSE_BODY=$(cat /tmp/warmup-response.json 2>/dev/null | head -c 2000 || echo "no response file")
+            echo "  Response body: $RESPONSE_BODY"
             STATUS_CODE=$(python3 -c "import json; print(json.load(open('/tmp/warmup-response.json')).get('statusCode','error'))" 2>/dev/null || echo "error")
             echo "  Warmup attempt $attempt: Lambda returned $STATUS_CODE"
             if [ "$STATUS_CODE" != "error" ]; then
