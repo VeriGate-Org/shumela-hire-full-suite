@@ -161,8 +161,8 @@ export const engagementService = {
     return await response.json();
   },
 
-  async getRecognitionsReceived(employeeId: string, page = 0, size = 20): Promise<PageResponse<Recognition>> {
-    const response = await apiFetch(`/api/engagement/recognitions/received?employeeId=${employeeId}&page=${page}&size=${size}`);
+  async getRecognitionsReceived(employeeId: string, _page = 0, _size = 20): Promise<PageResponse<Recognition>> {
+    const response = await apiFetch(`/api/engagement/recognitions/received?employeeId=${employeeId}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();
   },
