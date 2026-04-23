@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -54,9 +55,18 @@ public class DynamoOnboardingChecklistRepository
 
     @Override
     protected com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem toItem(OnboardingChecklist entity) {
-        var item = new com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem();
+        if (entity == null) return null;
+
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId() : null;
+        LocalDateTime now = LocalDateTime.now();
+
+        entity.setId(id);
+        entity.setTenantId(tenantId);
+        if (entity.getCreatedAt() == null) entity.setCreatedAt(now);
+        entity.setUpdatedAt(now);
+
+        var item = new com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem();
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("ONBOARD_CHECKLIST#" + id);
@@ -67,12 +77,12 @@ public class DynamoOnboardingChecklistRepository
 
         item.setId(id);
         item.setTenantId(tenantId);
-        item.setEmployeeId(entity.getEmployeeId() != null ? entity.getEmployeeId() : null);
-        item.setTemplateId(entity.getTemplateId() != null ? entity.getTemplateId() : null);
+        item.setEmployeeId(entity.getEmployeeId());
+        item.setTemplateId(entity.getTemplateId());
         item.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);
         item.setDueDate(entity.getDueDate() != null ? entity.getDueDate().toString() : null);
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        item.setAssignedHrId(entity.getAssignedHrId() != null ? entity.getAssignedHrId() : null);
+        item.setAssignedHrId(entity.getAssignedHrId());
 
         if (entity.getItems() != null) {
             try {
@@ -82,8 +92,8 @@ public class DynamoOnboardingChecklistRepository
             }
         }
 
-        item.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant(ZoneOffset.UTC) : null);
-        item.setUpdatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().toInstant(ZoneOffset.UTC) : null);
+        item.setCreatedAt(entity.getCreatedAt().toInstant(ZoneOffset.UTC));
+        item.setUpdatedAt(entity.getUpdatedAt().toInstant(ZoneOffset.UTC));
         return item;
     }
 
