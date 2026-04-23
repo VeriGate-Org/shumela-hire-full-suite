@@ -244,8 +244,6 @@ export const leaveService = {
     const searchParams = new URLSearchParams();
     if (params.employeeId) searchParams.set('employeeId', params.employeeId);
     if (params.status) searchParams.set('status', params.status);
-    searchParams.set('page', (params.page ?? 0).toString());
-    searchParams.set('size', (params.size ?? 20).toString());
     const response = await apiFetch(`/api/leave/requests?${searchParams}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();

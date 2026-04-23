@@ -118,7 +118,6 @@ export default function EmployeePortalPage() {
   const [onboardingChecklist, setOnboardingChecklist] = useState<OnboardingChecklist | null>(null);
   const [announcements, setAnnouncements] = useState<FeedPost[]>([]);
   const [internalJobs, setInternalJobs] = useState<InternalJob[]>([]);
-  const [myApplicationsCount, setMyApplicationsCount] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,9 +159,6 @@ export default function EmployeePortalPage() {
     const fetchInternalJobs = apiFetch('/api/ads/internal?size=5')
       .then(res => res.ok ? res.json() : { content: [] })
       .catch(() => ({ content: [] }));
-    const fetchApplicationsCount = apiFetch('/api/applications?size=1')
-      .then(res => res.ok ? res.json() : { totalElements: 0 })
-      .catch(() => ({ totalElements: 0 }));
 
     Promise.allSettled([
       fetchProfile,
@@ -174,8 +170,7 @@ export default function EmployeePortalPage() {
       fetchOnboarding,
       fetchAnnouncements,
       fetchInternalJobs,
-      fetchApplicationsCount,
-    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes, internalJobsRes, applicationsRes]) => {
+    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes, internalJobsRes]) => {
       // Profile is required
       if (profileRes.status === 'fulfilled') {
         setProfile(profileRes.value);
@@ -183,29 +178,35 @@ export default function EmployeePortalPage() {
         setError('Failed to load profile');
       }
 
-      if (balancesRes.status === 'fulfilled') setBalances(balancesRes.value);
-      if (leaveRes.status === 'fulfilled') setRecentLeave(leaveRes.value.content || []);
+      if (balancesRes.status === 'fulfilled') setBalances(Array.isArray(balancesRes.value) ? balancesRes.value : []);
+      if (leaveRes.status === 'fulfilled') {
+        // Backend returns List<> (plain array) or PageResponse { content: [...] }
+        const raw = leaveRes.value;
+        const content = Array.isArray(raw) ? raw : (raw?.content ?? []);
+        setRecentLeave(Array.isArray(content) ? content : []);
+      }
       if (attendanceRes.status === 'fulfilled' && attendanceRes.value) setAttendanceStatus(attendanceRes.value);
-      if (enrollmentsRes.status === 'fulfilled') setEnrollments(enrollmentsRes.value);
+      if (enrollmentsRes.status === 'fulfilled') setEnrollments(Array.isArray(enrollmentsRes.value) ? enrollmentsRes.value : []);
       if (recognitionsRes.status === 'fulfilled') {
-        setRecognitions(recognitionsRes.value.content || []);
-        setTotalPoints(
-          (recognitionsRes.value.content || []).reduce((sum: number, r: Recognition) => sum + r.points, 0)
-        );
+        const content = Array.isArray(recognitionsRes.value?.content) ? recognitionsRes.value.content : [];
+        setRecognitions(content);
+        setTotalPoints(content.reduce((sum: number, r: Recognition) => sum + r.points, 0));
       }
       if (onboardingRes.status === 'fulfilled') {
-        const checklists = onboardingRes.value;
+        const checklists = Array.isArray(onboardingRes.value) ? onboardingRes.value : [];
         const active = checklists.find((c: OnboardingChecklist) => c.status === 'IN_PROGRESS');
         if (active) setOnboardingChecklist(active);
       }
       if (announcementsRes.status === 'fulfilled') {
-        setAnnouncements(announcementsRes.value.content || []);
+        const content = announcementsRes.value?.content;
+        setAnnouncements(Array.isArray(content) ? content : []);
       }
       if (internalJobsRes.status === 'fulfilled') {
-        const items = internalJobsRes.value.data?.content ?? internalJobsRes.value.content ?? internalJobsRes.value ?? [];
+        const raw = internalJobsRes.value?.data?.content ?? internalJobsRes.value?.content ?? internalJobsRes.value;
+        const items = Array.isArray(raw) ? raw : [];
         setInternalJobs(
           items.map((job: Record<string, unknown>) => ({
-            id: job.id,
+            id: job.id as string | number,
             title: (job.title ?? job.jobTitle ?? '') as string,
             department: (job.department ?? '') as string,
             location: (job.location ?? '') as string,
@@ -213,11 +214,8 @@ export default function EmployeePortalPage() {
           }))
         );
       }
-      if (applicationsRes.status === 'fulfilled') {
-        setMyApplicationsCount(
-          applicationsRes.value.totalElements ?? (applicationsRes.value.content ?? []).length
-        );
-      }
+    }).catch(() => {
+      // Prevent uncaught promise rejections
     }).finally(() => {
       setLoading(false);
       setBalancesLoading(false);
@@ -488,10 +486,6 @@ export default function EmployeePortalPage() {
                 <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
                   <BriefcaseIcon className="w-4 h-4" />
                   {internalJobs.length} Open Position{internalJobs.length !== 1 ? 's' : ''}
-                </div>
-                <div className="flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-medium">
-                  <DocumentTextIcon className="w-4 h-4" />
-                  {myApplicationsCount} My Application{myApplicationsCount !== 1 ? 's' : ''}
                 </div>
               </div>
               {internalJobs.length === 0 ? (
