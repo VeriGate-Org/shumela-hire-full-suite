@@ -21,12 +21,14 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import { employeeService, EmployeeSkill, EmployeeEducation } from '@/services/employeeService';
+import { customFieldService, CustomField } from '@/services/customFieldService';
+import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 
 export default function EditProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState<'personal' | 'banking' | 'emergency' | 'skills' | 'education' | 'employment'>('personal');
+  const [activeSection, setActiveSection] = useState<'personal' | 'banking' | 'emergency' | 'skills' | 'education' | 'employment' | 'custom'>('personal');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Skills state
@@ -52,6 +54,11 @@ export default function EditProfilePage() {
     endDate: '',
     grade: '',
   });
+
+  // Custom fields state
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+  const [savingCustom, setSavingCustom] = useState(false);
 
   // Employment history state
   const [employmentHistory, setEmploymentHistory] = useState<{
@@ -98,7 +105,9 @@ export default function EditProfilePage() {
       apiFetch(`/api/employee/emergency-contact?employeeId=${employeeId}`).then(r => r.ok ? r.json() : null),
       employeeService.getSkills(employeeId),
       employeeService.getEducation(employeeId),
-    ]).then(([profile, banking, emergency, skillsData, educationData]) => {
+      customFieldService.getFieldsByEntityType('EMPLOYEE'),
+      customFieldService.getValues('EMPLOYEE', employeeId),
+    ]).then(([profile, banking, emergency, skillsData, educationData, cfDefs, cfValues]) => {
       if (profile) {
         setPersonalForm({
           preferredName: profile.preferredName || '',
@@ -135,6 +144,14 @@ export default function EditProfilePage() {
       }
       setSkills(skillsData || []);
       setEducation(educationData || []);
+      if (cfDefs && cfDefs.length > 0) {
+        setCustomFields(cfDefs);
+        const vals: Record<string, string> = {};
+        cfDefs.forEach((cf: CustomField) => {
+          vals[cf.fieldName] = (cfValues && cfValues[cf.fieldName]) || cf.defaultValue || '';
+        });
+        setCustomFieldValues(vals);
+      }
       setLoading(false);
     }).catch(() => {
       setLoading(false);
@@ -187,6 +204,21 @@ export default function EditProfilePage() {
       setMessage({ type: 'error', text: err.message || 'Failed to update.' });
     }
     setSaving(false);
+  };
+
+  const handleSaveCustomFields = async () => {
+    setSavingCustom(true);
+    try {
+      const payload = customFields.map(cf => ({
+        customFieldId: cf.id,
+        fieldValue: customFieldValues[cf.fieldName] || '',
+      }));
+      await customFieldService.setValues('EMPLOYEE', employeeId, payload);
+      setMessage({ type: 'success', text: 'Custom fields updated successfully.' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Failed to save custom fields.' });
+    }
+    setSavingCustom(false);
   };
 
   // Skills handlers
@@ -325,6 +357,7 @@ export default function EditProfilePage() {
     { key: 'skills' as const, label: 'Skills', icon: WrenchScrewdriverIcon },
     { key: 'education' as const, label: 'Education', icon: AcademicCapIcon },
     { key: 'employment' as const, label: 'Employment History', icon: BriefcaseIcon },
+    { key: 'custom' as const, label: 'Custom Fields', icon: AdjustmentsHorizontalIcon },
   ];
 
   if (loading) {
@@ -778,6 +811,87 @@ export default function EditProfilePage() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-6">No employment history available.</p>
+              )}
+            </div>
+          )}
+
+          {/* Custom Fields */}
+          {activeSection === 'custom' && (
+            <div className="enterprise-card p-6 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground">Custom Fields</h3>
+              <p className="text-xs text-muted-foreground">Organisation-specific fields configured by your HR team.</p>
+              {customFields.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {customFields.map(cf => (
+                      <div key={cf.id}>
+                        <label className="block text-xs font-medium text-muted-foreground mb-1">
+                          {cf.fieldLabel}{cf.isRequired && <span className="text-red-500 ml-0.5">*</span>}
+                        </label>
+                        {cf.fieldType === 'SELECT' && cf.options ? (
+                          <select
+                            value={customFieldValues[cf.fieldName] || ''}
+                            onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.value }))}
+                            className="w-full px-3 py-2 border rounded-lg text-sm"
+                          >
+                            <option value="">Select...</option>
+                            {cf.options.split('\n').filter(Boolean).map(opt => (
+                              <option key={opt} value={opt.trim()}>{opt.trim()}</option>
+                            ))}
+                          </select>
+                        ) : cf.fieldType === 'BOOLEAN' || cf.fieldType === 'CHECKBOX' ? (
+                          <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer mt-1">
+                            <input
+                              type="checkbox"
+                              checked={customFieldValues[cf.fieldName] === 'true'}
+                              onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.checked ? 'true' : 'false' }))}
+                              className="rounded border-gray-300"
+                            />
+                            {customFieldValues[cf.fieldName] === 'true' ? 'Yes' : 'No'}
+                          </label>
+                        ) : cf.fieldType === 'DATE' ? (
+                          <input
+                            type="date"
+                            value={customFieldValues[cf.fieldName] || ''}
+                            onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.value }))}
+                            className="w-full px-3 py-2 border rounded-lg text-sm"
+                          />
+                        ) : cf.fieldType === 'NUMBER' ? (
+                          <input
+                            type="number"
+                            value={customFieldValues[cf.fieldName] || ''}
+                            onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.value }))}
+                            className="w-full px-3 py-2 border rounded-lg text-sm"
+                          />
+                        ) : cf.fieldType === 'TEXTAREA' ? (
+                          <textarea
+                            rows={2}
+                            value={customFieldValues[cf.fieldName] || ''}
+                            onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.value }))}
+                            className="w-full px-3 py-2 border rounded-lg text-sm"
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            value={customFieldValues[cf.fieldName] || ''}
+                            onChange={e => setCustomFieldValues(prev => ({ ...prev, [cf.fieldName]: e.target.value }))}
+                            className="w-full px-3 py-2 border rounded-lg text-sm"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button type="button" onClick={() => router.push('/employee/portal')}
+                      className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">Cancel</button>
+                    <button type="button" onClick={handleSaveCustomFields} disabled={savingCustom}
+                      className="btn-cta disabled:opacity-50">
+                      {savingCustom ? 'Saving...' : 'Save Custom Fields'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-6">No custom fields configured for employees.</p>
               )}
             </div>
           )}

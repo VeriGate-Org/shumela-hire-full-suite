@@ -76,6 +76,20 @@ FIELDS = [
      "entityType": "EMPLOYEE", "dataType": "CHECKBOX",
      "options": "", "defaultValue": "false", "helpText": "Has the employee completed emergency response training?",
      "isRequired": "false", "displayOrder": 5},
+    {"key": "ward-assignment", "fieldName": "wardAssignment", "fieldLabel": "Ward Assignment",
+     "entityType": "EMPLOYEE", "dataType": "SELECT",
+     "options": "Ward 1 - Estcourt\nWard 2 - Weenen\nWard 3 - Colenso\nWard 4 - Loskop\nWard 5 - Ntabamhlophe\nWard 6 - Ematsheni\nWard 7 - Cornfields\nWard 8 - Wembezi",
+     "defaultValue": "", "helpText": "Municipal ward the employee is assigned to",
+     "isRequired": "false", "displayOrder": 6},
+    {"key": "water-scheme-zone", "fieldName": "waterSchemeZone", "fieldLabel": "Water Scheme Zone",
+     "entityType": "EMPLOYEE", "dataType": "SELECT",
+     "options": "Zone A - Central Distribution\nZone B - Northern Pipeline\nZone C - Southern Reservoir\nZone D - Eastern Bulk Supply\nZone E - Western Treatment Works",
+     "defaultValue": "", "helpText": "Water supply scheme zone the employee operates in",
+     "isRequired": "false", "displayOrder": 7},
+    {"key": "mfma-code", "fieldName": "mfmaComplianceCode", "fieldLabel": "MFMA Compliance Code",
+     "entityType": "EMPLOYEE", "dataType": "TEXT",
+     "options": "", "defaultValue": "", "helpText": "Municipal Finance Management Act compliance classification code",
+     "isRequired": "false", "displayOrder": 8},
 ]
 
 
@@ -148,6 +162,24 @@ VALUES = [
     {"field": "emergency-trained", "empNum": "UTH-010", "value": "true"},
     {"field": "emergency-trained", "empNum": "UTH-008", "value": "true"},
     {"field": "emergency-trained", "empNum": "UTH-001", "value": "true"},
+    # Ward Assignment
+    {"field": "ward-assignment", "empNum": "UTH-001", "value": "Ward 1 - Estcourt"},
+    {"field": "ward-assignment", "empNum": "UTH-003", "value": "Ward 3 - Colenso"},
+    {"field": "ward-assignment", "empNum": "UTH-005", "value": "Ward 2 - Weenen"},
+    {"field": "ward-assignment", "empNum": "UTH-008", "value": "Ward 5 - Ntabamhlophe"},
+    {"field": "ward-assignment", "empNum": "UTH-010", "value": "Ward 4 - Loskop"},
+    # Water Scheme Zone
+    {"field": "water-scheme-zone", "empNum": "UTH-001", "value": "Zone A - Central Distribution"},
+    {"field": "water-scheme-zone", "empNum": "UTH-003", "value": "Zone C - Southern Reservoir"},
+    {"field": "water-scheme-zone", "empNum": "UTH-005", "value": "Zone D - Eastern Bulk Supply"},
+    {"field": "water-scheme-zone", "empNum": "UTH-008", "value": "Zone B - Northern Pipeline"},
+    {"field": "water-scheme-zone", "empNum": "UTH-010", "value": "Zone E - Western Treatment Works"},
+    # MFMA Compliance Code
+    {"field": "mfma-code", "empNum": "UTH-001", "value": "MFMA-S57-A"},
+    {"field": "mfma-code", "empNum": "UTH-003", "value": "MFMA-S56-B"},
+    {"field": "mfma-code", "empNum": "UTH-005", "value": "MFMA-S56-C"},
+    {"field": "mfma-code", "empNum": "UTH-008", "value": "MFMA-S57-B"},
+    {"field": "mfma-code", "empNum": "UTH-010", "value": "MFMA-S56-A"},
 ]
 
 
