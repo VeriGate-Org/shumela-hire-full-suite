@@ -51,19 +51,19 @@ class RecruitmentLifecycleServiceTest {
     @BeforeEach
     void setUp() {
         mockApplicant = new Applicant();
-        mockApplicant.setId(10L);
+        mockApplicant.setId("10");
         mockApplicant.setName("Jane");
         mockApplicant.setSurname("Doe");
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(20L);
+        mockJobPosting.setId("20");
         mockJobPosting.setTitle("Senior Developer");
         mockJobPosting.setDepartment("Engineering");
         mockJobPosting.setCreatedAt(LocalDateTime.of(2026, 1, 1, 9, 0));
         mockJobPosting.setPublishedAt(LocalDateTime.of(2026, 1, 5, 10, 0));
 
         mockApplication = new Application();
-        mockApplication.setId(1L);
+        mockApplication.setId("1");
         mockApplication.setApplicant(mockApplicant);
         mockApplication.setJobPosting(mockJobPosting);
         mockApplication.setSubmittedAt(LocalDateTime.of(2026, 1, 10, 14, 30));
@@ -83,11 +83,11 @@ class RecruitmentLifecycleServiceTest {
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When
-        RecruitmentLifecycle lifecycle = service.getByApplicationId(1L);
+        RecruitmentLifecycle lifecycle = service.getByApplicationId("1");
 
         // Then
         assertNotNull(lifecycle);
-        assertEquals(1L, lifecycle.getApplicationId());
+        assertEquals("1", lifecycle.getApplicationId());
         assertEquals("Jane Doe", lifecycle.getApplicantName());
         assertEquals("Senior Developer", lifecycle.getJobTitle());
         assertEquals("Engineering", lifecycle.getDepartment());
@@ -103,7 +103,7 @@ class RecruitmentLifecycleServiceTest {
 
         // Interviews
         Interview interview1 = new Interview();
-        interview1.setId(100L);
+        interview1.setId("100");
         interview1.setTitle("Technical Interview");
         interview1.setType(InterviewType.VIDEO);
         interview1.setRound(InterviewRound.TECHNICAL);
@@ -120,7 +120,7 @@ class RecruitmentLifecycleServiceTest {
 
         // Offer
         Offer offer = new Offer();
-        offer.setId(200L);
+        offer.setId("200");
         offer.setOfferNumber("OFF-2026-001");
         offer.setJobTitle("Senior Developer");
         offer.setBaseSalary(new BigDecimal("750000"));
@@ -133,22 +133,22 @@ class RecruitmentLifecycleServiceTest {
 
         // Pipeline transitions
         PipelineTransition pt1 = new PipelineTransition();
-        pt1.setId(300L);
+        pt1.setId("300");
         pt1.setFromStage(PipelineStage.APPLICATION_RECEIVED);
         pt1.setToStage(PipelineStage.INITIAL_SCREENING);
         pt1.setTransitionType(TransitionType.PROGRESSION);
         pt1.setCreatedAt(LocalDateTime.of(2026, 1, 12, 9, 0));
         pt1.setEffectiveAt(LocalDateTime.of(2026, 1, 12, 9, 0));
-        pt1.setCreatedBy(42L);
+        pt1.setCreatedBy("42");
 
         PipelineTransition pt2 = new PipelineTransition();
-        pt2.setId(301L);
+        pt2.setId("301");
         pt2.setFromStage(PipelineStage.INITIAL_SCREENING);
         pt2.setToStage(PipelineStage.FIRST_INTERVIEW);
         pt2.setTransitionType(TransitionType.PROGRESSION);
         pt2.setCreatedAt(LocalDateTime.of(2026, 1, 15, 9, 0));
         pt2.setEffectiveAt(LocalDateTime.of(2026, 1, 15, 9, 0));
-        pt2.setCreatedBy(42L);
+        pt2.setCreatedBy("42");
         pt2.setDurationInPreviousStageHours(72L);
 
         when(pipelineTransitionRepository.findByApplicationIdOrderByCreatedAtDesc("1"))
@@ -162,7 +162,7 @@ class RecruitmentLifecycleServiceTest {
 
         // Audit logs
         AuditLog log1 = new AuditLog();
-        log1.setId(400L);
+        log1.setId("400");
         log1.setAction("VIEW_APPLICATION");
         log1.setUserId("42");
         log1.setDetails("Viewed application details");
@@ -172,11 +172,11 @@ class RecruitmentLifecycleServiceTest {
                 .thenReturn(List.of(log1));
 
         // When
-        RecruitmentLifecycle lifecycle = service.getByApplicationId(1L);
+        RecruitmentLifecycle lifecycle = service.getByApplicationId("1");
 
         // Then
         assertNotNull(lifecycle);
-        assertEquals(1L, lifecycle.getApplicationId());
+        assertEquals("1", lifecycle.getApplicationId());
         assertEquals("Jane Doe", lifecycle.getApplicantName());
 
         // Timeline should be chronologically sorted
@@ -226,7 +226,7 @@ class RecruitmentLifecycleServiceTest {
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         BackgroundCheck bc = new BackgroundCheck();
-        bc.setId(500L);
+        bc.setId("500");
         bc.setReferenceId("DA-ABC123");
         bc.setProvider("dots-africa");
         bc.setCheckTypes("[\"ID_VERIFICATION\",\"CRIMINAL_CHECK\"]");
@@ -238,7 +238,7 @@ class RecruitmentLifecycleServiceTest {
         when(backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc("1")).thenReturn(List.of(bc));
 
         // When
-        RecruitmentLifecycle lifecycle = service.getByApplicationId(1L);
+        RecruitmentLifecycle lifecycle = service.getByApplicationId("1");
 
         // Then
         List<LifecycleEvent> bgCheckEvents = lifecycle.getTimeline().stream()
@@ -258,7 +258,7 @@ class RecruitmentLifecycleServiceTest {
     void testGetByApplicationId_NotFound() {
         when(applicationRepository.findById("999")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.getByApplicationId(999L));
+        assertThrows(RuntimeException.class, () -> service.getByApplicationId("999"));
     }
 
     @Test
@@ -273,7 +273,7 @@ class RecruitmentLifecycleServiceTest {
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When
-        List<LifecycleEvent> events = service.getEventsByApplicationId(1L);
+        List<LifecycleEvent> events = service.getEventsByApplicationId("1");
 
         // Then
         assertNotNull(events);
@@ -286,7 +286,7 @@ class RecruitmentLifecycleServiceTest {
         when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
 
         Interview interview = new Interview();
-        interview.setId(100L);
+        interview.setId("100");
         interview.setTitle("Phone Screen");
         interview.setCreatedAt(LocalDateTime.of(2026, 1, 16, 9, 0));
         interview.setScheduledAt(LocalDateTime.of(2026, 1, 18, 10, 0));
@@ -300,7 +300,7 @@ class RecruitmentLifecycleServiceTest {
         when(auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc("APPLICATION", "1")).thenReturn(Collections.emptyList());
 
         // When
-        RecruitmentLifecycle lifecycle = service.getByApplicationId(1L);
+        RecruitmentLifecycle lifecycle = service.getByApplicationId("1");
 
         // Then
         for (LifecycleEvent event : lifecycle.getTimeline()) {

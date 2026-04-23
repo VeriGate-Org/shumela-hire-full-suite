@@ -42,7 +42,7 @@ class EmploymentEventServiceTest {
     @BeforeEach
     void setUp() {
         testEmployee = new Employee();
-        testEmployee.setId(1L);
+        testEmployee.setId("1");
         testEmployee.setEmployeeNumber("UTW-2026-0001");
         testEmployee.setFirstName("John");
         testEmployee.setLastName("Doe");
@@ -60,7 +60,7 @@ class EmploymentEventServiceTest {
     @Test
     void createEvent_Promotion_UpdatesEmployeeAndCreatesEvent() {
         EmploymentEventRequest request = new EmploymentEventRequest();
-        request.setEmployeeId(1L);
+        request.setEmployeeId("1");
         request.setEventType(EmploymentEventType.PROMOTION);
         request.setEventDate(LocalDate.now());
         request.setEffectiveDate(LocalDate.now());
@@ -68,7 +68,7 @@ class EmploymentEventServiceTest {
         request.setNewJobGrade("C4");
 
         EmploymentEvent savedEvent = new EmploymentEvent();
-        savedEvent.setId(1L);
+        savedEvent.setId("1");
         savedEvent.setEmployee(testEmployee);
         savedEvent.setEventType(EmploymentEventType.PROMOTION);
         savedEvent.setEventDate(LocalDate.now());
@@ -77,7 +77,7 @@ class EmploymentEventServiceTest {
         savedEvent.setNewJobTitle("Senior Developer");
         savedEvent.setCreatedAt(LocalDateTime.now());
 
-        when(employeeService.findEmployeeById(1L)).thenReturn(testEmployee);
+        when(employeeService.findEmployeeById("1")).thenReturn(testEmployee);
         when(eventRepository.save(any(EmploymentEvent.class))).thenReturn(savedEvent);
 
         EmploymentEventResponse result = eventService.createEvent(request);
@@ -94,21 +94,21 @@ class EmploymentEventServiceTest {
     @Test
     void createEvent_Resignation_UpdatesEmployeeStatus() {
         EmploymentEventRequest request = new EmploymentEventRequest();
-        request.setEmployeeId(1L);
+        request.setEmployeeId("1");
         request.setEventType(EmploymentEventType.RESIGNATION);
         request.setEventDate(LocalDate.now());
         request.setEffectiveDate(LocalDate.now().plusMonths(1));
         request.setDescription("Personal reasons");
 
         EmploymentEvent savedEvent = new EmploymentEvent();
-        savedEvent.setId(1L);
+        savedEvent.setId("1");
         savedEvent.setEmployee(testEmployee);
         savedEvent.setEventType(EmploymentEventType.RESIGNATION);
         savedEvent.setEventDate(LocalDate.now());
         savedEvent.setEffectiveDate(LocalDate.now().plusMonths(1));
         savedEvent.setCreatedAt(LocalDateTime.now());
 
-        when(employeeService.findEmployeeById(1L)).thenReturn(testEmployee);
+        when(employeeService.findEmployeeById("1")).thenReturn(testEmployee);
         when(eventRepository.save(any(EmploymentEvent.class))).thenReturn(savedEvent);
 
         eventService.createEvent(request);
@@ -120,20 +120,20 @@ class EmploymentEventServiceTest {
     @Test
     void createEvent_Suspension_UpdatesStatus() {
         EmploymentEventRequest request = new EmploymentEventRequest();
-        request.setEmployeeId(1L);
+        request.setEmployeeId("1");
         request.setEventType(EmploymentEventType.SUSPENSION);
         request.setEventDate(LocalDate.now());
         request.setEffectiveDate(LocalDate.now());
 
         EmploymentEvent savedEvent = new EmploymentEvent();
-        savedEvent.setId(1L);
+        savedEvent.setId("1");
         savedEvent.setEmployee(testEmployee);
         savedEvent.setEventType(EmploymentEventType.SUSPENSION);
         savedEvent.setEventDate(LocalDate.now());
         savedEvent.setEffectiveDate(LocalDate.now());
         savedEvent.setCreatedAt(LocalDateTime.now());
 
-        when(employeeService.findEmployeeById(1L)).thenReturn(testEmployee);
+        when(employeeService.findEmployeeById("1")).thenReturn(testEmployee);
         when(eventRepository.save(any(EmploymentEvent.class))).thenReturn(savedEvent);
 
         eventService.createEvent(request);
@@ -144,7 +144,7 @@ class EmploymentEventServiceTest {
     @Test
     void getEmployeeHistory_ReturnsEventsOrderedByDate() {
         EmploymentEvent event1 = new EmploymentEvent();
-        event1.setId(1L);
+        event1.setId("1");
         event1.setEmployee(testEmployee);
         event1.setEventType(EmploymentEventType.HIRE);
         event1.setEventDate(LocalDate.of(2024, 1, 15));
@@ -152,7 +152,7 @@ class EmploymentEventServiceTest {
         event1.setCreatedAt(LocalDateTime.now());
 
         EmploymentEvent event2 = new EmploymentEvent();
-        event2.setId(2L);
+        event2.setId("2");
         event2.setEmployee(testEmployee);
         event2.setEventType(EmploymentEventType.PROMOTION);
         event2.setEventDate(LocalDate.of(2025, 6, 1));
@@ -161,7 +161,7 @@ class EmploymentEventServiceTest {
 
         when(eventRepository.findByEmployeeOrderByEventDateDesc("1")).thenReturn(List.of(event2, event1));
 
-        List<EmploymentEventResponse> history = eventService.getEmployeeHistory(1L);
+        List<EmploymentEventResponse> history = eventService.getEmployeeHistory("1");
 
         assertThat(history).hasSize(2);
         assertThat(history.get(0).getEventType()).isEqualTo(EmploymentEventType.PROMOTION);

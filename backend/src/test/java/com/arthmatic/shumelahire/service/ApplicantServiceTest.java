@@ -45,7 +45,7 @@ class ApplicantServiceTest {
     void setUp() {
         // Set up test applicant
         testApplicant = new Applicant();
-        testApplicant.setId(1L);
+        testApplicant.setId("1");
         testApplicant.setName("John");
         testApplicant.setSurname("Doe");
         testApplicant.setEmail("john.doe@example.com");
@@ -87,7 +87,7 @@ class ApplicantServiceTest {
         assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
         verify(applicantRepository, times(1)).existsByEmail(testRequest.getEmail());
         verify(applicantRepository, times(1)).save(any(Applicant.class));
-        verify(auditLogService, times(1)).logApplicantAction(1L, "CREATED", "APPLICANT", "John Doe");
+        verify(auditLogService, times(1)).logApplicantAction("1", "CREATED", "APPLICANT", "John Doe");
     }
 
     @Test
@@ -109,7 +109,7 @@ class ApplicantServiceTest {
     @Test
     void updateApplicant_ValidRequest_ReturnsUpdatedApplicantResponse() {
         // Given
-        Long applicantId = 1L;
+        String applicantId = "1";
         ApplicantCreateRequest updateRequest = new ApplicantCreateRequest();
         updateRequest.setName("Jane");
         updateRequest.setSurname("Smith");
@@ -147,7 +147,7 @@ class ApplicantServiceTest {
     @Test
     void updateApplicant_EmailConflict_ThrowsIllegalArgumentException() {
         // Given
-        Long applicantId = 1L;
+        String applicantId = "1";
         ApplicantCreateRequest updateRequest = new ApplicantCreateRequest();
         updateRequest.setName("Jane");
         updateRequest.setSurname("Smith");
@@ -171,7 +171,7 @@ class ApplicantServiceTest {
     @Test
     void getApplicant_ExistingId_ReturnsApplicantResponse() {
         // Given
-        Long applicantId = 1L;
+        String applicantId = "1";
         when(applicantRepository.findById(String.valueOf(applicantId))).thenReturn(Optional.of(testApplicant));
 
         // When
@@ -188,7 +188,7 @@ class ApplicantServiceTest {
     @Test
     void findApplicantById_NonExistingId_ThrowsRuntimeException() {
         // Given
-        Long nonExistingId = 999L;
+        String nonExistingId = "999";
         when(applicantRepository.findById(String.valueOf(nonExistingId))).thenReturn(Optional.empty());
 
         // When & Then

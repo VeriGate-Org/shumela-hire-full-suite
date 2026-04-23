@@ -54,7 +54,7 @@ class LinkedInConnectorTest {
         ReflectionTestUtils.setField(connector, "restTemplate", restTemplate);
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(1L);
+        mockJobPosting.setId("1");
         mockJobPosting.setTitle("Senior Java Developer");
         mockJobPosting.setDepartment("Engineering");
         mockJobPosting.setDescription("We are looking for a Senior Java Developer to join our team.");
@@ -114,7 +114,7 @@ class LinkedInConnectorTest {
         // Mock repository save
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(100L);
+            p.setId("100");
             return p;
         });
 
@@ -175,7 +175,7 @@ class LinkedInConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(101L);
+            p.setId("101");
             return p;
         });
 
@@ -208,7 +208,7 @@ class LinkedInConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(102L);
+            p.setId("102");
             return p;
         });
 
@@ -227,7 +227,7 @@ class LinkedInConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(103L);
+            p.setId("103");
             return p;
         });
 
@@ -243,7 +243,7 @@ class LinkedInConnectorTest {
     void testRemove() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(50L);
+        existingPosting.setId("50");
         existingPosting.setExternalPostId("LI-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
@@ -251,7 +251,7 @@ class LinkedInConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.remove(50L);
+        JobBoardPosting result = connector.remove("50");
 
         // Then
         assertEquals(PostingStatus.REMOVED, result.getStatus());
@@ -264,7 +264,7 @@ class LinkedInConnectorTest {
     void testSyncWithAnalytics() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(60L);
+        existingPosting.setId("60");
         existingPosting.setExternalPostId("LI-SYNC123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
@@ -288,7 +288,7 @@ class LinkedInConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(60L);
+        JobBoardPosting result = connector.sync("60");
 
         // Then
         assertEquals(PostingStatus.POSTED, result.getStatus()); // Still active
@@ -301,7 +301,7 @@ class LinkedInConnectorTest {
     void testSyncExpiredPosting() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(61L);
+        existingPosting.setId("61");
         existingPosting.setExternalPostId("LI-EXPIRED123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().minusDays(1));
@@ -312,7 +312,7 @@ class LinkedInConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(61L);
+        JobBoardPosting result = connector.sync("61");
 
         // Then
         assertEquals(PostingStatus.EXPIRED, result.getStatus());
@@ -335,7 +335,7 @@ class LinkedInConnectorTest {
                 .thenReturn(new ResponseEntity<>(new HashMap<>(), responseHeaders, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(104L);
+            p.setId("104");
             return p;
         });
 

@@ -43,7 +43,7 @@ class EmployeeServiceTest {
     @BeforeEach
     void setUp() {
         testEmployee = new Employee();
-        testEmployee.setId(1L);
+        testEmployee.setId("1");
         testEmployee.setEmployeeNumber("UTW-2026-0001");
         testEmployee.setFirstName("John");
         testEmployee.setLastName("Doe");
@@ -106,7 +106,7 @@ class EmployeeServiceTest {
         updateRequest.setDepartment("Marketing");
 
         Employee updatedEmployee = new Employee();
-        updatedEmployee.setId(1L);
+        updatedEmployee.setId("1");
         updatedEmployee.setEmployeeNumber("UTW-2026-0001");
         updatedEmployee.setFirstName("Jane");
         updatedEmployee.setLastName("Smith");
@@ -121,7 +121,7 @@ class EmployeeServiceTest {
         when(employeeRepository.existsByEmail("jane.smith@company.com")).thenReturn(false);
         when(employeeRepository.save(any(Employee.class))).thenReturn(updatedEmployee);
 
-        EmployeeResponse result = employeeService.updateEmployee(1L, updateRequest);
+        EmployeeResponse result = employeeService.updateEmployee("1", updateRequest);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstName()).isEqualTo("Jane");
@@ -131,13 +131,13 @@ class EmployeeServiceTest {
 
     @Test
     void updateEmployee_SelfReporting_ThrowsIllegalArgumentException() {
-        testRequest.setReportingManagerId(1L);
+        testRequest.setReportingManagerId("1");
 
         when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> employeeService.updateEmployee(1L, testRequest)
+                () -> employeeService.updateEmployee("1", testRequest)
         );
 
         assertThat(exception.getMessage()).contains("cannot report to themselves");
@@ -147,7 +147,7 @@ class EmployeeServiceTest {
     void getEmployee_ExistingId_ReturnsResponse() {
         when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
 
-        EmployeeResponse result = employeeService.getEmployee(1L);
+        EmployeeResponse result = employeeService.getEmployee("1");
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstName()).isEqualTo("John");
@@ -161,7 +161,7 @@ class EmployeeServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> employeeService.getEmployee(999L)
+                () -> employeeService.getEmployee("999")
         );
     }
 
@@ -191,7 +191,7 @@ class EmployeeServiceTest {
     @Test
     void getDirectReports_ReturnsDirectoryViewResponses() {
         Employee report = new Employee();
-        report.setId(2L);
+        report.setId("2");
         report.setFirstName("Jane");
         report.setLastName("Smith");
         report.setEmail("jane@company.com");
@@ -204,7 +204,7 @@ class EmployeeServiceTest {
 
         when(employeeRepository.findByReportingManagerId("1")).thenReturn(List.of(report));
 
-        List<EmployeeResponse> reports = employeeService.getDirectReports(1L);
+        List<EmployeeResponse> reports = employeeService.getDirectReports("1");
 
         assertThat(reports).hasSize(1);
         assertThat(reports.get(0).getFirstName()).isEqualTo("Jane");
@@ -215,7 +215,7 @@ class EmployeeServiceTest {
         when(employeeRepository.findById("1")).thenReturn(Optional.of(testEmployee));
         when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        EmployeeResponse result = employeeService.updateStatus(1L, EmployeeStatus.TERMINATED, "Performance");
+        EmployeeResponse result = employeeService.updateStatus("1", EmployeeStatus.TERMINATED, "Performance");
 
         assertThat(result.getStatus()).isEqualTo(EmployeeStatus.TERMINATED);
         verify(auditLogService, times(1)).logApplicantAction(any(), eq("STATUS_CHANGED"), eq("EMPLOYEE"), anyString());

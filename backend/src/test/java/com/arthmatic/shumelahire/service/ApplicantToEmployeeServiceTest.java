@@ -52,7 +52,7 @@ class ApplicantToEmployeeServiceTest {
     @BeforeEach
     void setUp() {
         testApplicant = new Applicant();
-        testApplicant.setId(1L);
+        testApplicant.setId("1");
         testApplicant.setName("John");
         testApplicant.setSurname("Doe");
         testApplicant.setEmail("john.doe@example.com");
@@ -63,7 +63,7 @@ class ApplicantToEmployeeServiceTest {
         testApplicant.setUpdatedAt(LocalDateTime.now());
 
         testRequest = new ApplicantToEmployeeRequest();
-        testRequest.setApplicantId(1L);
+        testRequest.setApplicantId("1");
         testRequest.setHireDate(LocalDate.of(2026, 3, 1));
         testRequest.setDepartment("Engineering");
         testRequest.setJobTitle("Software Developer");
@@ -74,7 +74,7 @@ class ApplicantToEmployeeServiceTest {
     @Test
     void convertApplicantToEmployee_ValidRequest_CreatesEmployeeWithApplicantData() {
         Employee savedEmployee = new Employee();
-        savedEmployee.setId(1L);
+        savedEmployee.setId("1");
         savedEmployee.setEmployeeNumber("UTW-2026-0001");
         savedEmployee.setFirstName("John");
         savedEmployee.setLastName("Doe");
@@ -100,7 +100,7 @@ class ApplicantToEmployeeServiceTest {
         assertThat(result.getLastName()).isEqualTo("Doe");
         assertThat(result.getEmployeeNumber()).isEqualTo("UTW-2026-0001");
         assertThat(result.getDepartment()).isEqualTo("Engineering");
-        assertThat(result.getApplicantId()).isEqualTo(1L);
+        assertThat(result.getApplicantId()).isEqualTo("1");
 
         verify(employeeRepository, times(1)).save(any(Employee.class));
         verify(eventRepository, times(1)).save(any(EmploymentEvent.class));
@@ -110,7 +110,7 @@ class ApplicantToEmployeeServiceTest {
     @Test
     void convertApplicantToEmployee_ApplicantNotFound_ThrowsException() {
         when(applicantRepository.findById("999")).thenReturn(Optional.empty());
-        testRequest.setApplicantId(999L);
+        testRequest.setApplicantId("999");
 
         assertThrows(
                 IllegalArgumentException.class,

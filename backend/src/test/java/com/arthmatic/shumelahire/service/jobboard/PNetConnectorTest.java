@@ -50,7 +50,7 @@ class PNetConnectorTest {
         ReflectionTestUtils.setField(connector, "restTemplate", restTemplate);
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(1L);
+        mockJobPosting.setId("1");
         mockJobPosting.setTitle("Data Analyst");
         mockJobPosting.setDepartment("Business Intelligence");
         mockJobPosting.setDescription("Analyse business data and create reports for stakeholders.");
@@ -95,7 +95,7 @@ class PNetConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(300L);
+            p.setId("300");
             return p;
         });
 
@@ -152,7 +152,7 @@ class PNetConnectorTest {
                 .thenReturn(new ResponseEntity<>(xmlResponse, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(301L);
+            p.setId("301");
             return p;
         });
 
@@ -181,7 +181,7 @@ class PNetConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(302L);
+            p.setId("302");
             return p;
         });
 
@@ -197,7 +197,7 @@ class PNetConnectorTest {
     void testRemove() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(50L);
+        existingPosting.setId("50");
         existingPosting.setExternalPostId("PNET-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
@@ -205,7 +205,7 @@ class PNetConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.remove(50L);
+        JobBoardPosting result = connector.remove("50");
 
         // Then
         assertEquals(PostingStatus.REMOVED, result.getStatus());
@@ -216,7 +216,7 @@ class PNetConnectorTest {
     void testSyncWithAnalytics() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(60L);
+        existingPosting.setId("60");
         existingPosting.setExternalPostId("PNET-SYNC123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
@@ -230,7 +230,7 @@ class PNetConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(60L);
+        JobBoardPosting result = connector.sync("60");
 
         // Then
         assertEquals(PostingStatus.POSTED, result.getStatus());
@@ -243,7 +243,7 @@ class PNetConnectorTest {
     void testSyncExpiredFromRemote() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(61L);
+        existingPosting.setId("61");
         existingPosting.setExternalPostId("PNET-EXP123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(5));
@@ -257,7 +257,7 @@ class PNetConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(61L);
+        JobBoardPosting result = connector.sync("61");
 
         // Then
         assertEquals(PostingStatus.EXPIRED, result.getStatus());
@@ -274,7 +274,7 @@ class PNetConnectorTest {
                 .thenReturn(new ResponseEntity<>(xmlResponse, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(303L);
+            p.setId("303");
             return p;
         });
 

@@ -59,7 +59,7 @@ class SapPayrollConnectorTest {
 
         // Build applicant
         mockApplicant = new Applicant();
-        mockApplicant.setId(10L);
+        mockApplicant.setId("10");
         mockApplicant.setName("Thabo");
         mockApplicant.setSurname("Mokoena");
         mockApplicant.setEmail("thabo@example.com");
@@ -71,12 +71,12 @@ class SapPayrollConnectorTest {
 
         // Build application
         mockApplication = new Application();
-        mockApplication.setId(100L);
+        mockApplication.setId("100");
         mockApplication.setApplicant(mockApplicant);
 
         // Build accepted offer
         mockOffer = new Offer();
-        mockOffer.setId(200L);
+        mockOffer.setId("200");
         mockOffer.setApplication(mockApplication);
         mockOffer.setOfferNumber("OFF-2026-001");
         mockOffer.setStatus(OfferStatus.ACCEPTED);
@@ -115,12 +115,12 @@ class SapPayrollConnectorTest {
 
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
-            if (t.getId() == null) t.setId(1L);
+            if (t.getId() == null) t.setId("1");
             return t;
         });
 
         // When
-        SapPayrollTransmission result = connector.sendNewHireData(200L, 42L);
+        SapPayrollTransmission result = connector.sendNewHireData("200", "42");
 
         // Then
         assertNotNull(result);
@@ -199,7 +199,7 @@ class SapPayrollConnectorTest {
 
         // When / Then
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> connector.sendNewHireData(200L, 42L));
+                () -> connector.sendNewHireData("200", "42"));
         assertTrue(ex.getMessage().contains("expected ACCEPTED"));
     }
 
@@ -216,7 +216,7 @@ class SapPayrollConnectorTest {
 
         // When / Then
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> connector.sendNewHireData(200L, 42L));
+                () -> connector.sendNewHireData("200", "42"));
         assertTrue(ex.getMessage().contains("Active transmission already exists"));
     }
 
@@ -229,12 +229,12 @@ class SapPayrollConnectorTest {
         when(transmissionRepository.findByOfferIdOrderByCreatedAtDesc("200")).thenReturn(Collections.emptyList());
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
-            if (t.getId() == null) t.setId(2L);
+            if (t.getId() == null) t.setId("2");
             return t;
         });
 
         // When
-        SapPayrollTransmission result = connector.sendNewHireData(200L, 42L);
+        SapPayrollTransmission result = connector.sendNewHireData("200", "42");
 
         // Then
         assertEquals(TransmissionStatus.FAILED, result.getStatus());
@@ -257,12 +257,12 @@ class SapPayrollConnectorTest {
 
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
-            if (t.getId() == null) t.setId(3L);
+            if (t.getId() == null) t.setId("3");
             return t;
         });
 
         // When
-        SapPayrollTransmission result = connector.sendNewHireData(200L, 42L);
+        SapPayrollTransmission result = connector.sendNewHireData("200", "42");
 
         // Then
         assertEquals(TransmissionStatus.FAILED, result.getStatus());
@@ -277,7 +277,7 @@ class SapPayrollConnectorTest {
     void testGetTransmissionStatusPollsSap() {
         // Given
         SapPayrollTransmission existing = new SapPayrollTransmission();
-        existing.setId(10L);
+        existing.setId("10");
         existing.setTransmissionId("SAP-ABC12345");
         existing.setStatus(TransmissionStatus.TRANSMITTED);
         existing.setTransmittedAt(LocalDateTime.now().minusHours(2));
@@ -308,7 +308,7 @@ class SapPayrollConnectorTest {
         when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         // When
-        Map<String, String> errors = connector.validateEmployeeData(200L);
+        Map<String, String> errors = connector.validateEmployeeData("200");
 
         // Then
         assertTrue(errors.isEmpty(), "Expected no validation errors for complete offer data");
@@ -323,7 +323,7 @@ class SapPayrollConnectorTest {
         when(offerRepository.findById("200")).thenReturn(Optional.of(mockOffer));
 
         // When
-        Map<String, String> errors = connector.validateEmployeeData(200L);
+        Map<String, String> errors = connector.validateEmployeeData("200");
 
         // Then
         assertFalse(errors.isEmpty());
@@ -336,7 +336,7 @@ class SapPayrollConnectorTest {
     void testRetryFailedTransmission() {
         // Given
         SapPayrollTransmission failed = new SapPayrollTransmission();
-        failed.setId(20L);
+        failed.setId("20");
         failed.setTransmissionId("SAP-RETRY001");
         failed.setStatus(TransmissionStatus.FAILED);
         failed.setRetryCount(0);
@@ -352,7 +352,7 @@ class SapPayrollConnectorTest {
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        SapPayrollTransmission result = connector.retryFailedTransmission("SAP-RETRY001", 42L);
+        SapPayrollTransmission result = connector.retryFailedTransmission("SAP-RETRY001", "42");
 
         // Then
         assertEquals(TransmissionStatus.CONFIRMED, result.getStatus());
@@ -367,7 +367,7 @@ class SapPayrollConnectorTest {
     void testRetryMaxRetriesExceeded() {
         // Given
         SapPayrollTransmission failed = new SapPayrollTransmission();
-        failed.setId(21L);
+        failed.setId("21");
         failed.setTransmissionId("SAP-RETRY002");
         failed.setStatus(TransmissionStatus.FAILED);
         failed.setRetryCount(3);
@@ -377,7 +377,7 @@ class SapPayrollConnectorTest {
 
         // When / Then
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> connector.retryFailedTransmission("SAP-RETRY002", 42L));
+                () -> connector.retryFailedTransmission("SAP-RETRY002", "42"));
         assertTrue(ex.getMessage().contains("cannot be retried"));
     }
 
@@ -385,7 +385,7 @@ class SapPayrollConnectorTest {
     void testCancelTransmission() {
         // Given
         SapPayrollTransmission pending = new SapPayrollTransmission();
-        pending.setId(30L);
+        pending.setId("30");
         pending.setTransmissionId("SAP-CANCEL01");
         pending.setStatus(TransmissionStatus.PENDING);
 
@@ -393,12 +393,12 @@ class SapPayrollConnectorTest {
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        SapPayrollTransmission result = connector.cancelTransmission("SAP-CANCEL01", "Position filled", 42L);
+        SapPayrollTransmission result = connector.cancelTransmission("SAP-CANCEL01", "Position filled", "42");
 
         // Then
         assertEquals(TransmissionStatus.CANCELLED, result.getStatus());
         assertNotNull(result.getCancelledAt());
-        assertEquals(42L, result.getCancelledBy());
+        assertEquals("42", result.getCancelledBy());
         assertEquals("Position filled", result.getCancellationReason());
 
         verify(auditLogService).saveLog(eq("42"), eq("SAP_TRANSMISSION_CANCELLED"),
@@ -409,7 +409,7 @@ class SapPayrollConnectorTest {
     void testCancelConfirmedTransmission() {
         // Given
         SapPayrollTransmission confirmed = new SapPayrollTransmission();
-        confirmed.setId(31L);
+        confirmed.setId("31");
         confirmed.setTransmissionId("SAP-CANCEL02");
         confirmed.setStatus(TransmissionStatus.CONFIRMED);
 
@@ -417,7 +417,7 @@ class SapPayrollConnectorTest {
 
         // When / Then
         assertThrows(RuntimeException.class,
-                () -> connector.cancelTransmission("SAP-CANCEL02", "Too late", 42L));
+                () -> connector.cancelTransmission("SAP-CANCEL02", "Too late", "42"));
     }
 
     @Test
@@ -454,12 +454,12 @@ class SapPayrollConnectorTest {
 
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
-            if (t.getId() == null) t.setId(4L);
+            if (t.getId() == null) t.setId("4");
             return t;
         });
 
         // When
-        connector.sendNewHireData(200L, 42L);
+        connector.sendNewHireData("200", "42");
 
         // Then
         ArgumentCaptor<HttpEntity> requestCaptor = ArgumentCaptor.forClass(HttpEntity.class);
@@ -488,12 +488,12 @@ class SapPayrollConnectorTest {
 
         when(transmissionRepository.save(any(SapPayrollTransmission.class))).thenAnswer(inv -> {
             SapPayrollTransmission t = inv.getArgument(0);
-            if (t.getId() == null) t.setId(5L);
+            if (t.getId() == null) t.setId("5");
             return t;
         });
 
         // When
-        connector.sendNewHireData(200L, 42L);
+        connector.sendNewHireData("200", "42");
 
         // Then
         ArgumentCaptor<HttpEntity> requestCaptor = ArgumentCaptor.forClass(HttpEntity.class);
