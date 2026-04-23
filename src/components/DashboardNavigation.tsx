@@ -152,11 +152,18 @@ const DashboardNavigation: React.FC = () => {
       badge: 'New',
       children: [
         {
-          id: 'performance-analytics',
-          label: 'Performance Dashboard',
+          id: 'recruitment-analytics',
+          label: 'Recruitment Dashboard',
           href: '/analytics',
           icon: '📈',
-          description: 'KPIs and performance metrics'
+          description: 'KPIs and recruitment metrics'
+        },
+        {
+          id: 'performance-analytics',
+          label: 'Performance Analytics',
+          href: '/performance/analytics',
+          icon: '⭐',
+          description: 'Rating distributions and reviews'
         },
         {
           id: 'reports',
