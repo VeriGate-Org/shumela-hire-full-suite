@@ -292,7 +292,7 @@ export default function EmployeePortalPage() {
       });
 
     enrollments
-      .filter(e => e.status === 'ENROLLED')
+      .filter(e => e.status === 'REGISTERED')
       .forEach(e => {
         items.push({
           id: `training-${e.id}`,
