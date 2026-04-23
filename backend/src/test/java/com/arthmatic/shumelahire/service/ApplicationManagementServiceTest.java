@@ -52,18 +52,18 @@ class ApplicationManagementServiceTest {
     @BeforeEach
     void setUp() {
         mockApplicant = new Applicant();
-        mockApplicant.setId(1L);
+        mockApplicant.setId("1");
         mockApplicant.setEmail("john.doe@example.com");
         mockApplicant.setName("John");
         mockApplicant.setSurname("Doe");
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(1L);
+        mockJobPosting.setId("1");
         mockJobPosting.setTitle("Senior Frontend Developer");
         mockJobPosting.setDepartment("Engineering");
 
         mockApplication = new Application();
-        mockApplication.setId(1L);
+        mockApplication.setId("1");
         mockApplication.setApplicant(mockApplicant);
         mockApplication.setJobPosting(mockJobPosting);
         mockApplication.setJobTitle("Senior Frontend Developer");
@@ -99,10 +99,9 @@ class ApplicationManagementServiceTest {
     @Test
     void testBulkUpdateStatus_Success() {
         // Given
-        List<Long> applicationIds = Arrays.asList(1L, 2L);
-        List<String> stringIds = Arrays.asList("1", "2");
+        List<String> applicationIds = Arrays.asList("1", "2");
         List<Application> applications = Arrays.asList(mockApplication);
-        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(applicationIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -116,7 +115,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllByIds(stringIds);
+        verify(applicationRepository).findAllByIds(applicationIds);
         verify(applicationRepository).save(mockApplication);
         verify(notificationService).notifyStatusChange(mockApplication, ApplicationStatus.SCREENING);
     }
@@ -124,10 +123,9 @@ class ApplicationManagementServiceTest {
     @Test
     void testBulkAssignPipelineStage() {
         // Given
-        List<Long> applicationIds = Arrays.asList(1L);
-        List<String> stringIds = Arrays.asList("1");
+        List<String> applicationIds = Arrays.asList("1");
         List<Application> applications = List.of(mockApplication);
-        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(applicationIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -141,15 +139,15 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllByIds(stringIds);
+        verify(applicationRepository).findAllByIds(applicationIds);
         verify(applicationRepository).save(mockApplication);
     }
 
     @Test
     void testBulkRateApplications() {
         // Given
-        Map<Long, Integer> ratings = new HashMap<>();
-        ratings.put(1L, 5);
+        Map<String, Integer> ratings = new HashMap<>();
+        ratings.put("1", 5);
         when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
@@ -170,8 +168,8 @@ class ApplicationManagementServiceTest {
     @Test
     void testBulkRateApplications_InvalidRating() {
         // Given
-        Map<Long, Integer> ratings = new HashMap<>();
-        ratings.put(1L, 6); // Invalid rating
+        Map<String, Integer> ratings = new HashMap<>();
+        ratings.put("1", 6); // Invalid rating
 
         // When
         Map<String, Object> result = applicationManagementService.bulkRateApplications(ratings);
@@ -189,10 +187,9 @@ class ApplicationManagementServiceTest {
     @Test
     void testBulkAddScreeningNotes() {
         // Given
-        List<Long> applicationIds = Arrays.asList(1L);
-        List<String> stringIds = Arrays.asList("1");
+        List<String> applicationIds = Arrays.asList("1");
         List<Application> applications = List.of(mockApplication);
-        when(applicationRepository.findAllByIds(stringIds)).thenReturn(applications);
+        when(applicationRepository.findAllByIds(applicationIds)).thenReturn(applications);
         when(applicationRepository.save(any(Application.class))).thenReturn(mockApplication);
 
         // When
@@ -206,7 +203,7 @@ class ApplicationManagementServiceTest {
         @SuppressWarnings("unchecked")
         List<String> errors = (List<String>) result.get("errors");
         assertTrue(errors.isEmpty());
-        verify(applicationRepository).findAllByIds(stringIds);
+        verify(applicationRepository).findAllByIds(applicationIds);
         verify(applicationRepository).save(mockApplication);
     }
 

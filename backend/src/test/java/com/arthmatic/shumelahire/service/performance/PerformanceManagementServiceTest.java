@@ -48,7 +48,7 @@ class PerformanceManagementServiceTest {
     void setUp() {
         LocalDate now = LocalDate.now();
         testCycle = new PerformanceCycle();
-        testCycle.setId(1L);
+        testCycle.setId("1");
         testCycle.setName("Performance Cycle");
         testCycle.setStartDate(now.minusMonths(6));
         testCycle.setEndDate(now.plusMonths(6));
@@ -58,7 +58,7 @@ class PerformanceManagementServiceTest {
         testCycle.setTenantId(tenantId);
 
         testContract = new PerformanceContract();
-        testContract.setId(1L);
+        testContract.setId("1");
         testContract.setCycle(testCycle);
         testContract.setEmployeeId("EMP001");
         testContract.setEmployeeName("John Doe");
@@ -121,7 +121,7 @@ class PerformanceManagementServiceTest {
         when(cycleRepository.save(any(PerformanceCycle.class))).thenReturn(testCycle);
         
         // When
-        performanceService.activateCycle(1L, tenantId);
+        performanceService.activateCycle("1", tenantId);
         
         // Then
         verify(cycleRepository).save(testCycle);
@@ -132,7 +132,7 @@ class PerformanceManagementServiceTest {
     void createContract_ShouldCreateValidContract() {
         // Given
         PerformanceManagementService.CreateContractRequest request = new PerformanceManagementService.CreateContractRequest();
-        request.setCycleId(1L);
+        request.setCycleId("1");
         request.setEmployeeId("EMP001");
         request.setEmployeeName("John Doe");
         request.setManagerId("MGR001");
@@ -162,7 +162,7 @@ class PerformanceManagementServiceTest {
         when(contractRepository.save(any(PerformanceContract.class))).thenReturn(testContract);
         
         // When
-        performanceService.submitContract(1L, tenantId);
+        performanceService.submitContract("1", tenantId);
         
         // Then
         verify(contractRepository).save(testContract);
@@ -178,7 +178,7 @@ class PerformanceManagementServiceTest {
         when(contractRepository.save(any(PerformanceContract.class))).thenReturn(testContract);
         
         // When
-        performanceService.approveContract(1L, userId, "Approved with minor comments", tenantId);
+        performanceService.approveContract("1", userId, "Approved with minor comments", tenantId);
         
         // Then
         verify(contractRepository).save(testContract);

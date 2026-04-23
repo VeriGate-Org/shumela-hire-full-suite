@@ -50,7 +50,7 @@ class DotsAfricaServiceTest {
         ReflectionTestUtils.setField(service, "restTemplate", restTemplate);
 
         mockApplication = new Application();
-        mockApplication.setId(1L);
+        mockApplication.setId("1");
     }
 
     @Test
@@ -66,7 +66,7 @@ class DotsAfricaServiceTest {
 
         when(backgroundCheckRepository.save(any(BackgroundCheck.class))).thenAnswer(inv -> {
             BackgroundCheck bc = inv.getArgument(0);
-            bc.setId(100L);
+            bc.setId("100");
             return bc;
         });
 
@@ -74,8 +74,8 @@ class DotsAfricaServiceTest {
 
         // When
         BackgroundCheck result = service.initiateCheck(
-                1L, "9501015800088", "John Smith", "john@example.com",
-                checkTypes, true, 42L);
+                "1", "9501015800088", "John Smith", "john@example.com",
+                checkTypes, true, "42");
 
         // Then
         assertNotNull(result);
@@ -121,14 +121,14 @@ class DotsAfricaServiceTest {
         when(applicationRepository.findById("1")).thenReturn(Optional.of(mockApplication));
         when(backgroundCheckRepository.save(any(BackgroundCheck.class))).thenAnswer(inv -> {
             BackgroundCheck bc = inv.getArgument(0);
-            bc.setId(101L);
+            bc.setId("101");
             return bc;
         });
 
         // When
         BackgroundCheck result = service.initiateCheck(
-                1L, "9501015800088", "John Smith", null,
-                List.of("ID_VERIFICATION"), false, 42L);
+                "1", "9501015800088", "John Smith", null,
+                List.of("ID_VERIFICATION"), false, "42");
 
         // Then
         assertEquals(BackgroundCheckStatus.PENDING_CONSENT, result.getStatus());
@@ -147,14 +147,14 @@ class DotsAfricaServiceTest {
 
         when(backgroundCheckRepository.save(any(BackgroundCheck.class))).thenAnswer(inv -> {
             BackgroundCheck bc = inv.getArgument(0);
-            bc.setId(102L);
+            bc.setId("102");
             return bc;
         });
 
         // When
         BackgroundCheck result = service.initiateCheck(
-                1L, "9501015800088", "John Smith", "john@example.com",
-                List.of("ID_VERIFICATION"), true, 42L);
+                "1", "9501015800088", "John Smith", "john@example.com",
+                List.of("ID_VERIFICATION"), true, "42");
 
         // Then
         assertEquals(BackgroundCheckStatus.FAILED, result.getStatus());
@@ -165,7 +165,7 @@ class DotsAfricaServiceTest {
     void testGetCheckStatusPollsProvider() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(200L);
+        existing.setId("200");
         existing.setReferenceId("DA-ABC123");
         existing.setExternalScreeningId("SCR-55555");
         existing.setStatus(BackgroundCheckStatus.IN_PROGRESS);
@@ -194,7 +194,7 @@ class DotsAfricaServiceTest {
     void testHandleWebhookCompleted() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(300L);
+        existing.setId("300");
         existing.setReferenceId("DA-WEBHOOK1");
         existing.setStatus(BackgroundCheckStatus.IN_PROGRESS);
 
@@ -239,7 +239,7 @@ class DotsAfricaServiceTest {
     void testHandleWebhookFailed() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(301L);
+        existing.setId("301");
         existing.setReferenceId("DA-WEBHOOK2");
         existing.setStatus(BackgroundCheckStatus.IN_PROGRESS);
 
@@ -266,7 +266,7 @@ class DotsAfricaServiceTest {
     void testHandleWebhookPartialResults() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(302L);
+        existing.setId("302");
         existing.setReferenceId("DA-WEBHOOK3");
         existing.setStatus(BackgroundCheckStatus.IN_PROGRESS);
 
@@ -293,7 +293,7 @@ class DotsAfricaServiceTest {
     void testCancelCheck() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(400L);
+        existing.setId("400");
         existing.setReferenceId("DA-CANCEL1");
         existing.setExternalScreeningId("SCR-99999");
         existing.setStatus(BackgroundCheckStatus.IN_PROGRESS);
@@ -317,7 +317,7 @@ class DotsAfricaServiceTest {
     void testCancelCheckAlreadyCompleted() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(401L);
+        existing.setId("401");
         existing.setReferenceId("DA-CANCEL2");
         existing.setStatus(BackgroundCheckStatus.COMPLETED);
 
@@ -362,7 +362,7 @@ class DotsAfricaServiceTest {
     void testDownloadReport() {
         // Given
         BackgroundCheck existing = new BackgroundCheck();
-        existing.setId(500L);
+        existing.setId("500");
         existing.setReferenceId("DA-REPORT1");
         existing.setExternalScreeningId("SCR-88888");
         existing.setStatus(BackgroundCheckStatus.COMPLETED);

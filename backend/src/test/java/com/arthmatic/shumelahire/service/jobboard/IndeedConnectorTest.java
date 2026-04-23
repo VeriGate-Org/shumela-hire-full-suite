@@ -53,7 +53,7 @@ class IndeedConnectorTest {
         ReflectionTestUtils.setField(connector, "restTemplate", restTemplate);
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(1L);
+        mockJobPosting.setId("1");
         mockJobPosting.setTitle("DevOps Engineer");
         mockJobPosting.setDepartment("Infrastructure");
         mockJobPosting.setDescription("Join our DevOps team to manage cloud infrastructure.");
@@ -97,7 +97,7 @@ class IndeedConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(200L);
+            p.setId("200");
             return p;
         });
 
@@ -154,7 +154,7 @@ class IndeedConnectorTest {
                 .thenReturn(new ResponseEntity<>(responseBody, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(201L);
+            p.setId("201");
             return p;
         });
 
@@ -184,7 +184,7 @@ class IndeedConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(202L);
+            p.setId("202");
             return p;
         });
 
@@ -200,7 +200,7 @@ class IndeedConnectorTest {
     void testRemove() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(50L);
+        existingPosting.setId("50");
         existingPosting.setExternalPostId("IND-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
@@ -208,7 +208,7 @@ class IndeedConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.remove(50L);
+        JobBoardPosting result = connector.remove("50");
 
         // Then
         assertEquals(PostingStatus.REMOVED, result.getStatus());
@@ -219,7 +219,7 @@ class IndeedConnectorTest {
     void testSyncWithAnalytics() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(60L);
+        existingPosting.setId("60");
         existingPosting.setExternalPostId("IND-SYNC123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
@@ -243,7 +243,7 @@ class IndeedConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(60L);
+        JobBoardPosting result = connector.sync("60");
 
         // Then
         assertEquals(PostingStatus.POSTED, result.getStatus());
@@ -256,7 +256,7 @@ class IndeedConnectorTest {
     void testSyncExpiredPosting() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(61L);
+        existingPosting.setId("61");
         existingPosting.setExternalPostId("IND-EXPIRED123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().minusDays(2));
@@ -267,7 +267,7 @@ class IndeedConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(61L);
+        JobBoardPosting result = connector.sync("61");
 
         // Then
         assertEquals(PostingStatus.EXPIRED, result.getStatus());

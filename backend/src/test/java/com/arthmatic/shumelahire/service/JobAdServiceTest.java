@@ -31,7 +31,7 @@ class JobAdServiceTest {
     @BeforeEach
     void setUp() {
         mockJobAd = new JobAd();
-        mockJobAd.setId(1L);
+        mockJobAd.setId("1");
         mockJobAd.setTitle("Senior Frontend Developer");
         mockJobAd.setStatus(JobAdStatus.DRAFT);
         mockJobAd.setCreatedAt(LocalDateTime.now());
@@ -54,7 +54,7 @@ class JobAdServiceTest {
 
         // Then
         assertTrue(result.isPresent());
-        assertEquals(1L, result.get().getId());
+        assertEquals("1", result.get().getId());
         verify(jobAdRepository).findById("1");
     }
 }

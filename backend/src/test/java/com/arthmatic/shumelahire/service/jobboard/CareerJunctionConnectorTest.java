@@ -53,7 +53,7 @@ class CareerJunctionConnectorTest {
         ReflectionTestUtils.setField(connector, "restTemplate", restTemplate);
 
         mockJobPosting = new JobPosting();
-        mockJobPosting.setId(1L);
+        mockJobPosting.setId("1");
         mockJobPosting.setTitle("HR Manager");
         mockJobPosting.setDepartment("Human Resources");
         mockJobPosting.setDescription("Lead the HR function across all business units.");
@@ -101,7 +101,7 @@ class CareerJunctionConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(400L);
+            p.setId("400");
             return p;
         });
 
@@ -164,7 +164,7 @@ class CareerJunctionConnectorTest {
                 .thenReturn(new ResponseEntity<>(responseBody, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(401L);
+            p.setId("401");
             return p;
         });
 
@@ -194,7 +194,7 @@ class CareerJunctionConnectorTest {
                 .thenReturn(new ResponseEntity<>(responseBody, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(402L);
+            p.setId("402");
             return p;
         });
 
@@ -226,7 +226,7 @@ class CareerJunctionConnectorTest {
 
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(403L);
+            p.setId("403");
             return p;
         });
 
@@ -242,7 +242,7 @@ class CareerJunctionConnectorTest {
     void testRemove() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(50L);
+        existingPosting.setId("50");
         existingPosting.setExternalPostId("CJ-REMOVE123");
         existingPosting.setStatus(PostingStatus.POSTED);
 
@@ -250,7 +250,7 @@ class CareerJunctionConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.remove(50L);
+        JobBoardPosting result = connector.remove("50");
 
         // Then
         assertEquals(PostingStatus.REMOVED, result.getStatus());
@@ -263,7 +263,7 @@ class CareerJunctionConnectorTest {
     void testSyncWithAnalytics() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(60L);
+        existingPosting.setId("60");
         existingPosting.setExternalPostId("CJ-SYNC123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(15));
@@ -287,7 +287,7 @@ class CareerJunctionConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(60L);
+        JobBoardPosting result = connector.sync("60");
 
         // Then
         assertEquals(PostingStatus.POSTED, result.getStatus());
@@ -300,7 +300,7 @@ class CareerJunctionConnectorTest {
     void testSyncExpiredFromRemote() {
         // Given
         JobBoardPosting existingPosting = new JobBoardPosting();
-        existingPosting.setId(61L);
+        existingPosting.setId("61");
         existingPosting.setExternalPostId("CJ-EXP123");
         existingPosting.setStatus(PostingStatus.POSTED);
         existingPosting.setExpiresAt(LocalDateTime.now().plusDays(5));
@@ -322,7 +322,7 @@ class CareerJunctionConnectorTest {
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
-        JobBoardPosting result = connector.sync(61L);
+        JobBoardPosting result = connector.sync("61");
 
         // Then
         assertEquals(PostingStatus.EXPIRED, result.getStatus());
@@ -340,7 +340,7 @@ class CareerJunctionConnectorTest {
                 .thenReturn(new ResponseEntity<>(responseBody, HttpStatus.CREATED));
         when(repository.save(any(JobBoardPosting.class))).thenAnswer(inv -> {
             JobBoardPosting p = inv.getArgument(0);
-            p.setId(404L);
+            p.setId("404");
             return p;
         });
 
