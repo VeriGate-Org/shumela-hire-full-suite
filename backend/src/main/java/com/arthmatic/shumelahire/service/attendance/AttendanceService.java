@@ -15,7 +15,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -87,22 +91,51 @@ public class AttendanceService {
 
     @Transactional(readOnly = true)
     public List<AttendanceRecord> getByEmployee(String employeeId) {
-        return attendanceRecordRepository.findByEmployeeId(employeeId);
+        List<AttendanceRecord> records = attendanceRecordRepository.findByEmployeeId(employeeId);
+        enrichAttendanceRecords(records);
+        return records;
     }
 
     @Transactional(readOnly = true)
     public List<AttendanceRecord> getByDateRange(LocalDateTime start, LocalDateTime end) {
-        return attendanceRecordRepository.findByDateRange(start, end);
+        List<AttendanceRecord> records = attendanceRecordRepository.findByDateRange(start, end);
+        enrichAttendanceRecords(records);
+        return records;
     }
 
     @Transactional(readOnly = true)
     public List<AttendanceRecord> getTeamAttendance(String department, LocalDateTime start, LocalDateTime end) {
-        return attendanceRecordRepository.findByDepartmentAndDateRange(department, start, end);
+        List<AttendanceRecord> records = attendanceRecordRepository.findByDepartmentAndDateRange(department, start, end);
+        enrichAttendanceRecords(records);
+        return records;
     }
 
     @Transactional(readOnly = true)
     public java.util.Optional<AttendanceRecord> getOpenSession(String employeeId) {
-        return attendanceRecordRepository.findOpenSession(employeeId);
+        java.util.Optional<AttendanceRecord> session = attendanceRecordRepository.findOpenSession(employeeId);
+        session.ifPresent(r -> enrichAttendanceRecords(List.of(r)));
+        return session;
+    }
+
+    private void enrichAttendanceRecords(List<AttendanceRecord> records) {
+        Set<String> employeeIds = new HashSet<>();
+        for (AttendanceRecord r : records) {
+            if (r.getEmployee() != null && r.getEmployee().getId() != null) {
+                employeeIds.add(r.getEmployee().getId());
+            }
+        }
+        if (employeeIds.isEmpty()) return;
+
+        Map<String, Employee> employeeMap = new HashMap<>();
+        for (String id : employeeIds) {
+            employeeRepository.findById(id).ifPresent(emp -> employeeMap.put(id, emp));
+        }
+
+        for (AttendanceRecord r : records) {
+            if (r.getEmployee() != null && employeeMap.containsKey(r.getEmployee().getId())) {
+                r.setEmployee(employeeMap.get(r.getEmployee().getId()));
+            }
+        }
     }
 
     public AttendanceRecord createManualEntry(String employeeId, LocalDateTime clockIn, LocalDateTime clockOut, String notes) {
