@@ -19,6 +19,7 @@ import {
   PhoneIcon,
   ArrowRightIcon,
   StarIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import { leaveService, LeaveBalance, LeaveRequest } from '@/services/leaveService';
@@ -54,6 +55,14 @@ interface EmployeeProfile {
 }
 
 type AttendanceStatus = AttendanceRecord | { clockedIn: false };
+
+interface InternalJob {
+  id: number | string;
+  title: string;
+  department: string;
+  location: string;
+  closingDate: string | null;
+}
 
 interface UpcomingItem {
   id: string;
@@ -108,6 +117,8 @@ export default function EmployeePortalPage() {
   const [totalPoints, setTotalPoints] = useState(0);
   const [onboardingChecklist, setOnboardingChecklist] = useState<OnboardingChecklist | null>(null);
   const [announcements, setAnnouncements] = useState<FeedPost[]>([]);
+  const [internalJobs, setInternalJobs] = useState<InternalJob[]>([]);
+  const [myApplicationsCount, setMyApplicationsCount] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +157,12 @@ export default function EmployeePortalPage() {
       .catch(() => ({ content: [], totalElements: 0 }));
     const fetchOnboarding = onboardingService.getChecklistsByEmployee(employeeId).catch(() => []);
     const fetchAnnouncements = feedService.getFeed(0, 3, 'ANNOUNCEMENT').catch(() => ({ content: [] }));
+    const fetchInternalJobs = apiFetch('/api/ads/internal?size=5')
+      .then(res => res.ok ? res.json() : { content: [] })
+      .catch(() => ({ content: [] }));
+    const fetchApplicationsCount = apiFetch('/api/applications?size=1')
+      .then(res => res.ok ? res.json() : { totalElements: 0 })
+      .catch(() => ({ totalElements: 0 }));
 
     Promise.allSettled([
       fetchProfile,
@@ -156,7 +173,9 @@ export default function EmployeePortalPage() {
       fetchRecognitions,
       fetchOnboarding,
       fetchAnnouncements,
-    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes]) => {
+      fetchInternalJobs,
+      fetchApplicationsCount,
+    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes, internalJobsRes, applicationsRes]) => {
       // Profile is required
       if (profileRes.status === 'fulfilled') {
         setProfile(profileRes.value);
@@ -181,6 +200,23 @@ export default function EmployeePortalPage() {
       }
       if (announcementsRes.status === 'fulfilled') {
         setAnnouncements(announcementsRes.value.content || []);
+      }
+      if (internalJobsRes.status === 'fulfilled') {
+        const items = internalJobsRes.value.content ?? internalJobsRes.value ?? [];
+        setInternalJobs(
+          items.map((job: Record<string, unknown>) => ({
+            id: job.id,
+            title: (job.title ?? job.jobTitle ?? '') as string,
+            department: (job.department ?? '') as string,
+            location: (job.location ?? '') as string,
+            closingDate: (job.closingDate ?? null) as string | null,
+          }))
+        );
+      }
+      if (applicationsRes.status === 'fulfilled') {
+        setMyApplicationsCount(
+          applicationsRes.value.totalElements ?? (applicationsRes.value.content ?? []).length
+        );
       }
     }).finally(() => {
       setLoading(false);
@@ -275,6 +311,7 @@ export default function EmployeePortalPage() {
   const quickActions = [
     { label: 'Request Leave', href: '/leave/request', icon: CalendarDaysIcon, color: 'text-blue-600 bg-blue-50' },
     { label: 'My Documents', href: '/employee/documents', icon: DocumentTextIcon, color: 'text-green-600 bg-green-50' },
+    { label: 'Internal Jobs', href: '/internal/jobs', icon: BriefcaseIcon, color: 'text-indigo-600 bg-indigo-50' },
     { label: 'Training Courses', href: '/training/courses', icon: AcademicCapIcon, color: 'text-purple-600 bg-purple-50' },
     { label: 'Give Recognition', href: '/engagement/recognition/give', icon: HandThumbUpIcon, color: 'text-amber-600 bg-amber-50' },
   ];
@@ -424,7 +461,7 @@ export default function EmployeePortalPage() {
             </div>
 
             {/* 4. Quick Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {quickActions.map(action => (
                 <Link
                   key={action.href}
@@ -439,7 +476,52 @@ export default function EmployeePortalPage() {
               ))}
             </div>
 
-            {/* 5. Upcoming Timeline + Recognitions */}
+            {/* 5. Career Opportunities */}
+            <div className="enterprise-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground">Career Opportunities</h3>
+                <Link href="/internal/jobs" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  View all <ArrowRightIcon className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="flex gap-4 mb-4">
+                <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                  <BriefcaseIcon className="w-4 h-4" />
+                  {internalJobs.length} Open Position{internalJobs.length !== 1 ? 's' : ''}
+                </div>
+                <div className="flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                  <DocumentTextIcon className="w-4 h-4" />
+                  {myApplicationsCount} My Application{myApplicationsCount !== 1 ? 's' : ''}
+                </div>
+              </div>
+              {internalJobs.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2 text-center">No internal positions available at this time.</p>
+              ) : (
+                <div className="space-y-3">
+                  {internalJobs.map(job => (
+                    <Link
+                      key={job.id}
+                      href={`/internal/jobs/${job.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 border-b last:border-b-0 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{job.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {job.department}{job.location ? ` \u00b7 ${job.location}` : ''}
+                        </p>
+                      </div>
+                      {job.closingDate && (
+                        <span className="text-xs text-muted-foreground shrink-0 ml-4">
+                          Closes {formatDate(job.closingDate)}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 6. Upcoming Timeline + Recognitions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Upcoming & Recent */}
               <div className="enterprise-card p-6">

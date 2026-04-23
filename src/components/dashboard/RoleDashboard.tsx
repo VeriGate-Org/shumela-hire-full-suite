@@ -7,7 +7,6 @@ import HRDashboard from './role-dashboards/HRDashboard';
 import HiringManagerDashboard from './role-dashboards/HiringManagerDashboard';
 import RecruiterDashboard from './role-dashboards/RecruiterDashboard';
 import InterviewerDashboard from './role-dashboards/InterviewerDashboard';
-import EmployeeDashboard from './role-dashboards/EmployeeDashboard';
 import ApplicantDashboard from './role-dashboards/ApplicantDashboard';
 import ExecutiveDashboard from './role-dashboards/ExecutiveDashboard';
 import PlatformOwnerDashboard from './role-dashboards/PlatformOwnerDashboard';
@@ -37,7 +36,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
     case 'INTERVIEWER':
       return <InterviewerDashboard {...dashboardProps} />;
     case 'EMPLOYEE':
-      return <EmployeeDashboard {...dashboardProps} />;
+      return null; // Employees are redirected to /employee/portal
     case 'APPLICANT':
       return <ApplicantDashboard {...dashboardProps} />;
     case 'EXECUTIVE':
@@ -45,7 +44,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
     case 'PLATFORM_OWNER':
       return <PlatformOwnerDashboard {...dashboardProps} />;
     default:
-      return <EmployeeDashboard {...dashboardProps} />;
+      return null;
   }
 };
 

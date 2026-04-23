@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -108,11 +109,32 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
             return null;
         }
 
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
+        String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Set generated values back on the entity so callers can use them after save
+        entity.setId(id);
+        entity.setTenantId(tenantId);
+        if (entity.getCreatedAt() == null) { entity.setCreatedAt(now); }
+        entity.setUpdatedAt(now);
+
         AttendanceRecordItem item = new AttendanceRecordItem();
-        item.setId(entity.getId() != null ? entity.getId() : null);
-        item.setTenantId(entity.getTenantId());
-        item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId() : null);
+        item.setPk("TENANT#" + tenantId);
+        item.setSk(entityType() + "#" + id);
+        item.setId(id);
+        item.setTenantId(tenantId);
+
+        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
+                ? entity.getEmployee().getId() : null;
+        item.setEmployeeId(employeeId);
+
+        // GSI1 for employee queries
+        if (employeeId != null) {
+            item.setGsi1pk("ATT_EMP#" + tenantId + "#" + employeeId);
+            item.setGsi1sk(entityType() + "#" + id);
+        }
+
         item.setClockIn(entity.getClockIn() != null ? entity.getClockIn().format(ISO_FMT) : null);
         item.setClockOut(entity.getClockOut() != null ? entity.getClockOut().format(ISO_FMT) : null);
         item.setClockMethod(entity.getClockMethod() != null ? entity.getClockMethod().name() : null);
@@ -123,8 +145,8 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         item.setTotalHours(entity.getTotalHours() != null ? entity.getTotalHours().toPlainString() : null);
         item.setNotes(entity.getNotes());
-        item.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : null);
-        item.setUpdatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().format(ISO_FMT) : null);
+        item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));
+        item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));
 
         return item;
     }
