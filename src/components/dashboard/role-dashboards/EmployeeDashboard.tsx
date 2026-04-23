@@ -42,39 +42,39 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     async function fetchData() {
       setLoading(true);
       try {
-        const [jobsRes] = await Promise.all([
-          apiFetch('/api/internal/jobs?size=5'),
-        ]);
-
-        if (jobsRes.ok) {
-          const jobsData = await jobsRes.json();
-          const items = jobsData.content ?? jobsData ?? [];
-          setInternalJobs(
-            items.map((job: Record<string, unknown>) => {
-              // Compute closingIn from closingDate if available
-              let closingIn = 0;
-              if (job.closingDate) {
-                const closing = new Date(job.closingDate as string);
-                const now = new Date();
-                closingIn = Math.max(0, Math.ceil((closing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-              } else if (typeof job.closingIn === 'number') {
-                closingIn = job.closingIn;
-              }
-
-              return {
-                id: job.id,
-                title: (job.title ?? job.jobTitle ?? '') as string,
-                department: (job.department ?? '') as string,
-                location: (job.location ?? '') as string,
-                closingIn,
-              };
-            })
-          );
+        // Use /api/ads/internal (published internal job ads) instead of unimplemented /api/internal/jobs
+        try {
+          const jobsRes = await apiFetch('/api/ads/internal?size=5');
+          if (jobsRes.ok) {
+            const jobsData = await jobsRes.json();
+            const items = jobsData.content ?? jobsData ?? [];
+            setInternalJobs(
+              items.map((job: Record<string, unknown>) => {
+                let closingIn = 0;
+                if (job.closingDate) {
+                  const closing = new Date(job.closingDate as string);
+                  const now = new Date();
+                  closingIn = Math.max(0, Math.ceil((closing.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+                } else if (typeof job.closingIn === 'number') {
+                  closingIn = job.closingIn;
+                }
+                return {
+                  id: job.id,
+                  title: (job.title ?? job.jobTitle ?? '') as string,
+                  department: (job.department ?? '') as string,
+                  location: (job.location ?? '') as string,
+                  closingIn,
+                };
+              })
+            );
+          }
+        } catch {
+          // Endpoint may not be available
         }
 
-        // Try to get internal application count
+        // Try to get application count
         try {
-          const appsRes = await apiFetch('/api/internal/applications?size=1');
+          const appsRes = await apiFetch('/api/applications?size=1');
           if (appsRes.ok) {
             const appsData = await appsRes.json();
             setMyApplicationsCount(appsData.totalElements ?? (appsData.content ?? appsData ?? []).length);
