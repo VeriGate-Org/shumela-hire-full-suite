@@ -67,14 +67,9 @@ jest.mock('@/components/ModernLayout', () => {
   };
 });
 
-// We need AuthProvider to wrap PageWrapper since it uses useAuth
-import { AuthProvider } from '@/contexts/AuthContext';
-
 function renderPageWrapper(props: React.ComponentProps<typeof PageWrapper>) {
   return render(
-    <AuthProvider>
-      <PageWrapper {...props} />
-    </AuthProvider>
+    <PageWrapper {...props} />
   );
 }
 
@@ -122,22 +117,14 @@ describe('PageWrapper', () => {
     expect(screen.queryByTestId('layout-actions')).not.toBeInTheDocument();
   });
 
-  it('uses default title "Dashboard" when no title is provided', async () => {
+  it('does not render title or subtitle when none provided', async () => {
     renderPageWrapper({
       children: <div>Content</div>,
     });
 
-    expect(await screen.findByTestId('layout-title')).toHaveTextContent('Dashboard');
-  });
-
-  it('generates default subtitle with welcome message', async () => {
-    renderPageWrapper({
-      children: <div>Content</div>,
-    });
-
-    const subtitle = await screen.findByTestId('layout-subtitle');
-    // Without a logged-in user, the subtitle should be "Welcome back! Here's your overview."
-    expect(subtitle).toHaveTextContent("Welcome back! Here's your overview.");
+    await screen.findByTestId('layout-children');
+    expect(screen.queryByTestId('layout-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('layout-subtitle')).not.toBeInTheDocument();
   });
 
   it('passes ModernLayout the correct props structure', async () => {
