@@ -76,7 +76,8 @@ const isJobClosingSoon = (closingDate?: string): boolean => {
   return daysLeft > 0 && daysLeft <= 7;
 };
 
-const stripHtmlTags = (html: string): string => {
+const stripHtmlTags = (html: string | null | undefined): string => {
+  if (!html) return '';
   return html.replace(/<[^>]*>/g, '').trim();
 };
 
