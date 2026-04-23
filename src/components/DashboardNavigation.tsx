@@ -130,6 +130,29 @@ const DashboardNavigation: React.FC = () => {
       description: 'Review and approve salary recommendations'
     },
     {
+      id: 'payroll',
+      label: 'Payroll & Tax',
+      href: '/payroll/statutory',
+      icon: '🏦',
+      description: 'Statutory deductions and SARS reporting',
+      children: [
+        {
+          id: 'statutory-compliance',
+          label: 'Tax & Statutory',
+          href: '/payroll/statutory',
+          icon: '📋',
+          description: 'PAYE, UIF, SDL, IRP5 compliance'
+        },
+        {
+          id: 'payroll-summary',
+          label: 'Payroll Summary',
+          href: '/reports/export',
+          icon: '💵',
+          description: 'Monthly payroll reports'
+        }
+      ]
+    },
+    {
       id: 'talent-pools',
       label: 'Talent Pools',
       href: '/talent-pools',
