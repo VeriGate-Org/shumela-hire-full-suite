@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   onboardingService,
   OnboardingChecklist,
@@ -16,9 +17,14 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline';
 
+const ADMIN_ROLES = ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'PLATFORM_OWNER'];
+
 type TabFilter = 'all' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
 
 export default function OnboardingChecklistsPage() {
+  const { user } = useAuth();
+  const isAdmin = user ? ADMIN_ROLES.includes(user.role) : false;
+
   const [checklists, setChecklists] = useState<OnboardingChecklist[]>([]);
   const [templates, setTemplates] = useState<OnboardingTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,15 +36,26 @@ export default function OnboardingChecklistsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [user]);
 
   async function loadData() {
+    if (!user) return;
     setLoading(true);
     try {
-      const [checklistData, templateData] = await Promise.all([
-        onboardingService.getChecklists(),
-        onboardingService.getTemplates(),
-      ]);
+      let checklistData: OnboardingChecklist[];
+      let templateData: OnboardingTemplate[] = [];
+
+      if (isAdmin) {
+        [checklistData, templateData] = await Promise.all([
+          onboardingService.getChecklists(),
+          onboardingService.getTemplates(),
+        ]);
+      } else {
+        checklistData = user.employeeId
+          ? await onboardingService.getChecklistsByEmployee(user.employeeId)
+          : [];
+      }
+
       setChecklists(checklistData);
       setTemplates(templateData);
 
@@ -114,15 +131,17 @@ export default function OnboardingChecklistsPage() {
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
       <PageWrapper
-        title="Onboarding Checklists"
-        subtitle="Manage employee onboarding checklists and track progress"
+        title={isAdmin ? 'Onboarding Checklists' : 'My Onboarding'}
+        subtitle={isAdmin ? 'Manage employee onboarding checklists and track progress' : 'Track your onboarding progress'}
         actions={
-          <Link
-            href="/onboarding/templates"
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
-          >
-            Manage Templates
-          </Link>
+          isAdmin ? (
+            <Link
+              href="/onboarding/templates"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+            >
+              Manage Templates
+            </Link>
+          ) : undefined
         }
       >
         <div className="space-y-6">
@@ -143,12 +162,14 @@ export default function OnboardingChecklistsPage() {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setShowNewForm(true)}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-              <PlusIcon className="h-4 w-4 mr-2" /> New Checklist
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setShowNewForm(true)}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" /> New Checklist
+              </button>
+            )}
           </div>
 
           {/* New Checklist Modal */}
@@ -248,7 +269,9 @@ export default function OnboardingChecklistsPage() {
                         <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-2">
                           <span className="flex items-center gap-1">
                             <UserIcon className="w-3.5 h-3.5" />
-                            Employee #{cl.employeeId}
+                            {!isAdmin && user?.employeeId === cl.employeeId
+                              ? user.name
+                              : `Employee #${cl.employeeId}`}
                           </span>
                           <span className="flex items-center gap-1">
                             <CalendarDaysIcon className="w-3.5 h-3.5" />
