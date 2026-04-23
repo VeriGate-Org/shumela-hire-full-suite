@@ -202,7 +202,7 @@ export default function EmployeePortalPage() {
         setAnnouncements(announcementsRes.value.content || []);
       }
       if (internalJobsRes.status === 'fulfilled') {
-        const items = internalJobsRes.value.content ?? internalJobsRes.value ?? [];
+        const items = internalJobsRes.value.data?.content ?? internalJobsRes.value.content ?? internalJobsRes.value ?? [];
         setInternalJobs(
           items.map((job: Record<string, unknown>) => ({
             id: job.id,
@@ -589,7 +589,7 @@ export default function EmployeePortalPage() {
             {/* 6. Onboarding Progress + Announcements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Onboarding Progress */}
-              {onboardingChecklist && (
+              {onboardingChecklist && (onboardingChecklist.items?.length ?? 0) > 0 && (
                 <div className="enterprise-card p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-semibold text-foreground">Onboarding Progress</h3>
