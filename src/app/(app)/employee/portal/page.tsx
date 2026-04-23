@@ -119,11 +119,18 @@ export default function EmployeePortalPage() {
   // Fetch all data
   useEffect(() => {
     if (!employeeId) {
-      setError('Employee profile could not be resolved. Please contact your administrator.');
-      setLoading(false);
-      setBalancesLoading(false);
+      // Don't show error while auth is still loading
+      if (user !== undefined) {
+        setError('Employee profile could not be resolved. Please contact your administrator.');
+        setLoading(false);
+        setBalancesLoading(false);
+      }
       return;
     }
+    // Clear any previous error and reset loading when employeeId becomes available
+    setError(null);
+    setLoading(true);
+    setBalancesLoading(true);
 
     const fetchProfile = apiFetch(`/api/employee/profile?employeeId=${employeeId}`)
       .then(res => {

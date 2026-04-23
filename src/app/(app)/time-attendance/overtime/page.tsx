@@ -30,11 +30,16 @@ export default function OvertimePage() {
 
   useEffect(() => {
     if (!employeeId) {
-      // BUG-001 fix: gracefully handle missing profile instead of crashing
-      setError('Your employee profile could not be resolved. Please contact your administrator.');
-      setLoading(false);
+      // Don't show error while auth is still loading
+      if (user !== undefined) {
+        setError('Your employee profile could not be resolved. Please contact your administrator.');
+        setLoading(false);
+      }
       return;
     }
+    // Clear any previous error and reset loading when employeeId becomes available
+    setError('');
+    setLoading(true);
     Promise.all([
       attendanceService.getOvertime(employeeId, 0, 20),
       attendanceService.getPendingOvertime(0, 20),

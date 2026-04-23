@@ -32,10 +32,16 @@ export default function TimeAttendancePage() {
 
   useEffect(() => {
     if (!employeeId) {
-      setError('Your employee profile could not be resolved. Please contact your administrator.');
-      setLoading(false);
+      // Don't show error while auth is still loading
+      if (user !== undefined) {
+        setError('Your employee profile could not be resolved. Please contact your administrator.');
+        setLoading(false);
+      }
       return;
     }
+    // Clear any previous error and reset loading when employeeId becomes available
+    setError('');
+    setLoading(true);
     // Capture current location for map display
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
