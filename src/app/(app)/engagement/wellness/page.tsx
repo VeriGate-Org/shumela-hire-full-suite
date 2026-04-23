@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { engagementService, WellnessProgram } from '@/services/engagementService';
-import { HeartIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, UserGroupIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 export default function WellnessPage() {
   const [programs, setPrograms] = useState<WellnessProgram[]>([]);
@@ -50,7 +51,12 @@ export default function WellnessPage() {
 
   return (
     <FeatureGate feature="WELLNESS_PROGRAMS">
-      <PageWrapper title="Wellness Programs" subtitle="Physical, mental, financial, and social wellness initiatives">
+      <PageWrapper title="Wellness Programs" subtitle="Physical, mental, financial, and social wellness initiatives"
+        actions={
+          <Link href="/engagement/wellness/indicators" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+            <ChartBarIcon className="w-4 h-4" /> Wellness Indicators
+          </Link>
+        }>
         <div className="space-y-6">
           {/* Filters */}
           <div className="flex gap-2 flex-wrap">

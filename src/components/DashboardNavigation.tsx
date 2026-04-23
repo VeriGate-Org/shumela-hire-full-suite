@@ -195,6 +195,13 @@ const DashboardNavigation: React.FC = () => {
       href: '/admin/departments',
       icon: '🏛️',
       description: 'Manage organisational departments'
+    },
+    {
+      id: 'architecture',
+      label: 'System Architecture',
+      href: '/admin/architecture',
+      icon: '🏗️',
+      description: 'Cloud-native platform architecture'
     }
   ];
 
