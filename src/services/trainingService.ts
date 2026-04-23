@@ -403,7 +403,14 @@ export const trainingService = {
 
   async getIDP(id: string): Promise<IndividualDevelopmentPlan> {
     const response = await apiFetch(`/api/training/idps/${id}`);
-    if (!response.ok) throw new Error('IDP not found');
+    if (!response.ok) {
+      let msg = 'IDP not found';
+      try {
+        const err = await response.json();
+        msg = err.message || err.error || msg;
+      } catch { /* ignore parse error */ }
+      throw new Error(msg);
+    }
     return await response.json();
   },
 
