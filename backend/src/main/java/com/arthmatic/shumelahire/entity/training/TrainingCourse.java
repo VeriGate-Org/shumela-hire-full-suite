@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TrainingCourse extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotBlank
     private String title;
@@ -45,8 +45,8 @@ public class TrainingCourse extends TenantAwareEntity {
     private LocalDateTime updatedAt;
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

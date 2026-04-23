@@ -39,8 +39,8 @@ public class SageConnectorService {
     }
 
     @Transactional(readOnly = true)
-    public SageConnectorConfig getConnectorById(Long id) {
-        return connectorConfigRepository.findById(String.valueOf(id))
+    public SageConnectorConfig getConnectorById(String id) {
+        return connectorConfigRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
     }
 
@@ -70,8 +70,8 @@ public class SageConnectorService {
         return saved;
     }
 
-    public SageConnectorConfig updateConnector(Long id, SageConnectorConfigRequest request) {
-        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(id))
+    public SageConnectorConfig updateConnector(String id, SageConnectorConfigRequest request) {
+        SageConnectorConfig config = connectorConfigRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
 
         config.setName(request.getName());
@@ -91,19 +91,19 @@ public class SageConnectorService {
         return saved;
     }
 
-    public void deleteConnector(Long id) {
-        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(id))
+    public void deleteConnector(String id) {
+        SageConnectorConfig config = connectorConfigRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + id));
 
         String name = config.getName();
-        connectorConfigRepository.deleteById(String.valueOf(config.getId()));
+        connectorConfigRepository.deleteById(config.getId());
         auditLogService.logSystemAction("DELETE", "SAGE_CONNECTOR",
                 "Deleted Sage connector: " + name + " (id=" + id + ")");
         logger.info("Deleted Sage connector config: {} (id={})", name, id);
     }
 
-    public SageConnectionTestResult testConnection(Long connectorId) {
-        SageConnectorConfig config = connectorConfigRepository.findById(String.valueOf(connectorId))
+    public SageConnectionTestResult testConnection(String connectorId) {
+        SageConnectorConfig config = connectorConfigRepository.findById(connectorId)
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + connectorId));
 
         SageConnector connector = resolveConnector(config.getConnectorType());

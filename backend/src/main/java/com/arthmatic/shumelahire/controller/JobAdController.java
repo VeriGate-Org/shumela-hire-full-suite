@@ -83,7 +83,7 @@ public class JobAdController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> updateJobAd(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody JobAdUpdateRequest request,
             Authentication authentication) {
         try {
@@ -108,7 +108,7 @@ public class JobAdController {
     @PostMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> publishJobAd(
-            @PathVariable Long id, 
+            @PathVariable String id, 
             @Valid @RequestBody JobAdPublishRequest request) {
         try {
             logger.info("Publishing job ad: {}", id);
@@ -131,7 +131,7 @@ public class JobAdController {
     @PostMapping("/{id}/unpublish")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<JobAdResponse>> unpublishJobAd(
-            @PathVariable Long id,
+            @PathVariable String id,
             Authentication authentication) {
         try {
             String userId = resolveActorId(authentication);
@@ -190,13 +190,12 @@ public class JobAdController {
         try {
             logger.info("Fetching job ad by slug: {}", slug);
             
-            // Try to parse as ID first (for internal use)
+            // Try to fetch by ID first, then fall back to slug
             try {
-                Long id = Long.parseLong(slug);
-                JobAdResponse response = jobAdService.getJobAd(id);
+                JobAdResponse response = jobAdService.getJobAd(slug);
                 return ResponseEntity.ok(ApiResponse.success(response, "Job ad retrieved successfully"));
-            } catch (NumberFormatException e) {
-                // Not an ID, treat as slug
+            } catch (IllegalArgumentException e) {
+                // Not found by ID, treat as slug
                 JobAdResponse response = jobAdService.getJobAdBySlug(slug);
                 return ResponseEntity.ok(ApiResponse.success(response, "Job ad retrieved successfully"));
             }
@@ -215,7 +214,7 @@ public class JobAdController {
      */
     @GetMapping("/{id}/history")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<ApiResponse<List<JobAdHistory>>> getJobAdHistory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<JobAdHistory>>> getJobAdHistory(@PathVariable String id) {
         try {
             logger.info("Fetching history for job ad: {}", id);
             List<JobAdHistory> history = jobAdService.getJobAdHistory(id);
@@ -254,11 +253,11 @@ public class JobAdController {
             String email = jwt.getClaimAsString("email");
             if (email != null) {
                 return userRepository.findByEmail(email)
-                        .map(u -> String.valueOf(u.getId()))
+                        .map(u -> u.getId())
                         .orElse(email);
             }
         } else if (authentication.getPrincipal() instanceof User user) {
-            return String.valueOf(user.getId());
+            return user.getId();
         }
         return "unknown";
     }

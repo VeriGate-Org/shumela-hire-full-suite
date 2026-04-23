@@ -34,14 +34,14 @@ public class DynamoCustomFieldValueRepository extends DynamoRepository<CustomFie
     }
 
     @Override
-    public List<CustomFieldValue> findByEntityIdAndEntityType(Long entityId, CustomFieldEntityType entityType) {
+    public List<CustomFieldValue> findByEntityIdAndEntityType(String entityId, CustomFieldEntityType entityType) {
         String gsi2pk = "CFV_ENTITY#" + entityType.name() + "#" + entityId;
         return queryGsiAll("GSI2", gsi2pk);
     }
 
     @Override
     public Optional<CustomFieldValue> findByCustomFieldIdAndEntityIdAndEntityType(
-            Long customFieldId, Long entityId, CustomFieldEntityType entityType) {
+            String customFieldId, String entityId, CustomFieldEntityType entityType) {
         String gsi2pk = "CFV_ENTITY#" + entityType.name() + "#" + entityId;
         String skPrefix = "CF_VALUE#" + customFieldId;
         return queryGsiAll("GSI2", gsi2pk).stream()
@@ -51,10 +51,10 @@ public class DynamoCustomFieldValueRepository extends DynamoRepository<CustomFie
     }
 
     @Override
-    public void deleteByEntityIdAndEntityType(Long entityId, CustomFieldEntityType entityType) {
+    public void deleteByEntityIdAndEntityType(String entityId, CustomFieldEntityType entityType) {
         List<CustomFieldValue> values = findByEntityIdAndEntityType(entityId, entityType);
         for (CustomFieldValue value : values) {
-            deleteById(String.valueOf(value.getId()));
+            deleteById(value.getId());
         }
     }
 
@@ -62,10 +62,10 @@ public class DynamoCustomFieldValueRepository extends DynamoRepository<CustomFie
     protected CustomFieldValue toEntity(CustomFieldValueItem item) {
         var entity = new CustomFieldValue();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         if (item.getEntityId() != null) {
-            entity.setEntityId(safeParseLong(item.getEntityId()));
+            entity.setEntityId(item.getEntityId());
         }
         if (item.getEntityType() != null) {
             entity.setEntityType(CustomFieldEntityType.valueOf(item.getEntityType()));
@@ -84,16 +84,16 @@ public class DynamoCustomFieldValueRepository extends DynamoRepository<CustomFie
     @Override
     protected CustomFieldValueItem toItem(CustomFieldValue entity) {
         var item = new CustomFieldValueItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("CF_VALUE#" + id);
 
         String entityTypeStr = entity.getEntityType() != null ? entity.getEntityType().name() : "";
-        String entityIdStr = entity.getEntityId() != null ? String.valueOf(entity.getEntityId()) : "";
+        String entityIdStr = entity.getEntityId() != null ? entity.getEntityId() : "";
         String customFieldId = entity.getCustomField() != null ?
-                String.valueOf(entity.getCustomField().getId()) : "";
+                entity.getCustomField().getId() : "";
 
         item.setGsi2pk("CFV_ENTITY#" + entityTypeStr + "#" + entityIdStr);
         item.setGsi2sk("CF_VALUE#" + customFieldId);

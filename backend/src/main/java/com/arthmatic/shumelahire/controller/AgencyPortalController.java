@@ -33,26 +33,26 @@ public class AgencyPortalController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<?> getAgency(@PathVariable Long id) {
+    public ResponseEntity<?> getAgency(@PathVariable String id) {
         return ResponseEntity.ok(agencyPortalService.getAgency(id));
     }
 
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> approveAgency(@PathVariable Long id) {
+    public ResponseEntity<?> approveAgency(@PathVariable String id) {
         return ResponseEntity.ok(agencyPortalService.approveAgency(id));
     }
 
     @PostMapping("/{id}/suspend")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> suspendAgency(@PathVariable Long id) {
+    public ResponseEntity<?> suspendAgency(@PathVariable String id) {
         return ResponseEntity.ok(agencyPortalService.suspendAgency(id));
     }
 
     @PostMapping("/{agencyId}/submissions")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> submitCandidate(
-            @PathVariable Long agencyId,
+            @PathVariable String agencyId,
             @RequestBody AgencySubmission submission) {
         AgencySubmission saved = agencyPortalService.submitCandidate(agencyId, submission);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -61,17 +61,17 @@ public class AgencyPortalController {
     @PostMapping("/submissions/{id}/review")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> reviewSubmission(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, Object> request) {
         boolean accept = Boolean.TRUE.equals(request.get("accept"));
-        Long reviewedBy = request.get("reviewedBy") != null
-            ? Long.valueOf(request.get("reviewedBy").toString()) : null;
+        String reviewedBy = request.get("reviewedBy") != null
+            ? request.get("reviewedBy").toString() : null;
         return ResponseEntity.ok(agencyPortalService.reviewSubmission(id, accept, reviewedBy));
     }
 
     @GetMapping("/{agencyId}/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<?> getAgencyDashboard(@PathVariable Long agencyId) {
+    public ResponseEntity<?> getAgencyDashboard(@PathVariable String agencyId) {
         return ResponseEntity.ok(agencyPortalService.getAgencyDashboard(agencyId));
     }
 }

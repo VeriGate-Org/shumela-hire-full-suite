@@ -8,7 +8,7 @@ import java.util.List;
 
 public class PerformanceContract extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Performance cycle is required")
     private PerformanceCycle cycle;
@@ -128,8 +128,8 @@ public class PerformanceContract extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     
     public PerformanceCycle getCycle() { return cycle; }
     public void setCycle(PerformanceCycle cycle) { this.cycle = cycle; }

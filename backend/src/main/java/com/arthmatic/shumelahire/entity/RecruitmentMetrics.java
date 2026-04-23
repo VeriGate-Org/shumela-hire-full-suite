@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class RecruitmentMetrics extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private LocalDate metricDate;
 
@@ -21,11 +21,11 @@ public class RecruitmentMetrics extends TenantAwareEntity {
 
     private String department;
 
-    private Long jobPostingId;
+    private String jobPostingId;
 
-    private Long recruiterId;
+    private String recruiterId;
 
-    private Long hiringManagerId;
+    private String hiringManagerId;
 
     private LocalDate periodStartDate;
 
@@ -53,7 +53,7 @@ public class RecruitmentMetrics extends TenantAwareEntity {
 
     private LocalDateTime updatedAt;
 
-    private Long createdBy;
+    private String createdBy;
 
     // Constructors
     public RecruitmentMetrics() {
@@ -112,11 +112,11 @@ public class RecruitmentMetrics extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -168,27 +168,27 @@ public class RecruitmentMetrics extends TenantAwareEntity {
         this.department = department;
     }
 
-    public Long getJobPostingId() {
+    public String getJobPostingId() {
         return jobPostingId;
     }
 
-    public void setJobPostingId(Long jobPostingId) {
+    public void setJobPostingId(String jobPostingId) {
         this.jobPostingId = jobPostingId;
     }
 
-    public Long getRecruiterId() {
+    public String getRecruiterId() {
         return recruiterId;
     }
 
-    public void setRecruiterId(Long recruiterId) {
+    public void setRecruiterId(String recruiterId) {
         this.recruiterId = recruiterId;
     }
 
-    public Long getHiringManagerId() {
+    public String getHiringManagerId() {
         return hiringManagerId;
     }
 
-    public void setHiringManagerId(Long hiringManagerId) {
+    public void setHiringManagerId(String hiringManagerId) {
         this.hiringManagerId = hiringManagerId;
     }
 
@@ -296,11 +296,11 @@ public class RecruitmentMetrics extends TenantAwareEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 }

@@ -84,11 +84,11 @@ public class DotsAfricaService implements BackgroundCheckService {
     // ── Interface implementation ──────────────────────
 
     @Override
-    public BackgroundCheck initiateCheck(Long applicationId, String candidateIdNumber,
+    public BackgroundCheck initiateCheck(String applicationId, String candidateIdNumber,
                                           String candidateName, String candidateEmail,
                                           List<String> checkTypes, boolean consentObtained,
-                                          Long initiatedBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+                                          String initiatedBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
         // Create internal background check record
@@ -371,22 +371,22 @@ public class DotsAfricaService implements BackgroundCheckService {
     }
 
     @Override
-    public Map<Long, VerificationSummaryDTO> getVerificationSummaries(List<Long> applicationIds) {
+    public Map<String, VerificationSummaryDTO> getVerificationSummaries(List<String> applicationIds) {
         if (applicationIds == null || applicationIds.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        List<String> stringIds = applicationIds.stream().map(String::valueOf).collect(java.util.stream.Collectors.toList());
+        List<String> stringIds = applicationIds;
         List<Application> applications = applicationRepository.findAllByIds(stringIds);
         List<BackgroundCheck> allChecks = backgroundCheckRepository.findByApplicationIdIn(stringIds);
 
         // Group checks by application ID
-        Map<Long, List<BackgroundCheck>> checksByApp = new HashMap<>();
+        Map<String, List<BackgroundCheck>> checksByApp = new HashMap<>();
         for (BackgroundCheck bc : allChecks) {
             checksByApp.computeIfAbsent(bc.getApplication().getId(), k -> new ArrayList<>()).add(bc);
         }
 
-        Map<Long, VerificationSummaryDTO> result = new HashMap<>();
+        Map<String, VerificationSummaryDTO> result = new HashMap<>();
         for (Application app : applications) {
             JobPosting jobPosting = app.getJobPosting();
             List<String> requiredTypes = List.of();
@@ -437,7 +437,7 @@ public class DotsAfricaService implements BackgroundCheckService {
         }
 
         List<BackgroundCheck> checks = backgroundCheckRepository
-                .findByApplicationIdOrderByCreatedAtDesc(String.valueOf(application.getId()));
+                .findByApplicationIdOrderByCreatedAtDesc(application.getId());
 
         Set<String> completedClearTypes = new HashSet<>();
         for (BackgroundCheck check : checks) {

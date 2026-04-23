@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class EmployeeProfileResponse {
 
-    private Long id;
+    private String id;
     private String employeeNumber;
     private String title;
     private String firstName;
@@ -86,8 +86,8 @@ public class EmployeeProfileResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getEmployeeNumber() { return employeeNumber; }
     public void setEmployeeNumber(String employeeNumber) { this.employeeNumber = employeeNumber; }

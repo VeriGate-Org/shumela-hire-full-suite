@@ -6,7 +6,7 @@ import com.arthmatic.shumelahire.entity.integration.SyncFrequency;
 
 public class SageSyncScheduleRequest {
 
-    private Long connectorId;
+    private String connectorId;
     private SageSyncEntityType entityType;
     private SyncDirection direction;
     private SyncFrequency frequency;
@@ -14,8 +14,8 @@ public class SageSyncScheduleRequest {
 
     public SageSyncScheduleRequest() {}
 
-    public Long getConnectorId() { return connectorId; }
-    public void setConnectorId(Long connectorId) { this.connectorId = connectorId; }
+    public String getConnectorId() { return connectorId; }
+    public void setConnectorId(String connectorId) { this.connectorId = connectorId; }
 
     public SageSyncEntityType getEntityType() { return entityType; }
     public void setEntityType(SageSyncEntityType entityType) { this.entityType = entityType; }

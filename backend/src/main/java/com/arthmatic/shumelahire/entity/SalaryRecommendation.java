@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SalaryRecommendation extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String recommendationNumber;
 
@@ -78,7 +78,7 @@ public class SalaryRecommendation extends TenantAwareEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application application;
 
-    private Long offerId;
+    private String offerId;
 
     // Timestamps
     private LocalDateTime createdAt;
@@ -95,8 +95,8 @@ public class SalaryRecommendation extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getRecommendationNumber() { return recommendationNumber; }
     public void setRecommendationNumber(String recommendationNumber) { this.recommendationNumber = recommendationNumber; }
@@ -188,8 +188,8 @@ public class SalaryRecommendation extends TenantAwareEntity {
     public Application getApplication() { return application; }
     public void setApplication(Application application) { this.application = application; }
 
-    public Long getOfferId() { return offerId; }
-    public void setOfferId(Long offerId) { this.offerId = offerId; }
+    public String getOfferId() { return offerId; }
+    public void setOfferId(String offerId) { this.offerId = offerId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

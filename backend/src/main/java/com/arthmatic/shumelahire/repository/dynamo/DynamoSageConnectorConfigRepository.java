@@ -50,7 +50,7 @@ public class DynamoSageConnectorConfigRepository extends DynamoRepository<SageCo
     protected SageConnectorConfig toEntity(SageConnectorConfigItem item) {
         var e = new SageConnectorConfig();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         e.setName(item.getName());
@@ -79,7 +79,7 @@ public class DynamoSageConnectorConfigRepository extends DynamoRepository<SageCo
     @Override
     protected SageConnectorConfigItem toItem(SageConnectorConfig entity) {
         var item = new SageConnectorConfigItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

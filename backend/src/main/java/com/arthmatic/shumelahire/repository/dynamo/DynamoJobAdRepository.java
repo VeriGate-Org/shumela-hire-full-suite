@@ -89,7 +89,7 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     public List<JobAd> findByRequisitionId(String requisitionId) {
         return findAll().stream()
                 .filter(ad -> requisitionId.equals(
-                        ad.getRequisitionId() != null ? ad.getRequisitionId().toString() : null))
+                        ad.getRequisitionId() != null ? ad.getRequisitionId() : null))
                 .collect(Collectors.toList());
     }
 
@@ -186,14 +186,14 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     protected JobAd toEntity(JobAdItem item) {
         var ad = new JobAd();
         if (item.getId() != null) {
-            ad.setId(safeParseLong(item.getId()));
+            ad.setId(item.getId());
         }
         ad.setTenantId(item.getTenantId());
         if (item.getRequisitionId() != null) {
-            ad.setRequisitionId(safeParseLong(item.getRequisitionId()));
+            ad.setRequisitionId(item.getRequisitionId());
         }
         if (item.getJobPostingId() != null) {
-            ad.setJobPostingId(safeParseLong(item.getJobPostingId()));
+            ad.setJobPostingId(item.getJobPostingId());
         }
         ad.setTitle(item.getTitle());
         ad.setHtmlBody(item.getHtmlBody());
@@ -230,7 +230,7 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
     protected JobAdItem toItem(JobAd entity) {
         var item = new JobAdItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -263,10 +263,10 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
         item.setId(id);
         item.setTenantId(tenantId);
         if (entity.getRequisitionId() != null) {
-            item.setRequisitionId(entity.getRequisitionId().toString());
+            item.setRequisitionId(entity.getRequisitionId());
         }
         if (entity.getJobPostingId() != null) {
-            item.setJobPostingId(entity.getJobPostingId().toString());
+            item.setJobPostingId(entity.getJobPostingId());
         }
         item.setTitle(entity.getTitle());
         item.setHtmlBody(entity.getHtmlBody());

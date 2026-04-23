@@ -13,7 +13,7 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobPosting extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotBlank(message = "Job title is required")
     private String title;
@@ -56,11 +56,11 @@ public class JobPosting extends TenantAwareEntity {
     private JobPostingStatus status = JobPostingStatus.DRAFT;
     
     @NotNull(message = "Creator is required")
-    private Long createdBy; // User ID who created the posting
+    private String createdBy; // User ID who created the posting
     
-    private Long approvedBy; // User ID who approved the posting
+    private String approvedBy; // User ID who approved the posting
     
-    private Long publishedBy; // User ID who published the posting
+    private String publishedBy; // User ID who published the posting
     
     private String approvalNotes;
     
@@ -113,7 +113,7 @@ public class JobPosting extends TenantAwareEntity {
         this.createdAt = LocalDateTime.now();
     }
     
-    public JobPosting(String title, String department, String description, Long createdBy) {
+    public JobPosting(String title, String department, String description, String createdBy) {
         this();
         this.title = title;
         this.department = department;
@@ -195,11 +195,11 @@ public class JobPosting extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
@@ -347,27 +347,27 @@ public class JobPosting extends TenantAwareEntity {
         this.status = status;
     }
     
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
     
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
     
-    public Long getApprovedBy() {
+    public String getApprovedBy() {
         return approvedBy;
     }
     
-    public void setApprovedBy(Long approvedBy) {
+    public void setApprovedBy(String approvedBy) {
         this.approvedBy = approvedBy;
     }
     
-    public Long getPublishedBy() {
+    public String getPublishedBy() {
         return publishedBy;
     }
     
-    public void setPublishedBy(Long publishedBy) {
+    public void setPublishedBy(String publishedBy) {
         this.publishedBy = publishedBy;
     }
     

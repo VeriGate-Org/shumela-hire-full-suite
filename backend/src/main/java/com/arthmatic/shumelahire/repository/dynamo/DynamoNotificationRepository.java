@@ -211,7 +211,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     @Override
     public List<Notification> findByApplicationIdOrderByCreatedAtDesc(String applicationId) {
         return findAll().stream()
-                .filter(n -> n.getApplicationId() != null && n.getApplicationId().toString().equals(applicationId))
+                .filter(n -> n.getApplicationId() != null && n.getApplicationId().equals(applicationId))
                 .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -219,7 +219,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     @Override
     public List<Notification> findByInterviewIdOrderByCreatedAtDesc(String interviewId) {
         return findAll().stream()
-                .filter(n -> n.getInterviewId() != null && n.getInterviewId().toString().equals(interviewId))
+                .filter(n -> n.getInterviewId() != null && n.getInterviewId().equals(interviewId))
                 .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -227,7 +227,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     @Override
     public List<Notification> findByJobPostingIdOrderByCreatedAtDesc(String jobPostingId) {
         return findAll().stream()
-                .filter(n -> n.getJobPostingId() != null && n.getJobPostingId().toString().equals(jobPostingId))
+                .filter(n -> n.getJobPostingId() != null && n.getJobPostingId().equals(jobPostingId))
                 .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -235,7 +235,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     @Override
     public List<Notification> findByOfferIdOrderByCreatedAtDesc(String offerId) {
         return findAll().stream()
-                .filter(n -> n.getOfferId() != null && n.getOfferId().toString().equals(offerId))
+                .filter(n -> n.getOfferId() != null && n.getOfferId().equals(offerId))
                 .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -308,14 +308,14 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     protected Notification toEntity(NotificationItem item) {
         var entity = new Notification();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getRecipientId() != null) {
-            entity.setRecipientId(safeParseLong(item.getRecipientId()));
+            entity.setRecipientId(item.getRecipientId());
         }
         if (item.getSenderId() != null) {
-            entity.setSenderId(safeParseLong(item.getSenderId()));
+            entity.setSenderId(item.getSenderId());
         }
         if (item.getType() != null) {
             try { entity.setType(NotificationType.valueOf(item.getType())); }
@@ -336,16 +336,16 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         entity.setIcon(item.getIcon());
         entity.setMetadata(item.getMetadata());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(safeParseLong(item.getApplicationId()));
+            entity.setApplicationId(item.getApplicationId());
         }
         if (item.getInterviewId() != null) {
-            entity.setInterviewId(safeParseLong(item.getInterviewId()));
+            entity.setInterviewId(item.getInterviewId());
         }
         if (item.getJobPostingId() != null) {
-            entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
+            entity.setJobPostingId(item.getJobPostingId());
         }
         if (item.getOfferId() != null) {
-            entity.setOfferId(safeParseLong(item.getOfferId()));
+            entity.setOfferId(item.getOfferId());
         }
         entity.setIsRead(item.getIsRead());
         if (item.getReadAt() != null) entity.setReadAt(LocalDateTime.parse(item.getReadAt(), ISO_FMT));
@@ -370,7 +370,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            entity.setCreatedBy(item.getCreatedBy());
         }
         return entity;
     }
@@ -379,9 +379,9 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
     protected NotificationItem toItem(Notification entity) {
         var item = new NotificationItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String createdAtStr = entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : LocalDateTime.now().format(ISO_FMT);
-        String recipientIdStr = entity.getRecipientId() != null ? entity.getRecipientId().toString() : "";
+        String recipientIdStr = entity.getRecipientId() != null ? entity.getRecipientId() : "";
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -398,8 +398,8 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         // Entity fields
         item.setId(id);
         item.setTenantId(tenantId);
-        if (entity.getRecipientId() != null) item.setRecipientId(entity.getRecipientId().toString());
-        if (entity.getSenderId() != null) item.setSenderId(entity.getSenderId().toString());
+        if (entity.getRecipientId() != null) item.setRecipientId(entity.getRecipientId());
+        if (entity.getSenderId() != null) item.setSenderId(entity.getSenderId());
         if (entity.getType() != null) item.setType(entity.getType().name());
         if (entity.getChannel() != null) item.setChannel(entity.getChannel().name());
         if (entity.getPriority() != null) item.setPriority(entity.getPriority().name());
@@ -409,10 +409,10 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         item.setActionLabel(entity.getActionLabel());
         item.setIcon(entity.getIcon());
         item.setMetadata(entity.getMetadata());
-        if (entity.getApplicationId() != null) item.setApplicationId(entity.getApplicationId().toString());
-        if (entity.getInterviewId() != null) item.setInterviewId(entity.getInterviewId().toString());
-        if (entity.getJobPostingId() != null) item.setJobPostingId(entity.getJobPostingId().toString());
-        if (entity.getOfferId() != null) item.setOfferId(entity.getOfferId().toString());
+        if (entity.getApplicationId() != null) item.setApplicationId(entity.getApplicationId());
+        if (entity.getInterviewId() != null) item.setInterviewId(entity.getInterviewId());
+        if (entity.getJobPostingId() != null) item.setJobPostingId(entity.getJobPostingId());
+        if (entity.getOfferId() != null) item.setOfferId(entity.getOfferId());
         item.setIsRead(entity.getIsRead());
         if (entity.getReadAt() != null) item.setReadAt(entity.getReadAt().format(ISO_FMT));
         item.setIsDelivered(entity.getIsDelivered());
@@ -435,7 +435,7 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         item.setIsBatchDigest(entity.getIsBatchDigest());
         item.setCreatedAt(createdAtStr);
         if (entity.getUpdatedAt() != null) item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));
-        if (entity.getCreatedBy() != null) item.setCreatedBy(entity.getCreatedBy().toString());
+        if (entity.getCreatedBy() != null) item.setCreatedBy(entity.getCreatedBy());
 
         return item;
     }

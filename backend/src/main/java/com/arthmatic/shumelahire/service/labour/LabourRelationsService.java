@@ -46,10 +46,10 @@ public class LabourRelationsService {
 
     // ---- Disciplinary Cases ----
 
-    public DisciplinaryCaseResponse createDisciplinaryCase(Long employeeId, String offenceCategory,
+    public DisciplinaryCaseResponse createDisciplinaryCase(String employeeId, String offenceCategory,
                                                             String offenceDescription, LocalDate incidentDate,
-                                                            Long createdBy) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+                                                            String createdBy) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         DisciplinaryCase dc = new DisciplinaryCase();
@@ -73,8 +73,8 @@ public class LabourRelationsService {
     }
 
     @Transactional(readOnly = true)
-    public DisciplinaryCaseResponse getDisciplinaryCase(Long id) {
-        DisciplinaryCase dc = disciplinaryCaseRepository.findById(String.valueOf(id))
+    public DisciplinaryCaseResponse getDisciplinaryCase(String id) {
+        DisciplinaryCase dc = disciplinaryCaseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Disciplinary case not found: " + id));
         return DisciplinaryCaseResponse.fromEntity(dc);
     }
@@ -87,8 +87,8 @@ public class LabourRelationsService {
     }
 
     @Transactional(readOnly = true)
-    public List<DisciplinaryCaseResponse> getDisciplinaryCasesByEmployee(Long employeeId) {
-        return disciplinaryCaseRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<DisciplinaryCaseResponse> getDisciplinaryCasesByEmployee(String employeeId) {
+        return disciplinaryCaseRepository.findByEmployeeId(employeeId).stream()
                 .map(DisciplinaryCaseResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -100,9 +100,9 @@ public class LabourRelationsService {
                 .collect(Collectors.toList());
     }
 
-    public DisciplinaryCaseResponse updateDisciplinaryCase(Long id, String status, String outcome,
+    public DisciplinaryCaseResponse updateDisciplinaryCase(String id, String status, String outcome,
                                                             LocalDate hearingDate, String notes) {
-        DisciplinaryCase dc = disciplinaryCaseRepository.findById(String.valueOf(id))
+        DisciplinaryCase dc = disciplinaryCaseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Disciplinary case not found: " + id));
 
         if (status != null) dc.setStatus(DisciplinaryCaseStatus.valueOf(status));
@@ -116,7 +116,7 @@ public class LabourRelationsService {
         dc = disciplinaryCaseRepository.save(dc);
 
         auditLogService.saveLog("SYSTEM", "UPDATE", "DISCIPLINARY_CASE",
-                id.toString(), "Updated disciplinary case");
+                id, "Updated disciplinary case");
 
         if (status != null) {
             notificationService.sendInternalNotification(dc.getEmployee().getId(), "Disciplinary Case Update",
@@ -129,9 +129,9 @@ public class LabourRelationsService {
 
     // ---- Grievances ----
 
-    public GrievanceResponse fileGrievance(Long employeeId, String grievanceType,
-                                           String description, Long assignedToId) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public GrievanceResponse fileGrievance(String employeeId, String grievanceType,
+                                           String description, String assignedToId) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         Grievance grievance = new Grievance();
@@ -142,13 +142,13 @@ public class LabourRelationsService {
         grievance.setFiledDate(LocalDate.now());
 
         if (assignedToId != null) {
-            Employee assignedTo = employeeRepository.findById(String.valueOf(assignedToId)).orElse(null);
+            Employee assignedTo = employeeRepository.findById(assignedToId).orElse(null);
             grievance.setAssignedTo(assignedTo);
         }
 
         grievance = grievanceRepository.save(grievance);
 
-        auditLogService.saveLog(employeeId.toString(), "FILE", "GRIEVANCE",
+        auditLogService.saveLog(employeeId, "FILE", "GRIEVANCE",
                 grievance.getId().toString(), "Filed grievance: " + grievanceType);
         logger.info("Grievance filed by employee {}", employeeId);
 
@@ -164,8 +164,8 @@ public class LabourRelationsService {
     }
 
     @Transactional(readOnly = true)
-    public GrievanceResponse getGrievance(Long id) {
-        Grievance grievance = grievanceRepository.findById(String.valueOf(id))
+    public GrievanceResponse getGrievance(String id) {
+        Grievance grievance = grievanceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grievance not found: " + id));
         return GrievanceResponse.fromEntity(grievance);
     }
@@ -178,8 +178,8 @@ public class LabourRelationsService {
     }
 
     @Transactional(readOnly = true)
-    public List<GrievanceResponse> getGrievancesByEmployee(Long employeeId) {
-        return grievanceRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<GrievanceResponse> getGrievancesByEmployee(String employeeId) {
+        return grievanceRepository.findByEmployeeId(employeeId).stream()
                 .map(GrievanceResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -191,8 +191,8 @@ public class LabourRelationsService {
                 .collect(Collectors.toList());
     }
 
-    public GrievanceResponse updateGrievance(Long id, String status, String resolution) {
-        Grievance grievance = grievanceRepository.findById(String.valueOf(id))
+    public GrievanceResponse updateGrievance(String id, String status, String resolution) {
+        Grievance grievance = grievanceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grievance not found: " + id));
 
         if (status != null) grievance.setStatus(GrievanceStatus.valueOf(status));
@@ -204,7 +204,7 @@ public class LabourRelationsService {
         grievance = grievanceRepository.save(grievance);
 
         auditLogService.saveLog("SYSTEM", "UPDATE", "GRIEVANCE",
-                id.toString(), "Updated grievance status to " + status);
+                id, "Updated grievance status to " + status);
 
         if (status != null) {
             notificationService.sendInternalNotification(grievance.getEmployee().getId(), "Grievance Update",

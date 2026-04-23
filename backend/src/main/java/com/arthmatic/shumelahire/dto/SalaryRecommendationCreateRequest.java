@@ -18,7 +18,7 @@ public class SalaryRecommendationCreateRequest {
     private BigDecimal proposedMinSalary;
     private BigDecimal proposedMaxSalary;
     private BigDecimal proposedTargetSalary;
-    private Long applicationId;
+    private String applicationId;
 
     public SalaryRecommendationCreateRequest() {}
 
@@ -55,6 +55,6 @@ public class SalaryRecommendationCreateRequest {
     public BigDecimal getProposedTargetSalary() { return proposedTargetSalary; }
     public void setProposedTargetSalary(BigDecimal proposedTargetSalary) { this.proposedTargetSalary = proposedTargetSalary; }
 
-    public Long getApplicationId() { return applicationId; }
-    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 }

@@ -54,14 +54,14 @@ public class DynamoLmsSyncLogRepository extends DynamoRepository<LmsSyncLogItem,
     protected LmsSyncLog toEntity(LmsSyncLogItem item) {
         var e = new LmsSyncLog();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create connector stub
         if (item.getConnectorId() != null) {
             var connector = new LmsConnectorConfig();
-            connector.setId(safeParseLong(item.getConnectorId()));
+            connector.setId(item.getConnectorId());
             e.setConnector(connector);
         }
 
@@ -85,10 +85,10 @@ public class DynamoLmsSyncLogRepository extends DynamoRepository<LmsSyncLogItem,
     @Override
     protected LmsSyncLogItem toItem(LmsSyncLog entity) {
         var item = new LmsSyncLogItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String connectorId = entity.getConnector() != null && entity.getConnector().getId() != null
-                ? entity.getConnector().getId().toString()
+                ? entity.getConnector().getId()
                 : "";
 
         item.setPk("TENANT#" + tenantId);

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class SageSyncSchedule extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private SageConnectorConfig connector;
 
@@ -31,8 +31,8 @@ public class SageSyncSchedule extends TenantAwareEntity {
     public SageSyncSchedule() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public SageConnectorConfig getConnector() { return connector; }
     public void setConnector(SageConnectorConfig connector) { this.connector = connector; }

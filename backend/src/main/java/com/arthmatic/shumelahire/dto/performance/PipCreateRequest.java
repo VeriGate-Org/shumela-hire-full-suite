@@ -5,8 +5,8 @@ import java.util.List;
 
 public class PipCreateRequest {
 
-    private Long employeeId;
-    private Long managerId;
+    private String employeeId;
+    private String managerId;
     private String reason;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -14,10 +14,10 @@ public class PipCreateRequest {
 
     public PipCreateRequest() {}
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
-    public Long getManagerId() { return managerId; }
-    public void setManagerId(Long managerId) { this.managerId = managerId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+    public String getManagerId() { return managerId; }
+    public void setManagerId(String managerId) { this.managerId = managerId; }
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
     public LocalDate getStartDate() { return startDate; }

@@ -39,34 +39,34 @@ public class LmsController {
     }
 
     @GetMapping("/connectors/{id}")
-    public ResponseEntity<Map<String, Object>> getConnector(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getConnector(@PathVariable String id) {
         LmsConnectorConfig connector = lmsIntegrationService.getConnectorById(id);
         return ResponseEntity.ok(mapConnector(connector));
     }
 
     @PutMapping("/connectors/{id}")
     public ResponseEntity<Map<String, Object>> updateConnector(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, Object> request) {
         LmsConnectorConfig connector = lmsIntegrationService.updateConnector(id, request);
         return ResponseEntity.ok(mapConnector(connector));
     }
 
     @DeleteMapping("/connectors/{id}")
-    public ResponseEntity<Map<String, String>> deleteConnector(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteConnector(@PathVariable String id) {
         lmsIntegrationService.deleteConnector(id);
         return ResponseEntity.ok(Map.of("message", "LMS connector deleted successfully"));
     }
 
     @PostMapping("/connectors/{id}/test")
-    public ResponseEntity<Map<String, Object>> testConnection(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> testConnection(@PathVariable String id) {
         Map<String, Object> result = lmsIntegrationService.testConnection(id);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/connectors/{id}/sync")
     public ResponseEntity<Map<String, Object>> triggerSync(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam(defaultValue = "COURSES") String syncType) {
         LmsSyncLog log = lmsIntegrationService.triggerSync(id, syncType);
         return ResponseEntity.ok(mapSyncLog(log));
@@ -85,7 +85,7 @@ public class LmsController {
 
     @GetMapping("/logs/{connectorId}")
     public ResponseEntity<List<Map<String, Object>>> getLogsByConnector(
-            @PathVariable Long connectorId) {
+            @PathVariable String connectorId) {
         List<LmsSyncLog> logs = lmsIntegrationService.getSyncLogsByConnector(connectorId);
         List<Map<String, Object>> response = logs.stream()
                 .map(this::mapSyncLog)

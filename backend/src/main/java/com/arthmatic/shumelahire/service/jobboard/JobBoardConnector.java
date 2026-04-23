@@ -9,9 +9,9 @@ public interface JobBoardConnector {
 
     JobBoardPosting post(String jobPostingId, String boardConfig);
 
-    JobBoardPosting remove(Long postingId);
+    JobBoardPosting remove(String postingId);
 
-    JobBoardPosting sync(Long postingId);
+    JobBoardPosting sync(String postingId);
 
     boolean isEnabled();
 }

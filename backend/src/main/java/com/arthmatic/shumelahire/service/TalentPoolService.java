@@ -41,12 +41,12 @@ public class TalentPoolService {
         return talentPoolRepository.findAll();
     }
 
-    public TalentPool getPool(Long id) {
-        return talentPoolRepository.findById(String.valueOf(id))
+    public TalentPool getPool(String id) {
+        return talentPoolRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Talent pool not found: " + id));
     }
 
-    public TalentPool updatePool(Long id, TalentPool update) {
+    public TalentPool updatePool(String id, TalentPool update) {
         TalentPool pool = getPool(id);
         if (update.getPoolName() != null) pool.setPoolName(update.getPoolName());
         if (update.getDescription() != null) pool.setDescription(update.getDescription());
@@ -59,13 +59,13 @@ public class TalentPoolService {
     }
 
     @Transactional
-    public TalentPoolEntry addEntry(Long poolId, Long applicantId, String sourceType, String notes) {
+    public TalentPoolEntry addEntry(String poolId, String applicantId, String sourceType, String notes) {
         if (applicantId == null) {
             throw new IllegalArgumentException("applicantId is required");
         }
 
         TalentPool pool = getPool(poolId);
-        Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
+        Applicant applicant = applicantRepository.findById(applicantId)
             .orElseThrow(() -> new RuntimeException("Applicant not found: " + applicantId));
 
         TalentPoolEntry entry = new TalentPoolEntry();
@@ -81,13 +81,13 @@ public class TalentPoolService {
         return saved;
     }
 
-    public List<TalentPoolEntry> getEntries(Long poolId) {
-        return talentPoolEntryRepository.findByTalentPoolId(String.valueOf(poolId));
+    public List<TalentPoolEntry> getEntries(String poolId) {
+        return talentPoolEntryRepository.findByTalentPoolId(poolId);
     }
 
     @Transactional
-    public void removeEntry(Long entryId, String reason) {
-        TalentPoolEntry entry = talentPoolEntryRepository.findById(String.valueOf(entryId))
+    public void removeEntry(String entryId, String reason) {
+        TalentPoolEntry entry = talentPoolEntryRepository.findById(entryId)
             .orElseThrow(() -> new RuntimeException("Entry not found: " + entryId));
         entry.setRemovedAt(LocalDateTime.now());
         entry.setRemovalReason(reason);
@@ -96,8 +96,8 @@ public class TalentPoolService {
     }
 
     @Transactional
-    public TalentPoolEntry updateRating(Long entryId, Integer rating) {
-        TalentPoolEntry entry = talentPoolEntryRepository.findById(String.valueOf(entryId))
+    public TalentPoolEntry updateRating(String entryId, Integer rating) {
+        TalentPoolEntry entry = talentPoolEntryRepository.findById(entryId)
             .orElseThrow(() -> new RuntimeException("Entry not found: " + entryId));
         entry.setRating(rating);
         return talentPoolEntryRepository.save(entry);
@@ -120,9 +120,9 @@ public class TalentPoolService {
         }
     }
 
-    public Map<String, Object> getPoolAnalytics(Long poolId) {
+    public Map<String, Object> getPoolAnalytics(String poolId) {
         TalentPool pool = getPool(poolId);
-        List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(String.valueOf(poolId));
+        List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(poolId);
 
         long activeCount = entries.stream().filter(e -> e.getRemovedAt() == null).count();
         double avgRating = entries.stream()

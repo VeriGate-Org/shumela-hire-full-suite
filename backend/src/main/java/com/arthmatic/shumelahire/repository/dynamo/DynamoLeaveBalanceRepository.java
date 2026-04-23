@@ -49,7 +49,7 @@ public class DynamoLeaveBalanceRepository extends DynamoRepository<LeaveBalanceI
         String gsi1pk = "LB_EMP#" + tenantId + "#" + employeeId;
         return queryGsiAll("GSI1", gsi1pk).stream()
                 .filter(lb -> lb.getLeaveType() != null &&
-                        leaveTypeId.equals(String.valueOf(lb.getLeaveType().getId())) &&
+                        leaveTypeId.equals(lb.getLeaveType().getId()) &&
                         cycleYear.equals(lb.getCycleYear()))
                 .findFirst();
     }
@@ -72,15 +72,15 @@ public class DynamoLeaveBalanceRepository extends DynamoRepository<LeaveBalanceI
     protected LeaveBalanceItem toItem(LeaveBalance entity) {
         LeaveBalanceItem item = new LeaveBalanceItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : "";
+        String id = entity.getId() != null ? entity.getId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("LEAVE_BAL#" + id);
 
         String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? String.valueOf(entity.getEmployee().getId()) : "";
+                ? entity.getEmployee().getId() : "";
         String leaveTypeId = entity.getLeaveType() != null && entity.getLeaveType().getId() != null
-                ? String.valueOf(entity.getLeaveType().getId()) : "";
+                ? entity.getLeaveType().getId() : "";
 
         item.setGsi1pk("LB_EMP#" + tenantId + "#" + employeeId);
         String gsi1sk = "LEAVE_BAL#";
@@ -109,19 +109,19 @@ public class DynamoLeaveBalanceRepository extends DynamoRepository<LeaveBalanceI
     protected LeaveBalance toEntity(LeaveBalanceItem item) {
         LeaveBalance entity = new LeaveBalance();
         if (item.getId() != null && !item.getId().isEmpty()) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null && !item.getEmployeeId().isEmpty()) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getLeaveTypeId() != null && !item.getLeaveTypeId().isEmpty()) {
             LeaveType leaveType = new LeaveType();
-            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
+            leaveType.setId(item.getLeaveTypeId());
             entity.setLeaveType(leaveType);
         }
 

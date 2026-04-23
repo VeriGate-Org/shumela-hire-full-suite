@@ -57,7 +57,7 @@ public class SalaryRecommendationService {
         rec.setProposedTargetSalary(request.getProposedTargetSalary());
 
         if (request.getApplicationId() != null) {
-            Application app = applicationRepository.findById(String.valueOf(request.getApplicationId())).orElse(null);
+            Application app = applicationRepository.findById(request.getApplicationId()).orElse(null);
             rec.setApplication(app);
         }
 
@@ -75,8 +75,8 @@ public class SalaryRecommendationService {
         return saved;
     }
 
-    public SalaryRecommendation submitForReview(Long id, String userId) {
-        SalaryRecommendation rec = repository.findById(String.valueOf(id))
+    public SalaryRecommendation submitForReview(String id, String userId) {
+        SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.DRAFT && rec.getStatus() != SalaryRecommendationStatus.RETURNED) {
@@ -85,13 +85,13 @@ public class SalaryRecommendationService {
 
         rec.setStatus(SalaryRecommendationStatus.PENDING_REVIEW);
         SalaryRecommendation saved = repository.save(rec);
-        auditLogService.saveLog(userId, "SUBMIT_FOR_REVIEW", "SALARY_RECOMMENDATION", id.toString(),
+        auditLogService.saveLog(userId, "SUBMIT_FOR_REVIEW", "SALARY_RECOMMENDATION", id,
                 "Submitted recommendation " + rec.getRecommendationNumber() + " for review");
         return saved;
     }
 
-    public SalaryRecommendation provideRecommendation(Long id, SalaryRecommendationProvideRequest request, String recommendedBy) {
-        SalaryRecommendation rec = repository.findById(String.valueOf(id))
+    public SalaryRecommendation provideRecommendation(String id, SalaryRecommendationProvideRequest request, String recommendedBy) {
+        SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_REVIEW) {
@@ -117,13 +117,13 @@ public class SalaryRecommendationService {
         }
 
         SalaryRecommendation saved = repository.save(rec);
-        auditLogService.saveLog(recommendedBy, "PROVIDE_RECOMMENDATION", "SALARY_RECOMMENDATION", id.toString(),
+        auditLogService.saveLog(recommendedBy, "PROVIDE_RECOMMENDATION", "SALARY_RECOMMENDATION", id,
                 "Provided recommendation of " + request.getRecommendedSalary() + " for " + rec.getRecommendationNumber());
         return saved;
     }
 
-    public SalaryRecommendation approveRecommendation(Long id, String approvedBy, String approvalNotes) {
-        SalaryRecommendation rec = repository.findById(String.valueOf(id))
+    public SalaryRecommendation approveRecommendation(String id, String approvedBy, String approvalNotes) {
+        SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_APPROVAL && rec.getStatus() != SalaryRecommendationStatus.RECOMMENDED) {
@@ -136,13 +136,13 @@ public class SalaryRecommendationService {
         rec.setApprovalNotes(approvalNotes);
 
         SalaryRecommendation saved = repository.save(rec);
-        auditLogService.saveLog(approvedBy, "APPROVE", "SALARY_RECOMMENDATION", id.toString(),
+        auditLogService.saveLog(approvedBy, "APPROVE", "SALARY_RECOMMENDATION", id,
                 "Approved recommendation " + rec.getRecommendationNumber());
         return saved;
     }
 
-    public SalaryRecommendation rejectRecommendation(Long id, String rejectedBy, String rejectionReason) {
-        SalaryRecommendation rec = repository.findById(String.valueOf(id))
+    public SalaryRecommendation rejectRecommendation(String id, String rejectedBy, String rejectionReason) {
+        SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.PENDING_APPROVAL && rec.getStatus() != SalaryRecommendationStatus.RECOMMENDED) {
@@ -154,13 +154,13 @@ public class SalaryRecommendationService {
         rec.setRejectionReason(rejectionReason);
 
         SalaryRecommendation saved = repository.save(rec);
-        auditLogService.saveLog(rejectedBy, "REJECT", "SALARY_RECOMMENDATION", id.toString(),
+        auditLogService.saveLog(rejectedBy, "REJECT", "SALARY_RECOMMENDATION", id,
                 "Rejected recommendation " + rec.getRecommendationNumber() + ": " + rejectionReason);
         return saved;
     }
 
-    public SalaryRecommendation linkToOffer(Long id, Long offerId, String userId) {
-        SalaryRecommendation rec = repository.findById(String.valueOf(id))
+    public SalaryRecommendation linkToOffer(String id, String offerId, String userId) {
+        SalaryRecommendation rec = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
 
         if (rec.getStatus() != SalaryRecommendationStatus.APPROVED) {
@@ -171,7 +171,7 @@ public class SalaryRecommendationService {
         rec.setStatus(SalaryRecommendationStatus.IMPLEMENTED);
 
         SalaryRecommendation saved = repository.save(rec);
-        auditLogService.saveLog(userId, "LINK_TO_OFFER", "SALARY_RECOMMENDATION", id.toString(),
+        auditLogService.saveLog(userId, "LINK_TO_OFFER", "SALARY_RECOMMENDATION", id,
                 "Linked recommendation " + rec.getRecommendationNumber() + " to offer " + offerId);
         return saved;
     }
@@ -182,8 +182,8 @@ public class SalaryRecommendationService {
     }
 
     @Transactional(readOnly = true)
-    public SalaryRecommendation getById(Long id) {
-        return repository.findById(String.valueOf(id))
+    public SalaryRecommendation getById(String id) {
+        return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Salary recommendation not found: " + id));
     }
 

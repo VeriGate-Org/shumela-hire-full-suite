@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class SapPayrollTransmission extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Offer offer;
 
@@ -26,7 +26,7 @@ public class SapPayrollTransmission extends TenantAwareEntity {
 
     private LocalDateTime nextRetryAt;
 
-    private Long initiatedBy;
+    private String initiatedBy;
 
     private String sapCompanyCode;
 
@@ -44,7 +44,7 @@ public class SapPayrollTransmission extends TenantAwareEntity {
 
     private LocalDateTime cancelledAt;
 
-    private Long cancelledBy;
+    private String cancelledBy;
 
     private String cancellationReason;
 
@@ -79,8 +79,8 @@ public class SapPayrollTransmission extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Offer getOffer() { return offer; }
     public void setOffer(Offer offer) { this.offer = offer; }
@@ -112,8 +112,8 @@ public class SapPayrollTransmission extends TenantAwareEntity {
     public LocalDateTime getNextRetryAt() { return nextRetryAt; }
     public void setNextRetryAt(LocalDateTime nextRetryAt) { this.nextRetryAt = nextRetryAt; }
 
-    public Long getInitiatedBy() { return initiatedBy; }
-    public void setInitiatedBy(Long initiatedBy) { this.initiatedBy = initiatedBy; }
+    public String getInitiatedBy() { return initiatedBy; }
+    public void setInitiatedBy(String initiatedBy) { this.initiatedBy = initiatedBy; }
 
     public String getSapCompanyCode() { return sapCompanyCode; }
     public void setSapCompanyCode(String sapCompanyCode) { this.sapCompanyCode = sapCompanyCode; }
@@ -139,8 +139,8 @@ public class SapPayrollTransmission extends TenantAwareEntity {
     public LocalDateTime getCancelledAt() { return cancelledAt; }
     public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
 
-    public Long getCancelledBy() { return cancelledBy; }
-    public void setCancelledBy(Long cancelledBy) { this.cancelledBy = cancelledBy; }
+    public String getCancelledBy() { return cancelledBy; }
+    public void setCancelledBy(String cancelledBy) { this.cancelledBy = cancelledBy; }
 
     public String getCancellationReason() { return cancellationReason; }
     public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }

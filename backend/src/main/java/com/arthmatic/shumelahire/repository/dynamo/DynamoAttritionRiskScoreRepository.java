@@ -67,18 +67,18 @@ public class DynamoAttritionRiskScoreRepository extends DynamoRepository<Attriti
     public void deleteByTenantIdAndEmployeeId(String tenantId, String employeeId) {
         List<AttritionRiskScore> scores = findByEmployeeIdOrderByCalculatedAtDesc(employeeId);
         for (AttritionRiskScore score : scores) {
-            deleteById(String.valueOf(score.getId()));
+            deleteById(score.getId());
         }
     }
 
     @Override
     protected AttritionRiskScore toEntity(AttritionRiskScoreItem item) {
         var e = new AttritionRiskScore();
-        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
+        if (item.getId() != null) e.setId(item.getId());
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getEmployeeId()));
+            emp.setId(item.getEmployeeId());
             e.setEmployee(emp);
         }
         if (item.getRiskScore() != null) e.setRiskScore(new BigDecimal(item.getRiskScore()));
@@ -92,9 +92,9 @@ public class DynamoAttritionRiskScoreRepository extends DynamoRepository<Attriti
     @Override
     protected AttritionRiskScoreItem toItem(AttritionRiskScore entity) {
         var item = new AttritionRiskScoreItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId().toString() : "";
+        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId() : "";
         String calculatedAtStr = entity.getCalculatedAt() != null ? entity.getCalculatedAt().format(ISO_FMT) : "";
 
         item.setPk("TENANT#" + tenantId);

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 public class SurveyQuestionResponse {
 
-    private Long id;
-    private Long surveyId;
+    private String id;
+    private String surveyId;
     private String questionText;
     private String questionType;
     private String options;
@@ -30,10 +30,10 @@ public class SurveyQuestionResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getSurveyId() { return surveyId; }
-    public void setSurveyId(Long surveyId) { this.surveyId = surveyId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getSurveyId() { return surveyId; }
+    public void setSurveyId(String surveyId) { this.surveyId = surveyId; }
     public String getQuestionText() { return questionText; }
     public void setQuestionText(String questionText) { this.questionText = questionText; }
     public String getQuestionType() { return questionType; }

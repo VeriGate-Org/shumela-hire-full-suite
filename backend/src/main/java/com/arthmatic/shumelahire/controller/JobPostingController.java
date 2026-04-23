@@ -40,7 +40,7 @@ public class JobPostingController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> createJobPosting(@Valid @RequestBody JobPostingCreateRequest request,
-                                              @RequestParam Long createdBy) {
+                                              @RequestParam String createdBy) {
         try {
             logger.info("Creating job posting: {} by user {}", request.getTitle(), createdBy);
             JobPostingResponse response = jobPostingService.createJobPosting(request, createdBy);
@@ -61,9 +61,9 @@ public class JobPostingController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> updateJobPosting(@PathVariable Long id,
+    public ResponseEntity<?> updateJobPosting(@PathVariable String id,
                                               @Valid @RequestBody JobPostingCreateRequest request,
-                                              @RequestParam Long updatedBy) {
+                                              @RequestParam String updatedBy) {
         try {
             logger.info("Updating job posting: {} by user {}", id, updatedBy);
             JobPostingResponse response = jobPostingService.updateJobPosting(id, request, updatedBy);
@@ -84,7 +84,7 @@ public class JobPostingController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getJobPosting(@PathVariable Long id) {
+    public ResponseEntity<?> getJobPosting(@PathVariable String id) {
         try {
             JobPostingResponse response = jobPostingService.getJobPosting(id);
             return ResponseEntity.ok(response);
@@ -224,7 +224,7 @@ public class JobPostingController {
     @GetMapping("/creator/{createdBy}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getJobPostingsByCreator(
-            @PathVariable Long createdBy,
+            @PathVariable String createdBy,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sort,
@@ -248,8 +248,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/submit-for-approval")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> submitForApproval(@PathVariable Long id,
-                                               @RequestParam Long submittedBy) {
+    public ResponseEntity<?> submitForApproval(@PathVariable String id,
+                                               @RequestParam String submittedBy) {
         try {
             JobPostingResponse response = jobPostingService.submitForApproval(id, submittedBy);
             return ResponseEntity.ok(response);
@@ -269,8 +269,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> approveJobPosting(@PathVariable Long id,
-                                               @RequestParam Long approvedBy,
+    public ResponseEntity<?> approveJobPosting(@PathVariable String id,
+                                               @RequestParam String approvedBy,
                                                @RequestParam(required = false) String approvalNotes) {
         try {
             JobPostingResponse response = jobPostingService.approveJobPosting(id, approvedBy, approvalNotes);
@@ -291,8 +291,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> rejectJobPosting(@PathVariable Long id,
-                                              @RequestParam Long rejectedBy,
+    public ResponseEntity<?> rejectJobPosting(@PathVariable String id,
+                                              @RequestParam String rejectedBy,
                                               @RequestParam String rejectionReason) {
         try {
             JobPostingResponse response = jobPostingService.rejectJobPosting(id, rejectedBy, rejectionReason);
@@ -313,8 +313,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> publishJobPosting(@PathVariable Long id,
-                                               @RequestParam Long publishedBy) {
+    public ResponseEntity<?> publishJobPosting(@PathVariable String id,
+                                               @RequestParam String publishedBy) {
         try {
             JobPostingResponse response = jobPostingService.publishJobPosting(id, publishedBy);
             return ResponseEntity.ok(response);
@@ -334,8 +334,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/unpublish")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> unpublishJobPosting(@PathVariable Long id,
-                                                 @RequestParam Long unpublishedBy) {
+    public ResponseEntity<?> unpublishJobPosting(@PathVariable String id,
+                                                 @RequestParam String unpublishedBy) {
         try {
             JobPostingResponse response = jobPostingService.unpublishJobPosting(id, unpublishedBy);
             return ResponseEntity.ok(response);
@@ -355,8 +355,8 @@ public class JobPostingController {
      */
     @PostMapping("/{id}/close")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> closeJobPosting(@PathVariable Long id,
-                                             @RequestParam Long closedBy) {
+    public ResponseEntity<?> closeJobPosting(@PathVariable String id,
+                                             @RequestParam String closedBy) {
         try {
             JobPostingResponse response = jobPostingService.closeJobPosting(id, closedBy);
             return ResponseEntity.ok(response);
@@ -376,8 +376,8 @@ public class JobPostingController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> deleteJobPosting(@PathVariable Long id,
-                                              @RequestParam Long deletedBy) {
+    public ResponseEntity<?> deleteJobPosting(@PathVariable String id,
+                                              @RequestParam String deletedBy) {
         try {
             jobPostingService.deleteJobPosting(id, deletedBy);
             return ResponseEntity.noContent().build();

@@ -138,7 +138,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
     protected BackgroundCheck toEntity(BackgroundCheckItem item) {
         var entity = new BackgroundCheck();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setReferenceId(item.getReferenceId());
@@ -160,7 +160,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
             entity.setConsentObtainedAt(LocalDateTime.parse(item.getConsentObtainedAt(), ISO_FMT));
         }
         if (item.getInitiatedBy() != null) {
-            entity.setInitiatedBy(safeParseLong(item.getInitiatedBy()));
+            entity.setInitiatedBy(item.getInitiatedBy());
         }
         entity.setProvider(item.getProvider());
         entity.setExternalScreeningId(item.getExternalScreeningId());
@@ -189,7 +189,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
     protected BackgroundCheckItem toItem(BackgroundCheck entity) {
         var item = new BackgroundCheckItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String createdAtStr = entity.getCreatedAt() != null
                 ? entity.getCreatedAt().format(ISO_FMT) : "";
@@ -206,7 +206,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
         // GSI2: Application FK lookup
         String appId = "";
         if (entity.getApplication() != null && entity.getApplication().getId() != null) {
-            appId = entity.getApplication().getId().toString();
+            appId = entity.getApplication().getId();
         }
         item.setGsi2pk("BGCHECK_APP#" + appId);
         item.setGsi2sk("BGCHECK#" + createdAtStr);
@@ -218,7 +218,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
 
         // GSI5: InitiatedBy lookup
         String initiatedByStr = entity.getInitiatedBy() != null
-                ? entity.getInitiatedBy().toString() : "";
+                ? entity.getInitiatedBy() : "";
         item.setGsi5pk("BGCHECK_INITIATOR#" + initiatedByStr);
         item.setGsi5sk("BGCHECK#" + createdAtStr);
 

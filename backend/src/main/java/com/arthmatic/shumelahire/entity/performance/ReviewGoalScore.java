@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public class ReviewGoalScore extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private PerformanceReview review;
 
@@ -46,8 +46,8 @@ public class ReviewGoalScore extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public PerformanceReview getReview() { return review; }
     public void setReview(PerformanceReview review) { this.review = review; }

@@ -2,15 +2,15 @@ package com.arthmatic.shumelahire.dto;
 
 public class AddTalentPoolEntryRequest {
 
-    private Long applicantId;
+    private String applicantId;
     private String sourceType;
     private String notes;
 
-    public Long getApplicantId() {
+    public String getApplicantId() {
         return applicantId;
     }
 
-    public void setApplicantId(Long applicantId) {
+    public void setApplicantId(String applicantId) {
         this.applicantId = applicantId;
     }
 

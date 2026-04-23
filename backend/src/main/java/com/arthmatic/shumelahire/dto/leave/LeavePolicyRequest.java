@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 public class LeavePolicyRequest {
 
     @NotNull(message = "Leave type ID is required")
-    private Long leaveTypeId;
+    private String leaveTypeId;
 
     @NotBlank(message = "Policy name is required")
     private String name;
@@ -29,8 +29,8 @@ public class LeavePolicyRequest {
     private Integer minNoticeDays;
 
     // Getters and Setters
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

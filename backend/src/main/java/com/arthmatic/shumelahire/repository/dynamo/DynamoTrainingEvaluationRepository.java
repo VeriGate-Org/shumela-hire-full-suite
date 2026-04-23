@@ -37,7 +37,7 @@ public class DynamoTrainingEvaluationRepository extends DynamoRepository<Trainin
     @Override
     public Optional<TrainingEvaluation> findBySessionIdAndEmployeeId(String sessionId, String employeeId) {
         return findBySessionId(sessionId).stream()
-                .filter(e -> e.getEmployeeId() != null && employeeId.equals(String.valueOf(e.getEmployeeId())))
+                .filter(e -> e.getEmployeeId() != null && employeeId.equals(e.getEmployeeId()))
                 .findFirst();
     }
 
@@ -45,19 +45,19 @@ public class DynamoTrainingEvaluationRepository extends DynamoRepository<Trainin
     protected TrainingEvaluationItem toItem(TrainingEvaluation entity) {
         TrainingEvaluationItem item = new TrainingEvaluationItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("TRAINING_EVAL#" + id);
 
-        String sessionId = entity.getSessionId() != null ? String.valueOf(entity.getSessionId()) : "";
+        String sessionId = entity.getSessionId() != null ? entity.getSessionId() : "";
         item.setGsi1pk("TEVAL_SESS#" + tenantId + "#" + sessionId);
         item.setGsi1sk("TRAINING_EVAL#" + id);
 
         item.setId(id);
         item.setTenantId(tenantId);
-        item.setSessionId(entity.getSessionId() != null ? String.valueOf(entity.getSessionId()) : null);
-        item.setEmployeeId(entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : null);
+        item.setSessionId(entity.getSessionId() != null ? entity.getSessionId() : null);
+        item.setEmployeeId(entity.getEmployeeId() != null ? entity.getEmployeeId() : null);
         item.setOverallRating(entity.getOverallRating());
         item.setContentRating(entity.getContentRating());
         item.setInstructorRating(entity.getInstructorRating());
@@ -71,11 +71,11 @@ public class DynamoTrainingEvaluationRepository extends DynamoRepository<Trainin
     protected TrainingEvaluation toEntity(TrainingEvaluationItem item) {
         TrainingEvaluation entity = new TrainingEvaluation();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
-        entity.setSessionId(item.getSessionId() != null ? safeParseLong(item.getSessionId()) : null);
-        entity.setEmployeeId(item.getEmployeeId() != null ? safeParseLong(item.getEmployeeId()) : null);
+        entity.setSessionId(item.getSessionId() != null ? item.getSessionId() : null);
+        entity.setEmployeeId(item.getEmployeeId() != null ? item.getEmployeeId() : null);
         entity.setOverallRating(item.getOverallRating());
         entity.setContentRating(item.getContentRating());
         entity.setInstructorRating(item.getInstructorRating());

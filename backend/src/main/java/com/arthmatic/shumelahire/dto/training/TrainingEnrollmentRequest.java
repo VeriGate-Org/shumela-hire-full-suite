@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 public class TrainingEnrollmentRequest {
 
     @NotNull
-    private Long sessionId;
+    private String sessionId;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     private String status;
     private BigDecimal score;
@@ -18,11 +18,11 @@ public class TrainingEnrollmentRequest {
     public TrainingEnrollmentRequest() {}
 
     // Getters and Setters
-    public Long getSessionId() { return sessionId; }
-    public void setSessionId(Long sessionId) { this.sessionId = sessionId; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

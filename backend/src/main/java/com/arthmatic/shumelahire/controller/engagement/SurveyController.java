@@ -24,7 +24,7 @@ public class SurveyController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<?> createSurvey(@RequestBody SurveyCreateRequest request,
-                                          @RequestParam Long createdBy) {
+                                          @RequestParam String createdBy) {
         try {
             SurveyResponse survey = surveyService.createSurvey(request, createdBy);
             return ResponseEntity.status(HttpStatus.CREATED).body(survey);
@@ -34,7 +34,7 @@ public class SurveyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSurvey(@PathVariable Long id) {
+    public ResponseEntity<?> getSurvey(@PathVariable String id) {
         try {
             return ResponseEntity.ok(surveyService.getSurvey(id));
         } catch (IllegalArgumentException e) {
@@ -54,7 +54,7 @@ public class SurveyController {
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> activateSurvey(@PathVariable Long id) {
+    public ResponseEntity<?> activateSurvey(@PathVariable String id) {
         try {
             return ResponseEntity.ok(surveyService.activateSurvey(id));
         } catch (IllegalArgumentException e) {
@@ -64,7 +64,7 @@ public class SurveyController {
 
     @PutMapping("/{id}/close")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> closeSurvey(@PathVariable Long id) {
+    public ResponseEntity<?> closeSurvey(@PathVariable String id) {
         try {
             return ResponseEntity.ok(surveyService.closeSurvey(id));
         } catch (IllegalArgumentException e) {
@@ -73,7 +73,7 @@ public class SurveyController {
     }
 
     @PostMapping("/{id}/respond")
-    public ResponseEntity<?> submitResponse(@PathVariable Long id,
+    public ResponseEntity<?> submitResponse(@PathVariable String id,
                                             @RequestBody SurveySubmitRequest request) {
         try {
             surveyService.submitResponse(id, request);
@@ -85,7 +85,7 @@ public class SurveyController {
 
     @GetMapping("/{id}/results")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> getSurveyResults(@PathVariable Long id) {
+    public ResponseEntity<?> getSurveyResults(@PathVariable String id) {
         try {
             return ResponseEntity.ok(surveyService.getSurveyResults(id));
         } catch (IllegalArgumentException e) {
@@ -95,7 +95,7 @@ public class SurveyController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deleteSurvey(@PathVariable Long id) {
+    public ResponseEntity<?> deleteSurvey(@PathVariable String id) {
         try {
             surveyService.deleteSurvey(id);
             return ResponseEntity.ok(Map.of("message", "Survey deleted"));

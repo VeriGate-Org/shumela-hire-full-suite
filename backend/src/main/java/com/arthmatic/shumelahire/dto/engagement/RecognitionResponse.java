@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 
 public class RecognitionResponse {
 
-    private Long id;
-    private Long fromEmployeeId;
+    private String id;
+    private String fromEmployeeId;
     private String fromEmployeeName;
-    private Long toEmployeeId;
+    private String toEmployeeId;
     private String toEmployeeName;
     private String category;
     private String message;
@@ -36,14 +36,14 @@ public class RecognitionResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getFromEmployeeId() { return fromEmployeeId; }
-    public void setFromEmployeeId(Long fromEmployeeId) { this.fromEmployeeId = fromEmployeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getFromEmployeeId() { return fromEmployeeId; }
+    public void setFromEmployeeId(String fromEmployeeId) { this.fromEmployeeId = fromEmployeeId; }
     public String getFromEmployeeName() { return fromEmployeeName; }
     public void setFromEmployeeName(String fromEmployeeName) { this.fromEmployeeName = fromEmployeeName; }
-    public Long getToEmployeeId() { return toEmployeeId; }
-    public void setToEmployeeId(Long toEmployeeId) { this.toEmployeeId = toEmployeeId; }
+    public String getToEmployeeId() { return toEmployeeId; }
+    public void setToEmployeeId(String toEmployeeId) { this.toEmployeeId = toEmployeeId; }
     public String getToEmployeeName() { return toEmployeeName; }
     public void setToEmployeeName(String toEmployeeName) { this.toEmployeeName = toEmployeeName; }
     public String getCategory() { return category; }

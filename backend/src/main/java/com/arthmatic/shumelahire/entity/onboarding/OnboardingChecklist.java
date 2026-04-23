@@ -9,13 +9,13 @@ import java.util.List;
 
 public class OnboardingChecklist extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     @NotNull
-    private Long templateId;
+    private String templateId;
 
     @NotNull
     private LocalDate startDate;
@@ -24,7 +24,7 @@ public class OnboardingChecklist extends TenantAwareEntity {
 
     private ChecklistStatus status = ChecklistStatus.IN_PROGRESS;
 
-    private Long assignedHrId;
+    private String assignedHrId;
 
     private List<OnboardingChecklistItem> items;
 
@@ -55,14 +55,14 @@ public class OnboardingChecklist extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
-    public Long getTemplateId() { return templateId; }
-    public void setTemplateId(Long templateId) { this.templateId = templateId; }
+    public String getTemplateId() { return templateId; }
+    public void setTemplateId(String templateId) { this.templateId = templateId; }
 
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
@@ -73,8 +73,8 @@ public class OnboardingChecklist extends TenantAwareEntity {
     public ChecklistStatus getStatus() { return status; }
     public void setStatus(ChecklistStatus status) { this.status = status; }
 
-    public Long getAssignedHrId() { return assignedHrId; }
-    public void setAssignedHrId(Long assignedHrId) { this.assignedHrId = assignedHrId; }
+    public String getAssignedHrId() { return assignedHrId; }
+    public void setAssignedHrId(String assignedHrId) { this.assignedHrId = assignedHrId; }
 
     public List<OnboardingChecklistItem> getItems() { return items; }
     public void setItems(List<OnboardingChecklistItem> items) { this.items = items; }

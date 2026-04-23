@@ -59,7 +59,7 @@ public class DynamoLeaveTypeRepository extends DynamoRepository<LeaveTypeItem, L
         item.setSk("LEAVE_TYPE#" + entity.getId());
         item.setGsi1pk("LT_CODE#" + entity.getTenantId());
         item.setGsi1sk(entity.getCode());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setName(entity.getName());
         item.setCode(entity.getCode());
@@ -85,7 +85,7 @@ public class DynamoLeaveTypeRepository extends DynamoRepository<LeaveTypeItem, L
 
         LeaveType entity = new LeaveType();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

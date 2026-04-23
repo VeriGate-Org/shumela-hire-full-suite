@@ -93,7 +93,7 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         }
         Set<String> idSet = new HashSet<>(ids);
         return findAll().stream()
-                .filter(a -> a.getId() != null && idSet.contains(a.getId().toString()))
+                .filter(a -> a.getId() != null && idSet.contains(a.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -186,7 +186,7 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
     @Override
     public Optional<Application> findByApplicantIdAndJobPostingId(String applicantId, String jobPostingId) {
         return queryGsiAll("GSI4", "APP_APPLICANT#" + applicantId).stream()
-                .filter(a -> a.getJobPostingId() != null && a.getJobPostingId().toString().equals(jobPostingId))
+                .filter(a -> a.getJobPostingId() != null && a.getJobPostingId().equals(jobPostingId))
                 .findFirst();
     }
 
@@ -547,11 +547,11 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
     protected Application toEntity(ApplicationItem item) {
         var app = new Application();
         if (item.getId() != null) {
-            app.setId(safeParseLong(item.getId()));
+            app.setId(item.getId());
         }
         app.setTenantId(item.getTenantId());
         if (item.getJobPostingId() != null) {
-            app.setJobPostingId(safeParseLong(item.getJobPostingId()));
+            app.setJobPostingId(item.getJobPostingId());
         }
         app.setJobTitle(item.getJobTitle());
         app.setJobId(item.getJobId());
@@ -612,7 +612,7 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
     protected ApplicationItem toItem(Application entity) {
         var item = new ApplicationItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String submittedAtStr = entity.getSubmittedAt() != null
                 ? entity.getSubmittedAt().format(ISO_FMT)
                 : LocalDateTime.now().format(ISO_FMT);
@@ -656,12 +656,12 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         item.setId(id);
         item.setTenantId(tenantId);
         if (entity.getApplicant() != null && entity.getApplicant().getId() != null) {
-            item.setApplicantId(entity.getApplicant().getId().toString());
+            item.setApplicantId(entity.getApplicant().getId());
         }
         if (entity.getJobPostingId() != null) {
-            item.setJobPostingId(entity.getJobPostingId().toString());
+            item.setJobPostingId(entity.getJobPostingId());
         } else if (entity.getJobPosting() != null && entity.getJobPosting().getId() != null) {
-            item.setJobPostingId(entity.getJobPosting().getId().toString());
+            item.setJobPostingId(entity.getJobPosting().getId());
         }
         item.setJobTitle(entity.getJobTitle());
         item.setJobId(entity.getJobId());

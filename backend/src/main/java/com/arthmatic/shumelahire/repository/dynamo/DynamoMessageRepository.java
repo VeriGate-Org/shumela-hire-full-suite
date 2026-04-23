@@ -70,7 +70,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     public List<Message> findByUserIdOrderByCreatedAtDesc(String userId) {
         return findAll().stream()
                 .filter(m -> Boolean.FALSE.equals(m.getIsDeleted()))
-                .filter(m -> (m.getSenderId() != null && m.getSenderId().toString().equals(userId))
+                .filter(m -> (m.getSenderId() != null && m.getSenderId().equals(userId))
                         || (m.getRecipientIds() != null && m.getRecipientIds().contains(userId)))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
@@ -111,7 +111,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     @Override
     public List<Message> findByParentMessageIdOrderByCreatedAtAsc(String parentMessageId) {
         return findAll().stream()
-                .filter(m -> m.getParentMessageId() != null && m.getParentMessageId().toString().equals(parentMessageId))
+                .filter(m -> m.getParentMessageId() != null && m.getParentMessageId().equals(parentMessageId))
                 .sorted(Comparator.comparing(Message::getCreatedAt))
                 .collect(Collectors.toList());
     }
@@ -197,7 +197,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     @Override
     public List<Message> findByApplicationIdOrderByCreatedAtDesc(String applicationId) {
         return findAll().stream()
-                .filter(m -> m.getApplicationId() != null && m.getApplicationId().toString().equals(applicationId))
+                .filter(m -> m.getApplicationId() != null && m.getApplicationId().equals(applicationId))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -205,7 +205,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     @Override
     public List<Message> findByInterviewIdOrderByCreatedAtDesc(String interviewId) {
         return findAll().stream()
-                .filter(m -> m.getInterviewId() != null && m.getInterviewId().toString().equals(interviewId))
+                .filter(m -> m.getInterviewId() != null && m.getInterviewId().equals(interviewId))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -213,7 +213,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     @Override
     public List<Message> findByJobPostingIdOrderByCreatedAtDesc(String jobPostingId) {
         return findAll().stream()
-                .filter(m -> m.getJobPostingId() != null && m.getJobPostingId().toString().equals(jobPostingId))
+                .filter(m -> m.getJobPostingId() != null && m.getJobPostingId().equals(jobPostingId))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -221,7 +221,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     @Override
     public List<Message> findByOfferIdOrderByCreatedAtDesc(String offerId) {
         return findAll().stream()
-                .filter(m -> m.getOfferId() != null && m.getOfferId().toString().equals(offerId))
+                .filter(m -> m.getOfferId() != null && m.getOfferId().equals(offerId))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
@@ -232,7 +232,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     public List<Message> findArchivedByUser(String userId) {
         return findAll().stream()
                 .filter(m -> Boolean.TRUE.equals(m.getIsArchived()))
-                .filter(m -> (m.getSenderId() != null && m.getSenderId().toString().equals(userId))
+                .filter(m -> (m.getSenderId() != null && m.getSenderId().equals(userId))
                         || (m.getRecipientIds() != null && m.getRecipientIds().contains(userId)))
                 .sorted(Comparator.comparing(Message::getArchivedAt,
                         Comparator.nullsLast(Comparator.reverseOrder())))
@@ -244,7 +244,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         return findAll().stream()
                 .filter(m -> Boolean.FALSE.equals(m.getIsArchived()))
                 .filter(m -> Boolean.FALSE.equals(m.getIsDeleted()))
-                .filter(m -> (m.getSenderId() != null && m.getSenderId().toString().equals(userId))
+                .filter(m -> (m.getSenderId() != null && m.getSenderId().equals(userId))
                         || (m.getRecipientIds() != null && m.getRecipientIds().contains(userId)))
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .collect(Collectors.toList());
@@ -292,10 +292,10 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     protected Message toEntity(MessageItem item) {
         var entity = new Message();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
-        if (item.getSenderId() != null) entity.setSenderId(safeParseLong(item.getSenderId()));
+        if (item.getSenderId() != null) entity.setSenderId(item.getSenderId());
         entity.setSenderName(item.getSenderName());
         entity.setSenderRole(item.getSenderRole());
         entity.setRecipientIds(item.getRecipientIds());
@@ -306,13 +306,13 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (item.getMessageFormat() != null) entity.setMessageFormat(MessageFormat.valueOf(item.getMessageFormat()));
         if (item.getPriority() != null) entity.setPriority(MessagePriority.valueOf(item.getPriority()));
         entity.setThreadId(item.getThreadId());
-        if (item.getParentMessageId() != null) entity.setParentMessageId(safeParseLong(item.getParentMessageId()));
+        if (item.getParentMessageId() != null) entity.setParentMessageId(item.getParentMessageId());
         entity.setConversationId(item.getConversationId());
         entity.setIsThreadStarter(item.getIsThreadStarter());
-        if (item.getApplicationId() != null) entity.setApplicationId(safeParseLong(item.getApplicationId()));
-        if (item.getInterviewId() != null) entity.setInterviewId(safeParseLong(item.getInterviewId()));
-        if (item.getJobPostingId() != null) entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
-        if (item.getOfferId() != null) entity.setOfferId(safeParseLong(item.getOfferId()));
+        if (item.getApplicationId() != null) entity.setApplicationId(item.getApplicationId());
+        if (item.getInterviewId() != null) entity.setInterviewId(item.getInterviewId());
+        if (item.getJobPostingId() != null) entity.setJobPostingId(item.getJobPostingId());
+        if (item.getOfferId() != null) entity.setOfferId(item.getOfferId());
         entity.setIsRead(item.getIsRead());
         entity.setReadBy(item.getReadBy());
         entity.setIsDelivered(item.getIsDelivered());
@@ -321,7 +321,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (item.getArchivedAt() != null) entity.setArchivedAt(LocalDateTime.parse(item.getArchivedAt(), ISO_FMT));
         entity.setIsDeleted(item.getIsDeleted());
         if (item.getDeletedAt() != null) entity.setDeletedAt(LocalDateTime.parse(item.getDeletedAt(), ISO_FMT));
-        if (item.getDeletedBy() != null) entity.setDeletedBy(safeParseLong(item.getDeletedBy()));
+        if (item.getDeletedBy() != null) entity.setDeletedBy(item.getDeletedBy());
         entity.setHasAttachments(item.getHasAttachments());
         entity.setAttachmentUrls(item.getAttachmentUrls());
         entity.setIsUrgent(item.getIsUrgent());
@@ -344,9 +344,9 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
     protected MessageItem toItem(Message entity) {
         var item = new MessageItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String createdAtStr = entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : LocalDateTime.now().format(ISO_FMT);
-        String senderIdStr = entity.getSenderId() != null ? entity.getSenderId().toString() : "";
+        String senderIdStr = entity.getSenderId() != null ? entity.getSenderId() : "";
         String threadIdStr = entity.getThreadId() != null ? entity.getThreadId() : "";
 
         // Table keys
@@ -368,7 +368,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         // Entity fields
         item.setId(id);
         item.setTenantId(tenantId);
-        if (entity.getSenderId() != null) item.setSenderId(entity.getSenderId().toString());
+        if (entity.getSenderId() != null) item.setSenderId(entity.getSenderId());
         item.setSenderName(entity.getSenderName());
         item.setSenderRole(entity.getSenderRole());
         item.setRecipientIds(entity.getRecipientIds());
@@ -379,13 +379,13 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (entity.getMessageFormat() != null) item.setMessageFormat(entity.getMessageFormat().name());
         if (entity.getPriority() != null) item.setPriority(entity.getPriority().name());
         item.setThreadId(entity.getThreadId());
-        if (entity.getParentMessageId() != null) item.setParentMessageId(entity.getParentMessageId().toString());
+        if (entity.getParentMessageId() != null) item.setParentMessageId(entity.getParentMessageId());
         item.setConversationId(entity.getConversationId());
         item.setIsThreadStarter(entity.getIsThreadStarter());
-        if (entity.getApplicationId() != null) item.setApplicationId(entity.getApplicationId().toString());
-        if (entity.getInterviewId() != null) item.setInterviewId(entity.getInterviewId().toString());
-        if (entity.getJobPostingId() != null) item.setJobPostingId(entity.getJobPostingId().toString());
-        if (entity.getOfferId() != null) item.setOfferId(entity.getOfferId().toString());
+        if (entity.getApplicationId() != null) item.setApplicationId(entity.getApplicationId());
+        if (entity.getInterviewId() != null) item.setInterviewId(entity.getInterviewId());
+        if (entity.getJobPostingId() != null) item.setJobPostingId(entity.getJobPostingId());
+        if (entity.getOfferId() != null) item.setOfferId(entity.getOfferId());
         item.setIsRead(entity.getIsRead());
         item.setReadBy(entity.getReadBy());
         item.setIsDelivered(entity.getIsDelivered());
@@ -394,7 +394,7 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         if (entity.getArchivedAt() != null) item.setArchivedAt(entity.getArchivedAt().format(ISO_FMT));
         item.setIsDeleted(entity.getIsDeleted());
         if (entity.getDeletedAt() != null) item.setDeletedAt(entity.getDeletedAt().format(ISO_FMT));
-        if (entity.getDeletedBy() != null) item.setDeletedBy(entity.getDeletedBy().toString());
+        if (entity.getDeletedBy() != null) item.setDeletedBy(entity.getDeletedBy());
         item.setHasAttachments(entity.getHasAttachments());
         item.setAttachmentUrls(entity.getAttachmentUrls());
         item.setIsUrgent(entity.getIsUrgent());

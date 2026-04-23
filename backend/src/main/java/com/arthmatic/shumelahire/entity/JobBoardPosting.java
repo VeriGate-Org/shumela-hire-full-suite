@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class JobBoardPosting extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String jobPostingId;
 
@@ -46,8 +46,8 @@ public class JobBoardPosting extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getJobPostingId() { return jobPostingId; }
     public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }

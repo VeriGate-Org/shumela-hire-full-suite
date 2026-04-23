@@ -33,20 +33,20 @@ public class IDPController {
     private AuditLogService auditLogService;
 
     @GetMapping
-    public ResponseEntity<?> getIDPs(@RequestParam(required = false) Long employeeId,
-                                     @RequestParam(required = false) Long managerId) {
+    public ResponseEntity<?> getIDPs(@RequestParam(required = false) String employeeId,
+                                     @RequestParam(required = false) String managerId) {
         if (employeeId != null) {
-            return ResponseEntity.ok(idpRepository.findByEmployeeId(String.valueOf(employeeId)));
+            return ResponseEntity.ok(idpRepository.findByEmployeeId(employeeId));
         }
         if (managerId != null) {
-            return ResponseEntity.ok(idpRepository.findByManagerId(String.valueOf(managerId)));
+            return ResponseEntity.ok(idpRepository.findByManagerId(managerId));
         }
         return ResponseEntity.ok(List.of());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getIDP(@PathVariable Long id) {
-        return idpRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> getIDP(@PathVariable String id) {
+        return idpRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -65,10 +65,10 @@ public class IDPController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateIDP(@PathVariable Long id,
+    public ResponseEntity<?> updateIDP(@PathVariable String id,
                                        @RequestBody IndividualDevelopmentPlan request) {
         try {
-            IndividualDevelopmentPlan plan = idpRepository.findById(String.valueOf(id))
+            IndividualDevelopmentPlan plan = idpRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("IDP not found: " + id));
             if (request.getTitle() != null) plan.setTitle(request.getTitle());
             if (request.getDescription() != null) plan.setDescription(request.getDescription());
@@ -84,16 +84,16 @@ public class IDPController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteIDP(@PathVariable Long id) {
-        idpRepository.deleteById(String.valueOf(id));
+    public ResponseEntity<?> deleteIDP(@PathVariable String id) {
+        idpRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/goals")
-    public ResponseEntity<?> addGoal(@PathVariable Long id,
+    public ResponseEntity<?> addGoal(@PathVariable String id,
                                      @RequestBody IDPGoal goal) {
         try {
-            IndividualDevelopmentPlan plan = idpRepository.findById(String.valueOf(id))
+            IndividualDevelopmentPlan plan = idpRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("IDP not found: " + id));
             goal.setPlanId(id);
             if (plan.getGoals() == null) plan.setGoals(new ArrayList<>());
@@ -106,11 +106,11 @@ public class IDPController {
     }
 
     @PutMapping("/{planId}/goals/{goalId}")
-    public ResponseEntity<?> updateGoal(@PathVariable Long planId,
-                                        @PathVariable Long goalId,
+    public ResponseEntity<?> updateGoal(@PathVariable String planId,
+                                        @PathVariable String goalId,
                                         @RequestBody Map<String, Object> request) {
         try {
-            IndividualDevelopmentPlan plan = idpRepository.findById(String.valueOf(planId))
+            IndividualDevelopmentPlan plan = idpRepository.findById(planId)
                     .orElseThrow(() -> new IllegalArgumentException("IDP not found: " + planId));
             if (plan.getGoals() != null) {
                 for (IDPGoal goal : plan.getGoals()) {

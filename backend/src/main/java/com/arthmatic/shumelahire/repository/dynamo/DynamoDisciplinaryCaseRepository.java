@@ -57,12 +57,12 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
     @Override
     protected DisciplinaryCase toEntity(DisciplinaryCaseItem item) {
         var e = new DisciplinaryCase();
-        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
+        if (item.getId() != null) e.setId(item.getId());
         e.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getEmployeeId()));
+            emp.setId(item.getEmployeeId());
             e.setEmployee(emp);
         }
 
@@ -74,7 +74,7 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
         if (item.getOutcome() != null) e.setOutcome(DisciplinaryOutcome.valueOf(item.getOutcome()));
         if (item.getOutcomeDate() != null) e.setOutcomeDate(LocalDate.parse(item.getOutcomeDate(), ISO_DATE_FMT));
         e.setNotes(item.getNotes());
-        if (item.getCreatedBy() != null) e.setCreatedBy(safeParseLong(item.getCreatedBy()));
+        if (item.getCreatedBy() != null) e.setCreatedBy(item.getCreatedBy());
         if (item.getCreatedAt() != null) e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         if (item.getUpdatedAt() != null) e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         return e;
@@ -83,10 +83,10 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
     @Override
     protected DisciplinaryCaseItem toItem(DisciplinaryCase entity) {
         var item = new DisciplinaryCaseItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : "";
+                ? entity.getEmployee().getId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("DISCIPLINARY#" + id);
@@ -104,7 +104,7 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
         if (entity.getOutcome() != null) item.setOutcome(entity.getOutcome().name());
         if (entity.getOutcomeDate() != null) item.setOutcomeDate(entity.getOutcomeDate().format(ISO_DATE_FMT));
         item.setNotes(entity.getNotes());
-        if (entity.getCreatedBy() != null) item.setCreatedBy(entity.getCreatedBy().toString());
+        if (entity.getCreatedBy() != null) item.setCreatedBy(entity.getCreatedBy());
         if (entity.getCreatedAt() != null) item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));
         if (entity.getUpdatedAt() != null) item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));
         return item;

@@ -39,7 +39,7 @@ public class DynamoEmployeeEducationRepository extends DynamoRepository<Employee
     protected EmployeeEducation toEntity(EmployeeEducationItem item) {
         var e = new EmployeeEducation();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
@@ -63,10 +63,10 @@ public class DynamoEmployeeEducationRepository extends DynamoRepository<Employee
     @Override
     protected EmployeeEducationItem toItem(EmployeeEducation entity) {
         var item = new EmployeeEducationItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId().toString() : null;
+        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("EMP_EDUCATION#" + id);

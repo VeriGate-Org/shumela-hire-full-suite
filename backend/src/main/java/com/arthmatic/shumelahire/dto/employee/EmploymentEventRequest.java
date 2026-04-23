@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class EmploymentEventRequest {
 
     @NotNull(message = "Employee ID is required")
-    private Long employeeId;
+    private String employeeId;
 
     @NotNull(message = "Event type is required")
     private EmploymentEventType eventType;
@@ -26,14 +26,14 @@ public class EmploymentEventRequest {
     private String newDepartment;
     private String newJobTitle;
     private String newJobGrade;
-    private Long newReportingManagerId;
+    private String newReportingManagerId;
     private String newLocation;
 
     public EmploymentEventRequest() {}
 
     // Getters and Setters
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public EmploymentEventType getEventType() { return eventType; }
     public void setEventType(EmploymentEventType eventType) { this.eventType = eventType; }
@@ -59,8 +59,8 @@ public class EmploymentEventRequest {
     public String getNewJobGrade() { return newJobGrade; }
     public void setNewJobGrade(String newJobGrade) { this.newJobGrade = newJobGrade; }
 
-    public Long getNewReportingManagerId() { return newReportingManagerId; }
-    public void setNewReportingManagerId(Long newReportingManagerId) { this.newReportingManagerId = newReportingManagerId; }
+    public String getNewReportingManagerId() { return newReportingManagerId; }
+    public void setNewReportingManagerId(String newReportingManagerId) { this.newReportingManagerId = newReportingManagerId; }
 
     public String getNewLocation() { return newLocation; }
     public void setNewLocation(String newLocation) { this.newLocation = newLocation; }

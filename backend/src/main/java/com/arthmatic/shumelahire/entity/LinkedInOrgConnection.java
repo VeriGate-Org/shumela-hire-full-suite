@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class LinkedInOrgConnection extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @JsonIgnore
     private String accessToken;
@@ -43,11 +43,11 @@ public class LinkedInOrgConnection extends TenantAwareEntity {
 
     // Getters and Setters
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

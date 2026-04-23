@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 public class PipMilestoneResponse {
 
-    private Long id;
-    private Long pipId;
+    private String id;
+    private String pipId;
     private String title;
     private String description;
     private LocalDate targetDate;
@@ -33,10 +33,10 @@ public class PipMilestoneResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getPipId() { return pipId; }
-    public void setPipId(Long pipId) { this.pipId = pipId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getPipId() { return pipId; }
+    public void setPipId(String pipId) { this.pipId = pipId; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }

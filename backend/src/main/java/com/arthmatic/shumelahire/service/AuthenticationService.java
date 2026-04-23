@@ -93,7 +93,7 @@ public class AuthenticationService {
     /**
      * Log authentication events
      */
-    public void logAuthenticationEvent(Long userId, String username, String action, String ipAddress) {
+    public void logAuthenticationEvent(String userId, String username, String action, String ipAddress) {
         try {
             logger.info("AUTH_EVENT - User ID: {}, Username: {}, Action: {}, IP: {}, Timestamp: {}", 
                        userId, username, action, ipAddress, LocalDateTime.now());

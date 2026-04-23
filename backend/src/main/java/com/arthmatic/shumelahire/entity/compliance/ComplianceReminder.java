@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 
 public class ComplianceReminder extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private ReminderType reminderType;
 
     private String entityType;
 
-    private Long entityId;
+    private String entityId;
 
     private Employee employee;
 
@@ -34,14 +34,14 @@ public class ComplianceReminder extends TenantAwareEntity {
 
     private LocalDateTime updatedAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public ReminderType getReminderType() { return reminderType; }
     public void setReminderType(ReminderType reminderType) { this.reminderType = reminderType; }
     public String getEntityType() { return entityType; }
     public void setEntityType(String entityType) { this.entityType = entityType; }
-    public Long getEntityId() { return entityId; }
-    public void setEntityId(Long entityId) { this.entityId = entityId; }
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
     public String getTitle() { return title; }

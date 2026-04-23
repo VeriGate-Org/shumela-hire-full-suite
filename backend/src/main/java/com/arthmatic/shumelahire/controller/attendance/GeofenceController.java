@@ -43,7 +43,7 @@ public class GeofenceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable String id) {
         try {
             geofenceService.delete(id, "SYSTEM");
             return ResponseEntity.noContent().build();

@@ -96,13 +96,13 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
     protected EmployeeDocument toEntity(EmployeeDocumentItem item) {
         var doc = new EmployeeDocument();
         if (item.getId() != null) {
-            doc.setId(safeParseLong(item.getId()));
+            doc.setId(item.getId());
         }
         doc.setTenantId(item.getTenantId());
         // Employee is a relationship — store only the ID; service layer hydrates
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getEmployeeId()));
+            emp.setId(item.getEmployeeId());
             doc.setEmployee(emp);
         }
         if (item.getDocumentType() != null) {
@@ -113,7 +113,7 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
         doc.setFilename(item.getFilename());
         doc.setFileUrl(item.getFileUrl());
         if (item.getFileSize() != null) {
-            doc.setFileSize(safeParseLong(item.getFileSize()));
+            doc.setFileSize(Long.valueOf(item.getFileSize()));
         }
         doc.setContentType(item.getContentType());
         doc.setVersion(item.getVersion());
@@ -140,9 +140,9 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
     protected EmployeeDocumentItem toItem(EmployeeDocument entity) {
         var item = new EmployeeDocumentItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null;
+                ? entity.getEmployee().getId() : null;
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

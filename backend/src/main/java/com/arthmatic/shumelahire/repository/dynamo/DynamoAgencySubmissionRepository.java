@@ -92,21 +92,21 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
     protected AgencySubmission toEntity(AgencySubmissionItem item) {
         var entity = new AgencySubmission();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         // Set agency reference (lazy — just the ID)
         if (item.getAgencyId() != null) {
             var agency = new AgencyProfile();
-            agency.setId(safeParseLong(item.getAgencyId()));
+            agency.setId(item.getAgencyId());
             entity.setAgency(agency);
         }
 
         // Set job posting reference (lazy — just the ID)
         if (item.getJobPostingId() != null) {
             var jobPosting = new JobPosting();
-            jobPosting.setId(safeParseLong(item.getJobPostingId()));
+            jobPosting.setId(item.getJobPostingId());
             entity.setJobPosting(jobPosting);
         }
 
@@ -122,7 +122,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
         // Set linked application reference (lazy — just the ID)
         if (item.getLinkedApplicationId() != null) {
             var app = new Application();
-            app.setId(safeParseLong(item.getLinkedApplicationId()));
+            app.setId(item.getLinkedApplicationId());
             entity.setLinkedApplication(app);
         }
 
@@ -133,7 +133,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
             entity.setReviewedAt(LocalDateTime.parse(item.getReviewedAt(), ISO_FMT));
         }
         if (item.getReviewedBy() != null) {
-            entity.setReviewedBy(safeParseLong(item.getReviewedBy()));
+            entity.setReviewedBy(item.getReviewedBy());
         }
         return entity;
     }
@@ -142,12 +142,12 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
     protected AgencySubmissionItem toItem(AgencySubmission entity) {
         var item = new AgencySubmissionItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String agencyId = entity.getAgency() != null && entity.getAgency().getId() != null
-                ? entity.getAgency().getId().toString() : "UNKNOWN";
+                ? entity.getAgency().getId() : "UNKNOWN";
         String jobPostingId = entity.getJobPosting() != null && entity.getJobPosting().getId() != null
-                ? entity.getJobPosting().getId().toString() : "UNKNOWN";
+                ? entity.getJobPosting().getId() : "UNKNOWN";
         String statusStr = entity.getStatus() != null ? entity.getStatus().name() : "SUBMITTED";
         String submittedAtStr = entity.getSubmittedAt() != null ? entity.getSubmittedAt().format(ISO_FMT) : "";
 
@@ -179,7 +179,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
         item.setCoverNote(entity.getCoverNote());
         item.setStatus(statusStr);
         if (entity.getLinkedApplication() != null && entity.getLinkedApplication().getId() != null) {
-            item.setLinkedApplicationId(entity.getLinkedApplication().getId().toString());
+            item.setLinkedApplicationId(entity.getLinkedApplication().getId());
         }
         if (entity.getSubmittedAt() != null) {
             item.setSubmittedAt(entity.getSubmittedAt().format(ISO_FMT));
@@ -188,7 +188,7 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
             item.setReviewedAt(entity.getReviewedAt().format(ISO_FMT));
         }
         if (entity.getReviewedBy() != null) {
-            item.setReviewedBy(entity.getReviewedBy().toString());
+            item.setReviewedBy(entity.getReviewedBy());
         }
 
         return item;

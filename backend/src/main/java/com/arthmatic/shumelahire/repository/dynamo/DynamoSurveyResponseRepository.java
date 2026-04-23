@@ -46,7 +46,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
     public List<SurveyResponse> findBySurveyIdAndEmployeeId(String surveyId, String employeeId) {
         return findBySurveyId(surveyId).stream()
                 .filter(r -> r.getEmployee() != null && r.getEmployee().getId() != null
-                        && employeeId.equals(r.getEmployee().getId().toString()))
+                        && employeeId.equals(r.getEmployee().getId()))
                 .collect(Collectors.toList());
     }
 
@@ -54,7 +54,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
     public List<SurveyResponse> findBySurveyIdAndQuestionId(String surveyId, String questionId) {
         return findBySurveyId(surveyId).stream()
                 .filter(r -> r.getQuestion() != null && r.getQuestion().getId() != null
-                        && questionId.equals(r.getQuestion().getId().toString()))
+                        && questionId.equals(r.getQuestion().getId()))
                 .collect(Collectors.toList());
     }
 
@@ -89,14 +89,14 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
     protected SurveyResponse toEntity(SurveyResponseItem item) {
         var e = new SurveyResponse();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create Survey stub
         if (item.getSurveyId() != null) {
             var survey = new Survey();
-            survey.setId(safeParseLong(item.getSurveyId()));
+            survey.setId(item.getSurveyId());
             survey.setTenantId(item.getTenantId());
             e.setSurvey(survey);
         }
@@ -104,7 +104,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
         // Create SurveyQuestion stub
         if (item.getQuestionId() != null) {
             var question = new SurveyQuestion();
-            question.setId(safeParseLong(item.getQuestionId()));
+            question.setId(item.getQuestionId());
             question.setTenantId(item.getTenantId());
             e.setQuestion(question);
         }
@@ -112,7 +112,7 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             employee.setTenantId(item.getTenantId());
             e.setEmployee(employee);
         }
@@ -126,12 +126,12 @@ public class DynamoSurveyResponseRepository extends DynamoRepository<SurveyRespo
     @Override
     protected SurveyResponseItem toItem(SurveyResponse entity) {
         var item = new SurveyResponseItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String surveyId = entity.getSurvey() != null && entity.getSurvey().getId() != null ? entity.getSurvey().getId().toString() : null;
-        String questionId = entity.getQuestion() != null && entity.getQuestion().getId() != null ? entity.getQuestion().getId().toString() : null;
-        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId().toString() : null;
+        String surveyId = entity.getSurvey() != null && entity.getSurvey().getId() != null ? entity.getSurvey().getId() : null;
+        String questionId = entity.getQuestion() != null && entity.getQuestion().getId() != null ? entity.getQuestion().getId() : null;
+        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("SURVEY_R#" + id);

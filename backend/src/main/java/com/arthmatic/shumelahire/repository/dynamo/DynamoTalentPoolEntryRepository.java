@@ -91,28 +91,28 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
     protected TalentPoolEntry toEntity(TalentPoolEntryItem item) {
         var entity = new TalentPoolEntry();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         // Set talentPool reference (lazy — just the ID)
         if (item.getTalentPoolId() != null) {
             var pool = new TalentPool();
-            pool.setId(safeParseLong(item.getTalentPoolId()));
+            pool.setId(item.getTalentPoolId());
             entity.setTalentPool(pool);
         }
 
         // Set applicant reference (lazy — just the ID)
         if (item.getApplicantId() != null) {
             var applicant = new Applicant();
-            applicant.setId(safeParseLong(item.getApplicantId()));
+            applicant.setId(item.getApplicantId());
             entity.setApplicant(applicant);
         }
 
         // Set source application reference (lazy — just the ID)
         if (item.getSourceApplicationId() != null) {
             var app = new Application();
-            app.setId(safeParseLong(item.getSourceApplicationId()));
+            app.setId(item.getSourceApplicationId());
             entity.setSourceApplication(app);
         }
 
@@ -124,7 +124,7 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
             entity.setLastContactedAt(LocalDateTime.parse(item.getLastContactedAt(), ISO_FMT));
         }
         if (item.getAddedBy() != null) {
-            entity.setAddedBy(safeParseLong(item.getAddedBy()));
+            entity.setAddedBy(item.getAddedBy());
         }
         if (item.getAddedAt() != null) {
             entity.setAddedAt(LocalDateTime.parse(item.getAddedAt(), ISO_FMT));
@@ -140,12 +140,12 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
     protected TalentPoolEntryItem toItem(TalentPoolEntry entity) {
         var item = new TalentPoolEntryItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String talentPoolId = entity.getTalentPool() != null && entity.getTalentPool().getId() != null
-                ? entity.getTalentPool().getId().toString() : "UNKNOWN";
+                ? entity.getTalentPool().getId() : "UNKNOWN";
         String applicantId = entity.getApplicant() != null && entity.getApplicant().getId() != null
-                ? entity.getApplicant().getId().toString() : "UNKNOWN";
+                ? entity.getApplicant().getId() : "UNKNOWN";
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -170,7 +170,7 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
         item.setTalentPoolId(talentPoolId);
         item.setApplicantId(applicantId);
         if (entity.getSourceApplication() != null && entity.getSourceApplication().getId() != null) {
-            item.setSourceApplicationId(entity.getSourceApplication().getId().toString());
+            item.setSourceApplicationId(entity.getSourceApplication().getId());
         }
         item.setSourceType(entity.getSourceType());
         item.setNotes(entity.getNotes());
@@ -180,7 +180,7 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
             item.setLastContactedAt(entity.getLastContactedAt().format(ISO_FMT));
         }
         if (entity.getAddedBy() != null) {
-            item.setAddedBy(entity.getAddedBy().toString());
+            item.setAddedBy(entity.getAddedBy());
         }
         if (entity.getAddedAt() != null) {
             item.setAddedAt(entity.getAddedAt().format(ISO_FMT));

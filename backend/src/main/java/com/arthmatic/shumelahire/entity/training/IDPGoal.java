@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 
 public class IDPGoal {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long planId;
+    private String planId;
 
     @NotBlank
     private String title;
@@ -22,9 +22,9 @@ public class IDPGoal {
 
     private GoalStatus status = GoalStatus.NOT_STARTED;
 
-    private Long linkedCourseId;
+    private String linkedCourseId;
 
-    private Long linkedCertificationId;
+    private String linkedCertificationId;
 
     private Integer sortOrder = 0;
 
@@ -41,11 +41,11 @@ public class IDPGoal {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getPlanId() { return planId; }
-    public void setPlanId(Long planId) { this.planId = planId; }
+    public String getPlanId() { return planId; }
+    public void setPlanId(String planId) { this.planId = planId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -59,11 +59,11 @@ public class IDPGoal {
     public GoalStatus getStatus() { return status; }
     public void setStatus(GoalStatus status) { this.status = status; }
 
-    public Long getLinkedCourseId() { return linkedCourseId; }
-    public void setLinkedCourseId(Long linkedCourseId) { this.linkedCourseId = linkedCourseId; }
+    public String getLinkedCourseId() { return linkedCourseId; }
+    public void setLinkedCourseId(String linkedCourseId) { this.linkedCourseId = linkedCourseId; }
 
-    public Long getLinkedCertificationId() { return linkedCertificationId; }
-    public void setLinkedCertificationId(Long linkedCertificationId) { this.linkedCertificationId = linkedCertificationId; }
+    public String getLinkedCertificationId() { return linkedCertificationId; }
+    public void setLinkedCertificationId(String linkedCertificationId) { this.linkedCertificationId = linkedCertificationId; }
 
     public Integer getSortOrder() { return sortOrder; }
     public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }

@@ -67,7 +67,7 @@ public class ApplicationController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getApplication(@PathVariable Long id) {
+    public ResponseEntity<?> getApplication(@PathVariable String id) {
         try {
             ApplicationResponse response = applicationService.getApplication(id);
             return ResponseEntity.ok(response);
@@ -131,7 +131,7 @@ public class ApplicationController {
      */
     @GetMapping("/applicant/{applicantId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
-    public ResponseEntity<?> getApplicationsByApplicant(@PathVariable Long applicantId) {
+    public ResponseEntity<?> getApplicationsByApplicant(@PathVariable String applicantId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByApplicant(applicantId);
             return ResponseEntity.ok(applications);
@@ -148,7 +148,7 @@ public class ApplicationController {
      */
     @GetMapping("/job/{jobAdId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getApplicationsByJobAd(@PathVariable Long jobAdId) {
+    public ResponseEntity<?> getApplicationsByJobAd(@PathVariable String jobAdId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByJobAd(jobAdId);
             return ResponseEntity.ok(applications);
@@ -183,7 +183,7 @@ public class ApplicationController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> updateApplicationStatus(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam ApplicationStatus status,
             @RequestParam(required = false) String notes) {
         try {
@@ -207,7 +207,7 @@ public class ApplicationController {
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> withdrawApplication(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody ApplicationWithdrawRequest request) {
         try {
             logger.info("Withdrawing application {}", id);
@@ -230,7 +230,7 @@ public class ApplicationController {
     @PostMapping("/{id}/rate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> rateApplication(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam Integer rating,
             @RequestParam(required = false) String feedback) {
         try {
@@ -253,9 +253,9 @@ public class ApplicationController {
      */
     @GetMapping("/{id}/documents")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getApplicationDocuments(@PathVariable Long id) {
+    public ResponseEntity<?> getApplicationDocuments(@PathVariable String id) {
         try {
-            List<DocumentResponse> documents = documentRepository.findByApplicationId(String.valueOf(id))
+            List<DocumentResponse> documents = documentRepository.findByApplicationId(id)
                     .stream()
                     .map(DocumentResponse::fromEntity)
                     .collect(Collectors.toList());
@@ -274,8 +274,8 @@ public class ApplicationController {
     @GetMapping("/can-apply")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> canApplicantApplyForJob(
-            @RequestParam Long applicantId,
-            @RequestParam Long jobAdId) {
+            @RequestParam String applicantId,
+            @RequestParam String jobAdId) {
         try {
             boolean canApply = applicationService.canApplicantApplyForJob(applicantId, jobAdId);
             return ResponseEntity.ok(new CanApplyResponse(canApply));
@@ -326,7 +326,7 @@ public class ApplicationController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> deleteApplication(@PathVariable Long id) {
+    public ResponseEntity<?> deleteApplication(@PathVariable String id) {
         try {
             logger.info("Deleting application {}", id);
             applicationService.deleteApplication(id);

@@ -72,7 +72,7 @@ public class DynamoWorkflowDefinitionRepository extends DynamoRepository<Workflo
     protected WorkflowDefinition toEntity(WorkflowDefinitionItem item) {
         var entity = new WorkflowDefinition();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
@@ -97,7 +97,7 @@ public class DynamoWorkflowDefinitionRepository extends DynamoRepository<Workflo
     protected WorkflowDefinitionItem toItem(WorkflowDefinition entity) {
         var item = new WorkflowDefinitionItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

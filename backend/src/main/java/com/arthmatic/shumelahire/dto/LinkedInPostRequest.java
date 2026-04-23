@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotNull;
 public class LinkedInPostRequest {
 
     @NotNull
-    private Long jobPostingId;
+    private String jobPostingId;
 
     private String customText;
 
-    public Long getJobPostingId() {
+    public String getJobPostingId() {
         return jobPostingId;
     }
 
-    public void setJobPostingId(Long jobPostingId) {
+    public void setJobPostingId(String jobPostingId) {
         this.jobPostingId = jobPostingId;
     }
 

@@ -7,15 +7,15 @@ import java.time.LocalDateTime;
 
 public class TrainingAttendance extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long sessionId;
+    private String sessionId;
 
-    private Long enrollmentId;
+    private String enrollmentId;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     private Boolean attended = false;
 
@@ -30,17 +30,17 @@ public class TrainingAttendance extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getSessionId() { return sessionId; }
-    public void setSessionId(Long sessionId) { this.sessionId = sessionId; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 
-    public Long getEnrollmentId() { return enrollmentId; }
-    public void setEnrollmentId(Long enrollmentId) { this.enrollmentId = enrollmentId; }
+    public String getEnrollmentId() { return enrollmentId; }
+    public void setEnrollmentId(String enrollmentId) { this.enrollmentId = enrollmentId; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public Boolean getAttended() { return attended; }
     public void setAttended(Boolean attended) { this.attended = attended; }

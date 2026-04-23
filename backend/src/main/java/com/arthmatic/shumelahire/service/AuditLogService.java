@@ -56,8 +56,8 @@ public class AuditLogService {
     /**
      * Log user action (with Long userId)
      */
-    public AuditLog logUserAction(Long userId, String action, String entityType, String details) {
-        return saveLog(userId.toString(), action, entityType, null, details);
+    public AuditLog logUserAction(String userId, String action, String entityType, String details) {
+        return saveLog(userId, action, entityType, null, details);
     }
 
     /**
@@ -178,8 +178,8 @@ public class AuditLogService {
     }
 
     // Convenience methods used by recruitment services
-    public void logApplicantAction(Long applicantId, String action, String entityType, String details) {
-        saveLog(applicantId != null ? applicantId.toString() : "SYSTEM", action, entityType, details);
+    public void logApplicantAction(String applicantId, String action, String entityType, String details) {
+        saveLog(applicantId != null ? applicantId : "SYSTEM", action, entityType, details);
     }
 
     public void logAuthAction(String userId, String action, String entityType, String details) {
@@ -190,7 +190,7 @@ public class AuditLogService {
         saveLog(userId, action, entityType, details);
     }
 
-    public void logJobAdAction(Long userId, String action, String entityType, String details) {
-        saveLog(userId != null ? userId.toString() : "SYSTEM", action, entityType, details);
+    public void logJobAdAction(String userId, String action, String entityType, String details) {
+        saveLog(userId != null ? userId : "SYSTEM", action, entityType, details);
     }
 }

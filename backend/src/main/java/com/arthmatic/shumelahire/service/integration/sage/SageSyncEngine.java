@@ -41,8 +41,8 @@ public class SageSyncEngine {
      * Execute a sync job for a given schedule.
      * Creates a log entry, calls the appropriate connector, and updates the log with results.
      */
-    public SageSyncLog executeSyncJob(Long scheduleId) {
-        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(scheduleId))
+    public SageSyncLog executeSyncJob(String scheduleId) {
+        SageSyncSchedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + scheduleId));
 
         SageConnectorConfig connectorConfig = schedule.getConnector();
@@ -155,8 +155,8 @@ public class SageSyncEngine {
      * Get sync logs for a specific connector.
      */
     @Transactional(readOnly = true)
-    public List<SageSyncLog> getLogsByConnector(Long connectorId) {
-        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(String.valueOf(connectorId));
+    public List<SageSyncLog> getLogsByConnector(String connectorId) {
+        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(connectorId);
     }
 
     /**

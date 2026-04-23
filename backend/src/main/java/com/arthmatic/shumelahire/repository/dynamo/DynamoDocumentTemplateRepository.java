@@ -93,7 +93,7 @@ public class DynamoDocumentTemplateRepository extends DynamoRepository<DocumentT
     protected DocumentTemplate toEntity(DocumentTemplateItem item) {
         var entity = new DocumentTemplate();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setType(item.getType());
         entity.setName(item.getName());
@@ -116,7 +116,7 @@ public class DynamoDocumentTemplateRepository extends DynamoRepository<DocumentT
     @Override
     protected DocumentTemplateItem toItem(DocumentTemplate entity) {
         var item = new DocumentTemplateItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

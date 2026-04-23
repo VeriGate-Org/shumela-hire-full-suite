@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Size;
 public class ApplicationCreateRequest {
 
     @NotNull(message = "Applicant ID is required")
-    private Long applicantId;
+    private String applicantId;
 
     @NotNull(message = "Job ad ID is required")
-    private Long jobAdId;
+    private String jobAdId;
 
     private String jobTitle;
 
@@ -25,26 +25,26 @@ public class ApplicationCreateRequest {
     // Constructors
     public ApplicationCreateRequest() {}
     
-    public ApplicationCreateRequest(Long applicantId, Long jobAdId, String coverLetter) {
+    public ApplicationCreateRequest(String applicantId, String jobAdId, String coverLetter) {
         this.applicantId = applicantId;
         this.jobAdId = jobAdId;
         this.coverLetter = coverLetter;
     }
     
     // Getters and Setters
-    public Long getApplicantId() {
+    public String getApplicantId() {
         return applicantId;
     }
     
-    public void setApplicantId(Long applicantId) {
+    public void setApplicantId(String applicantId) {
         this.applicantId = applicantId;
     }
     
-    public Long getJobAdId() {
+    public String getJobAdId() {
         return jobAdId;
     }
     
-    public void setJobAdId(Long jobAdId) {
+    public void setJobAdId(String jobAdId) {
         this.jobAdId = jobAdId;
     }
     

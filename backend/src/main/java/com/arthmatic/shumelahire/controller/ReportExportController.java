@@ -39,7 +39,7 @@ public class ReportExportController {
 
     @GetMapping("/jobs")
     public ResponseEntity<List<ReportExportJobResponse>> getJobs(
-            @RequestParam(required = false) Long employeeId) {
+            @RequestParam(required = false) String employeeId) {
         if (employeeId != null) {
             return ResponseEntity.ok(reportExportService.getByUser(employeeId));
         }
@@ -47,7 +47,7 @@ public class ReportExportController {
     }
 
     @GetMapping("/jobs/{id}")
-    public ResponseEntity<?> getJob(@PathVariable Long id) {
+    public ResponseEntity<?> getJob(@PathVariable String id) {
         try {
             return ResponseEntity.ok(reportExportService.getById(id));
         } catch (IllegalArgumentException e) {

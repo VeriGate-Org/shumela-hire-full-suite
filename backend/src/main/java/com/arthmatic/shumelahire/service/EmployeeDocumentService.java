@@ -36,7 +36,7 @@ public class EmployeeDocumentService {
     @Autowired
     private AuditLogService auditLogService;
 
-    public EmployeeDocumentResponse uploadDocument(Long employeeId, EmployeeDocumentType type,
+    public EmployeeDocumentResponse uploadDocument(String employeeId, EmployeeDocumentType type,
                                                     String title, String description,
                                                     LocalDate expiryDate, MultipartFile file) throws IOException {
         logger.info("Uploading {} document for employee: {}", type, employeeId);
@@ -48,7 +48,7 @@ public class EmployeeDocumentService {
 
         // Determine version
         List<EmployeeDocument> existing = documentRepository
-                .findLatestByEmployeeAndType(String.valueOf(employeeId), type);
+                .findLatestByEmployeeAndType(employeeId, type);
         int version = existing.isEmpty() ? 1 : existing.get(0).getVersion() + 1;
 
         EmployeeDocument document = new EmployeeDocument();
@@ -65,7 +65,7 @@ public class EmployeeDocumentService {
 
         EmployeeDocument saved = documentRepository.save(document);
 
-        auditLogService.logDocumentAction(employeeId.toString(), "EMPLOYEE_DOCUMENT_UPLOADED", "EMPLOYEE_DOCUMENT",
+        auditLogService.logDocumentAction(employeeId, "EMPLOYEE_DOCUMENT_UPLOADED", "EMPLOYEE_DOCUMENT",
                 type + ": " + file.getOriginalFilename());
 
         logger.info("Employee document uploaded: {} (v{})", saved.getId(), version);
@@ -73,18 +73,18 @@ public class EmployeeDocumentService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmployeeDocumentResponse> getDocuments(Long employeeId) {
+    public List<EmployeeDocumentResponse> getDocuments(String employeeId) {
         List<EmployeeDocument> documents = documentRepository
-                .findActiveByEmployee(String.valueOf(employeeId));
+                .findActiveByEmployee(employeeId);
         return documents.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<EmployeeDocumentResponse> getDocumentsByType(Long employeeId, EmployeeDocumentType type) {
+    public List<EmployeeDocumentResponse> getDocumentsByType(String employeeId, EmployeeDocumentType type) {
         List<EmployeeDocument> documents = documentRepository
-                .findActiveByEmployeeAndType(String.valueOf(employeeId), type);
+                .findActiveByEmployeeAndType(employeeId, type);
         return documents.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -99,10 +99,10 @@ public class EmployeeDocumentService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteDocument(Long employeeId, Long documentId) {
+    public void deleteDocument(String employeeId, String documentId) {
         logger.info("Deleting document {} for employee: {}", documentId, employeeId);
 
-        EmployeeDocument document = documentRepository.findById(String.valueOf(documentId))
+        EmployeeDocument document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
 
         if (!document.getEmployee().getId().equals(employeeId)) {
@@ -113,7 +113,7 @@ public class EmployeeDocumentService {
         document.setIsActive(false);
         documentRepository.save(document);
 
-        auditLogService.logDocumentAction(employeeId.toString(), "EMPLOYEE_DOCUMENT_DELETED", "EMPLOYEE_DOCUMENT",
+        auditLogService.logDocumentAction(employeeId, "EMPLOYEE_DOCUMENT_DELETED", "EMPLOYEE_DOCUMENT",
                 document.getDocumentType() + ": " + document.getFilename());
     }
 

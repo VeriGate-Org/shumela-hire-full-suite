@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PerformanceReview extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Performance contract is required")
     private PerformanceContract contract;
@@ -124,8 +124,8 @@ public class PerformanceReview extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     
     public PerformanceContract getContract() { return contract; }
     public void setContract(PerformanceContract contract) { this.contract = contract; }

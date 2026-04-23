@@ -41,10 +41,10 @@ public class RecognitionService {
     private NotificationService notificationService;
 
     public RecognitionResponse giveRecognition(RecognitionCreateRequest request) {
-        Employee fromEmployee = employeeRepository.findById(String.valueOf(request.getFromEmployeeId()))
+        Employee fromEmployee = employeeRepository.findById(request.getFromEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("From employee not found: " + request.getFromEmployeeId()));
 
-        Employee toEmployee = employeeRepository.findById(String.valueOf(request.getToEmployeeId()))
+        Employee toEmployee = employeeRepository.findById(request.getToEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("To employee not found: " + request.getToEmployeeId()));
 
         if (request.getFromEmployeeId().equals(request.getToEmployeeId())) {
@@ -73,15 +73,15 @@ public class RecognitionService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecognitionResponse> getRecognitionsFor(Long employeeId) {
-        return recognitionRepository.findByToEmployeeIdOrderByCreatedAtDesc(String.valueOf(employeeId)).stream()
+    public List<RecognitionResponse> getRecognitionsFor(String employeeId) {
+        return recognitionRepository.findByToEmployeeIdOrderByCreatedAtDesc(employeeId).stream()
                 .map(RecognitionResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<RecognitionResponse> getRecognitionsFrom(Long employeeId) {
-        return recognitionRepository.findByFromEmployeeIdOrderByCreatedAtDesc(String.valueOf(employeeId)).stream()
+    public List<RecognitionResponse> getRecognitionsFrom(String employeeId) {
+        return recognitionRepository.findByFromEmployeeIdOrderByCreatedAtDesc(employeeId).stream()
                 .map(RecognitionResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toList());
     }

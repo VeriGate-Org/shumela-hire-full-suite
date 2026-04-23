@@ -35,7 +35,7 @@ public class ScreeningService {
         validateQuestion(question);
         
         if (question.getDisplayOrder() == null || question.getDisplayOrder() == 0) {
-            Integer maxOrder = questionRepository.findMaxDisplayOrderByJobPostingId(String.valueOf(question.getJobPostingId()));
+            Integer maxOrder = questionRepository.findMaxDisplayOrderByJobPostingId(question.getJobPostingId());
             question.setDisplayOrder(maxOrder != null ? maxOrder + 1 : 1);
         }
         
@@ -50,8 +50,8 @@ public class ScreeningService {
         return saved;
     }
     
-    public ScreeningQuestion updateQuestion(Long questionId, ScreeningQuestion questionUpdate) {
-        ScreeningQuestion existing = questionRepository.findById(String.valueOf(questionId))
+    public ScreeningQuestion updateQuestion(String questionId, ScreeningQuestion questionUpdate) {
+        ScreeningQuestion existing = questionRepository.findById(questionId)
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
         existing.setQuestionText(questionUpdate.getQuestionText());
@@ -75,8 +75,8 @@ public class ScreeningService {
         return saved;
     }
     
-    public void deleteQuestion(Long questionId) {
-        ScreeningQuestion question = questionRepository.findById(String.valueOf(questionId))
+    public void deleteQuestion(String questionId) {
+        ScreeningQuestion question = questionRepository.findById(questionId)
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
         question.setIsActive(false);
@@ -89,16 +89,16 @@ public class ScreeningService {
         );
     }
     
-    public List<ScreeningQuestion> getQuestionsByJobPosting(Long jobPostingId) {
-        return questionRepository.findActiveQuestionsByJobPostingIdOrderedByDisplay(String.valueOf(jobPostingId));
+    public List<ScreeningQuestion> getQuestionsByJobPosting(String jobPostingId) {
+        return questionRepository.findActiveQuestionsByJobPostingIdOrderedByDisplay(jobPostingId);
     }
     
     // Answer Management
-    public ScreeningAnswer saveAnswer(Long applicationId, Long questionId, String answerValue, String answerFileUrl, String answerFileName) {
-        ScreeningQuestion question = questionRepository.findById(String.valueOf(questionId))
+    public ScreeningAnswer saveAnswer(String applicationId, String questionId, String answerValue, String answerFileUrl, String answerFileName) {
+        ScreeningQuestion question = questionRepository.findById(questionId)
             .orElseThrow(() -> new RuntimeException("Question not found"));
         
-        Optional<ScreeningAnswer> existingAnswer = answerRepository.findByApplicationIdAndScreeningQuestionId(String.valueOf(applicationId), String.valueOf(questionId));
+        Optional<ScreeningAnswer> existingAnswer = answerRepository.findByApplicationIdAndScreeningQuestionId(applicationId, questionId);
         
         ScreeningAnswer answer;
         if (existingAnswer.isPresent()) {
@@ -125,12 +125,12 @@ public class ScreeningService {
         return saved;
     }
     
-    public List<ScreeningAnswer> getAnswersByApplication(Long applicationId) {
-        return answerRepository.findByApplicationIdOrderedByQuestionDisplay(String.valueOf(applicationId));
+    public List<ScreeningAnswer> getAnswersByApplication(String applicationId) {
+        return answerRepository.findByApplicationIdOrderedByQuestionDisplay(applicationId);
     }
     
-    public void deleteAnswersByApplication(Long applicationId) {
-        answerRepository.deleteByApplicationId(String.valueOf(applicationId));
+    public void deleteAnswersByApplication(String applicationId) {
+        answerRepository.deleteByApplicationId(applicationId);
         
         auditLogService.logSystemAction(
             "SCREENING_ANSWERS_DELETED",
@@ -140,16 +140,16 @@ public class ScreeningService {
     }
     
     // Validation
-    public boolean validateApplicationAnswers(Long applicationId) {
-        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(String.valueOf(applicationId));
-        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(String.valueOf(applicationId));
+    public boolean validateApplicationAnswers(String applicationId) {
+        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(applicationId);
+        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(applicationId);
         
         return missingRequired == 0 && invalidAnswers == 0;
     }
     
-    public String getValidationSummary(Long applicationId) {
-        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(String.valueOf(applicationId));
-        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(String.valueOf(applicationId));
+    public String getValidationSummary(String applicationId) {
+        Long missingRequired = answerRepository.countMissingRequiredAnswersByApplicationId(applicationId);
+        Long invalidAnswers = answerRepository.countInvalidAnswersByApplicationId(applicationId);
         
         if (missingRequired == 0 && invalidAnswers == 0) {
             return "All screening questions completed successfully";
@@ -191,7 +191,7 @@ public class ScreeningService {
             }
         }
         
-        if (questionRepository.existsByJobPostingIdAndQuestionTextAndIsActiveTrue(String.valueOf(question.getJobPostingId()), question.getQuestionText())) {
+        if (questionRepository.existsByJobPostingIdAndQuestionTextAndIsActiveTrue(question.getJobPostingId(), question.getQuestionText())) {
             throw new IllegalArgumentException("A question with this text already exists for this job posting");
         }
     }

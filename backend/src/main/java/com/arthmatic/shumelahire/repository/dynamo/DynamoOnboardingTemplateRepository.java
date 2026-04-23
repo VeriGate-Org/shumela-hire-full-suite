@@ -49,7 +49,7 @@ public class DynamoOnboardingTemplateRepository
     protected com.arthmatic.shumelahire.repository.dynamo.items.OnboardingTemplateItem toItem(OnboardingTemplate entity) {
         var item = new com.arthmatic.shumelahire.repository.dynamo.items.OnboardingTemplateItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("ONBOARD_TEMPLATE#" + id);
@@ -78,7 +78,7 @@ public class DynamoOnboardingTemplateRepository
     protected OnboardingTemplate toEntity(com.arthmatic.shumelahire.repository.dynamo.items.OnboardingTemplateItem item) {
         OnboardingTemplate entity = new OnboardingTemplate();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());

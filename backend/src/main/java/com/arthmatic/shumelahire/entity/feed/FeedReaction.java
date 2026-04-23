@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 
 public class FeedReaction extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long postId;
+    private String postId;
 
     @NotNull
-    private Long userId;
+    private String userId;
 
     @NotNull
     private ReactionType reactionType;
@@ -29,14 +29,14 @@ public class FeedReaction extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getPostId() { return postId; }
-    public void setPostId(Long postId) { this.postId = postId; }
+    public String getPostId() { return postId; }
+    public void setPostId(String postId) { this.postId = postId; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public ReactionType getReactionType() { return reactionType; }
     public void setReactionType(ReactionType reactionType) { this.reactionType = reactionType; }

@@ -104,7 +104,7 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
                 .filter(a -> Boolean.TRUE.equals(a.getIsValid())
                         && a.getScreeningQuestion() != null
                         && a.getScreeningQuestion().getJobPostingId() != null
-                        && String.valueOf(a.getScreeningQuestion().getJobPostingId()).equals(jobPostingId))
+                        && a.getScreeningQuestion().getJobPostingId().equals(jobPostingId))
                 .collect(Collectors.toList());
     }
 
@@ -112,7 +112,7 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
     public void deleteByApplicationId(String applicationId) {
         List<ScreeningAnswer> answers = findByApplicationId(applicationId);
         for (ScreeningAnswer answer : answers) {
-            deleteById(String.valueOf(answer.getId()));
+            deleteById(answer.getId());
         }
     }
 
@@ -127,16 +127,16 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
     protected ScreeningAnswer toEntity(ScreeningAnswerItem item) {
         var entity = new ScreeningAnswer();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(safeParseLong(item.getApplicationId()));
+            entity.setApplicationId(item.getApplicationId());
         }
         // FK: ScreeningQuestion is stored as ID only; set a stub with the ID
         if (item.getScreeningQuestionId() != null) {
             var question = new ScreeningQuestion();
-            question.setId(safeParseLong(item.getScreeningQuestionId()));
+            question.setId(item.getScreeningQuestionId());
             entity.setScreeningQuestion(question);
         }
         entity.setAnswerValue(item.getAnswerValue());
@@ -154,10 +154,10 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
     protected ScreeningAnswerItem toItem(ScreeningAnswer entity) {
         var item = new ScreeningAnswerItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
-        String applicationId = entity.getApplicationId() != null ? String.valueOf(entity.getApplicationId()) : "";
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
+        String applicationId = entity.getApplicationId() != null ? entity.getApplicationId() : "";
         String questionId = entity.getScreeningQuestion() != null && entity.getScreeningQuestion().getId() != null
-                ? String.valueOf(entity.getScreeningQuestion().getId()) : "";
+                ? entity.getScreeningQuestion().getId() : "";
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

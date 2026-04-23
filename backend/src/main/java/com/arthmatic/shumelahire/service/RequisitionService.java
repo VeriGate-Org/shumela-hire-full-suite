@@ -26,8 +26,8 @@ public class RequisitionService {
         return requisitionRepository.findByStatus(status, pageable);
     }
 
-    public Optional<Requisition> findById(Long id) {
-        return requisitionRepository.findById(String.valueOf(id));
+    public Optional<Requisition> findById(String id) {
+        return requisitionRepository.findById(id);
     }
 
     public Requisition create(Requisition requisition) {
@@ -35,8 +35,8 @@ public class RequisitionService {
         return requisitionRepository.save(requisition);
     }
 
-    public Requisition update(Long id, Requisition updated) {
-        Requisition existing = requisitionRepository.findById(String.valueOf(id))
+    public Requisition update(String id, Requisition updated) {
+        Requisition existing = requisitionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
 
         existing.setJobTitle(updated.getJobTitle());
@@ -51,19 +51,19 @@ public class RequisitionService {
         return requisitionRepository.save(existing);
     }
 
-    public void delete(Long id) {
-        requisitionRepository.deleteById(String.valueOf(id));
+    public void delete(String id) {
+        requisitionRepository.deleteById(id);
     }
 
-    public Requisition submit(Long id) {
-        Requisition req = requisitionRepository.findById(String.valueOf(id))
+    public Requisition submit(String id) {
+        Requisition req = requisitionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
         req.setStatus(RequisitionStatus.PENDING_HR_APPROVAL);
         return requisitionRepository.save(req);
     }
 
-    public Requisition approve(Long id) {
-        Requisition req = requisitionRepository.findById(String.valueOf(id))
+    public Requisition approve(String id) {
+        Requisition req = requisitionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
 
         if (req.getStatus() == RequisitionStatus.PENDING_HR_APPROVAL) {
@@ -74,8 +74,8 @@ public class RequisitionService {
         return requisitionRepository.save(req);
     }
 
-    public Requisition reject(Long id) {
-        Requisition req = requisitionRepository.findById(String.valueOf(id))
+    public Requisition reject(String id) {
+        Requisition req = requisitionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + id));
         req.setStatus(RequisitionStatus.REJECTED);
         return requisitionRepository.save(req);

@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 public class DocumentResponse {
     
-    private Long id;
-    private Long applicantId;
-    private Long applicationId;
+    private String id;
+    private String applicantId;
+    private String applicationId;
     private DocumentType type;
     private String filename;
     private String url;
@@ -40,27 +40,27 @@ public class DocumentResponse {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getApplicantId() {
+    public String getApplicantId() {
         return applicantId;
     }
     
-    public void setApplicantId(Long applicantId) {
+    public void setApplicantId(String applicantId) {
         this.applicantId = applicantId;
     }
     
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
     
-    public void setApplicationId(Long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
     

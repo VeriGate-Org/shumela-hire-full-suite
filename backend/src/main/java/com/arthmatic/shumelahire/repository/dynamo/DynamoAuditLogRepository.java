@@ -146,7 +146,7 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
     protected AuditLog toEntity(AuditLogItem item) {
         var entity = new AuditLog();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getTimestamp() != null) entity.setTimestamp(LocalDateTime.parse(item.getTimestamp(), ISO_FMT));
@@ -163,7 +163,7 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
     protected AuditLogItem toItem(AuditLog entity) {
         var item = new AuditLogItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String timestampStr = entity.getTimestamp() != null ? entity.getTimestamp().format(ISO_FMT) : LocalDateTime.now().format(ISO_FMT);
 
         // Table keys

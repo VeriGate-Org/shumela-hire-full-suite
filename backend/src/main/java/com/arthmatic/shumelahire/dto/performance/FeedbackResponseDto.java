@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 public class FeedbackResponseDto {
 
-    private Long id;
-    private Long requestId;
-    private Long respondentId;
+    private String id;
+    private String requestId;
+    private String respondentId;
     private String respondentName;
     private String ratings;
     private String comments;
@@ -35,12 +35,12 @@ public class FeedbackResponseDto {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getRequestId() { return requestId; }
-    public void setRequestId(Long requestId) { this.requestId = requestId; }
-    public Long getRespondentId() { return respondentId; }
-    public void setRespondentId(Long respondentId) { this.respondentId = respondentId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getRequestId() { return requestId; }
+    public void setRequestId(String requestId) { this.requestId = requestId; }
+    public String getRespondentId() { return respondentId; }
+    public void setRespondentId(String respondentId) { this.respondentId = respondentId; }
     public String getRespondentName() { return respondentName; }
     public void setRespondentName(String respondentName) { this.respondentName = respondentName; }
     public String getRatings() { return ratings; }

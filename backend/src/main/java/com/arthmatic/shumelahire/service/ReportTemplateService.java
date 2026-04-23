@@ -32,8 +32,8 @@ public class ReportTemplateService {
                 .toList();
     }
 
-    public ReportTemplateResponse getReport(Long id) {
-        return repository.findById(String.valueOf(id))
+    public ReportTemplateResponse getReport(String id) {
+        return repository.findById(id)
                 .map(ReportTemplateResponse::new)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
     }
@@ -49,8 +49,8 @@ public class ReportTemplateService {
     }
 
     @Transactional
-    public ReportTemplateResponse updateReport(Long id, Map<String, Object> config) {
-        ReportTemplate template = repository.findById(String.valueOf(id))
+    public ReportTemplateResponse updateReport(String id, Map<String, Object> config) {
+        ReportTemplate template = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         mapConfigToEntity(template, config);
         ReportTemplate saved = repository.save(template);
@@ -58,8 +58,8 @@ public class ReportTemplateService {
     }
 
     @Transactional
-    public void deleteReport(Long id) {
-        ReportTemplate template = repository.findById(String.valueOf(id))
+    public void deleteReport(String id) {
+        ReportTemplate template = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         if (template.isSystem()) {
             throw new IllegalStateException("Cannot delete system report templates");
@@ -69,8 +69,8 @@ public class ReportTemplateService {
     }
 
     @Transactional
-    public ReportTemplateResponse incrementRunCount(Long id) {
-        ReportTemplate template = repository.findById(String.valueOf(id))
+    public ReportTemplateResponse incrementRunCount(String id) {
+        ReportTemplate template = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         template.setRunCount(template.getRunCount() + 1);
         template.setLastRun(LocalDateTime.now());
@@ -78,8 +78,8 @@ public class ReportTemplateService {
     }
 
     @Transactional
-    public ReportTemplateResponse duplicateReport(Long id, String createdBy) {
-        ReportTemplate original = repository.findById(String.valueOf(id))
+    public ReportTemplateResponse duplicateReport(String id, String createdBy) {
+        ReportTemplate original = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
 
         ReportTemplate copy = new ReportTemplate();
@@ -99,8 +99,8 @@ public class ReportTemplateService {
     }
 
     @Transactional
-    public ReportTemplateResponse shareReport(Long id) {
-        ReportTemplate template = repository.findById(String.valueOf(id))
+    public ReportTemplateResponse shareReport(String id) {
+        ReportTemplate template = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report template not found: " + id));
         template.setShared(true);
         return new ReportTemplateResponse(repository.save(template));

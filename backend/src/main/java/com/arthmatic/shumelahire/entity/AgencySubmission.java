@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class AgencySubmission extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private AgencyProfile agency;
 
@@ -34,15 +34,15 @@ public class AgencySubmission extends TenantAwareEntity {
 
     private LocalDateTime reviewedAt;
 
-    private Long reviewedBy;
+    private String reviewedBy;
 
     public AgencySubmission() {
         this.submittedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public AgencyProfile getAgency() { return agency; }
     public void setAgency(AgencyProfile agency) { this.agency = agency; }
@@ -77,6 +77,6 @@ public class AgencySubmission extends TenantAwareEntity {
     public LocalDateTime getReviewedAt() { return reviewedAt; }
     public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; }
 
-    public Long getReviewedBy() { return reviewedBy; }
-    public void setReviewedBy(Long reviewedBy) { this.reviewedBy = reviewedBy; }
+    public String getReviewedBy() { return reviewedBy; }
+    public void setReviewedBy(String reviewedBy) { this.reviewedBy = reviewedBy; }
 }

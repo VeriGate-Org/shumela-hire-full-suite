@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 public class BackgroundCheck extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @JsonIgnore
     @NotNull(message = "Application is required")
@@ -40,7 +40,7 @@ public class BackgroundCheck extends TenantAwareEntity {
     private LocalDateTime consentObtainedAt;
 
     @NotNull(message = "Initiator is required")
-    private Long initiatedBy; // User ID who initiated the check
+    private String initiatedBy; // User ID who initiated the check
 
     private String provider; // e.g. "dots-africa"
 
@@ -92,11 +92,11 @@ public class BackgroundCheck extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -188,11 +188,11 @@ public class BackgroundCheck extends TenantAwareEntity {
         this.consentObtainedAt = consentObtainedAt;
     }
 
-    public Long getInitiatedBy() {
+    public String getInitiatedBy() {
         return initiatedBy;
     }
 
-    public void setInitiatedBy(Long initiatedBy) {
+    public void setInitiatedBy(String initiatedBy) {
         this.initiatedBy = initiatedBy;
     }
 

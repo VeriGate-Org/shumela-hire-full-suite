@@ -72,7 +72,7 @@ public class DynamoAgencyProfileRepository extends DynamoRepository<AgencyProfil
     protected AgencyProfile toEntity(AgencyProfileItem item) {
         var entity = new AgencyProfile();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setAgencyName(item.getAgencyName());
@@ -107,7 +107,7 @@ public class DynamoAgencyProfileRepository extends DynamoRepository<AgencyProfil
     protected AgencyProfileItem toItem(AgencyProfile entity) {
         var item = new AgencyProfileItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

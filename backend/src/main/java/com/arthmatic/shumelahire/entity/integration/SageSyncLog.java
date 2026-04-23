@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class SageSyncLog extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private SageSyncSchedule schedule;
 
@@ -35,8 +35,8 @@ public class SageSyncLog extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public SageSyncSchedule getSchedule() { return schedule; }
     public void setSchedule(SageSyncSchedule schedule) { this.schedule = schedule; }

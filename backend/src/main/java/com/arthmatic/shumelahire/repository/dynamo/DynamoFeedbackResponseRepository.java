@@ -43,7 +43,7 @@ public class DynamoFeedbackResponseRepository extends DynamoRepository<FeedbackR
         return queryGsiAll("GSI1", gsi1pk).stream()
                 .filter(resp -> {
                     if (resp.getRespondent() == null || resp.getRespondent().getId() == null) return false;
-                    return respondentId.equals(String.valueOf(resp.getRespondent().getId()));
+                    return respondentId.equals(resp.getRespondent().getId());
                 })
                 .findFirst();
     }
@@ -55,17 +55,17 @@ public class DynamoFeedbackResponseRepository extends DynamoRepository<FeedbackR
         FeedbackResponseItem item = new FeedbackResponseItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("FEEDBACK_RESP#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         if (entity.getRequest() != null && entity.getRequest().getId() != null) {
-            item.setRequestId(String.valueOf(entity.getRequest().getId()));
+            item.setRequestId(entity.getRequest().getId());
             item.setGsi1pk("FRESP_REQ#" + entity.getTenantId() + "#" + entity.getRequest().getId());
             item.setGsi1sk("FRESP#" + entity.getId());
         }
 
         if (entity.getRespondent() != null && entity.getRespondent().getId() != null) {
-            item.setRespondentId(String.valueOf(entity.getRespondent().getId()));
+            item.setRespondentId(entity.getRespondent().getId());
         }
 
         item.setRatings(entity.getRatings());
@@ -84,19 +84,19 @@ public class DynamoFeedbackResponseRepository extends DynamoRepository<FeedbackR
 
         FeedbackResponse entity = new FeedbackResponse();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getRequestId() != null) {
             FeedbackRequest request = new FeedbackRequest();
-            request.setId(safeParseLong(item.getRequestId()));
+            request.setId(item.getRequestId());
             entity.setRequest(request);
         }
 
         if (item.getRespondentId() != null) {
             Employee respondent = new Employee();
-            respondent.setId(safeParseLong(item.getRespondentId()));
+            respondent.setId(item.getRespondentId());
             entity.setRespondent(respondent);
         }
 

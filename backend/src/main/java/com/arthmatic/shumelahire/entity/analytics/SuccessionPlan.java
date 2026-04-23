@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class SuccessionPlan extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String positionTitle;
 
@@ -30,8 +30,8 @@ public class SuccessionPlan extends TenantAwareEntity {
     public SuccessionPlan() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getPositionTitle() { return positionTitle; }
     public void setPositionTitle(String positionTitle) { this.positionTitle = positionTitle; }

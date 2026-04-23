@@ -55,8 +55,8 @@ public class ShiftService {
     }
 
     @Transactional(readOnly = true)
-    public Shift getById(Long id) {
-        return shiftRepository.findById(String.valueOf(id))
+    public Shift getById(String id) {
+        return shiftRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Shift not found: " + id));
     }
 }

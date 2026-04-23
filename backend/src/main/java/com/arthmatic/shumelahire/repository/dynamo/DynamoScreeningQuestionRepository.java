@@ -110,11 +110,11 @@ public class DynamoScreeningQuestionRepository extends DynamoRepository<Screenin
     protected ScreeningQuestion toEntity(ScreeningQuestionItem item) {
         var entity = new ScreeningQuestion();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getJobPostingId() != null) {
-            entity.setJobPostingId(safeParseLong(item.getJobPostingId()));
+            entity.setJobPostingId(item.getJobPostingId());
         }
         entity.setQuestionText(item.getQuestionText());
         if (item.getQuestionType() != null) {
@@ -140,8 +140,8 @@ public class DynamoScreeningQuestionRepository extends DynamoRepository<Screenin
     protected ScreeningQuestionItem toItem(ScreeningQuestion entity) {
         var item = new ScreeningQuestionItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
-        String jobPostingId = entity.getJobPostingId() != null ? String.valueOf(entity.getJobPostingId()) : "";
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
+        String jobPostingId = entity.getJobPostingId() != null ? entity.getJobPostingId() : "";
         int displayOrder = entity.getDisplayOrder() != null ? entity.getDisplayOrder() : 0;
 
         // Table keys

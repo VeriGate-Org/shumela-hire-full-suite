@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 public class EmploymentEventResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
     private EmploymentEventType eventType;
     private LocalDate eventDate;
@@ -22,8 +22,8 @@ public class EmploymentEventResponse {
     private String newJobTitle;
     private String previousJobGrade;
     private String newJobGrade;
-    private Long previousReportingManagerId;
-    private Long newReportingManagerId;
+    private String previousReportingManagerId;
+    private String newReportingManagerId;
     private String previousLocation;
     private String newLocation;
     private String recordedBy;
@@ -57,11 +57,11 @@ public class EmploymentEventResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
@@ -99,11 +99,11 @@ public class EmploymentEventResponse {
     public String getNewJobGrade() { return newJobGrade; }
     public void setNewJobGrade(String newJobGrade) { this.newJobGrade = newJobGrade; }
 
-    public Long getPreviousReportingManagerId() { return previousReportingManagerId; }
-    public void setPreviousReportingManagerId(Long previousReportingManagerId) { this.previousReportingManagerId = previousReportingManagerId; }
+    public String getPreviousReportingManagerId() { return previousReportingManagerId; }
+    public void setPreviousReportingManagerId(String previousReportingManagerId) { this.previousReportingManagerId = previousReportingManagerId; }
 
-    public Long getNewReportingManagerId() { return newReportingManagerId; }
-    public void setNewReportingManagerId(Long newReportingManagerId) { this.newReportingManagerId = newReportingManagerId; }
+    public String getNewReportingManagerId() { return newReportingManagerId; }
+    public void setNewReportingManagerId(String newReportingManagerId) { this.newReportingManagerId = newReportingManagerId; }
 
     public String getPreviousLocation() { return previousLocation; }
     public void setPreviousLocation(String previousLocation) { this.previousLocation = previousLocation; }

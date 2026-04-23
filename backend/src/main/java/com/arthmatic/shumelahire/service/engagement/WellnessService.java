@@ -62,8 +62,8 @@ public class WellnessService {
         return enrichWithParticipantCount(WellnessProgramResponse.fromEntity(program), program.getId());
     }
 
-    public WellnessProgramResponse updateProgram(Long id, WellnessProgramCreateRequest request) {
-        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
+    public WellnessProgramResponse updateProgram(String id, WellnessProgramCreateRequest request) {
+        WellnessProgram program = wellnessProgramRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
 
         program.setName(request.getName());
@@ -82,8 +82,8 @@ public class WellnessService {
     }
 
     @Transactional(readOnly = true)
-    public WellnessProgramResponse getProgram(Long id) {
-        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
+    public WellnessProgramResponse getProgram(String id) {
+        WellnessProgram program = wellnessProgramRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
         return enrichWithParticipantCount(WellnessProgramResponse.fromEntity(program), id);
     }
@@ -102,23 +102,23 @@ public class WellnessService {
                 .collect(Collectors.toList());
     }
 
-    public void joinProgram(Long programId, Long employeeId) {
-        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(programId))
+    public void joinProgram(String programId, String employeeId) {
+        WellnessProgram program = wellnessProgramRepository.findById(programId)
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + programId));
 
         if (!program.getIsActive()) {
             throw new IllegalArgumentException("Program is not active");
         }
 
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        if (participantRepository.existsByProgramIdAndEmployeeId(String.valueOf(programId), String.valueOf(employeeId))) {
+        if (participantRepository.existsByProgramIdAndEmployeeId(programId, employeeId)) {
             throw new IllegalArgumentException("Employee is already enrolled in this program");
         }
 
         if (program.getMaxParticipants() != null) {
-            long currentCount = participantRepository.countByProgramId(String.valueOf(programId));
+            long currentCount = participantRepository.countByProgramId(programId);
             if (currentCount >= program.getMaxParticipants()) {
                 throw new IllegalArgumentException("Program has reached maximum capacity");
             }
@@ -129,8 +129,8 @@ public class WellnessService {
         participant.setEmployee(employee);
         participantRepository.save(participant);
 
-        auditLogService.saveLog(employeeId.toString(), "JOIN", "WELLNESS_PROGRAM",
-                programId.toString(), "Joined wellness program: " + program.getName());
+        auditLogService.saveLog(employeeId, "JOIN", "WELLNESS_PROGRAM",
+                programId, "Joined wellness program: " + program.getName());
         logger.info("Employee {} joined wellness program {}", employeeId, programId);
 
         notificationService.sendInternalNotification(employeeId, "Wellness Program",
@@ -138,25 +138,25 @@ public class WellnessService {
                 NotificationType.APPROVAL_GRANTED, NotificationPriority.LOW);
     }
 
-    public void leaveProgram(Long programId, Long employeeId) {
+    public void leaveProgram(String programId, String employeeId) {
         WellnessProgramParticipant participant = participantRepository
-                .findByProgramIdAndEmployeeId(String.valueOf(programId), String.valueOf(employeeId))
+                .findByProgramIdAndEmployeeId(programId, employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee is not enrolled in this program"));
 
-        participantRepository.deleteById(String.valueOf(participant.getId()));
+        participantRepository.deleteById(participant.getId());
 
-        auditLogService.saveLog(employeeId.toString(), "LEAVE", "WELLNESS_PROGRAM",
-                programId.toString(), "Left wellness program");
+        auditLogService.saveLog(employeeId, "LEAVE", "WELLNESS_PROGRAM",
+                programId, "Left wellness program");
         logger.info("Employee {} left wellness program {}", employeeId, programId);
     }
 
-    public void deactivateProgram(Long id) {
-        WellnessProgram program = wellnessProgramRepository.findById(String.valueOf(id))
+    public void deactivateProgram(String id) {
+        WellnessProgram program = wellnessProgramRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Wellness program not found: " + id));
         program.setIsActive(false);
         wellnessProgramRepository.save(program);
 
-        List<WellnessProgramParticipant> participants = participantRepository.findByProgramId(String.valueOf(id));
+        List<WellnessProgramParticipant> participants = participantRepository.findByProgramId(id);
         for (WellnessProgramParticipant participant : participants) {
             notificationService.sendInternalNotification(participant.getEmployee().getId(), "Wellness Program Ended",
                     "'" + program.getName() + "' has been deactivated",
@@ -164,11 +164,11 @@ public class WellnessService {
         }
 
         auditLogService.saveLog("SYSTEM", "DEACTIVATE", "WELLNESS_PROGRAM",
-                id.toString(), "Deactivated wellness program: " + program.getName());
+                id, "Deactivated wellness program: " + program.getName());
     }
 
-    private WellnessProgramResponse enrichWithParticipantCount(WellnessProgramResponse response, Long programId) {
-        response.setCurrentParticipants(participantRepository.countByProgramId(String.valueOf(programId)));
+    private WellnessProgramResponse enrichWithParticipantCount(WellnessProgramResponse response, String programId) {
+        response.setCurrentParticipants(participantRepository.countByProgramId(programId));
         return response;
     }
 }

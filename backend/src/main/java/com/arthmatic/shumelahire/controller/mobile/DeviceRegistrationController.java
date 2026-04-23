@@ -20,7 +20,7 @@ public class DeviceRegistrationController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerDevice(@RequestBody Map<String, Object> request) {
-        Long employeeId = Long.valueOf(request.get("employeeId").toString());
+        String employeeId = request.get("employeeId").toString();
         String deviceToken = (String) request.get("deviceToken");
         String platform = (String) request.get("platform");
         String deviceName = (String) request.getOrDefault("deviceName", "Unknown Device");
@@ -32,14 +32,14 @@ public class DeviceRegistrationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> unregisterDevice(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> unregisterDevice(@PathVariable String id) {
         pushNotificationService.unregisterDevice(id);
         return ResponseEntity.ok(Map.of("message", "Device unregistered successfully"));
     }
 
     @GetMapping("/my")
     public ResponseEntity<List<Map<String, Object>>> getMyDevices(
-            @RequestParam Long employeeId) {
+            @RequestParam String employeeId) {
         List<DeviceRegistration> devices = pushNotificationService.getMyDevices(employeeId);
         List<Map<String, Object>> response = devices.stream()
                 .map(this::mapRegistration)
@@ -50,7 +50,7 @@ public class DeviceRegistrationController {
     @PostMapping("/push")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<Map<String, Object>> sendPush(@RequestBody Map<String, Object> request) {
-        Long employeeId = Long.valueOf(request.get("employeeId").toString());
+        String employeeId = request.get("employeeId").toString();
         String title = (String) request.get("title");
         String body = (String) request.get("body");
 

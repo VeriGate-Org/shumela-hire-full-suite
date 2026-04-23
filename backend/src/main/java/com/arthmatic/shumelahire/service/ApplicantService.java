@@ -82,7 +82,7 @@ public class ApplicantService {
     /**
      * Update an existing applicant
      */
-    public ApplicantResponse updateApplicant(Long id, ApplicantCreateRequest request) {
+    public ApplicantResponse updateApplicant(String id, ApplicantCreateRequest request) {
         logger.info("Updating applicant with ID: {}", id);
 
         Applicant applicant = findApplicantById(id);
@@ -124,7 +124,7 @@ public class ApplicantService {
      * Get applicant by ID
      */
     @Transactional(readOnly = true)
-    public ApplicantResponse getApplicant(Long id) {
+    public ApplicantResponse getApplicant(String id) {
         Applicant applicant = findApplicantById(id);
         return ApplicantResponse.fromEntity(applicant);
     }
@@ -132,7 +132,7 @@ public class ApplicantService {
     /**
      * Upload document for applicant
      */
-    public Document uploadDocument(Long applicantId, Long applicationId, DocumentType type,
+    public Document uploadDocument(String applicantId, String applicationId, DocumentType type,
                                  MultipartFile file) throws IOException {
         logger.info("Uploading {} document for applicant: {}", type, applicantId);
 
@@ -168,10 +168,10 @@ public class ApplicantService {
     /**
      * Delete document
      */
-    public void deleteDocument(Long applicantId, Long documentId) {
+    public void deleteDocument(String applicantId, String documentId) {
         logger.info("Deleting document {} for applicant: {}", documentId, applicantId);
 
-        Document document = documentRepository.findById(String.valueOf(documentId))
+        Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
 
         if (!document.getApplicant().getId().equals(applicantId)) {
@@ -186,7 +186,7 @@ public class ApplicantService {
         }
 
         // Delete document record
-        documentRepository.deleteById(String.valueOf(document.getId()));
+        documentRepository.deleteById(document.getId());
 
         // Log to audit
         auditLogService.logApplicantAction(applicantId, "DOCUMENT_DELETED", "APPLICANT",
@@ -199,8 +199,8 @@ public class ApplicantService {
      * Get documents for applicant
      */
     @Transactional(readOnly = true)
-    public List<Document> getApplicantDocuments(Long applicantId) {
-        return documentRepository.findByApplicantIdOrderByUploadedAtDesc(String.valueOf(applicantId));
+    public List<Document> getApplicantDocuments(String applicantId) {
+        return documentRepository.findByApplicantIdOrderByUploadedAtDesc(applicantId);
     }
 
     /**
@@ -221,8 +221,8 @@ public class ApplicantService {
 
     // Helper methods
 
-    private Applicant findApplicantById(Long id) {
-        return applicantRepository.findById(String.valueOf(id))
+    private Applicant findApplicantById(String id) {
+        return applicantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + id));
     }
 

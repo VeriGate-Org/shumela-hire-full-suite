@@ -38,7 +38,7 @@ public class DynamoEmployeeSkillRepository extends DynamoRepository<EmployeeSkil
     protected EmployeeSkill toEntity(EmployeeSkillItem item) {
         var e = new EmployeeSkill();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
@@ -58,10 +58,10 @@ public class DynamoEmployeeSkillRepository extends DynamoRepository<EmployeeSkil
     @Override
     protected EmployeeSkillItem toItem(EmployeeSkill entity) {
         var item = new EmployeeSkillItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId().toString() : null;
+        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("EMP_SKILL#" + id);

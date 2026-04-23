@@ -34,10 +34,10 @@ public class OfferService {
   private static final int STALE_NEGOTIATION_HOURS = 48;
 
   // Core CRUD operations
-  public Offer createOffer(Long applicationId, Offer offerData, Long createdBy) {
+  public Offer createOffer(String applicationId, Offer offerData, String createdBy) {
     Application application =
         applicationRepository
-            .findById(String.valueOf(applicationId))
+            .findById(applicationId)
             .orElseThrow(() -> new RuntimeException("Application not found"));
 
     // Validate application state
@@ -79,23 +79,23 @@ public class OfferService {
   }
 
   @Transactional(readOnly = true)
-  public Optional<Offer> getOfferById(Long id) {
-    return offerRepository.findByIdWithDetails(String.valueOf(id));
+  public Optional<Offer> getOfferById(String id) {
+    return offerRepository.findByIdWithDetails(id);
   }
 
   @Transactional(readOnly = true)
-  public List<Offer> getOffersByApplication(Long applicationId) {
-    return offerRepository.findActiveOffersByApplication(String.valueOf(applicationId));
+  public List<Offer> getOffersByApplication(String applicationId) {
+    return offerRepository.findActiveOffersByApplication(applicationId);
   }
 
   @Transactional(readOnly = true)
-  public List<Offer> getOffersByApplicant(Long applicantId) {
-    return offerRepository.findActiveOffersByApplicantId(String.valueOf(applicantId));
+  public List<Offer> getOffersByApplicant(String applicantId) {
+    return offerRepository.findActiveOffersByApplicantId(applicantId);
   }
 
-  public Offer updateOffer(Long id, Offer updateData, Long updatedBy) {
+  public Offer updateOffer(String id, Offer updateData, String updatedBy) {
     Offer existingOffer =
-        offerRepository.findById(String.valueOf(id)).orElseThrow(() -> new RuntimeException("Offer not found"));
+        offerRepository.findById(id).orElseThrow(() -> new RuntimeException("Offer not found"));
 
     if (!existingOffer.canBeEdited()) {
       throw new RuntimeException(
@@ -128,7 +128,7 @@ public class OfferService {
   }
 
   // Status transition methods
-  public Offer submitForApproval(Long id, Long submittedBy) {
+  public Offer submitForApproval(String id, String submittedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.getStatus().canTransitionTo(OfferStatus.PENDING_APPROVAL)) {
@@ -155,7 +155,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer approveOffer(Long id, String approvalNotes, Long approvedBy) {
+  public Offer approveOffer(String id, String approvalNotes, String approvedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.canBeApproved()) {
@@ -186,7 +186,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer rejectOffer(Long id, String rejectionReason, Long rejectedBy) {
+  public Offer rejectOffer(String id, String rejectionReason, String rejectedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.getStatus().canTransitionTo(OfferStatus.DRAFT)) {
@@ -213,7 +213,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer sendOffer(Long id, Long sentBy) {
+  public Offer sendOffer(String id, String sentBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.canBeSent()) {
@@ -237,7 +237,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer withdrawOffer(Long id, String withdrawalReason, Long withdrawnBy) {
+  public Offer withdrawOffer(String id, String withdrawalReason, String withdrawnBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.canBeWithdrawn()) {
@@ -263,7 +263,7 @@ public class OfferService {
   }
 
   // Candidate response methods
-  public Offer recordCandidateViewed(Long id) {
+  public Offer recordCandidateViewed(String id) {
     Offer offer = getOfferOrThrow(id);
 
     if (offer.getCandidateViewedAt() == null) {
@@ -282,7 +282,7 @@ public class OfferService {
     return offer;
   }
 
-  public Offer acceptOffer(Long id, Long acceptedBy) {
+  public Offer acceptOffer(String id, String acceptedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.getStatus().canTransitionTo(OfferStatus.ACCEPTED)) {
@@ -307,7 +307,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer declineOffer(Long id, String declineReason, Long declinedBy) {
+  public Offer declineOffer(String id, String declineReason, String declinedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.getStatus().canTransitionTo(OfferStatus.DECLINED)) {
@@ -334,7 +334,7 @@ public class OfferService {
   }
 
   // Negotiation methods
-  public Offer startNegotiation(Long id, String candidateCounterOffer, Long initiatedBy) {
+  public Offer startNegotiation(String id, String candidateCounterOffer, String initiatedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (!offer.canBeNegotiated()) {
@@ -365,7 +365,7 @@ public class OfferService {
   }
 
   public Offer respondToNegotiation(
-      Long id, String companyResponse, NegotiationStatus newStatus, Long respondedBy) {
+      String id, String companyResponse, NegotiationStatus newStatus, String respondedBy) {
     Offer offer = getOfferOrThrow(id);
 
     if (offer.getStatus() != OfferStatus.UNDER_NEGOTIATION) {
@@ -399,7 +399,7 @@ public class OfferService {
     return savedOffer;
   }
 
-  public Offer escalateNegotiation(Long id, String escalationReason, Long escalatedBy) {
+  public Offer escalateNegotiation(String id, String escalationReason, String escalatedBy) {
     Offer offer = getOfferOrThrow(id);
 
     offer.setNegotiationStatus(NegotiationStatus.ESCALATED);
@@ -420,7 +420,7 @@ public class OfferService {
   }
 
   // Version management
-  public Offer createNewVersion(Long originalOfferId, Offer updatedOfferData, Long createdBy) {
+  public Offer createNewVersion(String originalOfferId, Offer updatedOfferData, String createdBy) {
     Offer originalOffer = getOfferOrThrow(originalOfferId);
 
     if (!originalOffer.getStatus().canTransitionTo(OfferStatus.SUPERSEDED)) {
@@ -559,9 +559,9 @@ public class OfferService {
   }
 
   // Helper methods
-  private Offer getOfferOrThrow(Long id) {
+  private Offer getOfferOrThrow(String id) {
     return offerRepository
-        .findById(String.valueOf(id))
+        .findById(id)
         .orElseThrow(() -> new RuntimeException("Offer not found with id: " + id));
   }
 
@@ -582,7 +582,7 @@ public class OfferService {
     }
   }
 
-  private void validateApprovalAuthority(Offer offer, Long approverId) {
+  private void validateApprovalAuthority(Offer offer, String approverId) {
     // In a real system, this would check user permissions
     // For now, we'll assume the user has appropriate authority
   }

@@ -48,24 +48,24 @@ public class TrainingEnrollmentService {
     private NotificationService notificationService;
 
     @Transactional(readOnly = true)
-    public List<TrainingEnrollmentResponse> getBySession(Long sessionId) {
-        return enrollmentRepository.findBySessionId(String.valueOf(sessionId)).stream()
+    public List<TrainingEnrollmentResponse> getBySession(String sessionId) {
+        return enrollmentRepository.findBySessionId(sessionId).stream()
                 .map(TrainingEnrollmentResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<TrainingEnrollmentResponse> getByEmployee(Long employeeId) {
-        return enrollmentRepository.findByEmployeeWithDetails(String.valueOf(employeeId)).stream()
+    public List<TrainingEnrollmentResponse> getByEmployee(String employeeId) {
+        return enrollmentRepository.findByEmployeeWithDetails(employeeId).stream()
                 .map(TrainingEnrollmentResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     public TrainingEnrollmentResponse enroll(TrainingEnrollmentRequest request, String userId) {
-        TrainingSession session = sessionRepository.findById(String.valueOf(request.getSessionId()))
+        TrainingSession session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + request.getSessionId()));
 
-        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
         // Check session is open
@@ -75,14 +75,14 @@ public class TrainingEnrollmentService {
 
         // Check duplicate enrollment
         Optional<TrainingEnrollment> existing = enrollmentRepository.findBySessionIdAndEmployeeId(
-                String.valueOf(request.getSessionId()), String.valueOf(request.getEmployeeId()));
+                request.getSessionId(), request.getEmployeeId());
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Employee is already enrolled in this session");
         }
 
         // Check available seats
         if (session.getAvailableSeats() != null) {
-            long activeEnrollments = enrollmentRepository.countActiveEnrollmentsBySession(String.valueOf(session.getId()));
+            long activeEnrollments = enrollmentRepository.countActiveEnrollmentsBySession(session.getId());
             if (activeEnrollments >= session.getAvailableSeats()) {
                 throw new IllegalArgumentException("No seats available for this session");
             }
@@ -106,20 +106,20 @@ public class TrainingEnrollmentService {
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
-    public TrainingEnrollmentResponse markAttended(Long enrollmentId, String userId) {
-        TrainingEnrollment enrollment = enrollmentRepository.findById(String.valueOf(enrollmentId))
+    public TrainingEnrollmentResponse markAttended(String enrollmentId, String userId) {
+        TrainingEnrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Enrollment not found: " + enrollmentId));
 
         enrollment.setStatus(EnrollmentStatus.ATTENDED);
         TrainingEnrollment saved = enrollmentRepository.save(enrollment);
-        auditLogService.saveLog(userId, "MARK_ATTENDED", "TRAINING_ENROLLMENT", enrollmentId.toString(),
+        auditLogService.saveLog(userId, "MARK_ATTENDED", "TRAINING_ENROLLMENT", enrollmentId,
                 "Marked enrollment as attended");
 
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
-    public TrainingEnrollmentResponse markCompleted(Long enrollmentId, BigDecimal score, String certificateUrl, String userId) {
-        TrainingEnrollment enrollment = enrollmentRepository.findById(String.valueOf(enrollmentId))
+    public TrainingEnrollmentResponse markCompleted(String enrollmentId, BigDecimal score, String certificateUrl, String userId) {
+        TrainingEnrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Enrollment not found: " + enrollmentId));
 
         enrollment.setStatus(EnrollmentStatus.COMPLETED);
@@ -128,7 +128,7 @@ public class TrainingEnrollmentService {
         if (certificateUrl != null) enrollment.setCertificateUrl(certificateUrl);
 
         TrainingEnrollment saved = enrollmentRepository.save(enrollment);
-        auditLogService.saveLog(userId, "COMPLETE", "TRAINING_ENROLLMENT", enrollmentId.toString(),
+        auditLogService.saveLog(userId, "COMPLETE", "TRAINING_ENROLLMENT", enrollmentId,
                 "Marked enrollment as completed" + (score != null ? " with score " + score : ""));
 
         String courseName = enrollment.getSession().getCourse().getTitle();
@@ -139,13 +139,13 @@ public class TrainingEnrollmentService {
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
-    public TrainingEnrollmentResponse markNoShow(Long enrollmentId, String userId) {
-        TrainingEnrollment enrollment = enrollmentRepository.findById(String.valueOf(enrollmentId))
+    public TrainingEnrollmentResponse markNoShow(String enrollmentId, String userId) {
+        TrainingEnrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Enrollment not found: " + enrollmentId));
 
         enrollment.setStatus(EnrollmentStatus.NO_SHOW);
         TrainingEnrollment saved = enrollmentRepository.save(enrollment);
-        auditLogService.saveLog(userId, "NO_SHOW", "TRAINING_ENROLLMENT", enrollmentId.toString(),
+        auditLogService.saveLog(userId, "NO_SHOW", "TRAINING_ENROLLMENT", enrollmentId,
                 "Marked enrollment as no-show");
 
         notificationService.sendInternalNotification(enrollment.getEmployee().getId(), "Training No-Show",
@@ -155,13 +155,13 @@ public class TrainingEnrollmentService {
         return TrainingEnrollmentResponse.fromEntity(saved);
     }
 
-    public TrainingEnrollmentResponse cancel(Long enrollmentId, String userId) {
-        TrainingEnrollment enrollment = enrollmentRepository.findById(String.valueOf(enrollmentId))
+    public TrainingEnrollmentResponse cancel(String enrollmentId, String userId) {
+        TrainingEnrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Enrollment not found: " + enrollmentId));
 
         enrollment.setStatus(EnrollmentStatus.CANCELLED);
         TrainingEnrollment saved = enrollmentRepository.save(enrollment);
-        auditLogService.saveLog(userId, "CANCEL", "TRAINING_ENROLLMENT", enrollmentId.toString(),
+        auditLogService.saveLog(userId, "CANCEL", "TRAINING_ENROLLMENT", enrollmentId,
                 "Cancelled enrollment");
 
         notificationService.sendInternalNotification(enrollment.getEmployee().getId(), "Training Cancelled",

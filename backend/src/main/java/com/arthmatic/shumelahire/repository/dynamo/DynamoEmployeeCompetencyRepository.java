@@ -39,14 +39,14 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
     public Optional<EmployeeCompetency> findByEmployeeIdAndCompetencyId(String employeeId, String competencyId) {
         String gsi1pk = "EC_EMP#" + currentTenantId() + "#" + employeeId;
         return queryGsiAll("GSI1", gsi1pk).stream()
-                .filter(ec -> ec.getCompetency() != null && competencyId.equals(String.valueOf(ec.getCompetency().getId())))
+                .filter(ec -> ec.getCompetency() != null && competencyId.equals(ec.getCompetency().getId()))
                 .findFirst();
     }
 
     @Override
     public List<EmployeeCompetency> findByCompetencyId(String competencyId) {
         return findAll().stream()
-                .filter(ec -> ec.getCompetency() != null && competencyId.equals(String.valueOf(ec.getCompetency().getId())))
+                .filter(ec -> ec.getCompetency() != null && competencyId.equals(ec.getCompetency().getId()))
                 .collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         EmployeeCompetencyItem item = new EmployeeCompetencyItem();
         item.setPk("TENANT#" + tenantId);
@@ -71,14 +71,14 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
         item.setTenantId(tenantId);
 
         if (entity.getEmployee() != null && entity.getEmployee().getId() != null) {
-            item.setEmployeeId(entity.getEmployee().getId().toString());
+            item.setEmployeeId(entity.getEmployee().getId());
             String gsi1pk = "EC_EMP#" + tenantId + "#" + entity.getEmployee().getId();
             item.setGsi1pk(gsi1pk);
             item.setGsi1sk("COMP#" + id);
         }
 
         if (entity.getCompetency() != null && entity.getCompetency().getId() != null) {
-            item.setCompetencyId(entity.getCompetency().getId().toString());
+            item.setCompetencyId(entity.getCompetency().getId());
         }
 
         item.setCurrentLevel(entity.getCurrentLevel());
@@ -86,7 +86,7 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
         item.setAssessedAt(entity.getAssessedAt());
 
         if (entity.getAssessor() != null && entity.getAssessor().getId() != null) {
-            item.setAssessorId(entity.getAssessor().getId().toString());
+            item.setAssessorId(entity.getAssessor().getId());
         }
 
         item.setCreatedAt(entity.getCreatedAt());
@@ -103,19 +103,19 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
 
         EmployeeCompetency entity = new EmployeeCompetency();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getCompetencyId() != null) {
             Competency competency = new Competency();
-            competency.setId(safeParseLong(item.getCompetencyId()));
+            competency.setId(item.getCompetencyId());
             entity.setCompetency(competency);
         }
 
@@ -125,7 +125,7 @@ public class DynamoEmployeeCompetencyRepository extends DynamoRepository<Employe
 
         if (item.getAssessorId() != null) {
             Employee assessor = new Employee();
-            assessor.setId(safeParseLong(item.getAssessorId()));
+            assessor.setId(item.getAssessorId());
             entity.setAssessor(assessor);
         }
 

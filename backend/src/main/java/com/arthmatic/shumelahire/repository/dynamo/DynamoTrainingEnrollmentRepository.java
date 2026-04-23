@@ -36,7 +36,7 @@ public class DynamoTrainingEnrollmentRepository extends DynamoRepository<Trainin
     @Override
     public List<TrainingEnrollment> findBySessionId(String sessionId) {
         return findAll().stream()
-                .filter(e -> e.getSession() != null && sessionId.equals(String.valueOf(e.getSession().getId())))
+                .filter(e -> e.getSession() != null && sessionId.equals(e.getSession().getId()))
                 .collect(Collectors.toList());
     }
 
@@ -56,15 +56,15 @@ public class DynamoTrainingEnrollmentRepository extends DynamoRepository<Trainin
     @Override
     public Optional<TrainingEnrollment> findBySessionIdAndEmployeeId(String sessionId, String employeeId) {
         return findAll().stream()
-                .filter(e -> e.getSession() != null && sessionId.equals(String.valueOf(e.getSession().getId())) &&
-                        e.getEmployee() != null && employeeId.equals(String.valueOf(e.getEmployee().getId())))
+                .filter(e -> e.getSession() != null && sessionId.equals(e.getSession().getId()) &&
+                        e.getEmployee() != null && employeeId.equals(e.getEmployee().getId()))
                 .findFirst();
     }
 
     @Override
     public long countActiveEnrollmentsBySession(String sessionId) {
         return findAll().stream()
-                .filter(e -> e.getSession() != null && sessionId.equals(String.valueOf(e.getSession().getId())) &&
+                .filter(e -> e.getSession() != null && sessionId.equals(e.getSession().getId()) &&
                         e.getStatus() == EnrollmentStatus.REGISTERED)
                 .count();
     }
@@ -93,14 +93,14 @@ public class DynamoTrainingEnrollmentRepository extends DynamoRepository<Trainin
         TrainingEnrollmentItem item = new TrainingEnrollmentItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("TRAIN_ENROLL#" + entity.getId());
-        Long employeeId = entity.getEmployee() != null ? entity.getEmployee().getId() : null;
+        String employeeId = entity.getEmployee() != null ? entity.getEmployee().getId() : null;
         item.setGsi1pk("TE_EMP#" + entity.getTenantId() + "#" + (employeeId != null ? employeeId : ""));
         item.setGsi1sk("TRAIN_ENROLL#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setSessionId(entity.getSession() != null && entity.getSession().getId() != null
-                ? String.valueOf(entity.getSession().getId()) : null);
-        item.setEmployeeId(employeeId != null ? String.valueOf(employeeId) : null);
+                ? entity.getSession().getId() : null);
+        item.setEmployeeId(employeeId != null ? employeeId : null);
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         item.setScore(entity.getScore() != null ? entity.getScore().toPlainString() : null);
         item.setCertificateUrl(entity.getCertificateUrl());
@@ -115,17 +115,17 @@ public class DynamoTrainingEnrollmentRepository extends DynamoRepository<Trainin
     protected TrainingEnrollment toEntity(TrainingEnrollmentItem item) {
         TrainingEnrollment entity = new TrainingEnrollment();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getSessionId() != null) {
             TrainingSession session = new TrainingSession();
-            session.setId(safeParseLong(item.getSessionId()));
+            session.setId(item.getSessionId());
             entity.setSession(session);
         }
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
         entity.setStatus(item.getStatus() != null ? EnrollmentStatus.valueOf(item.getStatus()) : null);

@@ -90,7 +90,7 @@ public class DynamoTrainingCourseRepository extends DynamoRepository<TrainingCou
         item.setSk("TRAIN_COURSE#" + entity.getId());
         item.setGsi1pk("TC_CAT#" + entity.getTenantId() + "#" + (entity.getCategory() != null ? entity.getCategory() : ""));
         item.setGsi1sk("TRAIN_COURSE#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setTitle(entity.getTitle());
         item.setCode(entity.getCode());
@@ -115,7 +115,7 @@ public class DynamoTrainingCourseRepository extends DynamoRepository<TrainingCou
     protected TrainingCourse toEntity(TrainingCourseItem item) {
         TrainingCourse entity = new TrainingCourse();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setTitle(item.getTitle());

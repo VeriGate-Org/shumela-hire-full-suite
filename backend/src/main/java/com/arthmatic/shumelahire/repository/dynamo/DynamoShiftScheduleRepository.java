@@ -84,18 +84,18 @@ public class DynamoShiftScheduleRepository extends DynamoRepository<ShiftSchedul
         }
 
         ShiftSchedule entity = new ShiftSchedule();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getShiftId() != null) {
             var shift = new Shift();
-            shift.setId(safeParseLong(item.getShiftId()));
+            shift.setId(item.getShiftId());
             entity.setShift(shift);
         }
 
@@ -115,12 +115,12 @@ public class DynamoShiftScheduleRepository extends DynamoRepository<ShiftSchedul
         }
 
         ShiftScheduleItem item = new ShiftScheduleItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null);
+                ? entity.getEmployee().getId() : null);
         item.setShiftId(entity.getShift() != null && entity.getShift().getId() != null
-                ? entity.getShift().getId().toString() : null);
+                ? entity.getShift().getId() : null);
         item.setScheduleDate(entity.getScheduleDate() != null ? entity.getScheduleDate().format(DATE_FMT) : null);
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         item.setNotes(entity.getNotes());

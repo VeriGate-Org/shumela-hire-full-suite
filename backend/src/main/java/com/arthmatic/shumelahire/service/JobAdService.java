@@ -96,7 +96,7 @@ public class JobAdService {
      * Update an existing job ad
      */
     @CacheEvict(value = "jobAds", allEntries = true)
-    public JobAdResponse updateJobAd(Long id, JobAdUpdateRequest request, String actorUserId) {
+    public JobAdResponse updateJobAd(String id, JobAdUpdateRequest request, String actorUserId) {
         logger.info("Updating job ad with ID: {}", id);
         
         JobAd jobAd = findJobAdById(id);
@@ -150,7 +150,7 @@ public class JobAdService {
     /**
      * Publish a job ad
      */
-    public JobAdResponse publishJobAd(Long id, JobAdPublishRequest request) {
+    public JobAdResponse publishJobAd(String id, JobAdPublishRequest request) {
         logger.info("Publishing job ad with ID: {}", id);
         
         JobAd jobAd = findJobAdById(id);
@@ -209,7 +209,7 @@ public class JobAdService {
     /**
      * Unpublish a job ad
      */
-    public JobAdResponse unpublishJobAd(Long id, String actorUserId) {
+    public JobAdResponse unpublishJobAd(String id, String actorUserId) {
         logger.info("Unpublishing job ad with ID: {}", id);
         
         JobAd jobAd = findJobAdById(id);
@@ -242,7 +242,7 @@ public class JobAdService {
      */
     @Transactional(readOnly = true)
     @Cacheable(value = "jobAds", key = "#id")
-    public JobAdResponse getJobAd(Long id) {
+    public JobAdResponse getJobAd(String id) {
         JobAd jobAd = findJobAdById(id);
         return JobAdResponse.fromEntity(jobAd);
     }
@@ -312,8 +312,8 @@ public class JobAdService {
      * Get job ad history
      */
     @Transactional(readOnly = true)
-    public List<JobAdHistory> getJobAdHistory(Long jobAdId) {
-        return jobAdHistoryRepository.findByJobAdIdOrderByTimestampDesc(String.valueOf(jobAdId));
+    public List<JobAdHistory> getJobAdHistory(String jobAdId) {
+        return jobAdHistoryRepository.findByJobAdIdOrderByTimestampDesc(jobAdId);
     }
     
     /**
@@ -346,8 +346,8 @@ public class JobAdService {
     
     // Helper methods
     
-    private JobAd findJobAdById(Long id) {
-        return jobAdRepository.findById(String.valueOf(id))
+    private JobAd findJobAdById(String id) {
+        return jobAdRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Job ad not found with ID: " + id));
     }
     

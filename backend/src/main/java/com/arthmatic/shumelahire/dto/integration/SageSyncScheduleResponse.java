@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 public class SageSyncScheduleResponse {
 
-    private Long id;
-    private Long connectorId;
+    private String id;
+    private String connectorId;
     private String connectorName;
     private SageSyncEntityType entityType;
     private SyncDirection direction;
@@ -44,11 +44,11 @@ public class SageSyncScheduleResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getConnectorId() { return connectorId; }
-    public void setConnectorId(Long connectorId) { this.connectorId = connectorId; }
+    public String getConnectorId() { return connectorId; }
+    public void setConnectorId(String connectorId) { this.connectorId = connectorId; }
 
     public String getConnectorName() { return connectorName; }
     public void setConnectorName(String connectorName) { this.connectorName = connectorName; }

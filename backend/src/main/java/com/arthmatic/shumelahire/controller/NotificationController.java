@@ -40,7 +40,7 @@ public class NotificationController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             if (userId == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "User not found"));
             }
@@ -61,7 +61,7 @@ public class NotificationController {
     @GetMapping("/unread-count")
     public ResponseEntity<?> getUnreadCount(Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             if (userId == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "User not found"));
             }
@@ -75,7 +75,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{id}/read")
-    public ResponseEntity<?> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<?> markAsRead(@PathVariable String id) {
         try {
             notificationService.markNotificationAsRead(id);
             return ResponseEntity.ok(Map.of("success", true));
@@ -88,7 +88,7 @@ public class NotificationController {
     @PostMapping("/mark-all-read")
     public ResponseEntity<?> markAllAsRead(Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             if (userId == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "User not found"));
             }
@@ -102,7 +102,7 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteNotification(@PathVariable Long id) {
+    public ResponseEntity<?> deleteNotification(@PathVariable String id) {
         try {
             notificationService.deleteNotification(id);
             return ResponseEntity.ok(Map.of("success", true));
@@ -112,7 +112,7 @@ public class NotificationController {
         }
     }
 
-    private Long resolveUserId(Authentication authentication) {
+    private String resolveUserId(Authentication authentication) {
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             String email = jwt.getClaimAsString("email");
             if (email != null) {

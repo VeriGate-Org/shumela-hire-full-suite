@@ -50,8 +50,8 @@ public class FeedController {
         }
         // Enrich with comments and reactions
         for (FeedPost post : posts) {
-            List<FeedComment> comments = commentRepository.findByPostId(String.valueOf(post.getId()));
-            List<FeedReaction> reactions = reactionRepository.findByPostId(String.valueOf(post.getId()));
+            List<FeedComment> comments = commentRepository.findByPostId(post.getId());
+            List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
             post.setComments(comments);
             post.setReactions(reactions);
             post.setCommentCount(comments.size());
@@ -71,11 +71,11 @@ public class FeedController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPost(@PathVariable Long id) {
-        return postRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> getPost(@PathVariable String id) {
+        return postRepository.findById(id)
                 .map(post -> {
-                    post.setComments(commentRepository.findByPostId(String.valueOf(id)));
-                    post.setReactions(reactionRepository.findByPostId(String.valueOf(id)));
+                    post.setComments(commentRepository.findByPostId(id));
+                    post.setReactions(reactionRepository.findByPostId(id));
                     post.setCommentCount(post.getComments().size());
                     post.setReactionCount(post.getReactions().size());
                     return ResponseEntity.ok((Object) post);
@@ -95,10 +95,10 @@ public class FeedController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id,
+    public ResponseEntity<?> updatePost(@PathVariable String id,
                                         @RequestBody FeedPost request) {
         try {
-            FeedPost post = postRepository.findById(String.valueOf(id))
+            FeedPost post = postRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Post not found: " + id));
             if (request.getTitle() != null) post.setTitle(request.getTitle());
             if (request.getContent() != null) post.setContent(request.getContent());
@@ -114,15 +114,15 @@ public class FeedController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        postRepository.deleteById(String.valueOf(id));
+    public ResponseEntity<?> deletePost(@PathVariable String id) {
+        postRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/pin")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> togglePin(@PathVariable Long id) {
-        return postRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> togglePin(@PathVariable String id) {
+        return postRepository.findById(id)
                 .map(post -> {
                     post.setPinned(!post.getPinned());
                     post.setUpdatedAt(LocalDateTime.now());
@@ -134,12 +134,12 @@ public class FeedController {
     // ---- Comments ----
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<?> getComments(@PathVariable Long postId) {
-        return ResponseEntity.ok(commentRepository.findByPostId(String.valueOf(postId)));
+    public ResponseEntity<?> getComments(@PathVariable String postId) {
+        return ResponseEntity.ok(commentRepository.findByPostId(postId));
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<?> addComment(@PathVariable Long postId,
+    public ResponseEntity<?> addComment(@PathVariable String postId,
                                         @RequestBody FeedComment comment) {
         try {
             comment.setPostId(postId);
@@ -151,26 +151,26 @@ public class FeedController {
     }
 
     @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long postId,
-                                           @PathVariable Long commentId) {
-        commentRepository.deleteById(String.valueOf(commentId));
+    public ResponseEntity<?> deleteComment(@PathVariable String postId,
+                                           @PathVariable String commentId) {
+        commentRepository.deleteById(commentId);
         return ResponseEntity.noContent().build();
     }
 
     // ---- Reactions ----
 
     @PostMapping("/{postId}/reactions")
-    public ResponseEntity<?> toggleReaction(@PathVariable Long postId,
+    public ResponseEntity<?> toggleReaction(@PathVariable String postId,
                                             @RequestBody Map<String, Object> request) {
         try {
-            Long userId = Long.valueOf(request.get("userId").toString());
+            String userId = request.get("userId").toString();
             String reactionType = (String) request.get("reactionType");
 
             var existing = reactionRepository.findByPostIdAndUserId(
-                    String.valueOf(postId), String.valueOf(userId));
+                    postId, userId);
 
             if (existing.isPresent()) {
-                reactionRepository.deleteById(String.valueOf(existing.get().getId()));
+                reactionRepository.deleteById(existing.get().getId());
                 return ResponseEntity.ok(Map.of("action", "removed"));
             }
 

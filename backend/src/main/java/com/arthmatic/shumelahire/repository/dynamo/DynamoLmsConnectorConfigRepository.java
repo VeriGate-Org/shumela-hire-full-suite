@@ -52,7 +52,7 @@ public class DynamoLmsConnectorConfigRepository extends DynamoRepository<LmsConn
     protected LmsConnectorConfig toEntity(LmsConnectorConfigItem item) {
         var e = new LmsConnectorConfig();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         e.setName(item.getName());
@@ -77,7 +77,7 @@ public class DynamoLmsConnectorConfigRepository extends DynamoRepository<LmsConn
     @Override
     protected LmsConnectorConfigItem toItem(LmsConnectorConfig entity) {
         var item = new LmsConnectorConfigItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

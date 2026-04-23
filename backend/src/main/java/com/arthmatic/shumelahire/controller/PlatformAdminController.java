@@ -49,7 +49,7 @@ public class PlatformAdminController {
     }
 
     @PutMapping("/features/{id}")
-    public ResponseEntity<?> updateFeature(@PathVariable Long id, @RequestBody UpdateFeatureRequest request) {
+    public ResponseEntity<?> updateFeature(@PathVariable String id, @RequestBody UpdateFeatureRequest request) {
         try {
             PlatformFeature feature = platformAdminService.updateFeature(id, request);
             return ResponseEntity.ok(feature);
@@ -59,7 +59,7 @@ public class PlatformAdminController {
     }
 
     @DeleteMapping("/features/{id}")
-    public ResponseEntity<?> deleteFeature(@PathVariable Long id) {
+    public ResponseEntity<?> deleteFeature(@PathVariable String id) {
         try {
             platformAdminService.deleteFeature(id);
             return ResponseEntity.noContent().build();
@@ -102,7 +102,7 @@ public class PlatformAdminController {
     @PutMapping("/tenants/{tenantId}/features/{featureId}")
     public ResponseEntity<?> setEntitlement(
             @PathVariable String tenantId,
-            @PathVariable Long featureId,
+            @PathVariable String featureId,
             @RequestBody SetEntitlementRequest request) {
         try {
             TenantFeatureEntitlement entitlement =
@@ -116,7 +116,7 @@ public class PlatformAdminController {
     @DeleteMapping("/tenants/{tenantId}/features/{featureId}")
     public ResponseEntity<?> removeEntitlement(
             @PathVariable String tenantId,
-            @PathVariable Long featureId) {
+            @PathVariable String featureId) {
         try {
             platformAdminService.removeEntitlement(tenantId, featureId);
             return ResponseEntity.noContent().build();

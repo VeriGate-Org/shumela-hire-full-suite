@@ -2,8 +2,8 @@ package com.arthmatic.shumelahire.dto.engagement;
 
 public class RecognitionCreateRequest {
 
-    private Long fromEmployeeId;
-    private Long toEmployeeId;
+    private String fromEmployeeId;
+    private String toEmployeeId;
     private String category;
     private String message;
     private Integer points;
@@ -11,10 +11,10 @@ public class RecognitionCreateRequest {
 
     public RecognitionCreateRequest() {}
 
-    public Long getFromEmployeeId() { return fromEmployeeId; }
-    public void setFromEmployeeId(Long fromEmployeeId) { this.fromEmployeeId = fromEmployeeId; }
-    public Long getToEmployeeId() { return toEmployeeId; }
-    public void setToEmployeeId(Long toEmployeeId) { this.toEmployeeId = toEmployeeId; }
+    public String getFromEmployeeId() { return fromEmployeeId; }
+    public void setFromEmployeeId(String fromEmployeeId) { this.fromEmployeeId = fromEmployeeId; }
+    public String getToEmployeeId() { return toEmployeeId; }
+    public void setToEmployeeId(String toEmployeeId) { this.toEmployeeId = toEmployeeId; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
     public String getMessage() { return message; }

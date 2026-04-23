@@ -80,7 +80,7 @@ public class DynamoInterviewFeedbackRepository extends DynamoRepository<Intervie
         return findAll().stream()
                 .filter(fb -> fb.getInterview() != null
                         && fb.getInterview().getApplicationId() != null
-                        && fb.getInterview().getApplicationId().toString().equals(applicationId))
+                        && fb.getInterview().getApplicationId().equals(applicationId))
                 .sorted(Comparator.comparing(InterviewFeedback::getSubmittedAt,
                         Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
@@ -92,11 +92,11 @@ public class DynamoInterviewFeedbackRepository extends DynamoRepository<Intervie
     protected InterviewFeedback toEntity(InterviewFeedbackItem item) {
         var entity = new InterviewFeedback();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getSubmittedBy() != null) {
-            entity.setSubmittedBy(safeParseLong(item.getSubmittedBy()));
+            entity.setSubmittedBy(item.getSubmittedBy());
         }
         entity.setInterviewerName(item.getInterviewerName());
         entity.setFeedback(item.getFeedback());
@@ -127,14 +127,14 @@ public class DynamoInterviewFeedbackRepository extends DynamoRepository<Intervie
     protected InterviewFeedbackItem toItem(InterviewFeedback entity) {
         var item = new InterviewFeedbackItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String submittedAtStr = entity.getSubmittedAt() != null
                 ? entity.getSubmittedAt().format(ISO_FMT) : "";
         String submittedByStr = entity.getSubmittedBy() != null
-                ? entity.getSubmittedBy().toString() : "";
+                ? entity.getSubmittedBy() : "";
         String interviewId = entity.getInterview() != null && entity.getInterview().getId() != null
-                ? entity.getInterview().getId().toString() : "";
+                ? entity.getInterview().getId() : "";
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

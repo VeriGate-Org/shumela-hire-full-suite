@@ -59,7 +59,7 @@ public class EmployeeCreateRequest {
 
     private LocalDate probationEndDate;
     private LocalDate contractEndDate;
-    private Long reportingManagerId;
+    private String reportingManagerId;
     private String costCentre;
     private String location;
     private String site;
@@ -178,8 +178,8 @@ public class EmployeeCreateRequest {
     public LocalDate getContractEndDate() { return contractEndDate; }
     public void setContractEndDate(LocalDate contractEndDate) { this.contractEndDate = contractEndDate; }
 
-    public Long getReportingManagerId() { return reportingManagerId; }
-    public void setReportingManagerId(Long reportingManagerId) { this.reportingManagerId = reportingManagerId; }
+    public String getReportingManagerId() { return reportingManagerId; }
+    public void setReportingManagerId(String reportingManagerId) { this.reportingManagerId = reportingManagerId; }
 
     public String getCostCentre() { return costCentre; }
     public void setCostCentre(String costCentre) { this.costCentre = costCentre; }

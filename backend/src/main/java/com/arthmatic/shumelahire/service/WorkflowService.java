@@ -28,8 +28,8 @@ public class WorkflowService {
     }
 
     @Transactional(readOnly = true)
-    public WorkflowDefinition getWorkflowById(Long id) {
-        return workflowDefinitionRepository.findById(String.valueOf(id))
+    public WorkflowDefinition getWorkflowById(String id) {
+        return workflowDefinitionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Workflow not found: " + id));
     }
 
@@ -42,7 +42,7 @@ public class WorkflowService {
         return saved;
     }
 
-    public WorkflowDefinition updateWorkflow(Long id, WorkflowDefinition updated) {
+    public WorkflowDefinition updateWorkflow(String id, WorkflowDefinition updated) {
         logger.info("Updating workflow: {}", id);
         WorkflowDefinition existing = getWorkflowById(id);
 
@@ -58,14 +58,14 @@ public class WorkflowService {
         return saved;
     }
 
-    public void deleteWorkflow(Long id) {
+    public void deleteWorkflow(String id) {
         logger.info("Deleting workflow: {}", id);
         WorkflowDefinition workflow = getWorkflowById(id);
         workflowDefinitionRepository.delete(workflow);
         logger.info("Workflow {} deleted", id);
     }
 
-    public WorkflowDefinition duplicateWorkflow(Long id) {
+    public WorkflowDefinition duplicateWorkflow(String id) {
         logger.info("Duplicating workflow: {}", id);
         WorkflowDefinition original = getWorkflowById(id);
 
@@ -86,7 +86,7 @@ public class WorkflowService {
         return saved;
     }
 
-    public WorkflowDefinition toggleWorkflow(Long id, boolean isActive) {
+    public WorkflowDefinition toggleWorkflow(String id, boolean isActive) {
         logger.info("Toggling workflow {} to active={}", id, isActive);
         WorkflowDefinition workflow = getWorkflowById(id);
         workflow.setActive(isActive);

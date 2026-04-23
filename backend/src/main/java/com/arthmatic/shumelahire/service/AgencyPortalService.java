@@ -49,13 +49,13 @@ public class AgencyPortalService {
         return agencyProfileRepository.findAll();
     }
 
-    public AgencyProfile getAgency(Long id) {
-        return agencyProfileRepository.findById(String.valueOf(id))
+    public AgencyProfile getAgency(String id) {
+        return agencyProfileRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Agency not found: " + id));
     }
 
     @Transactional
-    public AgencyProfile approveAgency(Long agencyId) {
+    public AgencyProfile approveAgency(String agencyId) {
         AgencyProfile agency = getAgency(agencyId);
         if (!agency.getStatus().canTransitionTo(AgencyStatus.APPROVED)) {
             throw new IllegalStateException("Cannot approve agency in status: " + agency.getStatus());
@@ -87,7 +87,7 @@ public class AgencyPortalService {
     }
 
     @Transactional
-    public AgencyProfile suspendAgency(Long agencyId) {
+    public AgencyProfile suspendAgency(String agencyId) {
         AgencyProfile agency = getAgency(agencyId);
         if (!agency.getStatus().canTransitionTo(AgencyStatus.SUSPENDED)) {
             throw new IllegalStateException("Cannot suspend agency in status: " + agency.getStatus());
@@ -119,13 +119,13 @@ public class AgencyPortalService {
     }
 
     @Transactional
-    public AgencySubmission submitCandidate(Long agencyId, AgencySubmission submission) {
+    public AgencySubmission submitCandidate(String agencyId, AgencySubmission submission) {
         AgencyProfile agency = getAgency(agencyId);
         if (!agency.getStatus().isActive()) {
             throw new IllegalStateException("Only active agencies can submit candidates");
         }
 
-        JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(submission.getJobPosting().getId()))
+        JobPosting jobPosting = jobPostingRepository.findById(submission.getJobPosting().getId())
             .orElseThrow(() -> new RuntimeException("Job posting not found"));
 
         submission.setAgency(agency);
@@ -140,8 +140,8 @@ public class AgencyPortalService {
     }
 
     @Transactional
-    public AgencySubmission reviewSubmission(Long submissionId, boolean accept, Long reviewedBy) {
-        AgencySubmission submission = agencySubmissionRepository.findById(String.valueOf(submissionId))
+    public AgencySubmission reviewSubmission(String submissionId, boolean accept, String reviewedBy) {
+        AgencySubmission submission = agencySubmissionRepository.findById(submissionId)
             .orElseThrow(() -> new RuntimeException("Submission not found: " + submissionId));
 
         submission.setStatus(accept ? AgencySubmissionStatus.ACCEPTED : AgencySubmissionStatus.REJECTED);
@@ -153,11 +153,11 @@ public class AgencyPortalService {
         return saved;
     }
 
-    public Map<String, Object> getAgencyDashboard(Long agencyId) {
+    public Map<String, Object> getAgencyDashboard(String agencyId) {
         AgencyProfile agency = getAgency(agencyId);
-        long totalSubmissions = agencySubmissionRepository.countByAgencyId(String.valueOf(agencyId));
+        long totalSubmissions = agencySubmissionRepository.countByAgencyId(agencyId);
         long acceptedSubmissions = agencySubmissionRepository.countByAgencyIdAndStatus(
-            String.valueOf(agencyId), AgencySubmissionStatus.ACCEPTED);
+            agencyId, AgencySubmissionStatus.ACCEPTED);
 
         Map<String, Object> dashboard = new LinkedHashMap<>();
         dashboard.put("agencyName", agency.getAgencyName());

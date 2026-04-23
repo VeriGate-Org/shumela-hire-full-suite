@@ -44,18 +44,18 @@ public class ManualJobBoardConnector {
         return saved;
     }
 
-    public JobBoardPosting remove(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting remove(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         posting.setStatus(PostingStatus.REMOVED);
         JobBoardPosting saved = repository.save(posting);
-        auditLogService.saveLog("SYSTEM", "REMOVE_POSTING", "JOB_BOARD_POSTING", postingId.toString(),
+        auditLogService.saveLog("SYSTEM", "REMOVE_POSTING", "JOB_BOARD_POSTING", postingId,
                 "Removed manual " + posting.getBoardType().getDisplayName() + " posting");
         return saved;
     }
 
-    public JobBoardPosting sync(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting sync(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         if (posting.getExpiresAt() != null && posting.getExpiresAt().isBefore(LocalDateTime.now())) {
             posting.setStatus(PostingStatus.EXPIRED);

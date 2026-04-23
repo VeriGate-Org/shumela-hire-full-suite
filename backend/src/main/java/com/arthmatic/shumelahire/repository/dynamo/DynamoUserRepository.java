@@ -146,7 +146,7 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
     protected User toEntity(UserItem item) {
         var entity = new User();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setUsername(item.getUsername());
         entity.setEmail(item.getEmail());
@@ -208,7 +208,7 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
     @Override
     protected UserItem toItem(User entity) {
         var item = new UserItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String createdAtStr = entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : "";
 

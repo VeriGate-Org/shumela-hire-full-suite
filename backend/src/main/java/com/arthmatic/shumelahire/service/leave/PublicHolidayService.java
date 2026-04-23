@@ -62,13 +62,13 @@ public class PublicHolidayService {
         return publicHolidayRepository.existsByHolidayDate(date);
     }
 
-    public void delete(Long id, String userId) {
-        PublicHoliday holiday = publicHolidayRepository.findById(String.valueOf(id))
+    public void delete(String id, String userId) {
+        PublicHoliday holiday = publicHolidayRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Public holiday not found: " + id));
 
-        publicHolidayRepository.deleteById(String.valueOf(holiday.getId()));
+        publicHolidayRepository.deleteById(holiday.getId());
 
         auditLogService.saveLog(userId, "DELETE", "PUBLIC_HOLIDAY",
-                id.toString(), "Deleted public holiday: " + holiday.getName());
+                id, "Deleted public holiday: " + holiday.getName());
     }
 }

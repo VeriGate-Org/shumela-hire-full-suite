@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 public class LeaveEncashmentResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
-    private Long leaveTypeId;
+    private String leaveTypeId;
     private String leaveTypeName;
     private BigDecimal days;
     private BigDecimal ratePerDay;
@@ -18,10 +18,10 @@ public class LeaveEncashmentResponse {
     private String status;
     private String reason;
     private LocalDateTime requestedAt;
-    private Long hrApprovedById;
+    private String hrApprovedById;
     private String hrApprovedByName;
     private LocalDateTime hrApprovedAt;
-    private Long financeApprovedById;
+    private String financeApprovedById;
     private String financeApprovedByName;
     private LocalDateTime financeApprovedAt;
     private String decisionComment;
@@ -54,14 +54,14 @@ public class LeaveEncashmentResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
     public String getLeaveTypeName() { return leaveTypeName; }
     public void setLeaveTypeName(String leaveTypeName) { this.leaveTypeName = leaveTypeName; }
     public BigDecimal getDays() { return days; }
@@ -76,14 +76,14 @@ public class LeaveEncashmentResponse {
     public void setReason(String reason) { this.reason = reason; }
     public LocalDateTime getRequestedAt() { return requestedAt; }
     public void setRequestedAt(LocalDateTime requestedAt) { this.requestedAt = requestedAt; }
-    public Long getHrApprovedById() { return hrApprovedById; }
-    public void setHrApprovedById(Long hrApprovedById) { this.hrApprovedById = hrApprovedById; }
+    public String getHrApprovedById() { return hrApprovedById; }
+    public void setHrApprovedById(String hrApprovedById) { this.hrApprovedById = hrApprovedById; }
     public String getHrApprovedByName() { return hrApprovedByName; }
     public void setHrApprovedByName(String hrApprovedByName) { this.hrApprovedByName = hrApprovedByName; }
     public LocalDateTime getHrApprovedAt() { return hrApprovedAt; }
     public void setHrApprovedAt(LocalDateTime hrApprovedAt) { this.hrApprovedAt = hrApprovedAt; }
-    public Long getFinanceApprovedById() { return financeApprovedById; }
-    public void setFinanceApprovedById(Long financeApprovedById) { this.financeApprovedById = financeApprovedById; }
+    public String getFinanceApprovedById() { return financeApprovedById; }
+    public void setFinanceApprovedById(String financeApprovedById) { this.financeApprovedById = financeApprovedById; }
     public String getFinanceApprovedByName() { return financeApprovedByName; }
     public void setFinanceApprovedByName(String financeApprovedByName) { this.financeApprovedByName = financeApprovedByName; }
     public LocalDateTime getFinanceApprovedAt() { return financeApprovedAt; }

@@ -57,8 +57,8 @@ public class PlatformAdminService {
         return featureRepository.save(feature);
     }
 
-    public PlatformFeature updateFeature(Long id, UpdateFeatureRequest request) {
-        PlatformFeature feature = featureRepository.findById(String.valueOf(id))
+    public PlatformFeature updateFeature(String id, UpdateFeatureRequest request) {
+        PlatformFeature feature = featureRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Feature not found: " + id));
 
         if (request.name() != null) feature.setName(request.name());
@@ -70,11 +70,11 @@ public class PlatformAdminService {
         return featureRepository.save(feature);
     }
 
-    public void deleteFeature(Long id) {
-        if (!featureRepository.existsById(String.valueOf(id))) {
+    public void deleteFeature(String id) {
+        if (!featureRepository.existsById(id)) {
             throw new IllegalArgumentException("Feature not found: " + id);
         }
-        featureRepository.deleteById(String.valueOf(id));
+        featureRepository.deleteById(id);
     }
 
     // --- Tenant Management ---
@@ -133,17 +133,17 @@ public class PlatformAdminService {
     // --- Entitlements ---
 
     @Transactional
-    public TenantFeatureEntitlement setEntitlement(String tenantId, Long featureId,
+    public TenantFeatureEntitlement setEntitlement(String tenantId, String featureId,
                                                     SetEntitlementRequest request) {
         if (!tenantRepository.existsById(tenantId)) {
             throw new IllegalArgumentException("Tenant not found: " + tenantId);
         }
-        if (!featureRepository.existsById(String.valueOf(featureId))) {
+        if (!featureRepository.existsById(featureId)) {
             throw new IllegalArgumentException("Feature not found: " + featureId);
         }
 
         TenantFeatureEntitlement entitlement = entitlementRepository
-                .findByTenantIdAndFeatureId(tenantId, String.valueOf(featureId))
+                .findByTenantIdAndFeatureId(tenantId, featureId)
                 .orElseGet(() -> {
                     TenantFeatureEntitlement e = new TenantFeatureEntitlement();
                     e.setTenantId(tenantId);
@@ -163,8 +163,8 @@ public class PlatformAdminService {
     }
 
     @Transactional
-    public void removeEntitlement(String tenantId, Long featureId) {
-        entitlementRepository.deleteByTenantIdAndFeatureId(tenantId, String.valueOf(featureId));
+    public void removeEntitlement(String tenantId, String featureId) {
+        entitlementRepository.deleteByTenantIdAndFeatureId(tenantId, featureId);
         logger.info("Removed feature entitlement override: tenant={}, featureId={}", tenantId, featureId);
     }
 
@@ -182,7 +182,7 @@ public class PlatformAdminService {
             boolean enabled, String reason, String grantedBy, LocalDateTime expiresAt) {}
 
     public record TenantFeatureSummary(
-            Long featureId, String code, String name, String category,
+            String featureId, String code, String name, String category,
             boolean enabled, String source, boolean planDefault,
             String reason, LocalDateTime expiresAt) {}
 }

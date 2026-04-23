@@ -78,7 +78,7 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
     protected ShortlistScore toEntity(ShortlistScoreItem item) {
         var entity = new ShortlistScore();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setTotalScore(item.getTotalScore());
@@ -104,7 +104,7 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
     protected ShortlistScoreItem toItem(ShortlistScore entity) {
         var item = new ShortlistScoreItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -113,7 +113,7 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
         // GSI2: Application FK lookup (unique per application)
         String appId = "";
         if (entity.getApplication() != null && entity.getApplication().getId() != null) {
-            appId = entity.getApplication().getId().toString();
+            appId = entity.getApplication().getId();
         }
         item.setGsi2pk("SHORTLIST_APP#" + appId);
         item.setGsi2sk("SHORTLIST#" + id);
@@ -121,7 +121,7 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
         // GSI5: Job posting lookup, sorted by score
         String jobPostingId = "";
         if (entity.getApplication() != null && entity.getApplication().getJobPostingId() != null) {
-            jobPostingId = entity.getApplication().getJobPostingId().toString();
+            jobPostingId = entity.getApplication().getJobPostingId();
         }
         // Zero-pad score to 10 digits for string-based sort ordering
         String paddedScore = entity.getTotalScore() != null

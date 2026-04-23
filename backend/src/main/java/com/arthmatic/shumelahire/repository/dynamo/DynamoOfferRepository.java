@@ -142,7 +142,7 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         return findAll().stream()
                 .filter(o -> o.getApplication() != null
                         && o.getApplication().getApplicant() != null
-                        && applicantId.equals(String.valueOf(o.getApplication().getApplicant().getId())))
+                        && applicantId.equals(o.getApplication().getApplicant().getId()))
                 .filter(o -> o.getSupersededByOfferId() == null)
                 .sorted(Comparator.comparing(Offer::getCreatedAt, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
@@ -319,7 +319,7 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
     protected Offer toEntity(OfferItem item) {
         var offer = new Offer();
         if (item.getId() != null) {
-            offer.setId(safeParseLong(item.getId()));
+            offer.setId(item.getId());
         }
         offer.setTenantId(item.getTenantId());
         offer.setOfferNumber(item.getOfferNumber());
@@ -413,14 +413,14 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setRequiresApproval(item.getRequiresApproval());
         offer.setApprovalLevelRequired(item.getApprovalLevelRequired());
         if (item.getApprovedBy() != null) {
-            offer.setApprovedBy(safeParseLong(item.getApprovedBy()));
+            offer.setApprovedBy(item.getApprovedBy());
         }
         if (item.getApprovedAt() != null) {
             offer.setApprovedAt(LocalDateTime.parse(item.getApprovedAt(), ISO_FMT));
         }
         offer.setApprovalNotes(item.getApprovalNotes());
         if (item.getRejectedBy() != null) {
-            offer.setRejectedBy(safeParseLong(item.getRejectedBy()));
+            offer.setRejectedBy(item.getRejectedBy());
         }
         if (item.getRejectedAt() != null) {
             offer.setRejectedAt(LocalDateTime.parse(item.getRejectedAt(), ISO_FMT));
@@ -439,10 +439,10 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setNonCompeteDurationMonths(item.getNonCompeteDurationMonths());
         offer.setIntellectualPropertyAgreement(item.getIntellectualPropertyAgreement());
         if (item.getOfferLetterTemplateId() != null) {
-            offer.setOfferLetterTemplateId(safeParseLong(item.getOfferLetterTemplateId()));
+            offer.setOfferLetterTemplateId(item.getOfferLetterTemplateId());
         }
         if (item.getContractTemplateId() != null) {
-            offer.setContractTemplateId(safeParseLong(item.getContractTemplateId()));
+            offer.setContractTemplateId(item.getContractTemplateId());
         }
         offer.setOfferDocumentPath(item.getOfferDocumentPath());
         offer.setSignedDocumentPath(item.getSignedDocumentPath());
@@ -457,22 +457,22 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setESignatureProvider(item.getESignatureProvider());
         offer.setESignatureSignerEmail(item.getESignatureSignerEmail());
         if (item.getCreatedBy() != null) {
-            offer.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            offer.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
             offer.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         }
         if (item.getUpdatedBy() != null) {
-            offer.setUpdatedBy(safeParseLong(item.getUpdatedBy()));
+            offer.setUpdatedBy(item.getUpdatedBy());
         }
         if (item.getUpdatedAt() != null) {
             offer.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
         }
         if (item.getSupersededByOfferId() != null) {
-            offer.setSupersededByOfferId(safeParseLong(item.getSupersededByOfferId()));
+            offer.setSupersededByOfferId(item.getSupersededByOfferId());
         }
         if (item.getSupersedesOfferId() != null) {
-            offer.setSupersedesOfferId(safeParseLong(item.getSupersedesOfferId()));
+            offer.setSupersedesOfferId(item.getSupersedesOfferId());
         }
         return offer;
     }
@@ -481,7 +481,7 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
     protected OfferItem toItem(Offer entity) {
         var item = new OfferItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String createdAtStr = entity.getCreatedAt() != null
                 ? entity.getCreatedAt().format(ISO_FMT)
@@ -499,7 +499,7 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         if (entity.getApplication() != null && entity.getApplication().getId() != null) {
             item.setGsi2pk("OFFER_APP#" + entity.getApplication().getId());
             item.setGsi2sk("OFFER#" + createdAtStr);
-            item.setApplicationId(entity.getApplication().getId().toString());
+            item.setApplicationId(entity.getApplication().getId());
         }
 
         // GSI4: Unique offer number
@@ -607,14 +607,14 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         item.setRequiresApproval(entity.getRequiresApproval());
         item.setApprovalLevelRequired(entity.getApprovalLevelRequired());
         if (entity.getApprovedBy() != null) {
-            item.setApprovedBy(entity.getApprovedBy().toString());
+            item.setApprovedBy(entity.getApprovedBy());
         }
         if (entity.getApprovedAt() != null) {
             item.setApprovedAt(entity.getApprovedAt().format(ISO_FMT));
         }
         item.setApprovalNotes(entity.getApprovalNotes());
         if (entity.getRejectedBy() != null) {
-            item.setRejectedBy(entity.getRejectedBy().toString());
+            item.setRejectedBy(entity.getRejectedBy());
         }
         if (entity.getRejectedAt() != null) {
             item.setRejectedAt(entity.getRejectedAt().format(ISO_FMT));
@@ -633,10 +633,10 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         item.setNonCompeteDurationMonths(entity.getNonCompeteDurationMonths());
         item.setIntellectualPropertyAgreement(entity.getIntellectualPropertyAgreement());
         if (entity.getOfferLetterTemplateId() != null) {
-            item.setOfferLetterTemplateId(entity.getOfferLetterTemplateId().toString());
+            item.setOfferLetterTemplateId(entity.getOfferLetterTemplateId());
         }
         if (entity.getContractTemplateId() != null) {
-            item.setContractTemplateId(entity.getContractTemplateId().toString());
+            item.setContractTemplateId(entity.getContractTemplateId());
         }
         item.setOfferDocumentPath(entity.getOfferDocumentPath());
         item.setSignedDocumentPath(entity.getSignedDocumentPath());
@@ -651,20 +651,20 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         item.setESignatureProvider(entity.getESignatureProvider());
         item.setESignatureSignerEmail(entity.getESignatureSignerEmail());
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(entity.getCreatedBy().toString());
+            item.setCreatedBy(entity.getCreatedBy());
         }
         item.setCreatedAt(createdAtStr);
         if (entity.getUpdatedBy() != null) {
-            item.setUpdatedBy(entity.getUpdatedBy().toString());
+            item.setUpdatedBy(entity.getUpdatedBy());
         }
         if (entity.getUpdatedAt() != null) {
             item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));
         }
         if (entity.getSupersededByOfferId() != null) {
-            item.setSupersededByOfferId(entity.getSupersededByOfferId().toString());
+            item.setSupersededByOfferId(entity.getSupersededByOfferId());
         }
         if (entity.getSupersedesOfferId() != null) {
-            item.setSupersedesOfferId(entity.getSupersedesOfferId().toString());
+            item.setSupersedesOfferId(entity.getSupersedesOfferId());
         }
 
         return item;

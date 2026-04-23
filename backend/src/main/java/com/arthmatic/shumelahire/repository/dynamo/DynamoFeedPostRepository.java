@@ -62,11 +62,11 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
     protected FeedPost toEntity(FeedPostItem item) {
         var e = new FeedPost();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         if (item.getAuthorId() != null) {
-            e.setAuthorId(safeParseLong(item.getAuthorId()));
+            e.setAuthorId(item.getAuthorId());
         }
         e.setAuthorName(item.getAuthorName());
         e.setTitle(item.getTitle());
@@ -93,7 +93,7 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
     @Override
     protected FeedPostItem toItem(FeedPost entity) {
         var item = new FeedPostItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
         String category = entity.getCategory() != null ? entity.getCategory().name() : null;
@@ -108,7 +108,7 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
         item.setId(id);
         item.setTenantId(tenantId);
         if (entity.getAuthorId() != null) {
-            item.setAuthorId(entity.getAuthorId().toString());
+            item.setAuthorId(entity.getAuthorId());
         }
         item.setAuthorName(entity.getAuthorName());
         item.setTitle(entity.getTitle());

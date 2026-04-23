@@ -83,13 +83,13 @@ public class DynamoConsentRecordRepository extends DynamoRepository<ConsentRecor
 
         ConsentRecord entity = new ConsentRecord();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
@@ -111,14 +111,14 @@ public class DynamoConsentRecordRepository extends DynamoRepository<ConsentRecor
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         ConsentRecordItem item = new ConsentRecordItem();
         item.setPk("TENANT#" + tenantId);
         item.setSk(entityType() + "#" + id);
 
         String empId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : "";
+                ? entity.getEmployee().getId() : "";
         item.setGsi1pk("CONSENT_EMP#" + tenantId + "#" + empId);
         item.setGsi1sk((entity.getConsentType() != null ? entity.getConsentType() : "") + "#" + id);
 

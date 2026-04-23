@@ -54,7 +54,7 @@ public class JobBoardController {
     }
 
     @PostMapping("/postings/{id}/sync")
-    public ResponseEntity<?> syncPosting(@PathVariable Long id) {
+    public ResponseEntity<?> syncPosting(@PathVariable String id) {
         try {
             return ResponseEntity.ok(jobBoardService.syncPosting(id));
         } catch (RuntimeException e) {
@@ -64,7 +64,7 @@ public class JobBoardController {
     }
 
     @DeleteMapping("/postings/{id}")
-    public ResponseEntity<?> removePosting(@PathVariable Long id) {
+    public ResponseEntity<?> removePosting(@PathVariable String id) {
         try {
             return ResponseEntity.ok(jobBoardService.removePosting(id));
         } catch (RuntimeException e) {

@@ -41,15 +41,15 @@ public class TrainingSessionService {
     }
 
     @Transactional(readOnly = true)
-    public List<TrainingSessionResponse> getByCourse(Long courseId) {
-        return trainingSessionRepository.findByCourseId(String.valueOf(courseId)).stream()
+    public List<TrainingSessionResponse> getByCourse(String courseId) {
+        return trainingSessionRepository.findByCourseId(courseId).stream()
                 .map(TrainingSessionResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public TrainingSessionResponse getById(Long id) {
-        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
+    public TrainingSessionResponse getById(String id) {
+        TrainingSession session = trainingSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         return TrainingSessionResponse.fromEntity(session);
     }
@@ -69,7 +69,7 @@ public class TrainingSessionService {
     }
 
     public TrainingSessionResponse create(TrainingSessionRequest request, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(request.getCourseId()))
+        TrainingCourse course = trainingCourseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + request.getCourseId()));
 
         if (request.getEndDate().isBefore(request.getStartDate())) {
@@ -93,8 +93,8 @@ public class TrainingSessionService {
         return TrainingSessionResponse.fromEntity(saved);
     }
 
-    public TrainingSessionResponse update(Long id, TrainingSessionRequest request, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
+    public TrainingSessionResponse update(String id, TrainingSessionRequest request, String userId) {
+        TrainingSession session = trainingSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
 
         session.setTrainerName(request.getTrainerName());
@@ -115,30 +115,30 @@ public class TrainingSessionService {
         return TrainingSessionResponse.fromEntity(saved);
     }
 
-    public TrainingSessionResponse openSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
+    public TrainingSessionResponse openSession(String id, String userId) {
+        TrainingSession session = trainingSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.OPEN);
         TrainingSession saved = trainingSessionRepository.save(session);
-        auditLogService.saveLog(userId, "OPEN", "TRAINING_SESSION", id.toString(), "Opened session for enrollment");
+        auditLogService.saveLog(userId, "OPEN", "TRAINING_SESSION", id, "Opened session for enrollment");
         return TrainingSessionResponse.fromEntity(saved);
     }
 
-    public TrainingSessionResponse closeSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
+    public TrainingSessionResponse closeSession(String id, String userId) {
+        TrainingSession session = trainingSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.COMPLETED);
         TrainingSession saved = trainingSessionRepository.save(session);
-        auditLogService.saveLog(userId, "CLOSE", "TRAINING_SESSION", id.toString(), "Closed/completed training session");
+        auditLogService.saveLog(userId, "CLOSE", "TRAINING_SESSION", id, "Closed/completed training session");
         return TrainingSessionResponse.fromEntity(saved);
     }
 
-    public TrainingSessionResponse cancelSession(Long id, String userId) {
-        TrainingSession session = trainingSessionRepository.findById(String.valueOf(id))
+    public TrainingSessionResponse cancelSession(String id, String userId) {
+        TrainingSession session = trainingSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training session not found: " + id));
         session.setStatus(SessionStatus.CANCELLED);
         TrainingSession saved = trainingSessionRepository.save(session);
-        auditLogService.saveLog(userId, "CANCEL", "TRAINING_SESSION", id.toString(), "Cancelled training session");
+        auditLogService.saveLog(userId, "CANCEL", "TRAINING_SESSION", id, "Cancelled training session");
         return TrainingSessionResponse.fromEntity(saved);
     }
 }

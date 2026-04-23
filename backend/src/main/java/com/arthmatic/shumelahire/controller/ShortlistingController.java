@@ -17,30 +17,30 @@ public class ShortlistingController {
     private ShortlistingService shortlistingService;
 
     @PostMapping("/job-postings/{id}/calculate")
-    public ResponseEntity<?> calculateScores(@PathVariable Long id) {
+    public ResponseEntity<?> calculateScores(@PathVariable String id) {
         return ResponseEntity.ok(shortlistingService.calculateScoresForJobPosting(id));
     }
 
     @PostMapping("/job-postings/{id}/auto-shortlist")
     public ResponseEntity<?> autoShortlist(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam(defaultValue = "60") double threshold) {
         return ResponseEntity.ok(shortlistingService.autoShortlist(id, threshold));
     }
 
     @GetMapping("/job-postings/{id}/scores")
-    public ResponseEntity<?> getScores(@PathVariable Long id) {
+    public ResponseEntity<?> getScores(@PathVariable String id) {
         return ResponseEntity.ok(shortlistingService.getShortlistingSummary(id));
     }
 
     @PostMapping("/scores/{id}/override")
     public ResponseEntity<?> overrideDecision(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, Object> request) {
         boolean include = Boolean.TRUE.equals(request.get("include"));
         String reason = (String) request.get("reason");
-        Long userId = request.get("userId") != null
-            ? Long.valueOf(request.get("userId").toString()) : null;
+        String userId = request.get("userId") != null
+            ? request.get("userId").toString() : null;
         return ResponseEntity.ok(shortlistingService.overrideShortlistDecision(id, include, reason, userId));
     }
 }

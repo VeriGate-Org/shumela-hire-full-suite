@@ -174,7 +174,7 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
     }
 
     @Override
-    public List<Object[]> getJobPostingPipelineStats(Long jobPostingId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Object[]> getJobPostingPipelineStats(String jobPostingId, LocalDateTime startDate, LocalDateTime endDate) {
         throw new UnsupportedOperationException("Analytics queries will be migrated to Athena");
     }
 
@@ -194,7 +194,7 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
     protected PipelineTransition toEntity(PipelineTransitionItem item) {
         var entity = new PipelineTransition();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         if (item.getFromStage() != null) {
             entity.setFromStage(PipelineStage.valueOf(item.getFromStage()));
@@ -209,14 +209,14 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
         entity.setNotes(item.getNotes());
         entity.setAutomated(item.getAutomated());
         if (item.getTriggeredByInterviewId() != null) {
-            entity.setTriggeredByInterviewId(safeParseLong(item.getTriggeredByInterviewId()));
+            entity.setTriggeredByInterviewId(item.getTriggeredByInterviewId());
         }
         if (item.getTriggeredByAssessmentId() != null) {
-            entity.setTriggeredByAssessmentId(safeParseLong(item.getTriggeredByAssessmentId()));
+            entity.setTriggeredByAssessmentId(item.getTriggeredByAssessmentId());
         }
         entity.setMetadata(item.getMetadata());
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
@@ -232,11 +232,11 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
     @Override
     protected PipelineTransitionItem toItem(PipelineTransition entity) {
         var item = new PipelineTransitionItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String createdAtStr = entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : "";
         String applicationId = entity.getApplication() != null ?
-                String.valueOf(entity.getApplication().getId()) : "";
+                entity.getApplication().getId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("PIPELINE_TRANS#" + id);
@@ -269,14 +269,14 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
         item.setNotes(entity.getNotes());
         item.setAutomated(entity.getAutomated());
         if (entity.getTriggeredByInterviewId() != null) {
-            item.setTriggeredByInterviewId(String.valueOf(entity.getTriggeredByInterviewId()));
+            item.setTriggeredByInterviewId(entity.getTriggeredByInterviewId());
         }
         if (entity.getTriggeredByAssessmentId() != null) {
-            item.setTriggeredByAssessmentId(String.valueOf(entity.getTriggeredByAssessmentId()));
+            item.setTriggeredByAssessmentId(entity.getTriggeredByAssessmentId());
         }
         item.setMetadata(entity.getMetadata());
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(String.valueOf(entity.getCreatedBy()));
+            item.setCreatedBy(entity.getCreatedBy());
         }
         item.setCreatedAt(createdAtStr);
         if (entity.getEffectiveAt() != null) {

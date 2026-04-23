@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 public class EmployeeDocumentResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private EmployeeDocumentType documentType;
     private String title;
     private String description;
@@ -55,11 +55,11 @@ public class EmployeeDocumentResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public EmployeeDocumentType getDocumentType() { return documentType; }
     public void setDocumentType(EmployeeDocumentType documentType) { this.documentType = documentType; }

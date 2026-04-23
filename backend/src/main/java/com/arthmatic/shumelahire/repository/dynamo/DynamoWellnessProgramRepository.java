@@ -47,7 +47,7 @@ public class DynamoWellnessProgramRepository extends DynamoRepository<WellnessPr
     protected WellnessProgram toEntity(WellnessProgramItem item) {
         var e = new WellnessProgram();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         e.setName(item.getName());
@@ -67,7 +67,7 @@ public class DynamoWellnessProgramRepository extends DynamoRepository<WellnessPr
     @Override
     protected WellnessProgramItem toItem(WellnessProgram entity) {
         var item = new WellnessProgramItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
 

@@ -32,20 +32,20 @@ public class TalentPoolController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getPool(@PathVariable Long id) {
+    public ResponseEntity<?> getPool(@PathVariable String id) {
         return ResponseEntity.ok(talentPoolService.getPool(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> updatePool(@PathVariable Long id, @RequestBody TalentPool pool) {
+    public ResponseEntity<?> updatePool(@PathVariable String id, @RequestBody TalentPool pool) {
         return ResponseEntity.ok(talentPoolService.updatePool(id, pool));
     }
 
     @PostMapping("/{poolId}/entries")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> addEntry(
-            @PathVariable Long poolId,
+            @PathVariable String poolId,
             @RequestBody AddTalentPoolEntryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 talentPoolService.addEntry(poolId, request.getApplicantId(), request.getSourceType(), request.getNotes()));
@@ -53,14 +53,14 @@ public class TalentPoolController {
 
     @GetMapping("/{poolId}/entries")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getEntries(@PathVariable Long poolId) {
+    public ResponseEntity<?> getEntries(@PathVariable String poolId) {
         return ResponseEntity.ok(talentPoolService.getEntries(poolId));
     }
 
     @DeleteMapping("/entries/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> removeEntry(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam(defaultValue = "Removed by user") String reason) {
         talentPoolService.removeEntry(id, reason);
         return ResponseEntity.ok(Map.of("message", "Entry removed"));
@@ -69,14 +69,14 @@ public class TalentPoolController {
     @PutMapping("/entries/{id}/rating")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> updateRating(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, Integer> request) {
         return ResponseEntity.ok(talentPoolService.updateRating(id, request.get("rating")));
     }
 
     @GetMapping("/{poolId}/analytics")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
-    public ResponseEntity<?> getPoolAnalytics(@PathVariable Long poolId) {
+    public ResponseEntity<?> getPoolAnalytics(@PathVariable String poolId) {
         return ResponseEntity.ok(talentPoolService.getPoolAnalytics(poolId));
     }
 }

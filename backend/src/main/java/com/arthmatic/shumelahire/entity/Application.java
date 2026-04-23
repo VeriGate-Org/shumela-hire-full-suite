@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Application extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull(message = "Applicant is required")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -19,7 +19,7 @@ public class Application extends TenantAwareEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private JobPosting jobPosting;
 
-    private Long jobPostingId;
+    private String jobPostingId;
 
     private String jobTitle;
 
@@ -99,8 +99,8 @@ public class Application extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Applicant getApplicant() { return applicant; }
     public void setApplicant(Applicant applicant) { this.applicant = applicant; }
@@ -108,8 +108,8 @@ public class Application extends TenantAwareEntity {
     public JobPosting getJobPosting() { return jobPosting; }
     public void setJobPosting(JobPosting jobPosting) { this.jobPosting = jobPosting; }
 
-    public Long getJobPostingId() { return jobPostingId; }
-    public void setJobPostingId(Long jobPostingId) { this.jobPostingId = jobPostingId; }
+    public String getJobPostingId() { return jobPostingId; }
+    public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

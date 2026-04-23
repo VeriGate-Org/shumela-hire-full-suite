@@ -130,7 +130,7 @@ public class DynamoPlatformFeatureRepository extends DynamoRepository<PlatformFe
     protected PlatformFeature toEntity(PlatformFeatureItem item) {
         var feature = new PlatformFeature();
         if (item.getId() != null) {
-            feature.setId(safeParseLong(item.getId()));
+            feature.setId(item.getId());
         }
         feature.setCode(item.getCode());
         feature.setName(item.getName());
@@ -152,7 +152,7 @@ public class DynamoPlatformFeatureRepository extends DynamoRepository<PlatformFe
     @Override
     protected PlatformFeatureItem toItem(PlatformFeature entity) {
         var item = new PlatformFeatureItem();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         // Table keys — global, not tenant-scoped
         item.setPk(PLATFORM_PK);

@@ -52,7 +52,7 @@ public class DynamoCompetencyRepository extends DynamoRepository<CompetencyItem,
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         CompetencyItem item = new CompetencyItem();
         item.setPk("TENANT#" + tenantId);
@@ -61,7 +61,7 @@ public class DynamoCompetencyRepository extends DynamoRepository<CompetencyItem,
         item.setTenantId(tenantId);
 
         if (entity.getFramework() != null && entity.getFramework().getId() != null) {
-            item.setFrameworkId(entity.getFramework().getId().toString());
+            item.setFrameworkId(entity.getFramework().getId());
             String gsi1pk = "COMP_FW#" + tenantId + "#" + entity.getFramework().getId();
             item.setGsi1pk(gsi1pk);
             item.setGsi1sk("COMP#" + id);
@@ -84,13 +84,13 @@ public class DynamoCompetencyRepository extends DynamoRepository<CompetencyItem,
 
         Competency entity = new Competency();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getFrameworkId() != null) {
             CompetencyFramework framework = new CompetencyFramework();
-            framework.setId(safeParseLong(item.getFrameworkId()));
+            framework.setId(item.getFrameworkId());
             entity.setFramework(framework);
         }
 

@@ -75,7 +75,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
     protected ReportExportJob toEntity(ReportExportJobItem item) {
         var entity = new ReportExportJob();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setReportType(item.getReportType());
@@ -91,7 +91,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
         // requestedBy is a ManyToOne relationship — store only the FK in DynamoDB
         if (item.getRequestedById() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getRequestedById()));
+            emp.setId(item.getRequestedById());
             entity.setRequestedBy(emp);
         }
         entity.setErrorMessage(item.getErrorMessage());
@@ -108,7 +108,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
     protected ReportExportJobItem toItem(ReportExportJob entity) {
         var item = new ReportExportJobItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -120,7 +120,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
 
         // GSI2: Requester FK lookup
         String requestedById = entity.getRequestedBy() != null && entity.getRequestedBy().getId() != null
-                ? entity.getRequestedBy().getId().toString() : "NONE";
+                ? entity.getRequestedBy().getId() : "NONE";
         item.setGsi2pk("EXPORT_REQUESTER#" + requestedById);
         item.setGsi2sk("REPORT_EXPORT_JOB#" + (entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : ""));
 
@@ -142,7 +142,7 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
         item.setFileSize(entity.getFileSize());
         item.setParameters(entity.getParameters());
         if (entity.getRequestedBy() != null && entity.getRequestedBy().getId() != null) {
-            item.setRequestedById(entity.getRequestedBy().getId().toString());
+            item.setRequestedById(entity.getRequestedBy().getId());
         }
         item.setErrorMessage(entity.getErrorMessage());
         if (entity.getCreatedAt() != null) {

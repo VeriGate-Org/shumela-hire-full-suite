@@ -41,7 +41,7 @@ public class RecruiterDashboardService {
         metrics.put("totalApplications", applications.size());
         metrics.put("activeJobPostings", jobPostings.size());
         metrics.put("newApplicants", applications.stream()
-            .mapToLong(app -> app.getApplicant().getId())
+            .map(app -> app.getApplicant().getId())
             .distinct()
             .count());
 
@@ -102,7 +102,7 @@ public class RecruiterDashboardService {
                     .filter(app -> app.getJobTitle().equals(entry.getKey()))
                     .findFirst()
                     .map(app -> app.getJobPostingId())
-                    .orElse(0L)
+                    .orElse("")
             ))
             .sorted((a, b) -> Long.compare((Long) b.get("applications"), (Long) a.get("applications")))
             .collect(Collectors.toList());
@@ -224,7 +224,7 @@ public class RecruiterDashboardService {
                         Map<String, Object> stats = new HashMap<>();
                         stats.put("totalApplications", apps.size());
                         stats.put("uniqueApplicants", apps.stream()
-                            .mapToLong(app -> app.getApplicant().getId())
+                            .map(app -> app.getApplicant().getId())
                             .distinct().count());
                         stats.put("hired", apps.stream()
                             .mapToLong(app -> app.getStatus() == ApplicationStatus.HIRED ? 1 : 0)

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class EmployeeResponse {
 
-    private Long id;
+    private String id;
     private String employeeNumber;
     private String title;
     private String firstName;
@@ -46,12 +46,12 @@ public class EmployeeResponse {
     private LocalDate terminationDate;
     private String terminationReason;
     private LocalDate contractEndDate;
-    private Long reportingManagerId;
+    private String reportingManagerId;
     private String reportingManagerName;
     private String costCentre;
     private String location;
     private String site;
-    private Long applicantId;
+    private String applicantId;
     private String profilePhotoUrl;
     private String emergencyContactName;
     private String emergencyContactPhone;
@@ -142,8 +142,8 @@ public class EmployeeResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getEmployeeNumber() { return employeeNumber; }
     public void setEmployeeNumber(String employeeNumber) { this.employeeNumber = employeeNumber; }
@@ -256,8 +256,8 @@ public class EmployeeResponse {
     public LocalDate getContractEndDate() { return contractEndDate; }
     public void setContractEndDate(LocalDate contractEndDate) { this.contractEndDate = contractEndDate; }
 
-    public Long getReportingManagerId() { return reportingManagerId; }
-    public void setReportingManagerId(Long reportingManagerId) { this.reportingManagerId = reportingManagerId; }
+    public String getReportingManagerId() { return reportingManagerId; }
+    public void setReportingManagerId(String reportingManagerId) { this.reportingManagerId = reportingManagerId; }
 
     public String getReportingManagerName() { return reportingManagerName; }
     public void setReportingManagerName(String reportingManagerName) { this.reportingManagerName = reportingManagerName; }
@@ -271,8 +271,8 @@ public class EmployeeResponse {
     public String getSite() { return site; }
     public void setSite(String site) { this.site = site; }
 
-    public Long getApplicantId() { return applicantId; }
-    public void setApplicantId(Long applicantId) { this.applicantId = applicantId; }
+    public String getApplicantId() { return applicantId; }
+    public void setApplicantId(String applicantId) { this.applicantId = applicantId; }
 
     public String getProfilePhotoUrl() { return profilePhotoUrl; }
     public void setProfilePhotoUrl(String profilePhotoUrl) { this.profilePhotoUrl = profilePhotoUrl; }

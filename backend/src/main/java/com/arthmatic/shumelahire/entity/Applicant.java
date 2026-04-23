@@ -12,7 +12,7 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Applicant extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotBlank(message = "Name is required")
     private String name;
@@ -48,7 +48,7 @@ public class Applicant extends TenantAwareEntity {
 
     private String source;
 
-    private Long userId;
+    private String userId;
 
     // Employment Equity demographic fields (optional, POPIA-compliant)
     private String gender;
@@ -80,8 +80,8 @@ public class Applicant extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -128,8 +128,8 @@ public class Applicant extends TenantAwareEntity {
     public String getSource() { return source; }
     public void setSource(String source) { this.source = source; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }

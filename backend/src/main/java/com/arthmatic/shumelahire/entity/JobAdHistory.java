@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class JobAdHistory extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Job ad is required")
     private JobAd jobAd;
@@ -39,11 +39,11 @@ public class JobAdHistory extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     

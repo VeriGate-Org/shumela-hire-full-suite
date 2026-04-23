@@ -39,9 +39,9 @@ public class InterviewService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Core CRUD operations
-    public Interview createInterview(Interview interview, Long createdBy) {
+    public Interview createInterview(Interview interview, String createdBy) {
         // Validate application exists and is in valid state
-        Application application = applicationRepository.findById(String.valueOf(interview.getApplication().getId()))
+        Application application = applicationRepository.findById(interview.getApplication().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         if (!canScheduleInterviewForApplication(application)) {
@@ -73,7 +73,7 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview updateInterview(Long id, Interview updatedInterview, Long updatedBy) {
+    public Interview updateInterview(String id, Interview updatedInterview, String updatedBy) {
         Interview existingInterview = getInterviewById(id);
         
         // Store original values for audit
@@ -112,12 +112,12 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview getInterviewById(Long id) {
-        return interviewRepository.findByIdWithDetails(String.valueOf(id))
+    public Interview getInterviewById(String id) {
+        return interviewRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new IllegalArgumentException("Interview not found with id: " + id));
     }
 
-    public void deleteInterview(Long id, Long deletedBy) {
+    public void deleteInterview(String id, String deletedBy) {
         Interview interview = getInterviewById(id);
         
         if (!interview.canBeCancelled()) {
@@ -131,14 +131,14 @@ public class InterviewService {
             String.format("Interview '%s' deleted", interview.getTitle())
         );
         
-        interviewRepository.deleteById(String.valueOf(id));
+        interviewRepository.deleteById(id);
     }
 
     // Scheduling operations
-    public Interview scheduleInterview(Long applicationId, LocalDateTime scheduledAt, 
-                                     Long interviewerId, InterviewType type, 
-                                     InterviewRound round, Long scheduledBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public Interview scheduleInterview(String applicationId, LocalDateTime scheduledAt,
+                                     String interviewerId, InterviewType type,
+                                     InterviewRound round, String scheduledBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         Interview interview = new Interview(application, scheduledAt, interviewerId, type);
@@ -147,8 +147,8 @@ public class InterviewService {
         return createInterview(interview, scheduledBy);
     }
 
-    public Interview rescheduleInterview(Long id, LocalDateTime newScheduledAt, 
-                                       String reason, Long rescheduledBy) {
+    public Interview rescheduleInterview(String id, LocalDateTime newScheduledAt, 
+                                       String reason, String rescheduledBy) {
         Interview interview = getInterviewById(id);
         
         if (!interview.canBeRescheduled()) {
@@ -184,7 +184,7 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview cancelInterview(Long id, String reason, Long cancelledBy) {
+    public Interview cancelInterview(String id, String reason, String cancelledBy) {
         Interview interview = getInterviewById(id);
         
         if (!interview.canBeCancelled()) {
@@ -210,7 +210,7 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview postponeInterview(Long id, String reason, Long postponedBy) {
+    public Interview postponeInterview(String id, String reason, String postponedBy) {
         Interview interview = getInterviewById(id);
 
         if (!interview.getStatus().canBePostponed()) {
@@ -232,7 +232,7 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview startInterview(Long id, Long startedBy) {
+    public Interview startInterview(String id, String startedBy) {
         Interview interview = getInterviewById(id);
         
         if (!interview.canBeStarted()) {
@@ -255,7 +255,7 @@ public class InterviewService {
         return savedInterview;
     }
 
-    public Interview completeInterview(Long id, Long completedBy) {
+    public Interview completeInterview(String id, String completedBy) {
         Interview interview = getInterviewById(id);
         
         if (!interview.canBeCompleted()) {
@@ -281,12 +281,12 @@ public class InterviewService {
     }
 
     // Feedback operations
-    public InterviewFeedback submitFeedback(Long interviewId, String feedback, Integer rating,
+    public InterviewFeedback submitFeedback(String interviewId, String feedback, Integer rating,
                                            Integer communicationSkills, Integer technicalSkills,
                                            Integer culturalFit, String overallImpression,
                                            InterviewRecommendation recommendation, String nextSteps,
                                            String technicalAssessment, String candidateQuestions,
-                                           String interviewerNotes, Long submittedBy,
+                                           String interviewerNotes, String submittedBy,
                                            String interviewerName) {
         Interview interview = getInterviewById(interviewId);
 
@@ -296,7 +296,7 @@ public class InterviewService {
 
         // Check if this user already submitted feedback — update if so
         InterviewFeedback feedbackEntity = interviewFeedbackRepository
-            .findByInterviewIdAndSubmittedBy(String.valueOf(interviewId), String.valueOf(submittedBy))
+            .findByInterviewIdAndSubmittedBy(interviewId, String.valueOf(submittedBy))
             .orElse(new InterviewFeedback());
 
         boolean isUpdate = feedbackEntity.getId() != null;
@@ -337,23 +337,23 @@ public class InterviewService {
         return saved;
     }
 
-    public List<InterviewFeedback> getFeedbacksForInterview(Long interviewId) {
-        return interviewFeedbackRepository.findByInterviewIdOrderBySubmittedAtDesc(String.valueOf(interviewId));
+    public List<InterviewFeedback> getFeedbacksForInterview(String interviewId) {
+        return interviewFeedbackRepository.findByInterviewIdOrderBySubmittedAtDesc(interviewId);
     }
 
-    public Optional<InterviewFeedback> getFeedbackByInterviewAndUser(Long interviewId, Long userId) {
-        return interviewFeedbackRepository.findByInterviewIdAndSubmittedBy(String.valueOf(interviewId), String.valueOf(userId));
+    public Optional<InterviewFeedback> getFeedbackByInterviewAndUser(String interviewId, String userId) {
+        return interviewFeedbackRepository.findByInterviewIdAndSubmittedBy(interviewId, userId);
     }
 
-    public void deleteFeedback(Long feedbackId, Long deletedBy) {
-        InterviewFeedback feedback = interviewFeedbackRepository.findById(String.valueOf(feedbackId))
+    public void deleteFeedback(String feedbackId, String deletedBy) {
+        InterviewFeedback feedback = interviewFeedbackRepository.findById(feedbackId)
             .orElseThrow(() -> new IllegalArgumentException("Feedback not found: " + feedbackId));
 
         if (!feedback.getSubmittedBy().equals(deletedBy)) {
             throw new IllegalStateException("Only the feedback author can delete their feedback");
         }
 
-        interviewFeedbackRepository.deleteById(String.valueOf(feedback.getId()));
+        interviewFeedbackRepository.deleteById(feedback.getId());
 
         auditLogService.logUserAction(
             deletedBy,
@@ -372,12 +372,12 @@ public class InterviewService {
                                                    interviewerId, startDate, endDate, pageable);
     }
 
-    public List<Interview> getInterviewsByApplication(Long applicationId) {
-        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(String.valueOf(applicationId));
+    public List<Interview> getInterviewsByApplication(String applicationId) {
+        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(applicationId);
     }
 
-    public List<Interview> getInterviewerSchedule(Long interviewerId, LocalDateTime startDate, LocalDateTime endDate) {
-        return interviewRepository.findInterviewerSchedule(String.valueOf(interviewerId), startDate, endDate);
+    public List<Interview> getInterviewerSchedule(String interviewerId, LocalDateTime startDate, LocalDateTime endDate) {
+        return interviewRepository.findInterviewerSchedule(interviewerId, startDate, endDate);
     }
 
     public List<Interview> getUpcomingInterviews(int days) {
@@ -391,9 +391,9 @@ public class InterviewService {
     }
 
     // Availability and conflict checking (uses JPQL + Java filtering for DB portability)
-    public boolean isInterviewerAvailable(Long interviewerId, LocalDateTime startTime, int durationMinutes) {
+    public boolean isInterviewerAvailable(String interviewerId, LocalDateTime startTime, int durationMinutes) {
         LocalDateTime endTime = startTime.plusMinutes(durationMinutes);
-        List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(String.valueOf(interviewerId), endTime);
+        List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(interviewerId, endTime);
         return potentialConflicts.stream()
                 .noneMatch(i -> i.hasConflictWith(startTime, endTime));
     }
@@ -405,7 +405,7 @@ public class InterviewService {
                 .noneMatch(i -> i.hasConflictWith(startTime, endTime));
     }
 
-    public List<LocalDateTime> getSuggestedTimeSlots(Long interviewerId, LocalDateTime preferredDate, 
+    public List<LocalDateTime> getSuggestedTimeSlots(String interviewerId, LocalDateTime preferredDate, 
                                                    int durationMinutes, int numberOfSuggestions) {
         List<LocalDateTime> suggestions = new ArrayList<>();
         LocalDateTime currentSlot = getNextBusinessHour(preferredDate);
@@ -566,7 +566,7 @@ public class InterviewService {
         return interviewRepository.findInterviewsNeedingReminders(now, reminderTime);
     }
 
-    public void markReminderSent(Long interviewId) {
+    public void markReminderSent(String interviewId) {
         Interview interview = getInterviewById(interviewId);
         interview.setReminderSentAt(LocalDateTime.now());
         interviewRepository.save(interview);
@@ -576,7 +576,7 @@ public class InterviewService {
         return interviewRepository.findInterviewsRequiringFeedback();
     }
 
-    public void requestFeedback(Long interviewId) {
+    public void requestFeedback(String interviewId) {
         Interview interview = getInterviewById(interviewId);
         interview.setFeedbackRequestedAt(LocalDateTime.now());
         interviewRepository.save(interview);

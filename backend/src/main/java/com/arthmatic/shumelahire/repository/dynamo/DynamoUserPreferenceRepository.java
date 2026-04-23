@@ -33,7 +33,7 @@ public class DynamoUserPreferenceRepository extends DynamoRepository<UserPrefere
     }
 
     @Override
-    public Optional<UserPreference> findByUserId(Long userId) {
+    public Optional<UserPreference> findByUserId(String userId) {
         // SK is USER_PREF#{userId}, so direct lookup
         var item = table.getItem(Key.builder()
                 .partitionValue(tenantPk())
@@ -46,10 +46,10 @@ public class DynamoUserPreferenceRepository extends DynamoRepository<UserPrefere
     protected UserPreference toEntity(UserPreferenceItem item) {
         var entity = new UserPreference();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         if (item.getUserId() != null) {
-            entity.setUserId(safeParseLong(item.getUserId()));
+            entity.setUserId(item.getUserId());
         }
         entity.setPreferences(item.getPreferences());
         entity.setTenantId(item.getTenantId());
@@ -59,9 +59,9 @@ public class DynamoUserPreferenceRepository extends DynamoRepository<UserPrefere
     @Override
     protected UserPreferenceItem toItem(UserPreference entity) {
         var item = new UserPreferenceItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String userId = entity.getUserId() != null ? String.valueOf(entity.getUserId()) : "";
+        String userId = entity.getUserId() != null ? entity.getUserId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("USER_PREF#" + userId);

@@ -100,7 +100,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
     protected Requisition toEntity(RequisitionItem item) {
         var entity = new Requisition();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setJobTitle(item.getJobTitle());
@@ -121,7 +121,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
             entity.setStatus(RequisitionStatus.valueOf(item.getStatus()));
         }
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
@@ -136,7 +136,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
     protected RequisitionItem toItem(Requisition entity) {
         var item = new RequisitionItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -149,7 +149,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         item.setGsi1sk("REQUISITION#" + createdAtStr);
 
         // GSI2: FK lookup — created by
-        String createdByStr = entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "UNKNOWN";
+        String createdByStr = entity.getCreatedBy() != null ? entity.getCreatedBy() : "UNKNOWN";
         item.setGsi2pk("REQ_CREATOR#" + tenantId + "#" + createdByStr);
         item.setGsi2sk("REQUISITION#" + id);
 
@@ -176,7 +176,7 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         item.setJustification(entity.getJustification());
         item.setStatus(statusStr);
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(entity.getCreatedBy().toString());
+            item.setCreatedBy(entity.getCreatedBy());
         }
         if (entity.getCreatedAt() != null) {
             item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));

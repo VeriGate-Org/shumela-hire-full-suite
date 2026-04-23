@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Document extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Applicant is required")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -18,7 +18,7 @@ public class Document extends TenantAwareEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "applicationDocuments"})
     private Application application; // Optional - links to specific application
     
-    private Long applicationId; // For convenience and backwards compatibility
+    private String applicationId; // For convenience and backwards compatibility
     
     private DocumentType type;
     
@@ -45,11 +45,11 @@ public class Document extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
@@ -69,11 +69,11 @@ public class Document extends TenantAwareEntity {
         this.application = application;
     }
     
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
     
-    public void setApplicationId(Long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
     

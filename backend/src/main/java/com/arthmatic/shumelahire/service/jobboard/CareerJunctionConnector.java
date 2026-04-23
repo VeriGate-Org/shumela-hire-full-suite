@@ -212,8 +212,8 @@ public class CareerJunctionConnector implements JobBoardConnector {
     }
 
     @Override
-    public JobBoardPosting remove(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting remove(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
         try {
@@ -236,14 +236,14 @@ public class CareerJunctionConnector implements JobBoardConnector {
 
         posting.setStatus(PostingStatus.REMOVED);
         JobBoardPosting saved = repository.save(posting);
-        auditLogService.saveLog("SYSTEM", "REMOVE_POSTING", "JOB_BOARD_POSTING", postingId.toString(),
+        auditLogService.saveLog("SYSTEM", "REMOVE_POSTING", "JOB_BOARD_POSTING", postingId,
                 "Removed CareerJunction posting");
         return saved;
     }
 
     @Override
-    public JobBoardPosting sync(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting sync(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
         try {

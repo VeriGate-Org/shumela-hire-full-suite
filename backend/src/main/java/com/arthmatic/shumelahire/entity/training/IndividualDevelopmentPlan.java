@@ -10,10 +10,10 @@ import java.util.List;
 
 public class IndividualDevelopmentPlan extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     @NotBlank
     private String title;
@@ -26,7 +26,7 @@ public class IndividualDevelopmentPlan extends TenantAwareEntity {
 
     private IDPStatus status = IDPStatus.DRAFT;
 
-    private Long managerId;
+    private String managerId;
 
     private List<IDPGoal> goals;
 
@@ -49,11 +49,11 @@ public class IndividualDevelopmentPlan extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -70,8 +70,8 @@ public class IndividualDevelopmentPlan extends TenantAwareEntity {
     public IDPStatus getStatus() { return status; }
     public void setStatus(IDPStatus status) { this.status = status; }
 
-    public Long getManagerId() { return managerId; }
-    public void setManagerId(Long managerId) { this.managerId = managerId; }
+    public String getManagerId() { return managerId; }
+    public void setManagerId(String managerId) { this.managerId = managerId; }
 
     public List<IDPGoal> getGoals() { return goals; }
     public void setGoals(List<IDPGoal> goals) { this.goals = goals; }

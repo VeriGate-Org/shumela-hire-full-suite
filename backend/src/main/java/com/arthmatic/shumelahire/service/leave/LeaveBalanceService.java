@@ -39,25 +39,25 @@ public class LeaveBalanceService {
     private AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
-    public List<LeaveBalanceResponse> getBalancesForEmployee(Long employeeId, Integer cycleYear) {
+    public List<LeaveBalanceResponse> getBalancesForEmployee(String employeeId, Integer cycleYear) {
         int year = cycleYear != null ? cycleYear : LocalDate.now().getYear();
-        return leaveBalanceRepository.findBalancesForEmployee(String.valueOf(employeeId)).stream()
+        return leaveBalanceRepository.findBalancesForEmployee(employeeId).stream()
                 .filter(b -> b.getCycleYear() != null && b.getCycleYear().equals(year))
                 .map(LeaveBalanceResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public LeaveBalance getOrCreateBalance(Long employeeId, Long leaveTypeId, Integer cycleYear) {
+    public LeaveBalance getOrCreateBalance(String employeeId, String leaveTypeId, Integer cycleYear) {
         return leaveBalanceRepository
-                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(String.valueOf(employeeId), String.valueOf(leaveTypeId), cycleYear)
+                .findByEmployeeIdAndLeaveTypeIdAndCycleYear(employeeId, leaveTypeId, cycleYear)
                 .orElseGet(() -> initializeBalance(employeeId, leaveTypeId, cycleYear));
     }
 
-    public LeaveBalance initializeBalance(Long employeeId, Long leaveTypeId, Integer cycleYear) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public LeaveBalance initializeBalance(String employeeId, String leaveTypeId, Integer cycleYear) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
-        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(leaveTypeId))
+        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + leaveTypeId));
 
         LeaveBalance balance = new LeaveBalance();
@@ -76,26 +76,26 @@ public class LeaveBalanceService {
         return balance;
     }
 
-    public void addPendingDays(Long employeeId, Long leaveTypeId, Integer cycleYear, BigDecimal days) {
+    public void addPendingDays(String employeeId, String leaveTypeId, Integer cycleYear, BigDecimal days) {
         LeaveBalance balance = getOrCreateBalance(employeeId, leaveTypeId, cycleYear);
         balance.setPendingDays(balance.getPendingDays().add(days));
         leaveBalanceRepository.save(balance);
     }
 
-    public void removePendingDays(Long employeeId, Long leaveTypeId, Integer cycleYear, BigDecimal days) {
+    public void removePendingDays(String employeeId, String leaveTypeId, Integer cycleYear, BigDecimal days) {
         LeaveBalance balance = getOrCreateBalance(employeeId, leaveTypeId, cycleYear);
         balance.setPendingDays(balance.getPendingDays().subtract(days));
         leaveBalanceRepository.save(balance);
     }
 
-    public void confirmTakenDays(Long employeeId, Long leaveTypeId, Integer cycleYear, BigDecimal days) {
+    public void confirmTakenDays(String employeeId, String leaveTypeId, Integer cycleYear, BigDecimal days) {
         LeaveBalance balance = getOrCreateBalance(employeeId, leaveTypeId, cycleYear);
         balance.setPendingDays(balance.getPendingDays().subtract(days));
         balance.setTakenDays(balance.getTakenDays().add(days));
         leaveBalanceRepository.save(balance);
     }
 
-    public boolean hasSufficientBalance(Long employeeId, Long leaveTypeId, Integer cycleYear, BigDecimal requestedDays) {
+    public boolean hasSufficientBalance(String employeeId, String leaveTypeId, Integer cycleYear, BigDecimal requestedDays) {
         LeaveBalance balance = getOrCreateBalance(employeeId, leaveTypeId, cycleYear);
         return balance.getAvailableDays().compareTo(requestedDays) >= 0;
     }

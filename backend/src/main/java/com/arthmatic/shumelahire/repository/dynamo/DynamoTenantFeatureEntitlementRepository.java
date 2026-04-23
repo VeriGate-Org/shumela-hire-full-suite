@@ -98,11 +98,11 @@ public class DynamoTenantFeatureEntitlementRepository
     protected TenantFeatureEntitlement toEntity(TenantFeatureEntitlementItem item) {
         var entitlement = new TenantFeatureEntitlement();
         if (item.getId() != null) {
-            entitlement.setId(safeParseLong(item.getId()));
+            entitlement.setId(item.getId());
         }
         entitlement.setTenantId(item.getTenantId());
         if (item.getFeatureId() != null) {
-            entitlement.setFeatureId(safeParseLong(item.getFeatureId()));
+            entitlement.setFeatureId(item.getFeatureId());
         }
         if (item.getIsEnabled() != null) {
             entitlement.setEnabled(item.getIsEnabled());
@@ -125,8 +125,8 @@ public class DynamoTenantFeatureEntitlementRepository
     protected TenantFeatureEntitlementItem toItem(TenantFeatureEntitlement entity) {
         var item = new TenantFeatureEntitlementItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String featureId = entity.getFeatureId() != null ? entity.getFeatureId().toString() : "";
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String featureId = entity.getFeatureId() != null ? entity.getFeatureId() : "";
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

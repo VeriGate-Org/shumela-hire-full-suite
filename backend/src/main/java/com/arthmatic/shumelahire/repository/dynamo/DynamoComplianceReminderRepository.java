@@ -94,15 +94,15 @@ public class DynamoComplianceReminderRepository extends DynamoRepository<Complia
         }
 
         ComplianceReminder entity = new ComplianceReminder();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
         entity.setReminderType(ReminderType.valueOf(item.getReminderType()));
         entity.setEntityType(item.getEntityType());
-        entity.setEntityId(safeParseLong(item.getEntityId()));
+        entity.setEntityId(item.getEntityId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
@@ -125,14 +125,14 @@ public class DynamoComplianceReminderRepository extends DynamoRepository<Complia
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         ComplianceReminderItem item = new ComplianceReminderItem();
         item.setPk("TENANT#" + tenantId);
         item.setSk(entityType() + "#" + id);
 
         String empId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : "";
+                ? entity.getEmployee().getId() : "";
         item.setGsi1pk("COMP_REM_EMP#" + tenantId + "#" + empId);
         String dueDateStr = entity.getDueDate() != null ? entity.getDueDate().format(DATE_FMT) : "";
         item.setGsi1sk(dueDateStr + "#" + id);
@@ -141,9 +141,9 @@ public class DynamoComplianceReminderRepository extends DynamoRepository<Complia
         item.setTenantId(tenantId);
         item.setReminderType(entity.getReminderType() != null ? entity.getReminderType().name() : null);
         item.setEntityType(entity.getEntityType());
-        item.setEntityId(entity.getEntityId() != null ? entity.getEntityId().toString() : null);
+        item.setEntityId(entity.getEntityId() != null ? entity.getEntityId() : null);
         item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null);
+                ? entity.getEmployee().getId() : null);
         item.setTitle(entity.getTitle());
         item.setDescription(entity.getDescription());
         item.setDueDate(entity.getDueDate() != null ? entity.getDueDate().format(DATE_FMT) : null);

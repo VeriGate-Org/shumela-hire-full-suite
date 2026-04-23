@@ -118,7 +118,7 @@ public class DynamoJobAdTemplateRepository extends DynamoRepository<JobAdTemplat
     protected JobAdTemplate toEntity(JobAdTemplateItem item) {
         var template = new JobAdTemplate();
         if (item.getId() != null) {
-            template.setId(safeParseLong(item.getId()));
+            template.setId(item.getId());
         }
         template.setTenantId(item.getTenantId());
         template.setName(item.getName());
@@ -156,7 +156,7 @@ public class DynamoJobAdTemplateRepository extends DynamoRepository<JobAdTemplat
     protected JobAdTemplateItem toItem(JobAdTemplate entity) {
         var item = new JobAdTemplateItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

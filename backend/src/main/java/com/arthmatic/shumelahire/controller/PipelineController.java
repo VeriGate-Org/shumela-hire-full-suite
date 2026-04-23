@@ -25,11 +25,11 @@ public class PipelineController {
     // Transition operations
     @PostMapping("/applications/{applicationId}/move")
     public ResponseEntity<PipelineTransition> moveApplicationToStage(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @RequestParam PipelineStage targetStage,
             @RequestParam(required = false) String reason,
             @RequestParam(required = false) String notes,
-            @RequestParam Long performedBy) {
+            @RequestParam String performedBy) {
         
         try {
             PipelineTransition transition = pipelineService.moveApplicationToStage(
@@ -44,10 +44,10 @@ public class PipelineController {
 
     @PostMapping("/applications/{applicationId}/progress")
     public ResponseEntity<PipelineTransition> progressToNextStage(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @RequestParam(required = false) String reason,
             @RequestParam(required = false) String notes,
-            @RequestParam Long performedBy) {
+            @RequestParam String performedBy) {
         
         try {
             PipelineTransition transition = pipelineService.progressToNextStage(
@@ -62,11 +62,11 @@ public class PipelineController {
 
     @PostMapping("/applications/{applicationId}/reject")
     public ResponseEntity<PipelineTransition> rejectApplication(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @RequestParam PipelineStage rejectionStage,
             @RequestParam String reason,
             @RequestParam(required = false) String notes,
-            @RequestParam Long rejectedBy) {
+            @RequestParam String rejectedBy) {
         
         try {
             PipelineTransition transition = pipelineService.rejectApplication(
@@ -79,10 +79,10 @@ public class PipelineController {
 
     @PostMapping("/applications/{applicationId}/withdraw")
     public ResponseEntity<PipelineTransition> withdrawApplication(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @RequestParam String reason,
             @RequestParam(required = false) String notes,
-            @RequestParam Long withdrawnBy) {
+            @RequestParam String withdrawnBy) {
         
         try {
             PipelineTransition transition = pipelineService.withdrawApplication(
@@ -95,19 +95,19 @@ public class PipelineController {
 
     // Query operations
     @GetMapping("/applications/{applicationId}/timeline")
-    public ResponseEntity<List<PipelineTransition>> getApplicationTimeline(@PathVariable Long applicationId) {
+    public ResponseEntity<List<PipelineTransition>> getApplicationTimeline(@PathVariable String applicationId) {
         List<PipelineTransition> timeline = pipelineService.getApplicationTimeline(applicationId);
         return ResponseEntity.ok(timeline);
     }
 
     @GetMapping("/applications/{applicationId}/latest-transition")
-    public ResponseEntity<PipelineTransition> getLatestTransition(@PathVariable Long applicationId) {
+    public ResponseEntity<PipelineTransition> getLatestTransition(@PathVariable String applicationId) {
         Optional<PipelineTransition> transition = pipelineService.getLatestTransition(applicationId);
         return transition.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/applications/{applicationId}/available-transitions")
-    public ResponseEntity<List<PipelineStage>> getAvailableTransitions(@PathVariable Long applicationId) {
+    public ResponseEntity<List<PipelineStage>> getAvailableTransitions(@PathVariable String applicationId) {
         try {
             List<PipelineStage> stages = pipelineService.getAvailableTransitions(applicationId);
             return ResponseEntity.ok(stages);
@@ -210,7 +210,7 @@ public class PipelineController {
 
     @GetMapping("/analytics/job-postings/{jobPostingId}")
     public ResponseEntity<Map<String, Object>> getJobPostingPipelineStats(
-            @PathVariable Long jobPostingId,
+            @PathVariable String jobPostingId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         
@@ -313,8 +313,8 @@ public class PipelineController {
     // Automated transitions
     @PostMapping("/applications/{applicationId}/auto-progress")
     public ResponseEntity<PipelineTransition> automateProgressionFromInterview(
-            @PathVariable Long applicationId,
-            @RequestParam Long interviewId,
+            @PathVariable String applicationId,
+            @RequestParam String interviewId,
             @RequestParam PipelineStage targetStage,
             @RequestParam InterviewRecommendation recommendation) {
         

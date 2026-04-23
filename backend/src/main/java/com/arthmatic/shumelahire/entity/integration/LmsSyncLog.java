@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class LmsSyncLog extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private LmsConnectorConfig connector;
 
@@ -25,8 +25,8 @@ public class LmsSyncLog extends TenantAwareEntity {
     public LmsSyncLog() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public LmsConnectorConfig getConnector() { return connector; }
     public void setConnector(LmsConnectorConfig connector) { this.connector = connector; }

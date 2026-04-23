@@ -35,7 +35,7 @@ public class WellnessController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateProgram(@PathVariable Long id,
+    public ResponseEntity<?> updateProgram(@PathVariable String id,
                                            @RequestBody WellnessProgramCreateRequest request) {
         try {
             return ResponseEntity.ok(wellnessService.updateProgram(id, request));
@@ -45,7 +45,7 @@ public class WellnessController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProgram(@PathVariable Long id) {
+    public ResponseEntity<?> getProgram(@PathVariable String id) {
         try {
             return ResponseEntity.ok(wellnessService.getProgram(id));
         } catch (IllegalArgumentException e) {
@@ -64,7 +64,7 @@ public class WellnessController {
     }
 
     @PostMapping("/{id}/join")
-    public ResponseEntity<?> joinProgram(@PathVariable Long id, @RequestParam Long employeeId) {
+    public ResponseEntity<?> joinProgram(@PathVariable String id, @RequestParam String employeeId) {
         try {
             wellnessService.joinProgram(id, employeeId);
             return ResponseEntity.ok(Map.of("message", "Successfully joined program"));
@@ -74,7 +74,7 @@ public class WellnessController {
     }
 
     @PostMapping("/{id}/leave")
-    public ResponseEntity<?> leaveProgram(@PathVariable Long id, @RequestParam Long employeeId) {
+    public ResponseEntity<?> leaveProgram(@PathVariable String id, @RequestParam String employeeId) {
         try {
             wellnessService.leaveProgram(id, employeeId);
             return ResponseEntity.ok(Map.of("message", "Successfully left program"));
@@ -85,7 +85,7 @@ public class WellnessController {
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deactivateProgram(@PathVariable Long id) {
+    public ResponseEntity<?> deactivateProgram(@PathVariable String id) {
         try {
             wellnessService.deactivateProgram(id);
             return ResponseEntity.ok(Map.of("message", "Program deactivated"));

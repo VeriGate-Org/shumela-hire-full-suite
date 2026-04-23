@@ -27,8 +27,8 @@ public class ComplianceReminderController {
     public ResponseEntity<?> createReminder(
             @RequestParam String reminderType,
             @RequestParam(required = false) String entityType,
-            @RequestParam(required = false) Long entityId,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String entityId,
+            @RequestParam(required = false) String employeeId,
             @RequestParam String title,
             @RequestParam(required = false) String description,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
@@ -42,7 +42,7 @@ public class ComplianceReminderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getReminder(@PathVariable Long id) {
+    public ResponseEntity<?> getReminder(@PathVariable String id) {
         try {
             return ResponseEntity.ok(reminderService.getReminder(id));
         } catch (IllegalArgumentException e) {
@@ -53,7 +53,7 @@ public class ComplianceReminderController {
     @GetMapping
     public ResponseEntity<List<ComplianceReminderResponse>> getReminders(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long employeeId) {
+            @RequestParam(required = false) String employeeId) {
         if (status != null) {
             return ResponseEntity.ok(reminderService.getRemindersByStatus(status));
         }
@@ -70,7 +70,7 @@ public class ComplianceReminderController {
     }
 
     @PutMapping("/{id}/acknowledge")
-    public ResponseEntity<?> acknowledgeReminder(@PathVariable Long id) {
+    public ResponseEntity<?> acknowledgeReminder(@PathVariable String id) {
         try {
             return ResponseEntity.ok(reminderService.acknowledge(id));
         } catch (IllegalArgumentException e) {

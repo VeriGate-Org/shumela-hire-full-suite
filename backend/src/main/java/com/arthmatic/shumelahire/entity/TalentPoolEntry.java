@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TalentPoolEntry extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private TalentPool talentPool;
@@ -28,7 +28,7 @@ public class TalentPoolEntry extends TenantAwareEntity {
 
     private LocalDateTime lastContactedAt;
 
-    private Long addedBy;
+    private String addedBy;
 
     private LocalDateTime addedAt;
 
@@ -41,8 +41,8 @@ public class TalentPoolEntry extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public TalentPool getTalentPool() { return talentPool; }
     public void setTalentPool(TalentPool talentPool) { this.talentPool = talentPool; }
@@ -68,8 +68,8 @@ public class TalentPoolEntry extends TenantAwareEntity {
     public LocalDateTime getLastContactedAt() { return lastContactedAt; }
     public void setLastContactedAt(LocalDateTime lastContactedAt) { this.lastContactedAt = lastContactedAt; }
 
-    public Long getAddedBy() { return addedBy; }
-    public void setAddedBy(Long addedBy) { this.addedBy = addedBy; }
+    public String getAddedBy() { return addedBy; }
+    public void setAddedBy(String addedBy) { this.addedBy = addedBy; }
 
     public LocalDateTime getAddedAt() { return addedAt; }
     public void setAddedAt(LocalDateTime addedAt) { this.addedAt = addedAt; }

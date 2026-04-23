@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class JobAdCreateRequest {
     
-    private Long requisitionId;
+    private String requisitionId;
     
     @NotBlank(message = "Title is required")
     private String title;
@@ -35,11 +35,11 @@ public class JobAdCreateRequest {
     public JobAdCreateRequest() {}
     
     // Getters and Setters
-    public Long getRequisitionId() {
+    public String getRequisitionId() {
         return requisitionId;
     }
     
-    public void setRequisitionId(Long requisitionId) {
+    public void setRequisitionId(String requisitionId) {
         this.requisitionId = requisitionId;
     }
     

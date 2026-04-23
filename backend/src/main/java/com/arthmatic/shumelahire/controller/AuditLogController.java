@@ -193,7 +193,7 @@ public class AuditLogController {
     }
 
     public static class AuditLogResponse {
-        private Long id;
+        private String id;
         private LocalDateTime timestamp;
         private String userId;
         private String action;
@@ -206,7 +206,7 @@ public class AuditLogController {
         // Constructors
         public AuditLogResponse() {}
 
-        public AuditLogResponse(Long id, LocalDateTime timestamp, String userId, String action,
+        public AuditLogResponse(String id, LocalDateTime timestamp, String userId, String action,
                                String entityType, String entityId, String details, String userRole, String message) {
             this.id = id;
             this.timestamp = timestamp;
@@ -220,8 +220,8 @@ public class AuditLogController {
         }
 
         // Getters and Setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
 
         public LocalDateTime getTimestamp() { return timestamp; }
         public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }

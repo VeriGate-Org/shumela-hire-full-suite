@@ -97,7 +97,7 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
     protected JobAdHistory toEntity(JobAdHistoryItem item) {
         var entity = new JobAdHistory();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setAction(item.getAction());
@@ -109,7 +109,7 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
         // FK: JobAd is stored as ID only; set a stub with the ID
         if (item.getJobAdId() != null) {
             var jobAd = new JobAd();
-            jobAd.setId(safeParseLong(item.getJobAdId()));
+            jobAd.setId(item.getJobAdId());
             entity.setJobAd(jobAd);
         }
         return entity;
@@ -119,10 +119,10 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
     protected JobAdHistoryItem toItem(JobAdHistory entity) {
         var item = new JobAdHistoryItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String timestampStr = entity.getTimestamp() != null ? entity.getTimestamp().format(ISO_FMT) : "";
         String jobAdId = entity.getJobAd() != null && entity.getJobAd().getId() != null
-                ? String.valueOf(entity.getJobAd().getId()) : "";
+                ? entity.getJobAd().getId() : "";
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotNull;
 
 public class OnboardingTemplateItem {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long templateId;
+    private String templateId;
 
     @NotBlank
     private String title;
@@ -29,11 +29,11 @@ public class OnboardingTemplateItem {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getTemplateId() { return templateId; }
-    public void setTemplateId(Long templateId) { this.templateId = templateId; }
+    public String getTemplateId() { return templateId; }
+    public void setTemplateId(String templateId) { this.templateId = templateId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

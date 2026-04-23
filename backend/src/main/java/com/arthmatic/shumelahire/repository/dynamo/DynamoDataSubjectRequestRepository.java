@@ -61,7 +61,7 @@ public class DynamoDataSubjectRequestRepository extends DynamoRepository<DataSub
         }
 
         DataSubjectRequest entity = new DataSubjectRequest();
-        if (item.getId() != null) { entity.setId(safeParseLong(item.getId())); }
+        if (item.getId() != null) { entity.setId(item.getId()); }
         entity.setTenantId(item.getTenantId());
         entity.setRequesterName(item.getRequesterName());
         entity.setRequesterEmail(item.getRequesterEmail());
@@ -84,7 +84,7 @@ public class DynamoDataSubjectRequestRepository extends DynamoRepository<DataSub
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         DataSubjectRequestItem item = new DataSubjectRequestItem();
         item.setPk("TENANT#" + tenantId);

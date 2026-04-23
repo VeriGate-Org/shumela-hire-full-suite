@@ -40,7 +40,7 @@ public class DynamoPerformanceImprovementPlanRepository extends DynamoRepository
         return findAll().stream()
                 .filter(pip -> pip.getManager() != null
                         && pip.getManager().getId() != null
-                        && pip.getManager().getId().toString().equals(managerId))
+                        && pip.getManager().getId().equals(managerId))
                 .collect(Collectors.toList());
     }
 
@@ -56,20 +56,20 @@ public class DynamoPerformanceImprovementPlanRepository extends DynamoRepository
         if (item == null) return null;
 
         PerformanceImprovementPlan entity = new PerformanceImprovementPlan();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
 
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         // Create Manager stub
         if (item.getManagerId() != null) {
             Employee manager = new Employee();
-            manager.setId(safeParseLong(item.getManagerId()));
+            manager.setId(item.getManagerId());
             entity.setManager(manager);
         }
 
@@ -95,15 +95,15 @@ public class DynamoPerformanceImprovementPlanRepository extends DynamoRepository
         if (entity == null) return null;
 
         PerformanceImprovementPlanItem item = new PerformanceImprovementPlanItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         // Store FK IDs
         if (entity.getEmployee() != null && entity.getEmployee().getId() != null) {
-            item.setEmployeeId(entity.getEmployee().getId().toString());
+            item.setEmployeeId(entity.getEmployee().getId());
         }
         if (entity.getManager() != null && entity.getManager().getId() != null) {
-            item.setManagerId(entity.getManager().getId().toString());
+            item.setManagerId(entity.getManager().getId());
         }
 
         item.setReason(entity.getReason());

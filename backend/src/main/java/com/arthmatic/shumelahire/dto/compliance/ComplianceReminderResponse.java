@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public class ComplianceReminderResponse {
 
-    private Long id;
+    private String id;
     private String reminderType;
     private String entityType;
-    private Long entityId;
-    private Long employeeId;
+    private String entityId;
+    private String employeeId;
     private String employeeName;
     private String title;
     private String description;
@@ -44,16 +44,16 @@ public class ComplianceReminderResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getReminderType() { return reminderType; }
     public void setReminderType(String reminderType) { this.reminderType = reminderType; }
     public String getEntityType() { return entityType; }
     public void setEntityType(String entityType) { this.entityType = entityType; }
-    public Long getEntityId() { return entityId; }
-    public void setEntityId(Long entityId) { this.entityId = entityId; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public String getTitle() { return title; }

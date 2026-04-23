@@ -68,7 +68,7 @@ public class ExecutiveController {
                 })
                 .map(u -> {
                     Map<String, Object> m = new LinkedHashMap<>();
-                    m.put("id", String.valueOf(u.getId()));
+                    m.put("id", u.getId());
                     m.put("name", (u.getFirstName() != null ? u.getFirstName() : "") + " " + (u.getLastName() != null ? u.getLastName() : ""));
                     m.put("title", u.getJobTitle() != null ? u.getJobTitle() : u.getRole().getDisplayName());
                     m.put("department", u.getDepartment() != null ? u.getDepartment() : "");

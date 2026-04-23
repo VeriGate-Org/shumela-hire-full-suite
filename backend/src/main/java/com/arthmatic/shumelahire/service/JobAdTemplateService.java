@@ -55,7 +55,7 @@ public class JobAdTemplateService {
      * Get a single template by ID.
      */
     @Transactional(readOnly = true)
-    public JobAdTemplateResponse getTemplate(Long id) {
+    public JobAdTemplateResponse getTemplate(String id) {
         JobAdTemplate template = findById(id);
         return JobAdTemplateResponse.fromEntity(template);
     }
@@ -80,7 +80,7 @@ public class JobAdTemplateService {
     /**
      * Update an existing template (partial update — only non-null fields are applied).
      */
-    public JobAdTemplateResponse updateTemplate(Long id, JobAdTemplateUpdateRequest request) {
+    public JobAdTemplateResponse updateTemplate(String id, JobAdTemplateUpdateRequest request) {
         logger.info("Updating job ad template: {}", id);
 
         JobAdTemplate template = findById(id);
@@ -108,16 +108,16 @@ public class JobAdTemplateService {
     /**
      * Delete a template permanently.
      */
-    public void deleteTemplate(Long id) {
+    public void deleteTemplate(String id) {
         logger.info("Deleting job ad template: {}", id);
         JobAdTemplate template = findById(id);
-        templateRepository.deleteById(String.valueOf(template.getId()));
+        templateRepository.deleteById(template.getId());
     }
 
     /**
      * Duplicate an existing template with a new name.
      */
-    public JobAdTemplateResponse duplicateTemplate(Long id, String newName, String actorUserId) {
+    public JobAdTemplateResponse duplicateTemplate(String id, String newName, String actorUserId) {
         logger.info("Duplicating job ad template {} as '{}'", id, newName);
 
         JobAdTemplate original = findById(id);
@@ -174,7 +174,7 @@ public class JobAdTemplateService {
         GenerateJobAdDraftRequest.GenerateAdRequestData request = body.getRequest();
         GenerateJobAdDraftRequest.RequisitionDataDto requisition = body.getRequisitionData();
 
-        Long templateId = Long.parseLong(request.getTemplateId());
+        String templateId = request.getTemplateId();
         JobAdTemplate template = findById(templateId);
 
         // Increment usage count
@@ -209,7 +209,7 @@ public class JobAdTemplateService {
         // Build draft response
         Map<String, Object> draft = new LinkedHashMap<>();
         draft.put("id", UUID.randomUUID().toString());
-        draft.put("templateId", String.valueOf(template.getId()));
+        draft.put("templateId", template.getId());
         draft.put("requisitionId", requisition != null ? requisition.getId() : null);
         draft.put("title", title);
         draft.put("intro", intro);
@@ -240,8 +240,8 @@ public class JobAdTemplateService {
         return result;
     }
 
-    private JobAdTemplate findById(Long id) {
-        return templateRepository.findById(String.valueOf(id))
+    private JobAdTemplate findById(String id) {
+        return templateRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Job ad template not found with ID: " + id));
     }
 }

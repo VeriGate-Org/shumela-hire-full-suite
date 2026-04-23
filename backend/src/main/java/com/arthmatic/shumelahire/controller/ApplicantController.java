@@ -64,7 +64,7 @@ public class ApplicantController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
-    public ResponseEntity<?> updateApplicant(@PathVariable Long id,
+    public ResponseEntity<?> updateApplicant(@PathVariable String id,
                                            @Valid @RequestBody ApplicantCreateRequest request) {
         try {
             logger.info("Updating applicant: {}", id);
@@ -86,7 +86,7 @@ public class ApplicantController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> getApplicant(@PathVariable Long id) {
+    public ResponseEntity<?> getApplicant(@PathVariable String id) {
         try {
             ApplicantResponse response = applicantService.getApplicant(id);
             return ResponseEntity.ok(response);
@@ -132,8 +132,8 @@ public class ApplicantController {
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> uploadDocument(
-            @PathVariable Long id,
-            @RequestParam(required = false) Long applicationId,
+            @PathVariable String id,
+            @RequestParam(required = false) String applicationId,
             @RequestParam DocumentType type,
             @RequestParam("file") MultipartFile file) {
         try {
@@ -161,7 +161,7 @@ public class ApplicantController {
      */
     @GetMapping("/{id}/documents")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> getApplicantDocuments(@PathVariable Long id) {
+    public ResponseEntity<?> getApplicantDocuments(@PathVariable String id) {
         try {
             List<Document> documents = applicantService.getApplicantDocuments(id);
             List<DocumentResponse> responses = documents.stream()
@@ -181,8 +181,8 @@ public class ApplicantController {
      */
     @DeleteMapping("/{applicantId}/documents/{documentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> deleteDocument(@PathVariable Long applicantId,
-                                          @PathVariable Long documentId) {
+    public ResponseEntity<?> deleteDocument(@PathVariable String applicantId,
+                                          @PathVariable String documentId) {
         try {
             logger.info("Deleting document {} for applicant: {}", documentId, applicantId);
             applicantService.deleteDocument(applicantId, documentId);

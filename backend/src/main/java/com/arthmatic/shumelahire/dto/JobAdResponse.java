@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 public class JobAdResponse {
     
-    private Long id;
-    private Long requisitionId;
+    private String id;
+    private String requisitionId;
     private String title;
     private String htmlBody;
     private Boolean channelInternal;
@@ -21,7 +21,7 @@ public class JobAdResponse {
     private String createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long jobPostingId;
+    private String jobPostingId;
     private String department;
     private String location;
     private String employmentType;
@@ -60,19 +60,19 @@ public class JobAdResponse {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getRequisitionId() {
+    public String getRequisitionId() {
         return requisitionId;
     }
     
-    public void setRequisitionId(Long requisitionId) {
+    public void setRequisitionId(String requisitionId) {
         this.requisitionId = requisitionId;
     }
     
@@ -156,8 +156,8 @@ public class JobAdResponse {
         this.updatedAt = updatedAt;
     }
 
-    public Long getJobPostingId() { return jobPostingId; }
-    public void setJobPostingId(Long jobPostingId) { this.jobPostingId = jobPostingId; }
+    public String getJobPostingId() { return jobPostingId; }
+    public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }
 
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }

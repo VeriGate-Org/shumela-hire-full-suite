@@ -120,15 +120,15 @@ public class AttritionRiskService {
         plan.setDepartment((String) request.get("department"));
 
         if (request.get("currentHolderId") != null) {
-            Long currentHolderId = Long.valueOf(request.get("currentHolderId").toString());
-            Employee currentHolder = employeeRepository.findById(String.valueOf(currentHolderId))
+            String currentHolderId = request.get("currentHolderId").toString();
+            Employee currentHolder = employeeRepository.findById(currentHolderId)
                     .orElseThrow(() -> new RuntimeException("Current holder not found: " + currentHolderId));
             plan.setCurrentHolder(currentHolder);
         }
 
         if (request.get("successorId") != null) {
-            Long successorId = Long.valueOf(request.get("successorId").toString());
-            Employee successor = employeeRepository.findById(String.valueOf(successorId))
+            String successorId = request.get("successorId").toString();
+            Employee successor = employeeRepository.findById(successorId)
                     .orElseThrow(() -> new RuntimeException("Successor not found: " + successorId));
             plan.setSuccessor(successor);
         }
@@ -175,7 +175,7 @@ public class AttritionRiskService {
         }
 
         // Add some controlled randomness for realistic variation
-        Random random = new Random(employee.getId() != null ? employee.getId() : 0);
+        Random random = new Random(employee.getId() != null ? employee.getId().hashCode() : 0);
         double randomFactor = (random.nextDouble() * 0.4) - 0.2; // -0.2 to +0.2
         baseScore += randomFactor;
 

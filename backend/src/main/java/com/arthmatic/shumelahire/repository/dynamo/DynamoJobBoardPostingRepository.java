@@ -78,7 +78,7 @@ public class DynamoJobBoardPostingRepository extends DynamoRepository<JobBoardPo
     protected JobBoardPosting toEntity(JobBoardPostingItem item) {
         var entity = new JobBoardPosting();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setJobPostingId(item.getJobPostingId());
@@ -114,7 +114,7 @@ public class DynamoJobBoardPostingRepository extends DynamoRepository<JobBoardPo
     protected JobBoardPostingItem toItem(JobBoardPosting entity) {
         var item = new JobBoardPostingItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String statusStr = entity.getStatus() != null ? entity.getStatus().name() : "";
         String postedAtStr = entity.getPostedAt() != null ? entity.getPostedAt().format(ISO_FMT) : "";
 

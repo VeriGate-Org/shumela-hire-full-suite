@@ -45,8 +45,8 @@ public class CustomUserDetailsService implements UserDetailsService {
      * Get user by ID
      */
     @Transactional
-    public User getUserById(Long id) {
-        return userRepository.findById(String.valueOf(id)).orElse(null);
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElse(null);
     }
 
     /**

@@ -39,8 +39,8 @@ public class DepartmentService {
         return saved;
     }
 
-    public Department update(Long id, DepartmentRequest request) {
-        Department department = departmentRepository.findById(String.valueOf(id))
+    public Department update(String id, DepartmentRequest request) {
+        Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
 
         boolean nameChanged = !department.getName().equals(request.getName());
@@ -64,8 +64,8 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
-    public Department getById(Long id) {
-        return departmentRepository.findById(String.valueOf(id))
+    public Department getById(String id) {
+        return departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
     }
 
@@ -84,8 +84,8 @@ public class DepartmentService {
         return departmentRepository.findActiveNames();
     }
 
-    public Department deactivate(Long id) {
-        Department department = departmentRepository.findById(String.valueOf(id))
+    public Department deactivate(String id) {
+        Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
         department.setIsActive(false);
         Department saved = departmentRepository.save(department);
@@ -94,8 +94,8 @@ public class DepartmentService {
         return saved;
     }
 
-    public Department activate(Long id) {
-        Department department = departmentRepository.findById(String.valueOf(id))
+    public Department activate(String id) {
+        Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
         department.setIsActive(true);
         Department saved = departmentRepository.save(department);

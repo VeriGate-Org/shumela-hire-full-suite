@@ -72,7 +72,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
     protected TalentPool toEntity(TalentPoolItem item) {
         var entity = new TalentPool();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setPoolName(item.getPoolName());
@@ -83,7 +83,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
         entity.setIsActive(item.getIsActive());
         entity.setAutoAddEnabled(item.getAutoAddEnabled());
         if (item.getCreatedBy() != null) {
-            entity.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
@@ -98,7 +98,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
     protected TalentPoolItem toItem(TalentPool entity) {
         var item = new TalentPoolItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -123,7 +123,7 @@ public class DynamoTalentPoolRepository extends DynamoRepository<TalentPoolItem,
         item.setIsActive(entity.getIsActive());
         item.setAutoAddEnabled(entity.getAutoAddEnabled());
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(entity.getCreatedBy().toString());
+            item.setCreatedBy(entity.getCreatedBy());
         }
         if (entity.getCreatedAt() != null) {
             item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));

@@ -53,7 +53,7 @@ public class DynamoLeaveRequestRepository extends DynamoRepository<LeaveRequestI
         return findAll().stream()
                 .filter(lr -> lr.getApprover() != null
                         && lr.getApprover().getId() != null
-                        && approverId.equals(String.valueOf(lr.getApprover().getId()))
+                        && approverId.equals(lr.getApprover().getId())
                         && LeaveRequestStatus.PENDING.equals(lr.getStatus()))
                 .collect(Collectors.toList());
     }
@@ -83,7 +83,7 @@ public class DynamoLeaveRequestRepository extends DynamoRepository<LeaveRequestI
         return findByEmployeeId(employeeId).stream()
                 .filter(lr -> lr.getLeaveType() != null
                         && lr.getLeaveType().getId() != null
-                        && leaveTypeId.equals(String.valueOf(lr.getLeaveType().getId()))
+                        && leaveTypeId.equals(lr.getLeaveType().getId())
                         && LeaveRequestStatus.APPROVED.equals(lr.getStatus())
                         && lr.getStartDate() != null && lr.getStartDate().getYear() == year)
                 .count();
@@ -114,21 +114,21 @@ public class DynamoLeaveRequestRepository extends DynamoRepository<LeaveRequestI
         LeaveRequestItem item = new LeaveRequestItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("LEAVE_REQ#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         if (entity.getEmployee() != null && entity.getEmployee().getId() != null) {
-            item.setEmployeeId(String.valueOf(entity.getEmployee().getId()));
+            item.setEmployeeId(entity.getEmployee().getId());
             item.setGsi1pk("LR_EMP#" + entity.getTenantId() + "#" + entity.getEmployee().getId());
             item.setGsi1sk("LEAVE_REQ#" + entity.getId());
         }
 
         if (entity.getApprover() != null && entity.getApprover().getId() != null) {
-            item.setApproverId(String.valueOf(entity.getApprover().getId()));
+            item.setApproverId(entity.getApprover().getId());
         }
 
         if (entity.getLeaveType() != null && entity.getLeaveType().getId() != null) {
-            item.setLeaveTypeId(String.valueOf(entity.getLeaveType().getId()));
+            item.setLeaveTypeId(entity.getLeaveType().getId());
         }
 
         item.setStartDate(entity.getStartDate());
@@ -155,25 +155,25 @@ public class DynamoLeaveRequestRepository extends DynamoRepository<LeaveRequestI
 
         LeaveRequest entity = new LeaveRequest();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getApproverId() != null) {
             Employee approver = new Employee();
-            approver.setId(safeParseLong(item.getApproverId()));
+            approver.setId(item.getApproverId());
             entity.setApprover(approver);
         }
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
+            leaveType.setId(item.getLeaveTypeId());
             entity.setLeaveType(leaveType);
         }
 

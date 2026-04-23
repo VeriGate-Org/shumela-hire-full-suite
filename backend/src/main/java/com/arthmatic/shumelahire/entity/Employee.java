@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Employee extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotBlank
     private String employeeNumber;
@@ -143,8 +143,8 @@ public class Employee extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getEmployeeNumber() { return employeeNumber; }
     public void setEmployeeNumber(String employeeNumber) { this.employeeNumber = employeeNumber; }

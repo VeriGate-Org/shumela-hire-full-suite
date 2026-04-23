@@ -51,27 +51,27 @@ public class SageIntegrationController {
     }
 
     @GetMapping("/connectors/{id}")
-    public ResponseEntity<SageConnectorConfigResponse> getConnector(@PathVariable Long id) {
+    public ResponseEntity<SageConnectorConfigResponse> getConnector(@PathVariable String id) {
         SageConnectorConfig config = connectorService.getConnectorById(id);
         return ResponseEntity.ok(SageConnectorConfigResponse.fromEntity(config));
     }
 
     @PutMapping("/connectors/{id}")
     public ResponseEntity<SageConnectorConfigResponse> updateConnector(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody SageConnectorConfigRequest request) {
         SageConnectorConfig updated = connectorService.updateConnector(id, request);
         return ResponseEntity.ok(SageConnectorConfigResponse.fromEntity(updated));
     }
 
     @DeleteMapping("/connectors/{id}")
-    public ResponseEntity<Map<String, String>> deleteConnector(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteConnector(@PathVariable String id) {
         connectorService.deleteConnector(id);
         return ResponseEntity.ok(Map.of("message", "Connector deleted successfully"));
     }
 
     @PostMapping("/connectors/{id}/test")
-    public ResponseEntity<SageConnectionTestResult> testConnection(@PathVariable Long id) {
+    public ResponseEntity<SageConnectionTestResult> testConnection(@PathVariable String id) {
         SageConnectionTestResult result = connectorService.testConnection(id);
         return ResponseEntity.ok(result);
     }
@@ -96,14 +96,14 @@ public class SageIntegrationController {
 
     @PutMapping("/schedules/{id}")
     public ResponseEntity<SageSyncScheduleResponse> updateSchedule(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody SageSyncScheduleRequest request) {
         SageSyncSchedule updated = scheduleService.updateSchedule(id, request);
         return ResponseEntity.ok(SageSyncScheduleResponse.fromEntity(updated));
     }
 
     @PostMapping("/schedules/{id}/run")
-    public ResponseEntity<SageSyncLogResponse> runScheduleNow(@PathVariable Long id) {
+    public ResponseEntity<SageSyncLogResponse> runScheduleNow(@PathVariable String id) {
         SageSyncLog log = syncEngine.executeSyncJob(id);
         return ResponseEntity.ok(SageSyncLogResponse.fromEntity(log));
     }
@@ -121,7 +121,7 @@ public class SageIntegrationController {
 
     @GetMapping("/logs/{connectorId}")
     public ResponseEntity<List<SageSyncLogResponse>> getLogsByConnector(
-            @PathVariable Long connectorId) {
+            @PathVariable String connectorId) {
         List<SageSyncLog> logs = syncEngine.getLogsByConnector(connectorId);
         List<SageSyncLogResponse> response = logs.stream()
                 .map(SageSyncLogResponse::fromEntity)

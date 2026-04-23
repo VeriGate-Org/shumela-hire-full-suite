@@ -26,9 +26,9 @@ public class ESignatureController {
     @PostMapping("/offers/{offerId}/send")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> sendForSignature(
-            @PathVariable Long offerId,
+            @PathVariable String offerId,
             @RequestBody Map<String, String> request) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+        Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         String signerEmail = request.get("signerEmail");
@@ -48,8 +48,8 @@ public class ESignatureController {
 
     @GetMapping("/offers/{offerId}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<?> getSignatureStatus(@PathVariable Long offerId) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+    public ResponseEntity<?> getSignatureStatus(@PathVariable String offerId) {
+        Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {
@@ -66,8 +66,8 @@ public class ESignatureController {
 
     @GetMapping("/offers/{offerId}/document")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<byte[]> getSignedDocument(@PathVariable Long offerId) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+    public ResponseEntity<byte[]> getSignedDocument(@PathVariable String offerId) {
+        Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {
@@ -92,9 +92,9 @@ public class ESignatureController {
     @PostMapping("/offers/{offerId}/void")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> voidEnvelope(
-            @PathVariable Long offerId,
+            @PathVariable String offerId,
             @RequestBody Map<String, String> request) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+        Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getESignatureEnvelopeId() == null) {

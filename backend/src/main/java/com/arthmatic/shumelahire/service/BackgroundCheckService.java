@@ -25,10 +25,10 @@ public interface BackgroundCheckService {
      * @param initiatedBy  the user ID initiating the check
      * @return the created BackgroundCheck entity
      */
-    BackgroundCheck initiateCheck(Long applicationId, String candidateIdNumber,
+    BackgroundCheck initiateCheck(String applicationId, String candidateIdNumber,
                                   String candidateName, String candidateEmail,
                                   List<String> checkTypes, boolean consentObtained,
-                                  Long initiatedBy);
+                                  String initiatedBy);
 
     /**
      * Get the current status of a background check.
@@ -83,7 +83,7 @@ public interface BackgroundCheckService {
      * @param applicationIds list of application IDs
      * @return map of application ID to verification summary
      */
-    Map<Long, VerificationSummaryDTO> getVerificationSummaries(List<Long> applicationIds);
+    Map<String, VerificationSummaryDTO> getVerificationSummaries(List<String> applicationIds);
 
     /**
      * Enforce that all required background checks are completed with CLEAR result

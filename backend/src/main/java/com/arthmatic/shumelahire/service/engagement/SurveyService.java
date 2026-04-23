@@ -48,7 +48,7 @@ public class SurveyService {
     @Autowired
     private NotificationService notificationService;
 
-    public SurveyResponse createSurvey(SurveyCreateRequest request, Long createdBy) {
+    public SurveyResponse createSurvey(SurveyCreateRequest request, String createdBy) {
         Survey survey = new Survey();
         survey.setTitle(request.getTitle());
         survey.setDescription(request.getDescription());
@@ -77,12 +77,12 @@ public class SurveyService {
                 survey.getId().toString(), "Created survey: " + survey.getTitle());
         logger.info("Survey created: {} by user {}", survey.getTitle(), createdBy);
 
-        return SurveyResponse.fromEntity(surveyRepository.findById(String.valueOf(survey.getId())).orElse(survey));
+        return SurveyResponse.fromEntity(surveyRepository.findById(survey.getId()).orElse(survey));
     }
 
     @Transactional(readOnly = true)
-    public SurveyResponse getSurvey(Long id) {
-        Survey survey = surveyRepository.findById(String.valueOf(id))
+    public SurveyResponse getSurvey(String id) {
+        Survey survey = surveyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         return SurveyResponse.fromEntity(survey);
     }
@@ -101,8 +101,8 @@ public class SurveyService {
                 .collect(Collectors.toList());
     }
 
-    public SurveyResponse activateSurvey(Long id) {
-        Survey survey = surveyRepository.findById(String.valueOf(id))
+    public SurveyResponse activateSurvey(String id) {
+        Survey survey = surveyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         survey.setStatus(SurveyStatus.ACTIVE);
         survey = surveyRepository.save(survey);
@@ -117,8 +117,8 @@ public class SurveyService {
         return SurveyResponse.fromEntity(survey);
     }
 
-    public SurveyResponse closeSurvey(Long id) {
-        Survey survey = surveyRepository.findById(String.valueOf(id))
+    public SurveyResponse closeSurvey(String id) {
+        Survey survey = surveyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
         survey.setStatus(SurveyStatus.CLOSED);
         survey = surveyRepository.save(survey);
@@ -133,23 +133,23 @@ public class SurveyService {
         return SurveyResponse.fromEntity(survey);
     }
 
-    public void submitResponse(Long surveyId, SurveySubmitRequest request) {
-        Survey survey = surveyRepository.findById(String.valueOf(surveyId))
+    public void submitResponse(String surveyId, SurveySubmitRequest request) {
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + surveyId));
 
         if (survey.getStatus() != SurveyStatus.ACTIVE) {
             throw new IllegalArgumentException("Survey is not active");
         }
 
-        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        if (surveyResponseRepository.existsBySurveyIdAndEmployeeId(String.valueOf(surveyId), String.valueOf(request.getEmployeeId()))) {
+        if (surveyResponseRepository.existsBySurveyIdAndEmployeeId(surveyId, request.getEmployeeId())) {
             throw new IllegalArgumentException("Employee has already responded to this survey");
         }
 
         for (SurveySubmitRequest.AnswerRequest answer : request.getAnswers()) {
-            SurveyQuestion question = surveyQuestionRepository.findById(String.valueOf(answer.getQuestionId()))
+            SurveyQuestion question = surveyQuestionRepository.findById(answer.getQuestionId())
                     .orElseThrow(() -> new IllegalArgumentException("Question not found: " + answer.getQuestionId()));
 
             com.arthmatic.shumelahire.entity.engagement.SurveyResponse response =
@@ -163,7 +163,7 @@ public class SurveyService {
         }
 
         auditLogService.saveLog(request.getEmployeeId().toString(), "SUBMIT_RESPONSE", "SURVEY",
-                surveyId.toString(), "Submitted response to survey: " + survey.getTitle());
+                surveyId, "Submitted response to survey: " + survey.getTitle());
         logger.info("Employee {} submitted response to survey {}", request.getEmployeeId(), surveyId);
 
         notificationService.sendInternalNotification(survey.getCreatedBy(), "Survey Response",
@@ -172,16 +172,16 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public SurveyResultsResponse getSurveyResults(Long surveyId) {
-        Survey survey = surveyRepository.findById(String.valueOf(surveyId))
+    public SurveyResultsResponse getSurveyResults(String surveyId) {
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + surveyId));
 
         SurveyResultsResponse results = new SurveyResultsResponse();
         results.setSurveyId(surveyId);
         results.setSurveyTitle(survey.getTitle());
-        results.setTotalRespondents(surveyResponseRepository.countDistinctRespondents(String.valueOf(surveyId)));
+        results.setTotalRespondents(surveyResponseRepository.countDistinctRespondents(surveyId));
 
-        List<SurveyQuestion> questions = surveyQuestionRepository.findBySurveyIdOrderByDisplayOrderAsc(String.valueOf(surveyId));
+        List<SurveyQuestion> questions = surveyQuestionRepository.findBySurveyIdOrderByDisplayOrderAsc(surveyId);
         List<SurveyResultsResponse.QuestionResult> questionResults = new ArrayList<>();
 
         for (SurveyQuestion question : questions) {
@@ -189,10 +189,10 @@ public class SurveyService {
             qr.setQuestionId(question.getId());
             qr.setQuestionText(question.getQuestionText());
             qr.setQuestionType(question.getQuestionType().name());
-            qr.setAverageRating(surveyResponseRepository.getAverageRating(String.valueOf(surveyId), String.valueOf(question.getId())));
+            qr.setAverageRating(surveyResponseRepository.getAverageRating(surveyId, question.getId()));
 
             List<com.arthmatic.shumelahire.entity.engagement.SurveyResponse> responses =
-                    surveyResponseRepository.findBySurveyIdAndQuestionId(String.valueOf(surveyId), String.valueOf(question.getId()));
+                    surveyResponseRepository.findBySurveyIdAndQuestionId(surveyId, question.getId());
             qr.setResponseCount((long) responses.size());
             qr.setTextResponses(responses.stream()
                     .map(com.arthmatic.shumelahire.entity.engagement.SurveyResponse::getTextResponse)
@@ -206,13 +206,13 @@ public class SurveyService {
         return results;
     }
 
-    public void deleteSurvey(Long id) {
-        Survey survey = surveyRepository.findById(String.valueOf(id))
+    public void deleteSurvey(String id) {
+        Survey survey = surveyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Survey not found: " + id));
-        surveyRepository.deleteById(String.valueOf(survey.getId()));
+        surveyRepository.deleteById(survey.getId());
 
         auditLogService.saveLog("SYSTEM", "DELETE", "SURVEY",
-                id.toString(), "Deleted survey: " + survey.getTitle());
+                id, "Deleted survey: " + survey.getTitle());
         logger.info("Survey deleted: {}", id);
     }
 }

@@ -43,7 +43,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
     public List<Recognition> findByFromEmployeeIdOrderByCreatedAtDesc(String fromEmployeeId) {
         return findAll().stream()
                 .filter(r -> r.getFromEmployee() != null && r.getFromEmployee().getId() != null
-                        && fromEmployeeId.equals(r.getFromEmployee().getId().toString()))
+                        && fromEmployeeId.equals(r.getFromEmployee().getId()))
                 .sorted(Comparator.comparing(Recognition::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
     }
@@ -58,7 +58,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
 
     @Override
     public List<Map<String, Object>> getLeaderboard() {
-        Map<Long, Long> pointsByEmployee = findAll().stream()
+        Map<String, Long> pointsByEmployee = findAll().stream()
                 .filter(r -> r.getToEmployee() != null && r.getToEmployee().getId() != null)
                 .filter(r -> r.getPoints() != null)
                 .collect(Collectors.groupingBy(
@@ -90,14 +90,14 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
     protected Recognition toEntity(RecognitionItem item) {
         var e = new Recognition();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create fromEmployee stub
         if (item.getFromEmployeeId() != null) {
             var fromEmployee = new Employee();
-            fromEmployee.setId(safeParseLong(item.getFromEmployeeId()));
+            fromEmployee.setId(item.getFromEmployeeId());
             fromEmployee.setTenantId(item.getTenantId());
             e.setFromEmployee(fromEmployee);
         }
@@ -105,7 +105,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
         // Create toEmployee stub
         if (item.getToEmployeeId() != null) {
             var toEmployee = new Employee();
-            toEmployee.setId(safeParseLong(item.getToEmployeeId()));
+            toEmployee.setId(item.getToEmployeeId());
             toEmployee.setTenantId(item.getTenantId());
             e.setToEmployee(toEmployee);
         }
@@ -123,11 +123,11 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
     @Override
     protected RecognitionItem toItem(Recognition entity) {
         var item = new RecognitionItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String fromEmployeeId = entity.getFromEmployee() != null && entity.getFromEmployee().getId() != null ? entity.getFromEmployee().getId().toString() : null;
-        String toEmployeeId = entity.getToEmployee() != null && entity.getToEmployee().getId() != null ? entity.getToEmployee().getId().toString() : null;
+        String fromEmployeeId = entity.getFromEmployee() != null && entity.getFromEmployee().getId() != null ? entity.getFromEmployee().getId() : null;
+        String toEmployeeId = entity.getToEmployee() != null && entity.getToEmployee().getId() != null ? entity.getToEmployee().getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("RECOGNITION#" + id);

@@ -70,8 +70,8 @@ public class SapPayrollConnector implements SapPayrollService {
     private long tokenExpiresAt = 0;
 
     @Override
-    public SapPayrollTransmission sendNewHireData(Long offerId, Long initiatedBy) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+    public SapPayrollTransmission sendNewHireData(String offerId, String initiatedBy) {
+        Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         if (offer.getStatus() != OfferStatus.ACCEPTED) {
@@ -80,7 +80,7 @@ public class SapPayrollConnector implements SapPayrollService {
         }
 
         // Check for existing active transmission
-        List<SapPayrollTransmission> existing = transmissionRepository.findByOfferIdOrderByCreatedAtDesc(String.valueOf(offerId));
+        List<SapPayrollTransmission> existing = transmissionRepository.findByOfferIdOrderByCreatedAtDesc(offerId);
         Optional<SapPayrollTransmission> active = existing.stream()
                 .filter(t -> t.getStatus().isActive() || t.getStatus() == TransmissionStatus.CONFIRMED)
                 .findFirst();
@@ -111,7 +111,7 @@ public class SapPayrollConnector implements SapPayrollService {
             transmission = transmissionRepository.save(transmission);
 
             auditLogService.saveLog(String.valueOf(initiatedBy), "SAP_VALIDATION_FAILED",
-                    "SAP_PAYROLL", String.valueOf(transmission.getId()),
+                    "SAP_PAYROLL", transmission.getId(),
                     "SAP payroll validation failed for offer " + offerId);
             return transmission;
         }
@@ -170,7 +170,7 @@ public class SapPayrollConnector implements SapPayrollService {
             transmission = transmissionRepository.save(transmission);
 
             auditLogService.saveLog(String.valueOf(initiatedBy), "SAP_TRANSMISSION_SENT",
-                    "SAP_PAYROLL", String.valueOf(transmission.getId()),
+                    "SAP_PAYROLL", transmission.getId(),
                     "SAP payroll transmission sent for offer " + offerId
                     + (transmission.getSapEmployeeNumber() != null
                         ? " — SAP Employee: " + transmission.getSapEmployeeNumber()
@@ -184,7 +184,7 @@ public class SapPayrollConnector implements SapPayrollService {
             transmission = transmissionRepository.save(transmission);
 
             auditLogService.saveLog(String.valueOf(initiatedBy), "SAP_TRANSMISSION_FAILED",
-                    "SAP_PAYROLL", String.valueOf(transmission.getId()),
+                    "SAP_PAYROLL", transmission.getId(),
                     "SAP payroll transmission failed for offer " + offerId + ": " + e.getMessage());
         }
 
@@ -250,15 +250,15 @@ public class SapPayrollConnector implements SapPayrollService {
     }
 
     @Override
-    public Map<String, String> validateEmployeeData(Long offerId) {
-        Offer offer = offerRepository.findById(String.valueOf(offerId))
+    public Map<String, String> validateEmployeeData(String offerId) {
+        Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new RuntimeException("Offer not found: " + offerId));
 
         return validateOfferData(offer);
     }
 
     @Override
-    public SapPayrollTransmission retryFailedTransmission(String transmissionId, Long userId) {
+    public SapPayrollTransmission retryFailedTransmission(String transmissionId, String userId) {
         SapPayrollTransmission transmission = transmissionRepository.findByTransmissionId(transmissionId)
                 .orElseThrow(() -> new RuntimeException("Transmission not found: " + transmissionId));
 
@@ -329,8 +329,8 @@ public class SapPayrollConnector implements SapPayrollService {
 
             transmission = transmissionRepository.save(transmission);
 
-            auditLogService.saveLog(String.valueOf(userId), "SAP_RETRY_SUCCESS",
-                    "SAP_PAYROLL", String.valueOf(transmission.getId()),
+            auditLogService.saveLog(userId, "SAP_RETRY_SUCCESS",
+                    "SAP_PAYROLL", transmission.getId(),
                     "SAP payroll retry #" + transmission.getRetryCount() + " for transmission " + transmissionId);
 
         } catch (Exception e) {
@@ -340,8 +340,8 @@ public class SapPayrollConnector implements SapPayrollService {
             transmission.setNextRetryAt(LocalDateTime.now().plusMinutes(15 * (long) Math.pow(2, transmission.getRetryCount())));
             transmission = transmissionRepository.save(transmission);
 
-            auditLogService.saveLog(String.valueOf(userId), "SAP_RETRY_FAILED",
-                    "SAP_PAYROLL", String.valueOf(transmission.getId()),
+            auditLogService.saveLog(userId, "SAP_RETRY_FAILED",
+                    "SAP_PAYROLL", transmission.getId(),
                     "SAP payroll retry #" + transmission.getRetryCount() + " failed: " + e.getMessage());
         }
 
@@ -359,7 +359,7 @@ public class SapPayrollConnector implements SapPayrollService {
     }
 
     @Override
-    public SapPayrollTransmission cancelTransmission(String transmissionId, String reason, Long userId) {
+    public SapPayrollTransmission cancelTransmission(String transmissionId, String reason, String userId) {
         SapPayrollTransmission transmission = transmissionRepository.findByTransmissionId(transmissionId)
                 .orElseThrow(() -> new RuntimeException("Transmission not found: " + transmissionId));
 
@@ -374,8 +374,8 @@ public class SapPayrollConnector implements SapPayrollService {
         transmission.setCancellationReason(reason);
         transmission = transmissionRepository.save(transmission);
 
-        auditLogService.saveLog(String.valueOf(userId), "SAP_TRANSMISSION_CANCELLED",
-                "SAP_PAYROLL", String.valueOf(transmission.getId()),
+        auditLogService.saveLog(userId, "SAP_TRANSMISSION_CANCELLED",
+                "SAP_PAYROLL", transmission.getId(),
                 "SAP payroll transmission cancelled: " + reason);
 
         return transmission;

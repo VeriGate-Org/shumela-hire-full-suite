@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SkillGapDto {
 
-    private Long competencyId;
+    private String competencyId;
     private String competencyName;
     private String frameworkName;
     private String category;
@@ -17,24 +17,24 @@ public class SkillGapDto {
     public SkillGapDto() {}
 
     public static class RecommendedCourse {
-        private Long courseId;
+        private String courseId;
         private String courseTitle;
 
         public RecommendedCourse() {}
 
-        public RecommendedCourse(Long courseId, String courseTitle) {
+        public RecommendedCourse(String courseId, String courseTitle) {
             this.courseId = courseId;
             this.courseTitle = courseTitle;
         }
 
-        public Long getCourseId() { return courseId; }
-        public void setCourseId(Long courseId) { this.courseId = courseId; }
+        public String getCourseId() { return courseId; }
+        public void setCourseId(String courseId) { this.courseId = courseId; }
         public String getCourseTitle() { return courseTitle; }
         public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
     }
 
-    public Long getCompetencyId() { return competencyId; }
-    public void setCompetencyId(Long competencyId) { this.competencyId = competencyId; }
+    public String getCompetencyId() { return competencyId; }
+    public void setCompetencyId(String competencyId) { this.competencyId = competencyId; }
     public String getCompetencyName() { return competencyName; }
     public void setCompetencyName(String competencyName) { this.competencyName = competencyName; }
     public String getFrameworkName() { return frameworkName; }

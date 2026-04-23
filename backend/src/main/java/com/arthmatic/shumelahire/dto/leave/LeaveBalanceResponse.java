@@ -5,10 +5,10 @@ import java.math.BigDecimal;
 
 public class LeaveBalanceResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
-    private Long leaveTypeId;
+    private String leaveTypeId;
     private String leaveTypeName;
     private String leaveTypeCode;
     private String colorCode;
@@ -44,17 +44,17 @@ public class LeaveBalanceResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
 
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 
     public String getLeaveTypeName() { return leaveTypeName; }
     public void setLeaveTypeName(String leaveTypeName) { this.leaveTypeName = leaveTypeName; }

@@ -47,15 +47,15 @@ public class CertificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<CertificationResponse> getByEmployee(Long employeeId) {
-        return certificationRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<CertificationResponse> getByEmployee(String employeeId) {
+        return certificationRepository.findByEmployeeId(employeeId).stream()
                 .map(CertificationResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public CertificationResponse getById(Long id) {
-        Certification cert = certificationRepository.findById(String.valueOf(id))
+    public CertificationResponse getById(String id) {
+        Certification cert = certificationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
         return CertificationResponse.fromEntity(cert);
     }
@@ -77,7 +77,7 @@ public class CertificationService {
     }
 
     public CertificationResponse create(CertificationRequest request, String userId) {
-        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
         Certification cert = new Certification();
@@ -102,8 +102,8 @@ public class CertificationService {
         return CertificationResponse.fromEntity(saved);
     }
 
-    public CertificationResponse update(Long id, CertificationRequest request, String userId) {
-        Certification cert = certificationRepository.findById(String.valueOf(id))
+    public CertificationResponse update(String id, CertificationRequest request, String userId) {
+        Certification cert = certificationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
 
         cert.setName(request.getName());
@@ -123,12 +123,12 @@ public class CertificationService {
         return CertificationResponse.fromEntity(saved);
     }
 
-    public void revoke(Long id, String userId) {
-        Certification cert = certificationRepository.findById(String.valueOf(id))
+    public void revoke(String id, String userId) {
+        Certification cert = certificationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
         cert.setStatus(CertificationStatus.REVOKED);
         certificationRepository.save(cert);
-        auditLogService.saveLog(userId, "REVOKE", "CERTIFICATION", id.toString(),
+        auditLogService.saveLog(userId, "REVOKE", "CERTIFICATION", id,
                 "Revoked certification: " + cert.getName());
 
         notificationService.sendInternalNotification(cert.getEmployee().getId(), "Certification Revoked",

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class TrainingSessionRequest {
 
     @NotNull
-    private Long courseId;
+    private String courseId;
 
     private String trainerName;
     private String location;
@@ -23,8 +23,8 @@ public class TrainingSessionRequest {
     public TrainingSessionRequest() {}
 
     // Getters and Setters
-    public Long getCourseId() { return courseId; }
-    public void setCourseId(Long courseId) { this.courseId = courseId; }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
 
     public String getTrainerName() { return trainerName; }
     public void setTrainerName(String trainerName) { this.trainerName = trainerName; }

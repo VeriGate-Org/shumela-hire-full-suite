@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class SurveyResponse extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Survey survey;
 
@@ -21,8 +21,8 @@ public class SurveyResponse extends TenantAwareEntity {
 
     private LocalDateTime createdAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public Survey getSurvey() { return survey; }
     public void setSurvey(Survey survey) { this.survey = survey; }
     public SurveyQuestion getQuestion() { return question; }

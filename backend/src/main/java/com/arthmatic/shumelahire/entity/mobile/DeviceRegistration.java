@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class DeviceRegistration extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Employee employee;
 
@@ -32,8 +32,8 @@ public class DeviceRegistration extends TenantAwareEntity {
     public DeviceRegistration() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }

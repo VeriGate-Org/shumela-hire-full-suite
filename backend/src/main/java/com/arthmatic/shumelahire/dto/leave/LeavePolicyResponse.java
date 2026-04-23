@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 public class LeavePolicyResponse {
 
-    private Long id;
-    private Long leaveTypeId;
+    private String id;
+    private String leaveTypeId;
     private String leaveTypeName;
     private String name;
     private String description;
@@ -49,11 +49,11 @@ public class LeavePolicyResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 
     public String getLeaveTypeName() { return leaveTypeName; }
     public void setLeaveTypeName(String leaveTypeName) { this.leaveTypeName = leaveTypeName; }

@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 
 public class TrainingEvaluation extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long sessionId;
+    private String sessionId;
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     @NotNull
     @Min(1) @Max(5)
@@ -39,14 +39,14 @@ public class TrainingEvaluation extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getSessionId() { return sessionId; }
-    public void setSessionId(Long sessionId) { this.sessionId = sessionId; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public Integer getOverallRating() { return overallRating; }
     public void setOverallRating(Integer overallRating) { this.overallRating = overallRating; }

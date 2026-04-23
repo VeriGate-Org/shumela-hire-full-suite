@@ -34,8 +34,8 @@ public class SsoGroupMappingService {
      * Parse group mappings JSON from an SsoConfiguration entity.
      */
     @Transactional(readOnly = true)
-    public List<SsoGroupMapping> getGroupMappings(Long configId) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(configId))
+    public List<SsoGroupMapping> getGroupMappings(String configId) {
+        SsoConfiguration config = ssoConfigurationRepository.findById(configId)
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + configId));
 
         return parseGroupMappings(config.getGroupMappings());
@@ -56,8 +56,8 @@ public class SsoGroupMappingService {
     /**
      * Update group mappings for a specific SSO configuration.
      */
-    public List<SsoGroupMapping> updateGroupMappings(Long configId, List<SsoGroupMapping> mappings) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(configId))
+    public List<SsoGroupMapping> updateGroupMappings(String configId, List<SsoGroupMapping> mappings) {
+        SsoConfiguration config = ssoConfigurationRepository.findById(configId)
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + configId));
 
         String mappingsJson = serializeGroupMappings(mappings);

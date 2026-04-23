@@ -149,7 +149,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
     public Optional<Employee> findByApplicantId(String applicantId) {
         return findAll().stream()
                 .filter(e -> applicantId.equals(
-                        e.getApplicant() != null ? e.getApplicant().getId().toString() : null))
+                        e.getApplicant() != null ? e.getApplicant().getId() : null))
                 .findFirst();
     }
 
@@ -198,7 +198,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
     protected Employee toEntity(EmployeeItem item) {
         var emp = new Employee();
         if (item.getId() != null) {
-            emp.setId(safeParseLong(item.getId()));
+            emp.setId(item.getId());
         }
         emp.setTenantId(item.getTenantId());
         emp.setEmployeeNumber(item.getEmployeeNumber());
@@ -255,7 +255,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
         // the service layer can hydrate if needed
         if (item.getReportingManagerId() != null) {
             var mgr = new Employee();
-            mgr.setId(safeParseLong(item.getReportingManagerId()));
+            mgr.setId(item.getReportingManagerId());
             emp.setReportingManager(mgr);
         }
         emp.setCostCentre(item.getCostCentre());
@@ -264,7 +264,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
         // applicant is a relationship — store only the ID
         if (item.getApplicantId() != null) {
             var applicant = new com.arthmatic.shumelahire.entity.Applicant();
-            applicant.setId(safeParseLong(item.getApplicantId()));
+            applicant.setId(item.getApplicantId());
             emp.setApplicant(applicant);
         }
         emp.setProfilePhotoUrl(item.getProfilePhotoUrl());
@@ -288,7 +288,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
     protected EmployeeItem toItem(Employee entity) {
         var item = new EmployeeItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -312,7 +312,7 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
 
         // GSI5: Manager lookup
         String mgrId = entity.getReportingManager() != null && entity.getReportingManager().getId() != null
-                ? entity.getReportingManager().getId().toString() : "NONE";
+                ? entity.getReportingManager().getId() : "NONE";
         item.setGsi5pk("EMP_MGR#" + tenantId + "#" + mgrId);
         item.setGsi5sk("EMPLOYEE#" + nullSafe(entity.getLastName()) + "#" + nullSafe(entity.getFirstName()));
 
@@ -372,13 +372,13 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
             item.setContractEndDate(entity.getContractEndDate().format(DATE_FMT));
         }
         if (entity.getReportingManager() != null && entity.getReportingManager().getId() != null) {
-            item.setReportingManagerId(entity.getReportingManager().getId().toString());
+            item.setReportingManagerId(entity.getReportingManager().getId());
         }
         item.setCostCentre(entity.getCostCentre());
         item.setLocation(entity.getLocation());
         item.setSite(entity.getSite());
         if (entity.getApplicant() != null && entity.getApplicant().getId() != null) {
-            item.setApplicantId(entity.getApplicant().getId().toString());
+            item.setApplicantId(entity.getApplicant().getId());
         }
         item.setProfilePhotoUrl(entity.getProfilePhotoUrl());
         item.setEmergencyContactName(entity.getEmergencyContactName());

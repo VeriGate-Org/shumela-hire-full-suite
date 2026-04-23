@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public class TrainingEnrollmentResponse {
 
-    private Long id;
-    private Long sessionId;
+    private String id;
+    private String sessionId;
     private String courseTitle;
     private String courseCode;
-    private Long employeeId;
+    private String employeeId;
     private String employeeName;
     private String status;
     private BigDecimal score;
@@ -48,11 +48,11 @@ public class TrainingEnrollmentResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getSessionId() { return sessionId; }
-    public void setSessionId(Long sessionId) { this.sessionId = sessionId; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 
     public String getCourseTitle() { return courseTitle; }
     public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
@@ -60,8 +60,8 @@ public class TrainingEnrollmentResponse {
     public String getCourseCode() { return courseCode; }
     public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }

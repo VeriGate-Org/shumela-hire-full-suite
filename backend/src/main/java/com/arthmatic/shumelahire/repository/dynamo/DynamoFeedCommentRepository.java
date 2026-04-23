@@ -43,14 +43,14 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
     protected FeedComment toEntity(FeedCommentItem item) {
         var e = new FeedComment();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         if (item.getPostId() != null) {
-            e.setPostId(safeParseLong(item.getPostId()));
+            e.setPostId(item.getPostId());
         }
         if (item.getAuthorId() != null) {
-            e.setAuthorId(safeParseLong(item.getAuthorId()));
+            e.setAuthorId(item.getAuthorId());
         }
         e.setAuthorName(item.getAuthorName());
         e.setContent(item.getContent());
@@ -61,10 +61,10 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
     @Override
     protected FeedCommentItem toItem(FeedComment entity) {
         var item = new FeedCommentItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String postId = entity.getPostId() != null ? entity.getPostId().toString() : null;
+        String postId = entity.getPostId() != null ? entity.getPostId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("FEED_COMMENT#" + id);
@@ -77,7 +77,7 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
         item.setTenantId(tenantId);
         item.setPostId(postId);
         if (entity.getAuthorId() != null) {
-            item.setAuthorId(entity.getAuthorId().toString());
+            item.setAuthorId(entity.getAuthorId());
         }
         item.setAuthorName(entity.getAuthorName());
         item.setContent(entity.getContent());

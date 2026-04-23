@@ -37,7 +37,7 @@ public class ComplianceReminderService {
     private AuditLogService auditLogService;
 
     public ComplianceReminderResponse createReminder(String reminderType, String entityType,
-                                                      Long entityId, Long employeeId,
+                                                      String entityId, String employeeId,
                                                       String title, String description,
                                                       LocalDate dueDate) {
         ComplianceReminder reminder = new ComplianceReminder();
@@ -50,7 +50,7 @@ public class ComplianceReminderService {
         reminder.setStatus(ReminderStatus.PENDING);
 
         if (employeeId != null) {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId)).orElse(null);
+            Employee employee = employeeRepository.findById(employeeId).orElse(null);
             reminder.setEmployee(employee);
         }
 
@@ -64,8 +64,8 @@ public class ComplianceReminderService {
     }
 
     @Transactional(readOnly = true)
-    public ComplianceReminderResponse getReminder(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
+    public ComplianceReminderResponse getReminder(String id) {
+        ComplianceReminder reminder = reminderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
         return ComplianceReminderResponse.fromEntity(reminder);
     }
@@ -85,8 +85,8 @@ public class ComplianceReminderService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComplianceReminderResponse> getRemindersByEmployee(Long employeeId) {
-        return reminderRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<ComplianceReminderResponse> getRemindersByEmployee(String employeeId) {
+        return reminderRepository.findByEmployeeId(employeeId).stream()
                 .map(ComplianceReminderResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -100,8 +100,8 @@ public class ComplianceReminderService {
                 .collect(Collectors.toList());
     }
 
-    public ComplianceReminderResponse acknowledge(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
+    public ComplianceReminderResponse acknowledge(String id) {
+        ComplianceReminder reminder = reminderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.ACKNOWLEDGED);
@@ -109,12 +109,12 @@ public class ComplianceReminderService {
         reminder = reminderRepository.save(reminder);
 
         auditLogService.saveLog("SYSTEM", "ACKNOWLEDGE", "COMPLIANCE_REMINDER",
-                id.toString(), "Acknowledged reminder: " + reminder.getTitle());
+                id, "Acknowledged reminder: " + reminder.getTitle());
         return ComplianceReminderResponse.fromEntity(reminder);
     }
 
-    public void markAsSent(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
+    public void markAsSent(String id) {
+        ComplianceReminder reminder = reminderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.SENT);
@@ -122,8 +122,8 @@ public class ComplianceReminderService {
         reminderRepository.save(reminder);
     }
 
-    public void markOverdue(Long id) {
-        ComplianceReminder reminder = reminderRepository.findById(String.valueOf(id))
+    public void markOverdue(String id) {
+        ComplianceReminder reminder = reminderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found: " + id));
 
         reminder.setStatus(ReminderStatus.OVERDUE);

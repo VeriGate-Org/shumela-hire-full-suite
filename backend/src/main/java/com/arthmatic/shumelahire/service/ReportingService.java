@@ -366,7 +366,7 @@ public class ReportingService {
             for (String field : fields) {
                 switch (field.toLowerCase()) {
                     case "id":
-                        values.add(String.valueOf(app.getId()));
+                        values.add(app.getId());
                         break;
                     case "applicant_name":
                         values.add(app.getApplicant().getFullName());
@@ -415,7 +415,7 @@ public class ReportingService {
             for (String field : fields) {
                 switch (field.toLowerCase()) {
                     case "id":
-                        values.add(String.valueOf(interview.getId()));
+                        values.add(interview.getId());
                         break;
                     case "applicant_name":
                         values.add(interview.getApplication().getApplicant().getFullName());

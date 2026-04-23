@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 
 public class ScreeningAnswer extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Application ID is required")
-    private Long applicationId;
+    private String applicationId;
     
     @NotNull(message = "Screening question is required")
     private ScreeningQuestion screeningQuestion;
@@ -28,26 +28,26 @@ public class ScreeningAnswer extends TenantAwareEntity {
     // Constructors
     public ScreeningAnswer() {}
     
-    public ScreeningAnswer(Long applicationId, ScreeningQuestion screeningQuestion, String answerValue) {
+    public ScreeningAnswer(String applicationId, ScreeningQuestion screeningQuestion, String answerValue) {
         this.applicationId = applicationId;
         this.screeningQuestion = screeningQuestion;
         this.answerValue = answerValue;
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
     
-    public void setApplicationId(Long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
     

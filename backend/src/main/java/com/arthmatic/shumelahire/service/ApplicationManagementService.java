@@ -110,12 +110,12 @@ public class ApplicationManagementService {
      */
     @Transactional
     public Map<String, Object> bulkUpdateStatus(
-            List<Long> applicationIds,
+            List<String> applicationIds,
             ApplicationStatus newStatus,
             String reason) {
 
-        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
-        List<Long> updatedIds = new ArrayList<>();
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds);
+        List<String> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         for (Application application : applications) {
@@ -162,11 +162,11 @@ public class ApplicationManagementService {
      */
     @Transactional
     public Map<String, Object> bulkAssignPipelineStage(
-            List<Long> applicationIds,
+            List<String> applicationIds,
             PipelineStage pipelineStage) {
 
-        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
-        List<Long> updatedIds = new ArrayList<>();
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds);
+        List<String> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         for (Application application : applications) {
@@ -203,13 +203,13 @@ public class ApplicationManagementService {
      * Rate multiple applications
      */
     @Transactional
-    public Map<String, Object> bulkRateApplications(Map<Long, Integer> applicationRatings) {
-        List<Long> updatedIds = new ArrayList<>();
+    public Map<String, Object> bulkRateApplications(Map<String, Integer> applicationRatings) {
+        List<String> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        for (Map.Entry<Long, Integer> entry : applicationRatings.entrySet()) {
+        for (Map.Entry<String, Integer> entry : applicationRatings.entrySet()) {
             try {
-                Long applicationId = entry.getKey();
+                String applicationId = entry.getKey();
                 Integer rating = entry.getValue();
 
                 if (rating < 1 || rating > 5) {
@@ -217,7 +217,7 @@ public class ApplicationManagementService {
                     continue;
                 }
 
-                Application application = applicationRepository.findById(String.valueOf(applicationId))
+                Application application = applicationRepository.findById(applicationId)
                     .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
                 application.setRating(rating);
@@ -244,9 +244,9 @@ public class ApplicationManagementService {
      * Add screening notes to multiple applications
      */
     @Transactional
-    public Map<String, Object> bulkAddScreeningNotes(List<Long> applicationIds, String notes) {
-        List<Application> applications = applicationRepository.findAllByIds(applicationIds.stream().map(String::valueOf).collect(Collectors.toList()));
-        List<Long> updatedIds = new ArrayList<>();
+    public Map<String, Object> bulkAddScreeningNotes(List<String> applicationIds, String notes) {
+        List<Application> applications = applicationRepository.findAllByIds(applicationIds);
+        List<String> updatedIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         for (Application application : applications) {

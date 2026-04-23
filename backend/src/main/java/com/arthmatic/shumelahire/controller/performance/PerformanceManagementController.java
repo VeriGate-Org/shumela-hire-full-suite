@@ -48,7 +48,7 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/cycles/{id}")
-    public ResponseEntity<PerformanceCycle> getCycle(@PathVariable Long id) {
+    public ResponseEntity<PerformanceCycle> getCycle(@PathVariable String id) {
 
         String tenantId = TenantContext.requireCurrentTenant();
         Optional<PerformanceCycle> cycle = performanceService.getCycle(id, tenantId);
@@ -57,7 +57,7 @@ public class PerformanceManagementController {
     }
 
     @PostMapping("/cycles/{id}/activate")
-    public ResponseEntity<Void> activateCycle(@PathVariable Long id) {
+    public ResponseEntity<Void> activateCycle(@PathVariable String id) {
 
         try {
             String tenantId = TenantContext.requireCurrentTenant();
@@ -94,7 +94,7 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/contracts/{id}")
-    public ResponseEntity<PerformanceContract> getContract(@PathVariable Long id) {
+    public ResponseEntity<PerformanceContract> getContract(@PathVariable String id) {
 
         String tenantId = TenantContext.requireCurrentTenant();
         Optional<PerformanceContract> contract = performanceService.getContract(id, tenantId);
@@ -103,7 +103,7 @@ public class PerformanceManagementController {
     }
 
     @PostMapping("/contracts/{id}/submit")
-    public ResponseEntity<Void> submitContract(@PathVariable Long id) {
+    public ResponseEntity<Void> submitContract(@PathVariable String id) {
 
         try {
             String tenantId = TenantContext.requireCurrentTenant();
@@ -118,7 +118,7 @@ public class PerformanceManagementController {
 
     @PostMapping("/contracts/{id}/approve")
     public ResponseEntity<Void> approveContract(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody ApprovalRequest request,
             @RequestHeader("X-User-Id") String approverId) {
 
@@ -158,7 +158,7 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/templates/{id}")
-    public ResponseEntity<PerformanceTemplate> getTemplate(@PathVariable Long id) {
+    public ResponseEntity<PerformanceTemplate> getTemplate(@PathVariable String id) {
 
         String tenantId = TenantContext.requireCurrentTenant();
         Optional<PerformanceTemplate> template = performanceService.getTemplate(id, tenantId);
