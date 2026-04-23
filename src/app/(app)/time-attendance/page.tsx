@@ -49,14 +49,24 @@ export default function TimeAttendancePage() {
         () => {} // ignore errors silently
       );
     }
-    attendanceService.getRecords(employeeId, 0, 10).then((data) => {
-      const records = Array.isArray(data?.content) ? data.content : [];
+    Promise.all([
+      attendanceService.getStatus(employeeId).catch(() => ({ clockedIn: false as const })),
+      attendanceService.getRecords(employeeId, 0, 10).catch(() => []),
+    ]).then(([statusData, recordsData]) => {
+      // Handle both plain array and { content: [...] } response shapes
+      const records = Array.isArray(recordsData)
+        ? recordsData
+        : Array.isArray(recordsData?.content)
+          ? recordsData.content
+          : [];
       setRecentRecords(records);
-      const today = new Date().toISOString().split('T')[0];
-      const openRecord = records.find(
-        (r) => r.clockIn.startsWith(today) && !r.clockOut
-      );
-      setTodayRecord(openRecord || null);
+
+      // Use the dedicated status endpoint to detect open session
+      if (statusData && 'clockIn' in statusData) {
+        setTodayRecord(statusData as AttendanceRecord);
+      } else {
+        setTodayRecord(null);
+      }
       setLoading(false);
     }).catch(() => {
       setLoading(false);
