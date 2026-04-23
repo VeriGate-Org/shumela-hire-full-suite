@@ -188,7 +188,9 @@ export default function EmployeePortalPage() {
       if (attendanceRes.status === 'fulfilled' && attendanceRes.value) setAttendanceStatus(attendanceRes.value);
       if (enrollmentsRes.status === 'fulfilled') setEnrollments(Array.isArray(enrollmentsRes.value) ? enrollmentsRes.value : []);
       if (recognitionsRes.status === 'fulfilled') {
-        const content = Array.isArray(recognitionsRes.value?.content) ? recognitionsRes.value.content : [];
+        // Backend returns List<> (plain array) or { content: [...] }
+        const raw = recognitionsRes.value;
+        const content = Array.isArray(raw) ? raw : (Array.isArray(raw?.content) ? raw.content : []);
         setRecognitions(content);
         setTotalPoints(content.reduce((sum: number, r: Recognition) => sum + r.points, 0));
       }
