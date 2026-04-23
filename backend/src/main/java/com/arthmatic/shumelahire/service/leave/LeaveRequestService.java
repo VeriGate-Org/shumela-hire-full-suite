@@ -23,7 +23,11 @@ import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -252,21 +256,27 @@ public class LeaveRequestService {
 
     @Transactional(readOnly = true)
     public List<LeaveRequestResponse> getByEmployee(String employeeId) {
-        return leaveRequestRepository.findByEmployeeId(employeeId).stream()
+        List<LeaveRequest> requests = leaveRequestRepository.findByEmployeeId(employeeId);
+        enrichLeaveRequests(requests);
+        return requests.stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<LeaveRequestResponse> getPendingApprovals(String managerId) {
-        return leaveRequestRepository.findPendingForApprover(managerId).stream()
+        List<LeaveRequest> requests = leaveRequestRepository.findPendingForApprover(managerId);
+        enrichLeaveRequests(requests);
+        return requests.stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<LeaveRequestResponse> getAllByStatus(LeaveRequestStatus status) {
-        return leaveRequestRepository.findByStatus(status).stream()
+        List<LeaveRequest> requests = leaveRequestRepository.findByStatus(status);
+        enrichLeaveRequests(requests);
+        return requests.stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -275,7 +285,47 @@ public class LeaveRequestService {
     public LeaveRequestResponse getById(String id) {
         LeaveRequest request = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + id));
+        enrichLeaveRequests(List.of(request));
         return LeaveRequestResponse.fromEntity(request);
+    }
+
+    private void enrichLeaveRequests(List<LeaveRequest> requests) {
+        Set<String> employeeIds = new HashSet<>();
+        Set<String> leaveTypeIds = new HashSet<>();
+
+        for (LeaveRequest r : requests) {
+            if (r.getEmployee() != null && r.getEmployee().getId() != null) {
+                employeeIds.add(r.getEmployee().getId());
+            }
+            if (r.getLeaveType() != null && r.getLeaveType().getId() != null) {
+                leaveTypeIds.add(r.getLeaveType().getId());
+            }
+            if (r.getApprover() != null && r.getApprover().getId() != null) {
+                employeeIds.add(r.getApprover().getId());
+            }
+        }
+
+        Map<String, Employee> employeeMap = new HashMap<>();
+        for (String id : employeeIds) {
+            employeeRepository.findById(id).ifPresent(emp -> employeeMap.put(id, emp));
+        }
+
+        Map<String, LeaveType> leaveTypeMap = new HashMap<>();
+        for (String id : leaveTypeIds) {
+            leaveTypeRepository.findById(id).ifPresent(lt -> leaveTypeMap.put(id, lt));
+        }
+
+        for (LeaveRequest r : requests) {
+            if (r.getEmployee() != null && employeeMap.containsKey(r.getEmployee().getId())) {
+                r.setEmployee(employeeMap.get(r.getEmployee().getId()));
+            }
+            if (r.getLeaveType() != null && leaveTypeMap.containsKey(r.getLeaveType().getId())) {
+                r.setLeaveType(leaveTypeMap.get(r.getLeaveType().getId()));
+            }
+            if (r.getApprover() != null && employeeMap.containsKey(r.getApprover().getId())) {
+                r.setApprover(employeeMap.get(r.getApprover().getId()));
+            }
+        }
     }
 
     private void validateManagerAccess(String employeeId, String approverId) {
