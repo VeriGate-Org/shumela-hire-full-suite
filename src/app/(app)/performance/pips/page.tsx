@@ -42,7 +42,7 @@ export default function PipsPage() {
     setLoading(true);
     try {
       const data = await performanceEnhancementService.getActivePips(0, 50);
-      setPips(data.content);
+      setPips(Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []));
     } catch (error) {
       console.error('Failed to load PIPs:', error);
     } finally {

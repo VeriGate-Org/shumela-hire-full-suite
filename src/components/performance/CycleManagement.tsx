@@ -35,10 +35,11 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
     try {
       setLoading(true);
       const response = await apiFetch('/api/performance/cycles');
-      
+
       if (response.ok) {
         const data = await response.json();
-        setCycles(data.content || []);
+        // Backend returns List<> (plain array); handle both shapes
+        setCycles(Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []));
       } else {
         setError('Failed to load performance cycles');
       }

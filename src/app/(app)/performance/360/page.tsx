@@ -27,7 +27,7 @@ export default function FeedbackPage() {
     setLoading(true);
     try {
       const data = await performanceEnhancementService.getPendingFeedbackRequests(0, 50);
-      setRequests(data.content);
+      setRequests(Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []));
     } catch (error) {
       console.error('Failed to load feedback requests:', error);
     } finally {
