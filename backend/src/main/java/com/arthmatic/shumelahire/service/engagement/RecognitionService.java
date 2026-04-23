@@ -19,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -74,23 +76,56 @@ public class RecognitionService {
 
     @Transactional(readOnly = true)
     public List<RecognitionResponse> getRecognitionsFor(String employeeId) {
-        return recognitionRepository.findByToEmployeeIdOrderByCreatedAtDesc(employeeId).stream()
+        List<Recognition> recognitions = recognitionRepository.findByToEmployeeIdOrderByCreatedAtDesc(employeeId);
+        enrichRecognitions(recognitions);
+        return recognitions.stream()
                 .map(RecognitionResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<RecognitionResponse> getRecognitionsFrom(String employeeId) {
-        return recognitionRepository.findByFromEmployeeIdOrderByCreatedAtDesc(employeeId).stream()
+        List<Recognition> recognitions = recognitionRepository.findByFromEmployeeIdOrderByCreatedAtDesc(employeeId);
+        enrichRecognitions(recognitions);
+        return recognitions.stream()
                 .map(RecognitionResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<RecognitionResponse> getPublicRecognitions() {
-        return recognitionRepository.findByIsPublicTrueOrderByCreatedAtDesc().stream()
+        List<Recognition> recognitions = recognitionRepository.findByIsPublicTrueOrderByCreatedAtDesc();
+        enrichRecognitions(recognitions);
+        return recognitions.stream()
                 .map(RecognitionResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    private void enrichRecognitions(List<Recognition> recognitions) {
+        Set<String> employeeIds = new HashSet<>();
+        for (Recognition r : recognitions) {
+            if (r.getFromEmployee() != null && r.getFromEmployee().getId() != null) {
+                employeeIds.add(r.getFromEmployee().getId());
+            }
+            if (r.getToEmployee() != null && r.getToEmployee().getId() != null) {
+                employeeIds.add(r.getToEmployee().getId());
+            }
+        }
+        if (employeeIds.isEmpty()) return;
+
+        Map<String, Employee> employeeMap = new HashMap<>();
+        for (String id : employeeIds) {
+            employeeRepository.findById(id).ifPresent(emp -> employeeMap.put(id, emp));
+        }
+
+        for (Recognition r : recognitions) {
+            if (r.getFromEmployee() != null && employeeMap.containsKey(r.getFromEmployee().getId())) {
+                r.setFromEmployee(employeeMap.get(r.getFromEmployee().getId()));
+            }
+            if (r.getToEmployee() != null && employeeMap.containsKey(r.getToEmployee().getId())) {
+                r.setToEmployee(employeeMap.get(r.getToEmployee().getId()));
+            }
+        }
     }
 
     @Transactional(readOnly = true)
