@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -89,11 +90,25 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
             return null;
         }
 
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
+        String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Set generated values back on the entity so callers can use them after save
+        entity.setId(id);
+        entity.setTenantId(tenantId);
+        if (entity.getCreatedAt() == null) { entity.setCreatedAt(now); }
+        entity.setUpdatedAt(now);
+
         OvertimeRecordItem item = new OvertimeRecordItem();
-        item.setId(entity.getId() != null ? entity.getId() : null);
-        item.setTenantId(entity.getTenantId());
-        item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId() : null);
+        item.setPk("TENANT#" + tenantId);
+        item.setSk(entityType() + "#" + id);
+        item.setId(id);
+        item.setTenantId(tenantId);
+
+        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
+                ? entity.getEmployee().getId() : null;
+        item.setEmployeeId(employeeId);
         item.setDate(entity.getDate() != null ? entity.getDate().format(DATE_FMT) : null);
         item.setHours(entity.getHours() != null ? entity.getHours().toPlainString() : null);
         item.setReason(entity.getReason());
@@ -101,13 +116,13 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
         item.setApprovedById(entity.getApprovedBy() != null && entity.getApprovedBy().getId() != null
                 ? entity.getApprovedBy().getId() : null);
         item.setApprovedAt(entity.getApprovedAt() != null ? entity.getApprovedAt().format(ISO_FMT) : null);
-        item.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : null);
-        item.setUpdatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().format(ISO_FMT) : null);
+        item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));
+        item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));
 
         // GSI1 for employee queries
-        if (item.getEmployeeId() != null) {
-            item.setGsi1pk("OT_EMP#" + entity.getTenantId() + "#" + item.getEmployeeId());
-            item.setGsi1sk("OVERTIME#" + item.getDate() + "#" + item.getId());
+        if (employeeId != null) {
+            item.setGsi1pk("OT_EMP#" + tenantId + "#" + employeeId);
+            item.setGsi1sk(entityType() + "#" + item.getDate() + "#" + id);
         }
 
         return item;
