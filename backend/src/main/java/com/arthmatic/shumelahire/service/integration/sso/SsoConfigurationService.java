@@ -35,8 +35,8 @@ public class SsoConfigurationService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<SsoConfiguration> getConfigurationById(Long id) {
-        return ssoConfigurationRepository.findById(String.valueOf(id));
+    public Optional<SsoConfiguration> getConfigurationById(String id) {
+        return ssoConfigurationRepository.findById(id);
     }
 
     @Transactional(readOnly = true)
@@ -70,8 +70,8 @@ public class SsoConfigurationService {
         return saved;
     }
 
-    public SsoConfiguration updateConfiguration(Long id, SsoConfigRequest request) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
+    public SsoConfiguration updateConfiguration(String id, SsoConfigRequest request) {
+        SsoConfiguration config = ssoConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         config.setProvider(request.getProvider());
@@ -107,12 +107,12 @@ public class SsoConfigurationService {
         return createConfiguration(request);
     }
 
-    public void deleteConfiguration(Long id) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
+    public void deleteConfiguration(String id) {
+        SsoConfiguration config = ssoConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         String displayName = config.getDisplayName();
-        ssoConfigurationRepository.deleteById(String.valueOf(config.getId()));
+        ssoConfigurationRepository.deleteById(config.getId());
         auditLogService.logSystemAction("DELETE", "SSO_CONFIGURATION",
                 "Deleted SSO configuration: " + displayName + " (id=" + id + ")");
         logger.info("Deleted SSO configuration: {} (id={})", displayName, id);
@@ -121,8 +121,8 @@ public class SsoConfigurationService {
     /**
      * Test SSO connection - mock implementation that returns success with sample endpoints.
      */
-    public SsoTestResult testConnection(Long id) {
-        SsoConfiguration config = ssoConfigurationRepository.findById(String.valueOf(id))
+    public SsoTestResult testConnection(String id) {
+        SsoConfiguration config = ssoConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SSO configuration not found with id: " + id));
 
         Map<String, String> discoveredEndpoints = new HashMap<>();

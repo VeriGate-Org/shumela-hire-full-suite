@@ -352,7 +352,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     @Override
     public List<JobPosting> findJobsApprovedBy(String approverId) {
         return findAll().stream()
-                .filter(j -> j.getApprovedBy() != null && approverId.equals(j.getApprovedBy().toString()))
+                .filter(j -> j.getApprovedBy() != null && approverId.equals(j.getApprovedBy()))
                 .sorted(Comparator.comparing(jp -> jp.getApprovedAt() != null ? jp.getApprovedAt() : jp.getCreatedAt(),
                         Comparator.reverseOrder()))
                 .collect(Collectors.toList());
@@ -361,7 +361,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     @Override
     public List<JobPosting> findJobsPublishedBy(String publisherId) {
         return findAll().stream()
-                .filter(j -> j.getPublishedBy() != null && publisherId.equals(j.getPublishedBy().toString()))
+                .filter(j -> j.getPublishedBy() != null && publisherId.equals(j.getPublishedBy()))
                 .sorted(Comparator.comparing(jp -> jp.getPublishedAt() != null ? jp.getPublishedAt() : jp.getCreatedAt(),
                         Comparator.reverseOrder()))
                 .collect(Collectors.toList());
@@ -373,7 +373,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     protected JobPosting toEntity(JobPostingItem item) {
         var jp = new JobPosting();
         if (item.getId() != null) {
-            jp.setId(safeParseLong(item.getId()));
+            jp.setId(item.getId());
         }
         jp.setTenantId(item.getTenantId());
         jp.setTitle(item.getTitle());
@@ -414,13 +414,13 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
             jp.setStatus(JobPostingStatus.valueOf(item.getStatus()));
         }
         if (item.getCreatedBy() != null) {
-            jp.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            jp.setCreatedBy(item.getCreatedBy());
         }
         if (item.getApprovedBy() != null) {
-            jp.setApprovedBy(safeParseLong(item.getApprovedBy()));
+            jp.setApprovedBy(item.getApprovedBy());
         }
         if (item.getPublishedBy() != null) {
-            jp.setPublishedBy(safeParseLong(item.getPublishedBy()));
+            jp.setPublishedBy(item.getPublishedBy());
         }
         jp.setApprovalNotes(item.getApprovalNotes());
         jp.setRejectionReason(item.getRejectionReason());
@@ -464,7 +464,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     protected JobPostingItem toItem(JobPosting entity) {
         var item = new JobPostingItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String createdAtStr = entity.getCreatedAt() != null
                 ? entity.getCreatedAt().format(ISO_FMT)
@@ -534,13 +534,13 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
             item.setStatus(entity.getStatus().name());
         }
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(entity.getCreatedBy().toString());
+            item.setCreatedBy(entity.getCreatedBy());
         }
         if (entity.getApprovedBy() != null) {
-            item.setApprovedBy(entity.getApprovedBy().toString());
+            item.setApprovedBy(entity.getApprovedBy());
         }
         if (entity.getPublishedBy() != null) {
-            item.setPublishedBy(entity.getPublishedBy().toString());
+            item.setPublishedBy(entity.getPublishedBy());
         }
         item.setApprovalNotes(entity.getApprovalNotes());
         item.setRejectionReason(entity.getRejectionReason());
@@ -617,8 +617,8 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
     }
 
     @Override
-    public org.springframework.data.domain.Page<JobPosting> findByCreatedBy(Long createdBy, org.springframework.data.domain.Pageable pageable) {
-        CursorPage<JobPosting> cursorResult = findByCreatedByPaginated(String.valueOf(createdBy),
+    public org.springframework.data.domain.Page<JobPosting> findByCreatedBy(String createdBy, org.springframework.data.domain.Pageable pageable) {
+        CursorPage<JobPosting> cursorResult = findByCreatedByPaginated(createdBy,
                 String.valueOf(pageable.getPageNumber()), pageable.getPageSize());
         return new org.springframework.data.domain.PageImpl<>(cursorResult.content(), pageable,
                 cursorResult.totalElements() != null ? cursorResult.totalElements() : cursorResult.content().size());

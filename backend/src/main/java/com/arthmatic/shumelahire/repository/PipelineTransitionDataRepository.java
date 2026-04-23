@@ -119,7 +119,7 @@ public interface PipelineTransitionDataRepository {
     List<Object[]> getSuccessRatesByStage(LocalDateTime startDate, LocalDateTime endDate);
 
     /** Pipeline statistics for a specific job posting. */
-    List<Object[]> getJobPostingPipelineStats(Long jobPostingId, LocalDateTime startDate, LocalDateTime endDate);
+    List<Object[]> getJobPostingPipelineStats(String jobPostingId, LocalDateTime startDate, LocalDateTime endDate);
 
     /** Pipeline statistics grouped by department. */
     List<Object[]> getDepartmentPipelineStats(LocalDateTime startDate, LocalDateTime endDate);

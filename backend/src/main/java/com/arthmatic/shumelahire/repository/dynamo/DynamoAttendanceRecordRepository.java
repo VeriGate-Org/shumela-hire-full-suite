@@ -77,12 +77,12 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
         }
 
         AttendanceRecord entity = new AttendanceRecord();
-        if (item.getId() != null) { entity.setId(safeParseLong(item.getId())); }
+        if (item.getId() != null) { entity.setId(item.getId()); }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
@@ -109,10 +109,10 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
         }
 
         AttendanceRecordItem item = new AttendanceRecordItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null);
+                ? entity.getEmployee().getId() : null);
         item.setClockIn(entity.getClockIn() != null ? entity.getClockIn().format(ISO_FMT) : null);
         item.setClockOut(entity.getClockOut() != null ? entity.getClockOut().format(ISO_FMT) : null);
         item.setClockMethod(entity.getClockMethod() != null ? entity.getClockMethod().name() : null);

@@ -47,11 +47,11 @@ public class OfferController {
     @PostMapping("/applications/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> createOffer(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @Valid @RequestBody Offer offer,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer createdOffer = offerService.createOffer(applicationId, offer, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
         } catch (RuntimeException e) {
@@ -63,7 +63,7 @@ public class OfferController {
     // Get offer by ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
-    public ResponseEntity<Offer> getOffer(@PathVariable Long id) {
+    public ResponseEntity<Offer> getOffer(@PathVariable String id) {
         if (isApplicant(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
         }
@@ -75,7 +75,7 @@ public class OfferController {
     // Get offers for application
     @GetMapping("/applications/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<List<Offer>> getOffersByApplication(@PathVariable Long applicationId) {
+    public ResponseEntity<List<Offer>> getOffersByApplication(@PathVariable String applicationId) {
         List<Offer> offers = offerService.getOffersByApplication(applicationId);
         return ResponseEntity.ok(offers);
     }
@@ -83,9 +83,9 @@ public class OfferController {
     // Get offers for applicant (O6: single call, eliminates N+1)
     @GetMapping("/applicant/{applicantId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
-    public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable Long applicantId) {
+    public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable String applicantId) {
         if (isApplicant(authentication())) {
-            Long currentApplicantId = resolveApplicantId(authentication());
+            String currentApplicantId = resolveApplicantId(authentication());
             if (!currentApplicantId.equals(applicantId)) {
                 throw new AccessDeniedException("Applicants can only view their own offers");
             }
@@ -98,11 +98,11 @@ public class OfferController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> updateOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody Offer offer,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer updatedOffer = offerService.updateOffer(id, offer, userId);
             return ResponseEntity.ok(updatedOffer);
         } catch (RuntimeException e) {
@@ -115,10 +115,10 @@ public class OfferController {
     @PostMapping("/{id}/submit-for-approval")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> submitForApproval(
-            @PathVariable Long id,
+            @PathVariable String id,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer offer = offerService.submitForApproval(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -131,11 +131,11 @@ public class OfferController {
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> approveOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String approvalNotes = request.get("approvalNotes");
             Offer offer = offerService.approveOffer(id, approvalNotes, userId);
             return ResponseEntity.ok(offer);
@@ -149,11 +149,11 @@ public class OfferController {
     @PostMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> rejectOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String rejectionReason = request.get("rejectionReason");
             Offer offer = offerService.rejectOffer(id, rejectionReason, userId);
             return ResponseEntity.ok(offer);
@@ -167,10 +167,10 @@ public class OfferController {
     @PostMapping("/{id}/send")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> sendOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer offer = offerService.sendOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -183,11 +183,11 @@ public class OfferController {
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> withdrawOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String withdrawalReason = request.get("withdrawalReason");
             Offer offer = offerService.withdrawOffer(id, withdrawalReason, userId);
             return ResponseEntity.ok(offer);
@@ -200,7 +200,7 @@ public class OfferController {
     // Record candidate viewed
     @PostMapping("/{id}/viewed")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> recordCandidateViewed(@PathVariable Long id) {
+    public ResponseEntity<?> recordCandidateViewed(@PathVariable String id) {
         if (isApplicant(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
         }
@@ -217,13 +217,13 @@ public class OfferController {
     @PostMapping("/{id}/accept")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> acceptOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             Authentication authentication) {
         if (isApplicant(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer offer = offerService.acceptOffer(id, userId);
             return ResponseEntity.ok(offer);
         } catch (RuntimeException e) {
@@ -236,14 +236,14 @@ public class OfferController {
     @PostMapping("/{id}/decline")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> declineOffer(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         if (isApplicant(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String declineReason = request.get("declineReason");
             Offer offer = offerService.declineOffer(id, declineReason, userId);
             return ResponseEntity.ok(offer);
@@ -257,14 +257,14 @@ public class OfferController {
     @PostMapping("/{id}/negotiate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> startNegotiation(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         if (isApplicant(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String candidateCounterOffer = request.get("candidateCounterOffer");
             Offer offer = offerService.startNegotiation(id, candidateCounterOffer, userId);
             return ResponseEntity.ok(offer);
@@ -278,11 +278,11 @@ public class OfferController {
     @PostMapping("/{id}/negotiate/respond")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> respondToNegotiation(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, Object> request,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String companyResponse = (String) request.get("companyResponse");
             String statusStr = (String) request.get("negotiationStatus");
             NegotiationStatus status = NegotiationStatus.valueOf(statusStr);
@@ -299,11 +299,11 @@ public class OfferController {
     @PostMapping("/{id}/negotiate/escalate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> escalateNegotiation(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             String escalationReason = request.get("escalationReason");
             Offer offer = offerService.escalateNegotiation(id, escalationReason, userId);
             return ResponseEntity.ok(offer);
@@ -317,11 +317,11 @@ public class OfferController {
     @PostMapping("/{id}/new-version")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> createNewVersion(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody Offer updatedOfferData,
             Authentication authentication) {
         try {
-            Long userId = resolveUserId(authentication);
+            String userId = resolveUserId(authentication);
             Offer newVersion = offerService.createNewVersion(id, updatedOfferData, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(newVersion);
         } catch (RuntimeException e) {
@@ -445,7 +445,7 @@ public class OfferController {
                            .body(Map.of("error", e.getMessage()));
     }
 
-    private Long resolveUserId(Authentication authentication) {
+    private String resolveUserId(Authentication authentication) {
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             String email = jwt.getClaimAsString("email");
             if (email != null) {
@@ -469,7 +469,7 @@ public class OfferController {
         return false;
     }
 
-    private void assertApplicantCanAccessOffer(Authentication authentication, Long offerId) {
+    private void assertApplicantCanAccessOffer(Authentication authentication, String offerId) {
         String email = extractAuthenticatedEmail(authentication);
         if (email == null) {
             throw new AccessDeniedException("Applicant email missing from authentication");
@@ -483,7 +483,7 @@ public class OfferController {
         }
     }
 
-    private Long resolveApplicantId(Authentication authentication) {
+    private String resolveApplicantId(Authentication authentication) {
         String email = extractAuthenticatedEmail(authentication);
         if (email == null) {
             throw new AccessDeniedException("Applicant email missing from authentication");

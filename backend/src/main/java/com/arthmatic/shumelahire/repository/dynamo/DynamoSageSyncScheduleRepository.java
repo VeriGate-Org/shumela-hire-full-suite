@@ -54,14 +54,14 @@ public class DynamoSageSyncScheduleRepository extends DynamoRepository<SageSyncS
     protected SageSyncSchedule toEntity(SageSyncScheduleItem item) {
         var e = new SageSyncSchedule();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create connector stub
         if (item.getConnectorId() != null) {
             var connector = new SageConnectorConfig();
-            connector.setId(safeParseLong(item.getConnectorId()));
+            connector.setId(item.getConnectorId());
             e.setConnector(connector);
         }
 
@@ -94,10 +94,10 @@ public class DynamoSageSyncScheduleRepository extends DynamoRepository<SageSyncS
     @Override
     protected SageSyncScheduleItem toItem(SageSyncSchedule entity) {
         var item = new SageSyncScheduleItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String connectorId = entity.getConnector() != null && entity.getConnector().getId() != null
-                ? entity.getConnector().getId().toString()
+                ? entity.getConnector().getId()
                 : "";
 
         item.setPk("TENANT#" + tenantId);

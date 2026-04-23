@@ -33,7 +33,7 @@ public class LeavePolicyService {
     private AuditLogService auditLogService;
 
     public LeavePolicyResponse create(LeavePolicyRequest request, String userId) {
-        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(request.getLeaveTypeId()))
+        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + request.getLeaveTypeId()));
 
         LeavePolicy policy = new LeavePolicy();
@@ -48,12 +48,12 @@ public class LeavePolicyService {
         return LeavePolicyResponse.fromEntity(policy);
     }
 
-    public LeavePolicyResponse update(Long id, LeavePolicyRequest request, String userId) {
-        LeavePolicy policy = leavePolicyRepository.findById(String.valueOf(id))
+    public LeavePolicyResponse update(String id, LeavePolicyRequest request, String userId) {
+        LeavePolicy policy = leavePolicyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave policy not found: " + id));
 
         if (!policy.getLeaveType().getId().equals(request.getLeaveTypeId())) {
-            LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(request.getLeaveTypeId()))
+            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                     .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + request.getLeaveTypeId()));
             policy.setLeaveType(leaveType);
         }
@@ -62,7 +62,7 @@ public class LeavePolicyService {
         policy = leavePolicyRepository.save(policy);
 
         auditLogService.saveLog(userId, "UPDATE", "LEAVE_POLICY",
-                id.toString(), "Updated leave policy: " + policy.getName());
+                id, "Updated leave policy: " + policy.getName());
 
         return LeavePolicyResponse.fromEntity(policy);
     }
@@ -82,8 +82,8 @@ public class LeavePolicyService {
     }
 
     @Transactional(readOnly = true)
-    public List<LeavePolicyResponse> getByLeaveType(Long leaveTypeId) {
-        return leavePolicyRepository.findByLeaveTypeId(String.valueOf(leaveTypeId)).stream()
+    public List<LeavePolicyResponse> getByLeaveType(String leaveTypeId) {
+        return leavePolicyRepository.findByLeaveTypeId(leaveTypeId).stream()
                 .map(LeavePolicyResponse::fromEntity)
                 .collect(Collectors.toList());
     }

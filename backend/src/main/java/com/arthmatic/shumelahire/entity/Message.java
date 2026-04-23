@@ -7,10 +7,10 @@ import java.util.List;
 
 public class Message extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull(message = "Sender is required")
-    private Long senderId;
+    private String senderId;
 
     private String senderName;
 
@@ -33,20 +33,20 @@ public class Message extends TenantAwareEntity {
     // Thread and conversation management
     private String threadId;
 
-    private Long parentMessageId;
+    private String parentMessageId;
 
     private String conversationId;
 
     private Boolean isThreadStarter = false;
 
     // Related entities
-    private Long applicationId;
+    private String applicationId;
 
-    private Long interviewId;
+    private String interviewId;
 
-    private Long jobPostingId;
+    private String jobPostingId;
 
-    private Long offerId;
+    private String offerId;
 
     // Status and tracking
     private Boolean isRead = false;
@@ -65,7 +65,7 @@ public class Message extends TenantAwareEntity {
 
     private LocalDateTime deletedAt;
 
-    private Long deletedBy;
+    private String deletedBy;
 
     // Message features
     private Boolean hasAttachments = false;
@@ -107,14 +107,14 @@ public class Message extends TenantAwareEntity {
         this.threadId = generateThreadId();
     }
 
-    public Message(Long senderId, String content, MessageType messageType) {
+    public Message(String senderId, String content, MessageType messageType) {
         this();
         this.senderId = senderId;
         this.content = content;
         this.messageType = messageType;
     }
 
-    public Message(Long senderId, String recipientIds, String subject, String content) {
+    public Message(String senderId, String recipientIds, String subject, String content) {
         this(senderId, content, MessageType.DIRECT_MESSAGE);
         this.recipientIds = recipientIds;
         this.subject = subject;
@@ -153,7 +153,7 @@ public class Message extends TenantAwareEntity {
                (scheduledFor == null || LocalDateTime.now().isAfter(scheduledFor));
     }
 
-    public void markAsRead(Long userId) {
+    public void markAsRead(String userId) {
         this.isRead = true;
         // In a real implementation, update the readBy JSON with user-specific read status
     }
@@ -171,7 +171,7 @@ public class Message extends TenantAwareEntity {
         this.archivedAt = LocalDateTime.now();
     }
 
-    public void delete(Long userId) {
+    public void delete(String userId) {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = userId;
@@ -242,7 +242,7 @@ public class Message extends TenantAwareEntity {
         return null;
     }
 
-    public Long getRelatedEntityId() {
+    public String getRelatedEntityId() {
         if (applicationId != null) return applicationId;
         if (interviewId != null) return interviewId;
         if (jobPostingId != null) return jobPostingId;
@@ -264,19 +264,19 @@ public class Message extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getSenderId() {
+    public String getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(Long senderId) {
+    public void setSenderId(String senderId) {
         this.senderId = senderId;
     }
 
@@ -360,11 +360,11 @@ public class Message extends TenantAwareEntity {
         this.threadId = threadId;
     }
 
-    public Long getParentMessageId() {
+    public String getParentMessageId() {
         return parentMessageId;
     }
 
-    public void setParentMessageId(Long parentMessageId) {
+    public void setParentMessageId(String parentMessageId) {
         this.parentMessageId = parentMessageId;
     }
 
@@ -384,35 +384,35 @@ public class Message extends TenantAwareEntity {
         this.isThreadStarter = isThreadStarter;
     }
 
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(Long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
-    public Long getInterviewId() {
+    public String getInterviewId() {
         return interviewId;
     }
 
-    public void setInterviewId(Long interviewId) {
+    public void setInterviewId(String interviewId) {
         this.interviewId = interviewId;
     }
 
-    public Long getJobPostingId() {
+    public String getJobPostingId() {
         return jobPostingId;
     }
 
-    public void setJobPostingId(Long jobPostingId) {
+    public void setJobPostingId(String jobPostingId) {
         this.jobPostingId = jobPostingId;
     }
 
-    public Long getOfferId() {
+    public String getOfferId() {
         return offerId;
     }
 
-    public void setOfferId(Long offerId) {
+    public void setOfferId(String offerId) {
         this.offerId = offerId;
     }
 
@@ -480,11 +480,11 @@ public class Message extends TenantAwareEntity {
         this.deletedAt = deletedAt;
     }
 
-    public Long getDeletedBy() {
+    public String getDeletedBy() {
         return deletedBy;
     }
 
-    public void setDeletedBy(Long deletedBy) {
+    public void setDeletedBy(String deletedBy) {
         this.deletedBy = deletedBy;
     }
 

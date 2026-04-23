@@ -39,11 +39,11 @@ public class ApplicantToEmployeeService {
         logger.info("Converting applicant {} to employee", request.getApplicantId());
 
         // Verify applicant exists
-        Applicant applicant = applicantRepository.findById(String.valueOf(request.getApplicantId()))
+        Applicant applicant = applicantRepository.findById(request.getApplicantId())
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + request.getApplicantId()));
 
         // Check if already converted
-        if (employeeRepository.findByApplicantId(String.valueOf(request.getApplicantId())).isPresent()) {
+        if (employeeRepository.findByApplicantId(request.getApplicantId()).isPresent()) {
             throw new IllegalArgumentException("Applicant already converted to employee");
         }
 

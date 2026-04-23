@@ -317,7 +317,7 @@ public class NotificationService {
     // --- Approval notifications ---
 
     @Async
-    public void notifyApprovalRequired(Long recipientId, String itemType, String itemTitle) {
+    public void notifyApprovalRequired(String recipientId, String itemType, String itemTitle) {
         sendInternalNotification(recipientId,
             "Approval Required",
             String.format("A %s '%s' requires your approval.", itemType, itemTitle),
@@ -325,7 +325,7 @@ public class NotificationService {
     }
 
     @Async
-    public void notifyApprovalGranted(Long recipientId, String itemType, String itemTitle) {
+    public void notifyApprovalGranted(String recipientId, String itemType, String itemTitle) {
         sendInternalNotification(recipientId,
             "Approval Granted",
             String.format("Your %s '%s' has been approved.", itemType, itemTitle),
@@ -333,7 +333,7 @@ public class NotificationService {
     }
 
     @Async
-    public void notifyApprovalDenied(Long recipientId, String itemType, String itemTitle, String reason) {
+    public void notifyApprovalDenied(String recipientId, String itemType, String itemTitle, String reason) {
         sendInternalNotification(recipientId,
             "Approval Denied",
             String.format("Your %s '%s' has been denied. Reason: %s", itemType, itemTitle,
@@ -366,10 +366,10 @@ public class NotificationService {
 
     // --- Direct notification helpers ---
 
-    private void sendNotificationDirect(Long applicantId, String subject, String message,
+    private void sendNotificationDirect(String applicantId, String subject, String message,
                                         NotificationType type, NotificationPriority priority) {
         try {
-            Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
+            Applicant applicant = applicantRepository.findById(applicantId)
                     .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + applicantId));
 
             Notification notification = new Notification();
@@ -404,7 +404,7 @@ public class NotificationService {
         }
     }
 
-    public void sendInternalNotification(Long recipientId, String title, String message,
+    public void sendInternalNotification(String recipientId, String title, String message,
                                          NotificationType type, NotificationPriority priority) {
         try {
             Notification notification = new Notification();
@@ -425,10 +425,10 @@ public class NotificationService {
         }
     }
 
-    private void sendNotification(Long applicantId, String subject, String message,
+    private void sendNotification(String applicantId, String subject, String message,
                                  NotificationChannel channel, String eventType) {
         try {
-            Applicant applicant = applicantRepository.findById(String.valueOf(applicantId))
+            Applicant applicant = applicantRepository.findById(applicantId)
                     .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + applicantId));
 
             NotificationType notificationType = mapEventTypeToNotificationType(eventType);
@@ -541,15 +541,15 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Notification> getNotificationsForApplicant(Long applicantId, int limit) {
-        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(String.valueOf(applicantId))
+    public List<Notification> getNotificationsForApplicant(String applicantId, int limit) {
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(applicantId)
                 .stream()
                 .limit(limit)
                 .toList();
     }
 
-    public void markNotificationAsRead(Long notificationId) {
-        notificationRepository.findById(String.valueOf(notificationId))
+    public void markNotificationAsRead(String notificationId) {
+        notificationRepository.findById(notificationId)
                 .ifPresent(notification -> {
                     notification.markAsRead();
                     notificationRepository.save(notification);
@@ -557,21 +557,21 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationsForUser(Long userId, Pageable pageable) {
-        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(String.valueOf(userId), pageable);
+    public Page<Notification> getNotificationsForUser(String userId, Pageable pageable) {
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public long getUnreadCount(Long userId) {
-        return notificationRepository.countUnreadByRecipient(String.valueOf(userId));
+    public long getUnreadCount(String userId) {
+        return notificationRepository.countUnreadByRecipient(userId);
     }
 
-    public void markAllAsRead(Long userId) {
-        notificationRepository.markAllAsReadForRecipient(String.valueOf(userId), LocalDateTime.now());
+    public void markAllAsRead(String userId) {
+        notificationRepository.markAllAsReadForRecipient(userId, LocalDateTime.now());
     }
 
-    public void deleteNotification(Long notificationId) {
-        notificationRepository.deleteById(String.valueOf(notificationId));
+    public void deleteNotification(String notificationId) {
+        notificationRepository.deleteById(notificationId);
     }
 
     private NotificationType mapEventTypeToNotificationType(String eventType) {

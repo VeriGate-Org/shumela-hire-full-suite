@@ -55,7 +55,7 @@ public class TrainingController {
     }
 
     @GetMapping("/courses/{id}")
-    public ResponseEntity<?> getCourse(@PathVariable Long id) {
+    public ResponseEntity<?> getCourse(@PathVariable String id) {
         try {
             return ResponseEntity.ok(courseService.getById(id));
         } catch (IllegalArgumentException e) {
@@ -81,7 +81,7 @@ public class TrainingController {
 
     @PutMapping("/courses/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateCourse(@PathVariable Long id,
+    public ResponseEntity<?> updateCourse(@PathVariable String id,
                                           @Valid @RequestBody TrainingCourseRequest request) {
         try {
             return ResponseEntity.ok(courseService.update(id, request, "SYSTEM"));
@@ -92,7 +92,7 @@ public class TrainingController {
 
     @DeleteMapping("/courses/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
+    public ResponseEntity<?> deleteCourse(@PathVariable String id) {
         try {
             courseService.delete(id, "SYSTEM");
             return ResponseEntity.noContent().build();
@@ -105,7 +105,7 @@ public class TrainingController {
 
     @GetMapping("/sessions")
     public ResponseEntity<List<TrainingSessionResponse>> getSessions(
-            @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) String courseId,
             @RequestParam(required = false) Boolean upcoming,
             @RequestParam(required = false) Boolean openOnly) {
         if (courseId != null) {
@@ -121,7 +121,7 @@ public class TrainingController {
     }
 
     @GetMapping("/sessions/{id}")
-    public ResponseEntity<?> getSession(@PathVariable Long id) {
+    public ResponseEntity<?> getSession(@PathVariable String id) {
         try {
             return ResponseEntity.ok(sessionService.getById(id));
         } catch (IllegalArgumentException e) {
@@ -142,7 +142,7 @@ public class TrainingController {
 
     @PutMapping("/sessions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateSession(@PathVariable Long id,
+    public ResponseEntity<?> updateSession(@PathVariable String id,
                                            @Valid @RequestBody TrainingSessionRequest request) {
         try {
             return ResponseEntity.ok(sessionService.update(id, request, "SYSTEM"));
@@ -153,7 +153,7 @@ public class TrainingController {
 
     @PutMapping("/sessions/{id}/open")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> openSession(@PathVariable Long id) {
+    public ResponseEntity<?> openSession(@PathVariable String id) {
         try {
             return ResponseEntity.ok(sessionService.openSession(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -163,7 +163,7 @@ public class TrainingController {
 
     @PutMapping("/sessions/{id}/close")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> closeSession(@PathVariable Long id) {
+    public ResponseEntity<?> closeSession(@PathVariable String id) {
         try {
             return ResponseEntity.ok(sessionService.closeSession(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -173,7 +173,7 @@ public class TrainingController {
 
     @PutMapping("/sessions/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> cancelSession(@PathVariable Long id) {
+    public ResponseEntity<?> cancelSession(@PathVariable String id) {
         try {
             return ResponseEntity.ok(sessionService.cancelSession(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -185,8 +185,8 @@ public class TrainingController {
 
     @GetMapping("/enrollments")
     public ResponseEntity<List<TrainingEnrollmentResponse>> getEnrollments(
-            @RequestParam(required = false) Long sessionId,
-            @RequestParam(required = false) Long employeeId) {
+            @RequestParam(required = false) String sessionId,
+            @RequestParam(required = false) String employeeId) {
         if (sessionId != null) {
             return ResponseEntity.ok(enrollmentService.getBySession(sessionId));
         }
@@ -208,7 +208,7 @@ public class TrainingController {
 
     @PutMapping("/enrollments/{id}/attended")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> markAttended(@PathVariable Long id) {
+    public ResponseEntity<?> markAttended(@PathVariable String id) {
         try {
             return ResponseEntity.ok(enrollmentService.markAttended(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -218,7 +218,7 @@ public class TrainingController {
 
     @PutMapping("/enrollments/{id}/completed")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> markCompleted(@PathVariable Long id,
+    public ResponseEntity<?> markCompleted(@PathVariable String id,
                                            @RequestParam(required = false) BigDecimal score,
                                            @RequestParam(required = false) String certificateUrl) {
         try {
@@ -230,7 +230,7 @@ public class TrainingController {
 
     @PutMapping("/enrollments/{id}/no-show")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> markNoShow(@PathVariable Long id) {
+    public ResponseEntity<?> markNoShow(@PathVariable String id) {
         try {
             return ResponseEntity.ok(enrollmentService.markNoShow(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -239,7 +239,7 @@ public class TrainingController {
     }
 
     @PutMapping("/enrollments/{id}/cancel")
-    public ResponseEntity<?> cancelEnrollment(@PathVariable Long id) {
+    public ResponseEntity<?> cancelEnrollment(@PathVariable String id) {
         try {
             return ResponseEntity.ok(enrollmentService.cancel(id, "SYSTEM"));
         } catch (IllegalArgumentException e) {
@@ -251,7 +251,7 @@ public class TrainingController {
 
     @GetMapping("/certifications")
     public ResponseEntity<List<CertificationResponse>> getCertifications(
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) Boolean expiring,
             @RequestParam(required = false) Boolean expired) {
         if (employeeId != null) {
@@ -267,7 +267,7 @@ public class TrainingController {
     }
 
     @GetMapping("/certifications/{id}")
-    public ResponseEntity<?> getCertification(@PathVariable Long id) {
+    public ResponseEntity<?> getCertification(@PathVariable String id) {
         try {
             return ResponseEntity.ok(certificationService.getById(id));
         } catch (IllegalArgumentException e) {
@@ -286,7 +286,7 @@ public class TrainingController {
     }
 
     @PutMapping("/certifications/{id}")
-    public ResponseEntity<?> updateCertification(@PathVariable Long id,
+    public ResponseEntity<?> updateCertification(@PathVariable String id,
                                                   @Valid @RequestBody CertificationRequest request) {
         try {
             return ResponseEntity.ok(certificationService.update(id, request, "SYSTEM"));
@@ -297,7 +297,7 @@ public class TrainingController {
 
     @PutMapping("/certifications/{id}/revoke")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> revokeCertification(@PathVariable Long id) {
+    public ResponseEntity<?> revokeCertification(@PathVariable String id) {
         try {
             certificationService.revoke(id, "SYSTEM");
             return ResponseEntity.ok(Map.of("message", "Certification revoked"));

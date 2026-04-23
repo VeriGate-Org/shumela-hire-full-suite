@@ -37,14 +37,14 @@ public class SageSyncScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public SageSyncSchedule getScheduleById(Long id) {
-        return scheduleRepository.findById(String.valueOf(id))
+    public SageSyncSchedule getScheduleById(String id) {
+        return scheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
-    public List<SageSyncSchedule> getSchedulesByConnector(Long connectorId) {
-        return scheduleRepository.findByConnectorId(String.valueOf(connectorId));
+    public List<SageSyncSchedule> getSchedulesByConnector(String connectorId) {
+        return scheduleRepository.findByConnectorId(connectorId);
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +53,7 @@ public class SageSyncScheduleService {
     }
 
     public SageSyncSchedule createSchedule(SageSyncScheduleRequest request) {
-        SageConnectorConfig connector = connectorConfigRepository.findById(String.valueOf(request.getConnectorId()))
+        SageConnectorConfig connector = connectorConfigRepository.findById(request.getConnectorId())
                 .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + request.getConnectorId()));
 
         SageSyncSchedule schedule = new SageSyncSchedule();
@@ -74,12 +74,12 @@ public class SageSyncScheduleService {
         return saved;
     }
 
-    public SageSyncSchedule updateSchedule(Long id, SageSyncScheduleRequest request) {
-        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(id))
+    public SageSyncSchedule updateSchedule(String id, SageSyncScheduleRequest request) {
+        SageSyncSchedule schedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
 
         if (request.getConnectorId() != null) {
-            SageConnectorConfig connector = connectorConfigRepository.findById(String.valueOf(request.getConnectorId()))
+            SageConnectorConfig connector = connectorConfigRepository.findById(request.getConnectorId())
                     .orElseThrow(() -> new RuntimeException("Sage connector config not found with id: " + request.getConnectorId()));
             schedule.setConnector(connector);
         }
@@ -105,11 +105,11 @@ public class SageSyncScheduleService {
         return saved;
     }
 
-    public void deleteSchedule(Long id) {
-        SageSyncSchedule schedule = scheduleRepository.findById(String.valueOf(id))
+    public void deleteSchedule(String id) {
+        SageSyncSchedule schedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sage sync schedule not found with id: " + id));
 
-        scheduleRepository.deleteById(String.valueOf(schedule.getId()));
+        scheduleRepository.deleteById(schedule.getId());
         auditLogService.logSystemAction("DELETE", "SAGE_SYNC_SCHEDULE",
                 "Deleted sync schedule (id=" + id + ")");
         logger.info("Deleted Sage sync schedule (id={})", id);

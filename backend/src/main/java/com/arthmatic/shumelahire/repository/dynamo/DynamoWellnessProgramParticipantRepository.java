@@ -39,7 +39,7 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
     @Override
     public Optional<WellnessProgramParticipant> findByProgramIdAndEmployeeId(String programId, String employeeId) {
         return findByProgramId(programId).stream()
-                .filter(p -> p.getEmployee() != null && employeeId.equals(String.valueOf(p.getEmployee().getId())))
+                .filter(p -> p.getEmployee() != null && employeeId.equals(p.getEmployee().getId()))
                 .findFirst();
     }
 
@@ -57,14 +57,14 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
     protected WellnessProgramParticipant toEntity(WellnessProgramParticipantItem item) {
         var e = new WellnessProgramParticipant();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create WellnessProgram stub
         if (item.getProgramId() != null) {
             var program = new WellnessProgram();
-            program.setId(safeParseLong(item.getProgramId()));
+            program.setId(item.getProgramId());
             program.setTenantId(item.getTenantId());
             e.setProgram(program);
         }
@@ -72,7 +72,7 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
         // Create Employee stub
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             employee.setTenantId(item.getTenantId());
             e.setEmployee(employee);
         }
@@ -84,11 +84,11 @@ public class DynamoWellnessProgramParticipantRepository extends DynamoRepository
     @Override
     protected WellnessProgramParticipantItem toItem(WellnessProgramParticipant entity) {
         var item = new WellnessProgramParticipantItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime joinedAt = entity.getJoinedAt() != null ? entity.getJoinedAt() : LocalDateTime.now();
-        String programId = entity.getProgram() != null && entity.getProgram().getId() != null ? entity.getProgram().getId().toString() : null;
-        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId().toString() : null;
+        String programId = entity.getProgram() != null && entity.getProgram().getId() != null ? entity.getProgram().getId() : null;
+        String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null ? entity.getEmployee().getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("WELLNESS_PART#" + id);

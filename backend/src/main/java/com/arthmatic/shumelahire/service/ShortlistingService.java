@@ -39,11 +39,11 @@ public class ShortlistingService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public ShortlistScore calculateScore(Long applicationId) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public ShortlistScore calculateScore(String applicationId) {
+        Application application = applicationRepository.findById(applicationId)
             .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
-        ShortlistScore score = shortlistScoreRepository.findByApplicationId(String.valueOf(applicationId))
+        ShortlistScore score = shortlistScoreRepository.findByApplicationId(applicationId)
             .orElse(new ShortlistScore());
 
         double skillsScore = calculateSkillsScore(application);
@@ -82,18 +82,18 @@ public class ShortlistingService {
     }
 
     @Transactional
-    public List<ShortlistScore> calculateScoresForJobPosting(Long jobPostingId) {
-        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(String.valueOf(jobPostingId));
+    public List<ShortlistScore> calculateScoresForJobPosting(String jobPostingId) {
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobPostingId);
         return applications.stream()
             .map(app -> calculateScore(app.getId()))
             .toList();
     }
 
     @Transactional
-    public List<ShortlistScore> autoShortlist(Long jobPostingId, double threshold) {
+    public List<ShortlistScore> autoShortlist(String jobPostingId, double threshold) {
         calculateScoresForJobPosting(jobPostingId);
 
-        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(String.valueOf(jobPostingId));
+        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
         for (ShortlistScore score : scores) {
             boolean shortlisted = score.getTotalScore() >= threshold;
             score.setIsShortlisted(shortlisted);
@@ -113,8 +113,8 @@ public class ShortlistingService {
     }
 
     @Transactional
-    public ShortlistScore overrideShortlistDecision(Long scoreId, boolean include, String reason, Long userId) {
-        ShortlistScore score = shortlistScoreRepository.findById(String.valueOf(scoreId))
+    public ShortlistScore overrideShortlistDecision(String scoreId, boolean include, String reason, String userId) {
+        ShortlistScore score = shortlistScoreRepository.findById(scoreId)
             .orElseThrow(() -> new RuntimeException("Score not found: " + scoreId));
 
         score.setIsShortlisted(include);
@@ -125,8 +125,8 @@ public class ShortlistingService {
         return shortlistScoreRepository.save(score);
     }
 
-    public Map<String, Object> getShortlistingSummary(Long jobPostingId) {
-        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(String.valueOf(jobPostingId));
+    public Map<String, Object> getShortlistingSummary(String jobPostingId) {
+        List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
 
         long shortlisted = scores.stream().filter(ShortlistScore::getIsShortlisted).count();
         double avgScore = scores.stream().mapToDouble(ShortlistScore::getTotalScore).average().orElse(0);

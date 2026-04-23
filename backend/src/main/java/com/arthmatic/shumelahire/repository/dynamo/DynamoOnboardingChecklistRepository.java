@@ -56,23 +56,23 @@ public class DynamoOnboardingChecklistRepository
     protected com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem toItem(OnboardingChecklist entity) {
         var item = new com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("ONBOARD_CHECKLIST#" + id);
 
-        String employeeId = entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : "";
+        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId() : "";
         item.setGsi1pk("OB_CL_EMP#" + tenantId + "#" + employeeId);
         item.setGsi1sk("ONBOARD_CHECKLIST#" + id);
 
         item.setId(id);
         item.setTenantId(tenantId);
-        item.setEmployeeId(entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : null);
-        item.setTemplateId(entity.getTemplateId() != null ? String.valueOf(entity.getTemplateId()) : null);
+        item.setEmployeeId(entity.getEmployeeId() != null ? entity.getEmployeeId() : null);
+        item.setTemplateId(entity.getTemplateId() != null ? entity.getTemplateId() : null);
         item.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);
         item.setDueDate(entity.getDueDate() != null ? entity.getDueDate().toString() : null);
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        item.setAssignedHrId(entity.getAssignedHrId() != null ? String.valueOf(entity.getAssignedHrId()) : null);
+        item.setAssignedHrId(entity.getAssignedHrId() != null ? entity.getAssignedHrId() : null);
 
         if (entity.getItems() != null) {
             try {
@@ -91,15 +91,15 @@ public class DynamoOnboardingChecklistRepository
     protected OnboardingChecklist toEntity(com.arthmatic.shumelahire.repository.dynamo.items.OnboardingChecklistItem item) {
         OnboardingChecklist entity = new OnboardingChecklist();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
-        entity.setEmployeeId(item.getEmployeeId() != null ? safeParseLong(item.getEmployeeId()) : null);
-        entity.setTemplateId(item.getTemplateId() != null ? safeParseLong(item.getTemplateId()) : null);
+        entity.setEmployeeId(item.getEmployeeId() != null ? item.getEmployeeId() : null);
+        entity.setTemplateId(item.getTemplateId() != null ? item.getTemplateId() : null);
         entity.setStartDate(item.getStartDate() != null ? LocalDate.parse(item.getStartDate()) : null);
         entity.setDueDate(item.getDueDate() != null ? LocalDate.parse(item.getDueDate()) : null);
         entity.setStatus(item.getStatus() != null ? ChecklistStatus.valueOf(item.getStatus()) : null);
-        entity.setAssignedHrId(item.getAssignedHrId() != null ? safeParseLong(item.getAssignedHrId()) : null);
+        entity.setAssignedHrId(item.getAssignedHrId() != null ? item.getAssignedHrId() : null);
 
         if (item.getItemsJson() != null) {
             try {

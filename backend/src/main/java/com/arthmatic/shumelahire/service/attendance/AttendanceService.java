@@ -35,12 +35,12 @@ public class AttendanceService {
     @Autowired
     private AuditLogService auditLogService;
 
-    public AttendanceRecord clockIn(Long employeeId, ClockMethod method, Double latitude, Double longitude) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public AttendanceRecord clockIn(String employeeId, ClockMethod method, Double latitude, Double longitude) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         // Check for open session
-        attendanceRecordRepository.findOpenSession(String.valueOf(employeeId))
+        attendanceRecordRepository.findOpenSession(employeeId)
                 .ifPresent(r -> { throw new IllegalArgumentException("Already clocked in. Please clock out first."); });
 
         // Validate geofence if applicable
@@ -59,14 +59,14 @@ public class AttendanceService {
         record.setStatus(AttendanceStatus.PRESENT);
         record = attendanceRecordRepository.save(record);
 
-        auditLogService.saveLog(employeeId.toString(), "CLOCK_IN", "ATTENDANCE",
+        auditLogService.saveLog(employeeId, "CLOCK_IN", "ATTENDANCE",
                 record.getId().toString(), "Clocked in via " + method);
         logger.info("Employee {} clocked in via {}", employeeId, method);
         return record;
     }
 
-    public AttendanceRecord clockOut(Long employeeId, Double latitude, Double longitude) {
-        AttendanceRecord record = attendanceRecordRepository.findOpenSession(String.valueOf(employeeId))
+    public AttendanceRecord clockOut(String employeeId, Double latitude, Double longitude) {
+        AttendanceRecord record = attendanceRecordRepository.findOpenSession(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("No open clock-in session found"));
 
         record.setClockOut(LocalDateTime.now());
@@ -79,15 +79,15 @@ public class AttendanceService {
 
         record = attendanceRecordRepository.save(record);
 
-        auditLogService.saveLog(employeeId.toString(), "CLOCK_OUT", "ATTENDANCE",
+        auditLogService.saveLog(employeeId, "CLOCK_OUT", "ATTENDANCE",
                 record.getId().toString(), "Clocked out. Total hours: " + hours);
         logger.info("Employee {} clocked out. Hours: {}", employeeId, hours);
         return record;
     }
 
     @Transactional(readOnly = true)
-    public List<AttendanceRecord> getByEmployee(Long employeeId) {
-        return attendanceRecordRepository.findByEmployeeId(String.valueOf(employeeId));
+    public List<AttendanceRecord> getByEmployee(String employeeId) {
+        return attendanceRecordRepository.findByEmployeeId(employeeId);
     }
 
     @Transactional(readOnly = true)
@@ -101,12 +101,12 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public java.util.Optional<AttendanceRecord> getOpenSession(Long employeeId) {
-        return attendanceRecordRepository.findOpenSession(String.valueOf(employeeId));
+    public java.util.Optional<AttendanceRecord> getOpenSession(String employeeId) {
+        return attendanceRecordRepository.findOpenSession(employeeId);
     }
 
-    public AttendanceRecord createManualEntry(Long employeeId, LocalDateTime clockIn, LocalDateTime clockOut, String notes) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public AttendanceRecord createManualEntry(String employeeId, LocalDateTime clockIn, LocalDateTime clockOut, String notes) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         AttendanceRecord record = new AttendanceRecord();
@@ -126,14 +126,14 @@ public class AttendanceService {
 
         record = attendanceRecordRepository.save(record);
 
-        auditLogService.saveLog(employeeId.toString(), "MANUAL_ENTRY", "ATTENDANCE",
+        auditLogService.saveLog(employeeId, "MANUAL_ENTRY", "ATTENDANCE",
                 record.getId().toString(), "Manual attendance entry created");
         logger.info("Manual attendance entry created for employee {}", employeeId);
         return record;
     }
 
-    public AttendanceRecord approveManualEntry(Long id) {
-        AttendanceRecord record = attendanceRecordRepository.findById(String.valueOf(id))
+    public AttendanceRecord approveManualEntry(String id) {
+        AttendanceRecord record = attendanceRecordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Attendance record not found: " + id));
 
         if (record.getStatus() != AttendanceStatus.PENDING_APPROVAL) {

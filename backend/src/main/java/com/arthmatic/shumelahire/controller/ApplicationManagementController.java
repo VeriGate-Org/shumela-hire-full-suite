@@ -87,7 +87,8 @@ public class ApplicationManagementController {
     public ResponseEntity<?> bulkUpdateStatus(@RequestBody Map<String, Object> request) {
         try {
             @SuppressWarnings("unchecked")
-            List<Long> applicationIds = (List<Long>) request.get("applicationIds");
+            List<String> applicationIds = ((List<?>) request.get("applicationIds")).stream()
+                .map(Object::toString).collect(java.util.stream.Collectors.toList());
             String statusName = (String) request.get("status");
             String reason = (String) request.get("reason");
 
@@ -114,7 +115,8 @@ public class ApplicationManagementController {
     public ResponseEntity<?> bulkAssignPipelineStage(@RequestBody Map<String, Object> request) {
         try {
             @SuppressWarnings("unchecked")
-            List<Long> applicationIds = (List<Long>) request.get("applicationIds");
+            List<String> applicationIds = ((List<?>) request.get("applicationIds")).stream()
+                .map(Object::toString).collect(java.util.stream.Collectors.toList());
             String stageName = (String) request.get("pipelineStage");
 
             PipelineStage stage = PipelineStage.valueOf(stageName);
@@ -142,13 +144,7 @@ public class ApplicationManagementController {
             @SuppressWarnings("unchecked")
             Map<String, Integer> ratings = (Map<String, Integer>) request.get("ratings");
 
-            // Convert String keys to Long
-            Map<Long, Integer> applicationRatings = new HashMap<>();
-            for (Map.Entry<String, Integer> entry : ratings.entrySet()) {
-                applicationRatings.put(Long.parseLong(entry.getKey()), entry.getValue());
-            }
-
-            var result = applicationManagementService.bulkRateApplications(applicationRatings);
+            var result = applicationManagementService.bulkRateApplications(ratings);
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
@@ -166,7 +162,8 @@ public class ApplicationManagementController {
     public ResponseEntity<?> bulkAddScreeningNotes(@RequestBody Map<String, Object> request) {
         try {
             @SuppressWarnings("unchecked")
-            List<Long> applicationIds = (List<Long>) request.get("applicationIds");
+            List<String> applicationIds = ((List<?>) request.get("applicationIds")).stream()
+                .map(Object::toString).collect(java.util.stream.Collectors.toList());
             String notes = (String) request.get("notes");
 
             if (notes == null || notes.trim().isEmpty()) {
@@ -228,11 +225,14 @@ public class ApplicationManagementController {
     @GetMapping("/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> exportApplications(
-            @RequestParam(required = false) List<Long> applicationIds,
+            @RequestParam(required = false) List<String> applicationIds,
             @RequestParam(required = false) List<String> fields,
             @RequestParam(defaultValue = "json") String format) {
         try {
-            var data = applicationManagementService.exportApplications(applicationIds, fields);
+            List<Long> longIds = applicationIds != null
+                ? applicationIds.stream().map(Long::valueOf).collect(java.util.stream.Collectors.toList())
+                : null;
+            var data = applicationManagementService.exportApplications(longIds, fields);
 
             Map<String, Object> response = new HashMap<>();
             response.put("format", format);

@@ -91,14 +91,14 @@ public class DynamoDeviceRegistrationRepository extends DynamoRepository<DeviceR
     @Override
     public void deleteByDeviceToken(String deviceToken) {
         findByDeviceToken(deviceToken).ifPresent(d ->
-                deleteById(String.valueOf(d.getId())));
+                deleteById(d.getId()));
     }
 
     @Override
     protected DeviceRegistration toEntity(DeviceRegistrationItem item) {
         var entity = new DeviceRegistration();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setDeviceToken(item.getDeviceToken());
         if (item.getPlatform() != null) {
@@ -119,14 +119,14 @@ public class DynamoDeviceRegistrationRepository extends DynamoRepository<DeviceR
     @Override
     protected DeviceRegistrationItem toItem(DeviceRegistration entity) {
         var item = new DeviceRegistrationItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("DEVICE_REG#" + id);
 
         String employeeId = entity.getEmployee() != null ?
-                String.valueOf(entity.getEmployee().getId()) : "";
+                entity.getEmployee().getId() : "";
         String registeredAtStr = entity.getRegisteredAt() != null ?
                 entity.getRegisteredAt().format(ISO_FMT) : "";
 

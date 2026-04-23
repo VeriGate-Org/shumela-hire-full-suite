@@ -55,7 +55,7 @@ public class FeatureGateService {
 
         // Check for tenant-specific override
         Optional<TenantFeatureEntitlement> overrideOpt =
-                entitlementRepository.findByTenantIdAndFeatureId(tenantId, String.valueOf(feature.getId()));
+                entitlementRepository.findByTenantIdAndFeatureId(tenantId, feature.getId());
 
         if (overrideOpt.isPresent()) {
             TenantFeatureEntitlement override = overrideOpt.get();

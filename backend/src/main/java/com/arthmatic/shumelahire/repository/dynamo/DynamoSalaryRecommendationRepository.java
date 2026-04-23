@@ -77,7 +77,7 @@ public class DynamoSalaryRecommendationRepository
     @Override
     public List<SalaryRecommendation> findByOfferId(String offerId) {
         return findAll().stream()
-                .filter(sr -> sr.getOfferId() != null && sr.getOfferId().toString().equals(offerId))
+                .filter(sr -> sr.getOfferId() != null && sr.getOfferId().equals(offerId))
                 .collect(Collectors.toList());
     }
 
@@ -105,7 +105,7 @@ public class DynamoSalaryRecommendationRepository
     protected SalaryRecommendation toEntity(SalaryRecommendationItem item) {
         var entity = new SalaryRecommendation();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setRecommendationNumber(item.getRecommendationNumber());
@@ -156,7 +156,7 @@ public class DynamoSalaryRecommendationRepository
         entity.setRejectionReason(item.getRejectionReason());
         entity.setCurrency(item.getCurrency());
         if (item.getOfferId() != null) {
-            entity.setOfferId(safeParseLong(item.getOfferId()));
+            entity.setOfferId(item.getOfferId());
         }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
@@ -171,7 +171,7 @@ public class DynamoSalaryRecommendationRepository
     protected SalaryRecommendationItem toItem(SalaryRecommendation entity) {
         var item = new SalaryRecommendationItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String createdAtStr = entity.getCreatedAt() != null
                 ? entity.getCreatedAt().format(ISO_FMT) : "";
@@ -188,7 +188,7 @@ public class DynamoSalaryRecommendationRepository
         // GSI2: Application FK lookup
         String appId = "";
         if (entity.getApplication() != null && entity.getApplication().getId() != null) {
-            appId = entity.getApplication().getId().toString();
+            appId = entity.getApplication().getId();
         }
         item.setGsi2pk("SALREC_APP#" + appId);
         item.setGsi2sk("SALREC#" + createdAtStr);
@@ -253,7 +253,7 @@ public class DynamoSalaryRecommendationRepository
         item.setCurrency(entity.getCurrency());
         item.setApplicationId(appId.isEmpty() ? null : appId);
         if (entity.getOfferId() != null) {
-            item.setOfferId(entity.getOfferId().toString());
+            item.setOfferId(entity.getOfferId());
         }
         if (entity.getCreatedAt() != null) {
             item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));

@@ -227,30 +227,30 @@ public class ReportingController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ReportTemplateResponse> updateReport(
-            @PathVariable Long id, @RequestBody Map<String, Object> config) {
+            @PathVariable String id, @RequestBody Map<String, Object> config) {
         return ResponseEntity.ok(reportTemplateService.updateReport(id, config));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReport(@PathVariable String id) {
         reportTemplateService.deleteReport(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/run")
-    public ResponseEntity<ReportTemplateResponse> markReportRun(@PathVariable Long id) {
+    public ResponseEntity<ReportTemplateResponse> markReportRun(@PathVariable String id) {
         return ResponseEntity.ok(reportTemplateService.incrementRunCount(id));
     }
 
     @PostMapping("/{id}/duplicate")
     public ResponseEntity<ReportTemplateResponse> duplicateReport(
-            @PathVariable Long id, Authentication auth) {
+            @PathVariable String id, Authentication auth) {
         String email = extractEmail(auth);
         return ResponseEntity.status(HttpStatus.CREATED).body(reportTemplateService.duplicateReport(id, email));
     }
 
     @PostMapping("/{id}/share")
-    public ResponseEntity<ReportTemplateResponse> shareReport(@PathVariable Long id) {
+    public ResponseEntity<ReportTemplateResponse> shareReport(@PathVariable String id) {
         return ResponseEntity.ok(reportTemplateService.shareReport(id));
     }
 

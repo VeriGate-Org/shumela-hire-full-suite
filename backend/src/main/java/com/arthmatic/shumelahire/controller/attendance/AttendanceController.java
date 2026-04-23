@@ -32,7 +32,7 @@ public class AttendanceController {
     private OvertimeService overtimeService;
 
     @PostMapping("/clock-in")
-    public ResponseEntity<?> clockIn(@RequestParam Long employeeId,
+    public ResponseEntity<?> clockIn(@RequestParam String employeeId,
                                      @RequestParam(defaultValue = "MANUAL") String method,
                                      @RequestParam(required = false) Double latitude,
                                      @RequestParam(required = false) Double longitude) {
@@ -45,7 +45,7 @@ public class AttendanceController {
     }
 
     @PostMapping("/clock-out")
-    public ResponseEntity<?> clockOut(@RequestParam Long employeeId,
+    public ResponseEntity<?> clockOut(@RequestParam String employeeId,
                                       @RequestParam(required = false) Double latitude,
                                       @RequestParam(required = false) Double longitude) {
         try {
@@ -57,7 +57,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/records")
-    public ResponseEntity<List<AttendanceRecord>> getRecords(@RequestParam Long employeeId) {
+    public ResponseEntity<List<AttendanceRecord>> getRecords(@RequestParam String employeeId) {
         return ResponseEntity.ok(attendanceService.getByEmployee(employeeId));
     }
 
@@ -74,7 +74,7 @@ public class AttendanceController {
     // ---- Overtime ----
 
     @PostMapping("/overtime")
-    public ResponseEntity<?> submitOvertime(@RequestParam Long employeeId,
+    public ResponseEntity<?> submitOvertime(@RequestParam String employeeId,
                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                             @RequestParam BigDecimal hours,
                                             @RequestParam(required = false) String reason) {
@@ -88,7 +88,7 @@ public class AttendanceController {
 
     @PutMapping("/overtime/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> approveOvertime(@PathVariable Long id, @RequestParam Long approverId) {
+    public ResponseEntity<?> approveOvertime(@PathVariable String id, @RequestParam String approverId) {
         try {
             return ResponseEntity.ok(overtimeService.approve(id, approverId));
         } catch (IllegalArgumentException e) {
@@ -98,7 +98,7 @@ public class AttendanceController {
 
     @PutMapping("/overtime/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> rejectOvertime(@PathVariable Long id, @RequestParam Long approverId) {
+    public ResponseEntity<?> rejectOvertime(@PathVariable String id, @RequestParam String approverId) {
         try {
             return ResponseEntity.ok(overtimeService.reject(id, approverId));
         } catch (IllegalArgumentException e) {
@@ -107,7 +107,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/overtime")
-    public ResponseEntity<List<OvertimeRecord>> getOvertime(@RequestParam Long employeeId) {
+    public ResponseEntity<List<OvertimeRecord>> getOvertime(@RequestParam String employeeId) {
         return ResponseEntity.ok(overtimeService.getByEmployee(employeeId));
     }
 
@@ -120,7 +120,7 @@ public class AttendanceController {
     // ---- Status ----
 
     @GetMapping("/status")
-    public ResponseEntity<?> getStatus(@RequestParam Long employeeId) {
+    public ResponseEntity<?> getStatus(@RequestParam String employeeId) {
         try {
             java.util.Optional<AttendanceRecord> openSession = attendanceService.getOpenSession(employeeId);
             if (openSession.isPresent()) {
@@ -138,7 +138,7 @@ public class AttendanceController {
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> createManualEntry(@RequestBody Map<String, Object> body) {
         try {
-            Long employeeId = ((Number) body.get("employeeId")).longValue();
+            String employeeId = body.get("employeeId").toString();
             LocalDateTime clockIn = LocalDateTime.parse((String) body.get("clockIn"));
             LocalDateTime clockOut = body.get("clockOut") != null ? LocalDateTime.parse((String) body.get("clockOut")) : null;
             String notes = (String) body.get("notes");
@@ -152,7 +152,7 @@ public class AttendanceController {
 
     @PutMapping("/manual/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> approveManualEntry(@PathVariable Long id) {
+    public ResponseEntity<?> approveManualEntry(@PathVariable String id) {
         try {
             AttendanceRecord record = attendanceService.approveManualEntry(id);
             return ResponseEntity.ok(record);

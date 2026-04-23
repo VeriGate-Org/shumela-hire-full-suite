@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class LeaveCalendarEntry {
 
-    private Long id;
+    private String id;
     private String employeeName;
     private String department;
     private String leaveTypeName;
@@ -15,7 +15,7 @@ public class LeaveCalendarEntry {
 
     public LeaveCalendarEntry() {}
 
-    public LeaveCalendarEntry(Long id, String employeeName, String department,
+    public LeaveCalendarEntry(String id, String employeeName, String department,
                               String leaveTypeName, String colorCode,
                               LocalDate startDate, LocalDate endDate, String status) {
         this.id = id;
@@ -29,8 +29,8 @@ public class LeaveCalendarEntry {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }

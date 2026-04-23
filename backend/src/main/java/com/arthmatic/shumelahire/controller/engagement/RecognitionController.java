@@ -34,13 +34,13 @@ public class RecognitionController {
 
     @GetMapping("/received")
     public ResponseEntity<List<RecognitionResponse>> getRecognitionsFor(
-            @RequestParam Long employeeId) {
+            @RequestParam String employeeId) {
         return ResponseEntity.ok(recognitionService.getRecognitionsFor(employeeId));
     }
 
     @GetMapping("/given")
     public ResponseEntity<List<RecognitionResponse>> getRecognitionsFrom(
-            @RequestParam Long employeeId) {
+            @RequestParam String employeeId) {
         return ResponseEntity.ok(recognitionService.getRecognitionsFrom(employeeId));
     }
 

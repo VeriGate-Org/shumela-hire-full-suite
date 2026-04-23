@@ -64,7 +64,7 @@ public class AnalyticsController {
     // Performance reports
     @GetMapping("/performance")
     public ResponseEntity<Map<String, Object>> getPerformanceReport(
-            @RequestParam Long userId,
+            @RequestParam String userId,
             @RequestParam String userType,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -117,8 +117,8 @@ public class AnalyticsController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) Long recruiterId,
-            @RequestParam(required = false) Long hiringManagerId,
+            @RequestParam(required = false) String recruiterId,
+            @RequestParam(required = false) String hiringManagerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,

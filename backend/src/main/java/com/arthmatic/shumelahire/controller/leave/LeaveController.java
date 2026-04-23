@@ -74,7 +74,7 @@ public class LeaveController {
 
     @PutMapping("/types/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateLeaveType(@PathVariable Long id,
+    public ResponseEntity<?> updateLeaveType(@PathVariable String id,
                                              @Valid @RequestBody LeaveTypeRequest request) {
         try {
             LeaveTypeResponse response = leaveTypeService.update(id, request, "SYSTEM");
@@ -89,7 +89,7 @@ public class LeaveController {
     @GetMapping("/policies")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<List<LeavePolicyResponse>> getLeavePolicies(
-            @RequestParam(required = false) Long leaveTypeId) {
+            @RequestParam(required = false) String leaveTypeId) {
         List<LeavePolicyResponse> policies = leaveTypeId != null
                 ? leavePolicyService.getByLeaveType(leaveTypeId)
                 : leavePolicyService.getAll();
@@ -109,7 +109,7 @@ public class LeaveController {
 
     @PutMapping("/policies/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateLeavePolicy(@PathVariable Long id,
+    public ResponseEntity<?> updateLeavePolicy(@PathVariable String id,
                                                @Valid @RequestBody LeavePolicyRequest request) {
         try {
             LeavePolicyResponse response = leavePolicyService.update(id, request, "SYSTEM");
@@ -123,7 +123,7 @@ public class LeaveController {
 
     @GetMapping("/balances")
     public ResponseEntity<List<LeaveBalanceResponse>> getBalances(
-            @RequestParam Long employeeId,
+            @RequestParam String employeeId,
             @RequestParam(required = false) Integer year) {
         return ResponseEntity.ok(leaveBalanceService.getBalancesForEmployee(employeeId, year));
     }
@@ -132,7 +132,7 @@ public class LeaveController {
 
     @PostMapping("/requests")
     public ResponseEntity<?> createLeaveRequest(@Valid @RequestBody LeaveRequestCreateRequest request,
-                                                @RequestParam Long employeeId) {
+                                                @RequestParam String employeeId) {
         try {
             LeaveRequestResponse response = leaveRequestService.create(request, employeeId);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -143,7 +143,7 @@ public class LeaveController {
 
     @GetMapping("/requests")
     public ResponseEntity<List<LeaveRequestResponse>> getRequests(
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) String status) {
         if (employeeId != null) {
             return ResponseEntity.ok(leaveRequestService.getByEmployee(employeeId));
@@ -156,7 +156,7 @@ public class LeaveController {
     }
 
     @GetMapping("/requests/{id}")
-    public ResponseEntity<?> getRequest(@PathVariable Long id) {
+    public ResponseEntity<?> getRequest(@PathVariable String id) {
         try {
             return ResponseEntity.ok(leaveRequestService.getById(id));
         } catch (IllegalArgumentException e) {
@@ -167,14 +167,14 @@ public class LeaveController {
     @GetMapping("/requests/pending")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<List<LeaveRequestResponse>> getPendingApprovals(
-            @RequestParam Long managerId) {
+            @RequestParam String managerId) {
         return ResponseEntity.ok(leaveRequestService.getPendingApprovals(managerId));
     }
 
     @PutMapping("/requests/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> approveRequest(@PathVariable Long id,
-                                            @RequestParam Long approverId) {
+    public ResponseEntity<?> approveRequest(@PathVariable String id,
+                                            @RequestParam String approverId) {
         try {
             LeaveRequestResponse response = leaveRequestService.approve(id, approverId);
             return ResponseEntity.ok(response);
@@ -185,8 +185,8 @@ public class LeaveController {
 
     @PutMapping("/requests/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> rejectRequest(@PathVariable Long id,
-                                           @RequestParam Long approverId,
+    public ResponseEntity<?> rejectRequest(@PathVariable String id,
+                                           @RequestParam String approverId,
                                            @RequestBody(required = false) LeaveDecisionRequest decision) {
         try {
             LeaveRequestResponse response = leaveRequestService.reject(id, approverId, decision);
@@ -197,8 +197,8 @@ public class LeaveController {
     }
 
     @PutMapping("/requests/{id}/cancel")
-    public ResponseEntity<?> cancelRequest(@PathVariable Long id,
-                                           @RequestParam Long employeeId,
+    public ResponseEntity<?> cancelRequest(@PathVariable String id,
+                                           @RequestParam String employeeId,
                                            @RequestBody(required = false) LeaveDecisionRequest decision) {
         try {
             LeaveRequestResponse response = leaveRequestService.cancel(id, employeeId, decision);
@@ -252,7 +252,7 @@ public class LeaveController {
 
     @DeleteMapping("/holidays/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deleteHoliday(@PathVariable Long id) {
+    public ResponseEntity<?> deleteHoliday(@PathVariable String id) {
         try {
             publicHolidayService.delete(id, "SYSTEM");
             return ResponseEntity.noContent().build();
@@ -265,7 +265,7 @@ public class LeaveController {
 
     @PostMapping("/encashment")
     public ResponseEntity<?> requestEncashment(@Valid @RequestBody LeaveEncashmentCreateRequest request,
-                                                @RequestParam Long employeeId) {
+                                                @RequestParam String employeeId) {
         try {
             LeaveEncashmentResponse response = leaveEncashmentService.requestEncashment(
                     employeeId, request.getLeaveTypeId(), request.getDays(), request.getReason());
@@ -277,7 +277,7 @@ public class LeaveController {
 
     @GetMapping("/encashment")
     public ResponseEntity<List<LeaveEncashmentResponse>> getEncashmentRequests(
-            @RequestParam Long employeeId) {
+            @RequestParam String employeeId) {
         return ResponseEntity.ok(leaveEncashmentService.getByEmployee(employeeId));
     }
 
@@ -295,8 +295,8 @@ public class LeaveController {
 
     @PutMapping("/encashment/{id}/hr-approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> hrApproveEncashment(@PathVariable Long id,
-                                                  @RequestParam Long approverId) {
+    public ResponseEntity<?> hrApproveEncashment(@PathVariable String id,
+                                                  @RequestParam String approverId) {
         try {
             return ResponseEntity.ok(leaveEncashmentService.hrApprove(id, approverId));
         } catch (IllegalArgumentException e) {
@@ -306,8 +306,8 @@ public class LeaveController {
 
     @PutMapping("/encashment/{id}/finance-approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> financeApproveEncashment(@PathVariable Long id,
-                                                       @RequestParam Long approverId) {
+    public ResponseEntity<?> financeApproveEncashment(@PathVariable String id,
+                                                       @RequestParam String approverId) {
         try {
             return ResponseEntity.ok(leaveEncashmentService.financeApprove(id, approverId));
         } catch (IllegalArgumentException e) {
@@ -317,8 +317,8 @@ public class LeaveController {
 
     @PutMapping("/encashment/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> rejectEncashment(@PathVariable Long id,
-                                               @RequestParam Long approverId,
+    public ResponseEntity<?> rejectEncashment(@PathVariable String id,
+                                               @RequestParam String approverId,
                                                @RequestParam(required = false) String comment) {
         try {
             return ResponseEntity.ok(leaveEncashmentService.reject(id, approverId, comment));

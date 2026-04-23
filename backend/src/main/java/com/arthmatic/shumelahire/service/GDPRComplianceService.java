@@ -35,10 +35,10 @@ public class GDPRComplianceService {
      * Generate user data export (Right to Data Portability)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> exportUserData(Long userId) {
+    public Map<String, Object> exportUserData(String userId) {
         logger.info("Starting data export for user ID: {}", userId);
         
-        User user = userRepository.findById(String.valueOf(userId)).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             logger.warn("User not found for data export: {}", userId);
             return null;
@@ -79,7 +79,7 @@ public class GDPRComplianceService {
 
         // Audit logs (last 100 entries)
         try {
-            List<Map<String, Object>> auditLogs = auditLogService.getUserAuditLogs(userId.toString())
+            List<Map<String, Object>> auditLogs = auditLogService.getUserAuditLogs(userId)
                     .stream()
                     .limit(100)
                     .map(log -> {
@@ -121,11 +121,11 @@ public class GDPRComplianceService {
      * Delete user data (Right to be Forgotten)
      */
     @Transactional
-    public boolean deleteUserData(Long userId, String reason) {
+    public boolean deleteUserData(String userId, String reason) {
         logger.info("Starting data deletion for user ID: {} with reason: {}", userId, reason);
         
         try {
-            User user = userRepository.findById(String.valueOf(userId)).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             if (user == null) {
                 logger.warn("User not found for data deletion: {}", userId);
                 return false;
@@ -182,10 +182,10 @@ public class GDPRComplianceService {
     /**
      * Generate privacy report
      */
-    public Map<String, Object> generatePrivacyReport(Long userId) {
+    public Map<String, Object> generatePrivacyReport(String userId) {
         logger.info("Generating privacy report for user ID: {}", userId);
         
-        User user = userRepository.findById(String.valueOf(userId)).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return null;
         }
@@ -267,7 +267,7 @@ public class GDPRComplianceService {
      * Process data subject request
      */
     @Transactional
-    public String processDataSubjectRequest(Long userId, String requestType, String details) {
+    public String processDataSubjectRequest(String userId, String requestType, String details) {
         logger.info("Processing data subject request: {} for user ID: {}", requestType, userId);
         
         String requestId = "DSR-" + System.currentTimeMillis();
@@ -299,32 +299,32 @@ public class GDPRComplianceService {
         }
     }
 
-    private String processAccessRequest(Long userId, String requestId) {
+    private String processAccessRequest(String userId, String requestId) {
         logger.info("Processing access request {} for user {}", requestId, userId);
         return "Access request processed. Data export will be available within 30 days.";
     }
 
-    private String processRectificationRequest(Long userId, String requestId, String details) {
+    private String processRectificationRequest(String userId, String requestId, String details) {
         logger.info("Processing rectification request {} for user {}", requestId, userId);
         return "Rectification request received. Data will be updated within 30 days.";
     }
 
-    private String processErasureRequest(Long userId, String requestId, String details) {
+    private String processErasureRequest(String userId, String requestId, String details) {
         logger.info("Processing erasure request {} for user {}", requestId, userId);
         return "Erasure request received. Data will be deleted within 30 days.";
     }
 
-    private String processPortabilityRequest(Long userId, String requestId) {
+    private String processPortabilityRequest(String userId, String requestId) {
         logger.info("Processing portability request {} for user {}", requestId, userId);
         return "Portability request processed. Data export will be available within 30 days.";
     }
 
-    private String processObjectionRequest(Long userId, String requestId, String details) {
+    private String processObjectionRequest(String userId, String requestId, String details) {
         logger.info("Processing objection request {} for user {}", requestId, userId);
         return "Objection request received. Processing will be restricted within 30 days.";
     }
 
-    private String processRestrictionRequest(Long userId, String requestId, String details) {
+    private String processRestrictionRequest(String userId, String requestId, String details) {
         logger.info("Processing restriction request {} for user {}", requestId, userId);
         return "Restriction request received. Processing will be limited within 30 days.";
     }

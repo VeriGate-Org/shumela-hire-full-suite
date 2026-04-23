@@ -32,7 +32,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<DepartmentResponse> getById(@PathVariable String id) {
         Department department = departmentService.getById(id);
         return ResponseEntity.ok(DepartmentResponse.fromEntity(department));
     }
@@ -52,21 +52,21 @@ public class DepartmentController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<DepartmentResponse> update(
-            @PathVariable Long id, @Valid @RequestBody DepartmentRequest request) {
+            @PathVariable String id, @Valid @RequestBody DepartmentRequest request) {
         Department department = departmentService.update(id, request);
         return ResponseEntity.ok(DepartmentResponse.fromEntity(department));
     }
 
     @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<DepartmentResponse> deactivate(@PathVariable Long id) {
+    public ResponseEntity<DepartmentResponse> deactivate(@PathVariable String id) {
         Department department = departmentService.deactivate(id);
         return ResponseEntity.ok(DepartmentResponse.fromEntity(department));
     }
 
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<DepartmentResponse> activate(@PathVariable Long id) {
+    public ResponseEntity<DepartmentResponse> activate(@PathVariable String id) {
         Department department = departmentService.activate(id);
         return ResponseEntity.ok(DepartmentResponse.fromEntity(department));
     }

@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 
 public class OnboardingChecklistItem {
 
-    private Long id;
+    private String id;
 
     @NotNull
-    private Long checklistId;
+    private String checklistId;
 
-    private Long templateItemId;
+    private String templateItemId;
 
     @NotBlank
     private String title;
@@ -42,14 +42,14 @@ public class OnboardingChecklistItem {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getChecklistId() { return checklistId; }
-    public void setChecklistId(Long checklistId) { this.checklistId = checklistId; }
+    public String getChecklistId() { return checklistId; }
+    public void setChecklistId(String checklistId) { this.checklistId = checklistId; }
 
-    public Long getTemplateItemId() { return templateItemId; }
-    public void setTemplateItemId(Long templateItemId) { this.templateItemId = templateItemId; }
+    public String getTemplateItemId() { return templateItemId; }
+    public void setTemplateItemId(String templateItemId) { this.templateItemId = templateItemId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

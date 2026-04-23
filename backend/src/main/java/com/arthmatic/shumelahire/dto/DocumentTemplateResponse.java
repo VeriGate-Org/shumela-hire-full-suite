@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class DocumentTemplateResponse {
 
-    private Long id;
+    private String id;
     private String type;
     private String name;
     private String subject;
@@ -37,8 +37,8 @@ public class DocumentTemplateResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }

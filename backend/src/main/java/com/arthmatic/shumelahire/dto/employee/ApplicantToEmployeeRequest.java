@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class ApplicantToEmployeeRequest {
 
     @NotNull(message = "Applicant ID is required")
-    private Long applicantId;
+    private String applicantId;
 
     @NotNull(message = "Hire date is required")
     private LocalDate hireDate;
@@ -16,7 +16,7 @@ public class ApplicantToEmployeeRequest {
     private String jobTitle;
     private String jobGrade;
     private String employmentType;
-    private Long reportingManagerId;
+    private String reportingManagerId;
     private String location;
     private String site;
     private String costCentre;
@@ -26,8 +26,8 @@ public class ApplicantToEmployeeRequest {
     public ApplicantToEmployeeRequest() {}
 
     // Getters and Setters
-    public Long getApplicantId() { return applicantId; }
-    public void setApplicantId(Long applicantId) { this.applicantId = applicantId; }
+    public String getApplicantId() { return applicantId; }
+    public void setApplicantId(String applicantId) { this.applicantId = applicantId; }
 
     public LocalDate getHireDate() { return hireDate; }
     public void setHireDate(LocalDate hireDate) { this.hireDate = hireDate; }
@@ -44,8 +44,8 @@ public class ApplicantToEmployeeRequest {
     public String getEmploymentType() { return employmentType; }
     public void setEmploymentType(String employmentType) { this.employmentType = employmentType; }
 
-    public Long getReportingManagerId() { return reportingManagerId; }
-    public void setReportingManagerId(Long reportingManagerId) { this.reportingManagerId = reportingManagerId; }
+    public String getReportingManagerId() { return reportingManagerId; }
+    public void setReportingManagerId(String reportingManagerId) { this.reportingManagerId = reportingManagerId; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }

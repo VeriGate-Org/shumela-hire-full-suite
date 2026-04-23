@@ -66,7 +66,7 @@ public class EmployeeService {
     }
 
     @CacheEvict(value = EMPLOYEES_CACHE, allEntries = true)
-    public EmployeeResponse updateEmployee(Long id, EmployeeCreateRequest request) {
+    public EmployeeResponse updateEmployee(String id, EmployeeCreateRequest request) {
         logger.info("Updating employee: {}", id);
 
         Employee employee = findEmployeeById(id);
@@ -98,7 +98,7 @@ public class EmployeeService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = EMPLOYEES_CACHE, key = "#id")
-    public EmployeeResponse getEmployee(Long id) {
+    public EmployeeResponse getEmployee(String id) {
         Employee employee = findEmployeeById(id);
         return EmployeeResponse.fromEntity(employee);
     }
@@ -141,8 +141,8 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmployeeResponse> getDirectReports(Long managerId) {
-        List<Employee> reports = employeeRepository.findByReportingManagerId(String.valueOf(managerId));
+    public List<EmployeeResponse> getDirectReports(String managerId) {
+        List<Employee> reports = employeeRepository.findByReportingManagerId(managerId);
         return reports.stream().map(EmployeeResponse::directoryView).collect(Collectors.toList());
     }
 
@@ -172,7 +172,7 @@ public class EmployeeService {
     }
 
     @CacheEvict(value = EMPLOYEES_CACHE, allEntries = true)
-    public EmployeeResponse updateStatus(Long id, EmployeeStatus status, String reason) {
+    public EmployeeResponse updateStatus(String id, EmployeeStatus status, String reason) {
         Employee employee = findEmployeeById(id);
         EmployeeStatus previousStatus = employee.getStatus();
         employee.setStatus(status);
@@ -190,8 +190,8 @@ public class EmployeeService {
         return EmployeeResponse.fromEntity(saved);
     }
 
-    public Employee findEmployeeById(Long id) {
-        return employeeRepository.findById(String.valueOf(id))
+    public Employee findEmployeeById(String id) {
+        return employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + id));
     }
 

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class PipelineTransition extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull(message = "Application is required")
     private Application application;
@@ -24,14 +24,14 @@ public class PipelineTransition extends TenantAwareEntity {
 
     private Boolean automated = false;
 
-    private Long triggeredByInterviewId;
+    private String triggeredByInterviewId;
 
-    private Long triggeredByAssessmentId;
+    private String triggeredByAssessmentId;
 
     private String metadata; // JSON for additional data
 
     @NotNull(message = "Created by is required")
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt;
 
@@ -45,8 +45,8 @@ public class PipelineTransition extends TenantAwareEntity {
         this.effectiveAt = LocalDateTime.now();
     }
 
-    public PipelineTransition(Application application, PipelineStage fromStage, PipelineStage toStage, 
-                            TransitionType transitionType, Long createdBy) {
+    public PipelineTransition(Application application, PipelineStage fromStage, PipelineStage toStage,
+                            TransitionType transitionType, String createdBy) {
         this();
         this.application = application;
         this.fromStage = fromStage;
@@ -131,11 +131,11 @@ public class PipelineTransition extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -195,19 +195,19 @@ public class PipelineTransition extends TenantAwareEntity {
         this.automated = automated;
     }
 
-    public Long getTriggeredByInterviewId() {
+    public String getTriggeredByInterviewId() {
         return triggeredByInterviewId;
     }
 
-    public void setTriggeredByInterviewId(Long triggeredByInterviewId) {
+    public void setTriggeredByInterviewId(String triggeredByInterviewId) {
         this.triggeredByInterviewId = triggeredByInterviewId;
     }
 
-    public Long getTriggeredByAssessmentId() {
+    public String getTriggeredByAssessmentId() {
         return triggeredByAssessmentId;
     }
 
-    public void setTriggeredByAssessmentId(Long triggeredByAssessmentId) {
+    public void setTriggeredByAssessmentId(String triggeredByAssessmentId) {
         this.triggeredByAssessmentId = triggeredByAssessmentId;
     }
 
@@ -219,11 +219,11 @@ public class PipelineTransition extends TenantAwareEntity {
         this.metadata = metadata;
     }
 
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 

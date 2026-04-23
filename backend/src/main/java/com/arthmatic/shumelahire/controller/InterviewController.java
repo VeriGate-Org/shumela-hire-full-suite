@@ -31,7 +31,7 @@ public class InterviewController {
     // Create interview
     @PostMapping
     public ResponseEntity<Interview> createInterview(@RequestBody Interview interview,
-                                                   @RequestParam Long createdBy) {
+                                                   @RequestParam String createdBy) {
         try {
             // Resolve applicationId to Application entity when sent as a flat ID from the frontend
             if (interview.getApplication() == null && interview.getApplicationId() != null) {
@@ -48,19 +48,19 @@ public class InterviewController {
 
     // Schedule interview (convenience method)
     @PostMapping("/schedule")
-    public ResponseEntity<Interview> scheduleInterview(@RequestParam Long applicationId,
+    public ResponseEntity<Interview> scheduleInterview(@RequestParam String applicationId,
                                                      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime scheduledAt,
-                                                     @RequestParam Long interviewerId,
+                                                     @RequestParam String interviewerId,
                                                      @RequestParam InterviewType type,
                                                      @RequestParam InterviewRound round,
-                                                     @RequestParam Long scheduledBy,
+                                                     @RequestParam String scheduledBy,
                                                      @RequestParam(required = false) Integer durationMinutes,
                                                      @RequestParam(required = false) String location,
                                                      @RequestParam(required = false) String meetingLink,
                                                      @RequestParam(required = false) String meetingRoom,
                                                      @RequestParam(required = false) String instructions) {
         try {
-            Interview interview = interviewService.scheduleInterview(applicationId, scheduledAt, 
+            Interview interview = interviewService.scheduleInterview(applicationId, scheduledAt,
                                                                    interviewerId, type, round, scheduledBy);
             
             // Set optional parameters if provided
@@ -83,7 +83,7 @@ public class InterviewController {
 
     // Get interview by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Interview> getInterview(@PathVariable Long id) {
+    public ResponseEntity<Interview> getInterview(@PathVariable String id) {
         try {
             Interview interview = interviewService.getInterviewById(id);
             return ResponseEntity.ok(interview);
@@ -94,9 +94,9 @@ public class InterviewController {
 
     // Update interview
     @PutMapping("/{id}")
-    public ResponseEntity<Interview> updateInterview(@PathVariable Long id,
+    public ResponseEntity<Interview> updateInterview(@PathVariable String id,
                                                    @RequestBody Interview interview,
-                                                   @RequestParam Long updatedBy) {
+                                                   @RequestParam String updatedBy) {
         try {
             Interview updatedInterview = interviewService.updateInterview(id, interview, updatedBy);
             return ResponseEntity.ok(updatedInterview);
@@ -109,8 +109,8 @@ public class InterviewController {
 
     // Delete interview
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInterview(@PathVariable Long id,
-                                              @RequestParam Long deletedBy) {
+    public ResponseEntity<Void> deleteInterview(@PathVariable String id,
+                                              @RequestParam String deletedBy) {
         try {
             interviewService.deleteInterview(id, deletedBy);
             return ResponseEntity.noContent().build();
@@ -128,7 +128,7 @@ public class InterviewController {
             @RequestParam(required = false) InterviewStatus status,
             @RequestParam(required = false) InterviewType type,
             @RequestParam(required = false) InterviewRound round,
-            @RequestParam(required = false) Long interviewerId,
+            @RequestParam(required = false) String interviewerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(defaultValue = "0") int page,
@@ -139,8 +139,9 @@ public class InterviewController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        Long interviewerIdLong = interviewerId != null ? Long.valueOf(interviewerId) : null;
         Page<Interview> interviews = interviewService.searchInterviews(
-                searchTerm, status, type, round, interviewerId, startDate, endDate, pageable);
+                searchTerm, status, type, round, interviewerIdLong, startDate, endDate, pageable);
 
         return ResponseEntity.ok(interviews);
     }
@@ -148,7 +149,7 @@ public class InterviewController {
     // Get interviews by application (also accessible by applicants for their own applications)
     @GetMapping("/application/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER', 'APPLICANT')")
-    public ResponseEntity<List<Interview>> getInterviewsByApplication(@PathVariable Long applicationId) {
+    public ResponseEntity<List<Interview>> getInterviewsByApplication(@PathVariable String applicationId) {
         List<Interview> interviews = interviewService.getInterviewsByApplication(applicationId);
         return ResponseEntity.ok(interviews);
     }
@@ -156,7 +157,7 @@ public class InterviewController {
     // Get interviewer schedule
     @GetMapping("/interviewer/{interviewerId}/schedule")
     public ResponseEntity<List<Interview>> getInterviewerSchedule(
-            @PathVariable Long interviewerId,
+            @PathVariable String interviewerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         
@@ -166,10 +167,10 @@ public class InterviewController {
 
     // Reschedule interview
     @PostMapping("/{id}/reschedule")
-    public ResponseEntity<Interview> rescheduleInterview(@PathVariable Long id,
+    public ResponseEntity<Interview> rescheduleInterview(@PathVariable String id,
                                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime newScheduledAt,
                                                        @RequestParam String reason,
-                                                       @RequestParam Long rescheduledBy) {
+                                                       @RequestParam String rescheduledBy) {
         try {
             Interview rescheduledInterview = interviewService.rescheduleInterview(id, newScheduledAt, reason, rescheduledBy);
             return ResponseEntity.ok(rescheduledInterview);
@@ -182,9 +183,9 @@ public class InterviewController {
 
     // Cancel interview
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<Interview> cancelInterview(@PathVariable Long id,
+    public ResponseEntity<Interview> cancelInterview(@PathVariable String id,
                                                    @RequestParam String reason,
-                                                   @RequestParam Long cancelledBy) {
+                                                   @RequestParam String cancelledBy) {
         try {
             Interview cancelledInterview = interviewService.cancelInterview(id, reason, cancelledBy);
             return ResponseEntity.ok(cancelledInterview);
@@ -197,9 +198,9 @@ public class InterviewController {
 
     // Postpone interview
     @PostMapping("/{id}/postpone")
-    public ResponseEntity<Interview> postponeInterview(@PathVariable Long id,
+    public ResponseEntity<Interview> postponeInterview(@PathVariable String id,
                                                       @RequestParam String reason,
-                                                      @RequestParam Long postponedBy) {
+                                                      @RequestParam String postponedBy) {
         try {
             Interview postponedInterview = interviewService.postponeInterview(id, reason, postponedBy);
             return ResponseEntity.ok(postponedInterview);
@@ -212,8 +213,8 @@ public class InterviewController {
 
     // Start interview
     @PostMapping("/{id}/start")
-    public ResponseEntity<Interview> startInterview(@PathVariable Long id,
-                                                  @RequestParam Long startedBy) {
+    public ResponseEntity<Interview> startInterview(@PathVariable String id,
+                                                  @RequestParam String startedBy) {
         try {
             Interview startedInterview = interviewService.startInterview(id, startedBy);
             return ResponseEntity.ok(startedInterview);
@@ -226,8 +227,8 @@ public class InterviewController {
 
     // Complete interview
     @PostMapping("/{id}/complete")
-    public ResponseEntity<Interview> completeInterview(@PathVariable Long id,
-                                                     @RequestParam Long completedBy) {
+    public ResponseEntity<Interview> completeInterview(@PathVariable String id,
+                                                     @RequestParam String completedBy) {
         try {
             Interview completedInterview = interviewService.completeInterview(id, completedBy);
             return ResponseEntity.ok(completedInterview);
@@ -240,7 +241,7 @@ public class InterviewController {
 
     // Submit feedback (multi-feedback: one per interviewer)
     @PostMapping("/{id}/feedback")
-    public ResponseEntity<InterviewFeedback> submitFeedback(@PathVariable Long id,
+    public ResponseEntity<InterviewFeedback> submitFeedback(@PathVariable String id,
                                                    @RequestParam @NotBlank(message = "Feedback text is required") String feedback,
                                                    @RequestParam(required = false) Integer rating,
                                                    @RequestParam(required = false) Integer communicationSkills,
@@ -252,7 +253,7 @@ public class InterviewController {
                                                    @RequestParam(required = false) String technicalAssessment,
                                                    @RequestParam(required = false) String candidateQuestions,
                                                    @RequestParam(required = false) String interviewerNotes,
-                                                   @RequestParam Long submittedBy,
+                                                   @RequestParam String submittedBy,
                                                    @RequestParam(required = false) String interviewerName) {
         try {
             InterviewFeedback savedFeedback = interviewService.submitFeedback(
@@ -270,15 +271,15 @@ public class InterviewController {
 
     // Get all feedbacks for an interview
     @GetMapping("/{id}/feedbacks")
-    public ResponseEntity<List<InterviewFeedback>> getFeedbacks(@PathVariable Long id) {
+    public ResponseEntity<List<InterviewFeedback>> getFeedbacks(@PathVariable String id) {
         List<InterviewFeedback> feedbacks = interviewService.getFeedbacksForInterview(id);
         return ResponseEntity.ok(feedbacks);
     }
 
     // Get feedback for a specific user on an interview
     @GetMapping("/{id}/feedback/user/{userId}")
-    public ResponseEntity<InterviewFeedback> getUserFeedback(@PathVariable Long id,
-                                                             @PathVariable Long userId) {
+    public ResponseEntity<InterviewFeedback> getUserFeedback(@PathVariable String id,
+                                                             @PathVariable String userId) {
         return interviewService.getFeedbackByInterviewAndUser(id, userId)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
@@ -286,8 +287,8 @@ public class InterviewController {
 
     // Delete own feedback
     @DeleteMapping("/feedback/{feedbackId}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Long feedbackId,
-                                               @RequestParam Long deletedBy) {
+    public ResponseEntity<Void> deleteFeedback(@PathVariable String feedbackId,
+                                               @RequestParam String deletedBy) {
         try {
             interviewService.deleteFeedback(feedbackId, deletedBy);
             return ResponseEntity.noContent().build();
@@ -301,7 +302,7 @@ public class InterviewController {
     // Check interviewer availability
     @GetMapping("/availability/interviewer/{interviewerId}")
     public ResponseEntity<Map<String, Boolean>> checkInterviewerAvailability(
-            @PathVariable Long interviewerId,
+            @PathVariable String interviewerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(defaultValue = "60") int durationMinutes) {
         
@@ -323,7 +324,7 @@ public class InterviewController {
     // Get suggested time slots
     @GetMapping("/suggestions/interviewer/{interviewerId}")
     public ResponseEntity<List<LocalDateTime>> getSuggestedTimeSlots(
-            @PathVariable Long interviewerId,
+            @PathVariable String interviewerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime preferredDate,
             @RequestParam(defaultValue = "60") int durationMinutes,
             @RequestParam(defaultValue = "5") int numberOfSuggestions) {
@@ -363,7 +364,7 @@ public class InterviewController {
 
     // Mark reminder sent
     @PostMapping("/{id}/reminder-sent")
-    public ResponseEntity<Void> markReminderSent(@PathVariable Long id) {
+    public ResponseEntity<Void> markReminderSent(@PathVariable String id) {
         try {
             interviewService.markReminderSent(id);
             return ResponseEntity.ok().build();
@@ -374,7 +375,7 @@ public class InterviewController {
 
     // Request feedback
     @PostMapping("/{id}/request-feedback")
-    public ResponseEntity<Void> requestFeedback(@PathVariable Long id) {
+    public ResponseEntity<Void> requestFeedback(@PathVariable String id) {
         try {
             interviewService.requestFeedback(id);
             return ResponseEntity.ok().build();
@@ -404,7 +405,7 @@ public class InterviewController {
     // Calendar endpoints
     @GetMapping("/calendar/{interviewerId}")
     public ResponseEntity<List<Interview>> getInterviewerCalendar(
-            @PathVariable Long interviewerId,
+            @PathVariable String interviewerId,
             @RequestParam int year,
             @RequestParam int month) {
         

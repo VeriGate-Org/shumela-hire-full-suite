@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class EmployeeDocumentTypeConfig extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotBlank
     private String name;
@@ -25,8 +25,8 @@ public class EmployeeDocumentTypeConfig extends TenantAwareEntity {
     private LocalDateTime createdAt;
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

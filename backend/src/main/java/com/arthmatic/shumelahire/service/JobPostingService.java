@@ -39,7 +39,7 @@ public class JobPostingService {
     /**
      * Create a new job posting
      */
-    public JobPostingResponse createJobPosting(JobPostingCreateRequest request, Long createdBy) {
+    public JobPostingResponse createJobPosting(JobPostingCreateRequest request, String createdBy) {
         logger.info("Creating job posting: {} by user {}", request.getTitle(), createdBy);
         
         JobPosting jobPosting = new JobPosting();
@@ -65,7 +65,7 @@ public class JobPostingService {
     /**
      * Update an existing job posting
      */
-    public JobPostingResponse updateJobPosting(Long id, JobPostingCreateRequest request, Long updatedBy) {
+    public JobPostingResponse updateJobPosting(String id, JobPostingCreateRequest request, String updatedBy) {
         logger.info("Updating job posting: {} by user {}", id, updatedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -98,7 +98,7 @@ public class JobPostingService {
      * Get job posting by ID
      */
     @Transactional(readOnly = true)
-    public JobPostingResponse getJobPosting(Long id) {
+    public JobPostingResponse getJobPosting(String id) {
         JobPosting jobPosting = findJobPostingById(id);
         return JobPostingResponse.fromEntity(jobPosting);
     }
@@ -114,7 +114,7 @@ public class JobPostingService {
         // TODO: Add rate-limiting/deduplication (session/IP-based) to prevent view inflation
         // Increment view count for published jobs
         if (jobPosting.getStatus() == JobPostingStatus.PUBLISHED) {
-            jobPostingRepository.incrementViewCount(String.valueOf(jobPosting.getId()));
+            jobPostingRepository.incrementViewCount(jobPosting.getId());
         }
         
         return JobPostingResponse.fromEntity(jobPosting);
@@ -176,7 +176,7 @@ public class JobPostingService {
      * Get job postings created by user
      */
     @Transactional(readOnly = true)
-    public Page<JobPostingResponse> getJobPostingsByCreator(Long createdBy, Pageable pageable) {
+    public Page<JobPostingResponse> getJobPostingsByCreator(String createdBy, Pageable pageable) {
         Page<JobPosting> jobPostings = jobPostingRepository.findByCreatedBy(createdBy, pageable);
         return jobPostings.map(JobPostingResponse::fromEntity);
     }
@@ -184,7 +184,7 @@ public class JobPostingService {
     /**
      * Submit job posting for approval
      */
-    public JobPostingResponse submitForApproval(Long id, Long submittedBy) {
+    public JobPostingResponse submitForApproval(String id, String submittedBy) {
         logger.info("Submitting job posting {} for approval by user {}", id, submittedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -212,7 +212,7 @@ public class JobPostingService {
     /**
      * Approve job posting
      */
-    public JobPostingResponse approveJobPosting(Long id, Long approvedBy, String approvalNotes) {
+    public JobPostingResponse approveJobPosting(String id, String approvedBy, String approvalNotes) {
         logger.info("Approving job posting {} by user {}", id, approvedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -242,7 +242,7 @@ public class JobPostingService {
     /**
      * Reject job posting
      */
-    public JobPostingResponse rejectJobPosting(Long id, Long rejectedBy, String rejectionReason) {
+    public JobPostingResponse rejectJobPosting(String id, String rejectedBy, String rejectionReason) {
         logger.info("Rejecting job posting {} by user {}", id, rejectedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -270,7 +270,7 @@ public class JobPostingService {
     /**
      * Publish job posting
      */
-    public JobPostingResponse publishJobPosting(Long id, Long publishedBy) {
+    public JobPostingResponse publishJobPosting(String id, String publishedBy) {
         logger.info("Publishing job posting {} by user {}", id, publishedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -302,7 +302,7 @@ public class JobPostingService {
     /**
      * Unpublish job posting
      */
-    public JobPostingResponse unpublishJobPosting(Long id, Long unpublishedBy) {
+    public JobPostingResponse unpublishJobPosting(String id, String unpublishedBy) {
         logger.info("Unpublishing job posting {} by user {}", id, unpublishedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -331,7 +331,7 @@ public class JobPostingService {
     /**
      * Close job posting
      */
-    public JobPostingResponse closeJobPosting(Long id, Long closedBy) {
+    public JobPostingResponse closeJobPosting(String id, String closedBy) {
         logger.info("Closing job posting {} by user {}", id, closedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -403,7 +403,7 @@ public class JobPostingService {
     /**
      * Delete job posting (only if in draft or rejected status)
      */
-    public void deleteJobPosting(Long id, Long deletedBy) {
+    public void deleteJobPosting(String id, String deletedBy) {
         logger.info("Deleting job posting {} by user {}", id, deletedBy);
         
         JobPosting jobPosting = findJobPostingById(id);
@@ -423,8 +423,8 @@ public class JobPostingService {
     
     // Helper methods
     
-    private JobPosting findJobPostingById(Long id) {
-        return jobPostingRepository.findById(String.valueOf(id))
+    private JobPosting findJobPostingById(String id) {
+        return jobPostingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Job posting not found: " + id));
     }
     

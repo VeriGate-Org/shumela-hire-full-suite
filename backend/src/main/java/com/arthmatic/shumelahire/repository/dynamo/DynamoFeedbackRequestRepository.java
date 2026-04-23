@@ -40,7 +40,7 @@ public class DynamoFeedbackRequestRepository extends DynamoRepository<FeedbackRe
     @Override
     public List<FeedbackRequest> findByRequesterId(String requesterId) {
         return findAll().stream()
-                .filter(req -> req.getRequester() != null && requesterId.equals(String.valueOf(req.getRequester().getId())))
+                .filter(req -> req.getRequester() != null && requesterId.equals(req.getRequester().getId()))
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public class DynamoFeedbackRequestRepository extends DynamoRepository<FeedbackRe
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         FeedbackRequestItem item = new FeedbackRequestItem();
         item.setPk("TENANT#" + tenantId);
@@ -80,14 +80,14 @@ public class DynamoFeedbackRequestRepository extends DynamoRepository<FeedbackRe
         item.setTenantId(tenantId);
 
         if (entity.getEmployee() != null && entity.getEmployee().getId() != null) {
-            item.setEmployeeId(entity.getEmployee().getId().toString());
+            item.setEmployeeId(entity.getEmployee().getId());
             String gsi1pk = "FR_EMP#" + tenantId + "#" + entity.getEmployee().getId();
             item.setGsi1pk(gsi1pk);
             item.setGsi1sk("FR#" + id);
         }
 
         if (entity.getRequester() != null && entity.getRequester().getId() != null) {
-            item.setRequesterId(entity.getRequester().getId().toString());
+            item.setRequesterId(entity.getRequester().getId());
         }
 
         if (entity.getFeedbackType() != null) {
@@ -113,19 +113,19 @@ public class DynamoFeedbackRequestRepository extends DynamoRepository<FeedbackRe
 
         FeedbackRequest entity = new FeedbackRequest();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getRequesterId() != null) {
             Employee requester = new Employee();
-            requester.setId(safeParseLong(item.getRequesterId()));
+            requester.setId(item.getRequesterId());
             entity.setRequester(requester);
         }
 

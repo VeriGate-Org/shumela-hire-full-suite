@@ -40,7 +40,7 @@ public class WorkflowController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getWorkflow(@PathVariable Long id) {
+    public ResponseEntity<?> getWorkflow(@PathVariable String id) {
         try {
             WorkflowDefinition workflow = workflowService.getWorkflowById(id);
             return ResponseEntity.ok(workflow);
@@ -68,7 +68,7 @@ public class WorkflowController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateWorkflow(@PathVariable Long id, @RequestBody WorkflowDefinition workflow) {
+    public ResponseEntity<?> updateWorkflow(@PathVariable String id, @RequestBody WorkflowDefinition workflow) {
         try {
             logger.info("Updating workflow: {}", id);
             WorkflowDefinition updated = workflowService.updateWorkflow(id, workflow);
@@ -84,7 +84,7 @@ public class WorkflowController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteWorkflow(@PathVariable Long id) {
+    public ResponseEntity<?> deleteWorkflow(@PathVariable String id) {
         try {
             logger.info("Deleting workflow: {}", id);
             workflowService.deleteWorkflow(id);
@@ -100,7 +100,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/{id}/duplicate")
-    public ResponseEntity<?> duplicateWorkflow(@PathVariable Long id) {
+    public ResponseEntity<?> duplicateWorkflow(@PathVariable String id) {
         try {
             logger.info("Duplicating workflow: {}", id);
             WorkflowDefinition duplicated = workflowService.duplicateWorkflow(id);
@@ -116,7 +116,7 @@ public class WorkflowController {
     }
 
     @PutMapping("/{id}/toggle")
-    public ResponseEntity<?> toggleWorkflow(@PathVariable Long id, @RequestParam boolean isActive) {
+    public ResponseEntity<?> toggleWorkflow(@PathVariable String id, @RequestParam boolean isActive) {
         try {
             logger.info("Toggling workflow {} to active={}", id, isActive);
             WorkflowDefinition toggled = workflowService.toggleWorkflow(id, isActive);

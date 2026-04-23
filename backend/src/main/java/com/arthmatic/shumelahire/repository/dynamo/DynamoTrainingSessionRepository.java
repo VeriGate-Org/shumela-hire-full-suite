@@ -70,12 +70,12 @@ public class DynamoTrainingSessionRepository extends DynamoRepository<TrainingSe
         TrainingSessionItem item = new TrainingSessionItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("TRAIN_SESSION#" + entity.getId());
-        Long courseId = entity.getCourse() != null ? entity.getCourse().getId() : null;
+        String courseId = entity.getCourse() != null ? entity.getCourse().getId() : null;
         item.setGsi1pk("TS_COURSE#" + entity.getTenantId() + "#" + (courseId != null ? courseId : ""));
         item.setGsi1sk("TRAIN_SESSION#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
-        item.setCourseId(courseId != null ? String.valueOf(courseId) : null);
+        item.setCourseId(courseId != null ? courseId : null);
         item.setTrainerName(entity.getTrainerName());
         item.setLocation(entity.getLocation());
         item.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toInstant(ZoneOffset.UTC) : null);
@@ -91,12 +91,12 @@ public class DynamoTrainingSessionRepository extends DynamoRepository<TrainingSe
     protected TrainingSession toEntity(TrainingSessionItem item) {
         TrainingSession entity = new TrainingSession();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getCourseId() != null) {
             TrainingCourse course = new TrainingCourse();
-            course.setId(safeParseLong(item.getCourseId()));
+            course.setId(item.getCourseId());
             entity.setCourse(course);
         }
         entity.setTrainerName(item.getTrainerName());

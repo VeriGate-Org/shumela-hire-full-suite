@@ -63,15 +63,15 @@ public class ReportExportService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReportExportJobResponse> getByUser(Long employeeId) {
-        return exportJobRepository.findByRequestedByIdOrderByCreatedAtDesc(String.valueOf(employeeId)).stream()
+    public List<ReportExportJobResponse> getByUser(String employeeId) {
+        return exportJobRepository.findByRequestedByIdOrderByCreatedAtDesc(employeeId).stream()
                 .map(ReportExportJobResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public ReportExportJobResponse getById(Long id) {
-        ReportExportJob job = exportJobRepository.findById(String.valueOf(id))
+    public ReportExportJobResponse getById(String id) {
+        ReportExportJob job = exportJobRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Export job not found: " + id));
         return ReportExportJobResponse.fromEntity(job);
     }

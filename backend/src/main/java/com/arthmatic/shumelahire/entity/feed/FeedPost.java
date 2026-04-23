@@ -8,9 +8,9 @@ import java.util.List;
 
 public class FeedPost extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
-    private Long authorId;
+    private String authorId;
 
     private String authorName;
 
@@ -53,11 +53,11 @@ public class FeedPost extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getAuthorId() { return authorId; }
-    public void setAuthorId(Long authorId) { this.authorId = authorId; }
+    public String getAuthorId() { return authorId; }
+    public void setAuthorId(String authorId) { this.authorId = authorId; }
 
     public String getAuthorName() { return authorName; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }

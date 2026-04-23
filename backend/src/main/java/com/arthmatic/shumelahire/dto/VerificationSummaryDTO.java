@@ -8,7 +8,7 @@ import java.util.List;
 
 public class VerificationSummaryDTO {
 
-    private Long applicationId;
+    private String applicationId;
     private List<String> requiredCheckTypes;
     private boolean enforceCheckCompletion;
     private List<CheckSummary> checks;
@@ -20,7 +20,7 @@ public class VerificationSummaryDTO {
 
     public VerificationSummaryDTO() {}
 
-    public VerificationSummaryDTO(Long applicationId, List<String> requiredCheckTypes,
+    public VerificationSummaryDTO(String applicationId, List<String> requiredCheckTypes,
                                    boolean enforceCheckCompletion, List<BackgroundCheck> backgroundChecks) {
         this.applicationId = applicationId;
         this.requiredCheckTypes = requiredCheckTypes;
@@ -69,8 +69,8 @@ public class VerificationSummaryDTO {
     }
 
     // Getters and setters
-    public Long getApplicationId() { return applicationId; }
-    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
     public List<String> getRequiredCheckTypes() { return requiredCheckTypes; }
     public void setRequiredCheckTypes(List<String> requiredCheckTypes) { this.requiredCheckTypes = requiredCheckTypes; }
     public boolean isEnforceCheckCompletion() { return enforceCheckCompletion; }
@@ -89,14 +89,14 @@ public class VerificationSummaryDTO {
     public void setNoneStarted(boolean noneStarted) { this.noneStarted = noneStarted; }
 
     public static class CheckSummary {
-        private Long id;
+        private String id;
         private String referenceId;
         private String checkTypes;
         private String status;
         private String overallResult;
 
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
         public String getReferenceId() { return referenceId; }
         public void setReferenceId(String referenceId) { this.referenceId = referenceId; }
         public String getCheckTypes() { return checkTypes; }

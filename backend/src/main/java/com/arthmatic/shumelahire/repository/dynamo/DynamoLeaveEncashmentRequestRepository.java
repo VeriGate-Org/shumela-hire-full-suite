@@ -60,25 +60,25 @@ public class DynamoLeaveEncashmentRequestRepository extends DynamoRepository<Lea
         LeaveEncashmentRequestItem item = new LeaveEncashmentRequestItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("LEAVE_ENCASH#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         if (entity.getEmployee() != null && entity.getEmployee().getId() != null) {
-            item.setEmployeeId(String.valueOf(entity.getEmployee().getId()));
+            item.setEmployeeId(entity.getEmployee().getId());
             item.setGsi1pk("LE_EMP#" + entity.getTenantId() + "#" + entity.getEmployee().getId());
             item.setGsi1sk("LEAVE_ENCASH#" + entity.getId());
         }
 
         if (entity.getLeaveType() != null && entity.getLeaveType().getId() != null) {
-            item.setLeaveTypeId(String.valueOf(entity.getLeaveType().getId()));
+            item.setLeaveTypeId(entity.getLeaveType().getId());
         }
 
         if (entity.getHrApprovedBy() != null && entity.getHrApprovedBy().getId() != null) {
-            item.setHrApprovedById(String.valueOf(entity.getHrApprovedBy().getId()));
+            item.setHrApprovedById(entity.getHrApprovedBy().getId());
         }
 
         if (entity.getFinanceApprovedBy() != null && entity.getFinanceApprovedBy().getId() != null) {
-            item.setFinanceApprovedById(String.valueOf(entity.getFinanceApprovedBy().getId()));
+            item.setFinanceApprovedById(entity.getFinanceApprovedBy().getId());
         }
 
         item.setDays(entity.getDays() != null ? entity.getDays().toPlainString() : null);
@@ -101,31 +101,31 @@ public class DynamoLeaveEncashmentRequestRepository extends DynamoRepository<Lea
 
         LeaveEncashmentRequest entity = new LeaveEncashmentRequest();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
+            leaveType.setId(item.getLeaveTypeId());
             entity.setLeaveType(leaveType);
         }
 
         if (item.getHrApprovedById() != null) {
             Employee hrApprovedBy = new Employee();
-            hrApprovedBy.setId(safeParseLong(item.getHrApprovedById()));
+            hrApprovedBy.setId(item.getHrApprovedById());
             entity.setHrApprovedBy(hrApprovedBy);
         }
 
         if (item.getFinanceApprovedById() != null) {
             Employee financeApprovedBy = new Employee();
-            financeApprovedBy.setId(safeParseLong(item.getFinanceApprovedById()));
+            financeApprovedBy.setId(item.getFinanceApprovedById());
             entity.setFinanceApprovedBy(financeApprovedBy);
         }
 

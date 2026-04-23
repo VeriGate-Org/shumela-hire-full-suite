@@ -42,8 +42,8 @@ public class LmsIntegrationService {
     }
 
     @Transactional(readOnly = true)
-    public LmsConnectorConfig getConnectorById(Long id) {
-        return connectorConfigRepository.findById(String.valueOf(id))
+    public LmsConnectorConfig getConnectorById(String id) {
+        return connectorConfigRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("LMS connector not found: " + id));
     }
 
@@ -65,7 +65,7 @@ public class LmsIntegrationService {
         return saved;
     }
 
-    public LmsConnectorConfig updateConnector(Long id, Map<String, Object> request) {
+    public LmsConnectorConfig updateConnector(String id, Map<String, Object> request) {
         LmsConnectorConfig config = getConnectorById(id);
 
         if (request.containsKey("name")) config.setName((String) request.get("name"));
@@ -82,15 +82,15 @@ public class LmsIntegrationService {
         return saved;
     }
 
-    public void deleteConnector(Long id) {
+    public void deleteConnector(String id) {
         LmsConnectorConfig config = getConnectorById(id);
-        connectorConfigRepository.deleteById(String.valueOf(config.getId()));
+        connectorConfigRepository.deleteById(config.getId());
 
         auditLogService.logSystemAction("DELETE", "LMS_CONNECTOR",
                 "Deleted LMS connector: " + config.getName());
     }
 
-    public Map<String, Object> testConnection(Long connectorId) {
+    public Map<String, Object> testConnection(String connectorId) {
         LmsConnectorConfig config = getConnectorById(connectorId);
         logger.info("Testing LMS connection for connector: {}", config.getName());
 
@@ -110,7 +110,7 @@ public class LmsIntegrationService {
 
     // ==================== Sync Operations ====================
 
-    public LmsSyncLog triggerSync(Long connectorId, String syncTypeStr) {
+    public LmsSyncLog triggerSync(String connectorId, String syncTypeStr) {
         LmsConnectorConfig config = getConnectorById(connectorId);
         LmsSyncType syncType = LmsSyncType.valueOf(syncTypeStr.toUpperCase());
 
@@ -172,7 +172,7 @@ public class LmsIntegrationService {
     }
 
     @Transactional(readOnly = true)
-    public List<LmsSyncLog> getSyncLogsByConnector(Long connectorId) {
-        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(String.valueOf(connectorId));
+    public List<LmsSyncLog> getSyncLogsByConnector(String connectorId) {
+        return syncLogRepository.findByConnectorIdOrderByStartedAtDesc(connectorId);
     }
 }

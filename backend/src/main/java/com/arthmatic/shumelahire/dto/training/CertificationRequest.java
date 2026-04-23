@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class CertificationRequest {
 
     @NotNull
-    private Long employeeId;
+    private String employeeId;
 
     @NotBlank
     private String name;
@@ -22,8 +22,8 @@ public class CertificationRequest {
     public CertificationRequest() {}
 
     // Getters and Setters
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

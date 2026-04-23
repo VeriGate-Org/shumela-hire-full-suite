@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 public class CompetencyResponse {
 
-    private Long id;
-    private Long frameworkId;
+    private String id;
+    private String frameworkId;
     private String name;
     private String description;
     private String category;
@@ -28,10 +28,10 @@ public class CompetencyResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getFrameworkId() { return frameworkId; }
-    public void setFrameworkId(Long frameworkId) { this.frameworkId = frameworkId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getFrameworkId() { return frameworkId; }
+    public void setFrameworkId(String frameworkId) { this.frameworkId = frameworkId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getDescription() { return description; }

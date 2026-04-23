@@ -51,7 +51,7 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
         return findAll().stream()
                 .filter(e -> e.getAssignedTo() != null
                         && e.getAssignedTo().getId() != null
-                        && e.getAssignedTo().getId().toString().equals(assignedToId))
+                        && e.getAssignedTo().getId().equals(assignedToId))
                 .collect(Collectors.toList());
     }
 
@@ -65,12 +65,12 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
     @Override
     protected Grievance toEntity(GrievanceItem item) {
         var e = new Grievance();
-        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
+        if (item.getId() != null) e.setId(item.getId());
         e.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getEmployeeId()));
+            emp.setId(item.getEmployeeId());
             e.setEmployee(emp);
         }
 
@@ -81,7 +81,7 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
 
         if (item.getAssignedToId() != null) {
             var assignedTo = new Employee();
-            assignedTo.setId(safeParseLong(item.getAssignedToId()));
+            assignedTo.setId(item.getAssignedToId());
             e.setAssignedTo(assignedTo);
         }
 
@@ -95,12 +95,12 @@ public class DynamoGrievanceRepository extends DynamoRepository<GrievanceItem, G
     @Override
     protected GrievanceItem toItem(Grievance entity) {
         var item = new GrievanceItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : "";
+                ? entity.getEmployee().getId() : "";
         String assignedToId = entity.getAssignedTo() != null && entity.getAssignedTo().getId() != null
-                ? entity.getAssignedTo().getId().toString() : "";
+                ? entity.getAssignedTo().getId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("GRIEVANCE#" + id);

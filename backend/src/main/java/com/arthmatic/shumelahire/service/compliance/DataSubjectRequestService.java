@@ -68,8 +68,8 @@ public class DataSubjectRequestService {
     }
 
     @Transactional(readOnly = true)
-    public DataSubjectRequestResponse getRequest(Long id) {
-        DataSubjectRequest dsar = dsarRepository.findById(String.valueOf(id))
+    public DataSubjectRequestResponse getRequest(String id) {
+        DataSubjectRequest dsar = dsarRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("DSAR not found: " + id));
         return DataSubjectRequestResponse.fromEntity(dsar);
     }
@@ -88,8 +88,8 @@ public class DataSubjectRequestService {
                 .collect(Collectors.toList());
     }
 
-    public DataSubjectRequestResponse updateStatus(Long id, String status, String response) {
-        DataSubjectRequest dsar = dsarRepository.findById(String.valueOf(id))
+    public DataSubjectRequestResponse updateStatus(String id, String status, String response) {
+        DataSubjectRequest dsar = dsarRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("DSAR not found: " + id));
 
         dsar.setStatus(DsarStatus.valueOf(status));
@@ -103,11 +103,11 @@ public class DataSubjectRequestService {
         dsar = dsarRepository.save(dsar);
 
         auditLogService.saveLog("SYSTEM", "UPDATE_STATUS", "DSAR",
-                id.toString(), "Updated DSAR status to " + status);
+                id, "Updated DSAR status to " + status);
 
         Optional<Employee> requesterOpt = employeeRepository.findByEmail(dsar.getRequesterEmail());
         if (requesterOpt.isPresent()) {
-            Long empId = requesterOpt.get().getId();
+            String empId = requesterOpt.get().getId();
             switch (status) {
                 case "COMPLETED":
                     notificationService.notifyApprovalGranted(empId, "Data Subject Request", "Your request has been completed");

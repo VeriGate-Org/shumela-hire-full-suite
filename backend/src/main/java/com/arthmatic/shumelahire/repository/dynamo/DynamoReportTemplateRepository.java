@@ -75,7 +75,7 @@ public class DynamoReportTemplateRepository extends DynamoRepository<ReportTempl
     protected ReportTemplate toEntity(ReportTemplateItem item) {
         var entity = new ReportTemplate();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
@@ -100,7 +100,7 @@ public class DynamoReportTemplateRepository extends DynamoRepository<ReportTempl
     protected ReportTemplateItem toItem(ReportTemplate entity) {
         var item = new ReportTemplateItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

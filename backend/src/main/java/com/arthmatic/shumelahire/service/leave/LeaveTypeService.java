@@ -42,22 +42,22 @@ public class LeaveTypeService {
         return LeaveTypeResponse.fromEntity(leaveType);
     }
 
-    public LeaveTypeResponse update(Long id, LeaveTypeRequest request, String userId) {
-        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(id))
+    public LeaveTypeResponse update(String id, LeaveTypeRequest request, String userId) {
+        LeaveType leaveType = leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + id));
 
         mapRequestToEntity(request, leaveType);
         leaveType = leaveTypeRepository.save(leaveType);
 
         auditLogService.saveLog(userId, "UPDATE", "LEAVE_TYPE",
-                id.toString(), "Updated leave type: " + leaveType.getName());
+                id, "Updated leave type: " + leaveType.getName());
 
         return LeaveTypeResponse.fromEntity(leaveType);
     }
 
     @Transactional(readOnly = true)
-    public LeaveTypeResponse getById(Long id) {
-        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(id))
+    public LeaveTypeResponse getById(String id) {
+        LeaveType leaveType = leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + id));
         return LeaveTypeResponse.fromEntity(leaveType);
     }

@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public class LeaveRequestResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
     private String employeeDepartment;
-    private Long leaveTypeId;
+    private String leaveTypeId;
     private String leaveTypeName;
     private String leaveTypeCode;
     private String colorCode;
@@ -23,7 +23,7 @@ public class LeaveRequestResponse {
     private String reason;
     private String medicalCertificateUrl;
     private String status;
-    private Long approverId;
+    private String approverId;
     private String approverName;
     private LocalDateTime approvedAt;
     private String rejectionReason;
@@ -66,11 +66,11 @@ public class LeaveRequestResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
@@ -78,8 +78,8 @@ public class LeaveRequestResponse {
     public String getEmployeeDepartment() { return employeeDepartment; }
     public void setEmployeeDepartment(String employeeDepartment) { this.employeeDepartment = employeeDepartment; }
 
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 
     public String getLeaveTypeName() { return leaveTypeName; }
     public void setLeaveTypeName(String leaveTypeName) { this.leaveTypeName = leaveTypeName; }
@@ -114,8 +114,8 @@ public class LeaveRequestResponse {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public Long getApproverId() { return approverId; }
-    public void setApproverId(Long approverId) { this.approverId = approverId; }
+    public String getApproverId() { return approverId; }
+    public void setApproverId(String approverId) { this.approverId = approverId; }
 
     public String getApproverName() { return approverName; }
     public void setApproverName(String approverName) { this.approverName = approverName; }

@@ -80,12 +80,12 @@ public class DynamoCertificationRepository extends DynamoRepository<Certificatio
         CertificationItem item = new CertificationItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("CERT#" + entity.getId());
-        Long employeeId = entity.getEmployee() != null ? entity.getEmployee().getId() : null;
+        String employeeId = entity.getEmployee() != null ? entity.getEmployee().getId() : null;
         item.setGsi1pk("CERT_EMP#" + entity.getTenantId() + "#" + (employeeId != null ? employeeId : ""));
         item.setGsi1sk("CERT#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
-        item.setEmployeeId(employeeId != null ? String.valueOf(employeeId) : null);
+        item.setEmployeeId(employeeId != null ? employeeId : null);
         item.setName(entity.getName());
         item.setIssuingBody(entity.getIssuingBody());
         item.setCertificationNumber(entity.getCertificationNumber());
@@ -102,12 +102,12 @@ public class DynamoCertificationRepository extends DynamoRepository<Certificatio
     protected Certification toEntity(CertificationItem item) {
         Certification entity = new Certification();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getEmployeeId() != null) {
             Employee employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
         entity.setName(item.getName());

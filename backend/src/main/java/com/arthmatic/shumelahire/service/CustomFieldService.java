@@ -47,10 +47,10 @@ public class CustomFieldService {
         return CustomFieldResponse.fromEntity(saved);
     }
 
-    public CustomFieldResponse updateField(Long id, CustomFieldRequest request) {
+    public CustomFieldResponse updateField(String id, CustomFieldRequest request) {
         logger.info("Updating custom field: {}", id);
 
-        CustomField field = customFieldRepository.findById(String.valueOf(id))
+        CustomField field = customFieldRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + id));
 
         mapRequestToEntity(request, field);
@@ -59,10 +59,10 @@ public class CustomFieldService {
         return CustomFieldResponse.fromEntity(saved);
     }
 
-    public void deleteField(Long id) {
+    public void deleteField(String id) {
         logger.info("Deleting custom field: {}", id);
 
-        CustomField field = customFieldRepository.findById(String.valueOf(id))
+        CustomField field = customFieldRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + id));
 
         field.setIsActive(false);
@@ -85,12 +85,12 @@ public class CustomFieldService {
                 .collect(Collectors.toList());
     }
 
-    public void setFieldValues(Long entityId, CustomFieldEntityType entityType,
+    public void setFieldValues(String entityId, CustomFieldEntityType entityType,
                                 List<CustomFieldValueRequest> values) {
         logger.info("Setting {} custom field values for {} {}", values.size(), entityType, entityId);
 
         for (CustomFieldValueRequest valueReq : values) {
-            CustomField field = customFieldRepository.findById(String.valueOf(valueReq.getCustomFieldId()))
+            CustomField field = customFieldRepository.findById(valueReq.getCustomFieldId())
                     .orElseThrow(() -> new IllegalArgumentException("Custom field not found: " + valueReq.getCustomFieldId()));
 
             Optional<CustomFieldValue> existing = customFieldValueRepository
@@ -111,7 +111,7 @@ public class CustomFieldService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, String> getFieldValues(Long entityId, CustomFieldEntityType entityType) {
+    public Map<String, String> getFieldValues(String entityId, CustomFieldEntityType entityType) {
         List<CustomFieldValue> values = customFieldValueRepository.findByEntityIdAndEntityType(entityId, entityType);
         Map<String, String> result = new HashMap<>();
         for (CustomFieldValue value : values) {

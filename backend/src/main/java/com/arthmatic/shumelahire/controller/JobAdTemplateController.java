@@ -95,7 +95,7 @@ public class JobAdTemplateController {
      * GET /api/job-templates/{id} - Get a single template
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<JobAdTemplateResponse>> getTemplate(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<JobAdTemplateResponse>> getTemplate(@PathVariable String id) {
         try {
             logger.info("Fetching template: {}", id);
             JobAdTemplateResponse response = templateService.getTemplate(id);
@@ -115,7 +115,7 @@ public class JobAdTemplateController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<JobAdTemplateResponse>> updateTemplate(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody JobAdTemplateUpdateRequest request) {
         try {
             logger.info("Updating template: {}", id);
@@ -136,7 +136,7 @@ public class JobAdTemplateController {
      * DELETE /api/job-templates/{id} - Delete a template
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteTemplate(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTemplate(@PathVariable String id) {
         try {
             logger.info("Deleting template: {}", id);
             templateService.deleteTemplate(id);
@@ -156,7 +156,7 @@ public class JobAdTemplateController {
      */
     @PostMapping("/{id}/duplicate")
     public ResponseEntity<ApiResponse<JobAdTemplateResponse>> duplicateTemplate(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody JobAdTemplateDuplicateRequest request,
             Authentication authentication) {
         try {
@@ -202,11 +202,11 @@ public class JobAdTemplateController {
             String email = jwt.getClaimAsString("email");
             if (email != null) {
                 return userRepository.findByEmail(email)
-                        .map(u -> String.valueOf(u.getId()))
+                        .map(u -> u.getId())
                         .orElse(email);
             }
         } else if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            return String.valueOf(user.getId());
+            return user.getId();
         }
         return "unknown";
     }

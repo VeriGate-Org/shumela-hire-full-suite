@@ -4,15 +4,15 @@ import java.util.List;
 
 public class SurveyResultsResponse {
 
-    private Long surveyId;
+    private String surveyId;
     private String surveyTitle;
     private Long totalRespondents;
     private List<QuestionResult> questionResults;
 
     public SurveyResultsResponse() {}
 
-    public Long getSurveyId() { return surveyId; }
-    public void setSurveyId(Long surveyId) { this.surveyId = surveyId; }
+    public String getSurveyId() { return surveyId; }
+    public void setSurveyId(String surveyId) { this.surveyId = surveyId; }
     public String getSurveyTitle() { return surveyTitle; }
     public void setSurveyTitle(String surveyTitle) { this.surveyTitle = surveyTitle; }
     public Long getTotalRespondents() { return totalRespondents; }
@@ -21,7 +21,7 @@ public class SurveyResultsResponse {
     public void setQuestionResults(List<QuestionResult> questionResults) { this.questionResults = questionResults; }
 
     public static class QuestionResult {
-        private Long questionId;
+        private String questionId;
         private String questionText;
         private String questionType;
         private Double averageRating;
@@ -30,8 +30,8 @@ public class SurveyResultsResponse {
 
         public QuestionResult() {}
 
-        public Long getQuestionId() { return questionId; }
-        public void setQuestionId(Long questionId) { this.questionId = questionId; }
+        public String getQuestionId() { return questionId; }
+        public void setQuestionId(String questionId) { this.questionId = questionId; }
         public String getQuestionText() { return questionText; }
         public void setQuestionText(String questionText) { this.questionText = questionText; }
         public String getQuestionType() { return questionType; }

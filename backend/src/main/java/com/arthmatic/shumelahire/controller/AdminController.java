@@ -100,13 +100,13 @@ public class AdminController {
     }
 
     @PutMapping("/users/{userId}/role")
-    public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> updateUserRole(@PathVariable String userId, @RequestBody Map<String, String> body) {
         String roleName = body.get("role");
         if (roleName == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "role is required"));
         }
 
-        Optional<User> userOpt = userRepository.findById(String.valueOf(userId));
+        Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

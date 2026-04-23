@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 public class GrievanceResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
     private String grievanceType;
     private String description;
@@ -16,7 +16,7 @@ public class GrievanceResponse {
     private String resolution;
     private LocalDate filedDate;
     private LocalDate resolvedDate;
-    private Long assignedToId;
+    private String assignedToId;
     private String assignedToName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -43,10 +43,10 @@ public class GrievanceResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public String getGrievanceType() { return grievanceType; }
@@ -61,8 +61,8 @@ public class GrievanceResponse {
     public void setFiledDate(LocalDate filedDate) { this.filedDate = filedDate; }
     public LocalDate getResolvedDate() { return resolvedDate; }
     public void setResolvedDate(LocalDate resolvedDate) { this.resolvedDate = resolvedDate; }
-    public Long getAssignedToId() { return assignedToId; }
-    public void setAssignedToId(Long assignedToId) { this.assignedToId = assignedToId; }
+    public String getAssignedToId() { return assignedToId; }
+    public void setAssignedToId(String assignedToId) { this.assignedToId = assignedToId; }
     public String getAssignedToName() { return assignedToName; }
     public void setAssignedToName(String assignedToName) { this.assignedToName = assignedToName; }
     public LocalDateTime getCreatedAt() { return createdAt; }

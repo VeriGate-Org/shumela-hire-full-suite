@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 public class LeaveEncashmentCreateRequest {
 
     @NotNull(message = "Leave type ID is required")
-    private Long leaveTypeId;
+    private String leaveTypeId;
 
     @NotNull(message = "Number of days is required")
     @Positive(message = "Days must be positive")
@@ -15,8 +15,8 @@ public class LeaveEncashmentCreateRequest {
 
     private String reason;
 
-    public Long getLeaveTypeId() { return leaveTypeId; }
-    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
+    public String getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(String leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 
     public BigDecimal getDays() { return days; }
     public void setDays(BigDecimal days) { this.days = days; }

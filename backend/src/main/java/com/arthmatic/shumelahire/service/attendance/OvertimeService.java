@@ -40,8 +40,8 @@ public class OvertimeService {
     @Autowired
     private AuditLogService auditLogService;
 
-    public OvertimeRecord submit(Long employeeId, LocalDate date, BigDecimal hours, String reason) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public OvertimeRecord submit(String employeeId, LocalDate date, BigDecimal hours, String reason) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         OvertimeRecord record = new OvertimeRecord();
@@ -57,18 +57,18 @@ public class OvertimeService {
                     employee.getReportingManager().getId(), "Overtime", employee.getFullName() + " - " + hours + " hours");
         }
 
-        auditLogService.saveLog(employeeId.toString(), "SUBMIT", "OVERTIME",
+        auditLogService.saveLog(employeeId, "SUBMIT", "OVERTIME",
                 record.getId().toString(), "Submitted overtime: " + hours + " hours on " + date);
         return record;
     }
 
-    public OvertimeRecord approve(Long recordId, Long approverId) {
-        OvertimeRecord record = overtimeRecordRepository.findById(String.valueOf(recordId))
+    public OvertimeRecord approve(String recordId, String approverId) {
+        OvertimeRecord record = overtimeRecordRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("Overtime record not found: " + recordId));
 
         validateManagerAccess(record.getEmployee().getId(), approverId);
 
-        Employee approver = employeeRepository.findById(String.valueOf(approverId))
+        Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         record.setStatus(OvertimeStatus.APPROVED);
@@ -78,12 +78,12 @@ public class OvertimeService {
 
         notificationService.notifyApprovalGranted(record.getEmployee().getId(), "Overtime",
                 record.getHours() + " hours on " + record.getDate());
-        auditLogService.saveLog(approverId.toString(), "APPROVE", "OVERTIME", recordId.toString(), "Approved overtime");
+        auditLogService.saveLog(approverId, "APPROVE", "OVERTIME", recordId, "Approved overtime");
         return record;
     }
 
-    public OvertimeRecord reject(Long recordId, Long approverId) {
-        OvertimeRecord record = overtimeRecordRepository.findById(String.valueOf(recordId))
+    public OvertimeRecord reject(String recordId, String approverId) {
+        OvertimeRecord record = overtimeRecordRepository.findById(recordId)
                 .orElseThrow(() -> new IllegalArgumentException("Overtime record not found: " + recordId));
 
         validateManagerAccess(record.getEmployee().getId(), approverId);
@@ -93,17 +93,17 @@ public class OvertimeService {
 
         notificationService.notifyApprovalDenied(record.getEmployee().getId(), "Overtime",
                 record.getHours() + " hours", null);
-        auditLogService.saveLog(approverId.toString(), "REJECT", "OVERTIME", recordId.toString(), "Rejected overtime");
+        auditLogService.saveLog(approverId, "REJECT", "OVERTIME", recordId, "Rejected overtime");
         return record;
     }
 
-    private void validateManagerAccess(Long employeeId, Long approverId) {
+    private void validateManagerAccess(String employeeId, String approverId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isLineManager = auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
 
         if (isLineManager) {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
             if (employee.getReportingManager() == null ||
                     !employee.getReportingManager().getId().equals(approverId)) {
@@ -113,8 +113,8 @@ public class OvertimeService {
     }
 
     @Transactional(readOnly = true)
-    public List<OvertimeRecord> getByEmployee(Long employeeId) {
-        return overtimeRecordRepository.findByEmployeeId(String.valueOf(employeeId));
+    public List<OvertimeRecord> getByEmployee(String employeeId) {
+        return overtimeRecordRepository.findByEmployeeId(employeeId);
     }
 
     @Transactional(readOnly = true)

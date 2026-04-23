@@ -63,7 +63,7 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> updateEmployee(@PathVariable Long id,
+    public ResponseEntity<?> updateEmployee(@PathVariable String id,
                                            @Valid @RequestBody EmployeeCreateRequest request) {
         try {
             logger.info("Updating employee: {}", id);
@@ -80,7 +80,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEmployee(@PathVariable Long id) {
+    public ResponseEntity<?> getEmployee(@PathVariable String id) {
         try {
             EmployeeResponse response = employeeService.getEmployee(id);
             return ResponseEntity.ok(response);
@@ -141,7 +141,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/direct-reports")
-    public ResponseEntity<?> getDirectReports(@PathVariable Long id) {
+    public ResponseEntity<?> getDirectReports(@PathVariable String id) {
         try {
             List<EmployeeResponse> reports = employeeService.getDirectReports(id);
             return ResponseEntity.ok(reports);
@@ -154,7 +154,7 @@ public class EmployeeController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id,
+    public ResponseEntity<?> updateStatus(@PathVariable String id,
                                          @RequestParam EmployeeStatus status,
                                          @RequestParam(required = false) String reason) {
         try {
@@ -220,7 +220,7 @@ public class EmployeeController {
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EMPLOYEE')")
     public ResponseEntity<?> uploadDocument(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam EmployeeDocumentType type,
             @RequestParam String title,
             @RequestParam(required = false) String description,
@@ -243,7 +243,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/documents")
-    public ResponseEntity<?> getDocuments(@PathVariable Long id) {
+    public ResponseEntity<?> getDocuments(@PathVariable String id) {
         try {
             List<EmployeeDocumentResponse> documents = documentService.getDocuments(id);
             return ResponseEntity.ok(documents);
@@ -255,7 +255,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/documents/type/{type}")
-    public ResponseEntity<?> getDocumentsByType(@PathVariable Long id, @PathVariable EmployeeDocumentType type) {
+    public ResponseEntity<?> getDocumentsByType(@PathVariable String id, @PathVariable EmployeeDocumentType type) {
         try {
             List<EmployeeDocumentResponse> documents = documentService.getDocumentsByType(id, type);
             return ResponseEntity.ok(documents);
@@ -268,7 +268,7 @@ public class EmployeeController {
 
     @DeleteMapping("/{employeeId}/documents/{documentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> deleteDocument(@PathVariable Long employeeId, @PathVariable Long documentId) {
+    public ResponseEntity<?> deleteDocument(@PathVariable String employeeId, @PathVariable String documentId) {
         try {
             documentService.deleteDocument(employeeId, documentId);
             return ResponseEntity.noContent().build();
@@ -298,7 +298,7 @@ public class EmployeeController {
 
     @PostMapping("/{id}/events")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> createEvent(@PathVariable Long id,
+    public ResponseEntity<?> createEvent(@PathVariable String id,
                                         @Valid @RequestBody EmploymentEventRequest request) {
         try {
             request.setEmployeeId(id);
@@ -314,7 +314,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/events")
-    public ResponseEntity<?> getEmployeeHistory(@PathVariable Long id) {
+    public ResponseEntity<?> getEmployeeHistory(@PathVariable String id) {
         try {
             List<EmploymentEventResponse> events = eventService.getEmployeeHistory(id);
             return ResponseEntity.ok(events);
@@ -326,7 +326,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/events/type/{type}")
-    public ResponseEntity<?> getEventsByType(@PathVariable Long id, @PathVariable EmploymentEventType type) {
+    public ResponseEntity<?> getEventsByType(@PathVariable String id, @PathVariable EmploymentEventType type) {
         try {
             List<EmploymentEventResponse> events = eventService.getEmployeeEventsByType(id, type);
             return ResponseEntity.ok(events);

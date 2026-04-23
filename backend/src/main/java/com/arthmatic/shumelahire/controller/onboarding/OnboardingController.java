@@ -44,8 +44,8 @@ public class OnboardingController {
 
     @GetMapping("/templates/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> getTemplate(@PathVariable Long id) {
-        return templateRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> getTemplate(@PathVariable String id) {
+        return templateRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -64,10 +64,10 @@ public class OnboardingController {
 
     @PutMapping("/templates/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateTemplate(@PathVariable Long id,
+    public ResponseEntity<?> updateTemplate(@PathVariable String id,
                                             @RequestBody OnboardingTemplate request) {
         try {
-            OnboardingTemplate template = templateRepository.findById(String.valueOf(id))
+            OnboardingTemplate template = templateRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Template not found: " + id));
             if (request.getName() != null) template.setName(request.getName());
             if (request.getDescription() != null) template.setDescription(request.getDescription());
@@ -83,8 +83,8 @@ public class OnboardingController {
 
     @DeleteMapping("/templates/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deleteTemplate(@PathVariable Long id) {
-        templateRepository.deleteById(String.valueOf(id));
+    public ResponseEntity<?> deleteTemplate(@PathVariable String id) {
+        templateRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -100,13 +100,13 @@ public class OnboardingController {
     }
 
     @GetMapping("/checklists/employee/{employeeId}")
-    public ResponseEntity<?> getChecklistsByEmployee(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(checklistRepository.findByEmployeeId(String.valueOf(employeeId)));
+    public ResponseEntity<?> getChecklistsByEmployee(@PathVariable String employeeId) {
+        return ResponseEntity.ok(checklistRepository.findByEmployeeId(employeeId));
     }
 
     @GetMapping("/checklists/{id}")
-    public ResponseEntity<?> getChecklist(@PathVariable Long id) {
-        return checklistRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> getChecklist(@PathVariable String id) {
+        return checklistRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -115,10 +115,10 @@ public class OnboardingController {
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<?> createChecklist(@RequestBody Map<String, Object> request) {
         try {
-            Long employeeId = Long.valueOf(request.get("employeeId").toString());
-            Long templateId = Long.valueOf(request.get("templateId").toString());
+            String employeeId = request.get("employeeId").toString();
+            String templateId = request.get("templateId").toString();
 
-            OnboardingTemplate template = templateRepository.findById(String.valueOf(templateId))
+            OnboardingTemplate template = templateRepository.findById(templateId)
                     .orElseThrow(() -> new IllegalArgumentException("Template not found: " + templateId));
 
             OnboardingChecklist checklist = new OnboardingChecklist();
@@ -161,11 +161,11 @@ public class OnboardingController {
     }
 
     @PutMapping("/checklists/{checklistId}/items/{itemId}")
-    public ResponseEntity<?> updateChecklistItem(@PathVariable Long checklistId,
-                                                  @PathVariable Long itemId,
+    public ResponseEntity<?> updateChecklistItem(@PathVariable String checklistId,
+                                                  @PathVariable String itemId,
                                                   @RequestBody Map<String, Object> request) {
         try {
-            OnboardingChecklist checklist = checklistRepository.findById(String.valueOf(checklistId))
+            OnboardingChecklist checklist = checklistRepository.findById(checklistId)
                     .orElseThrow(() -> new IllegalArgumentException("Checklist not found: " + checklistId));
 
             if (checklist.getItems() != null) {
@@ -202,8 +202,8 @@ public class OnboardingController {
     }
 
     @GetMapping("/checklists/{id}/progress")
-    public ResponseEntity<?> getProgress(@PathVariable Long id) {
-        return checklistRepository.findById(String.valueOf(id))
+    public ResponseEntity<?> getProgress(@PathVariable String id) {
+        return checklistRepository.findById(id)
                 .map(c -> ResponseEntity.ok(Map.of(
                         "completed", c.getCompletedCount(),
                         "total", c.getTotalCount(),

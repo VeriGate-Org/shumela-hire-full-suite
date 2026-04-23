@@ -35,7 +35,7 @@ public class PushNotificationService {
     /**
      * Register a device for push notifications.
      */
-    public DeviceRegistration registerDevice(Long employeeId, String deviceToken, String platform, String deviceName) {
+    public DeviceRegistration registerDevice(String employeeId, String deviceToken, String platform, String deviceName) {
         logger.info("Registering device for employee: {} platform: {}", employeeId, platform);
 
         // Check if device token already registered
@@ -49,7 +49,7 @@ public class PushNotificationService {
             return deviceRegistrationRepository.save(reg);
         }
 
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found: " + employeeId));
 
         DeviceRegistration registration = new DeviceRegistration();
@@ -71,8 +71,8 @@ public class PushNotificationService {
     /**
      * Unregister a device (soft deactivate).
      */
-    public void unregisterDevice(Long deviceId) {
-        DeviceRegistration registration = deviceRegistrationRepository.findById(String.valueOf(deviceId))
+    public void unregisterDevice(String deviceId) {
+        DeviceRegistration registration = deviceRegistrationRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device registration not found: " + deviceId));
 
         registration.setIsActive(false);
@@ -88,19 +88,19 @@ public class PushNotificationService {
      * Get all active devices for an employee.
      */
     @Transactional(readOnly = true)
-    public List<DeviceRegistration> getMyDevices(Long employeeId) {
-        return deviceRegistrationRepository.findByEmployeeIdOrderByRegisteredAtDesc(String.valueOf(employeeId));
+    public List<DeviceRegistration> getMyDevices(String employeeId) {
+        return deviceRegistrationRepository.findByEmployeeIdOrderByRegisteredAtDesc(employeeId);
     }
 
     /**
      * Send a push notification to a specific employee (mock implementation).
      * In production, this would integrate with APNs (iOS), FCM (Android), or Web Push API.
      */
-    public Map<String, Object> sendPush(Long employeeId, String title, String body, Map<String, String> data) {
+    public Map<String, Object> sendPush(String employeeId, String title, String body, Map<String, String> data) {
         logger.info("Sending push notification to employee: {} - title: {}", employeeId, title);
 
         List<DeviceRegistration> activeDevices = deviceRegistrationRepository
-                .findByEmployeeIdAndIsActiveOrderByRegisteredAtDesc(String.valueOf(employeeId), true);
+                .findByEmployeeIdAndIsActiveOrderByRegisteredAtDesc(employeeId, true);
 
         if (activeDevices.isEmpty()) {
             logger.warn("No active devices found for employee: {}", employeeId);

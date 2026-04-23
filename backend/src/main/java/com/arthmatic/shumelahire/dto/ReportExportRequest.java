@@ -12,7 +12,7 @@ public class ReportExportRequest {
     private String format;
 
     @NotNull
-    private Long requestedBy;
+    private String requestedBy;
 
     private String parameters;
 
@@ -25,8 +25,8 @@ public class ReportExportRequest {
     public String getFormat() { return format; }
     public void setFormat(String format) { this.format = format; }
 
-    public Long getRequestedBy() { return requestedBy; }
-    public void setRequestedBy(Long requestedBy) { this.requestedBy = requestedBy; }
+    public String getRequestedBy() { return requestedBy; }
+    public void setRequestedBy(String requestedBy) { this.requestedBy = requestedBy; }
 
     public String getParameters() { return parameters; }
     public void setParameters(String parameters) { this.parameters = parameters; }

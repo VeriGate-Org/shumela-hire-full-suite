@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class InterviewFeedback extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @JsonIgnoreProperties({"feedbacks", "hibernateLazyInitializer", "handler"})
     private Interview interview;
 
-    private Long submittedBy;
+    private String submittedBy;
 
     private String interviewerName;
 
@@ -69,14 +69,14 @@ public class InterviewFeedback extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Interview getInterview() { return interview; }
     public void setInterview(Interview interview) { this.interview = interview; }
 
-    public Long getSubmittedBy() { return submittedBy; }
-    public void setSubmittedBy(Long submittedBy) { this.submittedBy = submittedBy; }
+    public String getSubmittedBy() { return submittedBy; }
+    public void setSubmittedBy(String submittedBy) { this.submittedBy = submittedBy; }
 
     public String getInterviewerName() { return interviewerName; }
     public void setInterviewerName(String interviewerName) { this.interviewerName = interviewerName; }

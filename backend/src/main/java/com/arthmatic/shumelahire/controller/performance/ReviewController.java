@@ -20,14 +20,14 @@ public class ReviewController {
 
     @GetMapping
     public ResponseEntity<List<PerformanceReview>> getReviews(
-            @RequestParam(required = false) Long cycleId,
+            @RequestParam(required = false) String cycleId,
             @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) String status) {
         return ResponseEntity.ok(reviewService.getReviews(cycleId, employeeId, status));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PerformanceReview> getReview(@PathVariable Long id) {
+    public ResponseEntity<PerformanceReview> getReview(@PathVariable String id) {
         return reviewService.getReview(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -44,7 +44,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/self-assessment")
-    public ResponseEntity<?> submitSelfAssessment(@PathVariable Long id,
+    public ResponseEntity<?> submitSelfAssessment(@PathVariable String id,
                                                    @RequestBody SelfAssessmentRequest request) {
         try {
             PerformanceReview review = reviewService.submitSelfAssessment(
@@ -56,7 +56,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/manager-assessment")
-    public ResponseEntity<?> submitManagerAssessment(@PathVariable Long id,
+    public ResponseEntity<?> submitManagerAssessment(@PathVariable String id,
                                                       @RequestBody ManagerAssessmentRequest request) {
         try {
             PerformanceReview review = reviewService.submitManagerAssessment(
@@ -68,7 +68,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<?> completeReview(@PathVariable Long id) {
+    public ResponseEntity<?> completeReview(@PathVariable String id) {
         try {
             PerformanceReview review = reviewService.completeReview(id);
             return ResponseEntity.ok(review);
@@ -78,7 +78,7 @@ public class ReviewController {
     }
 
     public static class CreateReviewRequest {
-        public Long contractId;
+        public String contractId;
         public String reviewType;
     }
 

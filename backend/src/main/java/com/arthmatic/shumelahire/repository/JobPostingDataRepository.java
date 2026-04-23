@@ -204,5 +204,5 @@ public interface JobPostingDataRepository {
     Page<JobPosting> findActivePublishedJobs(LocalDateTime now, Pageable pageable);
 
     /** Find by creator (paginated with Spring Data Page). */
-    Page<JobPosting> findByCreatedBy(Long createdBy, Pageable pageable);
+    Page<JobPosting> findByCreatedBy(String createdBy, Pageable pageable);
 }

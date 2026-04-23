@@ -53,11 +53,11 @@ public class LeaveRequestService {
     @Autowired
     private AuditLogService auditLogService;
 
-    public LeaveRequestResponse create(LeaveRequestCreateRequest request, Long employeeId) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+    public LeaveRequestResponse create(LeaveRequestCreateRequest request, String employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        LeaveType leaveType = leaveTypeRepository.findById(String.valueOf(request.getLeaveTypeId()))
+        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                 .orElseThrow(() -> new IllegalArgumentException("Leave type not found: " + request.getLeaveTypeId()));
 
         if (request.getEndDate().isBefore(request.getStartDate())) {
@@ -66,7 +66,7 @@ public class LeaveRequestService {
 
         // Check for overlapping requests
         List<LeaveRequest> overlapping = leaveRequestRepository.findOverlappingForEmployee(
-                String.valueOf(employeeId), request.getStartDate(), request.getEndDate());
+                employeeId, request.getStartDate(), request.getEndDate());
         if (!overlapping.isEmpty()) {
             throw new IllegalArgumentException("You already have a leave request for this period");
         }
@@ -121,7 +121,7 @@ public class LeaveRequestService {
                             + " (" + request.getStartDate() + " to " + request.getEndDate() + ")");
         }
 
-        auditLogService.saveLog(employeeId.toString(), "CREATE", "LEAVE_REQUEST",
+        auditLogService.saveLog(employeeId, "CREATE", "LEAVE_REQUEST",
                 leaveRequest.getId().toString(),
                 "Leave request submitted: " + leaveType.getName() + " from "
                         + request.getStartDate() + " to " + request.getEndDate());
@@ -132,8 +132,8 @@ public class LeaveRequestService {
         return LeaveRequestResponse.fromEntity(leaveRequest);
     }
 
-    public LeaveRequestResponse approve(Long requestId, Long approverId) {
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(String.valueOf(requestId))
+    public LeaveRequestResponse approve(String requestId, String approverId) {
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + requestId));
 
         if (leaveRequest.getStatus() != LeaveRequestStatus.PENDING) {
@@ -142,7 +142,7 @@ public class LeaveRequestService {
 
         validateManagerAccess(leaveRequest.getEmployee().getId(), approverId);
 
-        Employee approver = employeeRepository.findById(String.valueOf(approverId))
+        Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         leaveRequest.setStatus(LeaveRequestStatus.APPROVED);
@@ -165,15 +165,15 @@ public class LeaveRequestService {
                 leaveRequest.getLeaveType().getName() + " ("
                         + leaveRequest.getStartDate() + " to " + leaveRequest.getEndDate() + ")");
 
-        auditLogService.saveLog(approverId.toString(), "APPROVE", "LEAVE_REQUEST",
-                requestId.toString(), "Approved leave request for " + leaveRequest.getEmployee().getFullName());
+        auditLogService.saveLog(approverId, "APPROVE", "LEAVE_REQUEST",
+                requestId, "Approved leave request for " + leaveRequest.getEmployee().getFullName());
 
         logger.info("Leave request {} approved by {}", requestId, approverId);
         return LeaveRequestResponse.fromEntity(leaveRequest);
     }
 
-    public LeaveRequestResponse reject(Long requestId, Long approverId, LeaveDecisionRequest decision) {
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(String.valueOf(requestId))
+    public LeaveRequestResponse reject(String requestId, String approverId, LeaveDecisionRequest decision) {
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + requestId));
 
         if (leaveRequest.getStatus() != LeaveRequestStatus.PENDING) {
@@ -182,7 +182,7 @@ public class LeaveRequestService {
 
         validateManagerAccess(leaveRequest.getEmployee().getId(), approverId);
 
-        Employee approver = employeeRepository.findById(String.valueOf(approverId))
+        Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() -> new IllegalArgumentException("Approver not found: " + approverId));
 
         leaveRequest.setStatus(LeaveRequestStatus.REJECTED);
@@ -205,15 +205,15 @@ public class LeaveRequestService {
                 leaveRequest.getLeaveType().getName(),
                 decision != null ? decision.getReason() : null);
 
-        auditLogService.saveLog(approverId.toString(), "REJECT", "LEAVE_REQUEST",
-                requestId.toString(), "Rejected leave request: " + (decision != null ? decision.getReason() : ""));
+        auditLogService.saveLog(approverId, "REJECT", "LEAVE_REQUEST",
+                requestId, "Rejected leave request: " + (decision != null ? decision.getReason() : ""));
 
         logger.info("Leave request {} rejected by {}", requestId, approverId);
         return LeaveRequestResponse.fromEntity(leaveRequest);
     }
 
-    public LeaveRequestResponse cancel(Long requestId, Long employeeId, LeaveDecisionRequest decision) {
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(String.valueOf(requestId))
+    public LeaveRequestResponse cancel(String requestId, String employeeId, LeaveDecisionRequest decision) {
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + requestId));
 
         if (!leaveRequest.getEmployee().getId().equals(employeeId)) {
@@ -243,23 +243,23 @@ public class LeaveRequestService {
             // Balance will be saved by the transaction
         }
 
-        auditLogService.saveLog(employeeId.toString(), "CANCEL", "LEAVE_REQUEST",
-                requestId.toString(), "Cancelled leave request");
+        auditLogService.saveLog(employeeId, "CANCEL", "LEAVE_REQUEST",
+                requestId, "Cancelled leave request");
 
         logger.info("Leave request {} cancelled by employee {}", requestId, employeeId);
         return LeaveRequestResponse.fromEntity(leaveRequest);
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveRequestResponse> getByEmployee(Long employeeId) {
-        return leaveRequestRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<LeaveRequestResponse> getByEmployee(String employeeId) {
+        return leaveRequestRepository.findByEmployeeId(employeeId).stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveRequestResponse> getPendingApprovals(Long managerId) {
-        return leaveRequestRepository.findPendingForApprover(String.valueOf(managerId)).stream()
+    public List<LeaveRequestResponse> getPendingApprovals(String managerId) {
+        return leaveRequestRepository.findPendingForApprover(managerId).stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -272,19 +272,19 @@ public class LeaveRequestService {
     }
 
     @Transactional(readOnly = true)
-    public LeaveRequestResponse getById(Long id) {
-        LeaveRequest request = leaveRequestRepository.findById(String.valueOf(id))
+    public LeaveRequestResponse getById(String id) {
+        LeaveRequest request = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + id));
         return LeaveRequestResponse.fromEntity(request);
     }
 
-    private void validateManagerAccess(Long employeeId, Long approverId) {
+    private void validateManagerAccess(String employeeId, String approverId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isLineManager = auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
 
         if (isLineManager) {
-            Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+            Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
             if (employee.getReportingManager() == null ||
                     !employee.getReportingManager().getId().equals(approverId)) {

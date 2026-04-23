@@ -33,7 +33,7 @@ public class PipController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPip(@PathVariable Long id) {
+    public ResponseEntity<?> getPip(@PathVariable String id) {
         try {
             return ResponseEntity.ok(pipService.getPip(id));
         } catch (IllegalArgumentException e) {
@@ -43,13 +43,13 @@ public class PipController {
 
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<PipResponse>> getPipsByEmployee(
-            @PathVariable Long employeeId) {
+            @PathVariable String employeeId) {
         return ResponseEntity.ok(pipService.getPipsByEmployee(employeeId));
     }
 
     @GetMapping("/manager/{managerId}")
     public ResponseEntity<List<PipResponse>> getPipsByManager(
-            @PathVariable Long managerId) {
+            @PathVariable String managerId) {
         return ResponseEntity.ok(pipService.getPipsByManager(managerId));
     }
 
@@ -59,7 +59,7 @@ public class PipController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id,
+    public ResponseEntity<?> updateStatus(@PathVariable String id,
                                           @RequestParam String status,
                                           @RequestParam(required = false) String outcome) {
         try {
@@ -70,7 +70,7 @@ public class PipController {
     }
 
     @PutMapping("/milestones/{milestoneId}/status")
-    public ResponseEntity<?> updateMilestoneStatus(@PathVariable Long milestoneId,
+    public ResponseEntity<?> updateMilestoneStatus(@PathVariable String milestoneId,
                                                     @RequestParam String status,
                                                     @RequestParam(required = false) String evidence) {
         try {

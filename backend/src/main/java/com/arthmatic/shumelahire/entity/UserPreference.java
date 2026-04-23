@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 public class UserPreference extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
-    private Long userId;
+    private String userId;
 
     private String preferences = "{}";
 
@@ -18,11 +18,11 @@ public class UserPreference extends TenantAwareEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getPreferences() { return preferences; }
     public void setPreferences(String preferences) { this.preferences = preferences; }

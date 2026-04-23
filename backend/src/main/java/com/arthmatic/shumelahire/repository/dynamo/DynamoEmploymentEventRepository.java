@@ -79,13 +79,13 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
     protected EmploymentEvent toEntity(EmploymentEventItem item) {
         var evt = new EmploymentEvent();
         if (item.getId() != null) {
-            evt.setId(safeParseLong(item.getId()));
+            evt.setId(item.getId());
         }
         evt.setTenantId(item.getTenantId());
         // Employee is a relationship — store only the ID
         if (item.getEmployeeId() != null) {
             var emp = new Employee();
-            emp.setId(safeParseLong(item.getEmployeeId()));
+            emp.setId(item.getEmployeeId());
             evt.setEmployee(emp);
         }
         if (item.getEventType() != null) {
@@ -106,10 +106,10 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
         evt.setPreviousJobGrade(item.getPreviousJobGrade());
         evt.setNewJobGrade(item.getNewJobGrade());
         if (item.getPreviousReportingManagerId() != null) {
-            evt.setPreviousReportingManagerId(safeParseLong(item.getPreviousReportingManagerId()));
+            evt.setPreviousReportingManagerId(item.getPreviousReportingManagerId());
         }
         if (item.getNewReportingManagerId() != null) {
-            evt.setNewReportingManagerId(safeParseLong(item.getNewReportingManagerId()));
+            evt.setNewReportingManagerId(item.getNewReportingManagerId());
         }
         evt.setPreviousLocation(item.getPreviousLocation());
         evt.setNewLocation(item.getNewLocation());
@@ -124,9 +124,9 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
     protected EmploymentEventItem toItem(EmploymentEvent entity) {
         var item = new EmploymentEventItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String employeeId = entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null;
+                ? entity.getEmployee().getId() : null;
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -168,10 +168,10 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
         item.setPreviousJobGrade(entity.getPreviousJobGrade());
         item.setNewJobGrade(entity.getNewJobGrade());
         if (entity.getPreviousReportingManagerId() != null) {
-            item.setPreviousReportingManagerId(entity.getPreviousReportingManagerId().toString());
+            item.setPreviousReportingManagerId(entity.getPreviousReportingManagerId());
         }
         if (entity.getNewReportingManagerId() != null) {
-            item.setNewReportingManagerId(entity.getNewReportingManagerId().toString());
+            item.setNewReportingManagerId(entity.getNewReportingManagerId());
         }
         item.setPreviousLocation(entity.getPreviousLocation());
         item.setNewLocation(entity.getNewLocation());

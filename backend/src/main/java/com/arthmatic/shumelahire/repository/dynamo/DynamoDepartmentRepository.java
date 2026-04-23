@@ -100,7 +100,7 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
     protected Department toEntity(DepartmentItem item) {
         var dept = new Department();
         if (item.getId() != null) {
-            dept.setId(safeParseLong(item.getId()));
+            dept.setId(item.getId());
         }
         dept.setTenantId(item.getTenantId());
         dept.setName(item.getName());
@@ -120,7 +120,7 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
     protected DepartmentItem toItem(Department entity) {
         var item = new DepartmentItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

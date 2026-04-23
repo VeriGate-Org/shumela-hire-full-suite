@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class JobPostingResponse {
     
-    private Long id;
+    private String id;
     private String title;
     private String department;
     private String location;
@@ -35,9 +35,9 @@ public class JobPostingResponse {
     private String statusDisplayName;
     private String statusCssClass;
     private String statusIcon;
-    private Long createdBy;
-    private Long approvedBy;
-    private Long publishedBy;
+    private String createdBy;
+    private String approvedBy;
+    private String publishedBy;
     private String approvalNotes;
     private String rejectionReason;
     private String internalNotes;
@@ -171,11 +171,11 @@ public class JobPostingResponse {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
@@ -371,27 +371,27 @@ public class JobPostingResponse {
         this.statusIcon = statusIcon;
     }
     
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
     
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
     
-    public Long getApprovedBy() {
+    public String getApprovedBy() {
         return approvedBy;
     }
     
-    public void setApprovedBy(Long approvedBy) {
+    public void setApprovedBy(String approvedBy) {
         this.approvedBy = approvedBy;
     }
     
-    public Long getPublishedBy() {
+    public String getPublishedBy() {
         return publishedBy;
     }
     
-    public void setPublishedBy(Long publishedBy) {
+    public void setPublishedBy(String publishedBy) {
         this.publishedBy = publishedBy;
     }
     

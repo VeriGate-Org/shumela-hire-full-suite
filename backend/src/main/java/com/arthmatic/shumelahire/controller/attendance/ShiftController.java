@@ -67,8 +67,8 @@ public class ShiftController {
 
     @PostMapping("/schedules")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> assignShift(@RequestParam Long employeeId,
-                                         @RequestParam Long shiftId,
+    public ResponseEntity<?> assignShift(@RequestParam String employeeId,
+                                         @RequestParam String shiftId,
                                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         try {
             ShiftSchedule schedule = shiftScheduleService.assign(employeeId, shiftId, date, "SYSTEM");
@@ -80,7 +80,7 @@ public class ShiftController {
 
     @GetMapping("/schedules/employee")
     public ResponseEntity<List<ShiftSchedule>> getEmployeeSchedules(
-            @RequestParam Long employeeId,
+            @RequestParam String employeeId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(shiftScheduleService.getByEmployeeAndDateRange(employeeId, startDate, endDate));
@@ -90,8 +90,8 @@ public class ShiftController {
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
     public ResponseEntity<?> swapShifts(@RequestBody Map<String, Object> body) {
         try {
-            Long scheduleId1 = ((Number) body.get("scheduleId1")).longValue();
-            Long scheduleId2 = ((Number) body.get("scheduleId2")).longValue();
+            String scheduleId1 = body.get("scheduleId1").toString();
+            String scheduleId2 = body.get("scheduleId2").toString();
             shiftScheduleService.swapSchedules(scheduleId1, scheduleId2);
             return ResponseEntity.ok(Map.of("message", "Shifts swapped successfully"));
         } catch (IllegalArgumentException e) {

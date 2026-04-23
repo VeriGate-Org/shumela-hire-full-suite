@@ -44,7 +44,7 @@ public class CompetencyController {
     }
 
     @GetMapping("/frameworks/{id}")
-    public ResponseEntity<?> getFramework(@PathVariable Long id) {
+    public ResponseEntity<?> getFramework(@PathVariable String id) {
         try {
             return ResponseEntity.ok(competencyService.getFramework(id));
         } catch (IllegalArgumentException e) {
@@ -54,7 +54,7 @@ public class CompetencyController {
 
     @PutMapping("/frameworks/{id}/deactivate")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> deactivateFramework(@PathVariable Long id) {
+    public ResponseEntity<?> deactivateFramework(@PathVariable String id) {
         try {
             competencyService.deactivateFramework(id);
             return ResponseEntity.ok(Map.of("message", "Framework deactivated"));
@@ -66,7 +66,7 @@ public class CompetencyController {
     // Competency endpoints
     @PostMapping("/frameworks/{frameworkId}/competencies")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> addCompetency(@PathVariable Long frameworkId,
+    public ResponseEntity<?> addCompetency(@PathVariable String frameworkId,
                                            @RequestParam String name,
                                            @RequestParam(required = false) String description,
                                            @RequestParam(required = false) String category,
@@ -81,18 +81,18 @@ public class CompetencyController {
     }
 
     @GetMapping("/frameworks/{frameworkId}/competencies")
-    public ResponseEntity<List<CompetencyResponse>> getCompetenciesByFramework(@PathVariable Long frameworkId) {
+    public ResponseEntity<List<CompetencyResponse>> getCompetenciesByFramework(@PathVariable String frameworkId) {
         return ResponseEntity.ok(competencyService.getCompetenciesByFramework(frameworkId));
     }
 
     // Employee Competency endpoints
     @PostMapping("/employees/{employeeId}/assess")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> assessCompetency(@PathVariable Long employeeId,
-                                               @RequestParam Long competencyId,
+    public ResponseEntity<?> assessCompetency(@PathVariable String employeeId,
+                                               @RequestParam String competencyId,
                                                @RequestParam Integer currentLevel,
                                                @RequestParam Integer targetLevel,
-                                               @RequestParam(required = false) Long assessorId) {
+                                               @RequestParam(required = false) String assessorId) {
         try {
             EmployeeCompetencyResponse response = competencyService.assessCompetency(
                     employeeId, competencyId, currentLevel, targetLevel, assessorId);
@@ -103,14 +103,14 @@ public class CompetencyController {
     }
 
     @GetMapping("/employees/{employeeId}")
-    public ResponseEntity<List<EmployeeCompetencyResponse>> getEmployeeCompetencies(@PathVariable Long employeeId) {
+    public ResponseEntity<List<EmployeeCompetencyResponse>> getEmployeeCompetencies(@PathVariable String employeeId) {
         return ResponseEntity.ok(competencyService.getEmployeeCompetencies(employeeId));
     }
 
     // Skill Gap Analysis endpoints
 
     @GetMapping("/gaps/employee/{employeeId}")
-    public ResponseEntity<?> getSkillGaps(@PathVariable Long employeeId) {
+    public ResponseEntity<?> getSkillGaps(@PathVariable String employeeId) {
         try {
             return ResponseEntity.ok(competencyService.getSkillGaps(employeeId));
         } catch (IllegalArgumentException e) {
@@ -122,15 +122,14 @@ public class CompetencyController {
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<?> getDepartmentGaps(@PathVariable String department) {
         try {
-            // Pass department name as-is; service handles lookup
-            return ResponseEntity.ok(competencyService.getDepartmentGaps(Long.parseLong(department)));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid department ID"));
+            return ResponseEntity.ok(competencyService.getDepartmentGaps(department));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @GetMapping("/training/recommendations/{employeeId}")
-    public ResponseEntity<?> getTrainingRecommendations(@PathVariable Long employeeId) {
+    public ResponseEntity<?> getTrainingRecommendations(@PathVariable String employeeId) {
         try {
             return ResponseEntity.ok(competencyService.getTrainingRecommendations(employeeId));
         } catch (IllegalArgumentException e) {

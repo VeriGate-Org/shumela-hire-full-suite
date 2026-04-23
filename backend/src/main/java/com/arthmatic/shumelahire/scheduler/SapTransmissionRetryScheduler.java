@@ -57,7 +57,7 @@ public class SapTransmissionRetryScheduler {
 
                 sapPayrollService.retryFailedTransmission(
                         transmission.getTransmissionId(),
-                        transmission.getInitiatedBy() != null ? transmission.getInitiatedBy() : 0L);
+                        transmission.getInitiatedBy() != null ? transmission.getInitiatedBy() : "SYSTEM");
 
             } catch (Exception e) {
                 log.error("Scheduled retry failed for transmission {}: {}",

@@ -475,7 +475,7 @@ public class AnalyticsService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getPerformanceReport(Long userId, String userType, 
+    public Map<String, Object> getPerformanceReport(String userId, String userType, 
                                                    LocalDate startDate, LocalDate endDate) {
         Map<String, Object> report = new HashMap<>();
         
@@ -492,7 +492,7 @@ public class AnalyticsService {
         
         // Individual metrics
         List<RecruitmentMetrics> userMetrics = userType.equals("recruiter") ?
-            metricsRepository.findByRecruiterAndDateRange(String.valueOf(userId), startDate, endDate) :
+            metricsRepository.findByRecruiterAndDateRange(userId, startDate, endDate) :
             new ArrayList<>();
         
         report.put("metrics", userMetrics);
@@ -575,7 +575,7 @@ public class AnalyticsService {
             .collect(Collectors.toList());
     }
 
-    private Map<String, Object> processPerformanceData(List<Object[]> performance, Long userId) {
+    private Map<String, Object> processPerformanceData(List<Object[]> performance, String userId) {
         Map<String, Object> result = new HashMap<>();
         
         Map<String, BigDecimal> userMetrics = new HashMap<>();
@@ -658,13 +658,13 @@ public class AnalyticsService {
     // Search and pagination
     @Transactional(readOnly = true)
     public Page<RecruitmentMetrics> searchMetrics(String category, String name, String department,
-                                                 Long recruiterId, Long hiringManagerId,
+                                                 String recruiterId, String hiringManagerId,
                                                  LocalDate startDate, LocalDate endDate,
                                                  Pageable pageable) {
         CursorPage<RecruitmentMetrics> result = metricsRepository.searchMetrics(
             category, name, department,
-            recruiterId != null ? String.valueOf(recruiterId) : null,
-            hiringManagerId != null ? String.valueOf(hiringManagerId) : null,
+            recruiterId != null ? recruiterId : null,
+            hiringManagerId != null ? hiringManagerId : null,
             startDate, endDate,
             pageable.getPageNumber(), pageable.getPageSize());
         return new PageImpl<>(result.content(), pageable, result.content().size());

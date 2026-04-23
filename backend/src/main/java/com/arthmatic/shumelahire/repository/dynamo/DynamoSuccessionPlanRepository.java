@@ -60,9 +60,9 @@ public class DynamoSuccessionPlanRepository extends DynamoRepository<SuccessionP
         return findAll().stream()
                 .filter(e -> {
                     boolean isCurrentHolder = e.getCurrentHolder() != null && e.getCurrentHolder().getId() != null
-                            && e.getCurrentHolder().getId().toString().equals(currentHolderId);
+                            && e.getCurrentHolder().getId().equals(currentHolderId);
                     boolean isSuccessor = e.getSuccessor() != null && e.getSuccessor().getId() != null
-                            && e.getSuccessor().getId().toString().equals(successorId);
+                            && e.getSuccessor().getId().equals(successorId);
                     return isCurrentHolder || isSuccessor;
                 })
                 .collect(Collectors.toList());
@@ -71,20 +71,20 @@ public class DynamoSuccessionPlanRepository extends DynamoRepository<SuccessionP
     @Override
     protected SuccessionPlan toEntity(SuccessionPlanItem item) {
         var e = new SuccessionPlan();
-        if (item.getId() != null) e.setId(safeParseLong(item.getId()));
+        if (item.getId() != null) e.setId(item.getId());
         e.setTenantId(item.getTenantId());
         e.setPositionTitle(item.getPositionTitle());
         e.setDepartment(item.getDepartment());
 
         if (item.getCurrentHolderId() != null) {
             var currentHolder = new Employee();
-            currentHolder.setId(safeParseLong(item.getCurrentHolderId()));
+            currentHolder.setId(item.getCurrentHolderId());
             e.setCurrentHolder(currentHolder);
         }
 
         if (item.getSuccessorId() != null) {
             var successor = new Employee();
-            successor.setId(safeParseLong(item.getSuccessorId()));
+            successor.setId(item.getSuccessorId());
             e.setSuccessor(successor);
         }
 
@@ -99,13 +99,13 @@ public class DynamoSuccessionPlanRepository extends DynamoRepository<SuccessionP
     @Override
     protected SuccessionPlanItem toItem(SuccessionPlan entity) {
         var item = new SuccessionPlanItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         String department = entity.getDepartment() != null ? entity.getDepartment() : "";
         String currentHolderId = entity.getCurrentHolder() != null && entity.getCurrentHolder().getId() != null
-                ? entity.getCurrentHolder().getId().toString() : "";
+                ? entity.getCurrentHolder().getId() : "";
         String successorId = entity.getSuccessor() != null && entity.getSuccessor().getId() != null
-                ? entity.getSuccessor().getId().toString() : "";
+                ? entity.getSuccessor().getId() : "";
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("SUCCESSION_PLAN#" + id);

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class WorkflowDefinition extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -42,11 +42,11 @@ public class WorkflowDefinition extends TenantAwareEntity {
 
     // Getters and setters
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

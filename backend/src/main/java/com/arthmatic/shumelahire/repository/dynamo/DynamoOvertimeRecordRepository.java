@@ -56,12 +56,12 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
         }
 
         OvertimeRecord entity = new OvertimeRecord();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
 
         if (item.getEmployeeId() != null) {
             var employee = new Employee();
-            employee.setId(safeParseLong(item.getEmployeeId()));
+            employee.setId(item.getEmployeeId());
             entity.setEmployee(employee);
         }
 
@@ -72,7 +72,7 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
 
         if (item.getApprovedById() != null) {
             var approvedBy = new Employee();
-            approvedBy.setId(safeParseLong(item.getApprovedById()));
+            approvedBy.setId(item.getApprovedById());
             entity.setApprovedBy(approvedBy);
         }
 
@@ -90,16 +90,16 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
         }
 
         OvertimeRecordItem item = new OvertimeRecordItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setEmployeeId(entity.getEmployee() != null && entity.getEmployee().getId() != null
-                ? entity.getEmployee().getId().toString() : null);
+                ? entity.getEmployee().getId() : null);
         item.setDate(entity.getDate() != null ? entity.getDate().format(DATE_FMT) : null);
         item.setHours(entity.getHours() != null ? entity.getHours().toPlainString() : null);
         item.setReason(entity.getReason());
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         item.setApprovedById(entity.getApprovedBy() != null && entity.getApprovedBy().getId() != null
-                ? entity.getApprovedBy().getId().toString() : null);
+                ? entity.getApprovedBy().getId() : null);
         item.setApprovedAt(entity.getApprovedAt() != null ? entity.getApprovedAt().format(ISO_FMT) : null);
         item.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().format(ISO_FMT) : null);
         item.setUpdatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().format(ISO_FMT) : null);

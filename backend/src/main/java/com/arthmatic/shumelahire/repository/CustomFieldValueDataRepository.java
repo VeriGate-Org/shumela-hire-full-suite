@@ -38,12 +38,12 @@ public interface CustomFieldValueDataRepository {
     // ── Domain-specific queries ──────────────────────────────────────────────
 
     /** Find all custom field values for a given entity (e.g. all values for employee #42). */
-    List<CustomFieldValue> findByEntityIdAndEntityType(Long entityId, CustomFieldEntityType entityType);
+    List<CustomFieldValue> findByEntityIdAndEntityType(String entityId, CustomFieldEntityType entityType);
 
     /** Find a specific custom field value by custom field ID, entity ID, and entity type. */
     Optional<CustomFieldValue> findByCustomFieldIdAndEntityIdAndEntityType(
-            Long customFieldId, Long entityId, CustomFieldEntityType entityType);
+            String customFieldId, String entityId, CustomFieldEntityType entityType);
 
     /** Delete all custom field values for a given entity (e.g. when deleting an employee). */
-    void deleteByEntityIdAndEntityType(Long entityId, CustomFieldEntityType entityType);
+    void deleteByEntityIdAndEntityType(String entityId, CustomFieldEntityType entityType);
 }

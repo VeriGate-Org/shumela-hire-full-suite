@@ -22,8 +22,8 @@ public class SapPayrollController {
 
     @PostMapping("/offers/{offerId}/transmit")
     public ResponseEntity<?> transmitNewHire(
-            @PathVariable Long offerId,
-            @RequestParam Long userId) {
+            @PathVariable String offerId,
+            @RequestParam String userId) {
 
         if (sapPayrollService == null) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -46,7 +46,7 @@ public class SapPayrollController {
     }
 
     @GetMapping("/offers/{offerId}/validate")
-    public ResponseEntity<?> validateEmployeeData(@PathVariable Long offerId) {
+    public ResponseEntity<?> validateEmployeeData(@PathVariable String offerId) {
         if (sapPayrollService == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "SAP Payroll integration is not enabled"));
         }
@@ -61,7 +61,7 @@ public class SapPayrollController {
     @PostMapping("/transmissions/{transmissionId}/retry")
     public ResponseEntity<?> retryTransmission(
             @PathVariable String transmissionId,
-            @RequestParam Long userId) {
+            @RequestParam String userId) {
 
         if (sapPayrollService == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "SAP Payroll integration is not enabled"));
@@ -85,7 +85,7 @@ public class SapPayrollController {
     public ResponseEntity<?> cancelTransmission(
             @PathVariable String transmissionId,
             @RequestParam String reason,
-            @RequestParam Long userId) {
+            @RequestParam String userId) {
 
         if (sapPayrollService == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "SAP Payroll integration is not enabled"));

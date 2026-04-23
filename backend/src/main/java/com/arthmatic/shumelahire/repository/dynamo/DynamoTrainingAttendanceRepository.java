@@ -37,7 +37,7 @@ public class DynamoTrainingAttendanceRepository extends DynamoRepository<Trainin
     @Override
     public Optional<TrainingAttendance> findBySessionIdAndEmployeeId(String sessionId, String employeeId) {
         return findBySessionId(sessionId).stream()
-                .filter(a -> a.getEmployeeId() != null && employeeId.equals(String.valueOf(a.getEmployeeId())))
+                .filter(a -> a.getEmployeeId() != null && employeeId.equals(a.getEmployeeId()))
                 .findFirst();
     }
 
@@ -45,20 +45,20 @@ public class DynamoTrainingAttendanceRepository extends DynamoRepository<Trainin
     protected TrainingAttendanceItem toItem(TrainingAttendance entity) {
         TrainingAttendanceItem item = new TrainingAttendanceItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("TRAINING_ATTEND#" + id);
 
-        String sessionId = entity.getSessionId() != null ? String.valueOf(entity.getSessionId()) : "";
+        String sessionId = entity.getSessionId() != null ? entity.getSessionId() : "";
         item.setGsi1pk("TA_SESS#" + tenantId + "#" + sessionId);
         item.setGsi1sk("TRAINING_ATTEND#" + id);
 
         item.setId(id);
         item.setTenantId(tenantId);
-        item.setSessionId(entity.getSessionId() != null ? String.valueOf(entity.getSessionId()) : null);
-        item.setEnrollmentId(entity.getEnrollmentId() != null ? String.valueOf(entity.getEnrollmentId()) : null);
-        item.setEmployeeId(entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : null);
+        item.setSessionId(entity.getSessionId() != null ? entity.getSessionId() : null);
+        item.setEnrollmentId(entity.getEnrollmentId() != null ? entity.getEnrollmentId() : null);
+        item.setEmployeeId(entity.getEmployeeId() != null ? entity.getEmployeeId() : null);
         item.setAttended(entity.getAttended());
         item.setCheckInTime(entity.getCheckInTime() != null ? entity.getCheckInTime().toInstant(ZoneOffset.UTC) : null);
         item.setNotes(entity.getNotes());
@@ -70,12 +70,12 @@ public class DynamoTrainingAttendanceRepository extends DynamoRepository<Trainin
     protected TrainingAttendance toEntity(TrainingAttendanceItem item) {
         TrainingAttendance entity = new TrainingAttendance();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
-        entity.setSessionId(item.getSessionId() != null ? safeParseLong(item.getSessionId()) : null);
-        entity.setEnrollmentId(item.getEnrollmentId() != null ? safeParseLong(item.getEnrollmentId()) : null);
-        entity.setEmployeeId(item.getEmployeeId() != null ? safeParseLong(item.getEmployeeId()) : null);
+        entity.setSessionId(item.getSessionId() != null ? item.getSessionId() : null);
+        entity.setEnrollmentId(item.getEnrollmentId() != null ? item.getEnrollmentId() : null);
+        entity.setEmployeeId(item.getEmployeeId() != null ? item.getEmployeeId() : null);
         entity.setAttended(item.getAttended());
         entity.setCheckInTime(item.getCheckInTime() != null ? LocalDateTime.ofInstant(item.getCheckInTime(), ZoneOffset.UTC) : null);
         entity.setNotes(item.getNotes());

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TalentPool extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotBlank
     private String poolName;
@@ -25,7 +25,7 @@ public class TalentPool extends TenantAwareEntity {
 
     private Boolean autoAddEnabled = false;
 
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt;
 
@@ -40,8 +40,8 @@ public class TalentPool extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getPoolName() { return poolName; }
     public void setPoolName(String poolName) { this.poolName = poolName; }
@@ -64,8 +64,8 @@ public class TalentPool extends TenantAwareEntity {
     public Boolean getAutoAddEnabled() { return autoAddEnabled; }
     public void setAutoAddEnabled(Boolean autoAddEnabled) { this.autoAddEnabled = autoAddEnabled; }
 
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

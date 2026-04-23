@@ -101,7 +101,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
     public List<Document> findByApplicantIdAndApplicationId(String applicantId, String applicationId) {
         return queryGsiAll("GSI5", "DOCUMENT_APPLICANT#" + applicantId).stream()
                 .filter(d -> d.getApplicationId() != null
-                        && d.getApplicationId().toString().equals(applicationId))
+                        && d.getApplicationId().equals(applicationId))
                 .collect(Collectors.toList());
     }
 
@@ -110,7 +110,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         List<Document> docs = queryGsiAll("GSI5", "DOCUMENT_APPLICANT#" + applicantId);
         for (Document doc : docs) {
             if (doc.getId() != null) {
-                deleteById(doc.getId().toString());
+                deleteById(doc.getId());
             }
         }
     }
@@ -121,11 +121,11 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
     protected Document toEntity(DocumentItem item) {
         var entity = new Document();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         if (item.getApplicationId() != null) {
-            entity.setApplicationId(safeParseLong(item.getApplicationId()));
+            entity.setApplicationId(item.getApplicationId());
         }
         if (item.getType() != null) {
             entity.setType(DocumentType.valueOf(item.getType()));
@@ -144,7 +144,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
     protected DocumentItem toItem(Document entity) {
         var item = new DocumentItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         String uploadedAtStr = entity.getUploadedAt() != null
                 ? entity.getUploadedAt().format(ISO_FMT) : "";
@@ -161,9 +161,9 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         // GSI2: Application FK lookup
         String appId = "";
         if (entity.getApplicationId() != null) {
-            appId = entity.getApplicationId().toString();
+            appId = entity.getApplicationId();
         } else if (entity.getApplication() != null && entity.getApplication().getId() != null) {
-            appId = entity.getApplication().getId().toString();
+            appId = entity.getApplication().getId();
         }
         item.setGsi2pk("DOCUMENT_APP#" + appId);
         item.setGsi2sk("DOCUMENT#" + uploadedAtStr);
@@ -171,7 +171,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         // GSI5: Applicant lookup
         String applicantId = "";
         if (entity.getApplicant() != null && entity.getApplicant().getId() != null) {
-            applicantId = entity.getApplicant().getId().toString();
+            applicantId = entity.getApplicant().getId();
         }
         item.setGsi5pk("DOCUMENT_APPLICANT#" + applicantId);
         item.setGsi5sk("DOCUMENT#" + uploadedAtStr);

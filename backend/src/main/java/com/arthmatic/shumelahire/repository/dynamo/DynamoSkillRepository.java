@@ -105,7 +105,7 @@ public class DynamoSkillRepository extends DynamoRepository<SkillItem, Skill>
     protected Skill toEntity(SkillItem item) {
         var skill = new Skill();
         if (item.getId() != null) {
-            skill.setId(safeParseLong(item.getId()));
+            skill.setId(item.getId());
         }
         skill.setTenantId(item.getTenantId());
         skill.setName(item.getName());
@@ -126,7 +126,7 @@ public class DynamoSkillRepository extends DynamoRepository<SkillItem, Skill>
     protected SkillItem toItem(Skill entity) {
         var item = new SkillItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

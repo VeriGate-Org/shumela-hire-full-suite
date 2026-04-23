@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 
 public class TenantFeatureEntitlement {
 
-    private Long id;
+    private String id;
 
     private String tenantId;
 
-    private Long featureId;
+    private String featureId;
 
     private boolean isEnabled;
 
@@ -37,14 +37,14 @@ public class TenantFeatureEntitlement {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getTenantId() { return tenantId; }
     public void setTenantId(String tenantId) { this.tenantId = tenantId; }
 
-    public Long getFeatureId() { return featureId; }
-    public void setFeatureId(Long featureId) { this.featureId = featureId; }
+    public String getFeatureId() { return featureId; }
+    public void setFeatureId(String featureId) { this.featureId = featureId; }
 
     public boolean isEnabled() { return isEnabled; }
     public void setEnabled(boolean enabled) { isEnabled = enabled; }

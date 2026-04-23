@@ -138,13 +138,13 @@ public class LinkedInSocialService {
     }
 
     @Transactional
-    public LinkedInPostResponse postJobToCompanyPage(Long jobPostingId, String customText, String userId) {
+    public LinkedInPostResponse postJobToCompanyPage(String jobPostingId, String customText, String userId) {
         String tenantId = TenantContext.requireCurrentTenant();
 
         LinkedInOrgConnection connection = connectionRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new RuntimeException("LinkedIn organization not connected. Ask your admin to connect the company LinkedIn page."));
 
-        JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(jobPostingId))
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new RuntimeException("Job posting not found: " + jobPostingId));
 
         // Refresh token if needed
@@ -205,7 +205,7 @@ public class LinkedInSocialService {
                     userId,
                     "LINKEDIN_SOCIAL_POST",
                     "JOB_POSTING",
-                    jobPostingId.toString(),
+                    jobPostingId,
                     "Posted job to LinkedIn company page: " + jobPosting.getTitle());
 
             logger.info("Posted job {} to LinkedIn company page for tenant {}", jobPostingId, tenantId);

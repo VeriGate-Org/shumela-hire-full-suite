@@ -34,5 +34,5 @@ public interface UserPreferenceDataRepository {
     // ── Domain-specific queries ──────────────────────────────────────────────
 
     /** Find preferences for a specific user. */
-    Optional<UserPreference> findByUserId(Long userId);
+    Optional<UserPreference> findByUserId(String userId);
 }

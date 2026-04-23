@@ -40,8 +40,8 @@ public class SkillService {
         return saved;
     }
 
-    public Skill update(Long id, SkillRequest request) {
-        Skill skill = skillRepository.findById(String.valueOf(id))
+    public Skill update(String id, SkillRequest request) {
+        Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
 
         boolean nameChanged = !skill.getName().equals(request.getName());
@@ -66,8 +66,8 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public Skill getById(Long id) {
-        return skillRepository.findById(String.valueOf(id))
+    public Skill getById(String id) {
+        return skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
     }
 
@@ -91,8 +91,8 @@ public class SkillService {
         return skillRepository.findByCategoryAndActiveOrderByName(category);
     }
 
-    public Skill deactivate(Long id) {
-        Skill skill = skillRepository.findById(String.valueOf(id))
+    public Skill deactivate(String id) {
+        Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
         skill.setIsActive(false);
         Skill saved = skillRepository.save(skill);
@@ -101,8 +101,8 @@ public class SkillService {
         return saved;
     }
 
-    public Skill activate(Long id) {
-        Skill skill = skillRepository.findById(String.valueOf(id))
+    public Skill activate(String id) {
+        Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
         skill.setIsActive(true);
         Skill saved = skillRepository.save(skill);

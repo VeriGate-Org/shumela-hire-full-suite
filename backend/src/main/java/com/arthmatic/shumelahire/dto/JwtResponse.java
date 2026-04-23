@@ -10,7 +10,7 @@ public class JwtResponse {
     private String token;
     private String type = "Bearer";
     private String refreshToken;
-    private Long id;
+    private String id;
     private String username;
     private String email;
     private String firstName;
@@ -24,8 +24,8 @@ public class JwtResponse {
     // Constructors
     public JwtResponse() {}
 
-    public JwtResponse(String token, String refreshToken, Long id, String username, String email, 
-                      String firstName, String lastName, String role, List<String> authorities, 
+    public JwtResponse(String token, String refreshToken, String id, String username, String email,
+                      String firstName, String lastName, String role, List<String> authorities,
                       boolean twoFactorEnabled, boolean emailVerified, long expiresIn) {
         this.token = token;
         this.refreshToken = refreshToken;
@@ -51,8 +51,8 @@ public class JwtResponse {
     public String getRefreshToken() { return refreshToken; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

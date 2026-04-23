@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class FeedbackResponse extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private FeedbackRequest request;
 
@@ -25,8 +25,8 @@ public class FeedbackResponse extends TenantAwareEntity {
 
     private LocalDateTime createdAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public FeedbackRequest getRequest() { return request; }
     public void setRequest(FeedbackRequest request) { this.request = request; }
     public Employee getRespondent() { return respondent; }

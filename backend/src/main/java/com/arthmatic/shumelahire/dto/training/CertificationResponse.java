@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 public class CertificationResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
     private String name;
     private String issuingBody;
@@ -44,11 +44,11 @@ public class CertificationResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
 
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }

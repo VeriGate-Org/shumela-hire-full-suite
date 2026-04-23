@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class GoalKPI extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Performance goal is required")
     private PerformanceGoal goal;
@@ -61,8 +61,8 @@ public class GoalKPI extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     
     public PerformanceGoal getGoal() { return goal; }
     public void setGoal(PerformanceGoal goal) { this.goal = goal; }

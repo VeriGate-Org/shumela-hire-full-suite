@@ -76,26 +76,26 @@ public class CompetencyService {
     }
 
     @Transactional(readOnly = true)
-    public CompetencyFrameworkResponse getFramework(Long id) {
-        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(id))
+    public CompetencyFrameworkResponse getFramework(String id) {
+        CompetencyFramework framework = frameworkRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + id));
         return CompetencyFrameworkResponse.fromEntity(framework);
     }
 
-    public void deactivateFramework(Long id) {
-        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(id))
+    public void deactivateFramework(String id) {
+        CompetencyFramework framework = frameworkRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + id));
         framework.setIsActive(false);
         frameworkRepository.save(framework);
 
         auditLogService.saveLog("SYSTEM", "DEACTIVATE", "COMPETENCY_FRAMEWORK",
-                id.toString(), "Deactivated framework: " + framework.getName());
+                id, "Deactivated framework: " + framework.getName());
     }
 
     // Competency CRUD
-    public CompetencyResponse addCompetency(Long frameworkId, String name, String description,
+    public CompetencyResponse addCompetency(String frameworkId, String name, String description,
                                             String category, String proficiencyLevels) {
-        CompetencyFramework framework = frameworkRepository.findById(String.valueOf(frameworkId))
+        CompetencyFramework framework = frameworkRepository.findById(frameworkId)
                 .orElseThrow(() -> new IllegalArgumentException("Framework not found: " + frameworkId));
 
         Competency competency = new Competency();
@@ -112,26 +112,26 @@ public class CompetencyService {
     }
 
     @Transactional(readOnly = true)
-    public List<CompetencyResponse> getCompetenciesByFramework(Long frameworkId) {
-        return competencyRepository.findByFrameworkId(String.valueOf(frameworkId)).stream()
+    public List<CompetencyResponse> getCompetenciesByFramework(String frameworkId) {
+        return competencyRepository.findByFrameworkId(frameworkId).stream()
                 .map(CompetencyResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     // Employee Competency Assessment
-    public EmployeeCompetencyResponse assessCompetency(Long employeeId, Long competencyId,
+    public EmployeeCompetencyResponse assessCompetency(String employeeId, String competencyId,
                                                        Integer currentLevel, Integer targetLevel,
-                                                       Long assessorId) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+                                                       String assessorId) {
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        Competency competency = competencyRepository.findById(String.valueOf(competencyId))
+        Competency competency = competencyRepository.findById(competencyId)
                 .orElseThrow(() -> new IllegalArgumentException("Competency not found: " + competencyId));
 
-        Employee assessor = assessorId != null ? employeeRepository.findById(String.valueOf(assessorId)).orElse(null) : null;
+        Employee assessor = assessorId != null ? employeeRepository.findById(assessorId).orElse(null) : null;
 
         EmployeeCompetency ec = employeeCompetencyRepository
-                .findByEmployeeIdAndCompetencyId(String.valueOf(employeeId), String.valueOf(competencyId))
+                .findByEmployeeIdAndCompetencyId(employeeId, competencyId)
                 .orElse(new EmployeeCompetency());
 
         ec.setEmployee(employee);
@@ -150,8 +150,8 @@ public class CompetencyService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmployeeCompetencyResponse> getEmployeeCompetencies(Long employeeId) {
-        return employeeCompetencyRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<EmployeeCompetencyResponse> getEmployeeCompetencies(String employeeId) {
+        return employeeCompetencyRepository.findByEmployeeId(employeeId).stream()
                 .map(EmployeeCompetencyResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -159,11 +159,11 @@ public class CompetencyService {
     // Skill Gap Analysis
 
     @Transactional(readOnly = true)
-    public List<SkillGapDto> getSkillGaps(Long employeeId) {
-        employeeRepository.findById(String.valueOf(employeeId))
+    public List<SkillGapDto> getSkillGaps(String employeeId) {
+        employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(String.valueOf(employeeId));
+        List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(employeeId);
         List<TrainingCourse> activeCourses = trainingCourseRepository.findByIsActiveTrue();
 
         return assessments.stream()
@@ -190,20 +190,20 @@ public class CompetencyService {
     }
 
     @Transactional(readOnly = true)
-    public List<SkillGapDto> getDepartmentGaps(Long departmentId) {
+    public List<SkillGapDto> getDepartmentGaps(String departmentId) {
         // departmentId is used as a string lookup since Employee.department is a String
         // For convenience, we accept the department name as a query parameter in the controller
         List<Employee> employees = employeeRepository.findByDepartment(
-                departmentId.toString(), null, 1000).content();
+                departmentId, null, 1000).content();
 
         if (employees.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Map<Long, SkillGapDto> aggregatedGaps = new LinkedHashMap<>();
+        Map<String, SkillGapDto> aggregatedGaps = new LinkedHashMap<>();
 
         for (Employee emp : employees) {
-            List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(String.valueOf(emp.getId()));
+            List<EmployeeCompetency> assessments = employeeCompetencyRepository.findByEmployeeId(emp.getId());
             for (EmployeeCompetency ec : assessments) {
                 if (ec.getTargetLevel() > ec.getCurrentLevel()) {
                     aggregatedGaps.compute(ec.getCompetency().getId(), (key, existing) -> {
@@ -238,13 +238,13 @@ public class CompetencyService {
     }
 
     @Transactional(readOnly = true)
-    public List<TrainingRecommendationDto> getTrainingRecommendations(Long employeeId) {
+    public List<TrainingRecommendationDto> getTrainingRecommendations(String employeeId) {
         List<SkillGapDto> gaps = getSkillGaps(employeeId);
         if (gaps.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Set<Long> gapCompetencyIds = gaps.stream()
+        Set<String> gapCompetencyIds = gaps.stream()
                 .map(SkillGapDto::getCompetencyId)
                 .collect(Collectors.toSet());
 
@@ -258,10 +258,10 @@ public class CompetencyService {
         List<TrainingRecommendationDto> recommendations = new ArrayList<>();
 
         for (TrainingCourse course : activeCourses) {
-            List<Long> linkedIds = parseLinkedCompetencyIds(course.getLinkedCompetencyIds());
+            List<String> linkedIds = parseLinkedCompetencyIds(course.getLinkedCompetencyIds());
             List<String> matching = linkedIds.stream()
                     .filter(gapCompetencyIds::contains)
-                    .map(id -> competencyNames.getOrDefault(id.toString(), "Competency " + id))
+                    .map(id -> competencyNames.getOrDefault(id, "Competency " + id))
                     .collect(Collectors.toList());
 
             if (!matching.isEmpty()) {
@@ -283,10 +283,10 @@ public class CompetencyService {
     }
 
     private List<SkillGapDto.RecommendedCourse> findCoursesForCompetency(
-            Long competencyId, List<TrainingCourse> courses) {
+            String competencyId, List<TrainingCourse> courses) {
         List<SkillGapDto.RecommendedCourse> result = new ArrayList<>();
         for (TrainingCourse course : courses) {
-            List<Long> linkedIds = parseLinkedCompetencyIds(course.getLinkedCompetencyIds());
+            List<String> linkedIds = parseLinkedCompetencyIds(course.getLinkedCompetencyIds());
             if (linkedIds.contains(competencyId)) {
                 result.add(new SkillGapDto.RecommendedCourse(course.getId(), course.getTitle()));
             }
@@ -294,12 +294,12 @@ public class CompetencyService {
         return result;
     }
 
-    private List<Long> parseLinkedCompetencyIds(String json) {
+    private List<String> parseLinkedCompetencyIds(String json) {
         if (json == null || json.isBlank()) {
             return Collections.emptyList();
         }
         try {
-            return objectMapper.readValue(json, new TypeReference<List<Long>>() {});
+            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
         } catch (Exception e) {
             logger.warn("Failed to parse linkedCompetencyIds: {}", json, e);
             return Collections.emptyList();

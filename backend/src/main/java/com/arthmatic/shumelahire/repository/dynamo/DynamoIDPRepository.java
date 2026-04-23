@@ -48,7 +48,7 @@ public class DynamoIDPRepository extends DynamoRepository<IDPItem, IndividualDev
     @Override
     public List<IndividualDevelopmentPlan> findByManagerId(String managerId) {
         return findAll().stream()
-                .filter(idp -> idp.getManagerId() != null && managerId.equals(String.valueOf(idp.getManagerId())))
+                .filter(idp -> idp.getManagerId() != null && managerId.equals(idp.getManagerId()))
                 .collect(Collectors.toList());
     }
 
@@ -56,24 +56,24 @@ public class DynamoIDPRepository extends DynamoRepository<IDPItem, IndividualDev
     protected IDPItem toItem(IndividualDevelopmentPlan entity) {
         IDPItem item = new IDPItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("IDP#" + id);
 
-        String employeeId = entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : "";
+        String employeeId = entity.getEmployeeId() != null ? entity.getEmployeeId() : "";
         item.setGsi1pk("IDP_EMP#" + tenantId + "#" + employeeId);
         item.setGsi1sk("IDP#" + id);
 
         item.setId(id);
         item.setTenantId(tenantId);
-        item.setEmployeeId(entity.getEmployeeId() != null ? String.valueOf(entity.getEmployeeId()) : null);
+        item.setEmployeeId(entity.getEmployeeId() != null ? entity.getEmployeeId() : null);
         item.setTitle(entity.getTitle());
         item.setDescription(entity.getDescription());
         item.setStartDate(entity.getStartDate() != null ? entity.getStartDate().toString() : null);
         item.setTargetDate(entity.getTargetDate() != null ? entity.getTargetDate().toString() : null);
         item.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        item.setManagerId(entity.getManagerId() != null ? String.valueOf(entity.getManagerId()) : null);
+        item.setManagerId(entity.getManagerId() != null ? entity.getManagerId() : null);
 
         if (entity.getGoals() != null) {
             try {
@@ -92,16 +92,16 @@ public class DynamoIDPRepository extends DynamoRepository<IDPItem, IndividualDev
     protected IndividualDevelopmentPlan toEntity(IDPItem item) {
         IndividualDevelopmentPlan entity = new IndividualDevelopmentPlan();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
-        entity.setEmployeeId(item.getEmployeeId() != null ? safeParseLong(item.getEmployeeId()) : null);
+        entity.setEmployeeId(item.getEmployeeId() != null ? item.getEmployeeId() : null);
         entity.setTitle(item.getTitle());
         entity.setDescription(item.getDescription());
         entity.setStartDate(item.getStartDate() != null ? LocalDate.parse(item.getStartDate()) : null);
         entity.setTargetDate(item.getTargetDate() != null ? LocalDate.parse(item.getTargetDate()) : null);
         entity.setStatus(item.getStatus() != null ? IDPStatus.valueOf(item.getStatus()) : null);
-        entity.setManagerId(item.getManagerId() != null ? safeParseLong(item.getManagerId()) : null);
+        entity.setManagerId(item.getManagerId() != null ? item.getManagerId() : null);
 
         if (item.getGoalsJson() != null) {
             try {

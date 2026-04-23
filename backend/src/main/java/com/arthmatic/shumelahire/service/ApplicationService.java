@@ -52,7 +52,7 @@ public class ApplicationService {
         Applicant applicant = findApplicantById(request.getApplicantId());
 
         // Check if applicant has already applied for this job
-        if (applicationRepository.existsByApplicantIdAndJobPostingId(String.valueOf(request.getApplicantId()), String.valueOf(request.getJobAdId()))) {
+        if (applicationRepository.existsByApplicantIdAndJobPostingId(request.getApplicantId(), request.getJobAdId())) {
             throw new IllegalArgumentException("Applicant has already applied for this job");
         }
 
@@ -84,7 +84,7 @@ public class ApplicationService {
      * Get application by ID
      */
     @Transactional(readOnly = true)
-    public ApplicationResponse getApplication(Long id) {
+    public ApplicationResponse getApplication(String id) {
         Application application = findApplicationById(id);
         return ApplicationResponse.fromEntity(application);
     }
@@ -93,8 +93,8 @@ public class ApplicationService {
      * Get applications by applicant
      */
     @Transactional(readOnly = true)
-    public List<ApplicationResponse> getApplicationsByApplicant(Long applicantId) {
-        List<Application> applications = applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(String.valueOf(applicantId));
+    public List<ApplicationResponse> getApplicationsByApplicant(String applicantId) {
+        List<Application> applications = applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -104,8 +104,8 @@ public class ApplicationService {
      * Get applications by job ad
      */
     @Transactional(readOnly = true)
-    public List<ApplicationResponse> getApplicationsByJobAd(Long jobAdId) {
-        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(String.valueOf(jobAdId));
+    public List<ApplicationResponse> getApplicationsByJobAd(String jobAdId) {
+        List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobAdId);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -154,7 +154,7 @@ public class ApplicationService {
     /**
      * Update application status
      */
-    public ApplicationResponse updateApplicationStatus(Long id, ApplicationStatus newStatus, String notes) {
+    public ApplicationResponse updateApplicationStatus(String id, ApplicationStatus newStatus, String notes) {
         logger.info("Updating application {} to status {}", id, newStatus);
 
         Application application = findApplicationById(id);
@@ -226,7 +226,7 @@ public class ApplicationService {
     /**
      * Withdraw application
      */
-    public ApplicationResponse withdrawApplication(Long id, ApplicationWithdrawRequest request) {
+    public ApplicationResponse withdrawApplication(String id, ApplicationWithdrawRequest request) {
         logger.info("Withdrawing application {}", id);
 
         Application application = findApplicationById(id);
@@ -258,7 +258,7 @@ public class ApplicationService {
     /**
      * Rate application
      */
-    public ApplicationResponse rateApplication(Long id, Integer rating, String feedback) {
+    public ApplicationResponse rateApplication(String id, Integer rating, String feedback) {
         logger.info("Rating application {} with {} stars", id, rating);
 
         if (rating < 1 || rating > 5) {
@@ -306,14 +306,14 @@ public class ApplicationService {
      * Check if applicant can apply for job
      */
     @Transactional(readOnly = true)
-    public boolean canApplicantApplyForJob(Long applicantId, Long jobAdId) {
-        return !applicationRepository.existsByApplicantIdAndJobPostingId(String.valueOf(applicantId), String.valueOf(jobAdId));
+    public boolean canApplicantApplyForJob(String applicantId, String jobAdId) {
+        return !applicationRepository.existsByApplicantIdAndJobPostingId(applicantId, jobAdId);
     }
 
     /**
      * Delete application completely
      */
-    public void deleteApplication(Long id) {
+    public void deleteApplication(String id) {
         logger.info("Deleting application {}", id);
 
         Application application = findApplicationById(id);
@@ -349,13 +349,13 @@ public class ApplicationService {
 
     // Helper methods
 
-    private Application findApplicationById(Long id) {
-        return applicationRepository.findById(String.valueOf(id))
+    private Application findApplicationById(String id) {
+        return applicationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + id));
     }
 
-    private Applicant findApplicantById(Long id) {
-        return applicantRepository.findById(String.valueOf(id))
+    private Applicant findApplicantById(String id) {
+        return applicantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Applicant not found: " + id));
     }
 }

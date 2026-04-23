@@ -12,14 +12,14 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Interview extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Long version;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Application application;
 
-    private Long applicationId;
+    private String applicationId;
 
     private String title;
 
@@ -48,7 +48,7 @@ public class Interview extends TenantAwareEntity {
 
     private String agenda;
 
-    private Long interviewerId;
+    private String interviewerId;
 
     private String interviewerName;
 
@@ -108,7 +108,7 @@ public class Interview extends TenantAwareEntity {
 
     private LocalDateTime feedbackSubmittedAt;
 
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt;
 
@@ -130,7 +130,7 @@ public class Interview extends TenantAwareEntity {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Interview(Application application, LocalDateTime scheduledAt, Long interviewerId, InterviewType type) {
+    public Interview(Application application, LocalDateTime scheduledAt, String interviewerId, InterviewType type) {
         this();
         this.application = application;
         this.scheduledAt = scheduledAt;
@@ -243,8 +243,8 @@ public class Interview extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
@@ -257,11 +257,11 @@ public class Interview extends TenantAwareEntity {
         }
     }
 
-    public Long getApplicationId() {
+    public String getApplicationId() {
         if (applicationId != null) return applicationId;
         return application != null ? application.getId() : null;
     }
-    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -312,8 +312,8 @@ public class Interview extends TenantAwareEntity {
     public String getAgenda() { return agenda; }
     public void setAgenda(String agenda) { this.agenda = agenda; }
 
-    public Long getInterviewerId() { return interviewerId; }
-    public void setInterviewerId(Long interviewerId) { this.interviewerId = interviewerId; }
+    public String getInterviewerId() { return interviewerId; }
+    public void setInterviewerId(String interviewerId) { this.interviewerId = interviewerId; }
 
     public String getInterviewerName() { return interviewerName; }
     public void setInterviewerName(String interviewerName) { this.interviewerName = interviewerName; }
@@ -412,8 +412,8 @@ public class Interview extends TenantAwareEntity {
     public LocalDateTime getFeedbackSubmittedAt() { return feedbackSubmittedAt; }
     public void setFeedbackSubmittedAt(LocalDateTime feedbackSubmittedAt) { this.feedbackSubmittedAt = feedbackSubmittedAt; }
 
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

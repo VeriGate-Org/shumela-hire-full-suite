@@ -9,10 +9,10 @@ import java.util.List;
 
 public class ScreeningQuestion extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Job posting ID is required")
-    private Long jobPostingId;
+    private String jobPostingId;
     
     @NotBlank(message = "Question text is required")
     private String questionText;
@@ -44,7 +44,7 @@ public class ScreeningQuestion extends TenantAwareEntity {
     // Constructors
     public ScreeningQuestion() {}
     
-    public ScreeningQuestion(Long jobPostingId, String questionText, QuestionType questionType, String createdBy) {
+    public ScreeningQuestion(String jobPostingId, String questionText, QuestionType questionType, String createdBy) {
         this.jobPostingId = jobPostingId;
         this.questionText = questionText;
         this.questionType = questionType;
@@ -52,19 +52,19 @@ public class ScreeningQuestion extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getJobPostingId() {
+    public String getJobPostingId() {
         return jobPostingId;
     }
     
-    public void setJobPostingId(Long jobPostingId) {
+    public void setJobPostingId(String jobPostingId) {
         this.jobPostingId = jobPostingId;
     }
     

@@ -22,7 +22,7 @@ public class RecruitmentLifecycleController {
      * Get the full recruitment lifecycle for an application.
      */
     @GetMapping("/applications/{applicationId}")
-    public ResponseEntity<RecruitmentLifecycle> getByApplication(@PathVariable Long applicationId) {
+    public ResponseEntity<RecruitmentLifecycle> getByApplication(@PathVariable String applicationId) {
         RecruitmentLifecycle lifecycle = lifecycleService.getByApplicationId(applicationId);
         return ResponseEntity.ok(lifecycle);
     }
@@ -31,7 +31,7 @@ public class RecruitmentLifecycleController {
      * Get lifecycle views for all applications under a requisition.
      */
     @GetMapping("/requisitions/{requisitionId}")
-    public ResponseEntity<List<RecruitmentLifecycle>> getByRequisition(@PathVariable Long requisitionId) {
+    public ResponseEntity<List<RecruitmentLifecycle>> getByRequisition(@PathVariable String requisitionId) {
         List<RecruitmentLifecycle> lifecycles = lifecycleService.getByRequisitionId(requisitionId);
         return ResponseEntity.ok(lifecycles);
     }
@@ -40,7 +40,7 @@ public class RecruitmentLifecycleController {
      * Get just the events (no summary wrapper) for an application.
      */
     @GetMapping("/applications/{applicationId}/events")
-    public ResponseEntity<List<LifecycleEvent>> getEvents(@PathVariable Long applicationId) {
+    public ResponseEntity<List<LifecycleEvent>> getEvents(@PathVariable String applicationId) {
         List<LifecycleEvent> events = lifecycleService.getEventsByApplicationId(applicationId);
         return ResponseEntity.ok(events);
     }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Offer extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @NotNull(message = "Application is required")
@@ -118,13 +118,13 @@ public class Offer extends TenantAwareEntity {
 
     private Integer approvalLevelRequired = 1;
 
-    private Long approvedBy;
+    private String approvedBy;
 
     private LocalDateTime approvedAt;
 
     private String approvalNotes;
 
-    private Long rejectedBy;
+    private String rejectedBy;
 
     private LocalDateTime rejectedAt;
 
@@ -153,9 +153,9 @@ public class Offer extends TenantAwareEntity {
     private Boolean intellectualPropertyAgreement = false;
 
     // Document References
-    private Long offerLetterTemplateId;
+    private String offerLetterTemplateId;
 
-    private Long contractTemplateId;
+    private String contractTemplateId;
 
     private String offerDocumentPath;
 
@@ -175,17 +175,17 @@ public class Offer extends TenantAwareEntity {
     private String eSignatureSignerEmail;
 
     // Tracking
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt;
 
-    private Long updatedBy;
+    private String updatedBy;
 
     private LocalDateTime updatedAt;
 
-    private Long supersededByOfferId;
+    private String supersededByOfferId;
 
-    private Long supersedesOfferId;
+    private String supersedesOfferId;
 
     // Constructors
     public Offer() {
@@ -193,7 +193,7 @@ public class Offer extends TenantAwareEntity {
         this.offerNumber = generateOfferNumber();
     }
 
-    public Offer(Application application, String jobTitle, BigDecimal baseSalary, Long createdBy) {
+    public Offer(Application application, String jobTitle, BigDecimal baseSalary, String createdBy) {
         this();
         this.application = application;
         this.jobTitle = jobTitle;
@@ -323,11 +323,11 @@ public class Offer extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -715,11 +715,11 @@ public class Offer extends TenantAwareEntity {
         this.approvalLevelRequired = approvalLevelRequired;
     }
 
-    public Long getApprovedBy() {
+    public String getApprovedBy() {
         return approvedBy;
     }
 
-    public void setApprovedBy(Long approvedBy) {
+    public void setApprovedBy(String approvedBy) {
         this.approvedBy = approvedBy;
     }
 
@@ -739,11 +739,11 @@ public class Offer extends TenantAwareEntity {
         this.approvalNotes = approvalNotes;
     }
 
-    public Long getRejectedBy() {
+    public String getRejectedBy() {
         return rejectedBy;
     }
 
-    public void setRejectedBy(Long rejectedBy) {
+    public void setRejectedBy(String rejectedBy) {
         this.rejectedBy = rejectedBy;
     }
 
@@ -843,19 +843,19 @@ public class Offer extends TenantAwareEntity {
         this.intellectualPropertyAgreement = intellectualPropertyAgreement;
     }
 
-    public Long getOfferLetterTemplateId() {
+    public String getOfferLetterTemplateId() {
         return offerLetterTemplateId;
     }
 
-    public void setOfferLetterTemplateId(Long offerLetterTemplateId) {
+    public void setOfferLetterTemplateId(String offerLetterTemplateId) {
         this.offerLetterTemplateId = offerLetterTemplateId;
     }
 
-    public Long getContractTemplateId() {
+    public String getContractTemplateId() {
         return contractTemplateId;
     }
 
-    public void setContractTemplateId(Long contractTemplateId) {
+    public void setContractTemplateId(String contractTemplateId) {
         this.contractTemplateId = contractTemplateId;
     }
 
@@ -875,11 +875,11 @@ public class Offer extends TenantAwareEntity {
         this.signedDocumentPath = signedDocumentPath;
     }
 
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -891,11 +891,11 @@ public class Offer extends TenantAwareEntity {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedBy() {
+    public String getUpdatedBy() {
         return updatedBy;
     }
 
-    public void setUpdatedBy(Long updatedBy) {
+    public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
 
@@ -907,19 +907,19 @@ public class Offer extends TenantAwareEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Long getSupersededByOfferId() {
+    public String getSupersededByOfferId() {
         return supersededByOfferId;
     }
 
-    public void setSupersededByOfferId(Long supersededByOfferId) {
+    public void setSupersededByOfferId(String supersededByOfferId) {
         this.supersededByOfferId = supersededByOfferId;
     }
 
-    public Long getSupersedesOfferId() {
+    public String getSupersedesOfferId() {
         return supersedesOfferId;
     }
 
-    public void setSupersedesOfferId(Long supersedesOfferId) {
+    public void setSupersedesOfferId(String supersedesOfferId) {
         this.supersedesOfferId = supersedesOfferId;
     }
 

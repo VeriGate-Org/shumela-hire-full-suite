@@ -48,12 +48,12 @@ public class PerformanceManagementService {
         return cycleRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
     }
     
-    public Optional<PerformanceCycle> getCycle(Long id, String tenantId) {
-        return cycleRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
+    public Optional<PerformanceCycle> getCycle(String id, String tenantId) {
+        return cycleRepository.findByIdAndTenantId(id, tenantId);
     }
     
-    public void activateCycle(Long id, String tenantId) {
-        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
+    public void activateCycle(String id, String tenantId) {
+        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance cycle not found"));
         
         if (!cycle.canBeActivated()) {
@@ -67,7 +67,7 @@ public class PerformanceManagementService {
     // ========== PERFORMANCE CONTRACTS ==========
     
     public PerformanceContract createContract(CreateContractRequest request, String tenantId) {
-        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(String.valueOf(request.getCycleId()), tenantId)
+        PerformanceCycle cycle = cycleRepository.findByIdAndTenantId(request.getCycleId(), tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance cycle not found"));
         
         if (!cycle.isActive()) {
@@ -91,20 +91,20 @@ public class PerformanceManagementService {
         return contractRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
     }
     
-    public Optional<PerformanceContract> getContract(Long id, String tenantId) {
-        return contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
+    public Optional<PerformanceContract> getContract(String id, String tenantId) {
+        return contractRepository.findByIdAndTenantId(id, tenantId);
     }
     
-    public void submitContract(Long id, String tenantId) {
-        PerformanceContract contract = contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
+    public void submitContract(String id, String tenantId) {
+        PerformanceContract contract = contractRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance contract not found"));
         
         contract.submit();
         contractRepository.save(contract);
     }
     
-    public void approveContract(Long id, String approverId, String comments, String tenantId) {
-        PerformanceContract contract = contractRepository.findByIdAndTenantId(String.valueOf(id), tenantId)
+    public void approveContract(String id, String approverId, String comments, String tenantId) {
+        PerformanceContract contract = contractRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance contract not found"));
         
         contract.approve(approverId, comments);
@@ -129,8 +129,8 @@ public class PerformanceManagementService {
         return templateRepository.findByTenantIdAndIsActiveOrderByNameAsc(tenantId);
     }
     
-    public Optional<PerformanceTemplate> getTemplate(Long id, String tenantId) {
-        return templateRepository.findByIdAndTenantId(String.valueOf(id), tenantId);
+    public Optional<PerformanceTemplate> getTemplate(String id, String tenantId) {
+        return templateRepository.findByIdAndTenantId(id, tenantId);
     }
     
     // ========== PRIVATE HELPER METHODS ==========
@@ -174,17 +174,17 @@ public class PerformanceManagementService {
     }
     
     public static class CreateContractRequest {
-        private Long cycleId;
+        private String cycleId;
         private String employeeId;
         private String employeeName;
         private String managerId;
         private String managerName;
         private String department;
         private String jobTitle;
-        
+
         // Getters and setters
-        public Long getCycleId() { return cycleId; }
-        public void setCycleId(Long cycleId) { this.cycleId = cycleId; }
+        public String getCycleId() { return cycleId; }
+        public void setCycleId(String cycleId) { this.cycleId = cycleId; }
         public String getEmployeeId() { return employeeId; }
         public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
         public String getEmployeeName() { return employeeName; }

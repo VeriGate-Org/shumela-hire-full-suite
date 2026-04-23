@@ -86,8 +86,8 @@ public class RecruitmentLifecycleService {
     /**
      * Build a full recruitment lifecycle for an application.
      */
-    public RecruitmentLifecycle getByApplicationId(Long applicationId) {
-        Application app = applicationRepository.findById(String.valueOf(applicationId))
+    public RecruitmentLifecycle getByApplicationId(String applicationId) {
+        Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
         List<LifecycleEvent> events = new ArrayList<>();
@@ -104,7 +104,7 @@ public class RecruitmentLifecycleService {
         addBackgroundCheckEvents(events, applicationId);
 
         // 3. Load audit log entries for the application
-        addAuditLogEvents(events, "APPLICATION", applicationId.toString());
+        addAuditLogEvents(events, "APPLICATION", applicationId);
 
         // 4. Sort chronologically
         Collections.sort(events);
@@ -115,12 +115,12 @@ public class RecruitmentLifecycleService {
     /**
      * Build lifecycle views for all applications under a requisition.
      */
-    public List<RecruitmentLifecycle> getByRequisitionId(Long requisitionId) {
-        Requisition req = requisitionRepository.findById(String.valueOf(requisitionId))
+    public List<RecruitmentLifecycle> getByRequisitionId(String requisitionId) {
+        Requisition req = requisitionRepository.findById(requisitionId)
                 .orElseThrow(() -> new RuntimeException("Requisition not found: " + requisitionId));
 
         // Find JobAds for this requisition
-        List<JobAd> jobAds = jobAdRepository.findByRequisitionId(String.valueOf(requisitionId));
+        List<JobAd> jobAds = jobAdRepository.findByRequisitionId(requisitionId);
         if (jobAds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -140,7 +140,7 @@ public class RecruitmentLifecycleService {
     /**
      * Get just the events (no summary) for an application.
      */
-    public List<LifecycleEvent> getEventsByApplicationId(Long applicationId) {
+    public List<LifecycleEvent> getEventsByApplicationId(String applicationId) {
         RecruitmentLifecycle lifecycle = getByApplicationId(applicationId);
         return lifecycle.getTimeline();
     }
@@ -203,8 +203,8 @@ public class RecruitmentLifecycleService {
         }
     }
 
-    private void addInterviewEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<Interview> interviews = interviewRepository.findByApplicationId(String.valueOf(applicationId));
+    private void addInterviewEvents(List<LifecycleEvent> events, String applicationId) {
+        List<Interview> interviews = interviewRepository.findByApplicationId(applicationId);
         for (Interview iv : interviews) {
             String ivId = iv.getId().toString();
 
@@ -239,8 +239,8 @@ public class RecruitmentLifecycleService {
         }
     }
 
-    private void addOfferEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<Offer> offers = offerRepository.findByApplicationId(String.valueOf(applicationId));
+    private void addOfferEvents(List<LifecycleEvent> events, String applicationId) {
+        List<Offer> offers = offerRepository.findByApplicationId(applicationId);
         for (Offer offer : offers) {
             String offerId = offer.getId().toString();
 
@@ -292,8 +292,8 @@ public class RecruitmentLifecycleService {
         }
     }
 
-    private void addSalaryRecommendationEvents(List<LifecycleEvent> events, Long applicationId) {
-        List<SalaryRecommendation> recs = salaryRecommendationRepository.findByApplicationId(String.valueOf(applicationId));
+    private void addSalaryRecommendationEvents(List<LifecycleEvent> events, String applicationId) {
+        List<SalaryRecommendation> recs = salaryRecommendationRepository.findByApplicationId(applicationId);
         for (SalaryRecommendation rec : recs) {
             LifecycleEvent e = new LifecycleEvent("SALARY_REC", rec.getId().toString(), "CREATED",
                     "Salary Recommendation: " + rec.getRecommendationNumber(),
@@ -306,9 +306,9 @@ public class RecruitmentLifecycleService {
         }
     }
 
-    private void addPipelineTransitionEvents(List<LifecycleEvent> events, Long applicationId) {
+    private void addPipelineTransitionEvents(List<LifecycleEvent> events, String applicationId) {
         List<PipelineTransition> transitions = pipelineTransitionRepository
-                .findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
+                .findByApplicationIdOrderByCreatedAtDesc(applicationId);
 
         for (PipelineTransition pt : transitions) {
             String fromStage = pt.getFromStage() != null ? pt.getFromStage().name() : "Start";
@@ -334,10 +334,10 @@ public class RecruitmentLifecycleService {
         }
     }
 
-    private void addBackgroundCheckEvents(List<LifecycleEvent> events, Long applicationId) {
+    private void addBackgroundCheckEvents(List<LifecycleEvent> events, String applicationId) {
         if (backgroundCheckRepository == null) return;
 
-        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
+        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId);
         for (BackgroundCheck bc : checks) {
             // Check initiated
             LifecycleEvent initiated = new LifecycleEvent("BACKGROUND_CHECK", bc.getId().toString(), "INITIATED",

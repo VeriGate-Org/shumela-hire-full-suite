@@ -73,7 +73,7 @@ public class DynamoPerformanceTemplateRepository extends DynamoRepository<Perfor
         if (item == null) return null;
 
         PerformanceTemplate entity = new PerformanceTemplate();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
         entity.setDescription(item.getDescription());
@@ -98,7 +98,7 @@ public class DynamoPerformanceTemplateRepository extends DynamoRepository<Perfor
         if (entity == null) return null;
 
         PerformanceTemplateItem item = new PerformanceTemplateItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setName(entity.getName());
         item.setDescription(entity.getDescription());

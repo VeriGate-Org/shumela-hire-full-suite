@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class Competency extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private CompetencyFramework framework;
 
@@ -20,8 +20,8 @@ public class Competency extends TenantAwareEntity {
 
     private LocalDateTime createdAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public CompetencyFramework getFramework() { return framework; }
     public void setFramework(CompetencyFramework framework) { this.framework = framework; }
     public String getName() { return name; }

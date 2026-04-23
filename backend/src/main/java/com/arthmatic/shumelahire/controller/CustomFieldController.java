@@ -43,7 +43,7 @@ public class CustomFieldController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateField(@PathVariable Long id,
+    public ResponseEntity<?> updateField(@PathVariable String id,
                                         @Valid @RequestBody CustomFieldRequest request) {
         try {
             CustomFieldResponse response = customFieldService.updateField(id, request);
@@ -58,7 +58,7 @@ public class CustomFieldController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteField(@PathVariable Long id) {
+    public ResponseEntity<?> deleteField(@PathVariable String id) {
         try {
             customFieldService.deleteField(id);
             return ResponseEntity.noContent().build();
@@ -97,7 +97,7 @@ public class CustomFieldController {
 
     @PostMapping("/values/{entityType}/{entityId}")
     public ResponseEntity<?> setFieldValues(@PathVariable CustomFieldEntityType entityType,
-                                           @PathVariable Long entityId,
+                                           @PathVariable String entityId,
                                            @Valid @RequestBody List<CustomFieldValueRequest> values) {
         try {
             customFieldService.setFieldValues(entityId, entityType, values);
@@ -113,7 +113,7 @@ public class CustomFieldController {
 
     @GetMapping("/values/{entityType}/{entityId}")
     public ResponseEntity<?> getFieldValues(@PathVariable CustomFieldEntityType entityType,
-                                           @PathVariable Long entityId) {
+                                           @PathVariable String entityId) {
         try {
             Map<String, String> values = customFieldService.getFieldValues(entityId, entityType);
             return ResponseEntity.ok(values);

@@ -47,14 +47,14 @@ public class DynamoSurveyQuestionRepository extends DynamoRepository<SurveyQuest
     protected SurveyQuestion toEntity(SurveyQuestionItem item) {
         var e = new SurveyQuestion();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
 
         // Create Survey stub
         if (item.getSurveyId() != null) {
             var survey = new Survey();
-            survey.setId(safeParseLong(item.getSurveyId()));
+            survey.setId(item.getSurveyId());
             survey.setTenantId(item.getTenantId());
             e.setSurvey(survey);
         }
@@ -73,10 +73,10 @@ public class DynamoSurveyQuestionRepository extends DynamoRepository<SurveyQuest
     @Override
     protected SurveyQuestionItem toItem(SurveyQuestion entity) {
         var item = new SurveyQuestionItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
-        String surveyId = entity.getSurvey() != null && entity.getSurvey().getId() != null ? entity.getSurvey().getId().toString() : null;
+        String surveyId = entity.getSurvey() != null && entity.getSurvey().getId() != null ? entity.getSurvey().getId() : null;
 
         item.setPk("TENANT#" + tenantId);
         item.setSk("SURVEY_Q#" + id);

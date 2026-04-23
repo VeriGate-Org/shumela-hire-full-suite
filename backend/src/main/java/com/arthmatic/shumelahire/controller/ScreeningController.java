@@ -31,7 +31,7 @@ public class ScreeningController {
 
     @GetMapping("/questions/job-posting/{jobPostingId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> getQuestionsByJobPosting(@PathVariable Long jobPostingId) {
+    public ResponseEntity<?> getQuestionsByJobPosting(@PathVariable String jobPostingId) {
         try {
             List<ScreeningQuestion> questions = screeningService.getQuestionsByJobPosting(jobPostingId);
             return ResponseEntity.ok(questions);
@@ -60,7 +60,7 @@ public class ScreeningController {
 
     @PutMapping("/questions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @RequestBody ScreeningQuestion question) {
+    public ResponseEntity<?> updateQuestion(@PathVariable String id, @RequestBody ScreeningQuestion question) {
         try {
             ScreeningQuestion updated = screeningService.updateQuestion(id, question);
             return ResponseEntity.ok(updated);
@@ -75,7 +75,7 @@ public class ScreeningController {
 
     @DeleteMapping("/questions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> deleteQuestion(@PathVariable Long id) {
+    public ResponseEntity<?> deleteQuestion(@PathVariable String id) {
         try {
             screeningService.deleteQuestion(id);
             return ResponseEntity.noContent().build();
@@ -92,7 +92,7 @@ public class ScreeningController {
 
     @GetMapping("/answers/application/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> getAnswersByApplication(@PathVariable Long applicationId) {
+    public ResponseEntity<?> getAnswersByApplication(@PathVariable String applicationId) {
         try {
             List<ScreeningAnswer> answers = screeningService.getAnswersByApplication(applicationId);
             return ResponseEntity.ok(answers);
@@ -107,8 +107,8 @@ public class ScreeningController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> saveAnswer(@RequestBody Map<String, Object> request) {
         try {
-            Long applicationId = Long.valueOf(request.get("applicationId").toString());
-            Long questionId = Long.valueOf(request.get("questionId").toString());
+            String applicationId = request.get("applicationId").toString();
+            String questionId = request.get("questionId").toString();
             String answerValue = request.get("answerValue") != null ? request.get("answerValue").toString() : null;
             String answerFileUrl = request.get("answerFileUrl") != null ? request.get("answerFileUrl").toString() : null;
             String answerFileName = request.get("answerFileName") != null ? request.get("answerFileName").toString() : null;
@@ -129,11 +129,11 @@ public class ScreeningController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
     public ResponseEntity<?> saveBulkAnswers(@RequestBody Map<String, Object> request) {
         try {
-            Long applicationId = Long.valueOf(request.get("applicationId").toString());
+            String applicationId = request.get("applicationId").toString();
             List<Map<String, Object>> answersList = (List<Map<String, Object>>) request.get("answers");
 
             for (Map<String, Object> answerData : answersList) {
-                Long questionId = Long.valueOf(answerData.get("questionId").toString());
+                String questionId = answerData.get("questionId").toString();
                 String answerValue = answerData.get("answerValue") != null ? answerData.get("answerValue").toString() : null;
                 String answerFileUrl = answerData.get("answerFileUrl") != null ? answerData.get("answerFileUrl").toString() : null;
                 String answerFileName = answerData.get("answerFileName") != null ? answerData.get("answerFileName").toString() : null;
@@ -153,7 +153,7 @@ public class ScreeningController {
 
     @GetMapping("/answers/validate/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
-    public ResponseEntity<?> validateAnswers(@PathVariable Long applicationId) {
+    public ResponseEntity<?> validateAnswers(@PathVariable String applicationId) {
         try {
             boolean isValid = screeningService.validateApplicationAnswers(applicationId);
             String summary = screeningService.getValidationSummary(applicationId);

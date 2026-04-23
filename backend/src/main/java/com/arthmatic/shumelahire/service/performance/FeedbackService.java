@@ -42,10 +42,10 @@ public class FeedbackService {
     private NotificationService notificationService;
 
     public FeedbackRequestResponse createRequest(FeedbackRequestCreateRequest request) {
-        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        Employee requester = employeeRepository.findById(String.valueOf(request.getRequesterId()))
+        Employee requester = employeeRepository.findById(request.getRequesterId())
                 .orElseThrow(() -> new IllegalArgumentException("Requester not found: " + request.getRequesterId()));
 
         FeedbackRequest feedbackRequest = new FeedbackRequest();
@@ -68,22 +68,22 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public FeedbackRequestResponse getRequest(Long id) {
-        FeedbackRequest request = feedbackRequestRepository.findById(String.valueOf(id))
+    public FeedbackRequestResponse getRequest(String id) {
+        FeedbackRequest request = feedbackRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + id));
         return FeedbackRequestResponse.fromEntity(request);
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackRequestResponse> getRequestsForEmployee(Long employeeId) {
-        return feedbackRequestRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<FeedbackRequestResponse> getRequestsForEmployee(String employeeId) {
+        return feedbackRequestRepository.findByEmployeeId(employeeId).stream()
                 .map(FeedbackRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackRequestResponse> getRequestsByRequester(Long requesterId) {
-        return feedbackRequestRepository.findByRequesterId(String.valueOf(requesterId)).stream()
+    public List<FeedbackRequestResponse> getRequestsByRequester(String requesterId) {
+        return feedbackRequestRepository.findByRequesterId(requesterId).stream()
                 .map(FeedbackRequestResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -95,15 +95,15 @@ public class FeedbackService {
                 .collect(Collectors.toList());
     }
 
-    public FeedbackResponseDto submitFeedback(Long requestId, FeedbackSubmitRequest submitRequest) {
-        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(String.valueOf(requestId))
+    public FeedbackResponseDto submitFeedback(String requestId, FeedbackSubmitRequest submitRequest) {
+        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + requestId));
 
         if (feedbackRequest.getStatus() != FeedbackStatus.PENDING) {
             throw new IllegalArgumentException("Feedback request is not pending");
         }
 
-        Employee respondent = employeeRepository.findById(String.valueOf(submitRequest.getRespondentId()))
+        Employee respondent = employeeRepository.findById(submitRequest.getRespondentId())
                 .orElseThrow(() -> new IllegalArgumentException("Respondent not found: " + submitRequest.getRespondentId()));
 
         FeedbackResponse response = new FeedbackResponse();
@@ -131,8 +131,8 @@ public class FeedbackService {
         return FeedbackResponseDto.fromEntity(response);
     }
 
-    public void declineRequest(Long requestId) {
-        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(String.valueOf(requestId))
+    public void declineRequest(String requestId) {
+        FeedbackRequest feedbackRequest = feedbackRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Feedback request not found: " + requestId));
 
         feedbackRequest.setStatus(FeedbackStatus.DECLINED);
@@ -143,12 +143,12 @@ public class FeedbackService {
                 NotificationType.APPROVAL_DENIED, NotificationPriority.MEDIUM);
 
         auditLogService.saveLog("SYSTEM", "DECLINE", "FEEDBACK_REQUEST",
-                requestId.toString(), "Declined feedback request");
+                requestId, "Declined feedback request");
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackResponseDto> getResponses(Long requestId) {
-        return feedbackResponseRepository.findByRequestId(String.valueOf(requestId)).stream()
+    public List<FeedbackResponseDto> getResponses(String requestId) {
+        return feedbackResponseRepository.findByRequestId(requestId).stream()
                 .map(FeedbackResponseDto::fromEntity)
                 .collect(Collectors.toList());
     }

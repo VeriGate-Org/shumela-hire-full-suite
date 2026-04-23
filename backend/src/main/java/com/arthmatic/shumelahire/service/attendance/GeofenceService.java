@@ -52,10 +52,10 @@ public class GeofenceService {
                 .anyMatch(g -> g.isWithinRadius(latitude, longitude));
     }
 
-    public void delete(Long id, String userId) {
-        Geofence geofence = geofenceRepository.findById(String.valueOf(id))
+    public void delete(String id, String userId) {
+        Geofence geofence = geofenceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Geofence not found: " + id));
-        geofenceRepository.deleteById(String.valueOf(geofence.getId()));
-        auditLogService.saveLog(userId, "DELETE", "GEOFENCE", id.toString(), "Deleted geofence: " + geofence.getName());
+        geofenceRepository.deleteById(geofence.getId());
+        auditLogService.saveLog(userId, "DELETE", "GEOFENCE", id, "Deleted geofence: " + geofence.getName());
     }
 }

@@ -44,8 +44,8 @@ public class JobBoardService {
         return manualConnector.post(jobPostingId, boardType, boardConfig);
     }
 
-    public JobBoardPosting removePosting(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting removePosting(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         JobBoardConnector connector = connectorRegistry.getConnector(posting.getBoardType());
         if (connector != null) {
@@ -54,8 +54,8 @@ public class JobBoardService {
         return manualConnector.remove(postingId);
     }
 
-    public JobBoardPosting syncPosting(Long postingId) {
-        JobBoardPosting posting = repository.findById(String.valueOf(postingId))
+    public JobBoardPosting syncPosting(String postingId) {
+        JobBoardPosting posting = repository.findById(postingId)
                 .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
         JobBoardConnector connector = connectorRegistry.getConnector(posting.getBoardType());
         if (connector != null) {

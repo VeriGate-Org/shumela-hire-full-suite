@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class Recognition extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Employee fromEmployee;
 
@@ -23,8 +23,8 @@ public class Recognition extends TenantAwareEntity {
 
     private LocalDateTime createdAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public Employee getFromEmployee() { return fromEmployee; }
     public void setFromEmployee(Employee fromEmployee) { this.fromEmployee = fromEmployee; }
     public Employee getToEmployee() { return toEmployee; }

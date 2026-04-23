@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 public class TrainingSessionResponse {
 
-    private Long id;
-    private Long courseId;
+    private String id;
+    private String courseId;
     private String courseTitle;
     private String courseCode;
     private String trainerName;
@@ -41,11 +41,11 @@ public class TrainingSessionResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Long getCourseId() { return courseId; }
-    public void setCourseId(Long courseId) { this.courseId = courseId; }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
 
     public String getCourseTitle() { return courseTitle; }
     public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }

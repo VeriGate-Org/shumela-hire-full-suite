@@ -56,14 +56,14 @@ public class DynamoLinkedInOrgConnectionRepository extends DynamoRepository<Link
     @Override
     public void deleteByTenantId(String tenantId) {
         findByTenantId(tenantId).ifPresent(conn ->
-                deleteById(String.valueOf(conn.getId())));
+                deleteById(conn.getId()));
     }
 
     @Override
     protected LinkedInOrgConnection toEntity(LinkedInOrgConnectionItem item) {
         var entity = new LinkedInOrgConnection();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setAccessToken(item.getAccessToken());
         entity.setRefreshToken(item.getRefreshToken());
@@ -89,7 +89,7 @@ public class DynamoLinkedInOrgConnectionRepository extends DynamoRepository<Link
     @Override
     protected LinkedInOrgConnectionItem toItem(LinkedInOrgConnection entity) {
         var item = new LinkedInOrgConnectionItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

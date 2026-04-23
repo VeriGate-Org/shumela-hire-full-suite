@@ -34,13 +34,13 @@ public class TrainingSessionExtController {
 
     @GetMapping("/{sessionId}/attendance")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> getAttendance(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(attendanceRepository.findBySessionId(String.valueOf(sessionId)));
+    public ResponseEntity<?> getAttendance(@PathVariable String sessionId) {
+        return ResponseEntity.ok(attendanceRepository.findBySessionId(sessionId));
     }
 
     @PostMapping("/{sessionId}/attendance")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> recordAttendance(@PathVariable Long sessionId,
+    public ResponseEntity<?> recordAttendance(@PathVariable String sessionId,
                                               @RequestBody List<TrainingAttendance> records) {
         try {
             for (TrainingAttendance record : records) {
@@ -59,11 +59,11 @@ public class TrainingSessionExtController {
 
     @PutMapping("/{sessionId}/attendance/{attendanceId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> updateAttendance(@PathVariable Long sessionId,
-                                              @PathVariable Long attendanceId,
+    public ResponseEntity<?> updateAttendance(@PathVariable String sessionId,
+                                              @PathVariable String attendanceId,
                                               @RequestBody Map<String, Object> request) {
         try {
-            TrainingAttendance attendance = attendanceRepository.findById(String.valueOf(attendanceId))
+            TrainingAttendance attendance = attendanceRepository.findById(attendanceId)
                     .orElseThrow(() -> new IllegalArgumentException("Attendance record not found: " + attendanceId));
             if (request.containsKey("attended")) {
                 attendance.setAttended((Boolean) request.get("attended"));
@@ -84,19 +84,19 @@ public class TrainingSessionExtController {
 
     @GetMapping("/{sessionId}/evaluations")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> getEvaluations(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(evaluationRepository.findBySessionId(String.valueOf(sessionId)));
+    public ResponseEntity<?> getEvaluations(@PathVariable String sessionId) {
+        return ResponseEntity.ok(evaluationRepository.findBySessionId(sessionId));
     }
 
     @PostMapping("/{sessionId}/evaluations")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER','EMPLOYEE')")
-    public ResponseEntity<?> submitEvaluation(@PathVariable Long sessionId,
+    public ResponseEntity<?> submitEvaluation(@PathVariable String sessionId,
                                               @RequestBody TrainingEvaluation evaluation) {
         try {
             evaluation.setSessionId(sessionId);
             // Check for existing evaluation
             evaluationRepository.findBySessionIdAndEmployeeId(
-                    String.valueOf(sessionId), String.valueOf(evaluation.getEmployeeId())
+                    sessionId, evaluation.getEmployeeId()
             ).ifPresent(existing -> {
                 throw new IllegalArgumentException("Evaluation already submitted for this session");
             });
@@ -110,8 +110,8 @@ public class TrainingSessionExtController {
 
     @GetMapping("/{sessionId}/evaluations/summary")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> getEvaluationSummary(@PathVariable Long sessionId) {
-        List<TrainingEvaluation> evals = evaluationRepository.findBySessionId(String.valueOf(sessionId));
+    public ResponseEntity<?> getEvaluationSummary(@PathVariable String sessionId) {
+        List<TrainingEvaluation> evals = evaluationRepository.findBySessionId(sessionId);
         if (evals.isEmpty()) {
             return ResponseEntity.ok(Map.of("count", 0, "averageOverall", 0));
         }

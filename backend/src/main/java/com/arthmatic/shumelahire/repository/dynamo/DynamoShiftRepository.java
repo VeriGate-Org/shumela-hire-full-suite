@@ -59,7 +59,7 @@ public class DynamoShiftRepository extends DynamoRepository<ShiftItem, Shift>
         }
 
         Shift entity = new Shift();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
         entity.setCode(item.getCode());
@@ -81,7 +81,7 @@ public class DynamoShiftRepository extends DynamoRepository<ShiftItem, Shift>
         }
 
         ShiftItem item = new ShiftItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setName(entity.getName());
         item.setCode(entity.getCode());

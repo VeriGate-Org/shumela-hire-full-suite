@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class SsoConfigResponse {
 
-    private Long id;
+    private String id;
     private SsoProvider provider;
     private String displayName;
     private String clientId;
@@ -46,8 +46,8 @@ public class SsoConfigResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public SsoProvider getProvider() { return provider; }
     public void setProvider(SsoProvider provider) { this.provider = provider; }

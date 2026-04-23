@@ -267,10 +267,10 @@ public class LinkedInConnector implements JobBoardConnector {
   }
 
   @Override
-  public JobBoardPosting remove(Long postingId) {
+  public JobBoardPosting remove(String postingId) {
     JobBoardPosting posting =
         repository
-            .findById(String.valueOf(postingId))
+            .findById(postingId)
             .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
     try {
@@ -300,16 +300,16 @@ public class LinkedInConnector implements JobBoardConnector {
         "SYSTEM",
         "REMOVE_POSTING",
         "JOB_BOARD_POSTING",
-        postingId.toString(),
+        postingId,
         "Removed LinkedIn posting " + posting.getExternalPostId());
     return saved;
   }
 
   @Override
-  public JobBoardPosting sync(Long postingId) {
+  public JobBoardPosting sync(String postingId) {
     JobBoardPosting posting =
         repository
-            .findById(String.valueOf(postingId))
+            .findById(postingId)
             .orElseThrow(() -> new RuntimeException("Posting not found: " + postingId));
 
     try {

@@ -6,14 +6,14 @@ import java.time.LocalDateTime;
 
 public class ReportExportJobResponse {
 
-    private Long id;
+    private String id;
     private String reportType;
     private String format;
     private String status;
     private String fileUrl;
     private Long fileSize;
     private String parameters;
-    private Long requestedById;
+    private String requestedById;
     private String requestedByName;
     private String errorMessage;
     private LocalDateTime createdAt;
@@ -39,8 +39,8 @@ public class ReportExportJobResponse {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getReportType() { return reportType; }
     public void setReportType(String reportType) { this.reportType = reportType; }
@@ -60,8 +60,8 @@ public class ReportExportJobResponse {
     public String getParameters() { return parameters; }
     public void setParameters(String parameters) { this.parameters = parameters; }
 
-    public Long getRequestedById() { return requestedById; }
-    public void setRequestedById(Long requestedById) { this.requestedById = requestedById; }
+    public String getRequestedById() { return requestedById; }
+    public void setRequestedById(String requestedById) { this.requestedById = requestedById; }
 
     public String getRequestedByName() { return requestedByName; }
     public void setRequestedByName(String requestedByName) { this.requestedByName = requestedByName; }

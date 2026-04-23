@@ -28,7 +28,7 @@ public class ReviewService {
     private long nextId = 1;
 
     @Transactional(readOnly = true)
-    public List<PerformanceReview> getReviews(Long cycleId, String employeeId, String status) {
+    public List<PerformanceReview> getReviews(String cycleId, String employeeId, String status) {
         String tenantId = TenantContext.requireCurrentTenant();
         return reviewStore.stream()
                 .filter(r -> r.getTenantId() != null && r.getTenantId().equals(tenantId))
@@ -44,7 +44,7 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<PerformanceReview> getReview(Long id) {
+    public Optional<PerformanceReview> getReview(String id) {
         String tenantId = TenantContext.requireCurrentTenant();
         return reviewStore.stream()
                 .filter(r -> r.getId() != null && r.getId().equals(id))
@@ -52,14 +52,14 @@ public class ReviewService {
                 .findFirst();
     }
 
-    public PerformanceReview createReview(Long contractId, String reviewType) {
+    public PerformanceReview createReview(String contractId, String reviewType) {
         String tenantId = TenantContext.requireCurrentTenant();
-        PerformanceContract contract = contractRepository.findByIdAndTenantId(String.valueOf(contractId), tenantId)
+        PerformanceContract contract = contractRepository.findByIdAndTenantId(contractId, tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Performance contract not found"));
 
         ReviewType type = ReviewType.valueOf(reviewType);
         PerformanceReview review = new PerformanceReview(contract, type);
-        review.setId(nextId++);
+        review.setId(String.valueOf(nextId++));
         review.setTenantId(tenantId);
         review.setReviewPeriodStart(LocalDateTime.now().minusMonths(6));
         review.setReviewPeriodEnd(LocalDateTime.now());
@@ -79,7 +79,7 @@ public class ReviewService {
         return review;
     }
 
-    public PerformanceReview submitSelfAssessment(Long id, String notes, BigDecimal rating,
+    public PerformanceReview submitSelfAssessment(String id, String notes, BigDecimal rating,
                                                    List<GoalScoreInput> goalScores) {
         PerformanceReview review = getReview(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
@@ -102,7 +102,7 @@ public class ReviewService {
         return review;
     }
 
-    public PerformanceReview submitManagerAssessment(Long id, String notes, BigDecimal rating,
+    public PerformanceReview submitManagerAssessment(String id, String notes, BigDecimal rating,
                                                      List<GoalScoreInput> goalScores) {
         PerformanceReview review = getReview(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
@@ -132,7 +132,7 @@ public class ReviewService {
         return review;
     }
 
-    public PerformanceReview completeReview(Long id) {
+    public PerformanceReview completeReview(String id) {
         PerformanceReview review = getReview(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
         review.completeReview();

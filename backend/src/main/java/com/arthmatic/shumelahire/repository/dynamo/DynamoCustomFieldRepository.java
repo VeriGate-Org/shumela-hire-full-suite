@@ -84,7 +84,7 @@ public class DynamoCustomFieldRepository extends DynamoRepository<CustomFieldIte
     protected CustomField toEntity(CustomFieldItem item) {
         var entity = new CustomField();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setFieldName(item.getFieldName());
         entity.setFieldLabel(item.getFieldLabel());
@@ -118,7 +118,7 @@ public class DynamoCustomFieldRepository extends DynamoRepository<CustomFieldIte
     @Override
     protected CustomFieldItem toItem(CustomField entity) {
         var item = new CustomFieldItem();
-        String id = entity.getId() != null ? String.valueOf(entity.getId()) : null;
+        String id = entity.getId() != null ? entity.getId() : null;
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         // Table keys

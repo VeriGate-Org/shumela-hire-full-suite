@@ -36,7 +36,7 @@ public class DocumentTemplateController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTemplateResponse> get(@PathVariable Long id) {
+    public ResponseEntity<DocumentTemplateResponse> get(@PathVariable String id) {
         DocumentTemplateResponse response = service.get(id);
         if (response == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(response);
@@ -44,7 +44,7 @@ public class DocumentTemplateController {
 
     @PutMapping("/{id}")
     public ResponseEntity<DocumentTemplateResponse> update(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody DocumentTemplateRequest.Update request) {
         DocumentTemplateResponse response = service.update(id, request);
         if (response == null) return ResponseEntity.notFound().build();
@@ -52,20 +52,20 @@ public class DocumentTemplateController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         if (!service.delete(id)) return ResponseEntity.notFound().build();
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/duplicate")
-    public ResponseEntity<DocumentTemplateResponse> duplicate(@PathVariable Long id) {
+    public ResponseEntity<DocumentTemplateResponse> duplicate(@PathVariable String id) {
         DocumentTemplateResponse response = service.duplicate(id);
         if (response == null) return ResponseEntity.notFound().build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}/default")
-    public ResponseEntity<DocumentTemplateResponse> setDefault(@PathVariable Long id) {
+    public ResponseEntity<DocumentTemplateResponse> setDefault(@PathVariable String id) {
         DocumentTemplateResponse response = service.setDefault(id);
         if (response == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(response);
@@ -73,7 +73,7 @@ public class DocumentTemplateController {
 
     @PostMapping("/{id}/preview")
     public ResponseEntity<?> preview(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> sampleData) {
         String rendered = service.previewTemplate(id, sampleData);
         if (rendered == null) return ResponseEntity.notFound().build();

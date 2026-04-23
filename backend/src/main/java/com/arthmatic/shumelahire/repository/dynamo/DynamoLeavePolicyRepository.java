@@ -59,11 +59,11 @@ public class DynamoLeavePolicyRepository extends DynamoRepository<LeavePolicyIte
         LeavePolicyItem item = new LeavePolicyItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("LEAVE_POLICY#" + entity.getId());
-        item.setId(entity.getId() != null ? String.valueOf(entity.getId()) : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         if (entity.getLeaveType() != null && entity.getLeaveType().getId() != null) {
-            item.setLeaveTypeId(String.valueOf(entity.getLeaveType().getId()));
+            item.setLeaveTypeId(entity.getLeaveType().getId());
             item.setGsi1pk("LP_TYPE#" + entity.getTenantId() + "#" + entity.getLeaveType().getId());
             item.setGsi1sk("LEAVE_POLICY#" + entity.getId());
         }
@@ -92,13 +92,13 @@ public class DynamoLeavePolicyRepository extends DynamoRepository<LeavePolicyIte
 
         LeavePolicy entity = new LeavePolicy();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
 
         if (item.getLeaveTypeId() != null) {
             LeaveType leaveType = new LeaveType();
-            leaveType.setId(safeParseLong(item.getLeaveTypeId()));
+            leaveType.setId(item.getLeaveTypeId());
             entity.setLeaveType(leaveType);
         }
 

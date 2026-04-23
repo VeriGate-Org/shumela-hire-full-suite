@@ -25,7 +25,7 @@ public class UserPreferenceController {
 
     @GetMapping
     public ResponseEntity<?> getPreferences(Authentication authentication) {
-        Optional<Long> userIdOpt = resolveUserId(authentication);
+        Optional<String> userIdOpt = resolveUserId(authentication);
         if (userIdOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "User not found"));
         }
@@ -39,12 +39,12 @@ public class UserPreferenceController {
 
     @PutMapping
     public ResponseEntity<?> savePreferences(Authentication authentication, @RequestBody String preferences) {
-        Optional<Long> userIdOpt = resolveUserId(authentication);
+        Optional<String> userIdOpt = resolveUserId(authentication);
         if (userIdOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "User not found"));
         }
 
-        Long userId = userIdOpt.get();
+        String userId = userIdOpt.get();
         UserPreference pref = preferenceRepository.findByUserId(userId).orElseGet(() -> {
             UserPreference newPref = new UserPreference();
             newPref.setUserId(userId);
@@ -56,7 +56,7 @@ public class UserPreferenceController {
         return ResponseEntity.ok(Map.of("message", "Preferences saved"));
     }
 
-    private Optional<Long> resolveUserId(Authentication authentication) {
+    private Optional<String> resolveUserId(Authentication authentication) {
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             String email = jwt.getClaimAsString("email");
             if (email != null) {

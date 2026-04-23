@@ -47,7 +47,7 @@ public class DynamoCompetencyFrameworkRepository extends DynamoRepository<Compet
 
         CompetencyFramework entity = new CompetencyFramework();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
@@ -66,7 +66,7 @@ public class DynamoCompetencyFrameworkRepository extends DynamoRepository<Compet
         }
 
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : java.util.UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : java.util.UUID.randomUUID().toString();
 
         CompetencyFrameworkItem item = new CompetencyFrameworkItem();
         item.setPk("TENANT#" + tenantId);

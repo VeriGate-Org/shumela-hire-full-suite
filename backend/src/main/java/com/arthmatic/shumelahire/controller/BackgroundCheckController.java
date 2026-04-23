@@ -40,14 +40,14 @@ public class BackgroundCheckController {
     @PostMapping("/applications/{applicationId}/initiate")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
     public ResponseEntity<BackgroundCheck> initiateCheck(
-            @PathVariable Long applicationId,
+            @PathVariable String applicationId,
             @RequestBody Map<String, Object> request) {
 
         String candidateIdNumber = (String) request.get("candidateIdNumber");
         String candidateName = (String) request.get("candidateName");
         String candidateEmail = (String) request.get("candidateEmail");
         Boolean consentObtained = (Boolean) request.getOrDefault("consentObtained", false);
-        Long initiatedBy = request.get("initiatedBy") instanceof Number n ? n.longValue() : 0L;
+        String initiatedBy = request.get("initiatedBy") != null ? request.get("initiatedBy").toString() : null;
 
         @SuppressWarnings("unchecked")
         List<String> checkTypes = (List<String>) request.get("checkTypes");
@@ -140,8 +140,8 @@ public class BackgroundCheckController {
      */
     @GetMapping("/applications/{applicationId}/required-check-types")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
-    public ResponseEntity<Map<String, Object>> getRequiredCheckTypes(@PathVariable Long applicationId) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public ResponseEntity<Map<String, Object>> getRequiredCheckTypes(@PathVariable String applicationId) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
 
         JobPosting jobPosting = application.getJobPosting();
@@ -156,9 +156,9 @@ public class BackgroundCheckController {
      */
     @GetMapping("/summary")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
-    public ResponseEntity<Map<Long, VerificationSummaryDTO>> getVerificationSummaries(
-            @RequestParam List<Long> applicationIds) {
-        Map<Long, VerificationSummaryDTO> summaries = backgroundCheckService.getVerificationSummaries(applicationIds);
+    public ResponseEntity<Map<String, VerificationSummaryDTO>> getVerificationSummaries(
+            @RequestParam List<String> applicationIds) {
+        Map<String, VerificationSummaryDTO> summaries = backgroundCheckService.getVerificationSummaries(applicationIds);
         return ResponseEntity.ok(summaries);
     }
 
@@ -167,8 +167,8 @@ public class BackgroundCheckController {
      */
     @GetMapping("/applications/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
-    public ResponseEntity<List<BackgroundCheck>> getByApplication(@PathVariable Long applicationId) {
-        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(String.valueOf(applicationId));
+    public ResponseEntity<List<BackgroundCheck>> getByApplication(@PathVariable String applicationId) {
+        List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId);
         return ResponseEntity.ok(checks);
     }
 }

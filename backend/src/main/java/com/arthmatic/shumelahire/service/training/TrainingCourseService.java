@@ -42,8 +42,8 @@ public class TrainingCourseService {
     }
 
     @Transactional(readOnly = true)
-    public TrainingCourseResponse getById(Long id) {
-        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
+    public TrainingCourseResponse getById(String id) {
+        TrainingCourse course = trainingCourseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
         return TrainingCourseResponse.fromEntity(course);
     }
@@ -83,8 +83,8 @@ public class TrainingCourseService {
         return TrainingCourseResponse.fromEntity(saved);
     }
 
-    public TrainingCourseResponse update(Long id, TrainingCourseRequest request, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
+    public TrainingCourseResponse update(String id, TrainingCourseRequest request, String userId) {
+        TrainingCourse course = trainingCourseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
 
         course.setTitle(request.getTitle());
@@ -107,11 +107,11 @@ public class TrainingCourseService {
         return TrainingCourseResponse.fromEntity(saved);
     }
 
-    public void delete(Long id, String userId) {
-        TrainingCourse course = trainingCourseRepository.findById(String.valueOf(id))
+    public void delete(String id, String userId) {
+        TrainingCourse course = trainingCourseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training course not found: " + id));
         course.setIsActive(false);
         trainingCourseRepository.save(course);
-        auditLogService.saveLog(userId, "DELETE", "TRAINING_COURSE", id.toString(), "Deactivated training course: " + course.getTitle());
+        auditLogService.saveLog(userId, "DELETE", "TRAINING_COURSE", id, "Deactivated training course: " + course.getTitle());
     }
 }

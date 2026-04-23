@@ -32,7 +32,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/requests/{id}")
-    public ResponseEntity<?> getRequest(@PathVariable Long id) {
+    public ResponseEntity<?> getRequest(@PathVariable String id) {
         try {
             return ResponseEntity.ok(feedbackService.getRequest(id));
         } catch (IllegalArgumentException e) {
@@ -42,13 +42,13 @@ public class FeedbackController {
 
     @GetMapping("/requests/employee/{employeeId}")
     public ResponseEntity<List<FeedbackRequestResponse>> getRequestsForEmployee(
-            @PathVariable Long employeeId) {
+            @PathVariable String employeeId) {
         return ResponseEntity.ok(feedbackService.getRequestsForEmployee(employeeId));
     }
 
     @GetMapping("/requests/requester/{requesterId}")
     public ResponseEntity<List<FeedbackRequestResponse>> getRequestsByRequester(
-            @PathVariable Long requesterId) {
+            @PathVariable String requesterId) {
         return ResponseEntity.ok(feedbackService.getRequestsByRequester(requesterId));
     }
 
@@ -59,7 +59,7 @@ public class FeedbackController {
     }
 
     @PostMapping("/requests/{id}/submit")
-    public ResponseEntity<?> submitFeedback(@PathVariable Long id,
+    public ResponseEntity<?> submitFeedback(@PathVariable String id,
                                             @RequestBody FeedbackSubmitRequest request) {
         try {
             FeedbackResponseDto response = feedbackService.submitFeedback(id, request);
@@ -70,7 +70,7 @@ public class FeedbackController {
     }
 
     @PutMapping("/requests/{id}/decline")
-    public ResponseEntity<?> declineRequest(@PathVariable Long id) {
+    public ResponseEntity<?> declineRequest(@PathVariable String id) {
         try {
             feedbackService.declineRequest(id);
             return ResponseEntity.ok(Map.of("message", "Request declined"));
@@ -80,7 +80,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/requests/{id}/responses")
-    public ResponseEntity<List<FeedbackResponseDto>> getResponses(@PathVariable Long id) {
+    public ResponseEntity<List<FeedbackResponseDto>> getResponses(@PathVariable String id) {
         return ResponseEntity.ok(feedbackService.getResponses(id));
     }
 }

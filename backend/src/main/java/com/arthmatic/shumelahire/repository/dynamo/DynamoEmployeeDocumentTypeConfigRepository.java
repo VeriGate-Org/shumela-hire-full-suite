@@ -71,7 +71,7 @@ public class DynamoEmployeeDocumentTypeConfigRepository
     protected EmployeeDocumentTypeConfig toEntity(EmployeeDocumentTypeConfigItem item) {
         var config = new EmployeeDocumentTypeConfig();
         if (item.getId() != null) {
-            config.setId(safeParseLong(item.getId()));
+            config.setId(item.getId());
         }
         config.setTenantId(item.getTenantId());
         config.setName(item.getName());
@@ -90,7 +90,7 @@ public class DynamoEmployeeDocumentTypeConfigRepository
     protected EmployeeDocumentTypeConfigItem toItem(EmployeeDocumentTypeConfig entity) {
         var item = new EmployeeDocumentTypeConfigItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);

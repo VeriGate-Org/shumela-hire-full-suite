@@ -40,8 +40,8 @@ public class DocumentTemplateService {
         return DocumentTemplateResponse.fromEntity(template);
     }
 
-    public DocumentTemplateResponse get(Long id) {
-        return repository.findById(String.valueOf(id))
+    public DocumentTemplateResponse get(String id) {
+        return repository.findById(id)
                 .map(DocumentTemplateResponse::fromEntity)
                 .orElse(null);
     }
@@ -54,8 +54,8 @@ public class DocumentTemplateService {
     }
 
     @Transactional
-    public DocumentTemplateResponse update(Long id, DocumentTemplateRequest.Update request) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
+    public DocumentTemplateResponse update(String id, DocumentTemplateRequest.Update request) {
+        Optional<DocumentTemplate> optTemplate = repository.findById(id);
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -78,15 +78,15 @@ public class DocumentTemplateService {
     }
 
     @Transactional
-    public boolean delete(Long id) {
-        if (!repository.existsById(String.valueOf(id))) return false;
-        repository.deleteById(String.valueOf(id));
+    public boolean delete(String id) {
+        if (!repository.existsById(id)) return false;
+        repository.deleteById(id);
         return true;
     }
 
     @Transactional
-    public DocumentTemplateResponse duplicate(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
+    public DocumentTemplateResponse duplicate(String id) {
+        Optional<DocumentTemplate> optTemplate = repository.findById(id);
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate original = optTemplate.get();
@@ -104,8 +104,8 @@ public class DocumentTemplateService {
     }
 
     @Transactional
-    public DocumentTemplateResponse archive(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
+    public DocumentTemplateResponse archive(String id) {
+        Optional<DocumentTemplate> optTemplate = repository.findById(id);
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -115,8 +115,8 @@ public class DocumentTemplateService {
     }
 
     @Transactional
-    public DocumentTemplateResponse setDefault(Long id) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
+    public DocumentTemplateResponse setDefault(String id) {
+        Optional<DocumentTemplate> optTemplate = repository.findById(id);
         if (optTemplate.isEmpty()) return null;
 
         DocumentTemplate template = optTemplate.get();
@@ -141,8 +141,8 @@ public class DocumentTemplateService {
         return sb.toString();
     }
 
-    public String previewTemplate(Long id, Map<String, String> sampleData) {
-        Optional<DocumentTemplate> optTemplate = repository.findById(String.valueOf(id));
+    public String previewTemplate(String id, Map<String, String> sampleData) {
+        Optional<DocumentTemplate> optTemplate = repository.findById(id);
         if (optTemplate.isEmpty()) return null;
         return replacePlaceholders(optTemplate.get().getContent(), sampleData);
     }

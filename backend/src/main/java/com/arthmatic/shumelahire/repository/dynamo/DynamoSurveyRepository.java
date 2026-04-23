@@ -41,7 +41,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
     @Override
     public List<Survey> findByCreatedBy(String createdBy) {
         return findAll().stream()
-                .filter(s -> createdBy.equals(s.getCreatedBy() != null ? s.getCreatedBy().toString() : null))
+                .filter(s -> createdBy.equals(s.getCreatedBy() != null ? s.getCreatedBy() : null))
                 .collect(Collectors.toList());
     }
 
@@ -49,7 +49,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
     protected Survey toEntity(SurveyItem item) {
         var e = new Survey();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         e.setTitle(item.getTitle());
@@ -61,7 +61,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
         e.setStartDate(item.getStartDate());
         e.setEndDate(item.getEndDate());
         if (item.getCreatedBy() != null) {
-            e.setCreatedBy(safeParseLong(item.getCreatedBy()));
+            e.setCreatedBy(item.getCreatedBy());
         }
         e.setCreatedAt(item.getCreatedAt());
         e.setUpdatedAt(item.getUpdatedAt());
@@ -71,7 +71,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
     @Override
     protected SurveyItem toItem(Survey entity) {
         var item = new SurveyItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
         LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : LocalDateTime.now();
 
@@ -91,7 +91,7 @@ public class DynamoSurveyRepository extends DynamoRepository<SurveyItem, Survey>
         item.setStartDate(entity.getStartDate());
         item.setEndDate(entity.getEndDate());
         if (entity.getCreatedBy() != null) {
-            item.setCreatedBy(entity.getCreatedBy().toString());
+            item.setCreatedBy(entity.getCreatedBy());
         }
         item.setCreatedAt(createdAt);
         item.setUpdatedAt(entity.getUpdatedAt());

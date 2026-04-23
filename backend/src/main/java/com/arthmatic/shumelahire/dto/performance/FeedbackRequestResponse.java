@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 public class FeedbackRequestResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
-    private Long requesterId;
+    private String requesterId;
     private String requesterName;
     private String feedbackType;
     private String status;
@@ -37,14 +37,14 @@ public class FeedbackRequestResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
-    public Long getRequesterId() { return requesterId; }
-    public void setRequesterId(Long requesterId) { this.requesterId = requesterId; }
+    public String getRequesterId() { return requesterId; }
+    public void setRequesterId(String requesterId) { this.requesterId = requesterId; }
     public String getRequesterName() { return requesterName; }
     public void setRequesterName(String requesterName) { this.requesterName = requesterName; }
     public String getFeedbackType() { return feedbackType; }

@@ -50,7 +50,7 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         return findAll().stream()
                 .filter(contract -> contract.getCycle() != null
                         && contract.getCycle().getId() != null
-                        && contract.getCycle().getId().toString().equals(cycleId))
+                        && contract.getCycle().getId().equals(cycleId))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
                 .filter(contract -> {
                     boolean matchesCycle = contract.getCycle() != null
                             && contract.getCycle().getId() != null
-                            && contract.getCycle().getId().toString().equals(cycleId);
+                            && contract.getCycle().getId().equals(cycleId);
                     boolean matchesStatus = contract.getStatus() == status;
                     return matchesCycle && matchesStatus;
                 })
@@ -96,7 +96,7 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
                     boolean matchesEmployee = contract.getEmployeeId() != null && contract.getEmployeeId().equals(employeeId);
                     boolean matchesCycle = contract.getCycle() != null
                             && contract.getCycle().getId() != null
-                            && contract.getCycle().getId().toString().equals(cycleId);
+                            && contract.getCycle().getId().equals(cycleId);
                     return matchesEmployee && matchesCycle;
                 });
     }
@@ -106,13 +106,13 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         if (item == null) return null;
 
         PerformanceContract entity = new PerformanceContract();
-        entity.setId(safeParseLong(item.getId()));
+        entity.setId(item.getId());
         entity.setTenantId(item.getTenantId());
 
         // Create PerformanceCycle stub
         if (item.getCycleId() != null) {
             PerformanceCycle cycle = new PerformanceCycle();
-            cycle.setId(safeParseLong(item.getCycleId()));
+            cycle.setId(item.getCycleId());
             entity.setCycle(cycle);
         }
 
@@ -128,7 +128,7 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         // Create PerformanceTemplate stub (nullable)
         if (item.getTemplateId() != null) {
             PerformanceTemplate template = new PerformanceTemplate();
-            template.setId(safeParseLong(item.getTemplateId()));
+            template.setId(item.getTemplateId());
             entity.setTemplate(template);
         }
 
@@ -158,15 +158,15 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         if (entity == null) return null;
 
         PerformanceContractItem item = new PerformanceContractItem();
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
 
         // Store FK IDs
         if (entity.getCycle() != null && entity.getCycle().getId() != null) {
-            item.setCycleId(entity.getCycle().getId().toString());
+            item.setCycleId(entity.getCycle().getId());
         }
         if (entity.getTemplate() != null && entity.getTemplate().getId() != null) {
-            item.setTemplateId(entity.getTemplate().getId().toString());
+            item.setTemplateId(entity.getTemplate().getId());
         }
 
         item.setEmployeeId(entity.getEmployeeId());

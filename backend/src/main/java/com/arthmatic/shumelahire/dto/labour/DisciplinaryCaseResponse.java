@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 public class DisciplinaryCaseResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
     private String offenceCategory;
     private String offenceDescription;
@@ -18,7 +18,7 @@ public class DisciplinaryCaseResponse {
     private String outcome;
     private LocalDate outcomeDate;
     private String notes;
-    private Long createdBy;
+    private String createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -44,10 +44,10 @@ public class DisciplinaryCaseResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public String getOffenceCategory() { return offenceCategory; }
@@ -66,8 +66,8 @@ public class DisciplinaryCaseResponse {
     public void setOutcomeDate(LocalDate outcomeDate) { this.outcomeDate = outcomeDate; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -236,7 +236,7 @@ public class DataSeederService implements CommandLineRunner {
             }
             
             // Create sample applications for different job positions
-            createSampleApplication(applicants.get(0), 1L, "Software Developer - React/Node.js", "Engineering",
+            createSampleApplication(applicants.get(0), "1", "Software Developer - React/Node.js", "Engineering",
                     ApplicationStatus.INTERVIEW_SCHEDULED, "EXTERNAL",
                     "I am excited to apply for the Software Developer position. With my experience in React and Node.js, " +
                     "I believe I would be a great fit for your team. I have worked on several full-stack projects and " +
@@ -244,7 +244,7 @@ public class DataSeederService implements CommandLineRunner {
                     "to your engineering team and help build innovative solutions for your customers.");
             
             if (applicants.size() > 1) {
-                createSampleApplication(applicants.get(1), 2L, "Marketing Manager", "Marketing",
+                createSampleApplication(applicants.get(1), "2", "Marketing Manager", "Marketing",
                         ApplicationStatus.SCREENING, "REFERRAL",
                         "I am writing to express my strong interest in the Marketing Manager position at your company. " +
                         "With over 5 years of experience in digital marketing and team leadership, I have successfully " +
@@ -253,7 +253,7 @@ public class DataSeederService implements CommandLineRunner {
             }
             
             if (applicants.size() > 2) {
-                createSampleApplication(applicants.get(2), 3L, "Data Analyst", "Analytics",
+                createSampleApplication(applicants.get(2), "3", "Data Analyst", "Analytics",
                         ApplicationStatus.SUBMITTED, "INTERNAL",
                         "As an internal candidate, I am eager to transition into the Data Analyst role. My background " +
                         "in statistics and experience with Python and R make me well-suited for this position. I have " +
@@ -262,7 +262,7 @@ public class DataSeederService implements CommandLineRunner {
                         "data-driven decision making across the organization.");
                 
                 // Create a withdrawn application example
-                Application withdrawnApp = createSampleApplication(applicants.get(0), 4L, "Senior Software Engineer", "Engineering",
+                Application withdrawnApp = createSampleApplication(applicants.get(0), "4", "Senior Software Engineer", "Engineering",
                         ApplicationStatus.WITHDRAWN, "EXTERNAL",
                         "I am interested in the Senior Software Engineer position. However, I have decided to withdraw " +
                         "my application due to accepting another offer.");
@@ -278,12 +278,12 @@ public class DataSeederService implements CommandLineRunner {
         }
     }
     
-    private Application createSampleApplication(Applicant applicant, Long jobPostingId, String jobTitle, 
+    private Application createSampleApplication(Applicant applicant, String jobPostingId, String jobTitle, 
                                                String department, ApplicationStatus status, String source, 
                                                String coverLetter) {
         try {
             // Find the job posting
-            JobPosting jobPosting = jobPostingRepository.findById(String.valueOf(jobPostingId)).orElse(null);
+            JobPosting jobPosting = jobPostingRepository.findById(jobPostingId).orElse(null);
             
             Application application = new Application();
             application.setApplicant(applicant);

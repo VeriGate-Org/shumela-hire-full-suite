@@ -124,7 +124,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
     protected Applicant toEntity(ApplicantItem item) {
         var applicant = new Applicant();
         if (item.getId() != null) {
-            applicant.setId(safeParseLong(item.getId()));
+            applicant.setId(item.getId());
         }
         applicant.setTenantId(item.getTenantId());
         applicant.setName(item.getName());
@@ -143,7 +143,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
         applicant.setCoverLetter(item.getCoverLetter());
         applicant.setSource(item.getSource());
         if (item.getUserId() != null) {
-            applicant.setUserId(safeParseLong(item.getUserId()));
+            applicant.setUserId(item.getUserId());
         }
         applicant.setGender(item.getGender());
         applicant.setRace(item.getRace());
@@ -166,7 +166,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
     protected ApplicantItem toItem(Applicant entity) {
         var item = new ApplicantItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -210,7 +210,7 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
         item.setCoverLetter(entity.getCoverLetter());
         item.setSource(entity.getSource());
         if (entity.getUserId() != null) {
-            item.setUserId(entity.getUserId().toString());
+            item.setUserId(entity.getUserId());
         }
         item.setGender(entity.getGender());
         item.setRace(entity.getRace());

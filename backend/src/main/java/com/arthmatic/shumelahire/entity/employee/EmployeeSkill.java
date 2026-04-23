@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class EmployeeSkill extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
     private String employeeId;
@@ -35,8 +35,8 @@ public class EmployeeSkill extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getEmployeeId() { return employeeId; }
     public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }

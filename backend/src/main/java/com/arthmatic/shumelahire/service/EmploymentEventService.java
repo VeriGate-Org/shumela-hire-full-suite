@@ -73,16 +73,16 @@ public class EmploymentEventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmploymentEventResponse> getEmployeeHistory(Long employeeId) {
-        List<EmploymentEvent> events = eventRepository.findByEmployeeOrderByEventDateDesc(String.valueOf(employeeId));
+    public List<EmploymentEventResponse> getEmployeeHistory(String employeeId) {
+        List<EmploymentEvent> events = eventRepository.findByEmployeeOrderByEventDateDesc(employeeId);
         return events.stream()
                 .map(EmploymentEventResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public CursorPage<EmploymentEventResponse> getEmployeeHistoryPaged(Long employeeId, String cursor, int pageSize) {
-        CursorPage<EmploymentEvent> events = eventRepository.findByEmployee(String.valueOf(employeeId), cursor, pageSize);
+    public CursorPage<EmploymentEventResponse> getEmployeeHistoryPaged(String employeeId, String cursor, int pageSize) {
+        CursorPage<EmploymentEvent> events = eventRepository.findByEmployee(employeeId, cursor, pageSize);
         List<EmploymentEventResponse> content = events.content().stream()
                 .map(EmploymentEventResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -91,8 +91,8 @@ public class EmploymentEventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EmploymentEventResponse> getEmployeeEventsByType(Long employeeId, EmploymentEventType eventType) {
-        List<EmploymentEvent> events = eventRepository.findByEmployeeAndEventType(String.valueOf(employeeId), eventType);
+    public List<EmploymentEventResponse> getEmployeeEventsByType(String employeeId, EmploymentEventType eventType) {
+        List<EmploymentEvent> events = eventRepository.findByEmployeeAndEventType(employeeId, eventType);
         return events.stream()
                 .map(EmploymentEventResponse::fromEntity)
                 .collect(Collectors.toList());

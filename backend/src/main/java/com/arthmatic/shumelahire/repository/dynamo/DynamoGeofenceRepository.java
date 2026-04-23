@@ -44,7 +44,7 @@ public class DynamoGeofenceRepository extends DynamoRepository<GeofenceItem, Geo
 
         Geofence entity = new Geofence();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
@@ -66,7 +66,7 @@ public class DynamoGeofenceRepository extends DynamoRepository<GeofenceItem, Geo
         GeofenceItem item = new GeofenceItem();
         item.setPk("TENANT#" + entity.getTenantId());
         item.setSk("GEOFENCE#" + entity.getId());
-        item.setId(entity.getId() != null ? entity.getId().toString() : null);
+        item.setId(entity.getId() != null ? entity.getId() : null);
         item.setTenantId(entity.getTenantId());
         item.setName(entity.getName());
         item.setLatitude(entity.getLatitude() != null ? String.valueOf(entity.getLatitude()) : null);

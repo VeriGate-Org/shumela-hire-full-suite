@@ -33,7 +33,7 @@ public class SalaryRecommendationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable String id) {
         try {
             return ResponseEntity.ok(service.getById(id));
         } catch (RuntimeException e) {
@@ -52,7 +52,7 @@ public class SalaryRecommendationController {
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<?> submitForReview(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<?> submitForReview(@PathVariable String id, Authentication auth) {
         try {
             return ResponseEntity.ok(service.submitForReview(id, auth.getName()));
         } catch (RuntimeException e) {
@@ -61,7 +61,7 @@ public class SalaryRecommendationController {
     }
 
     @PostMapping("/{id}/recommend")
-    public ResponseEntity<?> provideRecommendation(@PathVariable Long id,
+    public ResponseEntity<?> provideRecommendation(@PathVariable String id,
                                                     @Valid @RequestBody SalaryRecommendationProvideRequest request,
                                                     Authentication auth) {
         try {
@@ -72,7 +72,7 @@ public class SalaryRecommendationController {
     }
 
     @PostMapping("/{id}/approve")
-    public ResponseEntity<?> approve(@PathVariable Long id,
+    public ResponseEntity<?> approve(@PathVariable String id,
                                      @RequestBody(required = false) Map<String, String> body,
                                      Authentication auth) {
         try {
@@ -84,7 +84,7 @@ public class SalaryRecommendationController {
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<?> reject(@PathVariable Long id,
+    public ResponseEntity<?> reject(@PathVariable String id,
                                     @RequestBody Map<String, String> body,
                                     Authentication auth) {
         try {
@@ -96,11 +96,11 @@ public class SalaryRecommendationController {
     }
 
     @PostMapping("/{id}/link-offer")
-    public ResponseEntity<?> linkToOffer(@PathVariable Long id,
-                                          @RequestBody Map<String, Long> body,
+    public ResponseEntity<?> linkToOffer(@PathVariable String id,
+                                          @RequestBody Map<String, String> body,
                                           Authentication auth) {
         try {
-            Long offerId = body.get("offerId");
+            String offerId = body.get("offerId");
             return ResponseEntity.ok(service.linkToOffer(id, offerId, auth.getName()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));

@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 
 public class EmployeeCompetencyResponse {
 
-    private Long id;
-    private Long employeeId;
+    private String id;
+    private String employeeId;
     private String employeeName;
-    private Long competencyId;
+    private String competencyId;
     private String competencyName;
     private String category;
     private Integer currentLevel;
     private Integer targetLevel;
     private LocalDateTime assessedAt;
-    private Long assessorId;
+    private String assessorId;
     private String assessorName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -42,14 +42,14 @@ public class EmployeeCompetencyResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmployeeId() { return employeeId; }
+    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
-    public Long getCompetencyId() { return competencyId; }
-    public void setCompetencyId(Long competencyId) { this.competencyId = competencyId; }
+    public String getCompetencyId() { return competencyId; }
+    public void setCompetencyId(String competencyId) { this.competencyId = competencyId; }
     public String getCompetencyName() { return competencyName; }
     public void setCompetencyName(String competencyName) { this.competencyName = competencyName; }
     public String getCategory() { return category; }
@@ -60,8 +60,8 @@ public class EmployeeCompetencyResponse {
     public void setTargetLevel(Integer targetLevel) { this.targetLevel = targetLevel; }
     public LocalDateTime getAssessedAt() { return assessedAt; }
     public void setAssessedAt(LocalDateTime assessedAt) { this.assessedAt = assessedAt; }
-    public Long getAssessorId() { return assessorId; }
-    public void setAssessorId(Long assessorId) { this.assessorId = assessorId; }
+    public String getAssessorId() { return assessorId; }
+    public void setAssessorId(String assessorId) { this.assessorId = assessorId; }
     public String getAssessorName() { return assessorName; }
     public void setAssessorName(String assessorName) { this.assessorName = assessorName; }
     public LocalDateTime getCreatedAt() { return createdAt; }

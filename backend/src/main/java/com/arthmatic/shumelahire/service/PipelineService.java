@@ -39,9 +39,9 @@ public class PipelineService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Core transition operations
-    public PipelineTransition moveApplicationToStage(Long applicationId, PipelineStage targetStage, 
-                                                    String reason, String notes, Long performedBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public PipelineTransition moveApplicationToStage(String applicationId, PipelineStage targetStage, 
+                                                    String reason, String notes, String performedBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         return moveApplicationToStage(application, targetStage, TransitionType.PROGRESSION, 
@@ -50,7 +50,7 @@ public class PipelineService {
 
     public PipelineTransition moveApplicationToStage(Application application, PipelineStage targetStage, 
                                                     TransitionType transitionType, String reason, 
-                                                    String notes, Long performedBy, boolean automated,
+                                                    String notes, String performedBy, boolean automated,
                                                     Map<String, Object> metadata) {
         // Validate transition
         if (!application.canProgressToStage(targetStage)) {
@@ -107,7 +107,7 @@ public class PipelineService {
             performedBy,
             "PIPELINE_TRANSITION",
             "Application",
-            String.format("Moved application %d from %s to %s",
+            String.format("Moved application %s from %s to %s",
                 application.getId(),
                 currentStage != null ? currentStage.getDisplayName() : "Start",
                 targetStage.getDisplayName())
@@ -125,27 +125,27 @@ public class PipelineService {
         return savedTransition;
     }
 
-    public PipelineTransition rejectApplication(Long applicationId, PipelineStage rejectionStage, 
-                                              String reason, String notes, Long rejectedBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public PipelineTransition rejectApplication(String applicationId, PipelineStage rejectionStage, 
+                                              String reason, String notes, String rejectedBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         return moveApplicationToStage(application, rejectionStage, TransitionType.REJECTION, 
                                     reason, notes, rejectedBy, false, null);
     }
 
-    public PipelineTransition withdrawApplication(Long applicationId, String reason, 
-                                                String notes, Long withdrawnBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public PipelineTransition withdrawApplication(String applicationId, String reason, 
+                                                String notes, String withdrawnBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         return moveApplicationToStage(application, PipelineStage.WITHDRAWN, TransitionType.WITHDRAWAL, 
                                     reason, notes, withdrawnBy, false, null);
     }
 
-    public PipelineTransition progressToNextStage(Long applicationId, String reason, 
-                                                String notes, Long performedBy) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public PipelineTransition progressToNextStage(String applicationId, String reason, 
+                                                String notes, String performedBy) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         PipelineStage nextStage = application.getPipelineStage().getNextStage();
@@ -158,10 +158,10 @@ public class PipelineService {
     }
 
     // Automated transitions
-    public PipelineTransition automateTransitionFromInterview(Long applicationId, Long interviewId, 
+    public PipelineTransition automateTransitionFromInterview(String applicationId, String interviewId, 
                                                             PipelineStage targetStage, 
                                                             InterviewRecommendation recommendation) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         Map<String, Object> metadata = new HashMap<>();
@@ -169,21 +169,21 @@ public class PipelineService {
         metadata.put("recommendation", recommendation.name());
 
         PipelineTransition transition = moveApplicationToStage(
-            application, targetStage, TransitionType.PROGRESSION, 
-            "Automated progression based on interview recommendation: " + recommendation.getDisplayName(), 
-            null, 1L, true, metadata);
+            application, targetStage, TransitionType.PROGRESSION,
+            "Automated progression based on interview recommendation: " + recommendation.getDisplayName(),
+            null, "SYSTEM", true, metadata);
 
         transition.setTriggeredByInterviewId(interviewId);
         return pipelineTransitionRepository.save(transition);
     }
 
     // Query operations
-    public List<PipelineTransition> getApplicationTimeline(Long applicationId) {
-        return pipelineTransitionRepository.findTransitionTimelineByApplicationId(String.valueOf(applicationId));
+    public List<PipelineTransition> getApplicationTimeline(String applicationId) {
+        return pipelineTransitionRepository.findTransitionTimelineByApplicationId(applicationId);
     }
 
-    public Optional<PipelineTransition> getLatestTransition(Long applicationId) {
-        return pipelineTransitionRepository.findLatestTransitionByApplicationId(String.valueOf(applicationId));
+    public Optional<PipelineTransition> getLatestTransition(String applicationId) {
+        return pipelineTransitionRepository.findLatestTransitionByApplicationId(applicationId);
     }
 
     public List<PipelineTransition> getRecentActivity(int hours, int limit) {
@@ -353,7 +353,7 @@ public class PipelineService {
         return stats;
     }
 
-    public Map<String, Object> getJobPostingPipelineStats(Long jobPostingId, LocalDateTime startDate, 
+    public Map<String, Object> getJobPostingPipelineStats(String jobPostingId, LocalDateTime startDate, 
                                                          LocalDateTime endDate) {
         List<Object[]> jobData = pipelineTransitionRepository.getJobPostingPipelineStats(
             jobPostingId, startDate, endDate);
@@ -373,8 +373,8 @@ public class PipelineService {
     }
 
     // Utility methods
-    public List<PipelineStage> getAvailableTransitions(Long applicationId) {
-        Application application = applicationRepository.findById(String.valueOf(applicationId))
+    public List<PipelineStage> getAvailableTransitions(String applicationId) {
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
 
         PipelineStage currentStage = application.getPipelineStage();
@@ -466,7 +466,7 @@ public class PipelineService {
         }
 
         List<BackgroundCheck> checks = backgroundCheckRepository
-                .findByApplicationIdOrderByCreatedAtDesc(String.valueOf(application.getId()));
+                .findByApplicationIdOrderByCreatedAtDesc(application.getId());
 
         Set<String> completedClearTypes = new HashSet<>();
         for (BackgroundCheck check : checks) {

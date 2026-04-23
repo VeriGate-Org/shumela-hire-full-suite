@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 
 public class CustomFieldValue extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull
     private CustomField customField;
 
     @NotNull
-    private Long entityId;
+    private String entityId;
 
     @NotNull
     private CustomFieldEntityType entityType;
@@ -24,14 +24,14 @@ public class CustomFieldValue extends TenantAwareEntity {
     private LocalDateTime updatedAt;
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public CustomField getCustomField() { return customField; }
     public void setCustomField(CustomField customField) { this.customField = customField; }
 
-    public Long getEntityId() { return entityId; }
-    public void setEntityId(Long entityId) { this.entityId = entityId; }
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
 
     public CustomFieldEntityType getEntityType() { return entityType; }
     public void setEntityType(CustomFieldEntityType entityType) { this.entityType = entityType; }

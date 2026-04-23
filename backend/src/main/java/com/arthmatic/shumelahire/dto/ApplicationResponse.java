@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 public class ApplicationResponse {
     
-    private Long id;
-    private Long applicantId;
+    private String id;
+    private String applicantId;
     private String applicantName;
     private String applicantEmail;
-    private Long jobAdId;
+    private String jobAdId;
     private String jobTitle;
     private String department;
     private ApplicationStatus status;
@@ -81,19 +81,19 @@ public class ApplicationResponse {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getApplicantId() {
+    public String getApplicantId() {
         return applicantId;
     }
     
-    public void setApplicantId(Long applicantId) {
+    public void setApplicantId(String applicantId) {
         this.applicantId = applicantId;
     }
     
@@ -113,11 +113,11 @@ public class ApplicationResponse {
         this.applicantEmail = applicantEmail;
     }
     
-    public Long getJobAdId() {
+    public String getJobAdId() {
         return jobAdId;
     }
     
-    public void setJobAdId(Long jobAdId) {
+    public void setJobAdId(String jobAdId) {
         this.jobAdId = jobAdId;
     }
     

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class TrainingRecommendationDto {
 
-    private Long courseId;
+    private String courseId;
     private String courseTitle;
     private String category;
     private String deliveryMethod;
@@ -15,8 +15,8 @@ public class TrainingRecommendationDto {
 
     public TrainingRecommendationDto() {}
 
-    public Long getCourseId() { return courseId; }
-    public void setCourseId(Long courseId) { this.courseId = courseId; }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
     public String getCourseTitle() { return courseTitle; }
     public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
     public String getCategory() { return category; }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Requisition extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String jobTitle;
 
@@ -25,7 +25,7 @@ public class Requisition extends TenantAwareEntity {
 
     private RequisitionStatus status = RequisitionStatus.DRAFT;
 
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -45,8 +45,8 @@ public class Requisition extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
@@ -75,8 +75,8 @@ public class Requisition extends TenantAwareEntity {
     public RequisitionStatus getStatus() { return status; }
     public void setStatus(RequisitionStatus status) { this.status = status; }
 
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

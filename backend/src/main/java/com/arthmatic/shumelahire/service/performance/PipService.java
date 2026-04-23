@@ -43,10 +43,10 @@ public class PipService {
     private NotificationService notificationService;
 
     public PipResponse createPip(PipCreateRequest request) {
-        Employee employee = employeeRepository.findById(String.valueOf(request.getEmployeeId()))
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
 
-        Employee manager = employeeRepository.findById(String.valueOf(request.getManagerId()))
+        Employee manager = employeeRepository.findById(request.getManagerId())
                 .orElseThrow(() -> new IllegalArgumentException("Manager not found: " + request.getManagerId()));
 
         PerformanceImprovementPlan pip = new PerformanceImprovementPlan();
@@ -78,26 +78,26 @@ public class PipService {
         notificationService.notifyApprovalRequired(employee.getId(), "Performance Improvement Plan",
                 "PIP created by " + manager.getFullName());
 
-        return PipResponse.fromEntity(pipRepository.findById(String.valueOf(pip.getId())).orElse(pip));
+        return PipResponse.fromEntity(pipRepository.findById(pip.getId()).orElse(pip));
     }
 
     @Transactional(readOnly = true)
-    public PipResponse getPip(Long id) {
-        PerformanceImprovementPlan pip = pipRepository.findById(String.valueOf(id))
+    public PipResponse getPip(String id) {
+        PerformanceImprovementPlan pip = pipRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PIP not found: " + id));
         return PipResponse.fromEntity(pip);
     }
 
     @Transactional(readOnly = true)
-    public List<PipResponse> getPipsByEmployee(Long employeeId) {
-        return pipRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<PipResponse> getPipsByEmployee(String employeeId) {
+        return pipRepository.findByEmployeeId(employeeId).stream()
                 .map(PipResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<PipResponse> getPipsByManager(Long managerId) {
-        return pipRepository.findByManagerId(String.valueOf(managerId)).stream()
+    public List<PipResponse> getPipsByManager(String managerId) {
+        return pipRepository.findByManagerId(managerId).stream()
                 .map(PipResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -109,8 +109,8 @@ public class PipService {
                 .collect(Collectors.toList());
     }
 
-    public PipResponse updatePipStatus(Long id, String status, String outcome) {
-        PerformanceImprovementPlan pip = pipRepository.findById(String.valueOf(id))
+    public PipResponse updatePipStatus(String id, String status, String outcome) {
+        PerformanceImprovementPlan pip = pipRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PIP not found: " + id));
 
         pip.setStatus(PipStatus.valueOf(status));
@@ -120,7 +120,7 @@ public class PipService {
         pip = pipRepository.save(pip);
 
         auditLogService.saveLog("SYSTEM", "UPDATE_STATUS", "PIP",
-                id.toString(), "Updated PIP status to " + status);
+                id, "Updated PIP status to " + status);
 
         NotificationType notifType = "COMPLETED_SUCCESSFULLY".equals(status) ?
                 NotificationType.APPROVAL_GRANTED : NotificationType.APPROVAL_DENIED;
@@ -130,8 +130,8 @@ public class PipService {
         return PipResponse.fromEntity(pip);
     }
 
-    public void updateMilestoneStatus(Long milestoneId, String status, String evidence) {
-        PipMilestone milestone = milestoneRepository.findById(String.valueOf(milestoneId))
+    public void updateMilestoneStatus(String milestoneId, String status, String evidence) {
+        PipMilestone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new IllegalArgumentException("Milestone not found: " + milestoneId));
 
         milestone.setStatus(PipMilestoneStatus.valueOf(status));
@@ -140,7 +140,7 @@ public class PipService {
         milestoneRepository.save(milestone);
 
         auditLogService.saveLog("SYSTEM", "UPDATE_MILESTONE", "PIP_MILESTONE",
-                milestoneId.toString(), "Updated milestone status to " + status);
+                milestoneId, "Updated milestone status to " + status);
 
         notificationService.sendInternalNotification(milestone.getPip().getManager().getId(), "PIP Milestone Updated",
                 milestone.getPip().getEmployee().getFullName() + " - milestone '" + milestone.getTitle() + "' → " + status,

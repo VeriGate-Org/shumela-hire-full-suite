@@ -30,14 +30,14 @@ public class ShiftScheduleService {
 
   @Autowired private AuditLogService auditLogService;
 
-  public ShiftSchedule assign(Long employeeId, Long shiftId, LocalDate date, String userId) {
+  public ShiftSchedule assign(String employeeId, String shiftId, LocalDate date, String userId) {
     Employee employee =
         employeeRepository
-            .findById(String.valueOf(employeeId))
+            .findById(employeeId)
             .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
     Shift shift =
         shiftRepository
-            .findById(String.valueOf(shiftId))
+            .findById(shiftId)
             .orElseThrow(() -> new IllegalArgumentException("Shift not found: " + shiftId));
 
     ShiftSchedule schedule = new ShiftSchedule();
@@ -58,8 +58,8 @@ public class ShiftScheduleService {
 
   @Transactional(readOnly = true)
   public List<ShiftSchedule> getByEmployeeAndDateRange(
-      Long employeeId, LocalDate start, LocalDate end) {
-    return shiftScheduleRepository.findByEmployeeIdAndScheduleDateBetween(String.valueOf(employeeId), start, end);
+      String employeeId, LocalDate start, LocalDate end) {
+    return shiftScheduleRepository.findByEmployeeIdAndScheduleDateBetween(employeeId, start, end);
   }
 
   @Transactional(readOnly = true)
@@ -72,14 +72,14 @@ public class ShiftScheduleService {
     return shiftScheduleRepository.findByDepartmentAndDateRange(department, start, end);
   }
 
-  public void swapSchedules(Long scheduleId1, Long scheduleId2) {
+  public void swapSchedules(String scheduleId1, String scheduleId2) {
     ShiftSchedule s1 =
         shiftScheduleRepository
-            .findById(String.valueOf(scheduleId1))
+            .findById(scheduleId1)
             .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId1));
     ShiftSchedule s2 =
         shiftScheduleRepository
-            .findById(String.valueOf(scheduleId2))
+            .findById(scheduleId2)
             .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId2));
 
     // Swap employees

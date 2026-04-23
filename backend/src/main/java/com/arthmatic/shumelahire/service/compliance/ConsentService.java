@@ -33,13 +33,13 @@ public class ConsentService {
     @Autowired
     private AuditLogService auditLogService;
 
-    public ConsentRecordResponse grantConsent(Long employeeId, String consentType,
+    public ConsentRecordResponse grantConsent(String employeeId, String consentType,
                                               String purpose, String ipAddress) {
-        Employee employee = employeeRepository.findById(String.valueOf(employeeId))
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
         ConsentRecord record = consentRecordRepository
-                .findByEmployeeIdAndConsentType(String.valueOf(employeeId), consentType)
+                .findByEmployeeIdAndConsentType(employeeId, consentType)
                 .orElse(new ConsentRecord());
 
         record.setEmployee(employee);
@@ -52,23 +52,23 @@ public class ConsentService {
 
         record = consentRecordRepository.save(record);
 
-        auditLogService.saveLog(employeeId.toString(), "GRANT_CONSENT", "CONSENT",
+        auditLogService.saveLog(employeeId, "GRANT_CONSENT", "CONSENT",
                 record.getId().toString(), "Granted consent: " + consentType);
         logger.info("Employee {} granted consent for {}", employeeId, consentType);
 
         return ConsentRecordResponse.fromEntity(record);
     }
 
-    public ConsentRecordResponse withdrawConsent(Long employeeId, String consentType) {
+    public ConsentRecordResponse withdrawConsent(String employeeId, String consentType) {
         ConsentRecord record = consentRecordRepository
-                .findByEmployeeIdAndConsentType(String.valueOf(employeeId), consentType)
+                .findByEmployeeIdAndConsentType(employeeId, consentType)
                 .orElseThrow(() -> new IllegalArgumentException("Consent record not found"));
 
         record.setIsGranted(false);
         record.setWithdrawnAt(LocalDateTime.now());
         record = consentRecordRepository.save(record);
 
-        auditLogService.saveLog(employeeId.toString(), "WITHDRAW_CONSENT", "CONSENT",
+        auditLogService.saveLog(employeeId, "WITHDRAW_CONSENT", "CONSENT",
                 record.getId().toString(), "Withdrew consent: " + consentType);
         logger.info("Employee {} withdrew consent for {}", employeeId, consentType);
 
@@ -76,8 +76,8 @@ public class ConsentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConsentRecordResponse> getConsentsForEmployee(Long employeeId) {
-        return consentRecordRepository.findByEmployeeId(String.valueOf(employeeId)).stream()
+    public List<ConsentRecordResponse> getConsentsForEmployee(String employeeId) {
+        return consentRecordRepository.findByEmployeeId(employeeId).stream()
                 .map(ConsentRecordResponse::fromEntity)
                 .collect(Collectors.toList());
     }

@@ -49,7 +49,7 @@ public class DynamoSsoConfigurationRepository extends DynamoRepository<SsoConfig
     protected SsoConfiguration toEntity(SsoConfigurationItem item) {
         var e = new SsoConfiguration();
         if (item.getId() != null) {
-            e.setId(safeParseLong(item.getId()));
+            e.setId(item.getId());
         }
         e.setTenantId(item.getTenantId());
         if (item.getProvider() != null) {
@@ -77,7 +77,7 @@ public class DynamoSsoConfigurationRepository extends DynamoRepository<SsoConfig
     @Override
     protected SsoConfigurationItem toItem(SsoConfiguration entity) {
         var item = new SsoConfigurationItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

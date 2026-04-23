@@ -11,7 +11,7 @@ import java.util.List;
 
 public class PerformanceGoal extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
     @NotNull(message = "Performance contract is required")
     private PerformanceContract contract;
@@ -37,7 +37,7 @@ public class PerformanceGoal extends TenantAwareEntity {
     
     private Integer sortOrder;
 
-    private Long parentGoalId;
+    private String parentGoalId;
 
     private Integer cascadeLevel = 0;
 
@@ -84,8 +84,8 @@ public class PerformanceGoal extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     
     public PerformanceContract getContract() { return contract; }
     public void setContract(PerformanceContract contract) { this.contract = contract; }
@@ -126,8 +126,8 @@ public class PerformanceGoal extends TenantAwareEntity {
     public List<GoalKPI> getKpis() { return kpis; }
     public void setKpis(List<GoalKPI> kpis) { this.kpis = kpis; }
 
-    public Long getParentGoalId() { return parentGoalId; }
-    public void setParentGoalId(Long parentGoalId) { this.parentGoalId = parentGoalId; }
+    public String getParentGoalId() { return parentGoalId; }
+    public void setParentGoalId(String parentGoalId) { this.parentGoalId = parentGoalId; }
 
     public Integer getCascadeLevel() { return cascadeLevel; }
     public void setCascadeLevel(Integer cascadeLevel) { this.cascadeLevel = cascadeLevel; }

@@ -20,7 +20,7 @@ public interface SapPayrollService {
      * @param initiatedBy the user ID who triggered the transmission
      * @return the created SapPayrollTransmission record
      */
-    SapPayrollTransmission sendNewHireData(Long offerId, Long initiatedBy);
+    SapPayrollTransmission sendNewHireData(String offerId, String initiatedBy);
 
     /**
      * Poll SAP for the current status of a transmission.
@@ -38,7 +38,7 @@ public interface SapPayrollService {
      * @param offerId the offer ID to validate
      * @return map of validation errors (empty if valid)
      */
-    Map<String, String> validateEmployeeData(Long offerId);
+    Map<String, String> validateEmployeeData(String offerId);
 
     /**
      * Retry a previously failed transmission.
@@ -47,7 +47,7 @@ public interface SapPayrollService {
      * @param userId         the user ID retrying
      * @return the updated transmission record
      */
-    SapPayrollTransmission retryFailedTransmission(String transmissionId, Long userId);
+    SapPayrollTransmission retryFailedTransmission(String transmissionId, String userId);
 
     /**
      * Get all transmissions in pending/retry state.
@@ -64,5 +64,5 @@ public interface SapPayrollService {
      * @param userId         user who cancelled
      * @return the updated transmission record
      */
-    SapPayrollTransmission cancelTransmission(String transmissionId, String reason, Long userId);
+    SapPayrollTransmission cancelTransmission(String transmissionId, String reason, String userId);
 }

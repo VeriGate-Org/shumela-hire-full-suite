@@ -28,11 +28,11 @@ public class LabourRelationsController {
 
     @PostMapping("/disciplinary")
     public ResponseEntity<?> createDisciplinaryCase(
-            @RequestParam Long employeeId,
+            @RequestParam String employeeId,
             @RequestParam String offenceCategory,
             @RequestParam String offenceDescription,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate incidentDate,
-            @RequestParam Long createdBy) {
+            @RequestParam String createdBy) {
         try {
             DisciplinaryCaseResponse dc = labourRelationsService.createDisciplinaryCase(
                     employeeId, offenceCategory, offenceDescription, incidentDate, createdBy);
@@ -43,7 +43,7 @@ public class LabourRelationsController {
     }
 
     @GetMapping("/disciplinary/{id}")
-    public ResponseEntity<?> getDisciplinaryCase(@PathVariable Long id) {
+    public ResponseEntity<?> getDisciplinaryCase(@PathVariable String id) {
         try {
             return ResponseEntity.ok(labourRelationsService.getDisciplinaryCase(id));
         } catch (IllegalArgumentException e) {
@@ -53,7 +53,7 @@ public class LabourRelationsController {
 
     @GetMapping("/disciplinary")
     public ResponseEntity<List<DisciplinaryCaseResponse>> getDisciplinaryCases(
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) String status) {
         if (employeeId != null) {
             return ResponseEntity.ok(labourRelationsService.getDisciplinaryCasesByEmployee(employeeId));
@@ -66,7 +66,7 @@ public class LabourRelationsController {
 
     @PutMapping("/disciplinary/{id}")
     public ResponseEntity<?> updateDisciplinaryCase(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String outcome,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hearingDate,
@@ -82,10 +82,10 @@ public class LabourRelationsController {
 
     @PostMapping("/grievances")
     public ResponseEntity<?> fileGrievance(
-            @RequestParam Long employeeId,
+            @RequestParam String employeeId,
             @RequestParam String grievanceType,
             @RequestParam String description,
-            @RequestParam(required = false) Long assignedToId) {
+            @RequestParam(required = false) String assignedToId) {
         try {
             GrievanceResponse grievance = labourRelationsService.fileGrievance(
                     employeeId, grievanceType, description, assignedToId);
@@ -96,7 +96,7 @@ public class LabourRelationsController {
     }
 
     @GetMapping("/grievances/{id}")
-    public ResponseEntity<?> getGrievance(@PathVariable Long id) {
+    public ResponseEntity<?> getGrievance(@PathVariable String id) {
         try {
             return ResponseEntity.ok(labourRelationsService.getGrievance(id));
         } catch (IllegalArgumentException e) {
@@ -106,7 +106,7 @@ public class LabourRelationsController {
 
     @GetMapping("/grievances")
     public ResponseEntity<List<GrievanceResponse>> getGrievances(
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) String status) {
         if (employeeId != null) {
             return ResponseEntity.ok(labourRelationsService.getGrievancesByEmployee(employeeId));
@@ -118,7 +118,7 @@ public class LabourRelationsController {
     }
 
     @PutMapping("/grievances/{id}")
-    public ResponseEntity<?> updateGrievance(@PathVariable Long id,
+    public ResponseEntity<?> updateGrievance(@PathVariable String id,
                                               @RequestParam(required = false) String status,
                                               @RequestParam(required = false) String resolution) {
         try {

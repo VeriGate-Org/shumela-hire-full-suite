@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class RecruitmentLifecycle {
 
-    private Long applicationId;
+    private String applicationId;
     private String applicantName;
     private String jobTitle;
     private String department;
@@ -34,8 +34,8 @@ public class RecruitmentLifecycle {
     public RecruitmentLifecycle() {}
 
     // Getters and Setters
-    public Long getApplicationId() { return applicationId; }
-    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
     public String getApplicantName() { return applicantName; }
     public void setApplicantName(String applicantName) { this.applicantName = applicantName; }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Survey extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private String title;
 
@@ -23,7 +23,7 @@ public class Survey extends TenantAwareEntity {
 
     private LocalDate endDate;
 
-    private Long createdBy;
+    private String createdBy;
 
     private List<SurveyQuestion> questions = new ArrayList<>();
 
@@ -31,8 +31,8 @@ public class Survey extends TenantAwareEntity {
 
     private LocalDateTime updatedAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
@@ -45,8 +45,8 @@ public class Survey extends TenantAwareEntity {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public List<SurveyQuestion> getQuestions() { return questions; }
     public void setQuestions(List<SurveyQuestion> questions) { this.questions = questions; }
     public LocalDateTime getCreatedAt() { return createdAt; }

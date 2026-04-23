@@ -38,7 +38,7 @@ public class SkillController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SkillResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<SkillResponse> getById(@PathVariable String id) {
         Skill skill = skillService.getById(id);
         return ResponseEntity.ok(SkillResponse.fromEntity(skill));
     }
@@ -58,21 +58,21 @@ public class SkillController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<SkillResponse> update(
-            @PathVariable Long id, @Valid @RequestBody SkillRequest request) {
+            @PathVariable String id, @Valid @RequestBody SkillRequest request) {
         Skill skill = skillService.update(id, request);
         return ResponseEntity.ok(SkillResponse.fromEntity(skill));
     }
 
     @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<SkillResponse> deactivate(@PathVariable Long id) {
+    public ResponseEntity<SkillResponse> deactivate(@PathVariable String id) {
         Skill skill = skillService.deactivate(id);
         return ResponseEntity.ok(SkillResponse.fromEntity(skill));
     }
 
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<SkillResponse> activate(@PathVariable Long id) {
+    public ResponseEntity<SkillResponse> activate(@PathVariable String id) {
         Skill skill = skillService.activate(id);
         return ResponseEntity.ok(SkillResponse.fromEntity(skill));
     }

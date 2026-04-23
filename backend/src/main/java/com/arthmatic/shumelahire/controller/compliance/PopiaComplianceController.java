@@ -30,7 +30,7 @@ public class PopiaComplianceController {
     // ---- Consent endpoints ----
 
     @PostMapping("/consents")
-    public ResponseEntity<?> grantConsent(@RequestParam Long employeeId,
+    public ResponseEntity<?> grantConsent(@RequestParam String employeeId,
                                           @RequestParam String consentType,
                                           @RequestParam(required = false) String purpose,
                                           @RequestParam(required = false) String ipAddress) {
@@ -43,7 +43,7 @@ public class PopiaComplianceController {
     }
 
     @PutMapping("/consents/withdraw")
-    public ResponseEntity<?> withdrawConsent(@RequestParam Long employeeId,
+    public ResponseEntity<?> withdrawConsent(@RequestParam String employeeId,
                                               @RequestParam String consentType) {
         try {
             return ResponseEntity.ok(consentService.withdrawConsent(employeeId, consentType));
@@ -53,7 +53,7 @@ public class PopiaComplianceController {
     }
 
     @GetMapping("/consents/employee/{employeeId}")
-    public ResponseEntity<List<ConsentRecordResponse>> getConsentsForEmployee(@PathVariable Long employeeId) {
+    public ResponseEntity<List<ConsentRecordResponse>> getConsentsForEmployee(@PathVariable String employeeId) {
         return ResponseEntity.ok(consentService.getConsentsForEmployee(employeeId));
     }
 
@@ -84,7 +84,7 @@ public class PopiaComplianceController {
     }
 
     @GetMapping("/dsar/{id}")
-    public ResponseEntity<?> getDsar(@PathVariable Long id) {
+    public ResponseEntity<?> getDsar(@PathVariable String id) {
         try {
             return ResponseEntity.ok(dsarService.getRequest(id));
         } catch (IllegalArgumentException e) {
@@ -102,7 +102,7 @@ public class PopiaComplianceController {
     }
 
     @PutMapping("/dsar/{id}/status")
-    public ResponseEntity<?> updateDsarStatus(@PathVariable Long id,
+    public ResponseEntity<?> updateDsarStatus(@PathVariable String id,
                                                @RequestParam String status,
                                                @RequestParam(required = false) String response) {
         try {

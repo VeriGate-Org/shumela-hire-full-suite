@@ -60,7 +60,7 @@ public class DynamoPublicHolidayRepository extends DynamoRepository<PublicHolida
     protected PublicHoliday toEntity(PublicHolidayItem item) {
         PublicHoliday entity = new PublicHoliday();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         entity.setName(item.getName());
@@ -75,7 +75,7 @@ public class DynamoPublicHolidayRepository extends DynamoRepository<PublicHolida
     @Override
     protected PublicHolidayItem toItem(PublicHoliday entity) {
         PublicHolidayItem item = new PublicHolidayItem();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
 
         item.setPk("TENANT#" + tenantId);

@@ -193,11 +193,11 @@ public class EmployeeSelfServiceController {
     }
 
     @PutMapping("/skills/{id}")
-    public ResponseEntity<?> updateSkill(@PathVariable Long id,
+    public ResponseEntity<?> updateSkill(@PathVariable String id,
                                          @RequestParam String employeeId,
                                          @RequestBody EmployeeSkill request) {
         try {
-            EmployeeSkill skill = skillRepository.findById(String.valueOf(id))
+            EmployeeSkill skill = skillRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Skill not found: " + id));
             if (request.getSkillName() != null) skill.setSkillName(request.getSkillName());
             if (request.getProficiencyLevel() != null) skill.setProficiencyLevel(request.getProficiencyLevel());
@@ -211,8 +211,8 @@ public class EmployeeSelfServiceController {
     }
 
     @DeleteMapping("/skills/{id}")
-    public ResponseEntity<?> deleteSkill(@PathVariable Long id) {
-        skillRepository.deleteById(String.valueOf(id));
+    public ResponseEntity<?> deleteSkill(@PathVariable String id) {
+        skillRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -239,11 +239,11 @@ public class EmployeeSelfServiceController {
     }
 
     @PutMapping("/education/{id}")
-    public ResponseEntity<?> updateEducation(@PathVariable Long id,
+    public ResponseEntity<?> updateEducation(@PathVariable String id,
                                              @RequestParam String employeeId,
                                              @RequestBody EmployeeEducation request) {
         try {
-            EmployeeEducation education = educationRepository.findById(String.valueOf(id))
+            EmployeeEducation education = educationRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
             if (request.getInstitution() != null) education.setInstitution(request.getInstitution());
             if (request.getQualification() != null) education.setQualification(request.getQualification());
@@ -259,8 +259,8 @@ public class EmployeeSelfServiceController {
     }
 
     @DeleteMapping("/education/{id}")
-    public ResponseEntity<?> deleteEducation(@PathVariable Long id) {
-        educationRepository.deleteById(String.valueOf(id));
+    public ResponseEntity<?> deleteEducation(@PathVariable String id) {
+        educationRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -312,10 +312,10 @@ public class EmployeeSelfServiceController {
 
     @PutMapping("/documents/{id}/verify")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
-    public ResponseEntity<?> verifyDocument(@PathVariable Long id,
+    public ResponseEntity<?> verifyDocument(@PathVariable String id,
                                              @RequestParam String verifiedBy) {
         try {
-            EmployeeDocument doc = documentRepository.findById(String.valueOf(id))
+            EmployeeDocument doc = documentRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Document not found: " + id));
             doc.setIsVerified(true);
             doc.setVerifiedBy(verifiedBy);

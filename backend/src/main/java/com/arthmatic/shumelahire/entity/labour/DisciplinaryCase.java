@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class DisciplinaryCase extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     private Employee employee;
 
@@ -28,14 +28,14 @@ public class DisciplinaryCase extends TenantAwareEntity {
 
     private String notes;
 
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
     public OffenceCategory getOffenceCategory() { return offenceCategory; }
@@ -54,8 +54,8 @@ public class DisciplinaryCase extends TenantAwareEntity {
     public void setOutcomeDate(LocalDate outcomeDate) { this.outcomeDate = outcomeDate; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

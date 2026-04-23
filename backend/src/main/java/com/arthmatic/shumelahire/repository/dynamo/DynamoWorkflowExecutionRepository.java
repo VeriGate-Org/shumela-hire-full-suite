@@ -68,13 +68,13 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
     protected WorkflowExecution toEntity(WorkflowExecutionItem item) {
         var entity = new WorkflowExecution();
         if (item.getId() != null) {
-            entity.setId(safeParseLong(item.getId()));
+            entity.setId(item.getId());
         }
         entity.setTenantId(item.getTenantId());
         // WorkflowDefinition is a ManyToOne relationship — store only the FK in DynamoDB
         if (item.getWorkflowDefinitionId() != null) {
             var wfDef = new WorkflowDefinition();
-            wfDef.setId(safeParseLong(item.getWorkflowDefinitionId()));
+            wfDef.setId(item.getWorkflowDefinitionId());
             entity.setWorkflowDefinition(wfDef);
         }
         entity.setStatus(item.getStatus());
@@ -100,7 +100,7 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
     protected WorkflowExecutionItem toItem(WorkflowExecution entity) {
         var item = new WorkflowExecutionItem();
         String tenantId = entity.getTenantId() != null ? entity.getTenantId() : currentTenantId();
-        String id = entity.getId() != null ? entity.getId().toString() : UUID.randomUUID().toString();
+        String id = entity.getId() != null ? entity.getId() : UUID.randomUUID().toString();
 
         // Table keys
         item.setPk("TENANT#" + tenantId);
@@ -112,7 +112,7 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
 
         // GSI2: WorkflowDefinition FK lookup
         String wfDefId = entity.getWorkflowDefinition() != null && entity.getWorkflowDefinition().getId() != null
-                ? entity.getWorkflowDefinition().getId().toString() : "NONE";
+                ? entity.getWorkflowDefinition().getId() : "NONE";
         item.setGsi2pk("WF_EXEC_DEF#" + wfDefId);
         item.setGsi2sk("WORKFLOW_EXECUTION#" + (entity.getStartedAt() != null ? entity.getStartedAt().format(ISO_FMT) : ""));
 
@@ -124,7 +124,7 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
         item.setId(id);
         item.setTenantId(tenantId);
         if (entity.getWorkflowDefinition() != null && entity.getWorkflowDefinition().getId() != null) {
-            item.setWorkflowDefinitionId(entity.getWorkflowDefinition().getId().toString());
+            item.setWorkflowDefinitionId(entity.getWorkflowDefinition().getId());
         }
         item.setStatus(entity.getStatus());
         if (entity.getStartedAt() != null) {

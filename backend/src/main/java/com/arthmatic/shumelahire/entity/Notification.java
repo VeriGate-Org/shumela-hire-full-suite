@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 
 public class Notification extends TenantAwareEntity {
 
-    private Long id;
+    private String id;
 
     @NotNull(message = "Recipient is required")
-    private Long recipientId;
+    private String recipientId;
 
-    private Long senderId;
+    private String senderId;
 
     private NotificationType type;
 
@@ -32,13 +32,13 @@ public class Notification extends TenantAwareEntity {
     private String metadata; // JSON string for additional data
 
     // Related entities
-    private Long applicationId;
+    private String applicationId;
 
-    private Long interviewId;
+    private String interviewId;
 
-    private Long jobPostingId;
+    private String jobPostingId;
 
-    private Long offerId;
+    private String offerId;
 
     // Delivery tracking
     private Boolean isRead = false;
@@ -91,14 +91,14 @@ public class Notification extends TenantAwareEntity {
 
     private LocalDateTime updatedAt;
 
-    private Long createdBy;
+    private String createdBy;
 
     // Constructors
     public Notification() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Notification(Long recipientId, NotificationType type, String title, String message) {
+    public Notification(String recipientId, NotificationType type, String title, String message) {
         this();
         this.recipientId = recipientId;
         this.type = type;
@@ -106,8 +106,8 @@ public class Notification extends TenantAwareEntity {
         this.message = message;
     }
 
-    public Notification(Long recipientId, NotificationType type, NotificationChannel channel,
-                       String title, String message, Long relatedEntityId) {
+    public Notification(String recipientId, NotificationType type, NotificationChannel channel,
+                       String title, String message, String relatedEntityId) {
         this(recipientId, type, title, message);
         this.channel = channel;
         setRelatedEntity(type, relatedEntityId);
@@ -209,9 +209,9 @@ public class Notification extends TenantAwareEntity {
         return channel != null ? channel.name().toLowerCase() : null;
     }
 
-    private void setRelatedEntity(NotificationType type, Long entityId) {
+    private void setRelatedEntity(NotificationType type, String entityId) {
         if (entityId == null) return;
-        
+
         switch (type.getCategory()) {
             case "APPLICATION":
                 this.applicationId = entityId;
@@ -228,7 +228,7 @@ public class Notification extends TenantAwareEntity {
         }
     }
 
-    public Long getRelatedEntityId() {
+    public String getRelatedEntityId() {
         if (applicationId != null) return applicationId;
         if (interviewId != null) return interviewId;
         if (jobPostingId != null) return jobPostingId;
@@ -245,27 +245,27 @@ public class Notification extends TenantAwareEntity {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getRecipientId() {
+    public String getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(Long recipientId) {
+    public void setRecipientId(String recipientId) {
         this.recipientId = recipientId;
     }
 
-    public Long getSenderId() {
+    public String getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(Long senderId) {
+    public void setSenderId(String senderId) {
         this.senderId = senderId;
     }
 
@@ -341,35 +341,35 @@ public class Notification extends TenantAwareEntity {
         this.metadata = metadata;
     }
 
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(Long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
-    public Long getInterviewId() {
+    public String getInterviewId() {
         return interviewId;
     }
 
-    public void setInterviewId(Long interviewId) {
+    public void setInterviewId(String interviewId) {
         this.interviewId = interviewId;
     }
 
-    public Long getJobPostingId() {
+    public String getJobPostingId() {
         return jobPostingId;
     }
 
-    public void setJobPostingId(Long jobPostingId) {
+    public void setJobPostingId(String jobPostingId) {
         this.jobPostingId = jobPostingId;
     }
 
-    public Long getOfferId() {
+    public String getOfferId() {
         return offerId;
     }
 
-    public void setOfferId(Long offerId) {
+    public void setOfferId(String offerId) {
         this.offerId = offerId;
     }
 
@@ -549,11 +549,11 @@ public class Notification extends TenantAwareEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 }

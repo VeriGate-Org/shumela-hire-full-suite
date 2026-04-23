@@ -11,11 +11,11 @@ import java.util.List;
 
 public class JobAd extends TenantAwareEntity {
     
-    private Long id;
+    private String id;
     
-    private Long requisitionId;
+    private String requisitionId;
 
-    private Long jobPostingId;
+    private String jobPostingId;
 
     @NotBlank(message = "Title is required")
     private String title;
@@ -64,19 +64,19 @@ public class JobAd extends TenantAwareEntity {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
-    public Long getRequisitionId() {
+    public String getRequisitionId() {
         return requisitionId;
     }
     
-    public void setRequisitionId(Long requisitionId) {
+    public void setRequisitionId(String requisitionId) {
         this.requisitionId = requisitionId;
     }
     
@@ -168,8 +168,8 @@ public class JobAd extends TenantAwareEntity {
         this.history = history;
     }
     
-    public Long getJobPostingId() { return jobPostingId; }
-    public void setJobPostingId(Long jobPostingId) { this.jobPostingId = jobPostingId; }
+    public String getJobPostingId() { return jobPostingId; }
+    public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }
 
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
