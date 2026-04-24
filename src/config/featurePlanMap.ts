@@ -29,4 +29,6 @@ export const FEATURE_MINIMUM_PLAN: Record<string, string> = {
   AD_SSO: 'Standard',
   SOCIAL_FEED: 'Standard',
   GEOFENCING: 'Standard',
+  COMPANY_DOCUMENTS: 'Standard',
+  DOCUMENT_RETENTION: 'Enterprise',
 };

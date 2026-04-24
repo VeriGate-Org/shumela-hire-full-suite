@@ -27,6 +27,11 @@ public class EmployeeDocumentResponse {
     private Boolean isVerified;
     private String verifiedBy;
     private LocalDateTime verifiedAt;
+    private String eSignatureEnvelopeId;
+    private String eSignatureStatus;
+    private LocalDateTime eSignatureSentAt;
+    private LocalDateTime eSignatureCompletedAt;
+    private String eSignatureSignerEmail;
 
     public EmployeeDocumentResponse() {}
 
@@ -51,6 +56,11 @@ public class EmployeeDocumentResponse {
         response.setIsVerified(doc.getIsVerified());
         response.setVerifiedBy(doc.getVerifiedBy());
         response.setVerifiedAt(doc.getVerifiedAt());
+        response.setESignatureEnvelopeId(doc.getESignatureEnvelopeId());
+        response.setESignatureStatus(doc.getESignatureStatus());
+        response.setESignatureSentAt(doc.getESignatureSentAt());
+        response.setESignatureCompletedAt(doc.getESignatureCompletedAt());
+        response.setESignatureSignerEmail(doc.getESignatureSignerEmail());
         return response;
     }
 
@@ -111,4 +121,19 @@ public class EmployeeDocumentResponse {
 
     public LocalDateTime getVerifiedAt() { return verifiedAt; }
     public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
+
+    public String getESignatureEnvelopeId() { return eSignatureEnvelopeId; }
+    public void setESignatureEnvelopeId(String eSignatureEnvelopeId) { this.eSignatureEnvelopeId = eSignatureEnvelopeId; }
+
+    public String getESignatureStatus() { return eSignatureStatus; }
+    public void setESignatureStatus(String eSignatureStatus) { this.eSignatureStatus = eSignatureStatus; }
+
+    public LocalDateTime getESignatureSentAt() { return eSignatureSentAt; }
+    public void setESignatureSentAt(LocalDateTime eSignatureSentAt) { this.eSignatureSentAt = eSignatureSentAt; }
+
+    public LocalDateTime getESignatureCompletedAt() { return eSignatureCompletedAt; }
+    public void setESignatureCompletedAt(LocalDateTime eSignatureCompletedAt) { this.eSignatureCompletedAt = eSignatureCompletedAt; }
+
+    public String getESignatureSignerEmail() { return eSignatureSignerEmail; }
+    public void setESignatureSignerEmail(String eSignatureSignerEmail) { this.eSignatureSignerEmail = eSignatureSignerEmail; }
 }

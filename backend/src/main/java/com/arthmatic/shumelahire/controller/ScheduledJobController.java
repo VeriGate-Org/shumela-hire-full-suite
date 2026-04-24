@@ -44,6 +44,7 @@ public class ScheduledJobController {
         tryRegister("performancecyclecheck", context, "performanceCycleService", "checkCycles");
         tryRegister("trainingreminders", context, "trainingEnrollmentService", "sendReminders");
         tryRegister("reportcleanup", context, "reportExportService", "cleanupExpired");
+        tryRegister("documentretention", context, "documentRetentionService", "applyRetentionPolicies");
     }
 
     @PostMapping("/{jobName}")

@@ -3,9 +3,12 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
+import com.arthmatic.shumelahire.entity.EmployeeDocumentType;
+import com.arthmatic.shumelahire.entity.EmployeeDocumentTypeConfig;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentTypeConfigDataRepository;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -15,10 +18,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @Profile("dev")
@@ -36,25 +41,53 @@ public class DataSeederService implements CommandLineRunner {
     private JobPostingDataRepository jobPostingRepository;
     
     @Autowired
+    private EmployeeDocumentTypeConfigDataRepository documentTypeConfigRepository;
+
+    @Autowired
     private AuditLogService auditLogService;
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     
     @Override
     public void run(String... args) throws Exception {
+        if (documentTypeConfigRepository.findActive().isEmpty()) {
+            logger.info("Seeding document type configs...");
+            seedDocumentTypeConfigs();
+        } else {
+            logger.info("Document type configs already exist, skipping seeding");
+        }
+
         if (applicantRepository.count() == 0) {
             logger.info("Seeding demo applicant data...");
             seedApplicants();
         } else {
             logger.info("Applicant data already exists, skipping seeding");
         }
-        
+
         if (applicationRepository.count() == 0) {
             logger.info("Seeding demo application data...");
             seedApplications();
         } else {
             logger.info("Application data already exists, skipping seeding");
         }
+    }
+
+    private void seedDocumentTypeConfigs() {
+        Set<String> requiresExpiry = Set.of("WORK_PERMIT", "PASSPORT", "TAX_CERTIFICATE", "MEDICAL");
+        Set<String> isRequired = Set.of("ID_DOCUMENT", "CONTRACT");
+
+        for (EmployeeDocumentType type : EmployeeDocumentType.values()) {
+            EmployeeDocumentTypeConfig config = new EmployeeDocumentTypeConfig();
+            config.setName(type.getDisplayName());
+            config.setCode(type.name());
+            config.setDescription(type.getDisplayName() + " document");
+            config.setRequiresExpiry(requiresExpiry.contains(type.name()));
+            config.setIsRequired(isRequired.contains(type.name()));
+            config.setIsActive(true);
+            config.setCreatedAt(LocalDateTime.now());
+            documentTypeConfigRepository.save(config);
+        }
+        logger.info("Seeded {} document type configs", EmployeeDocumentType.values().length);
     }
     
     private void seedApplicants() {

@@ -49,6 +49,17 @@ public class EmployeeDocument extends TenantAwareEntity {
 
     private LocalDateTime verifiedAt;
 
+    // E-Signature fields
+    private String eSignatureEnvelopeId;
+
+    private String eSignatureStatus;
+
+    private LocalDateTime eSignatureSentAt;
+
+    private LocalDateTime eSignatureCompletedAt;
+
+    private String eSignatureSignerEmail;
+
     public boolean isExpired() {
         return expiryDate != null && expiryDate.isBefore(LocalDate.now());
     }
@@ -112,4 +123,19 @@ public class EmployeeDocument extends TenantAwareEntity {
 
     public LocalDateTime getVerifiedAt() { return verifiedAt; }
     public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
+
+    public String getESignatureEnvelopeId() { return eSignatureEnvelopeId; }
+    public void setESignatureEnvelopeId(String eSignatureEnvelopeId) { this.eSignatureEnvelopeId = eSignatureEnvelopeId; }
+
+    public String getESignatureStatus() { return eSignatureStatus; }
+    public void setESignatureStatus(String eSignatureStatus) { this.eSignatureStatus = eSignatureStatus; }
+
+    public LocalDateTime getESignatureSentAt() { return eSignatureSentAt; }
+    public void setESignatureSentAt(LocalDateTime eSignatureSentAt) { this.eSignatureSentAt = eSignatureSentAt; }
+
+    public LocalDateTime getESignatureCompletedAt() { return eSignatureCompletedAt; }
+    public void setESignatureCompletedAt(LocalDateTime eSignatureCompletedAt) { this.eSignatureCompletedAt = eSignatureCompletedAt; }
+
+    public String getESignatureSignerEmail() { return eSignatureSignerEmail; }
+    public void setESignatureSignerEmail(String eSignatureSignerEmail) { this.eSignatureSignerEmail = eSignatureSignerEmail; }
 }

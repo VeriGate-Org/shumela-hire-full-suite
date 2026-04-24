@@ -91,6 +91,7 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'shift-scheduling', label: 'Shift Scheduling', href: '/shift-scheduling', icon: ArrowPathIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'SHIFT_SCHEDULING' },
   { id: 'employee-self-service', label: 'My HR Portal', href: '/employee/portal', icon: UserIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
+  { id: 'company-documents', label: 'Company Docs', href: '/employee/company-documents', icon: DocumentDuplicateIcon, section: 'hr_core', requiredPermissions: ['view_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
   { id: 'onboarding', label: 'Onboarding', href: '/onboarding', icon: RocketLaunchIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Talent & Performance — training, performance, competencies
@@ -128,6 +129,8 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'labour-relations', label: 'Labour Relations', href: '/admin/labour-relations', icon: HandThumbUpIcon, section: 'administration', requiredPermissions: ['manage_compliance'], requiredFeature: 'LABOUR_RELATIONS' },
   { id: 'branding', label: 'Branding', href: '/admin/branding', icon: SwatchIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'CUSTOM_BRANDING' },
   { id: 'document-templates', label: 'Document Templates', href: '/admin/document-templates', icon: DocumentDuplicateIcon, section: 'administration', requiredPermissions: ['manage_permissions'], requiredFeature: 'DOCUMENT_TEMPLATES' },
+  { id: 'company-documents-admin', label: 'Company Documents', href: '/admin/company-documents', icon: FolderIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
+  { id: 'document-retention', label: 'Document Retention', href: '/admin/document-retention', icon: ClockIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'DOCUMENT_RETENTION' },
   { id: 'custom-fields', label: 'Custom Fields', href: '/settings/custom-fields', icon: AdjustmentsHorizontalIcon, section: 'administration', requiredPermissions: ['custom_fields:manage'] },
 
   // Personal (Applicant-facing)

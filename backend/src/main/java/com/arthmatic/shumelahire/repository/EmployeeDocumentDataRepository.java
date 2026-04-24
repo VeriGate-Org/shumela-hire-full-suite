@@ -33,6 +33,8 @@ public interface EmployeeDocumentDataRepository {
 
     boolean existsById(String id);
 
+    List<EmployeeDocument> findAll();
+
     // ── Domain-specific queries ──────────────────────────────────────────────
 
     /** Active documents for an employee, ordered by creation date descending. */

@@ -12,10 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @Transactional
@@ -97,6 +101,61 @@ public class EmployeeDocumentService {
         return documents.stream()
                 .map(EmployeeDocumentResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public String getDocumentDownloadUrl(String employeeId, String documentId, String requestingUserId) {
+        EmployeeDocument document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
+
+        if (!document.getEmployee().getId().equals(employeeId)) {
+            throw new IllegalArgumentException("Document does not belong to employee");
+        }
+
+        String presignedUrl = fileStorageService.generateSignedUrl(document.getFileUrl(), Duration.ofMinutes(15));
+
+        auditLogService.logDocumentAction(requestingUserId, "DOCUMENT_DOWNLOADED", "EMPLOYEE_DOCUMENT",
+                document.getDocumentType() + ": " + document.getFilename());
+
+        return presignedUrl;
+    }
+
+    public void bulkDelete(String employeeId, List<String> documentIds) {
+        for (String documentId : documentIds) {
+            deleteDocument(employeeId, documentId);
+        }
+    }
+
+    public byte[] bulkDownloadAsZip(String employeeId, List<String> documentIds) throws IOException {
+        logger.info("Bulk downloading {} documents for employee: {}", documentIds.size(), employeeId);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            for (String documentId : documentIds) {
+                EmployeeDocument document = documentRepository.findById(documentId)
+                        .orElse(null);
+
+                if (document == null || !document.getEmployee().getId().equals(employeeId)) {
+                    logger.warn("Skipping document {} - not found or not owned by employee", documentId);
+                    continue;
+                }
+
+                try {
+                    byte[] fileBytes = fileStorageService.download(document.getFileUrl());
+                    ZipEntry entry = new ZipEntry(document.getFilename() != null
+                            ? document.getFilename() : documentId + ".dat");
+                    zos.putNextEntry(entry);
+                    zos.write(fileBytes);
+                    zos.closeEntry();
+
+                    auditLogService.logDocumentAction(employeeId, "DOCUMENT_DOWNLOADED", "EMPLOYEE_DOCUMENT",
+                            document.getDocumentType() + ": " + document.getFilename());
+                } catch (IOException e) {
+                    logger.warn("Failed to add document {} to ZIP: {}", documentId, e.getMessage());
+                }
+            }
+        }
+
+        return baos.toByteArray();
     }
 
     public void deleteDocument(String employeeId, String documentId) {

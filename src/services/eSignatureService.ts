@@ -17,6 +17,18 @@ export interface SendForSignatureResponse {
   offerId: number;
 }
 
+export interface DocumentSignatureStatus {
+  status: string;
+  documentId: string;
+  envelopeId?: string;
+}
+
+export interface DocumentSignatureResponse {
+  envelopeId: string;
+  status: string;
+  documentId: string;
+}
+
 export const eSignatureService = {
   async sendForSignature(offerId: number, request: SendForSignatureRequest): Promise<SendForSignatureResponse> {
     const response = await apiFetch(`/api/esignature/offers/${offerId}/send`, {
@@ -53,5 +65,36 @@ export const eSignatureService = {
       body: JSON.stringify({ reason }),
     });
     if (!response.ok) throw new Error('Failed to void envelope');
+  },
+
+  // ── Employee Document E-Signature ──
+
+  async sendDocumentForSignature(documentId: string, signerEmail: string, signerName: string): Promise<DocumentSignatureResponse> {
+    const response = await apiFetch(`/api/esignature/documents/${documentId}/send`, {
+      method: 'POST',
+      body: JSON.stringify({ signerEmail, signerName }),
+    });
+    if (!response.ok) throw new Error('Failed to send document for signature');
+    return response.json();
+  },
+
+  async getDocumentSignatureStatus(documentId: string): Promise<DocumentSignatureStatus> {
+    const response = await apiFetch(`/api/esignature/documents/${documentId}/status`);
+    if (!response.ok) throw new Error('Failed to get document signature status');
+    return response.json();
+  },
+
+  async downloadSignedEmployeeDocument(documentId: string): Promise<void> {
+    const response = await apiFetch(`/api/esignature/documents/${documentId}/signed-document`);
+    if (!response.ok) throw new Error('Failed to download signed document');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `signed-document-${documentId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   },
 };
