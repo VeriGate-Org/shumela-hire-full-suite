@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, Certification } from '@/services/trainingService';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   ShieldCheckIcon,
   ExclamationTriangleIcon,
@@ -11,12 +12,15 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function CertificationsPage() {
+  const { user } = useAuth();
+  const employeeId = user?.employeeId || user?.id || '1';
+
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'expiring' | 'expired'>('all');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
-    employeeId: '1',
+    employeeId,
     name: '',
     issuingBody: '',
     certificationNumber: '',
@@ -24,9 +28,6 @@ export default function CertificationsPage() {
     expiryDate: '',
     documentUrl: '',
   });
-
-  // TODO: Get from auth context
-  const employeeId = '1';
 
   useEffect(() => {
     loadCertifications();

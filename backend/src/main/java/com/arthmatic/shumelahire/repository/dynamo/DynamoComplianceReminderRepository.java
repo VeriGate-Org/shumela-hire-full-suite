@@ -108,12 +108,12 @@ public class DynamoComplianceReminderRepository extends DynamoRepository<Complia
 
         entity.setTitle(item.getTitle());
         entity.setDescription(item.getDescription());
-        entity.setDueDate(item.getDueDate() != null ? LocalDate.parse(item.getDueDate(), DATE_FMT) : null);
+        entity.setDueDate(item.getDueDate() != null && !item.getDueDate().isEmpty() ? LocalDate.parse(item.getDueDate(), DATE_FMT) : null);
         entity.setStatus(ReminderStatus.valueOf(item.getStatus()));
-        entity.setSentAt(item.getSentAt() != null ? LocalDateTime.parse(item.getSentAt(), ISO_FMT) : null);
-        entity.setAcknowledgedAt(item.getAcknowledgedAt() != null ? LocalDateTime.parse(item.getAcknowledgedAt(), ISO_FMT) : null);
-        entity.setCreatedAt(item.getCreatedAt() != null ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
-        entity.setUpdatedAt(item.getUpdatedAt() != null ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
+        entity.setSentAt(item.getSentAt() != null && !item.getSentAt().isEmpty() ? LocalDateTime.parse(item.getSentAt(), ISO_FMT) : null);
+        entity.setAcknowledgedAt(item.getAcknowledgedAt() != null && !item.getAcknowledgedAt().isEmpty() ? LocalDateTime.parse(item.getAcknowledgedAt(), ISO_FMT) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null && !item.getCreatedAt().isEmpty() ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
+        entity.setUpdatedAt(item.getUpdatedAt() != null && !item.getUpdatedAt().isEmpty() ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
 
         return entity;
     }

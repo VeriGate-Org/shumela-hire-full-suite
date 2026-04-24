@@ -40,6 +40,7 @@ public class LeaveAnalyticsService {
         List<LeaveRequest> currentMonthLeave = leaveRequestRepository.findAllOverlapping(monthStart, monthEnd);
 
         Map<String, Long> leaveByType = currentMonthLeave.stream()
+                .filter(r -> r.getLeaveType() != null)
                 .collect(Collectors.groupingBy(
                         r -> r.getLeaveType().getName(),
                         Collectors.counting()));
@@ -98,6 +99,7 @@ public class LeaveAnalyticsService {
             Map<String, Long> byType = new LinkedHashMap<>();
             monthLeave.stream()
                     .filter(r -> r.getStatus() == LeaveRequestStatus.APPROVED)
+                    .filter(r -> r.getLeaveType() != null)
                     .forEach(r -> byType.merge(r.getLeaveType().getName(), 1L, Long::sum));
             monthData.put("byType", byType);
 

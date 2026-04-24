@@ -40,7 +40,7 @@ public class FeedPost extends TenantAwareEntity {
     private LocalDateTime updatedAt;
 
     public enum FeedCategory {
-        ANNOUNCEMENT, DISCUSSION, EVENT, POLICY_UPDATE, KUDOS
+        ANNOUNCEMENT, DISCUSSION, EVENT, POLICY_UPDATE, KUDOS, GENERAL
     }
 
     public enum PostStatus {

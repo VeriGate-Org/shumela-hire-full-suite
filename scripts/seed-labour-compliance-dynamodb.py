@@ -190,7 +190,7 @@ DSARS = [
      "status": "UNDER_PROCESSING", "response": "",
      "dueDate": date_ahead(10), "completedAt": "", "days_ago": 5},
     {"key": "dsar-3", "name": "Former Employee", "email": "former.employee@example.com",
-     "type": "DELETION", "description": "Former employee requests erasure of personal data as per POPIA Section 24. Employment ended 2 years ago.",
+     "type": "ERASURE", "description": "Former employee requests erasure of personal data as per POPIA Section 24. Employment ended 2 years ago.",
      "status": "RECEIVED", "response": "",
      "dueDate": date_ahead(25), "completedAt": "", "days_ago": 2},
 ]
