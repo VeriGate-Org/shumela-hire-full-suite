@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/integrations/sage")
 @FeatureGate("SAGE_300_PEOPLE")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
 public class SageIntegrationController {
 
     @Autowired

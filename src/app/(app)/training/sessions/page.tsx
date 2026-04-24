@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { trainingService, TrainingSession } from '@/services/trainingService';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   CalendarDaysIcon,
   MapPinIcon,
@@ -17,8 +18,8 @@ export default function TrainingSessionsPage() {
   const [view, setView] = useState<'all' | 'upcoming' | 'open'>('upcoming');
   const [enrolling, setEnrolling] = useState<string | null>(null);
 
-  // TODO: Get from auth context
-  const employeeId = '1';
+  const { user } = useAuth();
+  const employeeId = user?.employeeId || user?.id || '1';
 
   useEffect(() => {
     loadSessions();

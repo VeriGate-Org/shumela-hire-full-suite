@@ -83,6 +83,13 @@ public class ShumelaHireServerlessStack : Stack
         // DynamoDB permissions
         DataTable.GrantReadWriteData(lambdaRole);
 
+        // Grant explicit GSI query/scan permissions (GrantReadWriteData only covers the main table)
+        lambdaRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
+        {
+            Actions = new[] { "dynamodb:Query", "dynamodb:Scan" },
+            Resources = new[] { $"{DataTable.TableArn}/index/*" }
+        }));
+
         // S3 permissions (documents + uploads buckets)
         foundation.DocumentsBucket.GrantReadWrite(lambdaRole);
         foundation.UploadsBucket.GrantReadWrite(lambdaRole);

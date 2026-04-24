@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/analytics")
 @FeatureGate("ADVANCED_ANALYTICS")
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','EXECUTIVE')")
 public class HRAnalyticsController {
 
     @Autowired

@@ -139,7 +139,7 @@ export default function GoalCascadePage() {
         cascadeLevel: g.cascadeLevel || 0,
         parentGoalId: g.parentGoalId,
         children: [],
-        progress: Math.round(Math.random() * 100), // placeholder until real progress
+        progress: Math.round(((g.id * 7 + 13) % 100)), // deterministic demo progress from goal ID
       });
     });
 
