@@ -16,6 +16,7 @@ import {
   CalendarDaysIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
+import EmployeeOnboardingPage from '@/components/onboarding/EmployeeOnboardingPage';
 
 const ADMIN_ROLES = ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'PLATFORM_OWNER'];
 
@@ -128,20 +129,31 @@ export default function OnboardingChecklistsPage() {
     { key: 'OVERDUE', label: 'Overdue' },
   ];
 
+  if (!isAdmin) {
+    return (
+      <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
+        <PageWrapper
+          title="My Onboarding"
+          subtitle="Track your onboarding progress"
+        >
+          <EmployeeOnboardingPage />
+        </PageWrapper>
+      </FeatureGate>
+    );
+  }
+
   return (
     <FeatureGate feature="EMPLOYEE_SELF_SERVICE">
       <PageWrapper
-        title={isAdmin ? 'Onboarding Checklists' : 'My Onboarding'}
-        subtitle={isAdmin ? 'Manage employee onboarding checklists and track progress' : 'Track your onboarding progress'}
+        title="Onboarding Checklists"
+        subtitle="Manage employee onboarding checklists and track progress"
         actions={
-          isAdmin ? (
-            <Link
-              href="/onboarding/templates"
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
-            >
-              Manage Templates
-            </Link>
-          ) : undefined
+          <Link
+            href="/onboarding/templates"
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+          >
+            Manage Templates
+          </Link>
         }
       >
         <div className="space-y-6">
