@@ -1,7 +1,9 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.entity.EmployeeDocument;
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
+import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
 import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -56,6 +58,9 @@ public class DocuSignService implements ESignatureService {
     @Autowired
     private OfferDataRepository offerRepository;
 
+    @Autowired
+    private EmployeeDocumentDataRepository employeeDocumentRepository;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String cachedAccessToken;
@@ -94,6 +99,76 @@ public class DocuSignService implements ESignatureService {
             return envelopeId;
         } catch (Exception e) {
             logger.error("Failed to send envelope for offer {}: {}", offer.getOfferNumber(), e.getMessage());
+            throw new RuntimeException("Failed to send document for signature", e);
+        }
+    }
+
+    @Override
+    public String sendDocumentForSignature(String title, byte[] documentBytes, String contentType,
+                                            String signerEmail, String signerName,
+                                            String callbackEntityType, String callbackEntityId) {
+        logger.info("Sending document '{}' for e-signature to {} (entity: {}:{})",
+                title, signerEmail, callbackEntityType, callbackEntityId);
+
+        String fileExtension = "pdf";
+        if (contentType != null) {
+            if (contentType.contains("html")) fileExtension = "html";
+            else if (contentType.contains("word") || contentType.contains("docx")) fileExtension = "docx";
+        }
+
+        Map<String, Object> document = new HashMap<>();
+        document.put("documentBase64", Base64.getEncoder().encodeToString(documentBytes));
+        document.put("name", title);
+        document.put("fileExtension", fileExtension);
+        document.put("documentId", "1");
+
+        Map<String, Object> signer = new HashMap<>();
+        signer.put("email", signerEmail);
+        signer.put("name", signerName);
+        signer.put("recipientId", "1");
+        signer.put("routingOrder", "1");
+
+        Map<String, Object> signHere = new HashMap<>();
+        signHere.put("anchorString", "/sig1/");
+        signHere.put("anchorUnits", "pixels");
+        signHere.put("anchorXOffset", "0");
+        signHere.put("anchorYOffset", "0");
+
+        Map<String, Object> dateTab = new HashMap<>();
+        dateTab.put("anchorString", "/date1/");
+        dateTab.put("anchorUnits", "pixels");
+        dateTab.put("anchorXOffset", "0");
+        dateTab.put("anchorYOffset", "0");
+
+        signer.put("tabs", Map.of(
+            "signHereTabs", List.of(signHere),
+            "dateSignedTabs", List.of(dateTab)
+        ));
+
+        Map<String, Object> envelope = new HashMap<>();
+        envelope.put("emailSubject", "Document for Signature: " + title);
+        envelope.put("documents", List.of(document));
+        envelope.put("recipients", Map.of("signers", List.of(signer)));
+        envelope.put("status", "sent");
+
+        HttpHeaders headers = createAuthHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(envelope, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                baseUrl + "/v2.1/accounts/" + accountId + "/envelopes",
+                HttpMethod.POST,
+                request,
+                Map.class
+            );
+
+            String envelopeId = (String) response.getBody().get("envelopeId");
+            logger.info("Envelope created: {} for document '{}'", envelopeId, title);
+            return envelopeId;
+        } catch (Exception e) {
+            logger.error("Failed to send document '{}' for signature: {}", title, e.getMessage());
             throw new RuntimeException("Failed to send document for signature", e);
         }
     }
@@ -150,6 +225,7 @@ public class DocuSignService implements ESignatureService {
 
         logger.info("DocuSign webhook: event={}, envelopeId={}", eventType, envelopeId);
 
+        // Check offers
         offerRepository.findAll().stream()
             .filter(o -> envelopeId.equals(o.getESignatureEnvelopeId()))
             .findFirst()
@@ -172,6 +248,27 @@ public class DocuSignService implements ESignatureService {
                     offer.setWithdrawnAt(LocalDateTime.now());
                     offerRepository.save(offer);
                     logger.info("Offer {} envelope voided", offer.getOfferNumber());
+                }
+            });
+
+        // Check employee documents
+        employeeDocumentRepository.findAll().stream()
+            .filter(d -> envelopeId.equals(d.getESignatureEnvelopeId()))
+            .findFirst()
+            .ifPresent(doc -> {
+                if ("envelope-completed".equals(eventType)) {
+                    doc.setESignatureStatus("completed");
+                    doc.setESignatureCompletedAt(LocalDateTime.now());
+                    employeeDocumentRepository.save(doc);
+                    logger.info("Employee document {} signature completed via DocuSign", doc.getId());
+                } else if ("envelope-declined".equals(eventType)) {
+                    doc.setESignatureStatus("declined");
+                    employeeDocumentRepository.save(doc);
+                    logger.info("Employee document {} signature declined", doc.getId());
+                } else if ("envelope-voided".equals(eventType)) {
+                    doc.setESignatureStatus("voided");
+                    employeeDocumentRepository.save(doc);
+                    logger.info("Employee document {} envelope voided", doc.getId());
                 }
             });
     }

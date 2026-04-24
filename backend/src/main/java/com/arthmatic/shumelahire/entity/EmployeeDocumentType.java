@@ -12,6 +12,13 @@ public enum EmployeeDocumentType {
     MEDICAL("Medical"),
     TRAINING_CERTIFICATE("Training Certificate"),
     PERFORMANCE_REVIEW("Performance Review"),
+    PROOF_OF_ADDRESS("Proof of Address"),
+    BANKING_DETAILS("Banking Details"),
+    NDA("NDA"),
+    RESIGNATION_LETTER("Resignation Letter"),
+    EXIT_INTERVIEW("Exit Interview"),
+    CLEARANCE("Clearance"),
+    BENEFITS_ENROLLMENT("Benefits Enrollment"),
     OTHER("Other");
 
     private final String displayName;

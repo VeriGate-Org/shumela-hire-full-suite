@@ -266,6 +266,21 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/{employeeId}/documents/{documentId}/download")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<?> downloadDocument(@PathVariable String employeeId, @PathVariable String documentId) {
+        try {
+            String downloadUrl = documentService.getDocumentDownloadUrl(employeeId, documentId, employeeId);
+            return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error downloading document {} for employee {}", documentId, employeeId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
     @DeleteMapping("/{employeeId}/documents/{documentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> deleteDocument(@PathVariable String employeeId, @PathVariable String documentId) {
@@ -291,6 +306,69 @@ public class EmployeeController {
             logger.error("Error getting expiring documents", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    // ==================== Bulk Document Operations ====================
+
+    @PostMapping(value = "/{id}/documents/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<?> bulkUploadDocuments(
+            @PathVariable String id,
+            @RequestParam EmployeeDocumentType type,
+            @RequestParam String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expiryDate,
+            @RequestParam("files") List<MultipartFile> files) {
+        try {
+            List<EmployeeDocumentResponse> responses = new java.util.ArrayList<>();
+            for (int i = 0; i < files.size(); i++) {
+                String docTitle = files.size() == 1 ? title : title + " (" + (i + 1) + ")";
+                EmployeeDocumentResponse response = documentService.uploadDocument(
+                        id, type, docTitle, description, expiryDate, files.get(i));
+                responses.add(response);
+            }
+            return ResponseEntity.status(HttpStatus.CREATED).body(responses);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (IOException e) {
+            logger.error("IO error during bulk upload for employee {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("File upload failed"));
+        }
+    }
+
+    @PostMapping("/{id}/documents/bulk-download")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<?> bulkDownloadDocuments(
+            @PathVariable String id,
+            @RequestBody List<String> documentIds) {
+        try {
+            byte[] zipBytes = documentService.bulkDownloadAsZip(id, documentIds);
+
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "documents.zip");
+            headers.setContentLength(zipBytes.length);
+
+            return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            logger.error("Error creating ZIP for employee {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to create ZIP archive"));
+        }
+    }
+
+    @PostMapping("/{id}/documents/bulk-delete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    public ResponseEntity<?> bulkDeleteDocuments(
+            @PathVariable String id,
+            @RequestBody List<String> documentIds) {
+        try {
+            documentService.bulkDelete(id, documentIds);
+            return ResponseEntity.ok(Map.of("deleted", documentIds.size()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 

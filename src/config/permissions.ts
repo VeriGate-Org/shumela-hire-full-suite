@@ -16,6 +16,8 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',
     'manage_compliance', 'view_own_profile',
+    // Company documents
+    'view_company_documents', 'manage_company_documents',
     // New permissions
     'custom_fields:manage', 'manage_onboarding',
     'feed:view', 'feed:post', 'feed:moderate',
@@ -36,6 +38,8 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'manage_leave', 'view_attendance', 'manage_attendance', 'manage_documents',
     'view_performance', 'manage_performance', 'manage_engagement',
     'manage_compliance', 'view_own_profile',
+    // Company documents
+    'view_company_documents', 'manage_company_documents',
     // New permissions
     'custom_fields:manage', 'manage_onboarding',
     'feed:view', 'feed:post', 'feed:moderate',
@@ -46,7 +50,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
     // Manager-specific
     'manage_leave', 'view_attendance', 'manage_attendance',
     // Self-service
-    'manage_documents',
+    'manage_documents', 'view_company_documents',
     'manage_onboarding', 'feed:view', 'feed:post',
   ],
   HIRING_MANAGER: [
@@ -66,7 +70,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
   EMPLOYEE: [
     'view_dashboard', 'view_internal_jobs', 'view_own_profile', 'view_training',
     // Self-service access
-    'manage_leave', 'view_attendance', 'manage_documents',
+    'manage_leave', 'view_attendance', 'manage_documents', 'view_company_documents',
     'view_performance',
     'feed:view', 'feed:post',
   ],

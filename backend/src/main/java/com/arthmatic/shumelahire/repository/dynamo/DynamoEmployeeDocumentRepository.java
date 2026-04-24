@@ -133,6 +133,16 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
         if (item.getVerifiedAt() != null) {
             doc.setVerifiedAt(LocalDateTime.parse(item.getVerifiedAt(), ISO_FMT));
         }
+        // E-Signature fields
+        doc.setESignatureEnvelopeId(item.getESignatureEnvelopeId());
+        doc.setESignatureStatus(item.getESignatureStatus());
+        if (item.getESignatureSentAt() != null) {
+            doc.setESignatureSentAt(LocalDateTime.parse(item.getESignatureSentAt(), ISO_FMT));
+        }
+        if (item.getESignatureCompletedAt() != null) {
+            doc.setESignatureCompletedAt(LocalDateTime.parse(item.getESignatureCompletedAt(), ISO_FMT));
+        }
+        doc.setESignatureSignerEmail(item.getESignatureSignerEmail());
         return doc;
     }
 
@@ -194,6 +204,16 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
         if (entity.getVerifiedAt() != null) {
             item.setVerifiedAt(entity.getVerifiedAt().format(ISO_FMT));
         }
+        // E-Signature fields
+        item.setESignatureEnvelopeId(entity.getESignatureEnvelopeId());
+        item.setESignatureStatus(entity.getESignatureStatus());
+        if (entity.getESignatureSentAt() != null) {
+            item.setESignatureSentAt(entity.getESignatureSentAt().format(ISO_FMT));
+        }
+        if (entity.getESignatureCompletedAt() != null) {
+            item.setESignatureCompletedAt(entity.getESignatureCompletedAt().format(ISO_FMT));
+        }
+        item.setESignatureSignerEmail(entity.getESignatureSignerEmail());
 
         return item;
     }

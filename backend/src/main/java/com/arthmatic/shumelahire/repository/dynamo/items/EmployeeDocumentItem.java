@@ -54,6 +54,13 @@ public class EmployeeDocumentItem {
     private String verifiedBy;
     private String verifiedAt;
 
+    // E-Signature fields
+    private String eSignatureEnvelopeId;
+    private String eSignatureStatus;
+    private String eSignatureSentAt;
+    private String eSignatureCompletedAt;
+    private String eSignatureSignerEmail;
+
     // ── Table keys ───────────────────────────────────────────────────────────
 
     @DynamoDbPartitionKey
@@ -160,4 +167,19 @@ public class EmployeeDocumentItem {
 
     public String getVerifiedAt() { return verifiedAt; }
     public void setVerifiedAt(String verifiedAt) { this.verifiedAt = verifiedAt; }
+
+    public String getESignatureEnvelopeId() { return eSignatureEnvelopeId; }
+    public void setESignatureEnvelopeId(String eSignatureEnvelopeId) { this.eSignatureEnvelopeId = eSignatureEnvelopeId; }
+
+    public String getESignatureStatus() { return eSignatureStatus; }
+    public void setESignatureStatus(String eSignatureStatus) { this.eSignatureStatus = eSignatureStatus; }
+
+    public String getESignatureSentAt() { return eSignatureSentAt; }
+    public void setESignatureSentAt(String eSignatureSentAt) { this.eSignatureSentAt = eSignatureSentAt; }
+
+    public String getESignatureCompletedAt() { return eSignatureCompletedAt; }
+    public void setESignatureCompletedAt(String eSignatureCompletedAt) { this.eSignatureCompletedAt = eSignatureCompletedAt; }
+
+    public String getESignatureSignerEmail() { return eSignatureSignerEmail; }
+    public void setESignatureSignerEmail(String eSignatureSignerEmail) { this.eSignatureSignerEmail = eSignatureSignerEmail; }
 }

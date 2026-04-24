@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.annotation.FeatureGate;
 import com.arthmatic.shumelahire.dto.employee.*;
 import com.arthmatic.shumelahire.entity.Employee;
 import com.arthmatic.shumelahire.entity.EmployeeDocument;
+import com.arthmatic.shumelahire.entity.EmployeeDocumentType;
 import com.arthmatic.shumelahire.entity.EmployeeDocumentTypeConfig;
 import com.arthmatic.shumelahire.entity.employee.EmployeeSkill;
 import com.arthmatic.shumelahire.entity.employee.EmployeeEducation;
@@ -13,14 +14,20 @@ import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.repository.EmployeeSkillDataRepository;
 import com.arthmatic.shumelahire.repository.EmployeeEducationDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
+import com.arthmatic.shumelahire.service.EmployeeDocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,6 +48,9 @@ public class EmployeeSelfServiceController {
 
     @Autowired
     private EmployeeDocumentTypeConfigDataRepository documentTypeConfigRepository;
+
+    @Autowired
+    private EmployeeDocumentService employeeDocumentService;
 
     @Autowired
     private EmployeeSkillDataRepository skillRepository;
@@ -275,27 +285,33 @@ public class EmployeeSelfServiceController {
         return ResponseEntity.ok(responses);
     }
 
-    @PostMapping("/documents")
-    public ResponseEntity<?> uploadDocument(@RequestParam String employeeId,
-                                            @RequestBody Map<String, Object> request) {
+    @PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadDocument(
+            @RequestParam String employeeId,
+            @RequestParam EmployeeDocumentType type,
+            @RequestParam String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expiryDate,
+            @RequestParam("file") MultipartFile file) {
         try {
-            Employee employee = employeeRepository.findById(employeeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+            EmployeeDocumentResponse response = employeeDocumentService.uploadDocument(
+                    employeeId, type, title, description, expiryDate, file);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (IOException e) {
+            logger.error("IO error uploading document for employee {}", employeeId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "File upload failed"));
+        }
+    }
 
-            EmployeeDocument doc = new EmployeeDocument();
-            doc.setEmployee(employee);
-            doc.setTitle((String) request.get("title"));
-            doc.setDescription((String) request.get("description"));
-            doc.setFilename((String) request.get("filename"));
-            doc.setFileUrl((String) request.get("fileUrl"));
-            doc.setContentType((String) request.get("contentType"));
-            doc.setUploadedBy(employeeId);
-
-            EmployeeDocument saved = documentRepository.save(doc);
-            auditLogService.saveLog(employeeId, "UPLOAD", "EMPLOYEE_DOCUMENT",
-                    saved.getId().toString(), "Employee uploaded document: " + saved.getTitle());
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(EmployeeDocumentResponse.fromEntity(saved));
+    @GetMapping("/documents/{id}/download")
+    public ResponseEntity<?> downloadDocument(@PathVariable String id,
+                                               @RequestParam String employeeId) {
+        try {
+            String downloadUrl = employeeDocumentService.getDocumentDownloadUrl(employeeId, id, employeeId);
+            return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
