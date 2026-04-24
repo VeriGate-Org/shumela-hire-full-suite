@@ -54,7 +54,7 @@ create_user() {
         --user-pool-id "$COGNITO_USER_POOL_ID" \
         --username "$email" \
         --region "$AWS_REGION" &>/dev/null; then
-        warn "User ${email} already exists — updating attributes"
+        warn "User ${email} already exists — resetting password and updating attributes"
     else
         aws cognito-idp admin-create-user \
             --user-pool-id "$COGNITO_USER_POOL_ID" \
@@ -70,15 +70,16 @@ create_user() {
                 Name=custom:tenant_id,Value="$TENANT_ID" \
             --region "$AWS_REGION" > /dev/null
 
-        aws cognito-idp admin-set-user-password \
-            --user-pool-id "$COGNITO_USER_POOL_ID" \
-            --username "$email" \
-            --password "$DEMO_PASSWORD" \
-            --permanent \
-            --region "$AWS_REGION"
-
         ok "Created ${email}"
     fi
+
+    # Always set permanent password (handles both new and existing users)
+    aws cognito-idp admin-set-user-password \
+        --user-pool-id "$COGNITO_USER_POOL_ID" \
+        --username "$email" \
+        --password "$DEMO_PASSWORD" \
+        --permanent \
+        --region "$AWS_REGION"
 
     aws cognito-idp admin-update-user-attributes \
         --user-pool-id "$COGNITO_USER_POOL_ID" \
@@ -121,17 +122,23 @@ create_user "hr.manager@uthukela.shumelahire.co.za"      "Nomvula"   "Dlamini"  
 create_user "executive@uthukela.shumelahire.co.za"       "Mandla"    "Shabalala" "EXECUTIVE"
 create_user "hiring.manager@uthukela.shumelahire.co.za"  "Thabo"     "Khumalo"   "HIRING_MANAGER"
 create_user "employee@uthukela.shumelahire.co.za"        "Lindiwe"   "Ngcobo"    "EMPLOYEE"
+create_user "recruiter@uthukela.shumelahire.co.za"       "Zanele"    "Mthembu"   "RECRUITER"
+create_user "interviewer@uthukela.shumelahire.co.za"     "Bongani"   "Zulu"      "INTERVIEWER"
+create_user "applicant@uthukela.shumelahire.co.za"       "Ayanda"    "Mkhize"    "APPLICANT"
 
 echo ""
-log "Done! All 5 uThukela Water demo users created."
+log "Done! All 8 uThukela Water demo users created."
 echo ""
 echo "  URL:      https://uthukela.shumelahire.co.za"
 echo "  Password: ${DEMO_PASSWORD} (all accounts)"
 echo ""
-echo "  Accounts (per NDA Annexure L):"
+echo "  Accounts:"
 echo "    Administrator:  admin@uthukela.shumelahire.co.za"
 echo "    HR Manager:     hr.manager@uthukela.shumelahire.co.za"
 echo "    Executive:      executive@uthukela.shumelahire.co.za"
 echo "    Hiring Manager: hiring.manager@uthukela.shumelahire.co.za"
 echo "    Employee:       employee@uthukela.shumelahire.co.za"
+echo "    Recruiter:      recruiter@uthukela.shumelahire.co.za"
+echo "    Interviewer:    interviewer@uthukela.shumelahire.co.za"
+echo "    Applicant:      applicant@uthukela.shumelahire.co.za"
 echo ""

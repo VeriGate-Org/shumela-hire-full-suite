@@ -460,6 +460,12 @@ jobs:
             fi
 
             echo "Tenant exists but no employees — seeding via direct DynamoDB write..."
+
+            # Ensure Cognito users exist with correct passwords (idempotent)
+            export TENANT_ID="${TENANT_ID}"
+            chmod +x scripts/seed-uthukela-water-cognito-users.sh
+            bash scripts/seed-uthukela-water-cognito-users.sh || echo "WARNING: Cognito user seeding had errors (non-fatal)"
+
             # Resolve DynamoDB table name from CDK outputs
             TABLE_NAME=$(aws cloudformation describe-stacks \
               --stack-name "${PREFIX}-serverless" \
