@@ -21,12 +21,13 @@ export default function OvertimePage() {
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'my' | 'pending'>('my');
 
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const rawId = user?.employeeId || user?.id;
   const employeeId = rawId || '';
   const { toast } = useToast();
   // BUG-001 fix: track whether profile is resolved to prevent rendering actions
   const profileResolved = !!employeeId;
+  const isManager = hasPermission('manage_attendance');
 
   useEffect(() => {
     if (!employeeId) {
@@ -40,13 +41,18 @@ export default function OvertimePage() {
     // Clear any previous error and reset loading when employeeId becomes available
     setError('');
     setLoading(true);
-    Promise.all([
+    const fetches: Promise<any>[] = [
       attendanceService.getOvertime(employeeId, 0, 20),
-      attendanceService.getPendingOvertime(0, 20),
-    ]).then(([myData, pendingData]) => {
+    ];
+    if (isManager) {
+      fetches.push(attendanceService.getPendingOvertime(0, 20));
+    }
+    Promise.all(fetches).then(([myData, pendingData]) => {
       // BUG-001 fix: defensive guard — API may return unexpected shape
       setRecords(Array.isArray(myData?.content) ? myData.content : []);
-      setPendingRecords(Array.isArray(pendingData?.content) ? pendingData.content : []);
+      if (pendingData) {
+        setPendingRecords(Array.isArray(pendingData?.content) ? pendingData.content : []);
+      }
       setLoading(false);
     }).catch((e) => {
       setError(e?.message || 'Failed to load overtime data');
@@ -147,17 +153,19 @@ export default function OvertimePage() {
             </div>
           )}
 
-          {/* Tabs */}
-          <div className="flex border-b">
-            <button onClick={() => setTab('my')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'my' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-              My Overtime
-            </button>
-            <button onClick={() => setTab('pending')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'pending' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-              Pending Approvals {pendingRecords.length > 0 && <span className="ml-1 bg-yellow-100 text-yellow-700 rounded-full px-2 py-0.5 text-xs">{pendingRecords.length}</span>}
-            </button>
-          </div>
+          {/* Tabs — Pending Approvals only visible to managers */}
+          {isManager && (
+            <div className="flex border-b">
+              <button onClick={() => setTab('my')}
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'my' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                My Overtime
+              </button>
+              <button onClick={() => setTab('pending')}
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'pending' ? 'border-blue-600 text-blue-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                Pending Approvals {pendingRecords.length > 0 && <span className="ml-1 bg-yellow-100 text-yellow-700 rounded-full px-2 py-0.5 text-xs">{pendingRecords.length}</span>}
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="enterprise-card p-6"><TableSkeleton /></div>
