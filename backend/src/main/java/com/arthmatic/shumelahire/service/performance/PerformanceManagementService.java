@@ -92,7 +92,9 @@ public class PerformanceManagementService {
     }
 
     public List<PerformanceContract> getContractsByEmployee(String employeeId, String tenantId) {
-        return contractRepository.findByEmployeeIdAndTenantIdOrderByCreatedAtDesc(employeeId, tenantId);
+        List<PerformanceContract> contracts = contractRepository.findByEmployeeIdAndTenantIdOrderByCreatedAtDesc(employeeId, tenantId);
+        hydrateCycles(contracts, tenantId);
+        return contracts;
     }
 
     public Optional<PerformanceContract> getContract(String id, String tenantId) {
@@ -139,7 +141,17 @@ public class PerformanceManagementService {
     
     // ========== PRIVATE HELPER METHODS ==========
     
-    private void validateCycleDates(LocalDate startDate, LocalDate endDate, 
+    private void hydrateCycles(List<PerformanceContract> contracts, String tenantId) {
+        for (PerformanceContract contract : contracts) {
+            if (contract.getCycle() != null && contract.getCycle().getId() != null
+                    && contract.getCycle().getName() == null) {
+                cycleRepository.findByIdAndTenantId(contract.getCycle().getId(), tenantId)
+                        .ifPresent(contract::setCycle);
+            }
+        }
+    }
+
+    private void validateCycleDates(LocalDate startDate, LocalDate endDate,
                                   LocalDate midYearDeadline, LocalDate finalReviewDeadline) {
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must be before end date");
