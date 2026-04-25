@@ -167,7 +167,7 @@ export default function EmployeePortalPage() {
       .then(res => res.ok ? res.json() : { content: [] })
       .catch(() => ({ content: [] }));
     const fetchIdps = trainingService.getIDPs({ employeeId }).catch(() => []);
-    const fetchPerfContracts = apiFetch('/api/performance/contracts')
+    const fetchPerfContracts = apiFetch(`/api/performance/contracts?employeeId=${employeeId}`)
       .then(res => res.ok ? res.json() : [])
       .catch(() => []);
     const fetchSelfAssessments = performanceEnhancementService
@@ -240,7 +240,7 @@ export default function EmployeePortalPage() {
       }
       if (perfContractsRes.status === 'fulfilled') {
         const all = Array.isArray(perfContractsRes.value) ? perfContractsRes.value : (perfContractsRes.value?.content ?? []);
-        const myContract = all.find((c: any) => c.employeeId === employeeId);
+        const myContract = Array.isArray(all) ? all[0] : null;
         if (myContract?.cycle?.name) setPerfCycleName(myContract.cycle.name);
       }
       if (selfAssessmentsRes.status === 'fulfilled') {

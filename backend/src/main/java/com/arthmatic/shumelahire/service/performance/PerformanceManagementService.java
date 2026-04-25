@@ -90,7 +90,11 @@ public class PerformanceManagementService {
     public List<PerformanceContract> getContracts(String tenantId) {
         return contractRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
     }
-    
+
+    public List<PerformanceContract> getContractsByEmployee(String employeeId, String tenantId) {
+        return contractRepository.findByEmployeeIdAndTenantIdOrderByCreatedAtDesc(employeeId, tenantId);
+    }
+
     public Optional<PerformanceContract> getContract(String id, String tenantId) {
         return contractRepository.findByIdAndTenantId(id, tenantId);
     }

@@ -86,10 +86,16 @@ public class PerformanceManagementController {
     }
 
     @GetMapping("/contracts")
-    public ResponseEntity<List<PerformanceContract>> getContracts() {
+    public ResponseEntity<List<PerformanceContract>> getContracts(
+            @RequestParam(required = false) String employeeId) {
 
         String tenantId = TenantContext.requireCurrentTenant();
-        List<PerformanceContract> contracts = performanceService.getContracts(tenantId);
+        List<PerformanceContract> contracts;
+        if (employeeId != null && !employeeId.isBlank()) {
+            contracts = performanceService.getContractsByEmployee(employeeId, tenantId);
+        } else {
+            contracts = performanceService.getContracts(tenantId);
+        }
         return ResponseEntity.ok(contracts);
     }
 
