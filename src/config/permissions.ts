@@ -68,10 +68,9 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_dashboard', 'view_interviews', 'view_internal_jobs',
   ],
   EMPLOYEE: [
-    'view_dashboard', 'view_internal_jobs', 'view_own_profile', 'view_training',
-    // Self-service access
+    'view_dashboard', 'view_internal_jobs', 'view_own_profile',
+    // Self-service access (employees use /employee/* pages, not admin pages)
     'manage_leave', 'view_attendance', 'manage_documents', 'view_company_documents',
-    'view_performance',
     'feed:view', 'feed:post',
   ],
   APPLICANT: [
