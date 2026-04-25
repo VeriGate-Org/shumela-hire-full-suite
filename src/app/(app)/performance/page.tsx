@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import CycleManagement from '@/components/performance/CycleManagement';
 import ContractBuilder from '@/components/performance/ContractBuilder';
@@ -10,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { aiPerformanceService } from '@/services/aiPerformanceService';
 import { ReviewDraftResult, GoalSuggestionResult } from '@/types/ai';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
 
 export default function PerformanceDashboard() {
   const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null);
@@ -23,7 +24,28 @@ export default function PerformanceDashboard() {
   const { tenantId } = useTenant();
   const { user, hasPermission } = useAuth();
   const userId = user?.id || 'anonymous';
+  const canViewPerformance = hasPermission('view_performance');
   const canManagePerformance = hasPermission('manage_performance');
+
+  if (!canViewPerformance) {
+    return (
+      <PageWrapper title="Performance Management">
+        <div className="text-center py-16 enterprise-card max-w-lg mx-auto">
+          <ShieldExclamationIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-foreground mb-2">Access restricted</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            This page is for HR managers and administrators. To view your own performance data, visit your personal performance page.
+          </p>
+          <Link
+            href="/employee/performance"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-control bg-cta text-cta-foreground hover:bg-cta/90 transition-colors"
+          >
+            Go to My Performance
+          </Link>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   const handleCycleSelect = (cycle: PerformanceCycle) => {
     setSelectedCycle(cycle);

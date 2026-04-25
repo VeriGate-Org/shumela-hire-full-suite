@@ -11,6 +11,7 @@ import {
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
   CheckCircleIcon,
+  ShieldExclamationIcon,
 } from '@heroicons/react/24/outline';
 
 const statusColors: Record<string, string> = {
@@ -30,7 +31,8 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function IDPsPage() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
+  const canViewTraining = hasPermission('view_training');
   const employeeId = user?.employeeId || null;
 
   const [idps, setIdps] = useState<IndividualDevelopmentPlan[]>([]);
@@ -94,11 +96,31 @@ export default function IDPsPage() {
     return Math.round((getCompletedGoals(idp) / idp.goals.length) * 100);
   };
 
+  if (!canViewTraining) {
+    return (
+      <PageWrapper title="Development Plans">
+        <div className="text-center py-16 enterprise-card max-w-lg mx-auto">
+          <ShieldExclamationIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-foreground mb-2">Access restricted</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            This page is for HR managers and administrators. To view your own development plan, visit your personal development page.
+          </p>
+          <Link
+            href="/employee/development"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-control bg-cta text-cta-foreground hover:bg-cta/90 transition-colors"
+          >
+            Go to My Development
+          </Link>
+        </div>
+      </PageWrapper>
+    );
+  }
+
   return (
     <FeatureGate feature="TRAINING_MANAGEMENT">
       <PageWrapper
-        title="Individual Development Plans"
-        subtitle="Set goals and track your professional development"
+        title="Development Plans"
+        subtitle="Create and manage employee development plans"
         actions={
           <button
             onClick={() => setShowForm(!showForm)}
