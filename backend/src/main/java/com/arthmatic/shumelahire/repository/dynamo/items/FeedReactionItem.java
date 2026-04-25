@@ -6,8 +6,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
 
-import java.time.LocalDateTime;
-
 @DynamoDbBean
 public class FeedReactionItem {
     private String pk;
@@ -19,7 +17,7 @@ public class FeedReactionItem {
     private String postId;
     private String userId;
     private String reactionType;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     @DynamoDbPartitionKey
     public String getPk() {
@@ -97,11 +95,11 @@ public class FeedReactionItem {
         this.reactionType = reactionType;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }

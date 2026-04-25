@@ -587,6 +587,288 @@ def seed_midyear_review(lindiwe, contract, goals):
 
 
 # ============================================================
+# 8. Social Feed — posts, comments, reactions
+# ============================================================
+def seed_feed_posts(employees):
+    """Seed social feed posts with comments and reactions."""
+    print("\nSeeding social feed posts...")
+    by_name = {e['firstName']: e for e in employees}
+    thabo = by_name.get('Thabo', {})
+    sipho = by_name.get('Sipho', {})
+    nomvula = by_name.get('Nomvula', {})
+    lindiwe = by_name.get('Lindiwe', {})
+    zanele = by_name.get('Zanele', {})
+    bongani = by_name.get('Bongani', {})
+
+    posts = [
+        {
+            "id_key": "feed-post-1",
+            "author": sipho,
+            "title": "Water Quality Report - Q1 2026 Results",
+            "content": "Pleased to share that all treatment works achieved 99.2% SANS 241 compliance this quarter. Outstanding effort by the entire water services team. Special mention to the Estcourt plant operators who maintained perfect scores throughout March despite the maintenance shutdown.",
+            "category": "ANNOUNCEMENT",
+            "pinned": True,
+            "days_ago": 2,
+        },
+        {
+            "id_key": "feed-post-2",
+            "author": nomvula,
+            "title": "Updated Leave Policy - Effective 1 May 2026",
+            "content": "Please take note of the revised leave policy effective 1 May 2026. Key changes include: increased family responsibility leave from 3 to 5 days, introduction of mental health leave days (2 per annum), and updated sick leave certificate requirements. Full policy document available on the HR portal.",
+            "category": "POLICY_UPDATE",
+            "pinned": True,
+            "days_ago": 5,
+        },
+        {
+            "id_key": "feed-post-3",
+            "author": thabo,
+            "title": "Estcourt Plant SCADA Upgrade Complete",
+            "content": "The SCADA system upgrade at Estcourt Treatment Works has been completed successfully. All operators should attend the refresher training session scheduled for next week. The new system includes improved real-time monitoring dashboards and automated chemical dosing alerts.",
+            "category": "ANNOUNCEMENT",
+            "pinned": False,
+            "days_ago": 3,
+        },
+        {
+            "id_key": "feed-post-4",
+            "author": lindiwe,
+            "title": None,
+            "content": "Just completed the Water Process Controller Level 5 practical assessment. Feeling confident about the results! Thanks to everyone who supported me through the preparation period.",
+            "category": "DISCUSSION",
+            "pinned": False,
+            "days_ago": 7,
+        },
+        {
+            "id_key": "feed-post-5",
+            "author": zanele,
+            "title": "Annual Water Institute Conference - Call for Abstracts",
+            "content": "WISA 2027 is accepting abstract submissions until 30 June. This is a great opportunity to showcase our innovation in membrane filtration and Blue Drop compliance. Please speak to your line manager if you'd like to present. The organisation will cover registration and travel costs.",
+            "category": "EVENT",
+            "pinned": False,
+            "days_ago": 10,
+        },
+        {
+            "id_key": "feed-post-6",
+            "author": bongani,
+            "title": "Kudos to Lindiwe Ngcobo",
+            "content": "Want to recognise Lindiwe for her exceptional work on the Bergville community water quality report. Her thorough analysis and clear communication helped resolve community concerns within 48 hours. This is what excellent public service looks like!",
+            "category": "KUDOS",
+            "pinned": False,
+            "days_ago": 4,
+        },
+        {
+            "id_key": "feed-post-7",
+            "author": nomvula,
+            "title": "Workplace Wellness Month - May Activities",
+            "content": "May is Workplace Wellness Month! Activities include: Monday walking groups (06:30 at main gate), Wednesday mindfulness sessions (lunch hour), and a Friday team sports afternoon on the 16th. Sign up on the HR portal. Let's prioritise our wellbeing together.",
+            "category": "EVENT",
+            "pinned": False,
+            "days_ago": 1,
+        },
+    ]
+
+    # Define comments for some posts
+    comments_data = {
+        "feed-post-1": [
+            {"author": lindiwe, "content": "Proud to be part of this achievement. The automated reporting system made a real difference this quarter.", "days_ago": 1},
+            {"author": thabo, "content": "Well done team! The Ladysmith plant deserves special recognition too — zero non-conformances.", "days_ago": 1},
+        ],
+        "feed-post-3": [
+            {"author": lindiwe, "content": "The new dashboards are excellent. Much easier to monitor multiple parameters simultaneously.", "days_ago": 2},
+        ],
+        "feed-post-4": [
+            {"author": sipho, "content": "Well done Lindiwe! Your dedication to professional development is inspiring.", "days_ago": 6},
+            {"author": nomvula, "content": "Congratulations! The organisation is behind you.", "days_ago": 6},
+            {"author": thabo, "content": "Great news! Looking forward to seeing you apply those skills.", "days_ago": 5},
+        ],
+        "feed-post-6": [
+            {"author": lindiwe, "content": "Thank you Bongani, I appreciate the recognition. It was a team effort with the lab analysts.", "days_ago": 3},
+            {"author": sipho, "content": "Fully agree. Lindiwe's community engagement skills are outstanding.", "days_ago": 3},
+        ],
+        "feed-post-7": [
+            {"author": zanele, "content": "Love this! Count me in for the walking group.", "days_ago": 0},
+            {"author": bongani, "content": "The team sports afternoon sounds great. Can we get a volleyball net?", "days_ago": 0},
+        ],
+    }
+
+    # Define reactions for posts
+    reactions_data = {
+        "feed-post-1": [
+            {"user": lindiwe, "type": "LIKE"}, {"user": thabo, "type": "CELEBRATE"},
+            {"user": nomvula, "type": "LIKE"}, {"user": zanele, "type": "CELEBRATE"},
+            {"user": bongani, "type": "LIKE"},
+        ],
+        "feed-post-2": [
+            {"user": lindiwe, "type": "LIKE"}, {"user": sipho, "type": "LIKE"},
+            {"user": thabo, "type": "LIKE"},
+        ],
+        "feed-post-3": [
+            {"user": lindiwe, "type": "CELEBRATE"}, {"user": sipho, "type": "LIKE"},
+        ],
+        "feed-post-4": [
+            {"user": sipho, "type": "CELEBRATE"}, {"user": nomvula, "type": "SUPPORT"},
+            {"user": thabo, "type": "CELEBRATE"}, {"user": zanele, "type": "LIKE"},
+            {"user": bongani, "type": "CELEBRATE"},
+        ],
+        "feed-post-6": [
+            {"user": sipho, "type": "CELEBRATE"}, {"user": nomvula, "type": "LIKE"},
+            {"user": zanele, "type": "CELEBRATE"}, {"user": thabo, "type": "LIKE"},
+        ],
+        "feed-post-7": [
+            {"user": lindiwe, "type": "LIKE"}, {"user": zanele, "type": "CELEBRATE"},
+            {"user": bongani, "type": "LIKE"}, {"user": sipho, "type": "LIKE"},
+        ],
+    }
+
+    post_count = 0
+    comment_count = 0
+    reaction_count = 0
+
+    for post_data in posts:
+        author = post_data.get("author")
+        if not author or not author.get('id'):
+            continue
+
+        post_id = new_id(post_data["id_key"])
+        created_at = iso(days_ago(post_data["days_ago"]))
+        category = post_data["category"]
+
+        item = {
+            'PK':     {'S': f'TENANT#{TENANT_ID}'},
+            'SK':     {'S': f'FEED_POST#{post_id}'},
+            'GSI1PK': {'S': f'FEED_POST_CAT#{TENANT_ID}#{category}'},
+            'GSI1SK': {'S': f'FEED_POST#{created_at}'},
+            'id':          {'S': post_id},
+            'tenantId':    {'S': TENANT_ID},
+            'authorId':    {'S': author['id']},
+            'authorName':  {'S': f"{author['firstName']} {author['lastName']}"},
+            'content':     {'S': post_data['content']},
+            'category':    {'S': category},
+            'pinned':      {'BOOL': post_data['pinned']},
+            'publishedAt': {'S': created_at},
+            'status':      {'S': 'PUBLISHED'},
+            'commentCount': {'N': '0'},
+            'reactionCount': {'N': '0'},
+            'createdAt':   {'S': created_at},
+            'updatedAt':   {'S': created_at},
+        }
+        if post_data.get("title"):
+            item['title'] = {'S': post_data['title']}
+
+        ok, err = put_item(item)
+        if ok:
+            post_count += 1
+            pinned_label = " [PINNED]" if post_data['pinned'] else ""
+            print(f"  OK  Post: {category:16s} by {author['firstName']}{pinned_label}")
+        else:
+            print(f"  SKIP Post {post_data['id_key']} (already exists)")
+
+        # Seed comments for this post
+        post_comments = comments_data.get(post_data["id_key"], [])
+        for i, cmt in enumerate(post_comments):
+            cmt_author = cmt.get("author")
+            if not cmt_author or not cmt_author.get('id'):
+                continue
+            cmt_id = new_id(f"{post_data['id_key']}-comment-{i}")
+            cmt_created = iso(days_ago(cmt["days_ago"]))
+            cmt_item = {
+                'PK':     {'S': f'TENANT#{TENANT_ID}'},
+                'SK':     {'S': f'FEED_COMMENT#{cmt_id}'},
+                'GSI1PK': {'S': f'FEED_COMMENT_POST#{TENANT_ID}#{post_id}'},
+                'GSI1SK': {'S': f'FEED_COMMENT#{cmt_created}'},
+                'id':         {'S': cmt_id},
+                'tenantId':   {'S': TENANT_ID},
+                'postId':     {'S': post_id},
+                'authorId':   {'S': cmt_author['id']},
+                'authorName': {'S': f"{cmt_author['firstName']} {cmt_author['lastName']}"},
+                'content':    {'S': cmt["content"]},
+                'createdAt':  {'S': cmt_created},
+            }
+            ok2, _ = put_item(cmt_item)
+            if ok2:
+                comment_count += 1
+
+        # Seed reactions for this post
+        post_reactions = reactions_data.get(post_data["id_key"], [])
+        for i, rxn in enumerate(post_reactions):
+            rxn_user = rxn.get("user")
+            if not rxn_user or not rxn_user.get('id'):
+                continue
+            rxn_id = new_id(f"{post_data['id_key']}-reaction-{i}")
+            rxn_created = iso(days_ago(post_data["days_ago"]))
+            rxn_item = {
+                'PK':     {'S': f'TENANT#{TENANT_ID}'},
+                'SK':     {'S': f'FEED_REACTION#{rxn_id}'},
+                'GSI1PK': {'S': f'FEED_REACTION_POST#{TENANT_ID}#{post_id}'},
+                'GSI1SK': {'S': f'FEED_REACTION#{rxn_created}'},
+                'id':           {'S': rxn_id},
+                'tenantId':     {'S': TENANT_ID},
+                'postId':       {'S': post_id},
+                'userId':       {'S': rxn_user['id']},
+                'reactionType': {'S': rxn["type"]},
+                'createdAt':    {'S': rxn_created},
+            }
+            ok3, _ = put_item(rxn_item)
+            if ok3:
+                reaction_count += 1
+
+    print(f"  Total: {post_count} posts, {comment_count} comments, {reaction_count} reactions")
+    return post_count
+
+
+# ============================================================
+# 9. Additional recognitions — cross-team (for Recognition Wall)
+# ============================================================
+def seed_additional_recognitions(employees):
+    """Seed recognition entries across multiple employees for the Recognition Wall."""
+    print("\nSeeding additional recognitions for Recognition Wall...")
+    by_name = {e['firstName']: e for e in employees}
+
+    recognitions = [
+        # From → To, Category, Points, Message
+        ("Sipho", "Thabo",   "LEADERSHIP",       30, "Outstanding leadership during the Ladysmith infrastructure upgrade. Thabo coordinated three teams across two sites with zero downtime."),
+        ("Nomvula", "Zanele", "INNOVATION",       25, "Zanele developed an automated payroll reconciliation process that saves HR 4 hours per pay cycle."),
+        ("Thabo", "Sipho",   "GOING_ABOVE",       35, "Sipho responded to the emergency pipeline burst at 2am and coordinated repairs before morning shift — true dedication."),
+        ("Lindiwe", "Bongani", "TEAMWORK",        20, "Excellent collaboration on the fleet maintenance schedule. Bongani ensured all water tankers were operational during the Bergville drought response."),
+        ("Zanele", "Nomvula", "CUSTOMER_SERVICE", 25, "Nomvula handled a complex labour relations case with sensitivity and professionalism, achieving a resolution that satisfied all parties."),
+        ("Bongani", "Thabo",  "INNOVATION",       30, "Thabo's proposal for solar-powered pump stations is brilliant — this could transform our rural water delivery."),
+        ("Sipho", "Zanele",  "GOING_ABOVE",       30, "Zanele processed the annual salary adjustments for 200+ employees in record time while maintaining 100% accuracy."),
+        ("Thabo", "Lindiwe", "LEADERSHIP",        25, "Lindiwe has taken initiative as the unofficial mentor for new technicians. Her guidance has significantly improved onboarding efficiency."),
+    ]
+
+    created = 0
+    for from_name, to_name, category, points, message in recognitions:
+        from_emp = by_name.get(from_name)
+        to_emp = by_name.get(to_name)
+        if not from_emp or not to_emp:
+            continue
+        rid = new_id(f"recog-wall-{from_name}-{to_name}-{category}")
+        days_offset = random.randint(1, 30)
+        created_at = iso(days_ago(days_offset))
+        item = {
+            'PK':     {'S': f'TENANT#{TENANT_ID}'},
+            'SK':     {'S': f'RECOGNITION#{rid}'},
+            'GSI1PK': {'S': f'RECOG_TO#{TENANT_ID}#{to_emp["id"]}'},
+            'GSI1SK': {'S': f'RECOGNITION#{created_at}'},
+            'id':              {'S': rid},
+            'tenantId':        {'S': TENANT_ID},
+            'fromEmployeeId':  {'S': from_emp['id']},
+            'toEmployeeId':    {'S': to_emp['id']},
+            'category':        {'S': category},
+            'message':         {'S': message},
+            'points':          {'N': str(points)},
+            'isPublic':        {'BOOL': True},
+            'createdAt':       {'S': created_at},
+        }
+        ok, err = put_item(item)
+        if ok:
+            created += 1
+            print(f"  OK  {from_name} → {to_name}: {category} ({points} pts)")
+        else:
+            print(f"  SKIP {from_name} �� {to_name} (already exists)")
+    return created
+
+
+# ============================================================
 # Main
 # ============================================================
 def main():
@@ -655,10 +937,17 @@ def main():
     # 7. Mid-year review
     review_count = seed_midyear_review(lindiwe, contract, perf_goals)
 
+    # 8. Social feed posts
+    feed_count = seed_feed_posts(employees)
+
+    # 9. Additional recognitions for Recognition Wall
+    extra_recog_count = seed_additional_recognitions(employees)
+
     print()
-    print(f"Done: {recog_count} recognitions, {leave_count} leave requests, "
+    print(f"Done: {recog_count + extra_recog_count} recognitions, {leave_count} leave requests, "
           f"{enroll_count} enrollments, {onboard_count} onboarding checklist, "
-          f"{idp_count} IDP update, {len(perf_goals)} perf goals, {review_count} review")
+          f"{idp_count} IDP update, {len(perf_goals)} perf goals, {review_count} review, "
+          f"{feed_count} feed posts")
 
 
 if __name__ == '__main__':

@@ -45,8 +45,22 @@ public class RecognitionController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<List<RecognitionResponse>> getPublicRecognitions() {
-        return ResponseEntity.ok(recognitionService.getPublicRecognitions());
+    public ResponseEntity<?> getPublicRecognitions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        List<RecognitionResponse> all = recognitionService.getPublicRecognitions();
+        int totalElements = all.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int fromIndex = Math.min(page * size, totalElements);
+        int toIndex = Math.min(fromIndex + size, totalElements);
+        List<RecognitionResponse> content = all.subList(fromIndex, toIndex);
+        return ResponseEntity.ok(Map.of(
+                "content", content,
+                "totalElements", totalElements,
+                "totalPages", totalPages,
+                "number", page,
+                "size", size
+        ));
     }
 
     @GetMapping("/leaderboard")

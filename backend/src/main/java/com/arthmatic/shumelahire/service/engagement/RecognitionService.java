@@ -131,6 +131,15 @@ public class RecognitionService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getLeaderboard(int limit) {
         List<Map<String, Object>> results = recognitionRepository.getLeaderboard();
+        // Enrich with employee names
+        for (Map<String, Object> entry : results) {
+            String empId = (String) entry.get("employeeId");
+            if (empId != null) {
+                employeeRepository.findById(empId).ifPresent(emp ->
+                    entry.put("employeeName", emp.getFullName())
+                );
+            }
+        }
         // Apply limit
         if (limit > 0 && results.size() > limit) {
             return results.subList(0, limit);

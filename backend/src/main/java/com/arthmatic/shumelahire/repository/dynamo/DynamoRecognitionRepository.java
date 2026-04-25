@@ -12,6 +12,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,6 +87,20 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
                 .sum();
     }
 
+    private static LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            String cleaned = value.endsWith("Z") ? value.substring(0, value.length() - 1) : value;
+            return LocalDateTime.parse(cleaned);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static String formatDateTime(LocalDateTime value) {
+        return value != null ? value.toString() : null;
+    }
+
     @Override
     protected Recognition toEntity(RecognitionItem item) {
         var e = new Recognition();
@@ -116,7 +131,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
         e.setMessage(item.getMessage());
         e.setPoints(item.getPoints());
         e.setIsPublic(item.getIsPublic());
-        e.setCreatedAt(item.getCreatedAt());
+        e.setCreatedAt(parseDateTime(item.getCreatedAt()));
         return e;
     }
 
@@ -133,7 +148,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
         item.setSk("RECOGNITION#" + id);
         if (toEmployeeId != null) {
             item.setGsi1pk("RECOG_TO#" + tenantId + "#" + toEmployeeId);
-            item.setGsi1sk("RECOGNITION#" + createdAt);
+            item.setGsi1sk("RECOGNITION#" + formatDateTime(createdAt));
         }
 
         item.setId(id);
@@ -146,7 +161,7 @@ public class DynamoRecognitionRepository extends DynamoRepository<RecognitionIte
         item.setMessage(entity.getMessage());
         item.setPoints(entity.getPoints());
         item.setIsPublic(entity.getIsPublic());
-        item.setCreatedAt(createdAt);
+        item.setCreatedAt(formatDateTime(createdAt));
         return item;
     }
 }

@@ -6,8 +6,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
 
-import java.time.LocalDateTime;
-
 @DynamoDbBean
 public class RecognitionItem {
     private String pk;
@@ -22,7 +20,7 @@ public class RecognitionItem {
     private String message;
     private Integer points;
     private Boolean isPublic;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     @DynamoDbPartitionKey
     public String getPk() {
@@ -124,11 +122,11 @@ public class RecognitionItem {
         this.isPublic = isPublic;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }

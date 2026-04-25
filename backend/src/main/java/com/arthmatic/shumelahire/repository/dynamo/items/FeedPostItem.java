@@ -6,8 +6,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
 
-import java.time.LocalDateTime;
-
 @DynamoDbBean
 public class FeedPostItem {
     private String pk;
@@ -22,12 +20,12 @@ public class FeedPostItem {
     private String content;
     private String category;
     private Boolean pinned;
-    private LocalDateTime publishedAt;
+    private String publishedAt;
     private String status;
     private Integer commentCount;
     private Integer reactionCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     @DynamoDbPartitionKey
     public String getPk() {
@@ -129,11 +127,11 @@ public class FeedPostItem {
         this.pinned = pinned;
     }
 
-    public LocalDateTime getPublishedAt() {
+    public String getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(LocalDateTime publishedAt) {
+    public void setPublishedAt(String publishedAt) {
         this.publishedAt = publishedAt;
     }
 
@@ -161,19 +159,19 @@ public class FeedPostItem {
         this.reactionCount = reactionCount;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

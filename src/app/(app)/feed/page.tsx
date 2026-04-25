@@ -133,11 +133,11 @@ export default function FeedPage() {
 
   function hasUserReacted(post: FeedPost, reactionType: string): boolean {
     if (!user) return false;
-    return post.reactions.some((r) => r.userId === user.id && r.reactionType === reactionType);
+    return (post.reactions || []).some((r) => r.userId === user.id && r.reactionType === reactionType);
   }
 
   function getReactionCount(post: FeedPost, reactionType: string): number {
-    return post.reactions.filter((r) => r.reactionType === reactionType).length;
+    return (post.reactions || []).filter((r) => r.reactionType === reactionType).length;
   }
 
   const hasMore = posts.length < totalElements;
@@ -248,7 +248,7 @@ export default function FeedPage() {
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChatBubbleLeftIcon className="h-4 w-4" />
-            {post.commentCount > 0 && <span>{post.commentCount}</span>}
+            {(post.commentCount || 0) > 0 && <span>{post.commentCount}</span>}
             <span>Comments</span>
           </Link>
         </div>
