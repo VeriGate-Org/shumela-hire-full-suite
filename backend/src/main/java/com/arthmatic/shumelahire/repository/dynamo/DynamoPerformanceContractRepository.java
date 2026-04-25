@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +104,17 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
                 });
     }
 
+    private static LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            // Strip trailing Z or timezone offset so LocalDateTime can parse it
+            String cleaned = value.endsWith("Z") ? value.substring(0, value.length() - 1) : value;
+            return LocalDateTime.parse(cleaned);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
     @Override
     protected PerformanceContract toEntity(PerformanceContractItem item) {
         if (item == null) return null;
@@ -136,9 +150,9 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
             entity.setStatus(ContractStatus.valueOf(item.getStatus()));
         }
 
-        entity.setSubmittedAt(item.getSubmittedAt());
-        entity.setApprovedAt(item.getApprovedAt());
-        entity.setAmendedAt(item.getAmendedAt());
+        entity.setSubmittedAt(parseDateTime(item.getSubmittedAt()));
+        entity.setApprovedAt(parseDateTime(item.getApprovedAt()));
+        entity.setAmendedAt(parseDateTime(item.getAmendedAt()));
 
         entity.setApprovedBy(item.getApprovedBy());
         entity.setApprovalComments(item.getApprovalComments());
@@ -147,10 +161,14 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         entity.setAmendmentReason(item.getAmendmentReason());
         entity.setAmendedBy(item.getAmendedBy());
 
-        entity.setCreatedAt(item.getCreatedAt());
-        entity.setUpdatedAt(item.getUpdatedAt());
+        entity.setCreatedAt(parseDateTime(item.getCreatedAt()));
+        entity.setUpdatedAt(parseDateTime(item.getUpdatedAt()));
 
         return entity;
+    }
+
+    private static String formatDateTime(LocalDateTime value) {
+        return value != null ? value.toString() : null;
     }
 
     @Override
@@ -182,9 +200,9 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
             item.setStatus(entity.getStatus().name());
         }
 
-        item.setSubmittedAt(entity.getSubmittedAt());
-        item.setApprovedAt(entity.getApprovedAt());
-        item.setAmendedAt(entity.getAmendedAt());
+        item.setSubmittedAt(formatDateTime(entity.getSubmittedAt()));
+        item.setApprovedAt(formatDateTime(entity.getApprovedAt()));
+        item.setAmendedAt(formatDateTime(entity.getAmendedAt()));
 
         item.setApprovedBy(entity.getApprovedBy());
         item.setApprovalComments(entity.getApprovalComments());
@@ -193,8 +211,8 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         item.setAmendmentReason(entity.getAmendmentReason());
         item.setAmendedBy(entity.getAmendedBy());
 
-        item.setCreatedAt(entity.getCreatedAt());
-        item.setUpdatedAt(entity.getUpdatedAt());
+        item.setCreatedAt(formatDateTime(entity.getCreatedAt()));
+        item.setUpdatedAt(formatDateTime(entity.getUpdatedAt()));
 
         // GSI1 for employee queries
         if (entity.getEmployeeId() != null) {
