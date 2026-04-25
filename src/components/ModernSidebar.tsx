@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,6 +40,20 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
   const isWhiteLabelled = !!tenant && tenant.subdomain !== 'default' && !!branding?.logoUrl;
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  // Persist sidebar scroll position across navigations (sidebar remounts on each page)
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el) return;
+    const saved = sessionStorage.getItem('sidebar-scroll');
+    if (saved) {
+      requestAnimationFrame(() => { el.scrollTop = parseInt(saved, 10); });
+    }
+    const onScroll = () => { sessionStorage.setItem('sidebar-scroll', String(el.scrollTop)); };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   const toggleSection = useCallback((section: string) => {
     setCollapsedSections(prev => {
@@ -194,7 +208,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   let adminDividerRendered = false;
 
   return (
-    <aside className={`
+    <aside ref={sidebarRef} className={`
       fixed left-0 top-14 bottom-0 bg-card border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
       ${isCollapsed ? 'w-16' : 'w-60'}
     `}>
