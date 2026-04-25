@@ -1,27 +1,38 @@
 package com.arthmatic.shumelahire.repository.dynamo;
 
 import com.arthmatic.shumelahire.entity.performance.PerformanceContract;
+import com.arthmatic.shumelahire.entity.performance.PerformanceGoal;
+import com.arthmatic.shumelahire.entity.performance.GoalType;
 import com.arthmatic.shumelahire.entity.performance.ContractStatus;
 import com.arthmatic.shumelahire.entity.performance.PerformanceCycle;
 import com.arthmatic.shumelahire.entity.performance.PerformanceTemplate;
 import com.arthmatic.shumelahire.repository.PerformanceContractDataRepository;
 import com.arthmatic.shumelahire.repository.dynamo.items.PerformanceContractItem;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class DynamoPerformanceContractRepository extends DynamoRepository<PerformanceContractItem, PerformanceContract>
         implements PerformanceContractDataRepository {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public DynamoPerformanceContractRepository(
             DynamoDbClient dynamoDbClient,
@@ -164,6 +175,39 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
         entity.setCreatedAt(parseDateTime(item.getCreatedAt()));
         entity.setUpdatedAt(parseDateTime(item.getUpdatedAt()));
 
+        // Parse goalsJson into PerformanceGoal list
+        if (item.getGoalsJson() != null && !item.getGoalsJson().isBlank()) {
+            try {
+                List<Map<String, Object>> rawGoals = MAPPER.readValue(
+                        item.getGoalsJson(), new TypeReference<>() {});
+                List<PerformanceGoal> goals = new ArrayList<>();
+                for (Map<String, Object> raw : rawGoals) {
+                    PerformanceGoal goal = new PerformanceGoal();
+                    goal.setId((String) raw.get("id"));
+                    goal.setTitle((String) raw.get("title"));
+                    goal.setDescription((String) raw.get("description"));
+                    if (raw.get("type") != null) {
+                        goal.setType(GoalType.valueOf((String) raw.get("type")));
+                    }
+                    if (raw.get("weighting") != null) {
+                        goal.setWeighting(new BigDecimal(raw.get("weighting").toString()));
+                    }
+                    goal.setTargetValue((String) raw.get("targetValue"));
+                    goal.setMeasurementCriteria((String) raw.get("measurementCriteria"));
+                    if (raw.get("isActive") != null) {
+                        goal.setIsActive((Boolean) raw.get("isActive"));
+                    }
+                    if (raw.get("sortOrder") != null) {
+                        goal.setSortOrder(((Number) raw.get("sortOrder")).intValue());
+                    }
+                    goals.add(goal);
+                }
+                entity.setGoals(goals);
+            } catch (Exception e) {
+                // Log but don't fail — return contract without goals
+            }
+        }
+
         return entity;
     }
 
@@ -213,6 +257,29 @@ public class DynamoPerformanceContractRepository extends DynamoRepository<Perfor
 
         item.setCreatedAt(formatDateTime(entity.getCreatedAt()));
         item.setUpdatedAt(formatDateTime(entity.getUpdatedAt()));
+
+        // Serialize goals to JSON
+        if (entity.getGoals() != null && !entity.getGoals().isEmpty()) {
+            try {
+                List<Map<String, Object>> rawGoals = new ArrayList<>();
+                for (PerformanceGoal goal : entity.getGoals()) {
+                    Map<String, Object> raw = new java.util.LinkedHashMap<>();
+                    raw.put("id", goal.getId());
+                    raw.put("title", goal.getTitle());
+                    raw.put("description", goal.getDescription());
+                    raw.put("type", goal.getType() != null ? goal.getType().name() : null);
+                    raw.put("weighting", goal.getWeighting() != null ? goal.getWeighting().intValue() : null);
+                    raw.put("targetValue", goal.getTargetValue());
+                    raw.put("measurementCriteria", goal.getMeasurementCriteria());
+                    raw.put("isActive", goal.getIsActive());
+                    raw.put("sortOrder", goal.getSortOrder());
+                    rawGoals.add(raw);
+                }
+                item.setGoalsJson(MAPPER.writeValueAsString(rawGoals));
+            } catch (Exception e) {
+                // Log but don't fail
+            }
+        }
 
         // GSI1 for employee queries
         if (entity.getEmployeeId() != null) {

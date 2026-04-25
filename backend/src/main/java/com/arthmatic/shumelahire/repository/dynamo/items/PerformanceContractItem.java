@@ -37,6 +37,7 @@ public class PerformanceContractItem {
     private String amendedBy;
     private String createdAt;
     private String updatedAt;
+    private String goalsJson;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute("PK")
@@ -268,5 +269,13 @@ public class PerformanceContractItem {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getGoalsJson() {
+        return goalsJson;
+    }
+
+    public void setGoalsJson(String goalsJson) {
+        this.goalsJson = goalsJson;
     }
 }
