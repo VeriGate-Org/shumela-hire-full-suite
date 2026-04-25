@@ -20,12 +20,15 @@ import {
   ArrowRightIcon,
   StarIcon,
   BriefcaseIcon,
+  LightBulbIcon,
+  PresentationChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import { leaveService, LeaveBalance, LeaveRequest } from '@/services/leaveService';
 import { attendanceService, AttendanceRecord } from '@/services/attendanceService';
-import { trainingService, TrainingEnrollment } from '@/services/trainingService';
+import { trainingService, TrainingEnrollment, IndividualDevelopmentPlan } from '@/services/trainingService';
 import { engagementService, Recognition } from '@/services/engagementService';
+import { performanceEnhancementService } from '@/services/performanceEnhancementService';
 import { onboardingService, OnboardingChecklist } from '@/services/onboardingService';
 import { feedService, FeedPost } from '@/services/feedService';
 
@@ -118,6 +121,10 @@ export default function EmployeePortalPage() {
   const [onboardingChecklist, setOnboardingChecklist] = useState<OnboardingChecklist | null>(null);
   const [announcements, setAnnouncements] = useState<FeedPost[]>([]);
   const [internalJobs, setInternalJobs] = useState<InternalJob[]>([]);
+  const [activeIdp, setActiveIdp] = useState<IndividualDevelopmentPlan | null>(null);
+  const [perfCycleName, setPerfCycleName] = useState<string | null>(null);
+  const [selfAssessmentStatus, setSelfAssessmentStatus] = useState<string | null>(null);
+  const [selfRating, setSelfRating] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,6 +166,13 @@ export default function EmployeePortalPage() {
     const fetchInternalJobs = apiFetch('/api/ads/internal?size=5')
       .then(res => res.ok ? res.json() : { content: [] })
       .catch(() => ({ content: [] }));
+    const fetchIdps = trainingService.getIDPs({ employeeId }).catch(() => []);
+    const fetchPerfContracts = apiFetch('/api/performance/contracts')
+      .then(res => res.ok ? res.json() : [])
+      .catch(() => []);
+    const fetchSelfAssessments = performanceEnhancementService
+      .getFeedbackRequestsForEmployee(Number(employeeId))
+      .catch(() => ({ content: [] }));
 
     Promise.allSettled([
       fetchProfile,
@@ -170,7 +184,10 @@ export default function EmployeePortalPage() {
       fetchOnboarding,
       fetchAnnouncements,
       fetchInternalJobs,
-    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes, internalJobsRes]) => {
+      fetchIdps,
+      fetchPerfContracts,
+      fetchSelfAssessments,
+    ]).then(([profileRes, balancesRes, leaveRes, attendanceRes, enrollmentsRes, recognitionsRes, onboardingRes, announcementsRes, internalJobsRes, idpsRes, perfContractsRes, selfAssessmentsRes]) => {
       // Profile is required
       if (profileRes.status === 'fulfilled') {
         setProfile(profileRes.value);
@@ -215,6 +232,24 @@ export default function EmployeePortalPage() {
             closingDate: (job.closingDate ?? null) as string | null,
           }))
         );
+      }
+      if (idpsRes.status === 'fulfilled') {
+        const plans = Array.isArray(idpsRes.value) ? idpsRes.value : [];
+        const active = plans.find((p: IndividualDevelopmentPlan) => p.status === 'ACTIVE') || plans[0] || null;
+        setActiveIdp(active);
+      }
+      if (perfContractsRes.status === 'fulfilled') {
+        const all = Array.isArray(perfContractsRes.value) ? perfContractsRes.value : (perfContractsRes.value?.content ?? []);
+        const myContract = all.find((c: any) => c.employeeId === employeeId);
+        if (myContract?.cycle?.name) setPerfCycleName(myContract.cycle.name);
+      }
+      if (selfAssessmentsRes.status === 'fulfilled') {
+        const raw = selfAssessmentsRes.value;
+        const content = Array.isArray(raw) ? raw : (raw?.content ?? []);
+        const selfReq = content.find((r: any) => r.feedbackType === 'SELF');
+        if (selfReq) {
+          setSelfAssessmentStatus(selfReq.status);
+        }
       }
     }).catch(() => {
       // Prevent uncaught promise rejections
@@ -515,6 +550,73 @@ export default function EmployeePortalPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* 5b. Development & Performance Widgets */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* My Development Widget */}
+              <div className="enterprise-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <LightBulbIcon className="w-5 h-5 text-purple-600" />
+                    <h3 className="text-sm font-semibold text-foreground">My Development</h3>
+                  </div>
+                  <Link href="/employee/development" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    View Plan <ArrowRightIcon className="w-3 h-3" />
+                  </Link>
+                </div>
+                {activeIdp ? (
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-foreground">{activeIdp.title}</p>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>
+                        {activeIdp.goals.filter(g => g.status === 'COMPLETED').length} of {activeIdp.goals.length} goals completed
+                      </span>
+                      <span>
+                        {activeIdp.goals.length > 0
+                          ? Math.round((activeIdp.goals.filter(g => g.status === 'COMPLETED').length / activeIdp.goals.length) * 100)
+                          : 0}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full">
+                      <div
+                        className="h-2 bg-purple-600 rounded-full transition-all"
+                        style={{
+                          width: `${activeIdp.goals.length > 0
+                            ? Math.round((activeIdp.goals.filter(g => g.status === 'COMPLETED').length / activeIdp.goals.length) * 100)
+                            : 0}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground py-2 text-center">No active development plan</p>
+                )}
+              </div>
+
+              {/* My Performance Widget */}
+              <div className="enterprise-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <PresentationChartBarIcon className="w-5 h-5 text-amber-600" />
+                    <h3 className="text-sm font-semibold text-foreground">My Performance</h3>
+                  </div>
+                  <Link href="/employee/performance" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    View Performance <ArrowRightIcon className="w-3 h-3" />
+                  </Link>
+                </div>
+                {perfCycleName ? (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">{perfCycleName}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Self Assessment:</span>
+                      <StatusPill value={selfAssessmentStatus || 'PENDING'} size="sm" />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground py-2 text-center">No active performance cycle</p>
+                )}
+              </div>
             </div>
 
             {/* 6. Upcoming Timeline + Recognitions */}

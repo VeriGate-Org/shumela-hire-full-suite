@@ -93,6 +93,8 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
   { id: 'company-documents', label: 'Company Docs', href: '/employee/company-documents', icon: DocumentDuplicateIcon, section: 'hr_core', requiredPermissions: ['view_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
   { id: 'onboarding', label: 'Onboarding', href: '/onboarding', icon: RocketLaunchIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'my-development', label: 'My Development', href: '/employee/development', icon: LightBulbIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'my-performance', label: 'My Performance', href: '/employee/performance', icon: PresentationChartBarIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Talent & Performance — training, performance, competencies
   { id: 'performance', label: 'Performance', href: '/performance', icon: PresentationChartBarIcon, section: 'talent', requiredPermissions: ['view_performance'] },

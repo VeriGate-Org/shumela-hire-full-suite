@@ -388,6 +388,205 @@ def seed_onboarding(lindiwe, hr_manager_id):
 
 
 # ============================================================
+# 5. Update IDP goals for Lindiwe (idp-1 from seed-pips-reviews-idps)
+# ============================================================
+def update_idp_goals(lindiwe):
+    """Update Lindiwe's existing IDP (idp-1) to have 5 detailed goals."""
+    print("\nUpdating IDP goals for Lindiwe...")
+
+    # Compute the same IDP id used in seed-pips-reviews-idps-dynamodb.py
+    idp_seed = f"{TENANT_ID}:PIP_IDP:idp-1"
+    idp_id = str(uuid.UUID(hashlib.sha256(idp_seed.encode()).hexdigest()[:32]))
+
+    goals = [
+        {"title": "Complete Water Process Controller Level 5 certification",
+         "description": "Obtain NQF Level 5 certification through EWSETA, covering advanced water treatment processes and compliance.",
+         "status": "IN_PROGRESS", "targetDate": days_from_now(120).strftime('%Y-%m-%d'),
+         "linkedCourseId": None, "linkedCertificationId": None, "sortOrder": 1},
+        {"title": "Lead a cross-functional Blue Drop improvement project",
+         "description": "Coordinate with operations, quality assurance, and community liaison teams to achieve >95% Blue Drop score.",
+         "status": "NOT_STARTED", "targetDate": days_from_now(200).strftime('%Y-%m-%d'),
+         "linkedCourseId": None, "linkedCertificationId": None, "sortOrder": 2},
+        {"title": "Complete Supervisory Management short course",
+         "description": "Completed NQF Level 4 Supervisory Management programme through Mangosuthu University of Technology.",
+         "status": "COMPLETED", "targetDate": days_ago(15).strftime('%Y-%m-%d'),
+         "linkedCourseId": None, "linkedCertificationId": None, "sortOrder": 3},
+        {"title": "Obtain SCADA Advanced Operator certification",
+         "description": "Complete advanced training on Schneider Electric ClearSCADA system used at Estcourt and Ladysmith works.",
+         "status": "IN_PROGRESS", "targetDate": days_from_now(90).strftime('%Y-%m-%d'),
+         "linkedCourseId": None, "linkedCertificationId": None, "sortOrder": 4},
+        {"title": "Present at annual Water Institute conference",
+         "description": "Prepare and deliver a presentation on membrane filtration innovations at the WISA 2027 conference.",
+         "status": "NOT_STARTED", "targetDate": days_from_now(300).strftime('%Y-%m-%d'),
+         "linkedCourseId": None, "linkedCertificationId": None, "sortOrder": 5},
+    ]
+
+    goals_json = json.dumps(goals)
+    eid = lindiwe['id']
+
+    # Use update-item to overwrite goalsJson on existing IDP record
+    result = subprocess.run(
+        ['aws', 'dynamodb', 'update-item',
+         '--table-name', TABLE_NAME, '--region', REGION,
+         '--key', json.dumps({
+             'PK': {'S': f'TENANT#{TENANT_ID}'},
+             'SK': {'S': f'IDP#{idp_id}'}
+         }),
+         '--update-expression', 'SET goalsJson = :g, updatedAt = :u',
+         '--expression-attribute-values', json.dumps({
+             ':g': {'S': goals_json},
+             ':u': {'S': now_iso},
+         })],
+        capture_output=True, text=True)
+
+    if result.returncode == 0:
+        print(f"  OK  Updated IDP {idp_id[:8]}... with {len(goals)} goals")
+        return 1
+    else:
+        print(f"  FAIL IDP update: {result.stderr.strip()[:80]}")
+        return 0
+
+
+# ============================================================
+# 6. Seed performance goals on Lindiwe's contract
+# ============================================================
+def resolve_performance_contract(lindiwe):
+    """Find Lindiwe's performance contract."""
+    result = subprocess.run(
+        ['aws', 'dynamodb', 'query',
+         '--table-name', TABLE_NAME, '--region', REGION,
+         '--index-name', 'GSI1',
+         '--key-condition-expression', 'GSI1PK = :pk',
+         '--expression-attribute-values', json.dumps({
+             ':pk': {'S': f'PCON_EMP#{TENANT_ID}#{lindiwe["id"]}'}
+         }),
+         '--projection-expression', 'id,cycleId,#s',
+         '--expression-attribute-names', json.dumps({'#s': 'status'}),
+         '--output', 'json'], capture_output=True, text=True)
+    items = json.loads(result.stdout).get('Items', [])
+    for item in items:
+        if item.get('status', {}).get('S', '') == 'ACTIVE':
+            return {
+                'id': item['id']['S'],
+                'cycleId': item.get('cycleId', {}).get('S', ''),
+            }
+    # Return first if no ACTIVE found
+    if items:
+        return {
+            'id': items[0]['id']['S'],
+            'cycleId': items[0].get('cycleId', {}).get('S', ''),
+        }
+    return None
+
+
+def seed_performance_goals(lindiwe, contract):
+    """Add goals to Lindiwe's performance contract."""
+    print("\nSeeding performance goals on Lindiwe's contract...")
+    if not contract:
+        print("  WARN No performance contract found — skipping")
+        return 0
+
+    goals = [
+        {"id": new_id("perf-goal-lindiwe-1"), "contractId": contract['id'],
+         "title": "Maintain SANS 241 water quality compliance",
+         "description": "Ensure all treatment works achieve >98% SANS 241 compliance throughout the review period.",
+         "type": "STRATEGIC", "weighting": 30, "targetValue": "98% compliance",
+         "measurementCriteria": "Monthly Blue Drop monitoring reports", "isActive": True, "sortOrder": 1, "kpis": []},
+        {"id": new_id("perf-goal-lindiwe-2"), "contractId": contract['id'],
+         "title": "Reduce chemical waste by 10%",
+         "description": "Optimise chlorine and coagulant dosing protocols to reduce chemical consumption by 10% vs FY2024/25.",
+         "type": "OPERATIONAL", "weighting": 25, "targetValue": "10% reduction",
+         "measurementCriteria": "Quarterly chemical procurement records", "isActive": True, "sortOrder": 2, "kpis": []},
+        {"id": new_id("perf-goal-lindiwe-3"), "contractId": contract['id'],
+         "title": "Complete Blue Drop certification",
+         "description": "Complete the Blue Drop Certification Programme for the Estcourt Treatment Works.",
+         "type": "DEVELOPMENT", "weighting": 25, "targetValue": "Certification obtained",
+         "measurementCriteria": "Certification documentation", "isActive": True, "sortOrder": 3, "kpis": []},
+        {"id": new_id("perf-goal-lindiwe-4"), "contractId": contract['id'],
+         "title": "Improve community engagement scores",
+         "description": "Increase community satisfaction survey scores for water service delivery by 15%.",
+         "type": "BEHAVIORAL", "weighting": 20, "targetValue": "15% improvement",
+         "measurementCriteria": "Bi-annual community survey results", "isActive": True, "sortOrder": 4, "kpis": []},
+    ]
+
+    goals_json = json.dumps(goals)
+
+    result = subprocess.run(
+        ['aws', 'dynamodb', 'update-item',
+         '--table-name', TABLE_NAME, '--region', REGION,
+         '--key', json.dumps({
+             'PK': {'S': f'TENANT#{TENANT_ID}'},
+             'SK': {'S': f'PERF_CONTRACT#{contract["id"]}'}
+         }),
+         '--update-expression', 'SET goalsJson = :g, updatedAt = :u',
+         '--expression-attribute-values', json.dumps({
+             ':g': {'S': goals_json},
+             ':u': {'S': now_iso},
+         })],
+        capture_output=True, text=True)
+
+    if result.returncode == 0:
+        print(f"  OK  Updated contract {contract['id'][:8]}... with {len(goals)} goals")
+        return goals
+    else:
+        print(f"  FAIL Contract update: {result.stderr.strip()[:80]}")
+        return []
+
+
+# ============================================================
+# 7. Seed mid-year review for Lindiwe
+# ============================================================
+def seed_midyear_review(lindiwe, contract, goals):
+    """Create a mid-year review record with self-assessment submitted."""
+    print("\nSeeding mid-year review for Lindiwe...")
+    if not contract or not goals:
+        print("  WARN No contract/goals — skipping review")
+        return 0
+
+    review_id = new_id(f"review-midyear-lindiwe")
+
+    # Goal scores with self-assessment ratings
+    goal_scores = []
+    self_scores = [3.8, 3.5, 3.0, 3.5]
+    for i, goal in enumerate(goals):
+        score_id = new_id(f"review-score-lindiwe-{i}")
+        goal_scores.append({
+            "id": score_id,
+            "reviewId": review_id,
+            "goalId": goal['id'],
+            "selfScore": self_scores[i] if i < len(self_scores) else 3.0,
+            "selfComments": f"Self-assessment for: {goal['title'][:40]}",
+        })
+
+    item = {
+        'PK':     {'S': f'TENANT#{TENANT_ID}'},
+        'SK':     {'S': f'PERF_REVIEW#{review_id}'},
+        'GSI1PK': {'S': f'PREV_CONTRACT#{TENANT_ID}#{contract["id"]}'},
+        'GSI1SK': {'S': f'PERF_REVIEW#{review_id}'},
+        'id':             {'S': review_id},
+        'tenantId':       {'S': TENANT_ID},
+        'contractId':     {'S': contract['id']},
+        'type':           {'S': 'MID_YEAR'},
+        'status':         {'S': 'EMPLOYEE_SUBMITTED'},
+        'selfRating':     {'N': '3.5'},
+        'selfAssessmentNotes': {'S': 'Maintained SANS 241 compliance across all treatment works. Introduced automated water quality reporting which reduced manual testing time by 30%. I need to improve my project documentation practices.'},
+        'selfSubmittedAt': {'S': now_iso},
+        'dueDate':        {'S': days_from_now(5).strftime('%Y-%m-%d')},
+        'goalScoresJson': {'S': json.dumps(goal_scores)},
+        'createdAt':      {'S': now_iso},
+        'updatedAt':      {'S': now_iso},
+    }
+
+    ok, err = put_item(item)
+    if ok:
+        print(f"  OK  Mid-year review: EMPLOYEE_SUBMITTED (self-rating 3.5)")
+        return 1
+    else:
+        print(f"  SKIP Mid-year review (already exists or error: {err[:60]})")
+        return 0
+
+
+# ============================================================
 # Main
 # ============================================================
 def main():
@@ -442,9 +641,24 @@ def main():
     # 4. Onboarding checklist
     onboard_count = seed_onboarding(lindiwe, hr_manager_id)
 
+    # 5. Update IDP goals
+    idp_count = update_idp_goals(lindiwe)
+
+    # 6. Performance goals on contract
+    contract = resolve_performance_contract(lindiwe)
+    if contract:
+        perf_goals = seed_performance_goals(lindiwe, contract)
+    else:
+        print("\n  WARN No performance contract found — run seed-performance-dynamodb.py first")
+        perf_goals = []
+
+    # 7. Mid-year review
+    review_count = seed_midyear_review(lindiwe, contract, perf_goals)
+
     print()
     print(f"Done: {recog_count} recognitions, {leave_count} leave requests, "
-          f"{enroll_count} enrollments, {onboard_count} onboarding checklist")
+          f"{enroll_count} enrollments, {onboard_count} onboarding checklist, "
+          f"{idp_count} IDP update, {len(perf_goals)} perf goals, {review_count} review")
 
 
 if __name__ == '__main__':
