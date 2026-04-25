@@ -320,14 +320,14 @@ def seed_onboarding(lindiwe, hr_manager_id):
     # First seed a template if it doesn't exist
     template_id = new_id("portal-template-water-tech")
     template_items = [
-        {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "order": 1},
-        {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "order": 2},
-        {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "order": 3},
-        {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "order": 4},
-        {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "order": 5},
-        {"title": "Water treatment safety orientation", "description": "Site-specific safety procedures for treatment works", "category": "SAFETY", "order": 6},
-        {"title": "Blue Drop certification briefing", "description": "Overview of Blue Drop water quality requirements", "category": "TECHNICAL", "order": 7},
-        {"title": "SCADA system training", "description": "Training on supervisory control and data acquisition systems", "category": "TECHNICAL", "order": 8},
+        {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "sortOrder": 1},
+        {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "sortOrder": 2},
+        {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "sortOrder": 3},
+        {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "sortOrder": 4},
+        {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "sortOrder": 5},
+        {"title": "Water treatment safety orientation", "description": "Site-specific safety procedures for treatment works", "category": "SAFETY", "sortOrder": 6},
+        {"title": "Blue Drop certification briefing", "description": "Overview of Blue Drop water quality requirements", "category": "TECHNICAL", "sortOrder": 7},
+        {"title": "SCADA system training", "description": "Training on supervisory control and data acquisition systems", "category": "TECHNICAL", "sortOrder": 8},
     ]
 
     template_item = {
@@ -355,7 +355,7 @@ def seed_onboarding(lindiwe, hr_manager_id):
             "title": item["title"],
             "description": item["description"],
             "category": item.get("category", ""),
-            "order": item.get("order", i + 1),
+            "sortOrder": item.get("sortOrder", i + 1),
             "status": status,
         }
         if status == "COMPLETED":

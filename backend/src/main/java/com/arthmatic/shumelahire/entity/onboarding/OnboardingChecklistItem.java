@@ -1,11 +1,13 @@
 package com.arthmatic.shumelahire.entity.onboarding;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OnboardingChecklistItem {
 
     private String id;

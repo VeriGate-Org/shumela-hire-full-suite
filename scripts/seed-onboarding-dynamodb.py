@@ -53,27 +53,27 @@ def resolve_table():
 
 # ── Templates ──────────────────────────────────────────────────────
 STANDARD_ITEMS = json.dumps([
-    {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "order": 1},
-    {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "order": 2},
-    {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "order": 3},
-    {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "order": 4},
-    {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "order": 5},
-    {"title": "Meet with line manager", "description": "Initial 1-on-1 to discuss role expectations", "category": "MANAGER", "order": 6},
-    {"title": "Complete POPIA consent forms", "description": "Sign data processing consent as per POPIA", "category": "COMPLIANCE", "order": 7},
-    {"title": "Enrol for benefits", "description": "Medical aid, provident fund, group life cover", "category": "BENEFITS", "order": 8},
+    {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "sortOrder": 1},
+    {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "sortOrder": 2},
+    {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "sortOrder": 3},
+    {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "sortOrder": 4},
+    {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "sortOrder": 5},
+    {"title": "Meet with line manager", "description": "Initial 1-on-1 to discuss role expectations", "category": "MANAGER", "sortOrder": 6},
+    {"title": "Complete POPIA consent forms", "description": "Sign data processing consent as per POPIA", "category": "COMPLIANCE", "sortOrder": 7},
+    {"title": "Enrol for benefits", "description": "Medical aid, provident fund, group life cover", "category": "BENEFITS", "sortOrder": 8},
 ])
 
 WATER_TECH_ITEMS = json.dumps([
-    {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "order": 1},
-    {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "order": 2},
-    {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "order": 3},
-    {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "order": 4},
-    {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "order": 5},
-    {"title": "Water treatment safety orientation", "description": "Site-specific safety procedures for treatment works", "category": "SAFETY", "order": 6},
-    {"title": "Blue Drop certification briefing", "description": "Overview of Blue Drop water quality requirements", "category": "TECHNICAL", "order": 7},
-    {"title": "SCADA system training", "description": "Training on supervisory control and data acquisition systems", "category": "TECHNICAL", "order": 8},
-    {"title": "Chemical handling certification", "description": "Chlorine and coagulant handling procedures", "category": "TECHNICAL", "order": 9},
-    {"title": "Emergency response drill", "description": "Participate in water contamination emergency drill", "category": "SAFETY", "order": 10},
+    {"title": "Complete personal information form", "description": "Fill in all personal details in the HR system", "category": "HR", "sortOrder": 1},
+    {"title": "Submit certified ID copy", "description": "Provide certified copy of South African ID", "category": "HR", "sortOrder": 2},
+    {"title": "Set up IT accounts", "description": "Email, VPN access, and system credentials", "category": "IT", "sortOrder": 3},
+    {"title": "Attend health and safety induction", "description": "Mandatory OHS Act compliance training", "category": "SAFETY", "sortOrder": 4},
+    {"title": "Review employee handbook", "description": "Read and acknowledge company policies", "category": "POLICY", "sortOrder": 5},
+    {"title": "Water treatment safety orientation", "description": "Site-specific safety procedures for treatment works", "category": "SAFETY", "sortOrder": 6},
+    {"title": "Blue Drop certification briefing", "description": "Overview of Blue Drop water quality requirements", "category": "TECHNICAL", "sortOrder": 7},
+    {"title": "SCADA system training", "description": "Training on supervisory control and data acquisition systems", "category": "TECHNICAL", "sortOrder": 8},
+    {"title": "Chemical handling certification", "description": "Chlorine and coagulant handling procedures", "category": "TECHNICAL", "sortOrder": 9},
+    {"title": "Emergency response drill", "description": "Participate in water contamination emergency drill", "category": "SAFETY", "sortOrder": 10},
 ])
 
 TEMPLATES = [
@@ -120,7 +120,7 @@ def make_checklist_items(template_items_json, completed_count):
     for i, item in enumerate(items):
         status = "COMPLETED" if i < completed_count else "PENDING"
         completed_at = (now - timedelta(days=len(items) - i)).strftime('%Y-%m-%dT%H:%M:%SZ') if status == "COMPLETED" else None
-        entry = {"title": item["title"], "description": item["description"], "category": item.get("category", ""), "order": item.get("order", i + 1), "status": status}
+        entry = {"title": item["title"], "description": item["description"], "category": item.get("category", ""), "sortOrder": item.get("sortOrder", i + 1), "status": status}
         if completed_at:
             entry["completedAt"] = completed_at
         result.append(entry)
