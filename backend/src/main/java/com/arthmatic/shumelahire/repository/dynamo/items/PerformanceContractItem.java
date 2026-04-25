@@ -7,8 +7,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
-import java.time.LocalDateTime;
-
 @DynamoDbBean
 public class PerformanceContractItem {
     private String pk;
@@ -28,17 +26,17 @@ public class PerformanceContractItem {
     private String jobLevel;
     private String templateId;
     private String status;
-    private LocalDateTime submittedAt;
-    private LocalDateTime approvedAt;
+    private String submittedAt;
+    private String approvedAt;
     private String approvedBy;
     private String approvalComments;
     private String rejectionReason;
     private Integer version;
     private String amendmentReason;
-    private LocalDateTime amendedAt;
+    private String amendedAt;
     private String amendedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute("PK")
@@ -184,19 +182,19 @@ public class PerformanceContractItem {
         this.status = status;
     }
 
-    public LocalDateTime getSubmittedAt() {
+    public String getSubmittedAt() {
         return submittedAt;
     }
 
-    public void setSubmittedAt(LocalDateTime submittedAt) {
+    public void setSubmittedAt(String submittedAt) {
         this.submittedAt = submittedAt;
     }
 
-    public LocalDateTime getApprovedAt() {
+    public String getApprovedAt() {
         return approvedAt;
     }
 
-    public void setApprovedAt(LocalDateTime approvedAt) {
+    public void setApprovedAt(String approvedAt) {
         this.approvedAt = approvedAt;
     }
 
@@ -240,11 +238,11 @@ public class PerformanceContractItem {
         this.amendmentReason = amendmentReason;
     }
 
-    public LocalDateTime getAmendedAt() {
+    public String getAmendedAt() {
         return amendedAt;
     }
 
-    public void setAmendedAt(LocalDateTime amendedAt) {
+    public void setAmendedAt(String amendedAt) {
         this.amendedAt = amendedAt;
     }
 
@@ -256,19 +254,19 @@ public class PerformanceContractItem {
         this.amendedBy = amendedBy;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 }
