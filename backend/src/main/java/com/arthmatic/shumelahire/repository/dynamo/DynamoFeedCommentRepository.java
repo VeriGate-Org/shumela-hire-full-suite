@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,20 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
                 .collect(Collectors.toList());
     }
 
+    private static LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            String cleaned = value.endsWith("Z") ? value.substring(0, value.length() - 1) : value;
+            return LocalDateTime.parse(cleaned);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static String formatDateTime(LocalDateTime value) {
+        return value != null ? value.toString() : null;
+    }
+
     @Override
     protected FeedComment toEntity(FeedCommentItem item) {
         var e = new FeedComment();
@@ -54,7 +69,7 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
         }
         e.setAuthorName(item.getAuthorName());
         e.setContent(item.getContent());
-        e.setCreatedAt(item.getCreatedAt());
+        e.setCreatedAt(parseDateTime(item.getCreatedAt()));
         return e;
     }
 
@@ -70,7 +85,7 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
         item.setSk("FEED_COMMENT#" + id);
         if (postId != null) {
             item.setGsi1pk("FEED_COMMENT_POST#" + tenantId + "#" + postId);
-            item.setGsi1sk("FEED_COMMENT#" + createdAt);
+            item.setGsi1sk("FEED_COMMENT#" + formatDateTime(createdAt));
         }
 
         item.setId(id);
@@ -81,7 +96,7 @@ public class DynamoFeedCommentRepository extends DynamoRepository<FeedCommentIte
         }
         item.setAuthorName(entity.getAuthorName());
         item.setContent(entity.getContent());
-        item.setCreatedAt(createdAt);
+        item.setCreatedAt(formatDateTime(createdAt));
         return item;
     }
 }

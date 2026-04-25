@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +43,20 @@ public class DynamoFeedReactionRepository extends DynamoRepository<FeedReactionI
                 .findFirst();
     }
 
+    private static LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            String cleaned = value.endsWith("Z") ? value.substring(0, value.length() - 1) : value;
+            return LocalDateTime.parse(cleaned);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static String formatDateTime(LocalDateTime value) {
+        return value != null ? value.toString() : null;
+    }
+
     @Override
     protected FeedReaction toEntity(FeedReactionItem item) {
         var e = new FeedReaction();
@@ -58,7 +73,7 @@ public class DynamoFeedReactionRepository extends DynamoRepository<FeedReactionI
         if (item.getReactionType() != null) {
             e.setReactionType(FeedReaction.ReactionType.valueOf(item.getReactionType()));
         }
-        e.setCreatedAt(item.getCreatedAt());
+        e.setCreatedAt(parseDateTime(item.getCreatedAt()));
         return e;
     }
 
@@ -74,7 +89,7 @@ public class DynamoFeedReactionRepository extends DynamoRepository<FeedReactionI
         item.setSk("FEED_REACTION#" + id);
         if (postId != null) {
             item.setGsi1pk("FEED_REACTION_POST#" + tenantId + "#" + postId);
-            item.setGsi1sk("FEED_REACTION#" + createdAt);
+            item.setGsi1sk("FEED_REACTION#" + formatDateTime(createdAt));
         }
 
         item.setId(id);
@@ -86,7 +101,7 @@ public class DynamoFeedReactionRepository extends DynamoRepository<FeedReactionI
         if (entity.getReactionType() != null) {
             item.setReactionType(entity.getReactionType().name());
         }
-        item.setCreatedAt(createdAt);
+        item.setCreatedAt(formatDateTime(createdAt));
         return item;
     }
 }

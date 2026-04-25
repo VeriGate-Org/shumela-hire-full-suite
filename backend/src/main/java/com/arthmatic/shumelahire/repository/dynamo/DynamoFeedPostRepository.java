@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +59,20 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
                 .collect(Collectors.toList());
     }
 
+    private static LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            String cleaned = value.endsWith("Z") ? value.substring(0, value.length() - 1) : value;
+            return LocalDateTime.parse(cleaned);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static String formatDateTime(LocalDateTime value) {
+        return value != null ? value.toString() : null;
+    }
+
     @Override
     protected FeedPost toEntity(FeedPostItem item) {
         var e = new FeedPost();
@@ -75,7 +90,7 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
             e.setCategory(FeedPost.FeedCategory.valueOf(item.getCategory()));
         }
         e.setPinned(item.getPinned());
-        e.setPublishedAt(item.getPublishedAt());
+        e.setPublishedAt(parseDateTime(item.getPublishedAt()));
         if (item.getStatus() != null) {
             e.setStatus(FeedPost.PostStatus.valueOf(item.getStatus()));
         }
@@ -85,8 +100,8 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
         if (item.getReactionCount() != null) {
             e.setReactionCount(item.getReactionCount());
         }
-        e.setCreatedAt(item.getCreatedAt());
-        e.setUpdatedAt(item.getUpdatedAt());
+        e.setCreatedAt(parseDateTime(item.getCreatedAt()));
+        e.setUpdatedAt(parseDateTime(item.getUpdatedAt()));
         return e;
     }
 
@@ -102,7 +117,7 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
         item.setSk("FEED_POST#" + id);
         if (category != null) {
             item.setGsi1pk("FEED_POST_CAT#" + tenantId + "#" + category);
-            item.setGsi1sk("FEED_POST#" + createdAt);
+            item.setGsi1sk("FEED_POST#" + formatDateTime(createdAt));
         }
 
         item.setId(id);
@@ -115,14 +130,14 @@ public class DynamoFeedPostRepository extends DynamoRepository<FeedPostItem, Fee
         item.setContent(entity.getContent());
         item.setCategory(category);
         item.setPinned(entity.getPinned());
-        item.setPublishedAt(entity.getPublishedAt());
+        item.setPublishedAt(formatDateTime(entity.getPublishedAt()));
         if (entity.getStatus() != null) {
             item.setStatus(entity.getStatus().name());
         }
         item.setCommentCount(entity.getCommentCount());
         item.setReactionCount(entity.getReactionCount());
-        item.setCreatedAt(createdAt);
-        item.setUpdatedAt(entity.getUpdatedAt());
+        item.setCreatedAt(formatDateTime(createdAt));
+        item.setUpdatedAt(formatDateTime(entity.getUpdatedAt()));
         return item;
     }
 }

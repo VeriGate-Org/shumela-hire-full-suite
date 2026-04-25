@@ -67,7 +67,16 @@ public class FeedController {
 
     @GetMapping("/pinned")
     public ResponseEntity<?> getPinnedPosts() {
-        return ResponseEntity.ok(postRepository.findPinned());
+        List<FeedPost> posts = postRepository.findPinned();
+        for (FeedPost post : posts) {
+            List<FeedComment> comments = commentRepository.findByPostId(post.getId());
+            List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
+            post.setComments(comments);
+            post.setReactions(reactions);
+            post.setCommentCount(comments.size());
+            post.setReactionCount(reactions.size());
+        }
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")
