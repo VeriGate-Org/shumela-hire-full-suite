@@ -43,23 +43,41 @@ public class FeedController {
                                      @RequestParam(defaultValue = "20") int size,
                                      @RequestParam(required = false) String category) {
         List<FeedPost> posts;
-        if (category != null && !category.isEmpty()) {
-            posts = postRepository.findByCategory(category, page, size);
-        } else {
-            posts = postRepository.findAll(page, size);
+        try {
+            if (category != null && !category.isEmpty()) {
+                posts = postRepository.findByCategory(category, page, size);
+            } else {
+                posts = postRepository.findAll(page, size);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to query feed posts (category={}): {}", category, e.getMessage(), e);
+            posts = List.of();
         }
         // Enrich with comments and reactions
         for (FeedPost post : posts) {
-            List<FeedComment> comments = commentRepository.findByPostId(post.getId());
-            List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
-            post.setComments(comments);
-            post.setReactions(reactions);
-            post.setCommentCount(comments.size());
-            post.setReactionCount(reactions.size());
+            try {
+                List<FeedComment> comments = commentRepository.findByPostId(post.getId());
+                List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
+                post.setComments(comments);
+                post.setReactions(reactions);
+                post.setCommentCount(comments.size());
+                post.setReactionCount(reactions.size());
+            } catch (Exception e) {
+                logger.warn("Failed to enrich post {}: {}", post.getId(), e.getMessage());
+                post.setComments(List.of());
+                post.setReactions(List.of());
+            }
+        }
+        long total;
+        try {
+            total = postRepository.count();
+        } catch (Exception e) {
+            logger.warn("Failed to count feed posts: {}", e.getMessage());
+            total = posts.size();
         }
         return ResponseEntity.ok(Map.of(
                 "content", posts,
-                "totalElements", postRepository.count(),
+                "totalElements", total,
                 "page", page,
                 "size", size
         ));
@@ -67,14 +85,26 @@ public class FeedController {
 
     @GetMapping("/pinned")
     public ResponseEntity<?> getPinnedPosts() {
-        List<FeedPost> posts = postRepository.findPinned();
+        List<FeedPost> posts;
+        try {
+            posts = postRepository.findPinned();
+        } catch (Exception e) {
+            logger.error("Failed to query pinned posts: {}", e.getMessage(), e);
+            posts = List.of();
+        }
         for (FeedPost post : posts) {
-            List<FeedComment> comments = commentRepository.findByPostId(post.getId());
-            List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
-            post.setComments(comments);
-            post.setReactions(reactions);
-            post.setCommentCount(comments.size());
-            post.setReactionCount(reactions.size());
+            try {
+                List<FeedComment> comments = commentRepository.findByPostId(post.getId());
+                List<FeedReaction> reactions = reactionRepository.findByPostId(post.getId());
+                post.setComments(comments);
+                post.setReactions(reactions);
+                post.setCommentCount(comments.size());
+                post.setReactionCount(reactions.size());
+            } catch (Exception e) {
+                logger.warn("Failed to enrich pinned post {}: {}", post.getId(), e.getMessage());
+                post.setComments(List.of());
+                post.setReactions(List.of());
+            }
         }
         return ResponseEntity.ok(posts);
     }

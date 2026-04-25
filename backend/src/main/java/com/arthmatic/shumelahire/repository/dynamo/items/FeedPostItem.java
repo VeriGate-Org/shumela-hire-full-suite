@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.repository.dynamo.items;
 
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
@@ -28,6 +29,7 @@ public class FeedPostItem {
     private String updatedAt;
 
     @DynamoDbPartitionKey
+    @DynamoDbAttribute("PK")
     public String getPk() {
         return pk;
     }
@@ -37,6 +39,7 @@ public class FeedPostItem {
     }
 
     @DynamoDbSortKey
+    @DynamoDbAttribute("SK")
     public String getSk() {
         return sk;
     }
@@ -46,6 +49,7 @@ public class FeedPostItem {
     }
 
     @DynamoDbSecondaryPartitionKey(indexNames = "GSI1")
+    @DynamoDbAttribute("GSI1PK")
     public String getGsi1pk() {
         return gsi1pk;
     }
@@ -55,6 +59,7 @@ public class FeedPostItem {
     }
 
     @DynamoDbSecondarySortKey(indexNames = "GSI1")
+    @DynamoDbAttribute("GSI1SK")
     public String getGsi1sk() {
         return gsi1sk;
     }
