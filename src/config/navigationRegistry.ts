@@ -113,7 +113,7 @@ export const navigationRegistry: NavigationEntry[] = [
 
   // Workflow & AI — automation tools
   { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'workflow', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },
-  { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: SparklesIcon, section: 'workflow', requiredPermissions: ['view_dashboard'], requiredFeature: 'AI_ENABLED', badge: 'AI' },
+  { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: SparklesIcon, section: 'workflow', requiredPermissions: ['manage_jobs'], requiredFeature: 'AI_ENABLED', badge: 'AI' },
 
   // Analytics
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
