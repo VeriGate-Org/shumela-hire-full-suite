@@ -20,7 +20,7 @@ REGION = os.environ.get('AWS_REGION', 'af-south-1')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 
 now = datetime.now(timezone.utc)
-now_iso = now.strftime('%Y-%m-%dT%H:%M:%S')
+now_iso = now.strftime('%Y-%m-%dT%H:%M:%SZ')
 random.seed(99)
 
 _id_counter = 0
@@ -41,7 +41,7 @@ def emp_id(emp_number):
 
 
 def iso(dt):
-    return dt.strftime('%Y-%m-%dT%H:%M:%S')
+    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def days_ago(n):
