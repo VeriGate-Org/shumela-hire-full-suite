@@ -58,7 +58,7 @@ export default function MyPerformancePage() {
   useEffect(() => {
     if (!employeeId) return;
 
-    const fetchContracts = apiFetch('/api/performance/contracts')
+    const fetchContracts = apiFetch(`/api/performance/contracts?employeeId=${employeeId}`)
       .then(res => res.ok ? res.json() : [])
       .catch(() => []);
 
@@ -73,7 +73,7 @@ export default function MyPerformancePage() {
       .then(([contractsRes, reviewsRes, selfRes]) => {
         if (contractsRes.status === 'fulfilled') {
           const all = Array.isArray(contractsRes.value) ? contractsRes.value : (contractsRes.value?.content ?? []);
-          setContracts(all.filter((c: PerformanceContract) => c.employeeId === employeeId));
+          setContracts(Array.isArray(all) ? all : []);
         }
         if (reviewsRes.status === 'fulfilled') {
           setReviews(Array.isArray(reviewsRes.value) ? reviewsRes.value : []);
