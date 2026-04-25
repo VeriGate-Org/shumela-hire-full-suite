@@ -48,8 +48,8 @@ describe('Authorization alignment', () => {
     expectNavRoles('time-attendance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE']);
     expectNavRoles('shift-scheduling', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER']);
     expectNavRoles('employee-self-service', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EMPLOYEE', 'APPLICANT']);
-    expectNavRoles('training', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);
-    expectNavRoles('performance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE', 'EMPLOYEE']);
+    expectNavRoles('training', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE']);
+    expectNavRoles('performance', ['ADMIN', 'HR_MANAGER', 'LINE_MANAGER', 'EXECUTIVE']);
     expectNavRoles('engagement', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('compliance', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('labour-relations', ['ADMIN', 'HR_MANAGER']);
