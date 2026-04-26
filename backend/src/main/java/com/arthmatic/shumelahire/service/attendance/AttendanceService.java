@@ -8,6 +8,9 @@ import com.arthmatic.shumelahire.service.AuditLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,9 @@ public class AttendanceService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private com.arthmatic.shumelahire.repository.UserDataRepository userRepository;
 
     public AttendanceRecord clockIn(String employeeId, ClockMethod method, Double latitude, Double longitude) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -105,9 +111,38 @@ public class AttendanceService {
 
     @Transactional(readOnly = true)
     public List<AttendanceRecord> getTeamAttendance(String department, LocalDateTime start, LocalDateTime end) {
+        validateDepartmentAccess(department);
         List<AttendanceRecord> records = attendanceRecordRepository.findByDepartmentAndDateRange(department, start, end);
         enrichAttendanceRecords(records);
         return records;
+    }
+
+    /**
+     * For LINE_MANAGER (and only LINE_MANAGER), require that the requested department
+     * matches the manager's own department. ADMIN/HR_MANAGER may query any department.
+     */
+    private void validateDepartmentAccess(String department) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return;
+
+        boolean isLineManager = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+        boolean isAdminOrHr = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_HR_MANAGER"));
+
+        if (!isLineManager || isAdminOrHr) return;
+
+        String username = auth.getName();
+        Employee callerEmployee = userRepository.findByUsername(username)
+                .map(u -> u.getEmail())
+                .flatMap(employeeRepository::findByEmail)
+                .orElse(null);
+
+        if (callerEmployee == null || callerEmployee.getDepartment() == null
+                || !callerEmployee.getDepartment().equalsIgnoreCase(department)) {
+            throw new AccessDeniedException("You can only view attendance for your own department");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -165,7 +200,7 @@ public class AttendanceService {
         return record;
     }
 
-    public AttendanceRecord approveManualEntry(String id) {
+    public AttendanceRecord approveManualEntry(String id, String approverId) {
         AttendanceRecord record = attendanceRecordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Attendance record not found: " + id));
 
@@ -173,12 +208,29 @@ public class AttendanceService {
             throw new IllegalArgumentException("Record is not pending approval");
         }
 
+        validateManagerAccess(record.getEmployee().getId(), approverId);
+
         record.setStatus(AttendanceStatus.PRESENT);
         record = attendanceRecordRepository.save(record);
 
-        auditLogService.saveLog("SYSTEM", "APPROVE", "ATTENDANCE",
-                record.getId().toString(), "Manual attendance entry approved");
-        logger.info("Manual attendance entry {} approved", id);
+        auditLogService.saveLog(approverId, "APPROVE", "ATTENDANCE",
+                record.getId().toString(), "Manual attendance entry approved by " + approverId);
+        logger.info("Manual attendance entry {} approved by {}", id, approverId);
         return record;
+    }
+
+    private void validateManagerAccess(String employeeId, String approverId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLineManager = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+
+        if (isLineManager) {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+            if (employee.getReportingManager() == null
+                    || !employee.getReportingManager().getId().equals(approverId)) {
+                throw new AccessDeniedException("You can only approve attendance for your direct reports");
+            }
+        }
     }
 }

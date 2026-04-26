@@ -5,6 +5,7 @@ import { UserRole } from '../../contexts/AuthContext';
 import AdminDashboard from './role-dashboards/AdminDashboard';
 import HRDashboard from './role-dashboards/HRDashboard';
 import HiringManagerDashboard from './role-dashboards/HiringManagerDashboard';
+import LineManagerDashboard from './role-dashboards/LineManagerDashboard';
 import RecruiterDashboard from './role-dashboards/RecruiterDashboard';
 import InterviewerDashboard from './role-dashboards/InterviewerDashboard';
 import ApplicantDashboard from './role-dashboards/ApplicantDashboard';
@@ -29,6 +30,8 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
       return <AdminDashboard {...dashboardProps} />;
     case 'HR_MANAGER':
       return <HRDashboard {...dashboardProps} />;
+    case 'LINE_MANAGER':
+      return <LineManagerDashboard {...dashboardProps} />;
     case 'HIRING_MANAGER':
       return <HiringManagerDashboard {...dashboardProps} />;
     case 'RECRUITER':

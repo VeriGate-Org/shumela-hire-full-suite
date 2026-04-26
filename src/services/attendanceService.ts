@@ -172,9 +172,15 @@ export const attendanceService = {
     return await response.json();
   },
 
-  async approveManualEntry(id: string): Promise<AttendanceRecord> {
-    const response = await apiFetch(`/api/attendance/manual/${id}/approve`, { method: 'PUT' });
-    if (!response.ok) throw new Error('Failed to approve entry');
+  async approveManualEntry(id: string, approverId: string): Promise<AttendanceRecord> {
+    const response = await apiFetch(
+      `/api/attendance/manual/${id}/approve?approverId=${encodeURIComponent(approverId)}`,
+      { method: 'PUT' }
+    );
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to approve entry');
+    }
     return await response.json();
   },
 
