@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.entity.attendance.OvertimeRecord;
 import com.arthmatic.shumelahire.entity.attendance.OvertimeStatus;
 import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.repository.OvertimeRecordDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,6 +35,9 @@ public class OvertimeService {
 
     @Autowired
     private EmployeeDataRepository employeeRepository;
+
+    @Autowired
+    private UserDataRepository userRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -119,6 +124,39 @@ public class OvertimeService {
 
     @Transactional(readOnly = true)
     public List<OvertimeRecord> getPending() {
-        return overtimeRecordRepository.findByStatus(OvertimeStatus.PENDING);
+        List<OvertimeRecord> records = overtimeRecordRepository.findByStatus(OvertimeStatus.PENDING);
+        return scopeToCallerIfLineManager(records);
+    }
+
+    private List<OvertimeRecord> scopeToCallerIfLineManager(List<OvertimeRecord> records) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return records;
+
+        boolean isLineManager = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+        boolean isAdminOrHr = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_HR_MANAGER"));
+
+        if (!isLineManager || isAdminOrHr) return records;
+
+        String callerEmployeeId = resolveCallerEmployeeId(auth);
+        if (callerEmployeeId == null) return List.of();
+
+        return records.stream()
+                .filter(r -> r.getEmployee() != null
+                        && r.getEmployee().getReportingManager() != null
+                        && callerEmployeeId.equals(r.getEmployee().getReportingManager().getId()))
+                .collect(Collectors.toList());
+    }
+
+    private String resolveCallerEmployeeId(Authentication auth) {
+        String username = auth.getName();
+        if (username == null) return null;
+        return userRepository.findByUsername(username)
+                .map(u -> u.getEmail())
+                .flatMap(employeeRepository::findByEmail)
+                .map(Employee::getId)
+                .orElse(null);
     }
 }

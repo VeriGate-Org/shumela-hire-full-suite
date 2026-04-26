@@ -10,6 +10,7 @@ import com.arthmatic.shumelahire.entity.training.TrainingSession;
 import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.repository.TrainingEnrollmentDataRepository;
 import com.arthmatic.shumelahire.repository.TrainingSessionDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.entity.NotificationPriority;
 import com.arthmatic.shumelahire.entity.NotificationType;
 import com.arthmatic.shumelahire.service.AuditLogService;
@@ -17,6 +18,9 @@ import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,9 @@ public class TrainingEnrollmentService {
 
     @Autowired
     private EmployeeDataRepository employeeRepository;
+
+    @Autowired
+    private UserDataRepository userRepository;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -67,6 +74,8 @@ public class TrainingEnrollmentService {
 
         Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + request.getEmployeeId()));
+
+        validateManagerAccess(employee);
 
         // Check session is open
         if (session.getStatus() != SessionStatus.OPEN && session.getStatus() != SessionStatus.PLANNED) {
@@ -169,5 +178,40 @@ public class TrainingEnrollmentService {
                 NotificationType.APPROVAL_DENIED, NotificationPriority.MEDIUM);
 
         return TrainingEnrollmentResponse.fromEntity(saved);
+    }
+
+    /**
+     * For LINE_MANAGER (and only LINE_MANAGER), the target employee must be the
+     * caller themself or a direct report. ADMIN/HR_MANAGER bypass this check.
+     */
+    private void validateManagerAccess(Employee target) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return;
+
+        boolean isLineManager = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+        boolean isAdminOrHr = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_HR_MANAGER"));
+
+        if (!isLineManager || isAdminOrHr) return;
+
+        String callerEmployeeId = userRepository.findByUsername(auth.getName())
+                .map(u -> u.getEmail())
+                .flatMap(employeeRepository::findByEmail)
+                .map(Employee::getId)
+                .orElse(null);
+
+        if (callerEmployeeId == null) {
+            throw new AccessDeniedException("Caller could not be resolved to an employee record");
+        }
+
+        boolean isSelf = callerEmployeeId.equals(target.getId());
+        boolean isDirectReport = target.getReportingManager() != null
+                && callerEmployeeId.equals(target.getReportingManager().getId());
+
+        if (!isSelf && !isDirectReport) {
+            throw new AccessDeniedException("You can only enroll yourself or your direct reports");
+        }
     }
 }

@@ -63,12 +63,16 @@ public class AttendanceController {
 
     @GetMapping("/team")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<List<AttendanceRecord>> getTeamAttendance(
+    public ResponseEntity<?> getTeamAttendance(
             @RequestParam String department,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return ResponseEntity.ok(attendanceService.getTeamAttendance(department,
-                startDate.atStartOfDay(), endDate.atTime(23, 59, 59)));
+        try {
+            return ResponseEntity.ok(attendanceService.getTeamAttendance(department,
+                    startDate.atStartOfDay(), endDate.atTime(23, 59, 59)));
+        } catch (org.springframework.security.access.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        }
     }
 
     // ---- Overtime ----
@@ -152,12 +156,15 @@ public class AttendanceController {
 
     @PutMapping("/manual/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER','LINE_MANAGER')")
-    public ResponseEntity<?> approveManualEntry(@PathVariable String id) {
+    public ResponseEntity<?> approveManualEntry(@PathVariable String id,
+                                                @RequestParam String approverId) {
         try {
-            AttendanceRecord record = attendanceService.approveManualEntry(id);
+            AttendanceRecord record = attendanceService.approveManualEntry(id, approverId);
             return ResponseEntity.ok(record);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (org.springframework.security.access.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
         }
     }
 }

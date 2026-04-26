@@ -8,6 +8,7 @@ import com.arthmatic.shumelahire.entity.leave.*;
 import com.arthmatic.shumelahire.repository.EmployeeDataRepository;
 import com.arthmatic.shumelahire.repository.LeaveRequestDataRepository;
 import com.arthmatic.shumelahire.repository.LeaveTypeDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 import com.arthmatic.shumelahire.service.NotificationService;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class LeaveRequestService {
 
     @Autowired
     private EmployeeDataRepository employeeRepository;
+
+    @Autowired
+    private UserDataRepository userRepository;
 
     @Autowired
     private LeaveBalanceService leaveBalanceService;
@@ -276,9 +280,46 @@ public class LeaveRequestService {
     public List<LeaveRequestResponse> getAllByStatus(LeaveRequestStatus status) {
         List<LeaveRequest> requests = leaveRequestRepository.findByStatus(status);
         enrichLeaveRequests(requests);
-        return requests.stream()
+        List<LeaveRequest> scoped = scopeToCallerIfLineManager(requests);
+        return scoped.stream()
                 .map(LeaveRequestResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * If the caller has the LINE_MANAGER role (and only that — not also ADMIN/HR_MANAGER),
+     * filter requests down to those whose employee reports to the caller.
+     */
+    private List<LeaveRequest> scopeToCallerIfLineManager(List<LeaveRequest> requests) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return requests;
+
+        boolean isLineManager = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_LINE_MANAGER"));
+        boolean isAdminOrHr = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_HR_MANAGER"));
+
+        if (!isLineManager || isAdminOrHr) return requests;
+
+        String callerEmployeeId = resolveCallerEmployeeId(auth);
+        if (callerEmployeeId == null) return List.of();
+
+        return requests.stream()
+                .filter(r -> r.getEmployee() != null
+                        && r.getEmployee().getReportingManager() != null
+                        && callerEmployeeId.equals(r.getEmployee().getReportingManager().getId()))
+                .collect(Collectors.toList());
+    }
+
+    private String resolveCallerEmployeeId(Authentication auth) {
+        String username = auth.getName();
+        if (username == null) return null;
+        return userRepository.findByUsername(username)
+                .map(u -> u.getEmail())
+                .flatMap(employeeRepository::findByEmail)
+                .map(Employee::getId)
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
