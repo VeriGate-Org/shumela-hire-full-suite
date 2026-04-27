@@ -130,6 +130,16 @@ USERS = [
         "department": "Water Services",
         "location": "Estcourt Treatment Works",
     },
+    {
+        "email": "line.manager@uthukela.shumelahire.co.za",
+        "username": "line.manager@uthukela.shumelahire.co.za",
+        "firstName": "John",
+        "lastName": "van Wyk",
+        "role": "LINE_MANAGER",
+        "jobTitle": "Operations Supervisor",
+        "department": "Operations",
+        "location": "Newcastle Head Office",
+    },
 ]
 
 
