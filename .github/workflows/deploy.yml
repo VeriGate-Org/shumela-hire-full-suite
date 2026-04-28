@@ -404,3 +404,21 @@ jobs:
       #   scripts/seed-uthukela-water-cognito-users.sh  (Cognito users)
       #   scripts/seed-uthukela-demo.sh                 (tenant + full data)
 
+      # ── Patch uThukela line-manager reporting (dev only) ──────────────
+      # Idempotent: backfills reportingManagerId / GSI5PK on the 5 demo
+      # employees that report to John van Wyk (UTH-011) so the LINE_MANAGER
+      # dashboard renders direct reports without manual intervention. Safe
+      # to run on every deploy — uses update-item with conditional check.
+      - name: Patch uThukela line-manager reporting
+        if: inputs.environment == 'dev'
+        env:
+          AWS_REGION: ${{ inputs.aws-region }}
+          STACK_PREFIX: shumelahire-${{ inputs.environment }}
+        run: |
+          if [ ! -f scripts/patch-uthukela-line-manager-reports.py ]; then
+            echo "Patch script not found — skipping (older branch)."
+            exit 0
+          fi
+          python3 scripts/patch-uthukela-line-manager-reports.py || \
+            echo "WARN: patch script failed (employees may not be seeded yet) — non-fatal"
+
