@@ -79,14 +79,17 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 
   const getHeightClass = () => {
     if (isCollapsed) return 'h-auto';
-    
+
+    // min-h instead of h: the widget keeps a baseline footprint but grows
+    // to fit content. A hard h-* would let tall content overflow into the
+    // next sibling because the outer box has no overflow-hidden.
     switch (size) {
       case 'small':
-        return 'h-64';
+        return 'min-h-64';
       case 'large':
-        return 'h-96';
+        return 'min-h-96';
       default:
-        return 'h-80';
+        return 'min-h-80';
     }
   };
 
