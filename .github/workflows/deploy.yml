@@ -422,21 +422,21 @@ jobs:
           python3 scripts/patch-uthukela-line-manager-reports.py || \
             echo "WARN: patch script failed (employees may not be seeded yet) — non-fatal"
 
-      # ── Reset uThukela executive demo password (dev only) ─────────────
-      # Idempotent: restores executive@uthukela.shumelahire.co.za to the
-      # documented demo password (Demo@2026!) so the EXECUTIVE-role demo
-      # login works without manual Cognito intervention. Safe to run on
-      # every deploy — admin-set-user-password is unconditional.
-      - name: Reset uThukela executive demo password
+      # ── Reset uThukela demo passwords (dev only) ──────────────────────
+      # Idempotent: restores all uThukela demo accounts to the documented
+      # demo password (Demo@2026!) so role-based demo logins work without
+      # manual Cognito intervention. Safe to run on every deploy —
+      # admin-set-user-password is unconditional.
+      - name: Reset uThukela demo passwords
         if: inputs.environment == 'dev'
         env:
           AWS_REGION: ${{ inputs.aws-region }}
           STACK_PREFIX: shumelahire-${{ inputs.environment }}
         run: |
-          if [ ! -f scripts/reset-uthukela-executive-password.sh ]; then
+          if [ ! -f scripts/reset-uthukela-demo-passwords.sh ]; then
             echo "Reset script not found — skipping (older branch)."
             exit 0
           fi
-          bash scripts/reset-uthukela-executive-password.sh || \
-            echo "WARN: executive password reset failed — non-fatal"
+          bash scripts/reset-uthukela-demo-passwords.sh || \
+            echo "WARN: demo password reset failed — non-fatal"
 
