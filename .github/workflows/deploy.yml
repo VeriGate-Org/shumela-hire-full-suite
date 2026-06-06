@@ -108,7 +108,7 @@ jobs:
       # ── Phase 1: Deploy foundation (Cognito, S3, Secrets) ──────────────
       - name: Cleanup foundation stack and orphaned resources
         run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
           STACK_NAME="${PREFIX}-foundation"
           REGION="${{ inputs.aws-region }}"
 
@@ -173,7 +173,8 @@ jobs:
           LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
         run: |
-          cdk deploy shumelahire-${{ inputs.environment }}-foundation --require-approval never \
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
+          cdk deploy ${PREFIX}-foundation --require-approval never \
             -c env=${{ inputs.environment }} \
             -c domain=${{ inputs.domain-name }} \
             -c hostedZoneName=${{ steps.zone.outputs.name }} \
@@ -236,7 +237,7 @@ jobs:
       - name: Get CDK outputs
         id: cdk-outputs
         run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
           echo "user_pool_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "user_pool_client_id=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)" >> $GITHUB_OUTPUT
           echo "cognito_domain=$(aws cloudformation describe-stacks --stack-name ${PREFIX}-foundation --query 'Stacks[0].Outputs[?OutputKey==`CognitoDomain`].OutputValue' --output text)" >> $GITHUB_OUTPUT
@@ -263,7 +264,7 @@ jobs:
       # ── Phase 3: Deploy all remaining stacks ─────────────────────────
       - name: Cleanup ROLLBACK_COMPLETE stacks
         run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
           for STACK_NAME in "${PREFIX}-api" "${PREFIX}-frontend" "${PREFIX}-serverless" "${PREFIX}-analytics"; do
             STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region ${{ inputs.aws-region }} \
               --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
@@ -301,7 +302,7 @@ jobs:
       # ── Deploy frontend to S3 (after CDK creates the bucket) ────────
       - name: Deploy frontend to S3
         run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
           FRONTEND_BUCKET="${PREFIX}-frontend"
           REGION="${{ inputs.aws-region }}"
 
@@ -343,7 +344,7 @@ jobs:
       - name: Wait for Lambda readiness
         if: inputs.environment == 'dev'
         run: |
-          PREFIX="shumelahire-${{ inputs.environment }}"
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
           REGION="${{ inputs.aws-region }}"
           FUNCTION_NAME=$(aws cloudformation describe-stacks \
             --stack-name "${PREFIX}-serverless" \
@@ -393,7 +394,7 @@ jobs:
           # If warmup failed, dump Lambda CloudWatch logs for debugging
           if [ "$STATUS_CODE" = "error" ]; then
             echo "--- Lambda CloudWatch Logs (last 5 min) ---"
-            PREFIX="shumelahire-${{ inputs.environment }}"
+            PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
             LOG_GROUP="/aws/lambda/${PREFIX}-api"
             echo "Reading from log group: $LOG_GROUP"
             aws logs tail "$LOG_GROUP" --since 5m --region "$REGION" --format short 2>&1 | tail -200 || echo "Could not read CloudWatch logs from $LOG_GROUP"
