@@ -1,0 +1,29 @@
+$TTL 7200 ;
+$ORIGIN shumelahire.co.za.
+@ IN SOA ns1.host-h.net. postmaster.shumelahire.co.za. ( 2026033101 86400 1800 3600000 86400 )
+
+@ IN NS ns1.dns-h.com.
+@ IN NS ns1.host-h.net.
+@ IN NS ns2.dns-h.com.
+@ IN NS ns2.host-h.net.
+
+@ IN MX 10 mail
+
+@ IN TXT "v=spf1 mx a include:spf.host-h.net ?all"
+xneelo._domainkey IN TXT "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2ercCivNdauyUDcfXREMvpi7QfLuy+GlM/kh8331nuedhGJfxwjicQ2aQqfY12diBJTlLPWrzByICvwQeVbcNeWBeZQnSP3Ylg52Dr/iJUTbO7tLAcyiLUn4ljqC+5H1LWVHiPajU6XwP0Xwa7fbo1FRcSYQ4iyOHc2TaAhzWRm8ABfBrlZJna6qYlPX6F17nYU8yR0/jj5kddVOg51wThMIwewfy9blfaL4YIgd0PP63oEq8lBpKFyx9ZkjK2m/QRxcgb9I3aUe2R9QFsM/4s1JShlVz+pJXXpzR6ZgTB8STiT8SqrFCizUvAFtghLhixV7ehrSIOf38i0/73CtFQIDAQAB;"
+
+mail IN A 41.203.18.12
+@ IN A 41.203.18.12
+www IN A 41.203.18.12
+
+demo 1200 IN CNAME d1ioqyk4bgk3a.cloudfront.net.
+_41631a0562c92724c0e2c5b5f333c132.api.dev 1200 IN CNAME _3073dae32f9b778dbf05aef5c723142a.jkddzztszm.acm-validactions.aws.
+ftp IN CNAME www
+imap IN CNAME mail
+pop IN CNAME mail
+_3abb9b82b9b160f82f3ab118490546e3 1200 IN CNAME _b1a1141b63b010e51c60e38085841241.jkddzztszm.acm-validations.aws.
+_a696dae4c59756d65cfdc85cdf530ae1.dev 1200 IN CNAME _63a761f5d6c5a8aa2dbc44030cd2dcdb.jkddzztszm.acm-validactions.aws.
+dev 1200 IN CNAME d1ioqyk4bgk3a.cloudfront.net.
+relay IN CNAME mail
+uthukela 1200 IN CNAME d1ioqyk4bgk3a.cloudfront.net.
+smtp IN CNAME mail
