@@ -199,14 +199,9 @@ function handler(event) {
             {
                 domainNames.Add($"*.{config.DomainName}");
             }
-            else if (config.EnvironmentName == "dev")
-            {
-                // Demo tenant subdomains served from the same distribution.
-                // idc/uthukela/demo tenants now live on the prod distribution
-                // (served via the *.shumelahire.co.za wildcard), so dev only
-                // retains the uthukela-demo alias.
-                domainNames.Add($"uthukela-demo.{config.DomainName}");
-            }
+            // Tenant subdomains (idc, uthukela, demo, uthukela-demo, etc.) are
+            // served from the prod distribution via the *.shumelahire.co.za
+            // wildcard. Dev only serves its own apex (dev.shumelahire.co.za).
 
             distributionProps.DomainNames = domainNames.ToArray();
 
