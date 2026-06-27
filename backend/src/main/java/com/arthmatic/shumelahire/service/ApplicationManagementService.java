@@ -12,12 +12,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.arthmatic.shumelahire.entity.Applicant;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +78,37 @@ public class ApplicationManagementService {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filtered.size());
         List<Application> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
+        hydrateApplicants(pageContent);
         return new PageImpl<>(pageContent, pageable, filtered.size());
+    }
+
+    /**
+     * Populate full Applicant data on applications that only have a stub (ID-only) applicant.
+     */
+    private void hydrateApplicants(List<Application> applications) {
+        if (applications == null || applications.isEmpty()) return;
+
+        Set<String> applicantIds = applications.stream()
+                .filter(app -> app.getApplicant() != null && app.getApplicant().getId() != null
+                        && app.getApplicant().getName() == null)
+                .map(app -> app.getApplicant().getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (applicantIds.isEmpty()) return;
+
+        Map<String, Applicant> applicantMap = new HashMap<>();
+        for (String id : applicantIds) {
+            applicantRepository.findById(id).ifPresent(a -> applicantMap.put(a.getId(), a));
+        }
+
+        for (Application app : applications) {
+            if (app.getApplicant() != null && app.getApplicant().getId() != null) {
+                Applicant full = applicantMap.get(app.getApplicant().getId());
+                if (full != null) {
+                    app.setApplicant(full);
+                }
+            }
+        }
     }
 
     private Comparator<Application> getComparator(String sortBy, String sortDirection) {
