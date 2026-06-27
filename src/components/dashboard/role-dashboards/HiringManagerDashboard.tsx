@@ -289,10 +289,10 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
               >
                 <div className="space-y-4">
                   {[
-                    { role: 'Senior Frontend Developer', applications: 24, status: 'Active', priority: 'High' },
-                    { role: 'Product Manager', applications: 18, status: 'Active', priority: 'Medium' },
-                    { role: 'UX/UI Designer', applications: 12, status: 'Draft', priority: 'Low' },
-                    { role: 'DevOps Engineer', applications: 8, status: 'Active', priority: 'High' },
+                    { role: 'Senior Investment Analyst', applications: 5, status: 'Active', priority: 'High' },
+                    { role: 'Software Developer', applications: 4, status: 'Active', priority: 'High' },
+                    { role: 'Risk Manager', applications: 3, status: 'Active', priority: 'Medium' },
+                    { role: 'Legal Advisor', applications: 3, status: 'Active', priority: 'Medium' },
                   ].map((position) => (
                     <div key={position.role} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
                       <div className="flex-1 min-w-0">
@@ -373,26 +373,26 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
                 {[
                   {
                     id: '1',
-                    candidate: 'Sarah Chen',
-                    position: 'Product Manager',
+                    candidate: 'Thandi Molefe',
+                    position: 'Senior Investment Analyst',
                     time: '10:00 AM',
-                    type: 'Technical',
+                    type: 'Panel Interview',
                     color: 'text-gold-600',
                   },
                   {
                     id: '2',
-                    candidate: 'Mike Rodriguez',
-                    position: 'UX Designer',
+                    candidate: 'Pieter van der Merwe',
+                    position: 'Risk Manager',
                     time: '2:00 PM',
-                    type: 'Portfolio Review',
+                    type: 'First Round',
                     color: 'text-green-600',
                   },
                   {
                     id: '3',
-                    candidate: 'Lisa Park',
-                    position: 'Data Scientist',
-                    time: '4:30 PM',
-                    type: 'Final Round',
+                    candidate: 'Thabo Mokoena',
+                    position: 'Senior Investment Analyst',
+                    time: '4:00 PM',
+                    type: 'Technical Assessment',
                     color: 'text-purple-600',
                   },
                 ].map((interview) => (
