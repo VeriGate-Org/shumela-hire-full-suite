@@ -89,7 +89,7 @@ describe('LoginPage', () => {
     expect(screen.getByText('Administrator')).toBeInTheDocument();
     expect(screen.getByText('Executive')).toBeInTheDocument();
     expect(screen.getByText('HR Manager')).toBeInTheDocument();
-    expect(screen.getByText('Hiring Manager')).toBeInTheDocument();
+    expect(screen.getByText('Talent Acquisition')).toBeInTheDocument();
     expect(screen.getByText('Recruiter')).toBeInTheDocument();
     expect(screen.getByText('Interviewer')).toBeInTheDocument();
     expect(screen.getByText('Employee')).toBeInTheDocument();
