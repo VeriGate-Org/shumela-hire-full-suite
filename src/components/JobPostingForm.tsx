@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useDepartments } from '@/hooks/useDepartments';
+import { useEmploymentTypes, useExperienceLevels, useSalaryCurrencies } from '@/hooks/useLookups';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiJobDescriptionWriter from '@/components/ai/AiJobDescriptionWriter';
 import { JobDescriptionResult } from '@/types/ai';
@@ -55,27 +56,6 @@ interface JobPostingData {
   enforceCheckCompletion: boolean;
 }
 
-const EMPLOYMENT_TYPES = [
-  { value: 'FULL_TIME', label: 'Full-time' },
-  { value: 'PART_TIME', label: 'Part-time' },
-  { value: 'CONTRACT', label: 'Contract' },
-  { value: 'TEMPORARY', label: 'Temporary' },
-  { value: 'FREELANCE', label: 'Freelance' },
-  { value: 'INTERNSHIP', label: 'Internship' },
-  { value: 'APPRENTICESHIP', label: 'Apprenticeship' },
-  { value: 'VOLUNTEER', label: 'Volunteer' },
-];
-
-const EXPERIENCE_LEVELS = [
-  { value: 'ENTRY_LEVEL', label: 'Entry Level (0-2 years)' },
-  { value: 'JUNIOR', label: 'Junior (1-3 years)' },
-  { value: 'MID_LEVEL', label: 'Mid-Level (3-6 years)' },
-  { value: 'SENIOR', label: 'Senior (6-10 years)' },
-  { value: 'LEAD', label: 'Lead (8+ years)' },
-  { value: 'EXECUTIVE', label: 'Executive (10+ years)' },
-  { value: 'EXPERT', label: 'Expert (15+ years)' },
-];
-
 const WIZARD_STEPS: WizardStep[] = [
   { id: 'basic', label: 'Basics', description: 'Position details' },
   { id: 'details', label: 'Details', description: 'Description and requirements' },
@@ -97,6 +77,9 @@ const labelClass =
 export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
   const { user } = useAuth();
   const { departments: DEPARTMENTS } = useDepartments();
+  const { employmentTypes: EMPLOYMENT_TYPES } = useEmploymentTypes();
+  const { experienceLevels: EXPERIENCE_LEVELS } = useExperienceLevels();
+  const { salaryCurrencies } = useSalaryCurrencies();
   const [formData, setFormData] = useState<JobPostingData>({
     title: '',
     department: '',
@@ -563,10 +546,9 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
             onChange={(e) => handleInputChange('salaryCurrency', e.target.value)}
             className={inputClass}
           >
-            <option value="ZAR">ZAR (South African Rand)</option>
-            <option value="USD">USD (US Dollar)</option>
-            <option value="EUR">EUR (Euro)</option>
-            <option value="GBP">GBP (British Pound)</option>
+            {salaryCurrencies.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
           </select>
         </div>
       </div>

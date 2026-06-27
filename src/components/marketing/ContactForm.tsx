@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import MarketingButton from './MarketingButton';
+import { lookupService, FALLBACK_LOOKUPS } from '@/services/lookupService';
+import type { LookupOption } from '@/types/lookups';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -13,13 +15,6 @@ interface ContactFormData {
   subject: string;
   message: string;
 }
-
-const SUBJECT_OPTIONS = [
-  'General Enquiry',
-  'Sales',
-  'Support',
-  'Partnership',
-];
 
 const initialFormData: ContactFormData = {
   name: '',
@@ -39,6 +34,11 @@ export default function ContactForm() {
   const [formData, setFormData] = useState<ContactFormData>(initialFormData);
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [subjectOptions, setSubjectOptions] = useState<LookupOption[]>(FALLBACK_LOOKUPS.contactSubjects);
+
+  useEffect(() => {
+    lookupService.getAll().then(data => setSubjectOptions(data.contactSubjects));
+  }, []);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -210,9 +210,9 @@ export default function ContactForm() {
             <option value="" disabled>
               Select a subject
             </option>
-            {SUBJECT_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
+            {subjectOptions.map((opt) => (
+              <option key={opt.value} value={opt.label}>
+                {opt.label}
               </option>
             ))}
           </select>

@@ -5,6 +5,7 @@ import { useToast } from '@/components/Toast';
 import { CurrencyDollarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { salaryRecommendationService } from '@/services/salaryRecommendationService';
 import { useDepartments } from '@/hooks/useDepartments';
+import { usePositionLevels } from '@/hooks/useLookups';
 import EmptyState from './EmptyState';
 import {
   SalaryRecommendation,
@@ -19,11 +20,10 @@ function formatCurrency(amount?: number, currency = 'ZAR'): string {
   return new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(amount);
 }
 
-const POSITION_LEVELS = ['Junior', 'Mid', 'Senior', 'Lead', 'Principal', 'Director', 'VP', 'C-Suite'];
-
 export default function SalaryRecommendationManager() {
   const { toast } = useToast();
   const { departments } = useDepartments();
+  const { positionLevels } = usePositionLevels();
   const [recommendations, setRecommendations] = useState<SalaryRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -323,8 +323,8 @@ export default function SalaryRecommendationManager() {
                   className="w-full p-2 border border-gray-300 rounded-sm text-sm"
                 >
                   <option value="">Select level</option>
-                  {POSITION_LEVELS.map(level => (
-                    <option key={level} value={level}>{level}</option>
+                  {positionLevels.map(level => (
+                    <option key={level.value} value={level.label}>{level.label}</option>
                   ))}
                 </select>
               </div>

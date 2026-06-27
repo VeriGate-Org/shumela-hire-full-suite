@@ -4,27 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import SearchableDropdown from '@/components/SearchableDropdown';
+import { useInterviewTypes, useInterviewRounds } from '@/hooks/useLookups';
 import WizardShell from '@/components/WizardShell';
 import type { WizardStep } from '@/components/WizardShell';
 import type { DropdownOption } from '@/components/SearchableDropdown';
-
-const HARDCODED_INTERVIEWERS: DropdownOption[] = [
-  { value: '1', label: 'Thabo Mokoena', description: 'Engineering Manager' },
-  { value: '2', label: 'Naledi Sithole', description: 'Senior Developer' },
-  { value: '3', label: 'Pieter van der Merwe', description: 'HR Manager' },
-  { value: '4', label: 'Ayanda Dlamini', description: 'Technical Lead' },
-  { value: '5', label: 'Fatima Patel', description: 'Head of Product' },
-  { value: '6', label: 'Johan Botha', description: 'CTO' },
-  { value: '7', label: 'Zanele Mthembu', description: 'Senior Recruiter' },
-  { value: '8', label: 'David Naidoo', description: 'Software Architect' },
-  { value: '9', label: 'Lerato Molefe', description: 'QA Lead' },
-  { value: '10', label: 'Sarah Jacobs', description: 'Operations Director' },
-  { value: '11', label: 'Sipho Ndaba', description: 'DevOps Engineer' },
-  { value: '12', label: 'Amahle Zulu', description: 'UX Designer' },
-  { value: '13', label: 'Rudi Erasmus', description: 'Finance Manager' },
-  { value: '14', label: 'Nomsa Khumalo', description: 'People & Culture Lead' },
-  { value: '15', label: 'Raj Govender', description: 'Data Science Manager' },
-];
 
 interface InterviewSchedulerProps {
   interviewId?: number;
@@ -71,30 +54,6 @@ interface InterviewSaveResponse {
   };
 }
 
-const INTERVIEW_TYPES = [
-  { value: 'PHONE', label: 'Phone Interview' },
-  { value: 'VIDEO', label: 'Video Interview' },
-  { value: 'IN_PERSON', label: 'In-Person Interview' },
-  { value: 'PANEL', label: 'Panel Interview' },
-  { value: 'TECHNICAL', label: 'Technical Interview' },
-  { value: 'BEHAVIOURAL', label: 'Behavioural Interview' },
-  { value: 'COMPETENCY', label: 'Competency Interview' },
-  { value: 'GROUP', label: 'Group Interview' },
-  { value: 'PRESENTATION', label: 'Presentation Interview' },
-  { value: 'CASE_STUDY', label: 'Case Study Interview' },
-];
-
-const INTERVIEW_ROUNDS = [
-  { value: 'SCREENING', label: 'Phone Screening' },
-  { value: 'FIRST_ROUND', label: 'First Interview' },
-  { value: 'TECHNICAL', label: 'Technical Assessment' },
-  { value: 'SECOND_ROUND', label: 'Second Interview' },
-  { value: 'PANEL', label: 'Panel Interview' },
-  { value: 'MANAGER', label: 'Manager Interview' },
-  { value: 'FINAL', label: 'Final Interview' },
-  { value: 'OFFER', label: 'Offer Discussion' },
-];
-
 interface Interviewer {
   id: number;
   name: string;
@@ -120,6 +79,8 @@ const labelClass = 'block text-xs font-semibold text-gray-500 dark:text-gray-400
 
 export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel }: InterviewSchedulerProps) {
   const { user } = useAuth();
+  const { interviewTypes: INTERVIEW_TYPES } = useInterviewTypes();
+  const { interviewRounds: INTERVIEW_ROUNDS } = useInterviewRounds();
   const skipCandidateStep = !!(prefilledApplicationId && prefilledApplicationId > 0);
   const [currentStep, setCurrentStep] = useState(interviewId || skipCandidateStep ? 1 : 0);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
@@ -157,10 +118,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   }, [user]);
 
   const interviewerOptions: DropdownOption[] = useMemo(() => {
-    const apiOptions = interviewers.map((i) => ({ value: String(i.id), label: i.name, description: i.role }));
-    const apiNames = new Set(apiOptions.map((o) => o.label.toLowerCase()));
-    const additional = HARDCODED_INTERVIEWERS.filter((h) => !apiNames.has(h.label.toLowerCase()));
-    return [...apiOptions, ...additional];
+    return interviewers.map((i) => ({ value: String(i.id), label: i.name, description: i.role }));
   }, [interviewers]);
 
   const applicationOptions: DropdownOption[] = useMemo(

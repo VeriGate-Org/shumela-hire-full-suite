@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { TenantProvider, useTenant } from '@/contexts/TenantContext';
+import { LookupsProvider } from '@/contexts/LookupsContext';
 import { FeatureGateProvider } from '@/contexts/FeatureGateContext';
 import { ToastProvider } from '@/components/Toast';
 import { useTenantBranding } from '@/hooks/useTenantBranding';
@@ -55,19 +56,21 @@ export default function AppLayout({
   return (
     <TenantProvider>
       <TenantGate>
-        <ThemeProvider>
-          <AuthProvider>
-            <FeatureGateProvider>
-              <ToastProvider>
-                <BrandingApplier>
-                  <LayoutProvider>
-                    {children}
-                  </LayoutProvider>
-                </BrandingApplier>
-              </ToastProvider>
-            </FeatureGateProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <LookupsProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <FeatureGateProvider>
+                <ToastProvider>
+                  <BrandingApplier>
+                    <LayoutProvider>
+                      {children}
+                    </LayoutProvider>
+                  </BrandingApplier>
+                </ToastProvider>
+              </FeatureGateProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </LookupsProvider>
       </TenantGate>
     </TenantProvider>
   );

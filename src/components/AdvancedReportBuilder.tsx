@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatEnumValue } from '@/utils/enumLabels';
+import { useApplicationStatuses, useApplicationSources } from '@/hooks/useLookups';
 
 interface AdvancedReportConfig {
   reportType: string;
@@ -62,15 +63,9 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
     { label: 'Custom range', value: 'custom' },
   ];
 
-  const statusOptions = [
-    'SUBMITTED', 'SCREENING', 'PHONE_SCREEN', 'TECHNICAL', 
-    'FINAL_ROUND', 'OFFER', 'HIRED', 'REJECTED'
-  ];
-
-  const sourceOptions = [
-    'LinkedIn', 'Company Website', 'Indeed', 'PNet',
-    'CareerJunction', 'Referral', 'Career Fair', 'Direct Application'
-  ];
+  const { applicationStatuses } = useApplicationStatuses();
+  const { applicationSources } = useApplicationSources();
+  const reportSourceOptions = applicationSources.filter(s => s.category === 'REPORT' || s.category === 'BOTH');
 
   const handleDatePresetChange = (preset: string) => {
     const now = new Date();
@@ -269,16 +264,16 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Application Status</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {statusOptions.map((status) => (
-                <label key={status} className="flex items-center space-x-2">
+              {applicationStatuses.map((status) => (
+                <label key={status.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.filters.status?.includes(status) || false}
-                    onChange={() => toggleFilterValue('status', status)}
+                    checked={config.filters.status?.includes(status.value) || false}
+                    onChange={() => toggleFilterValue('status', status.value)}
                     className="rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
                   />
-                  <span className="text-sm text-gray-700 capitalize">
-                    {formatEnumValue(status)}
+                  <span className="text-sm text-gray-700">
+                    {status.label}
                   </span>
                 </label>
               ))}
@@ -288,15 +283,15 @@ const AdvancedReportBuilder: React.FC<AdvancedReportBuilderProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Application Source</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {sourceOptions.map((source) => (
-                <label key={source} className="flex items-center space-x-2">
+              {reportSourceOptions.map((source) => (
+                <label key={source.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.filters.sources?.includes(source) || false}
-                    onChange={() => toggleFilterValue('sources', source)}
+                    checked={config.filters.sources?.includes(source.value) || false}
+                    onChange={() => toggleFilterValue('sources', source.value)}
                     className="rounded border-gray-300 text-gold-600 focus:ring-gold-500/60"
                   />
-                  <span className="text-sm text-gray-700">{source}</span>
+                  <span className="text-sm text-gray-700">{source.label}</span>
                 </label>
               ))}
             </div>
