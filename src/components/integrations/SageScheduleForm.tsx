@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/components/Toast';
+import { useSageEntityTypes, useSageSyncDirections, useSageSyncFrequencies } from '@/hooks/useLookups';
 import {
   SageSyncSchedule,
   SageConnectorConfig,
@@ -16,36 +17,11 @@ interface SageScheduleFormProps {
   onCancel: () => void;
 }
 
-const ENTITY_TYPES = [
-  { value: 'EMPLOYEE', label: 'Employee' },
-  { value: 'DEPARTMENT', label: 'Department' },
-  { value: 'POSITION', label: 'Position' },
-  { value: 'SALARY', label: 'Salary' },
-  { value: 'LEAVE', label: 'Leave' },
-  { value: 'COST_CENTRE', label: 'Cost Centre' },
-  { value: 'TAX', label: 'Tax' },
-  { value: 'BENEFITS', label: 'Benefits' },
-];
-
-const DIRECTIONS = [
-  { value: 'INBOUND', label: 'Inbound (Sage to ShumelaHire)' },
-  { value: 'OUTBOUND', label: 'Outbound (ShumelaHire to Sage)' },
-  { value: 'BIDIRECTIONAL', label: 'Bidirectional' },
-];
-
-const FREQUENCIES = [
-  { value: 'EVERY_15_MINUTES', label: 'Every 15 Minutes', cron: '0 */15 * * * *' },
-  { value: 'EVERY_30_MINUTES', label: 'Every 30 Minutes', cron: '0 */30 * * * *' },
-  { value: 'HOURLY', label: 'Hourly', cron: '0 0 * * * *' },
-  { value: 'EVERY_6_HOURS', label: 'Every 6 Hours', cron: '0 0 */6 * * *' },
-  { value: 'DAILY', label: 'Daily (midnight)', cron: '0 0 0 * * *' },
-  { value: 'WEEKLY', label: 'Weekly (Sunday midnight)', cron: '0 0 0 * * SUN' },
-  { value: 'MONTHLY', label: 'Monthly (1st at midnight)', cron: '0 0 0 1 * *' },
-  { value: 'CUSTOM', label: 'Custom Cron Expression', cron: '' },
-];
-
 export default function SageScheduleForm({ schedule, connectors, onSaved, onCancel }: SageScheduleFormProps) {
   const { toast } = useToast();
+  const { sageEntityTypes: ENTITY_TYPES } = useSageEntityTypes();
+  const { sageSyncDirections: DIRECTIONS } = useSageSyncDirections();
+  const { sageSyncFrequencies: FREQUENCIES } = useSageSyncFrequencies();
   const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
@@ -58,7 +34,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
 
   useEffect(() => {
     if (schedule) {
-      const matchedFrequency = FREQUENCIES.find((f) => f.cron === schedule.cronExpression);
+      const matchedFrequency = FREQUENCIES.find((f) => f.cronExpression === schedule.cronExpression);
       setForm({
         connectorId: schedule.connectorId,
         entityType: schedule.entityType,
@@ -77,7 +53,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
       if (field === 'frequency') {
         const freqOption = FREQUENCIES.find((f) => f.value === value);
         if (freqOption && freqOption.value !== 'CUSTOM') {
-          updated.cronExpression = freqOption.cron;
+          updated.cronExpression = freqOption.cronExpression;
         }
       }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { LeaveType, leaveService } from '@/services/leaveService';
+import { useLeaveAccrualMethods } from '@/hooks/useLookups';
 
 interface LeavePolicyFormProps {
   onSubmit: () => void;
@@ -9,6 +10,7 @@ interface LeavePolicyFormProps {
 }
 
 export default function LeavePolicyForm({ onSubmit, onCancel }: LeavePolicyFormProps) {
+  const { leaveAccrualMethods } = useLeaveAccrualMethods();
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [leaveTypeId, setLeaveTypeId] = useState<number | ''>('');
   const [name, setName] = useState('');
@@ -76,10 +78,9 @@ export default function LeavePolicyForm({ onSubmit, onCancel }: LeavePolicyFormP
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Accrual Method</label>
           <select value={accrualMethod} onChange={(e) => setAccrualMethod(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-            <option value="ANNUAL">Annual</option>
-            <option value="MONTHLY">Monthly</option>
-            <option value="BIWEEKLY">Bi-Weekly</option>
-            <option value="ON_HIRE_DATE">On Hire Date</option>
+            {leaveAccrualMethods.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
           </select>
         </div>
         <div>

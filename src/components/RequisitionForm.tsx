@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import { useDepartments } from '@/hooks/useDepartments';
+import { useEmploymentTypes } from '@/hooks/useLookups';
 import { ArrowLeftIcon, DocumentTextIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 import WizardShell, { WizardStep } from '@/components/WizardShell';
 
@@ -41,17 +42,6 @@ const WIZARD_STEPS: WizardStep[] = [
   { id: 'review', label: 'Review', description: 'Review and submit' },
 ];
 
-const EMPLOYMENT_TYPES = [
-  { value: 'FULL_TIME', label: 'Full-time' },
-  { value: 'PART_TIME', label: 'Part-time' },
-  { value: 'CONTRACT', label: 'Contract' },
-  { value: 'TEMPORARY', label: 'Temporary' },
-  { value: 'FREELANCE', label: 'Freelance' },
-  { value: 'INTERNSHIP', label: 'Internship' },
-  { value: 'APPRENTICESHIP', label: 'Apprenticeship' },
-  { value: 'VOLUNTEER', label: 'Volunteer' },
-];
-
 const inputClass =
   'w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
@@ -69,6 +59,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
 }) => {
   const { toast } = useToast();
   const { departments } = useDepartments();
+  const { employmentTypes } = useEmploymentTypes();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<RequisitionFormData>({
     jobTitle: initialData.jobTitle || '',
@@ -245,7 +236,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
     setIsSubmitting(false);
   };
 
-  const employmentLabel = EMPLOYMENT_TYPES.find(t => t.value === formData.employmentType)?.label || formData.employmentType;
+  const employmentLabel = employmentTypes.find(t => t.value === formData.employmentType)?.label || formData.employmentType;
 
   const renderRoleStep = () => (
     <div className="space-y-5">
@@ -323,7 +314,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
           className={errors.employmentType ? errorInputClass : inputClass}
         >
           <option value="">Select Employment Type</option>
-          {EMPLOYMENT_TYPES.map(t => (
+          {employmentTypes.map(t => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>

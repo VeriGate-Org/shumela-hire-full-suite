@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { useApplicationSources } from '@/hooks/useLookups';
 import ScreeningQuestions from '@/components/ScreeningQuestions';
 
 interface JobApplicationFormProps {
@@ -31,6 +32,8 @@ export default function JobApplicationForm({
   onCancel 
 }: JobApplicationFormProps) {
   const { user: _user } = useAuth();
+  const { applicationSources } = useApplicationSources();
+  const formSources = applicationSources.filter(s => s.category === 'FORM' || s.category === 'BOTH');
   const [applicant, setApplicant] = useState<ApplicantBasicInfo | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [applicationSource, setApplicationSource] = useState('EXTERNAL');
@@ -266,12 +269,9 @@ export default function JobApplicationForm({
             onChange={(e) => setApplicationSource(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           >
-            <option value="EXTERNAL">Job Board / Website</option>
-            <option value="INTERNAL">Internal Posting</option>
-            <option value="REFERRAL">Employee Referral</option>
-            <option value="RECRUITER">Recruiter Contact</option>
-            <option value="SOCIAL_MEDIA">Social Media</option>
-            <option value="OTHER">Other</option>
+            {formSources.map(s => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
           </select>
         </div>
 

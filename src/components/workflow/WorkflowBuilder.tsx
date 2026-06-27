@@ -7,6 +7,7 @@ import {
   XCircleIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
+import { useWorkflowTriggers, useWorkflowActionTypes } from '@/hooks/useLookups';
 
 export interface WorkflowTrigger {
   id: string;
@@ -67,122 +68,6 @@ interface WorkflowBuilderProps {
   className?: string;
 }
 
-const WORKFLOW_TRIGGERS: WorkflowTrigger[] = [
-  {
-    id: 'app_received',
-    type: 'application_received',
-    name: 'Application Received',
-    description: 'Triggered when a new job application is submitted',
-  },
-  {
-    id: 'interview_scheduled',
-    type: 'interview_scheduled',
-    name: 'Interview Scheduled',
-    description: 'Triggered when an interview is scheduled with a candidate',
-  },
-  {
-    id: 'interview_completed',
-    type: 'interview_completed',
-    name: 'Interview Completed',
-    description: 'Triggered when an interview is marked as completed',
-  },
-  {
-    id: 'offer_extended',
-    type: 'offer_extended',
-    name: 'Offer Extended',
-    description: 'Triggered when a job offer is extended to a candidate',
-  },
-  {
-    id: 'offer_accepted',
-    type: 'offer_accepted',
-    name: 'Offer Accepted',
-    description: 'Triggered when a candidate accepts a job offer',
-  },
-  {
-    id: 'manual',
-    type: 'manual',
-    name: 'Manual Trigger',
-    description: 'Manually triggered by a user when needed',
-  },
-];
-
-const ACTION_TYPES = [
-  {
-    type: 'send_email',
-    name: 'Send Email',
-    description: 'Send automated email to specified recipients',
-    icon: '📧',
-    config: {
-      recipients: { type: 'array', label: 'Recipients', required: true },
-      subject: { type: 'string', label: 'Subject', required: true },
-      template: { type: 'select', label: 'Email Template', required: true },
-    },
-  },
-  {
-    type: 'create_task',
-    name: 'Create Task',
-    description: 'Create a task for team members',
-    icon: '✅',
-    config: {
-      assignee: { type: 'select', label: 'Assignee', required: true },
-      title: { type: 'string', label: 'Task Title', required: true },
-      description: { type: 'text', label: 'Description', required: false },
-      dueDate: { type: 'number', label: 'Due in (days)', required: false },
-    },
-  },
-  {
-    type: 'update_status',
-    name: 'Update Status',
-    description: 'Update application or candidate status',
-    icon: '🔄',
-    config: {
-      entity: { type: 'select', label: 'Entity Type', required: true },
-      status: { type: 'select', label: 'New Status', required: true },
-    },
-  },
-  {
-    type: 'schedule_interview',
-    name: 'Schedule Interview',
-    description: 'Automatically schedule interview with candidate',
-    icon: '📅',
-    config: {
-      interviewer: { type: 'select', label: 'Interviewer', required: true },
-      duration: { type: 'number', label: 'Duration (minutes)', required: true },
-      type: { type: 'select', label: 'Interview Type', required: true },
-    },
-  },
-  {
-    type: 'generate_report',
-    name: 'Generate Report',
-    description: 'Generate and send automated report',
-    icon: '📊',
-    config: {
-      reportTemplate: { type: 'select', label: 'Report Template', required: true },
-      recipients: { type: 'array', label: 'Recipients', required: true },
-    },
-  },
-  {
-    type: 'approve_request',
-    name: 'Approve Request',
-    description: 'Automatically approve pending requests',
-    icon: '✅',
-    config: {
-      requestType: { type: 'select', label: 'Request Type', required: true },
-    },
-  },
-  {
-    type: 'notify_team',
-    name: 'Notify Team',
-    description: 'Send notification to team members',
-    icon: '🔔',
-    config: {
-      team: { type: 'select', label: 'Team', required: true },
-      message: { type: 'text', label: 'Message', required: true },
-      channel: { type: 'select', label: 'Notification Channel', required: true },
-    },
-  },
-];
-
 export default function WorkflowBuilder({
   workflow,
   onSave,
@@ -191,6 +76,8 @@ export default function WorkflowBuilder({
   availableUsers,
   className = '',
 }: WorkflowBuilderProps) {
+  const { workflowTriggers: WORKFLOW_TRIGGERS } = useWorkflowTriggers();
+  const { workflowActionTypes: ACTION_TYPES } = useWorkflowActionTypes();
   const [currentWorkflow, setCurrentWorkflow] = useState<WorkflowDefinition>(
     workflow || {
       name: '',
