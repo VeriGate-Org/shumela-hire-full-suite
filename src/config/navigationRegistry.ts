@@ -68,9 +68,9 @@ export const navigationRegistry: NavigationEntry[] = [
 
   // Recruitment — job lifecycle
   { id: 'job-postings', label: 'Job Postings', href: '/job-postings', icon: BriefcaseIcon, iconSolid: BriefcaseIconSolid, section: 'recruitment', requiredPermissions: ['manage_jobs'], requiredFeature: 'RECRUITMENT' },
-  { id: 'job-templates', label: 'Job Templates', href: '/job-templates', icon: DocumentTextIcon, section: 'recruitment', requiredPermissions: ['manage_jobs'], requiredFeature: 'JOB_TEMPLATES' },
+  { id: 'job-templates', label: 'Job Templates', href: '/job-templates', icon: DocumentTextIcon, section: 'recruitment', requiredPermissions: ['manage_jobs'], requiredFeature: 'RECRUITMENT' },
   { id: 'requisitions', label: 'Requisitions', href: '/requisitions', icon: ClipboardDocumentListIcon, section: 'recruitment', requiredPermissions: ['manage_requisitions'], requiredFeature: 'RECRUITMENT' },
-  { id: 'internal-jobs', label: 'Internal Jobs', href: '/internal/jobs', icon: BuildingOfficeIcon, section: 'recruitment', requiredPermissions: ['view_internal_jobs'], requiredFeature: 'INTERNAL_MOBILITY' },
+  { id: 'internal-jobs', label: 'Internal Jobs', href: '/internal/jobs', icon: BuildingOfficeIcon, section: 'recruitment', requiredPermissions: ['view_internal_jobs'], requiredFeature: 'RECRUITMENT' },
 
   // Candidates — people and pipeline
   { id: 'applications', label: 'Applications', href: '/applications', icon: DocumentTextIcon, iconSolid: DocumentTextIconSolid, section: 'recruitment', requiredPermissions: ['view_applications'], requiredFeature: 'RECRUITMENT' },
@@ -78,7 +78,7 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'pipeline', label: 'Pipeline', href: '/pipeline', icon: Squares2X2Icon, section: 'recruitment', requiredPermissions: ['manage_pipeline'], requiredFeature: 'RECRUITMENT' },
   { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'recruitment', requiredPermissions: ['manage_applications'], requiredFeature: 'RECRUITMENT' },
   { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
-  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'AGENCY_MANAGEMENT' },
+  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
 
   // Scheduling — interviews, offers, compensation
   { id: 'interviews', label: 'Interviews', href: '/interviews', icon: CalendarIcon, iconSolid: CalendarIconSolid, section: 'recruitment', requiredPermissions: ['view_interviews'], requiredFeature: 'RECRUITMENT' },
@@ -97,12 +97,12 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'my-performance', label: 'My Performance', href: '/employee/performance', icon: PresentationChartBarIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Talent & Performance — training, performance, competencies
-  { id: 'performance', label: 'Performance', href: '/performance', icon: PresentationChartBarIcon, section: 'talent', requiredPermissions: ['view_performance'] },
+  { id: 'performance', label: 'Performance', href: '/performance', icon: PresentationChartBarIcon, section: 'talent', requiredPermissions: ['view_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training', label: 'Training', href: '/training', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-admin', label: 'Training Admin', href: '/training/admin', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['manage_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-idps', label: 'Development Plans', href: '/training/idps', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
-  { id: 'performance-reviews', label: 'Reviews', href: '/performance/reviews', icon: ClipboardDocumentListIcon, section: 'talent', requiredPermissions: ['manage_performance'] },
-  { id: 'performance-pips', label: 'Improvement Plans', href: '/performance/pips', icon: ExclamationTriangleIcon, section: 'talent', requiredPermissions: ['manage_performance'] },
+  { id: 'performance-reviews', label: 'Reviews', href: '/performance/reviews', icon: ClipboardDocumentListIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: 'performance-pips', label: 'Improvement Plans', href: '/performance/pips', icon: ExclamationTriangleIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'competencies', label: 'Competency Framework', href: '/competencies', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'COMPETENCY_MAPPING' },
 
   // Engagement — surveys, recognition, social feed
