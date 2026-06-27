@@ -3,24 +3,24 @@ package com.arthmatic.shumelahire.repository.dynamo.items;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 /**
- * DynamoDB item for the Tenant entity.
+ * DynamoDB item for the PlatformModule entity.
+ *
+ * PlatformModule is a global (non-tenant-scoped) entity.
  *
  * Table keys:
- *   PK: TENANT#{tenantId}
- *   SK: TENANT#{tenantId}
+ *   PK:  PLATFORM
+ *   SK:  MODULE#{id}
  *
- * GSI4 (unique constraint — subdomain lookup):
- *   GSI4PK: TENANT_SUBDOMAIN#{subdomain}
- *   GSI4SK: TENANT#{tenantId}
+ * GSI1 (active status + code sort):
+ *   GSI1PK: MODULE_ACTIVE#{isActive}
+ *   GSI1SK: MODULE#{code}
  *
- * GSI1 (status query):
- *   GSI1PK: TENANT_STATUS#{status}
- *   GSI1SK: TENANT#{tenantId}
- *
- * Note: Tenant is a special case — the PK *is* the tenant ID (not nested under another tenant).
+ * GSI4 (unique constraint — code):
+ *   GSI4PK: MODULE_CODE#{code}
+ *   GSI4SK: MODULE#{id}
  */
 @DynamoDbBean
-public class TenantItem {
+public class PlatformModuleItem {
 
     private String pk;
     private String sk;
@@ -31,17 +31,15 @@ public class TenantItem {
 
     // Entity fields
     private String id;
+    private String code;
     private String name;
-    private String subdomain;
-    private String status;
-    private String plan;
-    private String contactEmail;
-    private String contactName;
-    private Integer maxUsers;
-    private String settings;
-    private String modules;
+    private String description;
+    private String featureCodes;
+    private Boolean isActive;
     private String createdAt;
     private String updatedAt;
+
+    // -- Table keys --
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute("PK")
@@ -53,6 +51,8 @@ public class TenantItem {
     public String getSk() { return sk; }
     public void setSk(String sk) { this.sk = sk; }
 
+    // -- GSI1: Active status query, sorted by code --
+
     @DynamoDbSecondaryPartitionKey(indexNames = "GSI1")
     @DynamoDbAttribute("GSI1PK")
     public String getGsi1pk() { return gsi1pk; }
@@ -62,6 +62,8 @@ public class TenantItem {
     @DynamoDbAttribute("GSI1SK")
     public String getGsi1sk() { return gsi1sk; }
     public void setGsi1sk(String gsi1sk) { this.gsi1sk = gsi1sk; }
+
+    // -- GSI4: Unique constraint on code --
 
     @DynamoDbSecondaryPartitionKey(indexNames = "GSI4")
     @DynamoDbAttribute("GSI4PK")
@@ -73,35 +75,25 @@ public class TenantItem {
     public String getGsi4sk() { return gsi4sk; }
     public void setGsi4sk(String gsi4sk) { this.gsi4sk = gsi4sk; }
 
+    // -- Entity fields --
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code = code; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getSubdomain() { return subdomain; }
-    public void setSubdomain(String subdomain) { this.subdomain = subdomain; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getFeatureCodes() { return featureCodes; }
+    public void setFeatureCodes(String featureCodes) { this.featureCodes = featureCodes; }
 
-    public String getPlan() { return plan; }
-    public void setPlan(String plan) { this.plan = plan; }
-
-    public String getContactEmail() { return contactEmail; }
-    public void setContactEmail(String contactEmail) { this.contactEmail = contactEmail; }
-
-    public String getContactName() { return contactName; }
-    public void setContactName(String contactName) { this.contactName = contactName; }
-
-    public Integer getMaxUsers() { return maxUsers; }
-    public void setMaxUsers(Integer maxUsers) { this.maxUsers = maxUsers; }
-
-    public String getSettings() { return settings; }
-    public void setSettings(String settings) { this.settings = settings; }
-
-    public String getModules() { return modules; }
-    public void setModules(String modules) { this.modules = modules; }
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }

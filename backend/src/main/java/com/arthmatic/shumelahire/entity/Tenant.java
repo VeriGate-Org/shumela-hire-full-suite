@@ -29,6 +29,8 @@ public class Tenant {
 
     private String settings = "{}";
 
+    private String modules; // CSV of module codes, e.g. "RECRUITMENT,AI". Null = use plan-based resolution.
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -80,6 +82,9 @@ public class Tenant {
 
     public String getSettings() { return settings; }
     public void setSettings(String settings) { this.settings = settings; }
+
+    public String getModules() { return modules; }
+    public void setModules(String modules) { this.modules = modules; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

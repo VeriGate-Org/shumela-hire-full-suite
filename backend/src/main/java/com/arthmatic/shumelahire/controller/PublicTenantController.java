@@ -31,7 +31,7 @@ public class PublicTenantController {
 
         return tenant
                 .filter(Tenant::isActive)
-                .map(t -> ResponseEntity.ok(new TenantInfo(t.getId(), t.getName(), t.getSubdomain(), t.getPlan(), t.getSettings())))
+                .map(t -> ResponseEntity.ok(new TenantInfo(t.getId(), t.getName(), t.getSubdomain(), t.getPlan(), t.getSettings(), t.getModules())))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -64,13 +64,15 @@ public class PublicTenantController {
         private final String subdomain;
         private final String plan;
         private final String settings;
+        private final String modules;
 
-        public TenantInfo(String id, String name, String subdomain, String plan, String settings) {
+        public TenantInfo(String id, String name, String subdomain, String plan, String settings, String modules) {
             this.id = id;
             this.name = name;
             this.subdomain = subdomain;
             this.plan = plan;
             this.settings = settings;
+            this.modules = modules;
         }
 
         public String getId() { return id; }
@@ -78,5 +80,6 @@ public class PublicTenantController {
         public String getSubdomain() { return subdomain; }
         public String getPlan() { return plan; }
         public String getSettings() { return settings; }
+        public String getModules() { return modules; }
     }
 }

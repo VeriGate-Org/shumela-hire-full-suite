@@ -92,6 +92,7 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
         tenant.setContactName(item.getContactName());
         tenant.setMaxUsers(item.getMaxUsers());
         tenant.setSettings(item.getSettings());
+        tenant.setModules(item.getModules());
         if (item.getCreatedAt() != null) {
             tenant.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
         }
@@ -127,6 +128,7 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
         item.setContactName(entity.getContactName());
         item.setMaxUsers(entity.getMaxUsers());
         item.setSettings(entity.getSettings());
+        item.setModules(entity.getModules());
         if (entity.getCreatedAt() != null) {
             item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));
         }
