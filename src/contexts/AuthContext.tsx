@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData: User = {
         id: dbUserId,
         employeeId: dbEmployeeId,
-        name: attrs.name || attrs.email || authUser.username,
+        name: attrs.name || [attrs.given_name, attrs.family_name].filter(Boolean).join(' ') || attrs.email || authUser.username,
         email: attrs.email || '',
         role,
         permissions: rolePermissions[role],

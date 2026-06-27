@@ -731,15 +731,15 @@ schedule_interview() {
 
 # All interview dates must be in the future (backend rejects past dates)
 # We schedule them, then immediately start/complete the ones that should appear "done"
-DATE_1="2026-03-04T10:00:00"
-DATE_2="2026-03-04T14:00:00"
-DATE_3="2026-03-05T09:00:00"
-DATE_4="2026-03-05T11:00:00"
-DATE_5="2026-03-06T10:00:00"
-DATE_6="2026-03-06T14:00:00"
-DATE_7="2026-03-07T09:00:00"
-DATE_8="2026-03-10T11:00:00"
-DATE_9="2026-03-10T10:00:00"
+DATE_1="2026-07-07T10:00:00"
+DATE_2="2026-07-07T14:00:00"
+DATE_3="2026-07-08T09:00:00"
+DATE_4="2026-07-08T11:00:00"
+DATE_5="2026-07-09T10:00:00"
+DATE_6="2026-07-09T14:00:00"
+DATE_7="2026-07-10T09:00:00"
+DATE_8="2026-07-14T11:00:00"
+DATE_9="2026-07-14T10:00:00"
 
 # Senior Investment Analyst - Thabo Mokoena (INTERVIEW_SCHEDULED)
 schedule_interview "${APPLICATION_IDS[1]}" "$DATE_5" "$CREATED_BY" "PANEL" "FIRST_ROUND" "IDC Boardroom A, 19 Fredman Drive, Sandton"
@@ -784,7 +784,7 @@ if [ -n "$ALL_INTERVIEWS" ]; then
 
   for INT_ID in $INTERVIEW_LIST; do
     SCHEDULED=$(echo "$ALL_INTERVIEWS" | jq -r --argjson id "$INT_ID" '.content // . | if type == "array" then . else [.] end | .[] | select(.id == $id) | .scheduledAt' 2>/dev/null || echo "")
-    if [[ "$SCHEDULED" < "2026-02-22" ]]; then
+    if [[ "$SCHEDULED" < "2026-07-06" ]]; then
       # Start and complete past interviews
       api_post "/api/interviews/$INT_ID/start?startedBy=$CREATED_BY" >/dev/null 2>&1 || true
       api_post "/api/interviews/$INT_ID/complete?completedBy=$CREATED_BY" >/dev/null 2>&1 || true
@@ -822,8 +822,8 @@ OFFER1_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[16]}" '{
   sickDaysAnnual: 15,
   probationaryPeriodDays: 90,
   noticePeriodDays: 30,
-  startDate: "2026-03-16",
-  offerExpiryDate: "2026-04-01T23:59:59",
+  startDate: "2026-08-01",
+  offerExpiryDate: "2026-08-15T23:59:59",
   workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
   benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking",
   reportingManager: "Head: Finance"
@@ -858,8 +858,8 @@ OFFER2_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[6]}" '{
   sickDaysAnnual: 15,
   probationaryPeriodDays: 90,
   noticePeriodDays: 30,
-  startDate: "2026-04-01",
-  offerExpiryDate: "2026-03-15T23:59:59",
+  startDate: "2026-09-01",
+  offerExpiryDate: "2026-08-15T23:59:59",
   workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
   benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Flexible working arrangements, Parking",
   reportingManager: "Head: Information Technology"
@@ -893,8 +893,8 @@ OFFER3_BODY=$(jq -n --argjson appId "${APPLICATION_IDS[17]}" '{
   sickDaysAnnual: 15,
   probationaryPeriodDays: 90,
   noticePeriodDays: 30,
-  startDate: "2026-04-01",
-  offerExpiryDate: "2026-03-20T23:59:59",
+  startDate: "2026-09-01",
+  offerExpiryDate: "2026-08-20T23:59:59",
   workLocation: "IDC Head Office, 19 Fredman Drive, Sandton",
   benefitsPackage: "Medical aid (Discovery Health), Retirement fund (15% employer contribution), Annual performance bonus, Study assistance, Parking",
   reportingManager: "Head: Finance"
@@ -1130,8 +1130,8 @@ AGENCY_BODY=$(jq -n '{
   contactPhone: "+27 11 884 5500",
   specializations: "Executive Search, Development Finance, Investment Banking, Public Sector, Board Appointments",
   feePercentage: 15.00,
-  contractStartDate: "2025-06-01",
-  contractEndDate: "2026-05-31",
+  contractStartDate: "2026-01-01",
+  contractEndDate: "2027-12-31",
   beeLevel: 1
 }')
 

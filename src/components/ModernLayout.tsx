@@ -57,10 +57,15 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
               ) : (
                 <>
                   <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-8 w-8" />
-                  <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
-                    <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
-                  </span>
+                  {!branding?.logoText && (
+                    <span className="font-extrabold text-sm tracking-[-0.03em] hidden sm:block">
+                      <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+                    </span>
+                  )}
                 </>
+              )}
+              {branding?.logoText && (
+                <span className="text-xs font-medium text-muted-foreground tracking-wide hidden sm:block">{branding.logoText}</span>
               )}
             </div>
 
