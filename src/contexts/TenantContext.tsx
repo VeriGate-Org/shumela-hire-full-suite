@@ -16,6 +16,7 @@ interface TenantInfo {
   subdomain: string;
   plan: string;
   settings?: string;
+  modules?: string;
 }
 
 interface TenantContextType {

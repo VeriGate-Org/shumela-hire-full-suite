@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.entity.PlatformFeature;
+import com.arthmatic.shumelahire.entity.PlatformModule;
 import com.arthmatic.shumelahire.entity.Tenant;
 import com.arthmatic.shumelahire.entity.TenantFeatureEntitlement;
 import com.arthmatic.shumelahire.service.PlatformAdminService;
@@ -94,6 +95,57 @@ public class PlatformAdminController {
             return ResponseEntity.ok(summary);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // --- Module CRUD ---
+
+    @GetMapping("/modules")
+    public ResponseEntity<List<PlatformModule>> getAllModules() {
+        return ResponseEntity.ok(platformAdminService.getAllModules());
+    }
+
+    @PostMapping("/modules")
+    public ResponseEntity<?> createModule(@RequestBody CreateModuleRequest request) {
+        try {
+            PlatformModule module = platformAdminService.createModule(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(module);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/modules/{id}")
+    public ResponseEntity<?> updateModule(@PathVariable String id, @RequestBody UpdateModuleRequest request) {
+        try {
+            PlatformModule module = platformAdminService.updateModule(id, request);
+            return ResponseEntity.ok(module);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/modules/{id}")
+    public ResponseEntity<?> deleteModule(@PathVariable String id) {
+        try {
+            platformAdminService.deleteModule(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // --- Tenant Module Assignment ---
+
+    @PutMapping("/tenants/{tenantId}/modules")
+    public ResponseEntity<?> setTenantModules(
+            @PathVariable String tenantId,
+            @RequestBody SetTenantModulesRequest request) {
+        try {
+            Tenant tenant = platformAdminService.setTenantModules(tenantId, request.modules());
+            return ResponseEntity.ok(tenant);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
