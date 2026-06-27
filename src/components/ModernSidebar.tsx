@@ -40,6 +40,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
   const isWhiteLabelled = !!tenant && tenant.subdomain !== 'default' && !!branding?.logoUrl;
+  const hasModules = !!tenant?.modules;
   const sidebarRef = useRef<HTMLElement>(null);
 
   // Persist sidebar scroll position across navigations (sidebar remounts on each page)
@@ -68,6 +69,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   }, []);
 
   // Filter navigation entries by user permissions; feature-gated items stay visible but locked
+  // For white-labelled tenants, locked items are hidden entirely
   const navigationItems = useMemo((): SidebarNavItem[] => {
     if (!user) return [];
     const userPermissions = user.permissions || [];
@@ -80,8 +82,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           locked: !featureEnabled,
           lockedPlanLabel: entry.requiredFeature ? FEATURE_MINIMUM_PLAN[entry.requiredFeature] : undefined,
         };
-      });
-  }, [user, isFeatureEnabled]);
+      })
+      .filter(item => !(isWhiteLabelled || hasModules) || !item.locked);
+  }, [user, isFeatureEnabled, isWhiteLabelled, hasModules]);
 
   // Apply search filtering
   const filteredItems = useMemo(() => {
