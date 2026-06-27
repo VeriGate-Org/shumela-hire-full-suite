@@ -562,10 +562,19 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         app.setJobId(item.getJobId());
         app.setDepartment(item.getDepartment());
         if (item.getStatus() != null) {
-            app.setStatus(ApplicationStatus.valueOf(item.getStatus()));
+            try {
+                app.setStatus(ApplicationStatus.valueOf(item.getStatus()));
+            } catch (IllegalArgumentException e) {
+                app.setStatus(ApplicationStatus.SUBMITTED);
+            }
         }
         if (item.getPipelineStage() != null) {
-            app.setPipelineStage(PipelineStage.valueOf(item.getPipelineStage()));
+            try {
+                app.setPipelineStage(PipelineStage.valueOf(item.getPipelineStage()));
+            } catch (IllegalArgumentException e) {
+                // Gracefully handle legacy/invalid pipeline stage values in DynamoDB
+                app.setPipelineStage(PipelineStage.APPLICATION_RECEIVED);
+            }
         }
         if (item.getPipelineStageEnteredAt() != null) {
             app.setPipelineStageEnteredAt(LocalDateTime.parse(item.getPipelineStageEnteredAt(), ISO_FMT));
