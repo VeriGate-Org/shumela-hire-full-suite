@@ -37,6 +37,7 @@ public class AuditLogItem {
     private String entityId;
     private String details;
     private String userRole;
+    private String userName;
 
     // -- Table keys -----------------------------------------------------------
 
@@ -102,4 +103,7 @@ public class AuditLogItem {
 
     public String getUserRole() { return userRole; }
     public void setUserRole(String userRole) { this.userRole = userRole; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 }

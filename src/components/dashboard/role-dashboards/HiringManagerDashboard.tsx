@@ -190,6 +190,21 @@ export default function HiringManagerDashboard({ selectedTimeframe, onTimeframeC
 
           if (Array.isArray(data?.metrics) && data.metrics.length > 0) {
             setMetrics(data.metrics);
+          } else if (data?.kpis && typeof data.kpis === 'object') {
+            // Transform backend kpis map into metrics array
+            const kpiMetrics: MetricItem[] = Object.entries(data.kpis).map(([key, kpi]: [string, any]) => ({
+              id: key,
+              label: key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+              value: Number(kpi?.value) || 0,
+              previousValue: Number(kpi?.previousValue) || 0,
+              target: Number(kpi?.target) || 0,
+              unit: (kpi?.unit || 'number') as 'percentage' | 'number' | 'days',
+              trend: (kpi?.trend?.toLowerCase() === 'up' ? 'up' : kpi?.trend?.toLowerCase() === 'down' ? 'down' : 'neutral') as 'up' | 'down' | 'neutral',
+              trendValue: Number(kpi?.variance) || Number(kpi?.trendValue) || 0,
+              description: kpi?.description || '',
+              status: (kpi?.status || 'warning') as 'good' | 'warning' | 'critical',
+            }));
+            if (kpiMetrics.length > 0) setMetrics(kpiMetrics);
           }
 
           if (Array.isArray(data?.applicationVolume) && data.applicationVolume.length > 0) {

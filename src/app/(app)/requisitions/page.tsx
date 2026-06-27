@@ -149,9 +149,9 @@ export default function RequisitionsPage() {
   const filtered = searchTerm.trim()
     ? requisitions.filter(
         (r) =>
-          r.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          r.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          r.location.toLowerCase().includes(searchTerm.toLowerCase()),
+          r.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.location?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : requisitions;
 

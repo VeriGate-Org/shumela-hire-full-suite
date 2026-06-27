@@ -17,7 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,6 +99,7 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByApplicant(String applicantId) {
         List<Application> applications = applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId);
+        hydrateApplicants(applications);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -106,6 +111,7 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByJobAd(String jobAdId) {
         List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobAdId);
+        hydrateApplicants(applications);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -137,6 +143,7 @@ public class ApplicationService {
             applications = new PageImpl<>(pageContent, pageable, filtered.size());
         }
 
+        hydrateApplicants(applications.getContent());
         return applications.map(ApplicationResponse::fromEntity);
     }
 
@@ -146,6 +153,7 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsByStatus(ApplicationStatus status) {
         List<Application> applications = applicationRepository.findByStatusOrderBySubmittedAtDesc(status);
+        hydrateApplicants(applications);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -289,6 +297,7 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getApplicationsRequiringAction() {
         List<Application> applications = applicationRepository.findApplicationsRequiringAction();
+        hydrateApplicants(applications);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -342,9 +351,41 @@ public class ApplicationService {
     public List<ApplicationResponse> getRecentApplications(int days) {
         LocalDateTime since = LocalDateTime.now().minusDays(days);
         List<Application> applications = applicationRepository.findRecentApplications(since);
+        hydrateApplicants(applications);
         return applications.stream()
                 .map(ApplicationResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // ── Applicant hydration ─────────────────────────────────────────────────
+
+    /**
+     * Populate full Applicant data on applications that only have a stub (ID-only) applicant.
+     */
+    private void hydrateApplicants(List<Application> applications) {
+        if (applications == null || applications.isEmpty()) return;
+
+        Set<String> applicantIds = applications.stream()
+                .filter(app -> app.getApplicant() != null && app.getApplicant().getId() != null
+                        && app.getApplicant().getName() == null)
+                .map(app -> app.getApplicant().getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (applicantIds.isEmpty()) return;
+
+        Map<String, Applicant> applicantMap = new HashMap<>();
+        for (String id : applicantIds) {
+            applicantRepository.findById(id).ifPresent(a -> applicantMap.put(a.getId(), a));
+        }
+
+        for (Application app : applications) {
+            if (app.getApplicant() != null && app.getApplicant().getId() != null) {
+                Applicant full = applicantMap.get(app.getApplicant().getId());
+                if (full != null) {
+                    app.setApplicant(full);
+                }
+            }
+        }
     }
 
     // Helper methods

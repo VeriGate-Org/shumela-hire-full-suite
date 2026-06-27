@@ -59,6 +59,7 @@ public class AuditLogController {
                 savedLog.getId(),
                 savedLog.getTimestamp(),
                 savedLog.getUserId(),
+                savedLog.getUserName(),
                 savedLog.getAction(),
                 savedLog.getEntityType(),
                 savedLog.getEntityId(),
@@ -70,7 +71,7 @@ public class AuditLogController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             AuditLogResponse errorResponse = new AuditLogResponse(
-                null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
                 "Failed to create audit log: " + e.getMessage()
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -196,6 +197,7 @@ public class AuditLogController {
         private String id;
         private LocalDateTime timestamp;
         private String userId;
+        private String userName;
         private String action;
         private String entityType;
         private String entityId;
@@ -206,11 +208,12 @@ public class AuditLogController {
         // Constructors
         public AuditLogResponse() {}
 
-        public AuditLogResponse(String id, LocalDateTime timestamp, String userId, String action,
+        public AuditLogResponse(String id, LocalDateTime timestamp, String userId, String userName, String action,
                                String entityType, String entityId, String details, String userRole, String message) {
             this.id = id;
             this.timestamp = timestamp;
             this.userId = userId;
+            this.userName = userName;
             this.action = action;
             this.entityType = entityType;
             this.entityId = entityId;
@@ -228,6 +231,9 @@ public class AuditLogController {
 
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
+
+        public String getUserName() { return userName; }
+        public void setUserName(String userName) { this.userName = userName; }
 
         public String getAction() { return action; }
         public void setAction(String action) { this.action = action; }

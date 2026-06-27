@@ -30,9 +30,9 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
 
   // Calculate funnel data with conversion rates
   const funnelStages = activeStages.map((stage, index) => {
-    const count = funnelData[stage.displayName] || 0;
-    const previousCount = index > 0 ? (funnelData[activeStages[index - 1].displayName] || 0) : count;
-    const conversionRate = previousCount > 0 ? (count / previousCount) * 100 : 100;
+    const count = Number(funnelData[stage.displayName]) || 0;
+    const previousCount = index > 0 ? (Number(funnelData[activeStages[index - 1].displayName]) || 0) : count;
+    const conversionRate = previousCount > 0 ? (count / previousCount) * 100 : (index === 0 ? 100 : 0);
     
     return {
       ...stage,
@@ -99,7 +99,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
                   {!stage.isFirst && (
                     <div className="flex items-center justify-center space-x-2 text-xs">
                       <span className={`font-medium ${getConversionColor(stage.conversionRate)}`}>
-                        {stage.conversionRate.toFixed(1)}%
+                        {(isNaN(stage.conversionRate) ? 0 : stage.conversionRate).toFixed(1)}%
                       </span>
                       <span className="opacity-75">conversion</span>
                     </div>

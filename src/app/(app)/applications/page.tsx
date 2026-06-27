@@ -371,8 +371,8 @@ export default function ApplicationsPage() {
                             <UserIcon className="w-5 h-5 text-gold-600" />
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">{app.applicantName}</p>
-                            <p className="text-xs text-gray-500">{app.applicantEmail}</p>
+                            <p className="text-sm font-medium text-gray-900">{app.applicantName || 'Name not available'}</p>
+                            <p className="text-xs text-gray-500">{app.applicantEmail || ''}</p>
                           </div>
                         </div>
                       </td>
@@ -473,7 +473,7 @@ export default function ApplicationsPage() {
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">
-                      {selectedApplication.applicantName}
+                      {selectedApplication.applicantName || 'Name not available'}
                     </h2>
                     <p className="text-gray-500 mt-1">
                       {selectedApplication.jobTitle} — {selectedApplication.department}

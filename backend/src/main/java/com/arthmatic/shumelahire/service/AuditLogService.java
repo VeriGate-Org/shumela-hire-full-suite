@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,14 +43,15 @@ public class AuditLogService {
     public AuditLog saveLog(String userId, String action, String entityType, String entityId, String details) {
         try {
             AuditLog auditLog = new AuditLog(userId, action, entityType, entityId, details);
+            auditLog.setUserName(resolveCurrentUserName());
             AuditLog savedLog = auditLogRepository.save(auditLog);
-            
-            logger.info("Audit log saved: User {} performed {} on {} with ID {}", 
+
+            logger.info("Audit log saved: User {} performed {} on {} with ID {}",
                        userId, action, entityType, entityId);
-            
+
             return savedLog;
         } catch (Exception e) {
-            logger.error("Failed to save audit log: User {} performed {} on {} with ID {}", 
+            logger.error("Failed to save audit log: User {} performed {} on {} with ID {}",
                         userId, action, entityType, entityId, e);
             throw new RuntimeException("Failed to save audit log", e);
         }
@@ -148,6 +152,7 @@ public class AuditLogService {
     public AuditLog saveLog(String userId, String action, String entityType, String entityId, String details, String userRole) {
         try {
             AuditLog auditLog = new AuditLog(userId, action, entityType, entityId, details, userRole);
+            auditLog.setUserName(resolveCurrentUserName());
             AuditLog savedLog = auditLogRepository.save(auditLog);
 
             logger.info("Audit log saved: User {} ({}) performed {} on {} with ID {}",
@@ -175,6 +180,37 @@ public class AuditLogService {
     @Transactional(readOnly = true)
     public long getLogCountByAction(String action) {
         return auditLogRepository.countByAction(action);
+    }
+
+    /**
+     * Resolve the display name of the currently authenticated user from the security context.
+     * Falls back to null if no auth context or no name claims are available.
+     */
+    private String resolveCurrentUserName() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) return null;
+
+            Object principal = auth.getPrincipal();
+            if (principal instanceof Jwt jwt) {
+                // Try Cognito user attributes
+                String name = jwt.getClaimAsString("name");
+                if (name != null && !name.isBlank()) return name;
+                String given = jwt.getClaimAsString("given_name");
+                String family = jwt.getClaimAsString("family_name");
+                if (given != null || family != null) {
+                    return ((given != null ? given : "") + " " + (family != null ? family : "")).trim();
+                }
+                String email = jwt.getClaimAsString("email");
+                if (email != null) return email;
+            }
+
+            String principalName = auth.getName();
+            if (principalName != null && !principalName.isBlank()) return principalName;
+        } catch (Exception e) {
+            logger.debug("Could not resolve user name for audit log", e);
+        }
+        return null;
     }
 
     // Convenience methods used by recruitment services

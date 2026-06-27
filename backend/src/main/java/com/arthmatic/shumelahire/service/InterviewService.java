@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.repository.InterviewDataRepository;
 import com.arthmatic.shumelahire.repository.InterviewFeedbackDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class InterviewService {
 
     @Autowired
     private ApplicantDataRepository applicantRepository;
+
+    @Autowired
+    private JobPostingDataRepository jobPostingRepository;
 
     @Autowired
     private InterviewFeedbackDataRepository interviewFeedbackRepository;
@@ -514,12 +518,29 @@ public class InterviewService {
             applicantRepository.findById(applicantId).ifPresent(a -> applicantMap.put(a.getId(), a));
         }
 
-        // Wire applicants into applications, applications into interviews
+        // Batch-fetch job postings
+        Set<String> jobPostingIds = appMap.values().stream()
+                .filter(app -> app.getJobPostingId() != null)
+                .map(Application::getJobPostingId)
+                .collect(Collectors.toSet());
+
+        Map<String, JobPosting> jobPostingMap = new HashMap<>();
+        for (String jpId : jobPostingIds) {
+            jobPostingRepository.findById(jpId).ifPresent(jp -> jobPostingMap.put(jp.getId(), jp));
+        }
+
+        // Wire applicants and job postings into applications, applications into interviews
         for (Application app : appMap.values()) {
             if (app.getApplicant() != null && app.getApplicant().getId() != null) {
                 Applicant fullApplicant = applicantMap.get(app.getApplicant().getId());
                 if (fullApplicant != null) {
                     app.setApplicant(fullApplicant);
+                }
+            }
+            if (app.getJobPostingId() != null) {
+                JobPosting fullJobPosting = jobPostingMap.get(app.getJobPostingId());
+                if (fullJobPosting != null) {
+                    app.setJobPosting(fullJobPosting);
                 }
             }
         }
