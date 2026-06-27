@@ -550,6 +550,11 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
             app.setId(item.getId());
         }
         app.setTenantId(item.getTenantId());
+        if (item.getApplicantId() != null) {
+            var applicant = new com.arthmatic.shumelahire.entity.Applicant();
+            applicant.setId(item.getApplicantId());
+            app.setApplicant(applicant);
+        }
         if (item.getJobPostingId() != null) {
             app.setJobPostingId(item.getJobPostingId());
         }

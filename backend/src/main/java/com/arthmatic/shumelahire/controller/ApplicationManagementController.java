@@ -35,7 +35,7 @@ public class ApplicationManagementController {
      * GET /api/applications/manage/search
      */
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplications(
             @RequestParam(required = false) String searchTerm,
             @RequestParam(required = false) List<ApplicationStatus> statuses,
@@ -190,7 +190,7 @@ public class ApplicationManagementController {
      * GET /api/applications/manage/statistics
      */
     @GetMapping("/statistics")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationStatistics() {
         try {
             var stats = applicationManagementService.getApplicationStatistics();
@@ -206,7 +206,7 @@ public class ApplicationManagementController {
      * GET /api/applications/manage/attention
      */
     @GetMapping("/attention")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationsRequiringAttention(
             @RequestParam(defaultValue = "7") int daysThreshold) {
         try {
@@ -252,7 +252,7 @@ public class ApplicationManagementController {
      * GET /api/applications/manage/filter-options
      */
     @GetMapping("/filter-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getFilterOptions() {
         try {
             Map<String, Object> options = new HashMap<>();

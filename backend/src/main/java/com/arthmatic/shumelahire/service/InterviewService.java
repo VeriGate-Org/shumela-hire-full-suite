@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.InterviewDataRepository;
 import com.arthmatic.shumelahire.repository.InterviewFeedbackDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,9 @@ public class InterviewService {
 
     @Autowired
     private ApplicationDataRepository applicationRepository;
+
+    @Autowired
+    private ApplicantDataRepository applicantRepository;
 
     @Autowired
     private InterviewFeedbackDataRepository interviewFeedbackRepository;
@@ -113,8 +117,10 @@ public class InterviewService {
     }
 
     public Interview getInterviewById(String id) {
-        return interviewRepository.findByIdWithDetails(id)
+        Interview interview = interviewRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new IllegalArgumentException("Interview not found with id: " + id));
+        hydrateInterviews(List.of(interview));
+        return interview;
     }
 
     public void deleteInterview(String id, String deletedBy) {
@@ -364,30 +370,40 @@ public class InterviewService {
     }
 
     // Search and retrieval
-    public Page<Interview> searchInterviews(String searchTerm, InterviewStatus status, 
+    public Page<Interview> searchInterviews(String searchTerm, InterviewStatus status,
                                           InterviewType type, InterviewRound round,
-                                          Long interviewerId, LocalDateTime startDate, 
+                                          Long interviewerId, LocalDateTime startDate,
                                           LocalDateTime endDate, Pageable pageable) {
-        return interviewRepository.searchInterviews(searchTerm, status, type, round, 
+        Page<Interview> page = interviewRepository.searchInterviews(searchTerm, status, type, round,
                                                    interviewerId, startDate, endDate, pageable);
+        hydrateInterviews(page.getContent());
+        return page;
     }
 
     public List<Interview> getInterviewsByApplication(String applicationId) {
-        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(applicationId);
+        List<Interview> interviews = interviewRepository.findByApplicationIdOrderByScheduledAtDesc(applicationId);
+        hydrateInterviews(interviews);
+        return interviews;
     }
 
     public List<Interview> getInterviewerSchedule(String interviewerId, LocalDateTime startDate, LocalDateTime endDate) {
-        return interviewRepository.findInterviewerSchedule(interviewerId, startDate, endDate);
+        List<Interview> interviews = interviewRepository.findInterviewerSchedule(interviewerId, startDate, endDate);
+        hydrateInterviews(interviews);
+        return interviews;
     }
 
     public List<Interview> getUpcomingInterviews(int days) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime futureTime = now.plusDays(days);
-        return interviewRepository.findUpcomingInterviews(now, futureTime);
+        List<Interview> interviews = interviewRepository.findUpcomingInterviews(now, futureTime);
+        hydrateInterviews(interviews);
+        return interviews;
     }
 
     public List<Interview> getOverdueInterviews() {
-        return interviewRepository.findOverdueInterviews(LocalDateTime.now());
+        List<Interview> interviews = interviewRepository.findOverdueInterviews(LocalDateTime.now());
+        hydrateInterviews(interviews);
+        return interviews;
     }
 
     // Availability and conflict checking (uses JPQL + Java filtering for DB portability)
@@ -461,6 +477,58 @@ public class InterviewService {
         analytics.put("awaitingFeedback", interviewRepository.findInterviewsRequiringFeedback().size());
         
         return analytics;
+    }
+
+    // ── Application/Applicant hydration ──────────────────────────────────────
+
+    /**
+     * Populates the Application and nested Applicant on each Interview.
+     * DynamoDB stores these as foreign keys; this resolves them to full objects
+     * so JSON serialisation includes candidate name, email, and job title.
+     */
+    private void hydrateInterviews(List<Interview> interviews) {
+        if (interviews == null || interviews.isEmpty()) return;
+
+        // Collect unique applicationIds
+        Set<String> appIds = interviews.stream()
+                .map(Interview::getApplicationId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (appIds.isEmpty()) return;
+
+        // Batch-fetch applications
+        Map<String, Application> appMap = new HashMap<>();
+        for (String appId : appIds) {
+            applicationRepository.findById(appId).ifPresent(app -> appMap.put(app.getId(), app));
+        }
+
+        // Collect unique applicantIds from fetched applications
+        Set<String> applicantIds = appMap.values().stream()
+                .filter(app -> app.getApplicant() != null && app.getApplicant().getId() != null)
+                .map(app -> app.getApplicant().getId())
+                .collect(Collectors.toSet());
+
+        // Batch-fetch applicants
+        Map<String, Applicant> applicantMap = new HashMap<>();
+        for (String applicantId : applicantIds) {
+            applicantRepository.findById(applicantId).ifPresent(a -> applicantMap.put(a.getId(), a));
+        }
+
+        // Wire applicants into applications, applications into interviews
+        for (Application app : appMap.values()) {
+            if (app.getApplicant() != null && app.getApplicant().getId() != null) {
+                Applicant fullApplicant = applicantMap.get(app.getApplicant().getId());
+                if (fullApplicant != null) {
+                    app.setApplicant(fullApplicant);
+                }
+            }
+        }
+        for (Interview interview : interviews) {
+            String appId = interview.getApplicationId();
+            if (appId != null && appMap.containsKey(appId)) {
+                interview.setApplication(appMap.get(appId));
+            }
+        }
     }
 
     // Utility methods
