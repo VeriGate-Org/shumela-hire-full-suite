@@ -20,6 +20,7 @@ function parseAuditLog(raw: any): AuditLogEntry {
     entityId: raw.entityId || '',
     action: raw.action || '',
     userId: raw.userId || '',
+    userName: raw.userName || '',
     userRole: raw.userRole || '',
     details: typeof raw.details === 'string' ? (() => { try { return JSON.parse(raw.details); } catch { return { message: raw.details }; } })() : (raw.details || {}),
     timestamp: new Date(raw.timestamp || raw.createdAt || Date.now()),

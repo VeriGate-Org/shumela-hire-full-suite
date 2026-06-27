@@ -151,6 +151,7 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
         entity.setTenantId(item.getTenantId());
         if (item.getTimestamp() != null) entity.setTimestamp(LocalDateTime.parse(item.getTimestamp(), ISO_FMT));
         entity.setUserId(item.getUserId());
+        entity.setUserName(item.getUserName());
         entity.setAction(item.getAction());
         entity.setEntityType(item.getEntityType());
         entity.setEntityId(item.getEntityId());
@@ -183,6 +184,7 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
         item.setTenantId(tenantId);
         item.setTimestamp(timestampStr);
         item.setUserId(entity.getUserId());
+        item.setUserName(entity.getUserName());
         item.setAction(entity.getAction());
         item.setEntityType(entity.getEntityType());
         item.setEntityId(entity.getEntityId());

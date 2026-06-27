@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.*;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import java.math.BigDecimal;
@@ -8,7 +9,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +26,8 @@ public class OfferService {
   @Autowired private OfferDataRepository offerRepository;
 
   @Autowired private ApplicationDataRepository applicationRepository;
+
+  @Autowired private ApplicantDataRepository applicantRepository;
 
   @Autowired private AuditLogService auditLogService;
 
@@ -80,17 +86,23 @@ public class OfferService {
 
   @Transactional(readOnly = true)
   public Optional<Offer> getOfferById(String id) {
-    return offerRepository.findByIdWithDetails(id);
+    Optional<Offer> offer = offerRepository.findByIdWithDetails(id);
+    offer.ifPresent(this::hydrateOffer);
+    return offer;
   }
 
   @Transactional(readOnly = true)
   public List<Offer> getOffersByApplication(String applicationId) {
-    return offerRepository.findActiveOffersByApplication(applicationId);
+    List<Offer> offers = offerRepository.findActiveOffersByApplication(applicationId);
+    hydrateOffers(offers);
+    return offers;
   }
 
   @Transactional(readOnly = true)
   public List<Offer> getOffersByApplicant(String applicantId) {
-    return offerRepository.findActiveOffersByApplicantId(applicantId);
+    List<Offer> offers = offerRepository.findActiveOffersByApplicantId(applicantId);
+    hydrateOffers(offers);
+    return offers;
   }
 
   public Offer updateOffer(String id, Offer updateData, String updatedBy) {
@@ -466,7 +478,7 @@ public class OfferService {
       LocalDateTime startDate,
       LocalDateTime endDate,
       Pageable pageable) {
-    return offerRepository.searchOffers(
+    Page<Offer> page = offerRepository.searchOffers(
         status,
         offerType,
         negotiationStatus,
@@ -477,6 +489,8 @@ public class OfferService {
         startDate,
         endDate,
         pageable);
+    hydrateOffers(page.getContent());
+    return page;
   }
 
   @Transactional(readOnly = true)
@@ -556,6 +570,67 @@ public class OfferService {
         offerRepository.countRecentAcceptances(LocalDateTime.now().minusDays(7)));
 
     return counts;
+  }
+
+  // ── Application/Applicant hydration ──────────────────────────────────────
+
+  /**
+   * Populates the Application and nested Applicant on each Offer.
+   * DynamoDB stores these as foreign keys; this resolves them to full objects
+   * so JSON serialisation includes candidate name, email, and job title.
+   */
+  private void hydrateOffers(List<Offer> offers) {
+    if (offers == null || offers.isEmpty()) return;
+
+    // Collect unique applicationIds from offers
+    Set<String> appIds = offers.stream()
+            .filter(o -> o.getApplication() != null && o.getApplication().getId() != null)
+            .map(o -> o.getApplication().getId())
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+    if (appIds.isEmpty()) return;
+
+    // Batch-fetch applications
+    Map<String, Application> appMap = new HashMap<>();
+    for (String appId : appIds) {
+      applicationRepository.findById(appId).ifPresent(app -> appMap.put(app.getId(), app));
+    }
+
+    // Collect unique applicantIds from fetched applications
+    Set<String> applicantIds = appMap.values().stream()
+            .filter(app -> app.getApplicant() != null && app.getApplicant().getId() != null)
+            .map(app -> app.getApplicant().getId())
+            .collect(Collectors.toSet());
+
+    // Batch-fetch applicants
+    Map<String, Applicant> applicantMap = new HashMap<>();
+    for (String applicantId : applicantIds) {
+      applicantRepository.findById(applicantId).ifPresent(a -> applicantMap.put(a.getId(), a));
+    }
+
+    // Wire applicants into applications, applications into offers
+    for (Application app : appMap.values()) {
+      if (app.getApplicant() != null && app.getApplicant().getId() != null) {
+        Applicant fullApplicant = applicantMap.get(app.getApplicant().getId());
+        if (fullApplicant != null) {
+          app.setApplicant(fullApplicant);
+        }
+      }
+    }
+    for (Offer offer : offers) {
+      if (offer.getApplication() != null && offer.getApplication().getId() != null) {
+        Application fullApp = appMap.get(offer.getApplication().getId());
+        if (fullApp != null) {
+          offer.setApplication(fullApp);
+        }
+      }
+    }
+  }
+
+  private void hydrateOffer(Offer offer) {
+    if (offer != null) {
+      hydrateOffers(List.of(offer));
+    }
   }
 
   // Helper methods

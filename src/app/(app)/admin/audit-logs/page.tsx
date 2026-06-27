@@ -210,14 +210,17 @@ export default function AuditLogsPage() {
       log.action === 'permission_revoked'
     ).length;
 
-    // Most active user
+    // Most active user — display userName if available, otherwise userId
     const userCounts: Record<string, number> = {};
+    const userNameMap: Record<string, string> = {};
     auditLogs.forEach(log => {
       userCounts[log.userId] = (userCounts[log.userId] || 0) + 1;
+      if (log.userName) userNameMap[log.userId] = log.userName;
     });
-    const mostActiveUser = Object.keys(userCounts).reduce((a, b) => 
+    const mostActiveUserId = Object.keys(userCounts).reduce((a, b) =>
       userCounts[a] > userCounts[b] ? a : b, 'N/A'
     );
+    const mostActiveUser = userNameMap[mostActiveUserId] || mostActiveUserId;
 
     // Most common action
     const actionCounts: Record<string, number> = {};
@@ -275,13 +278,14 @@ export default function AuditLogsPage() {
   };
 
   const handleExportLogs = () => {
-    const header = ['Timestamp', 'Entity Type', 'Entity ID', 'Action', 'User ID', 'User Role', 'Details'].map(csvEscapeField).join(',');
+    const header = ['Timestamp', 'Entity Type', 'Entity ID', 'Action', 'User ID', 'User Name', 'User Role', 'Details'].map(csvEscapeField).join(',');
     const rows = filteredLogs.map(log => [
       log.timestamp.toISOString(),
       log.entityType,
       log.entityId,
       log.action,
       log.userId,
+      log.userName || '',
       log.userRole,
       JSON.stringify(log.details),
     ].map(csvEscapeField).join(','));
@@ -627,8 +631,8 @@ export default function AuditLogsPage() {
                           <div className="text-sm text-gray-500 truncate max-w-32">{log.entityId}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate max-w-32">
-                        {log.userId}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate max-w-32" title={log.userId}>
+                        {log.userName || log.userId}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
@@ -758,8 +762,11 @@ export default function AuditLogsPage() {
                       <p className="text-sm text-gray-900">{selectedLog.entityId}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">User ID</label>
-                      <p className="text-sm text-gray-900">{selectedLog.userId}</p>
+                      <label className="block text-sm font-medium text-gray-700">User</label>
+                      <p className="text-sm text-gray-900">{selectedLog.userName || selectedLog.userId}</p>
+                      {selectedLog.userName && (
+                        <p className="text-xs text-gray-500">{selectedLog.userId}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">User Role</label>

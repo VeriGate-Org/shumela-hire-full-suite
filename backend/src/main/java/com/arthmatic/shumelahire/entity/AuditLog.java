@@ -26,6 +26,8 @@ public class AuditLog extends TenantAwareEntity {
 
     private String userRole;
 
+    private String userName;
+
     // Constructors
     public AuditLog() {
         this.timestamp = LocalDateTime.now();
@@ -108,6 +110,14 @@ public class AuditLog extends TenantAwareEntity {
 
     public void setUserRole(String userRole) {
         this.userRole = userRole;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     @Override

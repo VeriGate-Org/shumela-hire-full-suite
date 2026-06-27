@@ -182,11 +182,19 @@ export default function ApplicationManagementConsole() {
       const response = await apiFetch('/api/applications/manage/statistics');
       if (response.ok) {
         const data = await response.json();
+        const statusDist = data.statusDistribution || {};
+        const inReview = (statusDist.SCREENING || 0) + (statusDist.INTERVIEW_SCHEDULED || 0) +
+            (statusDist.INTERVIEW_COMPLETED || 0) + (statusDist.REFERENCE_CHECK || 0);
+        const ratingDist = data.ratingDistribution || {};
+        const ratingEntries = Object.entries(ratingDist) as [string, number][];
+        const totalRated = ratingEntries.reduce((sum, [, count]) => sum + count, 0);
+        const weightedSum = ratingEntries.reduce((sum, [rating, count]) => sum + Number(rating) * count, 0);
+        const avgRating = totalRated > 0 ? weightedSum / totalRated : 0;
         setStatistics({
           totalApplications: data.totalApplications ?? 0,
-          newApplications: data.newApplications ?? 0,
-          inReviewApplications: data.inReviewApplications ?? 0,
-          averageRating: data.averageRating ?? 0
+          newApplications: data.recentApplications ?? data.newApplications ?? 0,
+          inReviewApplications: inReview || data.inReviewApplications || 0,
+          averageRating: avgRating || data.averageRating || 0
         });
       } else {
         setStatsError(true);
@@ -198,7 +206,11 @@ export default function ApplicationManagementConsole() {
   };
 
   const handleSearch = () => {
-    setFilters(prev => ({ ...prev, page: 0 }));
+    setFilters(prev => {
+      const updated = { ...prev, page: 0 };
+      // Force useCallback re-creation even if page was already 0
+      return { ...updated };
+    });
   };
 
   const handleFilterChange = (key: string, value: any) => {

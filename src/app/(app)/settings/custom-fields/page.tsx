@@ -123,7 +123,6 @@ export default function CustomFieldsPage() {
   };
 
   return (
-    <FeatureGate feature="CUSTOM_FIELDS">
       <PageWrapper
         title="Custom Fields"
         subtitle="Define and manage custom fields for employees, jobs, applications, and interviews"
@@ -364,6 +363,5 @@ export default function CustomFieldsPage() {
           )}
         </div>
       </PageWrapper>
-    </FeatureGate>
   );
 }

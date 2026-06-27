@@ -42,9 +42,10 @@ public class ApplicationResponse {
     
     public ApplicationResponse(Application application) {
         this.id = application.getId();
-        this.applicantId = application.getApplicant().getId();
-        this.applicantName = application.getApplicant().getFullName();
-        this.applicantEmail = application.getApplicant().getEmail();
+        com.arthmatic.shumelahire.entity.Applicant applicant = application.getApplicant();
+        this.applicantId = applicant != null ? applicant.getId() : null;
+        this.applicantName = applicant != null ? applicant.getFullName() : null;
+        this.applicantEmail = applicant != null ? applicant.getEmail() : null;
         this.jobAdId = application.getJobPosting() != null ? application.getJobPosting().getId() : application.getJobPostingId();
         this.jobTitle = application.getJobTitle();
         this.department = application.getDepartment();

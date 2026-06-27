@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +85,9 @@ public class TalentPoolService {
     }
 
     public List<TalentPoolEntry> getEntries(String poolId) {
-        return talentPoolEntryRepository.findByTalentPoolId(poolId);
+        List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(poolId);
+        hydrateEntries(entries);
+        return entries;
     }
 
     @Transactional
@@ -123,6 +128,7 @@ public class TalentPoolService {
     public Map<String, Object> getPoolAnalytics(String poolId) {
         TalentPool pool = getPool(poolId);
         List<TalentPoolEntry> entries = talentPoolEntryRepository.findByTalentPoolId(poolId);
+        hydrateEntries(entries);
 
         long activeCount = entries.stream().filter(e -> e.getRemovedAt() == null).count();
         double avgRating = entries.stream()
@@ -143,6 +149,35 @@ public class TalentPoolService {
         analytics.put("averageRating", Math.round(avgRating * 100.0) / 100.0);
         analytics.put("bySource", bySource);
         return analytics;
+    }
+
+    /**
+     * Populate full Applicant data on entries that only have a stub (ID-only) applicant.
+     */
+    private void hydrateEntries(List<TalentPoolEntry> entries) {
+        if (entries == null || entries.isEmpty()) return;
+
+        Set<String> applicantIds = entries.stream()
+                .filter(e -> e.getApplicant() != null && e.getApplicant().getId() != null
+                        && e.getApplicant().getName() == null)
+                .map(e -> e.getApplicant().getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (applicantIds.isEmpty()) return;
+
+        Map<String, Applicant> applicantMap = new HashMap<>();
+        for (String id : applicantIds) {
+            applicantRepository.findById(id).ifPresent(a -> applicantMap.put(a.getId(), a));
+        }
+
+        for (TalentPoolEntry entry : entries) {
+            if (entry.getApplicant() != null && entry.getApplicant().getId() != null) {
+                Applicant full = applicantMap.get(entry.getApplicant().getId());
+                if (full != null) {
+                    entry.setApplicant(full);
+                }
+            }
+        }
     }
 
     private boolean matchesCriteria(TalentPool pool, Application application) {
