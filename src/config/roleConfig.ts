@@ -48,8 +48,8 @@ export const roleConfigurations: Record<UserRole, RoleConfig> = {
     primaryColor: 'bg-violet-600',
     secondaryColor: 'bg-gold-50',
     logo: '🎯',
-    welcomeMessage: 'Hiring Manager Dashboard',
-    description: 'Oversee hiring for your team and manage interview processes.',
+    welcomeMessage: 'Talent Acquisition Dashboard',
+    description: 'Manage talent acquisition, hiring pipelines, and candidate experience.',
   },
   RECRUITER: {
     primaryColor: 'bg-violet-600',

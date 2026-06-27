@@ -25,7 +25,7 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   EXECUTIVE: 'Executive',
   HR_MANAGER: 'HR Manager',
   LINE_MANAGER: 'Line Manager',
-  HIRING_MANAGER: 'Hiring Manager',
+  HIRING_MANAGER: 'Talent Acquisition',
   RECRUITER: 'Recruiter',
   INTERVIEWER: 'Interviewer',
   EMPLOYEE: 'Employee',
