@@ -29,7 +29,7 @@ export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold-500"
+          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold-500"
         >
           <span className="mr-2">{currentRoleConfig.logo}</span>
           <span className="flex-1 text-left truncate">{ROLE_DISPLAY_NAMES[user.role]}</span>
@@ -37,7 +37,7 @@ export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 z-60 w-48 mt-1 bg-white border border-gray-200 rounded-sm shadow-lg">
+          <div className="absolute right-0 z-60 w-48 mt-1 bg-white border border-gray-200 rounded-control shadow-lg">
             <div className="py-1">
               {roles.map((role) => {
                 const roleConfig = roleConfigurations[role];
@@ -74,7 +74,7 @@ export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-sm shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
+          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-control shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
         >
           <span className="mr-3 text-lg">{currentRoleConfig.logo}</span>
           <div className="flex-1 text-left">
@@ -92,7 +92,7 @@ export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
               onClick={() => setIsOpen(false)}
             />
             
-            <div className="absolute left-0 right-0 z-60 mt-1 bg-white border border-gray-200 rounded-sm shadow-xl max-h-80 overflow-y-auto">
+            <div className="absolute left-0 right-0 z-60 mt-1 bg-white border border-gray-200 rounded-control shadow-xl max-h-80 overflow-y-auto">
               <div className="py-2">
                 {roles.map((role) => {
                   const roleConfig = roleConfigurations[role];

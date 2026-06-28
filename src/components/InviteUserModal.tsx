@@ -79,12 +79,12 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
     onClose();
   };
 
-  const inputClasses = 'w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
+  const inputClasses = 'w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary';
   const labelClasses = 'block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1';
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-sm shadow-xl max-w-lg w-full">
+      <div className="bg-white rounded-control shadow-xl max-w-lg w-full">
         <div className="p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
@@ -99,7 +99,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
               {error}
             </div>
           )}

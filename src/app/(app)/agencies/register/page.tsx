@@ -151,7 +151,7 @@ export default function AgencyRegisterPage() {
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-sm">
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
             {error}
           </div>
         )}
@@ -169,7 +169,7 @@ export default function AgencyRegisterPage() {
               required
               value={form.agencyName}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="Acme Recruitment"
             />
           </div>
@@ -184,7 +184,7 @@ export default function AgencyRegisterPage() {
               type="text"
               value={form.registrationNumber}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="e.g. 2024/123456/07"
             />
           </div>
@@ -202,7 +202,7 @@ export default function AgencyRegisterPage() {
                 required
                 value={form.contactPerson}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Full name"
               />
             </div>
@@ -216,7 +216,7 @@ export default function AgencyRegisterPage() {
                 type="tel"
                 value={form.contactPhone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="+27 12 345 6789"
               />
             </div>
@@ -233,7 +233,7 @@ export default function AgencyRegisterPage() {
               required
               value={form.contactEmail}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="contact@agency.co.za"
             />
           </div>
@@ -248,7 +248,7 @@ export default function AgencyRegisterPage() {
               name="beeLevel"
               value={form.beeLevel}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white"
             >
               <option value="">Select level</option>
               {BEE_LEVELS.map(level => (
@@ -298,7 +298,7 @@ export default function AgencyRegisterPage() {
               required
               value={form.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="At least 8 characters"
               autoComplete="new-password"
             />
@@ -328,7 +328,7 @@ export default function AgencyRegisterPage() {
               required
               value={form.confirmPassword}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               placeholder="Confirm your password"
               autoComplete="new-password"
             />

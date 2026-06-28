@@ -151,7 +151,7 @@ export default function WorkflowManager({
   };
 
   return (
-    <div className={`bg-card rounded-sm shadow-sm border border-border ${className}`}>
+    <div className={`bg-card rounded-control shadow-sm border border-border ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-border">
         <div className="flex items-center justify-between">
@@ -223,7 +223,7 @@ export default function WorkflowManager({
               placeholder={`Search ${activeTab}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-border rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+              className="w-full max-w-md px-3 py-2 border border-border rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             />
           </div>
           
@@ -231,7 +231,7 @@ export default function WorkflowManager({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-border rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+              className="px-3 py-2 border border-border rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             >
               <option value="all">All Status</option>
               {activeTab === 'workflows' ? (
@@ -270,7 +270,7 @@ export default function WorkflowManager({
                 </p>
                 <button
                   onClick={onCreateWorkflow}
-                  className="px-4 py-2 text-sm font-medium text-gold-600 bg-gold-50 rounded-sm hover:bg-gold-100"
+                  className="px-4 py-2 text-sm font-medium text-gold-600 bg-gold-50 rounded-control hover:bg-gold-100"
                 >
                   Create Workflow
                 </button>
@@ -278,7 +278,7 @@ export default function WorkflowManager({
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredWorkflows.map((workflow) => (
-                  <div key={workflow.id} className="border border-border rounded-sm p-4 hover:shadow-md transition-shadow">
+                  <div key={workflow.id} className="border border-border rounded-control p-4 hover:shadow-md transition-shadow">
                     {/* Workflow Header */}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -371,7 +371,7 @@ export default function WorkflowManager({
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onToggleWorkflow(workflow.id!, !workflow.isActive)}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-sm ${
+                          className={`px-3 py-1.5 text-xs font-medium rounded-control ${
                             workflow.isActive
                               ? 'text-yellow-700 bg-yellow-100 hover:bg-yellow-200'
                               : 'text-green-700 bg-green-100 hover:bg-green-200'
@@ -407,7 +407,7 @@ export default function WorkflowManager({
             ) : (
               <div className="space-y-4">
                 {filteredExecutions.map((execution) => (
-                  <div key={execution.id} className="border border-border rounded-sm p-4">
+                  <div key={execution.id} className="border border-border rounded-control p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">

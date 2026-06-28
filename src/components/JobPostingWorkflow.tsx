@@ -327,7 +327,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           <button
             onClick={() => handleWorkflowAction('submit-for-approval')}
             disabled={loading === 'submit-for-approval'}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-control shadow-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50"
           >
             {loading === 'submit-for-approval' ? 'Submitting...' : 'Submit for Approval'}
           </button>
@@ -413,7 +413,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           <button
             onClick={() => setPendingAction('publish')}
             disabled={loading === 'publish'}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-control shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
             {loading === 'publish' ? 'Publishing...' : 'Publish Job Posting'}
           </button>
@@ -423,7 +423,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           <button
             onClick={() => setPendingAction('unpublish')}
             disabled={loading === 'unpublish'}
-            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-sm shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-control shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
             {loading === 'unpublish' ? 'Unpublishing...' : 'Unpublish Job Posting'}
           </button>
@@ -433,7 +433,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           <button
             onClick={() => setPendingAction('close')}
             disabled={loading === 'close'}
-            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-sm shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-control shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
             {loading === 'close' ? 'Closing...' : 'Close Job Posting'}
           </button>

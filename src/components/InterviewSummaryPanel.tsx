@@ -267,7 +267,7 @@ export default function InterviewSummaryPanel({
   }
 
   return (
-    <div className="border border-border rounded-sm">
+    <div className="border border-border rounded-control">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
@@ -351,7 +351,7 @@ export default function InterviewSummaryPanel({
 
             {/* Red flags */}
             {feedbackRollup.some(r => r.recommendations.some(rec => ['REJECT', 'STRONG_REJECT'].includes(rec))) && (
-              <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-sm text-xs text-red-700">
+              <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-control text-xs text-red-700">
                 <XCircleIcon className="w-3.5 h-3.5 inline mr-1" />
                 One or more interviewers recommended against hiring. Review feedback before progressing.
               </div>
@@ -499,7 +499,7 @@ export default function InterviewSummaryPanel({
 
                     {/* Cancellation reason */}
                     {isCancelled && interview.cancellationReason && (
-                      <div className="text-xs text-red-600 bg-red-50 rounded-sm px-3 py-2">
+                      <div className="text-xs text-red-600 bg-red-50 rounded-control px-3 py-2">
                         Cancelled: {interview.cancellationReason}
                       </div>
                     )}
@@ -513,7 +513,7 @@ export default function InterviewSummaryPanel({
                         {feedbacks.map(fb => {
                           const recConfig = RECOMMENDATION_CONFIG[fb.recommendation] || { label: formatEnumValue(fb.recommendation), color: 'text-gray-700 bg-gray-50 border-gray-200' };
                           return (
-                            <div key={fb.id} className="bg-gray-50 rounded-sm p-3 text-sm space-y-2">
+                            <div key={fb.id} className="bg-gray-50 rounded-control p-3 text-sm space-y-2">
                               <div className="flex items-center justify-between">
                                 <span className="font-medium text-foreground text-xs">{fb.interviewerName || `User #${fb.submittedBy}`}</span>
                                 <div className="flex items-center gap-2">
@@ -562,20 +562,20 @@ export default function InterviewSummaryPanel({
 
                     {/* Reschedule form */}
                     {rescheduleId === interview.id && (
-                      <div className="bg-gray-50 rounded-sm p-3 space-y-2">
+                      <div className="bg-gray-50 rounded-control p-3 space-y-2">
                         <label className="block text-xs font-medium text-gray-700">New Date & Time</label>
                         <input
                           type="datetime-local"
                           value={rescheduleDate}
                           onChange={e => setRescheduleDate(e.target.value)}
-                          className="w-full px-3 py-1.5 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60"
+                          className="w-full px-3 py-1.5 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60"
                         />
                         <input
                           type="text"
                           value={rescheduleReason}
                           onChange={e => setRescheduleReason(e.target.value)}
                           placeholder="Reason for rescheduling"
-                          className="w-full px-3 py-1.5 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60"
+                          className="w-full px-3 py-1.5 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60"
                         />
                         <div className="flex gap-2">
                           <button
@@ -597,13 +597,13 @@ export default function InterviewSummaryPanel({
 
                     {/* Cancel form */}
                     {cancelId === interview.id && (
-                      <div className="bg-red-50 rounded-sm p-3 space-y-2">
+                      <div className="bg-red-50 rounded-control p-3 space-y-2">
                         <input
                           type="text"
                           value={cancelReason}
                           onChange={e => setCancelReason(e.target.value)}
                           placeholder="Reason for cancellation"
-                          className="w-full px-3 py-1.5 border border-red-200 rounded-sm text-sm focus:ring-2 focus:ring-red-500/60"
+                          className="w-full px-3 py-1.5 border border-red-200 rounded-control text-sm focus:ring-2 focus:ring-red-500/60"
                         />
                         <div className="flex gap-2">
                           <button
@@ -627,7 +627,7 @@ export default function InterviewSummaryPanel({
 
                 {/* Inline Feedback Form */}
                 {feedbackInterviewId === interview.id && (
-                  <div className="mt-3 ml-6 border border-border rounded-sm">
+                  <div className="mt-3 ml-6 border border-border rounded-control">
                     <InterviewFeedbackForm
                       interview={{
                         id: interview.id,

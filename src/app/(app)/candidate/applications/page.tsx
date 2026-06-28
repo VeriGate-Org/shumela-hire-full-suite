@@ -244,14 +244,14 @@ export default function MyApplicationsPage() {
           placeholder="Search applications..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+          className="pl-10 pr-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
         />
       </div>
       
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="all">All Status</option>
         <option value="applied">Applied</option>
@@ -268,7 +268,7 @@ export default function MyApplicationsPage() {
       <select
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="date">Sort by Date</option>
         <option value="company">Sort by Company</option>
@@ -296,7 +296,7 @@ export default function MyApplicationsPage() {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <BriefcaseIcon className="w-8 h-8 text-violet-500" />
               <div className="ml-4">
@@ -306,7 +306,7 @@ export default function MyApplicationsPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-500" />
               <div className="ml-4">
@@ -320,7 +320,7 @@ export default function MyApplicationsPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <CheckCircleIcon className="w-8 h-8 text-green-500" />
               <div className="ml-4">
@@ -332,7 +332,7 @@ export default function MyApplicationsPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <XCircleIcon className="w-8 h-8 text-red-500" />
               <div className="ml-4">
@@ -348,12 +348,12 @@ export default function MyApplicationsPage() {
         {/* Applications List */}
         <div className="space-y-4">
           {filteredApplications.map((application) => (
-            <div key={application.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500 overflow-hidden">
+            <div key={application.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500 overflow-hidden">
               <div className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-start space-x-4">
-                      <div className="w-16 h-16 bg-violet-600 rounded-sm flex items-center justify-center">
+                      <div className="w-16 h-16 bg-violet-600 rounded-control flex items-center justify-center">
                         <BuildingOfficeIcon className="w-8 h-8 text-white" />
                       </div>
                       
@@ -413,7 +413,7 @@ export default function MyApplicationsPage() {
                     </div>
 
                     {application.interviewScheduled && (
-                      <div className="mt-4 p-3 bg-gold-50 border border-violet-200 rounded-sm">
+                      <div className="mt-4 p-3 bg-gold-50 border border-violet-200 rounded-control">
                         <div className="flex items-center">
                           <CalendarIcon className="w-5 h-5 text-gold-600 mr-2" />
                           <div>
@@ -432,21 +432,21 @@ export default function MyApplicationsPage() {
                     )}
 
                     {application.feedback && (
-                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-sm">
+                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-control">
                         <h4 className="text-sm font-medium text-green-800 mb-1">Feedback</h4>
                         <p className="text-sm text-green-700">{application.feedback}</p>
                       </div>
                     )}
 
                     {application.nextSteps && (
-                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-sm">
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-control">
                         <h4 className="text-sm font-medium text-yellow-800 mb-1">Next Steps</h4>
                         <p className="text-sm text-yellow-700">{application.nextSteps}</p>
                       </div>
                     )}
 
                     {application.rejectionReason && (
-                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-sm">
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-control">
                         <h4 className="text-sm font-medium text-red-800 mb-1">Feedback</h4>
                         <p className="text-sm text-red-700">{application.rejectionReason}</p>
                       </div>
@@ -502,7 +502,7 @@ export default function MyApplicationsPage() {
         {/* Application Details Modal */}
         {selectedApplication && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -551,7 +551,7 @@ export default function MyApplicationsPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Documents</h3>
                       <div className="space-y-2">
                         {selectedApplication.documents.map((doc, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                             <div className="flex items-center">
                               <DocumentTextIcon className="w-5 h-5 text-violet-500 mr-3" />
                               <div>
@@ -573,7 +573,7 @@ export default function MyApplicationsPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Job Details</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="font-medium">Position:</span>
                           <span>{selectedApplication.jobTitle}</span>
@@ -631,7 +631,7 @@ export default function MyApplicationsPage() {
                     {selectedApplication.contactPerson && (
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Person</h3>
-                        <div className="bg-gray-50 rounded-sm p-4">
+                        <div className="bg-gray-50 rounded-control p-4">
                           <p className="font-medium">{selectedApplication.contactPerson.name}</p>
                           <p className="text-sm text-gray-600">{selectedApplication.contactPerson.title}</p>
                           <p className="text-sm text-gray-600">{selectedApplication.contactPerson.email}</p>
@@ -656,7 +656,7 @@ export default function MyApplicationsPage() {
         {/* Withdraw Confirmation Modal */}
         {withdrawModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-md w-full p-6">
+            <div className="bg-white rounded-control shadow-xl max-w-md w-full p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-2">Withdraw Application</h3>
               <p className="text-sm text-gray-600 mb-4">
                 Are you sure you want to withdraw this application? This action cannot be undone.
@@ -670,7 +670,7 @@ export default function MyApplicationsPage() {
                   rows={3}
                   value={withdrawReason}
                   onChange={(e) => setWithdrawReason(e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                   placeholder="Please provide a reason for withdrawing your application..."
                 />
               </div>

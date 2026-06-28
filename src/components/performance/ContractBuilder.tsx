@@ -130,7 +130,7 @@ export default function ContractBuilder({
   const totalWeighting = contract.goals.reduce((sum, goal) => sum + goal.weighting, 0);
 
   return (
-    <div className="bg-white shadow rounded-sm">
+    <div className="bg-white shadow rounded-control">
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -153,7 +153,7 @@ export default function ContractBuilder({
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-control">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -170,7 +170,7 @@ export default function ContractBuilder({
                 required
                 value={contract.employeeId}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeId: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -183,7 +183,7 @@ export default function ContractBuilder({
                 required
                 value={contract.employeeName}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeName: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -195,7 +195,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.employeeNumber}
                 onChange={(e) => setContract(prev => ({ ...prev, employeeNumber: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -208,7 +208,7 @@ export default function ContractBuilder({
                 required
                 value={contract.managerName}
                 onChange={(e) => setContract(prev => ({ ...prev, managerName: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -220,7 +220,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.department}
                 onChange={(e) => setContract(prev => ({ ...prev, department: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -232,7 +232,7 @@ export default function ContractBuilder({
                 type="text"
                 value={contract.jobTitle}
                 onChange={(e) => setContract(prev => ({ ...prev, jobTitle: e.target.value }))}
-                className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function ContractBuilder({
               </div>
               <button
                 onClick={() => setShowGoalForm(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-white bg-green-600 hover:bg-green-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-control text-white bg-green-600 hover:bg-green-700"
               >
                 Add Goal
               </button>
@@ -257,7 +257,7 @@ export default function ContractBuilder({
             {/* Existing Goals */}
             <div className="space-y-3 mb-4">
               {contract.goals.map((goal, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-sm">
+                <div key={index} className="bg-gray-50 p-4 rounded-control">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
@@ -288,7 +288,7 @@ export default function ContractBuilder({
             {/* Goal Form Modal */}
             {showGoalForm && (
               <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-sm bg-white">
+                <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-control bg-white">
                   <div className="mt-3">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       Add Performance Goal
@@ -303,7 +303,7 @@ export default function ContractBuilder({
                           required
                           value={currentGoal.title}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, title: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -315,7 +315,7 @@ export default function ContractBuilder({
                           rows={3}
                           value={currentGoal.description}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, description: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -327,7 +327,7 @@ export default function ContractBuilder({
                           <select
                             value={currentGoal.type}
                             onChange={(e) => setCurrentGoal(prev => ({ ...prev, type: e.target.value as GoalType }))}
-                            className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                            className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                           >
                             {Object.values(GoalType).map(type => (
                               <option key={type} value={type}>{type}</option>
@@ -346,7 +346,7 @@ export default function ContractBuilder({
                             required
                             value={currentGoal.weighting}
                             onChange={(e) => setCurrentGoal(prev => ({ ...prev, weighting: parseInt(e.target.value) || 0 }))}
-                            className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                            className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                           />
                         </div>
                       </div>
@@ -359,7 +359,7 @@ export default function ContractBuilder({
                           type="text"
                           value={currentGoal.targetValue}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, targetValue: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                         />
                       </div>
 
@@ -371,7 +371,7 @@ export default function ContractBuilder({
                           rows={2}
                           value={currentGoal.measurementCriteria}
                           onChange={(e) => setCurrentGoal(prev => ({ ...prev, measurementCriteria: e.target.value }))}
-                          className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                          className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                         />
                       </div>
                     </div>
@@ -379,13 +379,13 @@ export default function ContractBuilder({
                     <div className="flex justify-end space-x-3 pt-4">
                       <button
                         onClick={() => setShowGoalForm(false)}
-                        className="px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        className="px-4 py-2 border border-gray-300 rounded-control text-sm font-medium text-gray-700 hover:bg-gray-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={addGoal}
-                        className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                        className="px-4 py-2 border border-transparent rounded-control text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                       >
                         Add Goal
                       </button>
@@ -401,7 +401,7 @@ export default function ContractBuilder({
             {onCancel && (
               <button
                 onClick={onCancel}
-                className="px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-control text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -409,7 +409,7 @@ export default function ContractBuilder({
             <button
               onClick={handleSubmit}
               disabled={loading || totalWeighting !== 100}
-              className={`px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-white 
+              className={`px-4 py-2 border border-transparent rounded-control text-sm font-medium text-white 
                 ${loading || totalWeighting !== 100 
                   ? 'bg-gray-400 cursor-not-allowed' 
                   : 'bg-violet-600 hover:bg-gold-600'}`}

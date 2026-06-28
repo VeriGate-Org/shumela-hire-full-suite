@@ -130,11 +130,11 @@ export default function SalaryReviewsPage() {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-sm p-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-control p-4">
             <p className="text-sm font-medium text-yellow-800">Awaiting HR Review</p>
             <p className="text-2xl font-bold text-yellow-900">{pendingReview.length}</p>
           </div>
-          <div className="bg-orange-50 border border-orange-200 rounded-sm p-4">
+          <div className="bg-orange-50 border border-orange-200 rounded-control p-4">
             <p className="text-sm font-medium text-orange-800">Awaiting Approval</p>
             <p className="text-2xl font-bold text-orange-900">{pendingApproval.length}</p>
           </div>
@@ -172,7 +172,7 @@ export default function SalaryReviewsPage() {
             <div className="animate-spin h-8 w-8 border-2 border-gold-500 border-t-transparent rounded-full" />
           </div>
         ) : items.length === 0 ? (
-          <div className="bg-white rounded-sm shadow p-8 text-center">
+          <div className="bg-white rounded-control shadow p-8 text-center">
             <p className="text-gray-500">
               {activeTab === 'review'
                 ? 'No salary recommendations pending review.'
@@ -182,7 +182,7 @@ export default function SalaryReviewsPage() {
         ) : (
           <div className="space-y-4">
             {items.map((rec) => (
-              <div key={rec.id} className="bg-white rounded-sm shadow p-6">
+              <div key={rec.id} className="bg-white rounded-control shadow p-6">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
@@ -278,7 +278,7 @@ export default function SalaryReviewsPage() {
       {/* Provide Recommendation Modal */}
       {recommendTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-1">Provide Salary Recommendation</h3>
             <p className="text-sm text-gray-500 mb-4">{recommendTarget.positionTitle} {recommendTarget.candidateName ? `- ${recommendTarget.candidateName}` : ''}</p>
             <div className="space-y-4">
@@ -288,7 +288,7 @@ export default function SalaryReviewsPage() {
                   type="number"
                   value={recommendedSalary || ''}
                   onChange={(e) => setRecommendedSalary(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 />
                 {recommendTarget.proposedMinSalary != null && recommendTarget.proposedMaxSalary != null && (
                   <p className="text-xs text-gray-400 mt-1">
@@ -301,7 +301,7 @@ export default function SalaryReviewsPage() {
                 <textarea
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm"
                   rows={4}
                   placeholder="Provide reasoning for the recommended salary..."
                 />
@@ -329,7 +329,7 @@ export default function SalaryReviewsPage() {
       {/* Approve Modal */}
       {approveTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-1">Approve Recommendation</h3>
             <p className="text-sm text-gray-500 mb-4">
               {approveTarget.positionTitle} - {formatCurrency(approveTarget.recommendedSalary || approveTarget.proposedTargetSalary)}
@@ -339,7 +339,7 @@ export default function SalaryReviewsPage() {
               <textarea
                 value={approvalNotes}
                 onChange={(e) => setApprovalNotes(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 rows={3}
                 placeholder="Add any notes about this approval..."
               />
@@ -366,7 +366,7 @@ export default function SalaryReviewsPage() {
       {/* Reject Modal */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-1">Reject Recommendation</h3>
             <p className="text-sm text-gray-500 mb-4">{rejectTarget.positionTitle}</p>
             <div>
@@ -376,7 +376,7 @@ export default function SalaryReviewsPage() {
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 rows={4}
                 placeholder="Please provide a detailed reason for rejection..."
               />

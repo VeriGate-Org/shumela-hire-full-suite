@@ -164,7 +164,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
     >
       <div className="h-full flex flex-col">
         {/* Pipeline Summary */}
-        <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-sm">
+        <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-control">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-1">
             {stages.map((stage) => (
               <div key={stage.id} className="text-center">
@@ -191,7 +191,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
             {stages.map((stage) => (
               <div
                 key={stage.id}
-                className={`flex-shrink-0 w-72 bg-gray-50 rounded-sm p-4 flex flex-col ${
+                className={`flex-shrink-0 w-72 bg-gray-50 rounded-control p-4 flex flex-col ${
                   dragOverStage === stage.id ? 'ring-2 ring-gold-500 bg-gold-50' : ''
                 }`}
                 onDragOver={(e) => handleDragOver(e, stage.id)}
@@ -223,7 +223,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                       draggable
                       onDragStart={() => handleDragStart(candidate)}
                       onClick={() => onCandidateClick?.(candidate)}
-                      className="bg-white rounded-sm p-3 border border-gray-200 cursor-move hover:shadow-md transition-shadow group"
+                      className="bg-white rounded-control p-3 border border-gray-200 cursor-move hover:shadow-md transition-shadow group"
                     >
                       {/* Candidate Header */}
                       <div className="flex items-start justify-between mb-2">

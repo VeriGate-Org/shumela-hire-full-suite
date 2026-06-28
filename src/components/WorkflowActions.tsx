@@ -118,7 +118,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
   };
 
   const getActionButton = (action: WorkflowAction) => {
-    const baseClasses = "px-4 py-2 rounded-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseClasses = "px-4 py-2 rounded-control font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
     switch (action) {
       case WorkflowAction.SUBMIT:
@@ -177,7 +177,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
           aria-modal="true"
           aria-labelledby="comment-modal-title"
         >
-          <div ref={modalRef} className="bg-card rounded-sm p-6 w-full max-w-md">
+          <div ref={modalRef} className="bg-card rounded-control p-6 w-full max-w-md">
             <h3 id="comment-modal-title" className="text-lg font-medium text-foreground mb-4">
               {pendingAction === WorkflowAction.REJECT ? 'Rejection Reason' : 'Add Comment'}
             </h3>
@@ -187,7 +187,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
               onChange={(e) => setComment(e.target.value)}
               placeholder={pendingAction === WorkflowAction.REJECT ? 'Please provide a reason for rejection...' : 'Optional comment...'}
               aria-label={pendingAction === WorkflowAction.REJECT ? 'Rejection reason' : 'Comment'}
-              className="w-full px-3 py-2 border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring"
+              className="w-full px-3 py-2 border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring"
               rows={4}
               required={pendingAction === WorkflowAction.REJECT}
             />
@@ -204,14 +204,14 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
                   setComment('');
                 }}
                 disabled={isLoading}
-                className="px-4 py-2 text-foreground bg-muted hover:bg-accent rounded-sm transition-colors duration-200"
+                className="px-4 py-2 text-foreground bg-muted hover:bg-accent rounded-control transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCommentSubmit}
                 disabled={isLoading || (pendingAction === WorkflowAction.REJECT && !comment.trim())}
-                className={`px-4 py-2 rounded-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`px-4 py-2 rounded-control font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                   pendingAction === WorkflowAction.REJECT
                     ? 'bg-red-600 hover:bg-red-700 text-white'
                     : 'bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'

@@ -23,6 +23,7 @@ interface DashboardWidgetProps {
   collapsible?: boolean;
   resizable?: boolean;
   size?: 'small' | 'medium' | 'large';
+  accentColor?: 'navy' | 'teal' | 'gold' | 'pink';
   onRefresh?: () => void;
   onConfigure?: () => void;
   onRemove?: () => void;
@@ -44,6 +45,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   collapsible = false,
   resizable = false,
   size = 'medium',
+  accentColor = 'gold',
   onRefresh,
   onConfigure,
   onRemove,
@@ -93,10 +95,17 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
     }
   };
 
+  const accentBorderMap: Record<string, string> = {
+    navy: 'border-t-accent-navy',
+    teal: 'border-t-accent-teal',
+    gold: 'border-t-cta',
+    pink: 'border-t-accent-pink',
+  };
+
   return (
     <div
       data-widget-id={id}
-      className={`bg-card rounded-card border border-border border-t-2 border-t-cta shadow-sm ${getSizeClasses()} ${getHeightClass()} ${className}`}
+      className={`bg-card rounded-card border border-border border-t-2 ${accentBorderMap[accentColor]} shadow-sm ${getSizeClasses()} ${getHeightClass()} ${className}`}
     >
       {/* Widget Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">

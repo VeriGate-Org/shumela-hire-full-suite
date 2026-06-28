@@ -256,7 +256,7 @@ export default function InterviewSchedulePage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <div className="flex rounded-sm border border-gray-300">
+      <div className="flex rounded-control border border-gray-300">
         <button
           onClick={() => setViewMode('list')}
           className={`px-3 py-2 text-sm font-medium rounded-l-lg ${
@@ -282,7 +282,7 @@ export default function InterviewSchedulePage() {
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="all">All Interviews</option>
         <option value="upcoming">Upcoming</option>
@@ -311,7 +311,7 @@ export default function InterviewSchedulePage() {
       <div className="space-y-6">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <CalendarIcon className="w-8 h-8 text-violet-500" />
               <div className="ml-4">
@@ -321,7 +321,7 @@ export default function InterviewSchedulePage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-500" />
               <div className="ml-4">
@@ -333,7 +333,7 @@ export default function InterviewSchedulePage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <CheckCircleIcon className="w-8 h-8 text-green-500" />
               <div className="ml-4">
@@ -345,7 +345,7 @@ export default function InterviewSchedulePage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
               <div className="ml-4">
@@ -359,7 +359,7 @@ export default function InterviewSchedulePage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-sm p-4 flex items-center justify-between">
+          <div className="bg-red-50 border border-red-200 rounded-control p-4 flex items-center justify-between">
             <div className="flex items-center">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-500 mr-3" />
               <span className="text-sm text-red-800">{error}</span>
@@ -380,12 +380,12 @@ export default function InterviewSchedulePage() {
               const timeUntil = upcoming ? getTimeUntilInterview(interview) : null;
 
               return (
-                <div key={interview.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500 overflow-hidden">
+                <div key={interview.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500 overflow-hidden">
                   <div className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-start space-x-4">
-                          <div className="w-16 h-16 bg-violet-600 rounded-sm flex items-center justify-center">
+                          <div className="w-16 h-16 bg-violet-600 rounded-control flex items-center justify-center">
                             <BriefcaseIcon className="w-8 h-8 text-white" />
                           </div>
                           
@@ -463,13 +463,13 @@ export default function InterviewSchedulePage() {
                         </div>
 
                         {interview.notes && (
-                          <div className="mt-4 p-3 bg-gold-50 rounded-sm">
+                          <div className="mt-4 p-3 bg-gold-50 rounded-control">
                             <p className="text-sm text-violet-800">{interview.notes}</p>
                           </div>
                         )}
 
                         {interview.feedback && (
-                          <div className="mt-4 p-3 bg-green-50 rounded-sm">
+                          <div className="mt-4 p-3 bg-green-50 rounded-control">
                             <h4 className="text-sm font-medium text-green-800 mb-1">Feedback</h4>
                             <p className="text-sm text-green-700">{interview.feedback}</p>
                             {interview.nextSteps && (
@@ -516,14 +516,14 @@ export default function InterviewSchedulePage() {
         )}
 
         {viewMode === 'calendar' && (
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Calendar View</h3>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             
@@ -541,7 +541,7 @@ export default function InterviewSchedulePage() {
               {interviews
                 .filter(interview => interview.scheduledDate === selectedDate)
                 .map(interview => (
-                  <div key={interview.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-sm">
+                  <div key={interview.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-control">
                     <div className="flex-shrink-0">
                       {getInterviewTypeIcon(interview.interviewType)}
                     </div>
@@ -581,7 +581,7 @@ export default function InterviewSchedulePage() {
         {/* Interview Details Modal */}
         {selectedInterview && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -603,7 +603,7 @@ export default function InterviewSchedulePage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Schedule Details</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div className="flex items-center">
                           <CalendarIcon className="w-5 h-5 text-gray-600 mr-3" />
                           <span>{new Date(selectedInterview.scheduledDate).toLocaleDateString()}</span>
@@ -633,7 +633,7 @@ export default function InterviewSchedulePage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Interviewers</h3>
                       <div className="space-y-3">
                         {selectedInterview.interviewers.map((interviewer, index) => (
-                          <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-sm">
+                          <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-control">
                             <UserIcon className="w-8 h-8 text-gray-600" />
                             <div>
                               <p className="font-medium text-gray-900">{interviewer.name}</p>
@@ -651,7 +651,7 @@ export default function InterviewSchedulePage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Preparation Materials</h3>
                       <div className="space-y-3">
                         {selectedInterview.preparationMaterials.map((material, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                             <div className="flex items-center space-x-3">
                               <DocumentTextIcon className="w-5 h-5 text-violet-500" />
                               <div>
@@ -671,7 +671,7 @@ export default function InterviewSchedulePage() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div>
                           <p className="font-medium">{selectedInterview.contactPerson.name}</p>
                         </div>
@@ -691,14 +691,14 @@ export default function InterviewSchedulePage() {
                 </div>
 
                 {selectedInterview.notes && (
-                  <div className="mt-6 p-4 bg-gold-50 rounded-sm">
+                  <div className="mt-6 p-4 bg-gold-50 rounded-control">
                     <h4 className="font-medium text-violet-900 mb-2">Interview Notes</h4>
                     <p className="text-violet-800 text-sm">{selectedInterview.notes}</p>
                   </div>
                 )}
 
                 {selectedInterview.feedback && (
-                  <div className="mt-4 p-4 bg-green-50 rounded-sm">
+                  <div className="mt-4 p-4 bg-green-50 rounded-control">
                     <h4 className="font-medium text-green-900 mb-2">Feedback</h4>
                     <p className="text-green-800 text-sm">{selectedInterview.feedback}</p>
                     {selectedInterview.nextSteps && (

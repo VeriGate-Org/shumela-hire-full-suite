@@ -193,28 +193,28 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
       <div className="space-y-6 max-w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-full">
           <div className="lg:col-span-2 space-y-6 min-w-0">
-            <div className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse">
+            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
               <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded-sm" />
+                  <div key={i} className="h-20 bg-gray-100 rounded-control" />
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse">
+            <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
               <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded-sm" />
+                  <div key={i} className="h-16 bg-gray-100 rounded-control" />
                 ))}
               </div>
             </div>
           </div>
           <div className="space-y-6 min-w-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse">
+              <div key={i} className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
                 <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
-                <div className="h-24 bg-gray-100 rounded-sm" />
+                <div className="h-24 bg-gray-100 rounded-control" />
               </div>
             ))}
           </div>
@@ -240,7 +240,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
             >
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {statusCounts.map((item) => (
-                  <div key={item.status} className="text-center p-4 bg-gray-50 rounded-sm">
+                  <div key={item.status} className="text-center p-4 bg-gray-50 rounded-control">
                     <div className={`text-2xl font-bold mb-2 px-3 py-1 rounded-full ${item.color} inline-block`}>
                       {item.count}
                     </div>
@@ -265,7 +265,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
                   <p className="text-gray-500 text-sm">No applications yet. Start applying to jobs to see them here.</p>
                 ) : (
                   recentApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-sm hover:bg-gray-50">
+                    <div key={application.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-control hover:bg-gray-50">
                       <div className="flex-1 min-w-0">
                         <h4 className="text-lg font-semibold text-gray-900 truncate">{application.position}</h4>
                         <p className="text-sm text-gray-600">{application.company}{application.location ? ` \u2022 ${application.location}` : ''}</p>
@@ -341,7 +341,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
                   <p className="text-gray-500 text-sm">No upcoming interviews scheduled.</p>
                 ) : (
                   upcomingInterviews.map((interview) => (
-                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
+                    <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${interview.color.replace('text-', 'bg-')}`}></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{interview.company}</p>

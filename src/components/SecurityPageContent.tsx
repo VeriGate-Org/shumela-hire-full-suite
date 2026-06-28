@@ -108,7 +108,7 @@ export default function SecurityPageContent() {
               {hasPermission('SECURITY_VIEW') ? (
                 <SecurityDashboard />
               ) : (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-sm p-4">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-control p-4">
                   <div className="flex">
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-yellow-800">
@@ -133,7 +133,7 @@ export default function SecurityPageContent() {
           {activeTab === 'settings' && (
             <div className="space-y-6">
               {/* Account Information */}
-              <div className="bg-white shadow rounded-sm p-6">
+              <div className="bg-white shadow rounded-control p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Account Information
                 </h3>
@@ -164,7 +164,7 @@ export default function SecurityPageContent() {
               </div>
 
               {/* Password Change */}
-              <div className="bg-white shadow rounded-sm p-6">
+              <div className="bg-white shadow rounded-control p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Change Password
                 </h3>
@@ -177,7 +177,7 @@ export default function SecurityPageContent() {
                       type="password"
                       value={passwordForm.currentPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-sm shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-control shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
                       required
                     />
                   </div>
@@ -189,7 +189,7 @@ export default function SecurityPageContent() {
                       type="password"
                       value={passwordForm.newPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-sm shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-control shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
                       required
                     />
                     <p className="mt-1 text-sm text-gray-500">
@@ -204,7 +204,7 @@ export default function SecurityPageContent() {
                       type="password"
                       value={passwordForm.confirmPassword}
                       onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-sm shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
+                      className="mt-1 block w-full border-gray-300 rounded-control shadow-sm focus:ring-gold-500/60 focus:border-violet-400"
                       required
                     />
                   </div>
@@ -220,7 +220,7 @@ export default function SecurityPageContent() {
               </div>
 
               {/* Two-Factor Authentication */}
-              <div className="bg-white shadow rounded-sm p-6">
+              <div className="bg-white shadow rounded-control p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Two-Factor Authentication
                 </h3>
@@ -250,12 +250,12 @@ export default function SecurityPageContent() {
               </div>
 
               {/* Session Management */}
-              <div className="bg-white shadow rounded-sm p-6">
+              <div className="bg-white shadow rounded-control p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Active Sessions
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 border border-gray-200 rounded-sm">
+                  <div className="flex items-center justify-between p-3 border border-gray-200 rounded-control">
                     <div>
                       <p className="text-sm font-medium text-gray-900">Current Session</p>
                       <p className="text-sm text-gray-500">Active now</p>
@@ -273,7 +273,7 @@ export default function SecurityPageContent() {
               </div>
 
               {/* Security Preferences */}
-              <div className="bg-white shadow rounded-sm p-6">
+              <div className="bg-white shadow rounded-control p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Security Preferences
                 </h3>

@@ -667,7 +667,7 @@ export default function AgenciesPage() {
                   type="text"
                   value={agencyForm.agencyName}
                   onChange={(e) => setAgencyForm((f) => ({ ...f, agencyName: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="e.g. TalentBridge Staffing"
                 />
               </div>
@@ -681,7 +681,7 @@ export default function AgenciesPage() {
                     type="text"
                     value={agencyForm.contactPerson}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactPerson: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Jane Smith"
                   />
                 </div>
@@ -693,7 +693,7 @@ export default function AgenciesPage() {
                     type="email"
                     value={agencyForm.contactEmail}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactEmail: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="jane@agency.com"
                   />
                 </div>
@@ -706,7 +706,7 @@ export default function AgenciesPage() {
                     type="tel"
                     value={agencyForm.contactPhone}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contactPhone: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="+27 11 000 0000"
                   />
                 </div>
@@ -716,7 +716,7 @@ export default function AgenciesPage() {
                     type="text"
                     value={agencyForm.registrationNumber}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, registrationNumber: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="2023/000000/07"
                   />
                 </div>
@@ -742,7 +742,7 @@ export default function AgenciesPage() {
                     step="0.01"
                     value={agencyForm.feePercentage}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, feePercentage: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="15"
                   />
                 </div>
@@ -754,7 +754,7 @@ export default function AgenciesPage() {
                     max="8"
                     value={agencyForm.beeLevel}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, beeLevel: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="2"
                   />
                 </div>
@@ -767,7 +767,7 @@ export default function AgenciesPage() {
                     type="date"
                     value={agencyForm.contractStartDate}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contractStartDate: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
                 <div>
@@ -776,7 +776,7 @@ export default function AgenciesPage() {
                     type="date"
                     value={agencyForm.contractEndDate}
                     onChange={(e) => setAgencyForm((f) => ({ ...f, contractEndDate: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   />
                 </div>
               </div>
@@ -833,7 +833,7 @@ export default function AgenciesPage() {
                     type="text"
                     value={submissionForm.candidateName}
                     onChange={(e) => setSubmissionForm((f) => ({ ...f, candidateName: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="Full name"
                   />
                 </div>
@@ -845,7 +845,7 @@ export default function AgenciesPage() {
                     type="email"
                     value={submissionForm.candidateEmail}
                     onChange={(e) => setSubmissionForm((f) => ({ ...f, candidateEmail: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                     placeholder="candidate@email.com"
                   />
                 </div>
@@ -856,7 +856,7 @@ export default function AgenciesPage() {
                   type="tel"
                   value={submissionForm.candidatePhone}
                   onChange={(e) => setSubmissionForm((f) => ({ ...f, candidatePhone: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="+27 82 000 0000"
                 />
               </div>
@@ -865,7 +865,7 @@ export default function AgenciesPage() {
                 <textarea
                   value={submissionForm.coverNote}
                   onChange={(e) => setSubmissionForm((f) => ({ ...f, coverNote: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={3}
                   placeholder="Brief note about this candidate..."
                 />

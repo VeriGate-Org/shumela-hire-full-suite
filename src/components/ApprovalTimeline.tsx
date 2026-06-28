@@ -96,7 +96,7 @@ const ApprovalTimeline: React.FC<ApprovalTimelineProps> = ({ steps, className = 
             )}
 
             {step.comment && (
-              <div className="mt-2 p-2 bg-gray-50 rounded-sm">
+              <div className="mt-2 p-2 bg-gray-50 rounded-control">
                 <p className="text-sm text-gray-700">{step.comment}</p>
               </div>
             )}

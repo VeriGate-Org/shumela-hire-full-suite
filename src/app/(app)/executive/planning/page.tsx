@@ -143,7 +143,7 @@ export default function StrategicPlanningPage() {
       <select
         value={filterCategory}
         onChange={(e) => setFilterCategory(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="all">All Categories</option>
         <option value="growth">Growth</option>
@@ -156,7 +156,7 @@ export default function StrategicPlanningPage() {
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="all">All Status</option>
         <option value="on_track">On Track</option>
@@ -190,7 +190,7 @@ export default function StrategicPlanningPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-white rounded-control shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', name: 'Executive Overview', icon: ChartBarIcon },
@@ -202,7 +202,7 @@ export default function StrategicPlanningPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-violet-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -220,7 +220,7 @@ export default function StrategicPlanningPage() {
           <div className="space-y-6">
             {/* Key Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ArrowTrendingUpIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
@@ -235,7 +235,7 @@ export default function StrategicPlanningPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <CurrencyDollarIcon className="w-8 h-8 text-violet-500" />
                   <div className="ml-4">
@@ -250,7 +250,7 @@ export default function StrategicPlanningPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <UserGroupIcon className="w-8 h-8 text-purple-500" />
                   <div className="ml-4">
@@ -265,7 +265,7 @@ export default function StrategicPlanningPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ExclamationTriangleIcon className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
@@ -280,7 +280,7 @@ export default function StrategicPlanningPage() {
             </div>
 
             {/* Strategic Goals Progress */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Strategic Goals Progress"
                 variant="goal"
@@ -306,7 +306,7 @@ export default function StrategicPlanningPage() {
             </div>
 
             {/* Recent Market Insights */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Recent Market Insights"
                 variant="insight"
@@ -346,7 +346,7 @@ export default function StrategicPlanningPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredGoals.map((goal) => (
-                <div key={goal.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500">
+                <div key={goal.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-2">
@@ -416,7 +416,7 @@ export default function StrategicPlanningPage() {
         {activeView === 'insights' && (
           <div className="space-y-6">
             {insights.map((insight) => (
-              <div key={insight.id} className="bg-white rounded-sm shadow">
+              <div key={insight.id} className="bg-white rounded-control shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -456,7 +456,7 @@ export default function StrategicPlanningPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {capacityPlans.map((plan) => (
-                <div key={plan.department} className="bg-white rounded-sm shadow">
+                <div key={plan.department} className="bg-white rounded-control shadow">
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">{plan.department}</h3>
@@ -464,11 +464,11 @@ export default function StrategicPlanningPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="text-center p-4 bg-gold-50 rounded-sm">
+                      <div className="text-center p-4 bg-gold-50 rounded-control">
                         <p className="text-2xl font-bold text-gold-600">{plan.currentHeadcount}</p>
                         <p className="text-sm text-gray-600">Current</p>
                       </div>
-                      <div className="text-center p-4 bg-green-50 rounded-sm">
+                      <div className="text-center p-4 bg-green-50 rounded-control">
                         <p className="text-2xl font-bold text-green-600">{plan.targetHeadcount}</p>
                         <p className="text-sm text-gray-600">Target</p>
                       </div>
@@ -514,7 +514,7 @@ export default function StrategicPlanningPage() {
 
         {/* Workforce Forecasting View */}
         {activeView === 'forecasting' && (
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-6">Workforce Forecasting Dashboard</h3>
             <div className="text-center py-12">
               <ChartBarIconSolid className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -529,7 +529,7 @@ export default function StrategicPlanningPage() {
         {/* Goal Details Modal */}
         {selectedGoal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -550,7 +550,7 @@ export default function StrategicPlanningPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Performance Indicators</h3>
                       <div className="space-y-3">
                         {selectedGoal.kpis.map((kpi, index) => (
-                          <div key={index} className="bg-gray-50 rounded-sm p-4">
+                          <div key={index} className="bg-gray-50 rounded-control p-4">
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-medium text-gray-900">{kpi.name}</span>
                               <span className="text-sm text-gray-500">{kpi.unit}</span>
@@ -605,7 +605,7 @@ export default function StrategicPlanningPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Goal Details</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="font-medium">Owner:</span>
                           <span>{selectedGoal.owner}</span>
@@ -637,7 +637,7 @@ export default function StrategicPlanningPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Risk Assessment</h3>
                       <div className="space-y-3">
                         {selectedGoal.risks.map((risk) => (
-                          <div key={risk.id} className="bg-red-50 border border-red-200 rounded-sm p-4">
+                          <div key={risk.id} className="bg-red-50 border border-red-200 rounded-control p-4">
                             <p className="font-medium text-red-800 mb-2">{risk.description}</p>
                             <div className="flex justify-between text-sm mb-2">
                               <span>Impact: <span className="font-medium">{risk.impact}</span></span>

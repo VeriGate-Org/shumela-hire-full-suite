@@ -225,11 +225,11 @@ const ReportingDashboard: React.FC = () => {
   };
 
   const QuickReportsSection = () => (
-    <div className="bg-white rounded-sm shadow-md p-6">
+    <div className="bg-white rounded-control shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Reports</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(reportTypes).map(([key, reportType]) => (
-          <div key={key} className="border border-gray-200 rounded-sm p-4 hover:shadow-md transition-shadow">
+          <div key={key} className="border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-medium text-gray-900">{reportType.name}</h4>
               <span className="text-xs text-gray-500 uppercase tracking-wide">{key}</span>
@@ -257,7 +257,7 @@ const ReportingDashboard: React.FC = () => {
   );
 
   const CustomReportSection = () => (
-    <div className="bg-white rounded-sm shadow-md p-6">
+    <div className="bg-white rounded-control shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Report Builder</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -267,7 +267,7 @@ const ReportingDashboard: React.FC = () => {
             <select
               value={reportConfig.reportType}
               onChange={(e) => setReportConfig({ ...reportConfig, reportType: e.target.value })}
-              className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+              className="w-full border border-gray-300 rounded-control px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
             >
               <option value="">Select Report Type</option>
               {Object.entries(reportTypes).map(([key, reportType]) => (
@@ -283,7 +283,7 @@ const ReportingDashboard: React.FC = () => {
                 type="date"
                 value={reportConfig.startDate}
                 onChange={(e) => setReportConfig({ ...reportConfig, startDate: e.target.value })}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+                className="w-full border border-gray-300 rounded-control px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
               />
             </div>
             <div>
@@ -292,7 +292,7 @@ const ReportingDashboard: React.FC = () => {
                 type="date"
                 value={reportConfig.endDate}
                 onChange={(e) => setReportConfig({ ...reportConfig, endDate: e.target.value })}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+                className="w-full border border-gray-300 rounded-control px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
               />
             </div>
           </div>
@@ -342,7 +342,7 @@ const ReportingDashboard: React.FC = () => {
         </div>
 
         {previewData && (
-          <div className="border border-gray-200 rounded-sm p-4">
+          <div className="border border-gray-200 rounded-control p-4">
             <h4 className="font-medium text-gray-900 mb-3">Report Preview</h4>
             <div className="space-y-2 text-sm">
               <p><span className="font-medium">Type:</span> {previewData.reportType}</p>
@@ -386,7 +386,7 @@ const ReportingDashboard: React.FC = () => {
   );
 
   const BulkExportSection = () => (
-    <div className="bg-white rounded-sm shadow-md p-6">
+    <div className="bg-white rounded-control shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Bulk Export</h3>
       
       <div className="space-y-4">
@@ -426,7 +426,7 @@ const ReportingDashboard: React.FC = () => {
               type="date"
               value={bulkExportConfig.startDate}
               onChange={(e) => setBulkExportConfig({ ...bulkExportConfig, startDate: e.target.value })}
-              className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+              className="w-full border border-gray-300 rounded-control px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
             />
           </div>
           <div>
@@ -435,7 +435,7 @@ const ReportingDashboard: React.FC = () => {
               type="date"
               value={bulkExportConfig.endDate}
               onChange={(e) => setBulkExportConfig({ ...bulkExportConfig, endDate: e.target.value })}
-              className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+              className="w-full border border-gray-300 rounded-control px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
             />
           </div>
         </div>
@@ -462,7 +462,7 @@ const ReportingDashboard: React.FC = () => {
   );
 
   const ScheduledReportsSection = () => (
-    <div className="bg-white rounded-sm shadow-md p-6">
+    <div className="bg-white rounded-control shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Scheduled Reports</h3>
         <button className="bg-gold-500 text-violet-950 px-3 py-1 rounded text-sm hover:bg-gold-600 transition-colors">
@@ -552,7 +552,7 @@ const ReportingDashboard: React.FC = () => {
       </div>
 
       {/* Help Section */}
-      <div className="mt-8 bg-gold-50 border border-violet-200 rounded-sm p-6">
+      <div className="mt-8 bg-gold-50 border border-violet-200 rounded-control p-6">
         <h3 className="text-lg font-medium text-violet-900 mb-2">📖 Reporting Help</h3>
         <div className="text-sm text-violet-800 space-y-1">
           <p>• <strong>Quick Reports:</strong> Download pre-configured reports instantly</p>

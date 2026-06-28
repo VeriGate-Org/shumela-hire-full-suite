@@ -188,7 +188,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: e.target.value }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             )}
             
@@ -199,7 +199,7 @@ export default function WorkflowBuilder({
                   config: { ...action.config, [key]: e.target.value }
                 })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             )}
             
@@ -210,7 +210,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: parseInt(e.target.value) || 0 }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             )}
             
@@ -220,7 +220,7 @@ export default function WorkflowBuilder({
                 onChange={(e) => handleUpdateAction(stepId, action.id, {
                   config: { ...action.config, [key]: e.target.value }
                 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               >
                 <option value="">Select...</option>
                 {key === 'assignee' || key === 'interviewer' ? (
@@ -247,7 +247,7 @@ export default function WorkflowBuilder({
                 delay: parseInt(e.target.value) || 0
               })}
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
             <p className="text-xs text-gray-500 mt-1">
               Wait time before executing this action
@@ -259,7 +259,7 @@ export default function WorkflowBuilder({
   };
 
   return (
-    <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -274,7 +274,7 @@ export default function WorkflowBuilder({
             <button
               onClick={() => onTest(currentWorkflow)}
               disabled={!currentWorkflow.name.trim()}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 disabled:opacity-50"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control hover:bg-gray-50 disabled:opacity-50"
             >
               <PlayIcon className="h-4 w-4 inline mr-1" />
               Test
@@ -283,7 +283,7 @@ export default function WorkflowBuilder({
             <button
               onClick={() => onSave(currentWorkflow)}
               disabled={!currentWorkflow.name.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-control hover:bg-gold-600 disabled:opacity-50"
             >
               Save Workflow
             </button>
@@ -304,7 +304,7 @@ export default function WorkflowBuilder({
               value={currentWorkflow.name}
               onChange={(e) => handleUpdateWorkflow({ name: e.target.value })}
               placeholder="Enter workflow name..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
           </div>
           
@@ -335,7 +335,7 @@ export default function WorkflowBuilder({
             onChange={(e) => handleUpdateWorkflow({ description: e.target.value })}
             placeholder="Describe what this workflow does..."
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -354,7 +354,7 @@ export default function WorkflowBuilder({
                   handleUpdateWorkflow({ trigger });
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             >
               {WORKFLOW_TRIGGERS.map((trigger) => (
                 <option key={trigger.id} value={trigger.id}>
@@ -374,14 +374,14 @@ export default function WorkflowBuilder({
             <h3 className="text-lg font-medium text-gray-900">Workflow Steps</h3>
             <button
               onClick={handleAddStep}
-              className="px-3 py-1.5 text-sm font-medium text-gold-600 bg-gold-50 rounded-sm hover:bg-gold-100"
+              className="px-3 py-1.5 text-sm font-medium text-gold-600 bg-gold-50 rounded-control hover:bg-gold-100"
             >
               Add Step
             </button>
           </div>
 
           {currentWorkflow.steps.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-sm">
+            <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-control">
               <DocumentTextIcon className="h-12 w-12 mx-auto mb-2 text-gray-400" />
               <p>No steps added yet</p>
               <p className="text-sm">Click &quot;Add Step&quot; to get started</p>
@@ -391,7 +391,7 @@ export default function WorkflowBuilder({
               {currentWorkflow.steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className={`border rounded-sm ${
+                  className={`border rounded-control ${
                     activeStep === step.id ? 'border-gold-500 bg-gold-50' : 'border-gray-200'
                   }`}
                 >
@@ -440,7 +440,7 @@ export default function WorkflowBuilder({
                               type="text"
                               value={step.name}
                               onChange={(e) => handleUpdateStep(step.id, { name: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                             />
                           </div>
                           
@@ -455,7 +455,7 @@ export default function WorkflowBuilder({
                                 timeoutMinutes: parseInt(e.target.value) || undefined 
                               })}
                               min="0"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                             />
                           </div>
                         </div>
@@ -468,7 +468,7 @@ export default function WorkflowBuilder({
                             value={step.description}
                             onChange={(e) => handleUpdateStep(step.id, { description: e.target.value })}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                           />
                         </div>
 
@@ -500,7 +500,7 @@ export default function WorkflowBuilder({
                                   const values = Array.from(e.target.selectedOptions, option => option.value);
                                   handleUpdateStep(step.id, { approvers: values });
                                 }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                                 size={3}
                               >
                                 {availableUsers.map(user => (
@@ -521,7 +521,7 @@ export default function WorkflowBuilder({
                               <button className="px-2 py-1 text-sm font-medium text-gold-600 bg-gold-50 rounded hover:bg-gold-100">
                                 Add Action
                               </button>
-                              <div className="absolute right-0 mt-1 w-56 bg-white rounded-sm shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                              <div className="absolute right-0 mt-1 w-56 bg-white rounded-control shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                                 <div className="py-1 max-h-64 overflow-y-auto">
                                   {ACTION_TYPES.map((actionType) => (
                                     <button
@@ -594,7 +594,7 @@ export default function WorkflowBuilder({
               tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean) 
             })}
             placeholder="automation, onboarding, notifications..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
       </div>

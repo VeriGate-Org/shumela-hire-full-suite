@@ -298,14 +298,14 @@ export default function ExecutiveReportsPage() {
               placeholder="Search reports..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+              className="pl-10 pr-4 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             />
           </div>
           
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+            className="px-3 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
           >
             <option value="all">All Categories</option>
             <option value="executive">Executive</option>
@@ -320,7 +320,7 @@ export default function ExecutiveReportsPage() {
       <select
         value={selectedPeriod}
         onChange={(e) => setSelectedPeriod(e.target.value as any)}
-        className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+        className="px-3 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
       >
         <option value="week">This Week</option>
         <option value="month">This Month</option>
@@ -351,7 +351,7 @@ export default function ExecutiveReportsPage() {
   if (loadError) {
     return (
       <PageWrapper title="Executive Reports" subtitle="Strategic insights and executive reporting" actions={actions}>
-        <div className="bg-card rounded-sm shadow p-8 text-center">
+        <div className="bg-card rounded-control shadow p-8 text-center">
           <ExclamationCircleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load executive data</h3>
           <p className="text-muted-foreground mb-4">{loadError}</p>
@@ -374,7 +374,7 @@ export default function ExecutiveReportsPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-card rounded-sm shadow p-4">
+        <div className="bg-card rounded-control shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'dashboard', name: 'Executive Dashboard', icon: ChartBarIcon },
@@ -385,7 +385,7 @@ export default function ExecutiveReportsPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -403,7 +403,7 @@ export default function ExecutiveReportsPage() {
           <div className="space-y-6">
             {/* Key Executive Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <UsersIcon className="w-8 h-8 text-primary" />
                   <div className="ml-4">
@@ -414,7 +414,7 @@ export default function ExecutiveReportsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ClockIcon className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
@@ -425,7 +425,7 @@ export default function ExecutiveReportsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <CurrencyDollarIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
@@ -436,7 +436,7 @@ export default function ExecutiveReportsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <TrophyIconSolid className="w-8 h-8 text-primary" />
                   <div className="ml-4">
@@ -449,7 +449,7 @@ export default function ExecutiveReportsPage() {
             </div>
 
             {/* Performance Alerts */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Performance Alerts"
                 variant="alert"
@@ -473,14 +473,14 @@ export default function ExecutiveReportsPage() {
             </div>
 
             {/* Department Performance */}
-            <div className="bg-card rounded-sm shadow">
+            <div className="bg-card rounded-control shadow">
               <div className="p-6 border-b border-border">
                 <h3 className="text-lg font-medium text-foreground">Department Performance Overview</h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {departmentMetrics.slice(0, 4).map((dept) => (
-                    <div key={dept.department} className="border border-border rounded-sm p-4">
+                    <div key={dept.department} className="border border-border rounded-control p-4">
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="text-lg font-semibold text-foreground">{dept.department}</h4>
                         <span className="text-sm text-muted-foreground">{dept.openRequisitions} open positions</span>
@@ -523,7 +523,7 @@ export default function ExecutiveReportsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               {filteredReports.map((report) => (
-                <div key={report.id} className="bg-card rounded-sm shadow border-l-4 border-l-primary">
+                <div key={report.id} className="bg-card rounded-control shadow border-l-4 border-l-primary">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-start space-x-3">
@@ -635,7 +635,7 @@ export default function ExecutiveReportsPage() {
             </AiAssistPanel>
 
             {strategicInsights.map((insight) => (
-              <div key={insight.id} className="bg-card rounded-sm shadow">
+              <div key={insight.id} className="bg-card rounded-control shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -651,7 +651,7 @@ export default function ExecutiveReportsPage() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     {insight.dataPoints.map((point, index) => (
-                      <div key={index} className="bg-muted rounded-sm p-4">
+                      <div key={index} className="bg-muted rounded-control p-4">
                         <h4 className="text-sm font-medium text-foreground">{point.metric}</h4>
                         <div className="flex items-center mt-2">
                           <span className="text-2xl font-bold text-foreground">{point.value}</span>
@@ -691,7 +691,7 @@ export default function ExecutiveReportsPage() {
         {activeView === 'analytics' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <h3 className="text-lg font-medium text-foreground mb-4">Hiring Velocity Trends</h3>
                 <div className="text-center py-12">
                   <ChartBarIconSolid className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -700,7 +700,7 @@ export default function ExecutiveReportsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <h3 className="text-lg font-medium text-foreground mb-4">Cost Analysis</h3>
                 <div className="text-center py-12">
                   <ChartPieIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -710,7 +710,7 @@ export default function ExecutiveReportsPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <h3 className="text-lg font-medium text-foreground mb-4">Predictive Analytics Dashboard</h3>
               <div className="text-center py-12">
                 <PresentationChartLineIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -724,7 +724,7 @@ export default function ExecutiveReportsPage() {
         {/* Report Details Modal */}
         {selectedReport && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -754,7 +754,7 @@ export default function ExecutiveReportsPage() {
                       <h3 className="text-lg font-semibold text-foreground mb-3">Recipients</h3>
                       <div className="space-y-2">
                         {selectedReport.recipients.map((recipient, index) => (
-                          <div key={index} className="flex items-center p-2 bg-muted rounded-sm">
+                          <div key={index} className="flex items-center p-2 bg-muted rounded-control">
                             <UsersIcon className="w-4 h-4 text-muted-foreground mr-2" />
                             <span className="text-sm text-foreground">{recipient}</span>
                           </div>
@@ -789,7 +789,7 @@ export default function ExecutiveReportsPage() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-foreground mb-3">Schedule Information</h3>
-                      <div className="bg-muted rounded-sm p-4 space-y-2 text-sm">
+                      <div className="bg-muted rounded-control p-4 space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Frequency:</span>
                           <span className="font-medium">{selectedReport.frequency}</span>

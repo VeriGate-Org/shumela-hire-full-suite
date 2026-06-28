@@ -35,7 +35,7 @@ export default function AiCandidateSummary({ applicationId }: AiCandidateSummary
       </div>
 
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-4">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-4">
           {result.executiveSummary && (
             <div>
               <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Executive Summary</h5>

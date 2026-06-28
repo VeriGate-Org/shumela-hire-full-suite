@@ -172,7 +172,7 @@ const GlobalSearch: React.FC = () => {
           setIsOpen(true);
           setTimeout(() => inputRef.current?.focus(), 100);
         }}
-        className="hidden md:flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 bg-gray-100 rounded-sm hover:bg-gray-200 transition-colors"
+        className="hidden md:flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 bg-gray-100 rounded-control hover:bg-gray-200 transition-colors"
       >
         <span>🔍</span>
         <span>Search...</span>
@@ -207,7 +207,7 @@ const GlobalSearch: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="search-dialog-title"
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-white rounded-sm shadow-2xl z-50 mx-4"
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-white rounded-control shadow-2xl z-50 mx-4"
           >
             <h2 id="search-dialog-title" className="sr-only">Search</h2>
             {/* Search Input */}

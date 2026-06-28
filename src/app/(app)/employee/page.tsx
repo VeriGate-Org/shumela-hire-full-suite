@@ -122,7 +122,7 @@ function TeamListInner() {
       }
     >
       {showMissingEmployee ? (
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-orange-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-orange-500 p-6">
           <p className="font-semibold text-gray-900">No employee record linked</p>
           <p className="text-sm text-gray-600 mt-1">
             Your line-manager view relies on an Employee record to surface direct
@@ -134,7 +134,7 @@ function TeamListInner() {
           <InlineLoading message="Loading your team..." />
         </div>
       ) : error ? (
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-red-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-red-500 p-6">
           <p className="font-semibold text-red-700">Failed to load team</p>
           <p className="text-sm text-gray-600 mt-1">{error}</p>
         </div>
@@ -153,11 +153,11 @@ function TeamListInner() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, role, department..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
 
-          <div className="bg-white rounded-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-control border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
               <p className="text-sm text-gray-600">
                 {filtered.length} of {reports.length}{' '}

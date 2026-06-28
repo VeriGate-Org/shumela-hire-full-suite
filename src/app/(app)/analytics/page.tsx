@@ -211,7 +211,7 @@ export default function AnalyticsPage() {
   const actions = (
     <button
       onClick={handleExportCSV}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-control text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
     >
       <ArrowDownTrayIcon className="w-4 h-4" />
       Export CSV
@@ -226,14 +226,14 @@ export default function AnalyticsPage() {
     >
       <div className="space-y-6">
         {/* Compact time range + filter bar */}
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-4">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex gap-2">
               {timeRangeOptions.map((range) => (
                 <button
                   key={range.key}
                   onClick={() => setSelectedTimeRange(range.key)}
-                  className={`px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
+                  className={`px-4 py-2 rounded-control text-sm font-medium border transition-colors ${
                     selectedTimeRange === range.key
                       ? 'bg-gold-50 text-gold-800 border-gold-300'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-sm text-sm font-medium border transition-colors ${
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-control text-sm font-medium border transition-colors ${
                   showFilters
                     ? 'bg-gold-50 text-gold-800 border-gold-300'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
@@ -284,7 +284,7 @@ export default function AnalyticsPage() {
 
         {/* Key Insights — promoted to top */}
         {!insightsLoading && insights.length > 0 && (
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Insights & Recommendations</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {positiveInsights.length > 0 && (
@@ -318,7 +318,7 @@ export default function AnalyticsPage() {
         )}
 
         {!insightsLoading && insights.length === 0 && (
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 text-center">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 text-center">
             <p className="text-sm text-gray-500">Not enough data to generate insights</p>
           </div>
         )}

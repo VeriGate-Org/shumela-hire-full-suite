@@ -131,7 +131,7 @@ export default function AiCandidateRanking({ jobId, jobRequirements = [] }: AiCa
       {rankings.length > 0 && (
         <div className="space-y-2">
           {/* Adjust weights section */}
-          <div className="border border-gray-200 rounded-sm bg-white">
+          <div className="border border-gray-200 rounded-control bg-white">
             <button
               onClick={() => setShowWeightAdjust(!showWeightAdjust)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -184,7 +184,7 @@ export default function AiCandidateRanking({ jobId, jobRequirements = [] }: AiCa
           {/* Ranking entries */}
           {displayRankings.map(entry => (
             <div key={entry.applicationId}
-              className="border border-gray-200 rounded-sm bg-gray-50 overflow-hidden">
+              className="border border-gray-200 rounded-control bg-gray-50 overflow-hidden">
               <div className="flex items-center justify-between p-3 cursor-pointer"
                 onClick={() => toggleExpand(entry.applicationId)}>
                 <div className="flex items-center gap-3">

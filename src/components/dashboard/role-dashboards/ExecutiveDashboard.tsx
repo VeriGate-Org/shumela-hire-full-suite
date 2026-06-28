@@ -93,7 +93,7 @@ function KpiTile({ label, value, icon: Icon, tone, href, onClick, hint }: KpiTil
       type="button"
       onClick={handleClick}
       disabled={!isClickable}
-      className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
+      className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-4 text-left w-full transition-shadow ${
         isClickable ? 'hover:shadow-md cursor-pointer' : 'cursor-default'
       }`}
     >
@@ -242,12 +242,12 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-sm border border-gray-200 p-4 animate-pulse h-24" />
+            <div key={i} className="bg-white rounded-control border border-gray-200 p-4 animate-pulse h-24" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-sm border border-gray-200 p-6 animate-pulse h-64" />
-          <div className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse h-64" />
+          <div className="lg:col-span-2 bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
+          <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse h-64" />
         </div>
       </div>
     );
@@ -355,7 +355,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   <button
                     key={req.id}
                     onClick={() => router.push(`/requisitions/${req.id}`)}
-                    className="w-full text-left flex items-center justify-between py-3 hover:bg-gray-50 rounded-sm px-2"
+                    className="w-full text-left flex items-center justify-between py-3 hover:bg-gray-50 rounded-control px-2"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
@@ -392,7 +392,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   <button
                     key={req.id}
                     onClick={() => router.push(`/requisitions/${req.id}`)}
-                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm"
+                    className="w-full text-left flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control"
                   >
                     <ClipboardDocumentCheckIcon className="h-4 w-4 text-gold-600 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
@@ -432,7 +432,7 @@ export default function ExecutiveDashboard({ selectedTimeframe: _selectedTimefra
                   return (
                     <div
                       key={leader.id}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-sm"
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-control"
                     >
                       <div className="h-8 w-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                         {initials}

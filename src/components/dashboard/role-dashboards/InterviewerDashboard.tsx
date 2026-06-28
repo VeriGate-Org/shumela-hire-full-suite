@@ -103,17 +103,17 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
       <div className="space-y-6 max-w-full overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-sm border border-gray-200 p-5 animate-pulse">
+            <div key={i} className="bg-white rounded-control border border-gray-200 p-5 animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
               <div className="h-8 bg-gray-200 rounded w-1/3" />
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-sm border border-gray-200 p-6 animate-pulse">
+        <div className="bg-white rounded-control border border-gray-200 p-6 animate-pulse">
           <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded-sm" />
+              <div key={i} className="h-16 bg-gray-100 rounded-control" />
             ))}
           </div>
         </div>
@@ -125,33 +125,33 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-sm border border-gray-200 p-5">
+        <div className="bg-white rounded-control border border-gray-200 p-5">
           <h4 className="text-sm font-medium text-gray-500">Upcoming Interviews</h4>
           <p className="text-2xl font-bold text-gold-600 mt-1">{upcomingInterviews.length}</p>
         </div>
-        <div className="bg-white rounded-sm border border-gray-200 p-5">
+        <div className="bg-white rounded-control border border-gray-200 p-5">
           <h4 className="text-sm font-medium text-gray-500">Pending Feedback</h4>
           <p className="text-2xl font-bold text-yellow-600 mt-1">{pendingFeedback.length}</p>
         </div>
-        <div className="bg-white rounded-sm border border-gray-200 p-5">
+        <div className="bg-white rounded-control border border-gray-200 p-5">
           <h4 className="text-sm font-medium text-gray-500">Completed This Month</h4>
           <p className="text-2xl font-bold text-green-600 mt-1">{completedCount}</p>
         </div>
-        <div className="bg-white rounded-sm border border-gray-200 p-5">
+        <div className="bg-white rounded-control border border-gray-200 p-5">
           <h4 className="text-sm font-medium text-gray-500">Average Rating Given</h4>
           <p className="text-2xl font-bold text-purple-600 mt-1">{averageRating ?? '—'}</p>
         </div>
       </div>
 
       {/* Upcoming Interviews */}
-      <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+      <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Interviews</h3>
         {upcomingInterviews.length === 0 ? (
           <p className="text-gray-500">No upcoming interviews scheduled.</p>
         ) : (
           <div className="space-y-3">
             {upcomingInterviews.map((interview) => (
-              <div key={interview.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-sm">
+              <div key={interview.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-control">
                 <div>
                   <p className="font-medium text-gray-900">{interview.candidate}</p>
                   <p className="text-sm text-gray-500">{interview.position}</p>
@@ -167,14 +167,14 @@ const InterviewerDashboard: React.FC<InterviewerDashboardProps> = ({
       </div>
 
       {/* Pending Feedback */}
-      <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+      <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Feedback</h3>
         {pendingFeedback.length === 0 ? (
           <p className="text-gray-500">All feedback has been submitted.</p>
         ) : (
           <div className="space-y-3">
             {pendingFeedback.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-sm border border-yellow-200">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-control border border-yellow-200">
                 <div>
                   <p className="font-medium text-gray-900">{item.candidate}</p>
                   <p className="text-sm text-gray-500">{item.position} — {getEnumLabel('interviewType', item.type)}</p>

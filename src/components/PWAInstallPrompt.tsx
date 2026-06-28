@@ -135,7 +135,7 @@ const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ onInstall, onDismis
         <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 shadow-2xl animate-slide-up">
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gold-500 rounded-sm flex items-center justify-center">
+              <div className="w-12 h-12 bg-gold-500 rounded-control flex items-center justify-center">
                 <span className="text-white text-xl">📱</span>
               </div>
             </div>
@@ -150,7 +150,7 @@ const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ onInstall, onDismis
               <div className="flex space-x-3">
                 <button
                   onClick={handleInstallClick}
-                  className="flex-1 bg-gold-500 text-violet-950 px-4 py-2 rounded-sm font-medium hover:bg-gold-600 transition-colors"
+                  className="flex-1 bg-gold-500 text-violet-950 px-4 py-2 rounded-control font-medium hover:bg-gold-600 transition-colors"
                 >
                   Install App
                 </button>
@@ -174,10 +174,10 @@ const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({ onInstall, onDismis
 
       {/* Desktop Banner Style Prompt */}
       <div className="hidden sm:block fixed top-4 right-4 z-50 max-w-sm">
-        <div className="bg-white border border-gray-200 rounded-sm shadow-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-control shadow-lg p-4">
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-gold-500 rounded-sm flex items-center justify-center">
+              <div className="w-10 h-10 bg-gold-500 rounded-control flex items-center justify-center">
                 <span className="text-white">📱</span>
               </div>
             </div>
@@ -270,7 +270,7 @@ export const PWAStatus: React.FC = () => {
     <div className="fixed top-4 left-4 z-40">
       {/* Offline indicator */}
       {!isOnline && (
-        <div className="bg-orange-100 border border-orange-300 text-orange-800 px-3 py-2 rounded-sm shadow-sm mb-2">
+        <div className="bg-orange-100 border border-orange-300 text-orange-800 px-3 py-2 rounded-control shadow-sm mb-2">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
             <span className="text-sm font-medium">Offline Mode</span>
@@ -280,7 +280,7 @@ export const PWAStatus: React.FC = () => {
 
       {/* Update available indicator */}
       {updateAvailable && (
-        <div className="bg-gold-100 border border-violet-300 text-violet-800 px-3 py-2 rounded-sm shadow-sm">
+        <div className="bg-gold-100 border border-violet-300 text-violet-800 px-3 py-2 rounded-control shadow-sm">
           <div className="flex items-center justify-between space-x-3">
             <span className="text-sm font-medium">Update Available</span>
             <button

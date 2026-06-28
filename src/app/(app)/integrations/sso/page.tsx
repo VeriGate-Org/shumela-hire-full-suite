@@ -64,7 +64,7 @@ export default function SsoConfigPage() {
           title="Active Directory SSO"
           subtitle="This feature is not enabled for your organization"
         >
-          <div className="bg-white rounded-sm shadow p-8 text-center border border-gray-200">
+          <div className="bg-white rounded-control shadow p-8 text-center border border-gray-200">
             <ShieldCheckIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Feature Not Available</h3>
             <p className="text-sm text-gray-600">
@@ -83,7 +83,7 @@ export default function SsoConfigPage() {
         <div className="space-y-6">
           {/* Status Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <ShieldCheckIcon className="w-8 h-8 text-violet-500" />
@@ -97,7 +97,7 @@ export default function SsoConfigPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <Cog6ToothIcon className="w-8 h-8 text-gold-500" />
@@ -113,7 +113,7 @@ export default function SsoConfigPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <UserGroupIcon className="w-8 h-8 text-green-500" />
@@ -130,7 +130,7 @@ export default function SsoConfigPage() {
 
           {/* Config Form */}
           {loading ? (
-            <div className="bg-white rounded-sm shadow p-8 text-center">
+            <div className="bg-white rounded-control shadow p-8 text-center">
               <ArrowPathIcon className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
               <p className="text-gray-500">Loading SSO configuration...</p>
             </div>

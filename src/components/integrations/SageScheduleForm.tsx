@@ -98,7 +98,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           {schedule ? 'Edit Sync Schedule' : 'New Sync Schedule'}
         </h3>
@@ -113,7 +113,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
               value={form.connectorId}
               onChange={(e) => handleChange('connectorId', Number(e.target.value))}
               disabled={!!schedule}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               {connectors.length === 0 && (
                 <option value="">No connectors available</option>
@@ -134,7 +134,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
             <select
               value={form.entityType}
               onChange={(e) => handleChange('entityType', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             >
               {ENTITY_TYPES.map((et) => (
                 <option key={et.value} value={et.value}>
@@ -152,7 +152,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
             <select
               value={form.direction}
               onChange={(e) => handleChange('direction', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             >
               {DIRECTIONS.map((d) => (
                 <option key={d.value} value={d.value}>
@@ -170,7 +170,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
             <select
               value={form.frequency}
               onChange={(e) => handleChange('frequency', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             >
               {FREQUENCIES.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -191,7 +191,7 @@ export default function SageScheduleForm({ schedule, connectors, onSaved, onCanc
               onChange={(e) => handleChange('cronExpression', e.target.value)}
               disabled={form.frequency !== 'CUSTOM'}
               placeholder="0 0 0 * * *"
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm font-mono disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm font-mono disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <p className="mt-1 text-xs text-gray-500">
               Format: second minute hour day-of-month month day-of-week

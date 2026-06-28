@@ -263,7 +263,7 @@ export default function ScreeningQuestions({
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               disabled={readonly}
               maxLength={500}
-              className={`w-full p-3 border rounded-sm ${
+              className={`w-full p-3 border rounded-control ${
                 hasError ? 'border-red-500' : 'border-gray-300'
               } ${readonly ? 'bg-gray-50' : ''}`}
               placeholder="Enter your answer..."
@@ -289,7 +289,7 @@ export default function ScreeningQuestions({
               value={answer?.answerValue || ''}
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               disabled={readonly}
-              className={`w-full p-3 border rounded-sm ${
+              className={`w-full p-3 border rounded-control ${
                 hasError ? 'border-red-500' : 'border-gray-300'
               } ${readonly ? 'bg-gray-50' : ''}`}
             >
@@ -382,7 +382,7 @@ export default function ScreeningQuestions({
                   const file = e.target.files?.[0];
                   if (file) handleFileUpload(question.id, file);
                 }}
-                className="w-full p-2 border border-gray-300 rounded-sm"
+                className="w-full p-2 border border-gray-300 rounded-control"
                 accept=".pdf,.doc,.docx,.txt"
               />
             )}
@@ -441,7 +441,7 @@ export default function ScreeningQuestions({
 
       <div className="space-y-6">
         {questions.map((question, index) => (
-          <div key={question.id} className="bg-white border border-gray-200 rounded-sm p-6">
+          <div key={question.id} className="bg-white border border-gray-200 rounded-control p-6">
             <div className="mb-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {index + 1}. {question.questionText}
@@ -469,7 +469,7 @@ export default function ScreeningQuestions({
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-gold-500 text-violet-950 px-6 py-3 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-gold-500 text-violet-950 px-6 py-3 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {submitting && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

@@ -142,7 +142,7 @@ export default function ApplicationStatusTracker({
   const terminalInfo = getTerminalStatusInfo();
 
   return (
-    <div className="bg-white rounded-sm shadow-lg p-6">
+    <div className="bg-white rounded-control shadow-lg p-6">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-start">
@@ -165,7 +165,7 @@ export default function ApplicationStatusTracker({
 
       {/* Terminal Status Display */}
       {terminalInfo && (
-        <div className={`${terminalInfo.bgColor} border rounded-sm p-4 mb-6`}>
+        <div className={`${terminalInfo.bgColor} border rounded-control p-4 mb-6`}>
           <div className="flex items-center">
             <span className="text-2xl mr-3">{terminalInfo.icon}</span>
             <div>
@@ -249,7 +249,7 @@ export default function ApplicationStatusTracker({
                 placeholder="Please provide a reason for withdrawing your application..."
                 rows={3}
                 aria-required="true"
-                className="w-full p-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full p-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div className="flex justify-end space-x-3">
@@ -258,14 +258,14 @@ export default function ApplicationStatusTracker({
                   setShowWithdrawForm(false);
                   setWithdrawalReason('');
                 }}
-                className="px-3 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+                className="px-3 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleWithdraw}
                 disabled={withdrawing || !withdrawalReason.trim()}
-                className="px-3 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 bg-red-600 text-white rounded-control hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {withdrawing ? 'Withdrawing...' : 'Confirm Withdrawal'}
               </button>

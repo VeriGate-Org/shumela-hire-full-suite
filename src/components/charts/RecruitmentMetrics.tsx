@@ -68,7 +68,7 @@ const ApplicationVolumeChart: React.FC<ApplicationVolumeProps> = ({
   }, [data]);
 
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Application Volume Trend</h3>
         <p className="text-sm text-gray-500">
@@ -107,7 +107,7 @@ const PipelineFunnelChart: React.FC<PipelineFunnelProps> = ({
   }, [data]);
 
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Recruitment Pipeline</h3>
         <p className="text-sm text-gray-500">
@@ -163,7 +163,7 @@ const SourceEffectivenessChart: React.FC<SourceEffectivenessProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Source Effectiveness</h3>
         <p className="text-sm text-gray-500">
@@ -192,7 +192,7 @@ const TimeToHireChart: React.FC<TimeToHireProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Time to Hire Analysis</h3>
         <p className="text-sm text-gray-500">
@@ -224,7 +224,7 @@ const PerformanceGaugeChart: React.FC<PerformanceGaugeProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Performance KPIs</h3>
         <p className="text-sm text-gray-500">
@@ -283,7 +283,7 @@ const HiringManagerPerformanceChart: React.FC<HiringManagerPerformanceProps> = (
   className = '',
 }) => {
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Hiring Manager Performance</h3>
         <p className="text-sm text-gray-500">
@@ -326,7 +326,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 ${className}`}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Monthly Hiring Trends</h3>
         <p className="text-sm text-gray-500">

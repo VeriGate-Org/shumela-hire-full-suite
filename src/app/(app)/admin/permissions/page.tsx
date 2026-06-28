@@ -319,7 +319,7 @@ export default function AdminPermissionsPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white rounded-sm shadow p-6">
+              <div key={i} className="bg-white rounded-control shadow p-6">
                 <div className="animate-pulse flex items-center">
                   <div className="w-8 h-8 bg-gray-200 rounded"></div>
                   <div className="ml-4 flex-1">
@@ -342,7 +342,7 @@ export default function AdminPermissionsPage() {
         subtitle="Manage user roles, permissions, and access control across the recruitment platform"
         actions={actions}
       >
-        <div className="bg-white rounded-sm shadow p-8 text-center">
+        <div className="bg-white rounded-control shadow p-8 text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load permission data</h3>
           <p className="text-gray-500 mb-4">{loadError}</p>
@@ -367,7 +367,7 @@ export default function AdminPermissionsPage() {
       <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <ShieldCheckIcon className="w-8 h-8 text-violet-500" />
@@ -379,7 +379,7 @@ export default function AdminPermissionsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <UsersIcon className="w-8 h-8 text-green-500" />
@@ -391,7 +391,7 @@ export default function AdminPermissionsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <KeyIcon className="w-8 h-8 text-purple-500" />
@@ -403,7 +403,7 @@ export default function AdminPermissionsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <ExclamationTriangleIcon className="w-8 h-8 text-yellow-500" />
@@ -417,7 +417,7 @@ export default function AdminPermissionsPage() {
         </div>
 
         {/* View Toggle and Search */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <div className="flex gap-1">
               {[
@@ -445,7 +445,7 @@ export default function AdminPermissionsPage() {
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="px-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
           </div>
         </div>
@@ -454,7 +454,7 @@ export default function AdminPermissionsPage() {
         {selectedView === 'roles' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredRoles.map(role => (
-              <div key={role.id} className="bg-white rounded-sm shadow">
+              <div key={role.id} className="bg-white rounded-control shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -532,7 +532,7 @@ export default function AdminPermissionsPage() {
             {permissionCategories.map(category => {
               const categoryPermissions = permissions.filter(p => p.category === category.id);
               return (
-                <div key={category.id} className="bg-white rounded-sm shadow">
+                <div key={category.id} className="bg-white rounded-control shadow">
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <category.icon className="w-6 h-6 text-gray-600" />
@@ -546,7 +546,7 @@ export default function AdminPermissionsPage() {
                       {categoryPermissions.map(permission => {
                         const levelInfo = getPermissionLevel(permission.level);
                         return (
-                          <div key={permission.id} className="border border-gray-200 rounded-sm p-4">
+                          <div key={permission.id} className="border border-gray-200 rounded-control p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1">
                                 <h4 className="font-medium text-gray-900">{permission.name}</h4>
@@ -583,7 +583,7 @@ export default function AdminPermissionsPage() {
 
         {/* Users View */}
         {selectedView === 'users' && (
-          <div className="bg-white rounded-sm shadow">
+          <div className="bg-white rounded-control shadow">
             <div className="p-6">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -636,7 +636,7 @@ export default function AdminPermissionsPage() {
                                 <select
                                   value={editingUserRole}
                                   onChange={(e) => setEditingUserRole(e.target.value)}
-                                  className="px-2 py-1 border border-gray-300 rounded-sm text-sm"
+                                  className="px-2 py-1 border border-gray-300 rounded-control text-sm"
                                 >
                                   {roles.map(r => (
                                     <option key={r.id} value={r.id}>{r.name}</option>
@@ -707,7 +707,7 @@ export default function AdminPermissionsPage() {
         {/* Create/Edit Role Modal */}
         {showRoleModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-lg w-full">
+            <div className="bg-white rounded-control shadow-xl max-w-lg w-full">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -725,7 +725,7 @@ export default function AdminPermissionsPage() {
                     <XMarkIcon className="w-6 h-6" />
                   </button>
                 </div>
-                <div className="bg-gray-50 rounded-sm p-8 text-center">
+                <div className="bg-gray-50 rounded-control p-8 text-center">
                   <CogIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                   <p className="text-sm text-gray-600">
                     Custom role management will be available in a future release.
@@ -748,7 +748,7 @@ export default function AdminPermissionsPage() {
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-md w-full p-6">
+            <div className="bg-white rounded-control shadow-xl max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                 <h2 className="text-lg font-bold text-gray-900">Delete Role</h2>
@@ -784,7 +784,7 @@ export default function AdminPermissionsPage() {
         {/* Role Details Modal */}
         {selectedRole && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -803,7 +803,7 @@ export default function AdminPermissionsPage() {
                   {permissionCategories.map(category => {
                     const categoryPermissions = permissions.filter(p => p.category === category.id);
                     return (
-                      <div key={category.id} className="border border-gray-200 rounded-sm p-4">
+                      <div key={category.id} className="border border-gray-200 rounded-control p-4">
                         <div className="flex items-center gap-3 mb-4">
                           <category.icon className="w-5 h-5 text-gray-600" />
                           <h3 className="font-semibold text-gray-900">{category.name}</h3>

@@ -436,7 +436,7 @@ export default function InternalJobsBoard() {
                 aria-label="Search jobs by title or department"
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full pl-10 pr-4 py-3 border border-border rounded-control bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
@@ -446,7 +446,7 @@ export default function InternalJobsBoard() {
                 onClick={() => setShowFilters(!showFilters)}
                 aria-expanded={showFilters}
                 aria-controls="job-filters-panel"
-                className="inline-flex items-center px-4 py-2 border border-border rounded-sm hover:bg-accent text-foreground"
+                className="inline-flex items-center px-4 py-2 border border-border rounded-control hover:bg-accent text-foreground"
               >
                 <FunnelIcon className="w-4 h-4 mr-2" />
                 Filters
@@ -473,7 +473,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.department}
                       onChange={(e) => handleFilterChange('department', e.target.value)}
-                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                      className="w-full border border-border rounded-control px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Departments</option>
                       {filterOptions.departments.map(dept => (
@@ -489,7 +489,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.location}
                       onChange={(e) => handleFilterChange('location', e.target.value)}
-                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                      className="w-full border border-border rounded-control px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Locations</option>
                       {filterOptions.locations.map(location => (
@@ -505,7 +505,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.employmentType}
                       onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                      className="w-full border border-border rounded-control px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Types</option>
                       {filterOptions.employmentTypes.map(type => (
@@ -521,7 +521,7 @@ export default function InternalJobsBoard() {
                     <select
                       value={filters.closingDate}
                       onChange={(e) => handleFilterChange('closingDate', e.target.value)}
-                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                      className="w-full border border-border rounded-control px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">Any Time</option>
                       <option value="7">Next 7 days</option>
@@ -548,7 +548,7 @@ export default function InternalJobsBoard() {
 
         {/* Error Display */}
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-control">
             <div className="flex">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
               <div className="ml-3">

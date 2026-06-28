@@ -124,7 +124,7 @@ export default function SageConfigPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500" />
           </div>
         ) : connectors.length === 0 ? (
-          <div className="bg-white rounded-sm shadow p-12 text-center">
+          <div className="bg-white rounded-control shadow p-12 text-center">
             <SignalIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Connectors Configured</h3>
             <p className="text-gray-500 text-sm mb-6">
@@ -143,7 +143,7 @@ export default function SageConfigPage() {
             {connectors.map((connector) => (
               <div
                 key={connector.id}
-                className="bg-white rounded-sm shadow border hover:shadow-md transition-shadow"
+                className="bg-white rounded-control shadow border hover:shadow-md transition-shadow"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between">

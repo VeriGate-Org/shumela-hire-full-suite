@@ -162,7 +162,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
               value={form.apiKey}
               onChange={(e) => handleChange('apiKey', e.target.value)}
               placeholder={connector ? '(unchanged)' : 'Enter API key'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             />
           </div>
         );
@@ -176,7 +176,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
                 value={form.username}
                 onChange={(e) => handleChange('username', e.target.value)}
                 placeholder="Enter username"
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
               />
             </div>
             <div>
@@ -186,7 +186,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
                 value={form.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 placeholder={connector ? '(unchanged)' : 'Enter password'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
               />
             </div>
           </>
@@ -201,7 +201,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
                 value={form.clientId}
                 onChange={(e) => handleChange('clientId', e.target.value)}
                 placeholder="Enter client ID"
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
               />
             </div>
             <div>
@@ -211,7 +211,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
                 value={form.clientSecret}
                 onChange={(e) => handleChange('clientSecret', e.target.value)}
                 placeholder={connector ? '(unchanged)' : 'Enter client secret'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
               />
             </div>
           </>
@@ -225,7 +225,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
               value={form.certificatePath}
               onChange={(e) => handleChange('certificatePath', e.target.value)}
               placeholder="/path/to/certificate.pem"
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             />
           </div>
         );
@@ -236,7 +236,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           {connector ? 'Edit Connector' : 'New Connector'}
         </h3>
@@ -253,7 +253,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="e.g. Sage 300 People - Production"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             />
           </div>
 
@@ -265,7 +265,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
             <select
               value={form.connectorType}
               onChange={(e) => handleChange('connectorType', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             >
               {CONNECTOR_TYPES.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -283,7 +283,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
             <select
               value={form.authMethod}
               onChange={(e) => handleChange('authMethod', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             >
               {AUTH_METHODS.map((method) => (
                 <option key={method.value} value={method.value}>
@@ -304,7 +304,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
               onChange={(e) => handleChange('baseUrl', e.target.value)}
               placeholder="https://sage-api.example.com"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 text-sm"
             />
           </div>
         </div>
@@ -322,7 +322,7 @@ export default function SageConfigForm({ connector, onSaved, onCancel }: SageCon
         {/* Test Connection Result */}
         {testResult && (
           <div
-            className={`mt-4 flex items-center gap-2 p-3 rounded-sm text-sm ${
+            className={`mt-4 flex items-center gap-2 p-3 rounded-control text-sm ${
               testResult.success
                 ? 'bg-green-50 text-green-800 border border-green-200'
                 : 'bg-red-50 text-red-800 border border-red-200'

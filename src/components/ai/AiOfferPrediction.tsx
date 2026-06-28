@@ -59,20 +59,20 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Proposed Salary (ZAR)</label>
           <input type="number" value={proposedSalary || ''} onChange={e => setProposedSalary(Number(e.target.value))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" placeholder="e.g. 750000" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" placeholder="e.g. 750000" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Additional Benefits</label>
           <div className="flex gap-2">
             <input type="text" value={benefitInput} onChange={e => setBenefitInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addBenefit()}
-              className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Add benefit" />
+              className="flex-1 text-sm p-2 border border-gray-300 rounded-control" placeholder="Add benefit" />
             <button onClick={addBenefit} className="px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">+</button>
           </div>
           {benefits.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
               {benefits.map((b, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 text-violet-700 text-xs rounded-sm">
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 text-violet-700 text-xs rounded-control">
                   {b}
                   <button onClick={() => setBenefits(prev => prev.filter((_, j) => j !== i))} className="text-violet-400 hover:text-gold-600">&times;</button>
                 </span>
@@ -88,7 +88,7 @@ export default function AiOfferPrediction({ applicationId }: AiOfferPredictionPr
       </button>
 
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-4">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-4">
           {/* Probability gauge */}
           <div className="flex items-center gap-4">
             <div className={`w-16 h-16 rounded-full border-4 ${getGaugeColor(result.acceptanceProbability)} flex items-center justify-center`}>

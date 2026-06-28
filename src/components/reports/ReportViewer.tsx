@@ -153,7 +153,7 @@ export default function ReportViewer({
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden border border-gray-200 rounded-sm">
+        <div className="overflow-hidden border border-gray-200 rounded-control">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -256,7 +256,7 @@ export default function ReportViewer({
 
   if (result.error) {
     return (
-      <div className={`bg-white rounded-sm shadow-sm border border-red-200 ${className}`}>
+      <div className={`bg-white rounded-control shadow-sm border border-red-200 ${className}`}>
         <div className="px-6 py-4 border-b border-red-200 bg-red-50">
           <h2 className="text-lg font-semibold text-red-800">Report Generation Failed</h2>
         </div>
@@ -282,7 +282,7 @@ export default function ReportViewer({
   }
 
   return (
-    <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -303,7 +303,7 @@ export default function ReportViewer({
                 <ArrowDownTrayIcon className="h-4 w-4 inline mr-1" />
                 Export
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-lg border border-gray-200 hidden group-hover:block">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-control shadow-lg border border-gray-200 hidden group-hover:block">
                 <div className="py-1">
                   <button
                     onClick={() => onExport('csv')}

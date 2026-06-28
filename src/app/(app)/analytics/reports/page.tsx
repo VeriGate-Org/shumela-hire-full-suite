@@ -143,7 +143,7 @@ export default function CustomReportsPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Reports</p>
@@ -153,7 +153,7 @@ export default function CustomReportsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Reports</p>
@@ -165,7 +165,7 @@ export default function CustomReportsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Scheduled Reports</p>
@@ -177,7 +177,7 @@ export default function CustomReportsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Recipients</p>
@@ -191,7 +191,7 @@ export default function CustomReportsPage() {
         </div>
 
         {/* Report Templates */}
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Start Templates</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -213,7 +213,7 @@ export default function CustomReportsPage() {
             ].map((template) => (
               <div
                 key={template.preset}
-                className="p-4 border border-gray-200 rounded-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="p-4 border border-gray-200 rounded-control hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => { setEditingReport(null); setShowBuilder(true); }}
               >
                 <div>
@@ -229,7 +229,7 @@ export default function CustomReportsPage() {
         </div>
 
         {/* Saved Reports */}
-        <div className="bg-white rounded-sm border border-gray-200">
+        <div className="bg-white rounded-control border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Saved Reports</h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -303,7 +303,7 @@ export default function CustomReportsPage() {
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-md w-full p-6">
+            <div className="bg-white rounded-control shadow-xl max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                 <h2 className="text-lg font-bold text-gray-900">Delete Report</h2>

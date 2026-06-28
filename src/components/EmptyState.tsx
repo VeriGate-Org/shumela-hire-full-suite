@@ -51,7 +51,9 @@ export default function EmptyState({ icon: Icon, title, description, action, sec
 
   return (
     <div role="status" aria-live="polite" className="enterprise-card flex flex-col items-center justify-center py-16 px-4">
-      <Icon className="w-16 h-16 text-muted-foreground mb-4" />
+      <div className="w-20 h-20 bg-surface-navy rounded-full flex items-center justify-center mb-4">
+        <Icon className="w-10 h-10 text-primary" />
+      </div>
       <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">{description}</p>
       {(action || secondaryAction) && (

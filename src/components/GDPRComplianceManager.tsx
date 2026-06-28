@@ -101,7 +101,7 @@ const GDPRComplianceManager: React.FC = () => {
 
   if (!hasPermission('GDPR_VIEW')) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-sm p-4">
+      <div className="bg-red-50 border border-red-200 rounded-control p-4">
         <h3 className="text-sm font-medium text-red-800">Access Denied</h3>
         <p className="mt-2 text-sm text-red-700">
           You don&apos;t have permission to view GDPR compliance information.
@@ -139,7 +139,7 @@ const GDPRComplianceManager: React.FC = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className="bg-white shadow rounded-sm p-6">
+          <div className="bg-white shadow rounded-control p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               GDPR Compliance Overview
             </h3>
@@ -152,19 +152,19 @@ const GDPRComplianceManager: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gold-50 p-4 rounded-sm">
+                <div className="bg-gold-50 p-4 rounded-control">
                   <h4 className="text-sm font-medium text-violet-900">Compliance Score</h4>
                   <p className="text-2xl font-bold text-gold-600">
                     {complianceData?.complianceScore || 0}%
                   </p>
                 </div>
-                <div className="bg-green-50 p-4 rounded-sm">
+                <div className="bg-green-50 p-4 rounded-control">
                   <h4 className="text-sm font-medium text-green-900">Active Consents</h4>
                   <p className="text-2xl font-bold text-green-600">
                     {complianceData?.activeConsents || 0}
                   </p>
                 </div>
-                <div className="bg-yellow-50 p-4 rounded-sm">
+                <div className="bg-yellow-50 p-4 rounded-control">
                   <h4 className="text-sm font-medium text-yellow-900">Pending Requests</h4>
                   <p className="text-2xl font-bold text-yellow-600">
                     {complianceData?.pendingRequests || 0}
@@ -175,7 +175,7 @@ const GDPRComplianceManager: React.FC = () => {
           </div>
 
           {/* Data Categories */}
-          <div className="bg-white shadow rounded-sm p-6">
+          <div className="bg-white shadow rounded-control p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Data Categories We Process
             </h3>
@@ -206,7 +206,7 @@ const GDPRComplianceManager: React.FC = () => {
                   legalBasis: 'Legal obligation',
                 },
               ].map((item, index) => (
-                <div key={index} className="border border-gray-200 rounded-sm p-4">
+                <div key={index} className="border border-gray-200 rounded-control p-4">
                   <h4 className="font-medium text-gray-900">{item.category}</h4>
                   <p className="text-sm text-gray-600 mt-1">
                     <strong>Data:</strong> {item.data}
@@ -227,7 +227,7 @@ const GDPRComplianceManager: React.FC = () => {
       {/* Data Requests Tab */}
       {activeTab === 'requests' && (
         <div className="space-y-6">
-          <div className="bg-white shadow rounded-sm p-6">
+          <div className="bg-white shadow rounded-control p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Your Data Rights
             </h3>
@@ -254,7 +254,7 @@ const GDPRComplianceManager: React.FC = () => {
                   action: exportUserData,
                 },
               ].map((item, index) => (
-                <div key={index} className="border border-gray-200 rounded-sm p-4">
+                <div key={index} className="border border-gray-200 rounded-control p-4">
                   <h4 className="font-medium text-gray-900">{item.right}</h4>
                   <p className="text-sm text-gray-600 mt-2">{item.description}</p>
                   <button
@@ -269,12 +269,12 @@ const GDPRComplianceManager: React.FC = () => {
           </div>
 
           {/* Recent Requests */}
-          <div className="bg-white shadow rounded-sm p-6">
+          <div className="bg-white shadow rounded-control p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Recent Requests
             </h3>
             {dataRequests.length > 0 ? (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-sm">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-control">
                 <table className="min-w-full divide-y divide-gray-300">
                   <thead className="bg-gray-50">
                     <tr>
@@ -331,7 +331,7 @@ const GDPRComplianceManager: React.FC = () => {
 
       {/* Other tabs would be implemented similarly */}
       {activeTab === 'exports' && (
-        <div className="bg-white shadow rounded-sm p-6">
+        <div className="bg-white shadow rounded-control p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             Data Export
           </h3>
@@ -340,7 +340,7 @@ const GDPRComplianceManager: React.FC = () => {
           </p>
           <button
             onClick={exportUserData}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-white bg-green-600 hover:bg-green-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-control text-white bg-green-600 hover:bg-green-700"
           >
             Download My Data
           </button>
@@ -348,7 +348,7 @@ const GDPRComplianceManager: React.FC = () => {
       )}
 
       {activeTab === 'retention' && (
-        <div className="bg-white shadow rounded-sm p-6">
+        <div className="bg-white shadow rounded-control p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             Data Retention Policy
           </h3>

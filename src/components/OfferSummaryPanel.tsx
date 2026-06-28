@@ -36,7 +36,7 @@ export default function OfferSummaryPanel({
 
   if (!offer) {
     return (
-      <div className="border border-dashed border-gray-300 rounded-sm p-6 text-center">
+      <div className="border border-dashed border-gray-300 rounded-control p-6 text-center">
         <DocumentTextIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
         <p className="text-sm text-gray-500 mb-4">No offer has been created for this application yet.</p>
         {!readOnly && (
@@ -124,7 +124,7 @@ export default function OfferSummaryPanel({
   const isSigned = status === 'SIGNED' || offer.eSignatureStatus === 'SIGNED';
 
   return (
-    <div className="border border-border rounded-sm">
+    <div className="border border-border rounded-control">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
@@ -281,13 +281,13 @@ export default function OfferSummaryPanel({
               )}
             </div>
             {offer.candidateCounterOffer && (
-              <div className="bg-gray-50 rounded-sm p-3">
+              <div className="bg-gray-50 rounded-control p-3">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.05em]">Candidate Counter-Offer</span>
                 <p className="text-foreground mt-1">{offer.candidateCounterOffer}</p>
               </div>
             )}
             {offer.companyResponse && (
-              <div className="bg-blue-50 rounded-sm p-3">
+              <div className="bg-blue-50 rounded-control p-3">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.05em]">Company Response</span>
                 <p className="text-foreground mt-1">{offer.companyResponse}</p>
               </div>
@@ -307,7 +307,7 @@ export default function OfferSummaryPanel({
                       value={negotiationResponse}
                       onChange={(e) => setNegotiationResponse(e.target.value)}
                       placeholder="Enter company response..."
-                      className="w-full px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
                       rows={3}
                     />
                     <div className="flex gap-2">

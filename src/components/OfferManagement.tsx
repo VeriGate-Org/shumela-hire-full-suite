@@ -358,7 +358,7 @@ export default function OfferManagement() {
     <div className="space-y-6">
       {/* Dashboard Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-sm p-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-control p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-yellow-800">Pending Approval</p>
@@ -370,7 +370,7 @@ export default function OfferManagement() {
           </div>
         </div>
         
-        <div className="bg-red-50 border border-red-200 rounded-sm p-4">
+        <div className="bg-red-50 border border-red-200 rounded-control p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-red-800">Near Expiry</p>
@@ -382,7 +382,7 @@ export default function OfferManagement() {
           </div>
         </div>
         
-        <div className="bg-gold-50 border border-violet-200 rounded-sm p-4">
+        <div className="bg-gold-50 border border-violet-200 rounded-control p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-violet-800">Active Negotiations</p>
@@ -394,7 +394,7 @@ export default function OfferManagement() {
           </div>
         </div>
         
-        <div className="bg-green-50 border border-green-200 rounded-sm p-4">
+        <div className="bg-green-50 border border-green-200 rounded-control p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-green-800">Recent Acceptances</p>
@@ -408,7 +408,7 @@ export default function OfferManagement() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Filters</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -417,7 +417,7 @@ export default function OfferManagement() {
             <select
               value={filters.status || ''}
               onChange={(e) => setFilters({...filters, status: e.target.value || undefined})}
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+              className="w-full p-2 border border-gray-300 rounded-control text-sm"
             >
               <option value="">All Statuses</option>
               {OFFER_STATUSES.map(status => (
@@ -433,7 +433,7 @@ export default function OfferManagement() {
             <select
               value={filters.offerType || ''}
               onChange={(e) => setFilters({...filters, offerType: e.target.value || undefined})}
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+              className="w-full p-2 border border-gray-300 rounded-control text-sm"
             >
               <option value="">All Types</option>
               {OFFER_TYPES.map(type => (
@@ -451,7 +451,7 @@ export default function OfferManagement() {
               value={filters.department || ''}
               onChange={(e) => setFilters({...filters, department: e.target.value || undefined})}
               placeholder="Filter by department"
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+              className="w-full p-2 border border-gray-300 rounded-control text-sm"
             />
           </div>
           
@@ -462,7 +462,7 @@ export default function OfferManagement() {
               value={filters.minSalary || ''}
               onChange={(e) => setFilters({...filters, minSalary: e.target.value ? Number(e.target.value) : undefined})}
               placeholder="Min salary"
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+              className="w-full p-2 border border-gray-300 rounded-control text-sm"
             />
           </div>
           
@@ -473,7 +473,7 @@ export default function OfferManagement() {
               value={filters.maxSalary || ''}
               onChange={(e) => setFilters({...filters, maxSalary: e.target.value ? Number(e.target.value) : undefined})}
               placeholder="Max salary"
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+              className="w-full p-2 border border-gray-300 rounded-control text-sm"
             />
           </div>
         </div>
@@ -481,13 +481,13 @@ export default function OfferManagement() {
         <div className="mt-4 flex justify-end space-x-2">
           <button
             onClick={() => setFilters({})}
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-sm hover:bg-gray-50"
+            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-control hover:bg-gray-50"
           >
             Clear Filters
           </button>
           <button
             onClick={() => setCurrentPage(0)}
-            className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+            className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
           >
             Apply Filters
           </button>
@@ -495,7 +495,7 @@ export default function OfferManagement() {
       </div>
 
       {/* Offers Table */}
-      <div className="bg-white rounded-sm shadow overflow-hidden">
+      <div className="bg-white rounded-control shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Offers</h3>
         </div>
@@ -753,7 +753,7 @@ export default function OfferManagement() {
       {/* Action Modal */}
       {showActionModal && selectedOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full m-4">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full m-4">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
                 {actionType.charAt(0).toUpperCase() + actionType.slice(1)} Offer
@@ -792,7 +792,7 @@ export default function OfferManagement() {
                       setActionData({...actionData, [field]: e.target.value});
                     }}
                     rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-sm"
+                    className="w-full p-3 border border-gray-300 rounded-control"
                     placeholder={`Enter ${actionType} details...`}
                   />
                 </div>
@@ -802,13 +802,13 @@ export default function OfferManagement() {
             <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
               <button
                 onClick={() => setShowActionModal(false)}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={executeAction}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
               >
                 Confirm {actionType.charAt(0).toUpperCase() + actionType.slice(1)}
               </button>
@@ -819,7 +819,7 @@ export default function OfferManagement() {
       {/* Generate Offer Letter Modal */}
       {showLetterModal && letterOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full m-4">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full m-4">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
                 Generate Offer Letter
@@ -827,7 +827,7 @@ export default function OfferManagement() {
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-4 space-y-1">
+              <div className="rounded-control border border-gray-200 bg-gray-50 p-4 space-y-1">
                 <p className="text-sm text-gray-600">
                   <span className="font-medium text-gray-700">Offer:</span> {letterOffer.offerNumber}
                 </p>
@@ -867,7 +867,7 @@ export default function OfferManagement() {
             <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
               <button
                 onClick={() => { setShowLetterModal(false); setLetterOffer(null); }}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -879,7 +879,7 @@ export default function OfferManagement() {
                   setLetterOffer(null);
                   window.open('/reports/offer-letter-sample.pdf', '_blank');
                 }}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600"
+                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
               >
                 Generate Letter
               </button>
@@ -891,7 +891,7 @@ export default function OfferManagement() {
       {/* Send to Payroll Modal */}
       {showPayrollModal && payrollOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full m-4">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full m-4">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
                 Send to Payroll
@@ -902,7 +902,7 @@ export default function OfferManagement() {
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-4 space-y-2">
+              <div className="rounded-control border border-gray-200 bg-gray-50 p-4 space-y-2">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Employee Details</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                   <p className="text-sm text-gray-600">
@@ -932,7 +932,7 @@ export default function OfferManagement() {
                 </div>
               </div>
 
-              <div className="rounded-sm border border-[#05527E]/20 bg-[#05527E]/5 p-4">
+              <div className="rounded-control border border-[#05527E]/20 bg-[#05527E]/5 p-4">
                 <div className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-[#05527E] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
@@ -955,7 +955,7 @@ export default function OfferManagement() {
               <button
                 onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
                 disabled={payrollSending}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -963,7 +963,7 @@ export default function OfferManagement() {
                 <button
                   onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
                   disabled={payrollSending}
-                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-sm hover:bg-gray-50"
+                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-control hover:bg-gray-50"
                 >
                   Skip for Now
                 </button>
@@ -980,7 +980,7 @@ export default function OfferManagement() {
                     }, 1500);
                   }}
                   disabled={payrollSending}
-                  className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+                  className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
                 >
                   {payrollSending ? 'Sending...' : 'Send to Payroll'}
                 </button>
@@ -993,7 +993,7 @@ export default function OfferManagement() {
       {/* E-Sign Modal */}
       {showESignModal && eSignOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full m-4">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full m-4">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
                 Send for E-Signature
@@ -1010,7 +1010,7 @@ export default function OfferManagement() {
                 </p>
               </div>
 
-              <div className="mb-4 rounded-sm border border-gray-200 bg-gray-50 p-4">
+              <div className="mb-4 rounded-control border border-gray-200 bg-gray-50 p-4">
                 <p className="text-sm font-medium text-gray-700 mb-2">DocuSign will send to:</p>
                 <p className="text-sm text-gray-900">{getApplicantName(eSignOffer.application?.applicant)}</p>
                 <p className="text-sm text-gray-500">{eSignOffer.application?.applicant?.email || ''}</p>
@@ -1025,14 +1025,14 @@ export default function OfferManagement() {
               <button
                 onClick={() => { setShowESignModal(false); setESignOffer(null); }}
                 disabled={eSignLoading}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendForSignature}
                 disabled={eSignLoading}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
               >
                 {eSignLoading ? 'Sending...' : 'Send for Signature'}
               </button>

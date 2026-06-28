@@ -53,7 +53,7 @@ export default function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div
-        className="mx-4 w-full max-w-md rounded-md border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+        className="mx-4 w-full max-w-md rounded-card border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"

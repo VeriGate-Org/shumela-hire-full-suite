@@ -47,12 +47,12 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Position</label>
           <input type="text" value={form.positionTitle} onChange={e => setForm(prev => ({ ...prev, positionTitle: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Department</label>
           <select value={form.department} onChange={e => setForm(prev => ({ ...prev, department: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm">
+            className="w-full text-sm p-2 border border-gray-300 rounded-control">
             <option value="">Select department</option>
             {departments.map(dept => (
               <option key={dept} value={dept}>{dept}</option>
@@ -62,32 +62,32 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Level</label>
           <input type="text" value={form.level} onChange={e => setForm(prev => ({ ...prev, level: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Location</label>
           <input type="text" value={form.location} onChange={e => setForm(prev => ({ ...prev, location: e.target.value }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Current Salary (optional)</label>
           <input type="number" value={form.candidateCurrentSalary || ''} onChange={e => setForm(prev => ({ ...prev, candidateCurrentSalary: e.target.value ? Number(e.target.value) : undefined }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" placeholder="e.g. 600000" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" placeholder="e.g. 600000" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Expected Salary (optional)</label>
           <input type="number" value={form.candidateExpectedSalary || ''} onChange={e => setForm(prev => ({ ...prev, candidateExpectedSalary: e.target.value ? Number(e.target.value) : undefined }))}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" placeholder="e.g. 750000" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" placeholder="e.g. 750000" />
         </div>
       </div>
 
       <button onClick={handleAnalyze} disabled={loading || !form.positionTitle}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Analysing...' : 'Analyse Salary'}
       </button>
 
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-4">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-4">
           {/* Range bar */}
           <div>
             <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -129,7 +129,7 @@ export default function AiSalaryBenchmark({ positionTitle, department, level, on
             <span className="text-xs text-gray-500">Based on {result.dataPointsUsed} data points</span>
             {onApply && (
               <button onClick={() => onApply(result.suggestedMin, result.suggestedMax, result.suggestedTarget)}
-                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600">
+                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600">
                 Apply Suggestion
               </button>
             )}

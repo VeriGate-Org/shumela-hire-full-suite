@@ -41,7 +41,7 @@ const SecurityDashboard: React.FC = () => {
 
   if (!hasPermission('SECURITY_VIEW')) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-sm p-4">
+      <div className="bg-red-50 border border-red-200 rounded-control p-4">
         <div className="flex">
           <div className="ml-3">
             <h3 className="text-sm font-medium text-red-800">
@@ -59,7 +59,7 @@ const SecurityDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Security Status Overview */}
-      <div className="bg-white shadow rounded-sm">
+      <div className="bg-white shadow rounded-control">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Security Status Overview
@@ -94,25 +94,25 @@ const SecurityDashboard: React.FC = () => {
 
       {/* Failed Login Attempts */}
       {securityReport?.failedLogins && (
-        <div className="bg-white shadow rounded-sm">
+        <div className="bg-white shadow rounded-control">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
               Failed Login Attempts
             </h3>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-red-50 p-4 rounded-sm">
+              <div className="bg-red-50 p-4 rounded-control">
                 <dt className="text-sm font-medium text-red-800">Total Attempts</dt>
                 <dd className="mt-1 text-2xl font-semibold text-red-900">
                   {securityReport.failedLogins.totalAttempts}
                 </dd>
               </div>
-              <div className="bg-orange-50 p-4 rounded-sm">
+              <div className="bg-orange-50 p-4 rounded-control">
                 <dt className="text-sm font-medium text-orange-800">Unique IPs</dt>
                 <dd className="mt-1 text-2xl font-semibold text-orange-900">
                   {securityReport.failedLogins.uniqueIPs}
                 </dd>
               </div>
-              <div className="bg-yellow-50 p-4 rounded-sm">
+              <div className="bg-yellow-50 p-4 rounded-control">
                 <dt className="text-sm font-medium text-yellow-800">Recent (24h)</dt>
                 <dd className="mt-1 text-2xl font-semibold text-yellow-900">
                   {securityReport.failedLogins.recentAttempts}
@@ -125,7 +125,7 @@ const SecurityDashboard: React.FC = () => {
 
       {/* Account Security Status */}
       {securityReport?.accountSecurity && (
-        <div className="bg-white shadow rounded-sm">
+        <div className="bg-white shadow rounded-control">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
               Account Security Status
@@ -158,7 +158,7 @@ const SecurityDashboard: React.FC = () => {
 
       {/* Security Recommendations */}
       {securityReport?.recommendations && securityReport.recommendations.length > 0 && (
-        <div className="bg-white shadow rounded-sm">
+        <div className="bg-white shadow rounded-control">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
               Security Recommendations
@@ -182,7 +182,7 @@ const SecurityDashboard: React.FC = () => {
       )}
 
       {/* Quick Actions */}
-      <div className="bg-white shadow rounded-sm">
+      <div className="bg-white shadow rounded-control">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Quick Security Actions

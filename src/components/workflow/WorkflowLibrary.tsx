@@ -175,7 +175,7 @@ export default function WorkflowLibrary({
   const currentCategory = categories.find(c => c.id === selectedCategory);
 
   return (
-    <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -189,13 +189,13 @@ export default function WorkflowLibrary({
           <div className="flex items-center gap-2">
             <button
               onClick={onImportWorkflow}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control hover:bg-gray-50"
             >
               Import
             </button>
             <button
               onClick={onCreateWorkflow}
-              className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-sm hover:bg-gold-600"
+              className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-control hover:bg-gold-600"
             >
               <PlusIcon className="h-4 w-4 inline mr-1" />
               New Workflow
@@ -238,7 +238,7 @@ export default function WorkflowLibrary({
                 placeholder="Search workflows..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
 
@@ -246,7 +246,7 @@ export default function WorkflowLibrary({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             >
               <option value="name">Sort by Name</option>
               <option value="created">Sort by Created</option>
@@ -255,7 +255,7 @@ export default function WorkflowLibrary({
           </div>
 
           {/* View Mode */}
-          <div className="flex items-center border border-gray-300 rounded-sm">
+          <div className="flex items-center border border-gray-300 rounded-control">
             <button
               onClick={() => setViewMode('grid')}
               className={`px-3 py-1.5 text-sm font-medium ${
@@ -281,7 +281,7 @@ export default function WorkflowLibrary({
 
         {/* Category Info */}
         {currentCategory && (
-          <div className="mt-3 p-3 bg-gold-50 border border-violet-200 rounded-sm">
+          <div className="mt-3 p-3 bg-gold-50 border border-violet-200 rounded-control">
             <h3 className="font-medium text-violet-900">{currentCategory.name}</h3>
             <p className="text-sm text-violet-700 mt-1">{currentCategory.description}</p>
             <p className="text-xs text-gold-600 mt-1">
@@ -305,7 +305,7 @@ export default function WorkflowLibrary({
             </p>
             <button
               onClick={onCreateWorkflow}
-              className="px-4 py-2 text-sm font-medium text-gold-600 bg-gold-50 rounded-sm hover:bg-gold-100"
+              className="px-4 py-2 text-sm font-medium text-gold-600 bg-gold-50 rounded-control hover:bg-gold-100"
             >
               Create Workflow
             </button>
@@ -315,7 +315,7 @@ export default function WorkflowLibrary({
             {currentWorkflows.map((workflow) => (
               <div
                 key={workflow.id}
-                className="border border-gray-200 rounded-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => onSelectWorkflow(workflow)}
               >
                 {/* Header */}
@@ -406,7 +406,7 @@ export default function WorkflowLibrary({
             {currentWorkflows.map((workflow) => (
               <div
                 key={workflow.id}
-                className="border border-gray-200 rounded-sm p-4 hover:bg-gray-50 cursor-pointer"
+                className="border border-gray-200 rounded-control p-4 hover:bg-gray-50 cursor-pointer"
                 onClick={() => onSelectWorkflow(workflow)}
               >
                 <div className="flex items-start justify-between">

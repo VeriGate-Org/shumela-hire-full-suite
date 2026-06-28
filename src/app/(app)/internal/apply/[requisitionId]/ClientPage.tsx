@@ -111,13 +111,13 @@ export default function InternalApplicationPage() {
     return (
       <PageWrapper title="Application Submitted" subtitle={`Internal application for ${decodeURIComponent(jobTitle)}`} actions={backAction}>
         <div className="max-w-lg mx-auto">
-          <div className="bg-white rounded-sm shadow border border-gray-200 p-8 text-center">
+          <div className="bg-white rounded-control shadow border border-gray-200 p-8 text-center">
             <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted</h2>
             <p className="text-gray-600 mb-6">
               Your internal application for <strong>{decodeURIComponent(jobTitle)}</strong> has been submitted successfully.
             </p>
-            <div className="bg-gold-50 border border-gold-200 rounded-sm p-4 mb-6 text-left">
+            <div className="bg-gold-50 border border-gold-200 rounded-control p-4 mb-6 text-left">
               <p className="text-sm font-semibold text-gray-900 mb-2">What happens next?</p>
               <ul className="text-sm text-gray-700 space-y-1">
                 <li>Your application will be prioritised as an internal candidate</li>
@@ -151,7 +151,7 @@ export default function InternalApplicationPage() {
     >
       <div className="space-y-6">
         {/* Internal Application Benefits */}
-        <div className="bg-gold-50 border border-gold-200 rounded-sm p-6">
+        <div className="bg-gold-50 border border-gold-200 rounded-control p-6">
           <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Advantages</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center">
@@ -177,7 +177,7 @@ export default function InternalApplicationPage() {
 
         {/* Error Display */}
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-control">
             <div className="flex">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
               <div className="ml-3">
@@ -189,7 +189,7 @@ export default function InternalApplicationPage() {
         )}
 
         {/* Application Form */}
-        <div className="bg-white rounded-sm shadow border border-gray-200">
+        <div className="bg-white rounded-control shadow border border-gray-200">
           <form onSubmit={handleSubmit}>
             {/* Applicant Info (read-only) */}
             {user && (
@@ -198,11 +198,11 @@ export default function InternalApplicationPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-sm text-sm text-gray-700">{user.name}</p>
+                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-control text-sm text-gray-700">{user.name}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-sm text-sm text-gray-700">{user.email}</p>
+                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-control text-sm text-gray-700">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function InternalApplicationPage() {
                   id="availability-date"
                   value={formData.availabilityDate}
                   onChange={(e) => handleInputChange('availabilityDate', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
@@ -236,7 +236,7 @@ export default function InternalApplicationPage() {
                   aria-required="true"
                   value={formData.reasonForApplication}
                   onChange={(e) => handleInputChange('reasonForApplication', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   placeholder="Why are you interested in this position? What motivates you to make this internal move?"
                 />
               </div>
@@ -250,7 +250,7 @@ export default function InternalApplicationPage() {
                   rows={6}
                   value={formData.coverLetter}
                   onChange={(e) => handleInputChange('coverLetter', e.target.value)}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   placeholder="Describe how your current experience and skills make you a great fit for this role..."
                 />
               </div>
