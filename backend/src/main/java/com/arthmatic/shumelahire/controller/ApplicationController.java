@@ -44,7 +44,7 @@ public class ApplicationController {
      * POST /api/applications
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> submitApplication(@Valid @RequestBody ApplicationCreateRequest request) {
         try {
             logger.info("Submitting application for applicant {} to job {}",
@@ -130,7 +130,7 @@ public class ApplicationController {
      * GET /api/applications/applicant/{applicantId}
      */
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> getApplicationsByApplicant(@PathVariable String applicantId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByApplicant(applicantId);
@@ -164,7 +164,7 @@ public class ApplicationController {
      * GET /api/applications/status/{status}
      */
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationsByStatus(@PathVariable ApplicationStatus status) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByStatus(status);
@@ -205,7 +205,7 @@ public class ApplicationController {
      * POST /api/applications/{id}/withdraw
      */
     @PostMapping("/{id}/withdraw")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> withdrawApplication(
             @PathVariable String id,
             @Valid @RequestBody ApplicationWithdrawRequest request) {
@@ -272,7 +272,7 @@ public class ApplicationController {
      * GET /api/applications/can-apply?applicantId={id}&jobAdId={id}
      */
     @GetMapping("/can-apply")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
     public ResponseEntity<?> canApplicantApplyForJob(
             @RequestParam String applicantId,
             @RequestParam String jobAdId) {
@@ -291,7 +291,7 @@ public class ApplicationController {
      * GET /api/applications/requiring-action
      */
     @GetMapping("/requiring-action")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationsRequiringAction() {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsRequiringAction();
@@ -308,7 +308,7 @@ public class ApplicationController {
      * GET /api/applications/recent?days={days}
      */
     @GetMapping("/recent")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getRecentApplications(@RequestParam(defaultValue = "7") int days) {
         try {
             List<ApplicationResponse> applications = applicationService.getRecentApplications(days);
@@ -346,7 +346,7 @@ public class ApplicationController {
      * GET /api/applications/statistics
      */
     @GetMapping("/statistics")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getApplicationStatistics() {
         try {
             List<Object[]> statistics = applicationService.getApplicationStatusStatistics();
