@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { JobAdTemplate, JobAdDraft, TemplateStats } from '@/types/jobTemplate';
 import { jobTemplateService } from '@/services/jobTemplateService';
 import TemplateList from '@/components/templates/TemplateList';
 import TemplateEditor from '@/components/templates/TemplateEditor';
 import GenerateFromTemplate from '@/components/templates/GenerateFromTemplate';
 import PageWrapper from '@/components/PageWrapper';
+import ErrorState from '@/components/ErrorState';
 import { useToast } from '@/components/Toast';
 import {
   DocumentTextIcon,
@@ -20,14 +21,46 @@ const JobTemplatesPage: React.FC = () => {
   const [activeView, setActiveView] = useState<'list' | 'editor' | 'generate'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<JobAdTemplate | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
+  // Bug 3: Read URL params on mount to restore the view
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view');
+    if (viewParam === 'editor' || viewParam === 'generate') {
+      setActiveView(viewParam);
+    }
+  }, []);
+
+  // Bug 3: Update URL when switching views
+  const updateViewUrl = useCallback((view: string, templateId?: string) => {
+    const params = new URLSearchParams();
+    if (view !== 'list') {
+      params.set('view', view);
+    }
+    if (templateId) {
+      params.set('id', templateId);
+    }
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  }, []);
+
+  const switchView = useCallback((view: 'list' | 'editor' | 'generate', template?: JobAdTemplate | null) => {
+    setActiveView(view);
+    updateViewUrl(view, template?.id);
+  }, [updateViewUrl]);
 
   useEffect(() => {
     const initializeData = async () => {
       try {
+        setStatsError(null);
         const templateStats = await jobTemplateService.getTemplateStats();
         setStats(templateStats);
       } catch (error) {
         console.error('Error initializing template data:', error);
+        setStatsError('Failed to load template statistics');
       }
     };
 
@@ -36,22 +69,22 @@ const JobTemplatesPage: React.FC = () => {
 
   const handleCreateNew = () => {
     setSelectedTemplate(null);
-    setActiveView('editor');
+    switchView('editor');
   };
 
   const handleEdit = (template: JobAdTemplate) => {
     setSelectedTemplate(template);
-    setActiveView('editor');
+    switchView('editor', template);
   };
 
   const handleGenerate = (template: JobAdTemplate) => {
     setSelectedTemplate(template);
-    setActiveView('generate');
+    switchView('generate', template);
   };
 
   const handleSave = async (template: JobAdTemplate) => {
     console.log('Template saved:', template);
-    setActiveView('list');
+    switchView('list');
     setSelectedTemplate(null);
 
     const templateStats = await jobTemplateService.getTemplateStats();
@@ -61,13 +94,23 @@ const JobTemplatesPage: React.FC = () => {
   const handleGenerated = (draft: JobAdDraft) => {
     console.log('Job ad generated:', draft);
     toast('Job ad draft created successfully. In a real app, this would redirect to the draft editor.', 'success');
-    setActiveView('list');
+    switchView('list');
     setSelectedTemplate(null);
   };
 
   const handleCancel = () => {
-    setActiveView('list');
+    switchView('list');
     setSelectedTemplate(null);
+  };
+
+  const handleRetryStats = async () => {
+    try {
+      setStatsError(null);
+      const templateStats = await jobTemplateService.getTemplateStats();
+      setStats(templateStats);
+    } catch {
+      setStatsError('Failed to load template statistics');
+    }
   };
 
   const actions = (
@@ -92,7 +135,7 @@ const JobTemplatesPage: React.FC = () => {
       )}
 
       <button
-        onClick={() => setActiveView('list')}
+        onClick={() => switchView('list')}
         className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
           activeView === 'list'
             ? 'border-2 border-cta text-cta bg-transparent'
@@ -116,7 +159,7 @@ const JobTemplatesPage: React.FC = () => {
       </button>
 
       <button
-        onClick={() => setActiveView('generate')}
+        onClick={() => switchView('generate')}
         className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
           activeView === 'generate'
             ? 'border-2 border-cta text-cta bg-transparent'
@@ -135,6 +178,15 @@ const JobTemplatesPage: React.FC = () => {
       subtitle="Create, manage, and generate job advertisements from reusable templates"
       actions={actions}
     >
+      {/* Stats error */}
+      {statsError && (
+        <ErrorState
+          title="Failed to load statistics"
+          message={statsError}
+          onRetry={handleRetryStats}
+        />
+      )}
+
       {/* Main Content */}
       <div className="enterprise-card min-h-[600px]">
         {activeView === 'list' && (

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RequisitionData, ApprovalRole, WorkflowAction } from '../types/workflow';
 import { getAllowedTransitions } from '../services/workflowDefinition';
 import { useToast } from './Toast';
@@ -23,8 +23,64 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<WorkflowAction | null>(null);
   const [comment, setComment] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const allowedTransitions = getAllowedTransitions(requisition.status, userRole);
+
+  // Focus trap and keyboard handling for modal
+  useEffect(() => {
+    if (!showCommentModal) return;
+
+    // Store the previously focused element so we can restore it
+    previousFocusRef.current = document.activeElement as HTMLElement;
+
+    // Focus the first focusable element in the modal
+    const timer = setTimeout(() => {
+      const focusable = modalRef.current?.querySelector<HTMLElement>(
+        'textarea, button, [tabindex]:not([tabindex="-1"])'
+      );
+      focusable?.focus();
+    }, 0);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowCommentModal(false);
+        setPendingAction(null);
+        setComment('');
+        return;
+      }
+
+      // Focus trap: Tab key cycles through focusable elements within modal
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'textarea, button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last?.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first?.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+      // Restore focus when modal closes
+      previousFocusRef.current?.focus();
+    };
+  }, [showCommentModal]);
 
   const handleAction = async (action: WorkflowAction) => {
     if (action === WorkflowAction.REJECT) {
@@ -63,7 +119,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
 
   const getActionButton = (action: WorkflowAction) => {
     const baseClasses = "px-4 py-2 rounded-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
-    
+
     switch (action) {
       case WorkflowAction.SUBMIT:
         return (
@@ -105,7 +161,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
 
   if (allowedTransitions.length === 0) {
     return (
-      <div className="text-sm text-gray-500 italic">
+      <div className="text-sm text-muted-foreground italic">
         No actions available for your role
       </div>
     );
@@ -119,21 +175,27 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
 
       {/* Comment Modal */}
       {showCommentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="comment-modal-title"
+        >
+          <div ref={modalRef} className="bg-card rounded-sm p-6 w-full max-w-md">
+            <h3 id="comment-modal-title" className="text-lg font-medium text-foreground mb-4">
               {pendingAction === WorkflowAction.REJECT ? 'Rejection Reason' : 'Add Comment'}
             </h3>
-            
+
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={pendingAction === WorkflowAction.REJECT ? 'Please provide a reason for rejection...' : 'Optional comment...'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              aria-label={pendingAction === WorkflowAction.REJECT ? 'Rejection reason' : 'Comment'}
+              className="w-full px-3 py-2 border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring"
               rows={4}
               required={pendingAction === WorkflowAction.REJECT}
             />
-            
+
             {pendingAction === WorkflowAction.REJECT && (
               <p className="text-sm text-red-600 mt-1">* Comment is required for rejection</p>
             )}
@@ -146,7 +208,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
                   setComment('');
                 }}
                 disabled={isLoading}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-200"
+                className="px-4 py-2 text-foreground bg-muted hover:bg-accent rounded-sm transition-colors duration-200"
               >
                 Cancel
               </button>
@@ -154,7 +216,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
                 onClick={handleCommentSubmit}
                 disabled={isLoading || (pendingAction === WorkflowAction.REJECT && !comment.trim())}
                 className={`px-4 py-2 rounded-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  pendingAction === WorkflowAction.REJECT 
+                  pendingAction === WorkflowAction.REJECT
                     ? 'bg-red-600 hover:bg-red-700 text-white'
                     : 'bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider'
                 }`}

@@ -20,6 +20,9 @@ import InterviewCalendar, { type Interview as CalendarInterview } from '@/compon
 import InterviewFeedbackForm from '@/components/InterviewFeedbackForm';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiInterviewQuestionGenerator from '@/components/ai/AiInterviewQuestionGenerator';
+import ErrorState from '@/components/ErrorState';
+import { useToast } from '@/components/Toast';
+import { CardSkeleton } from '@/components/LoadingComponents';
 import { getEnumLabel } from '@/utils/enumLabels';
 
 interface InterviewFeedbackEntry {
@@ -73,10 +76,12 @@ interface Interview extends CalendarInterview {
 type InterviewView = 'calendar' | 'schedule' | 'feedback' | 'list';
 
 export default function InterviewsPage() {
+  const { toast } = useToast();
   const [view, setView] = useState<InterviewView>('calendar');
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
@@ -84,17 +89,23 @@ export default function InterviewsPage() {
   const loadInterviews = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiFetch('/api/interviews');
       if (response.ok) {
         const data = await response.json();
         setInterviews(data.content || data);
+      } else {
+        setError('Failed to load interviews. The server returned an error.');
+        toast('Failed to load interviews', 'error');
       }
-    } catch (error) {
-      console.error('Error loading interviews:', error);
+    } catch (err) {
+      console.error('Error loading interviews:', err);
+      setError('Failed to load interviews. Please check your connection and try again.');
+      toast('Failed to load interviews', 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (view === 'list' || view === 'calendar') {
@@ -103,11 +114,11 @@ export default function InterviewsPage() {
   }, [view, loadInterviews]);
 
   const handleInterviewScheduled = useCallback((interview: { id: number; title: string }) => {
-    console.log('Interview saved:', interview);
+    toast('Interview scheduled successfully', 'success');
     setSelectedInterview(null);
     setView('calendar');
     void loadInterviews();
-  }, [loadInterviews]);
+  }, [loadInterviews, toast]);
 
   const handleInterviewUpdated = useCallback((interviewId: number, updatedInterview: Interview) => {
     setInterviews((prev) => prev.map((interview) =>
@@ -117,11 +128,11 @@ export default function InterviewsPage() {
   }, [loadInterviews]);
 
   const handleFeedbackSubmitted = useCallback((interviewId: number) => {
-    console.log('Feedback submitted for interview:', interviewId);
+    toast('Feedback submitted successfully', 'success');
     setView('calendar');
     setSelectedInterview(null);
     void loadInterviews();
-  }, [loadInterviews]);
+  }, [loadInterviews, toast]);
 
   const handleInterviewSelect = useCallback((interview: Interview) => {
     setSelectedInterview(interview);
@@ -288,11 +299,21 @@ export default function InterviewsPage() {
               </button>
             </div>
 
+            {error ? (
+              <ErrorState
+                title="Failed to load interviews"
+                message={error}
+                onRetry={loadInterviews}
+              />
+            ) : loading ? (
+              <CardSkeleton count={6} />
+            ) : (
             <InterviewCalendar
               interviews={interviews}
               onInterviewSelect={handleInterviewSelect}
               onInterviewUpdate={handleInterviewUpdated}
             />
+            )}
           </section>
         )}
 
@@ -393,7 +414,8 @@ export default function InterviewsPage() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search by title, candidate, or job"
-                      className="w-full pl-10 p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                      aria-label="Search interviews by title, candidate, or job"
+                      className="w-full pl-10 p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     />
                   </div>
                 </div>
@@ -402,7 +424,8 @@ export default function InterviewsPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                    aria-label="Filter interviews by status"
+                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
                   >
                     <option value="ALL">All Statuses</option>
                     {statusOptions.map((status) => (
@@ -415,7 +438,8 @@ export default function InterviewsPage() {
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                    aria-label="Filter interviews by type"
+                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
                   >
                     <option value="ALL">All Types</option>
                     {typeOptions.map((type) => (
@@ -426,10 +450,14 @@ export default function InterviewsPage() {
               </div>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta" />
-              </div>
+            {error ? (
+              <ErrorState
+                title="Failed to load interviews"
+                message={error}
+                onRetry={loadInterviews}
+              />
+            ) : loading ? (
+              <CardSkeleton count={4} />
             ) : (
               <div className="space-y-4">
                 {filteredInterviews.length === 0 ? (
@@ -521,7 +549,7 @@ export default function InterviewsPage() {
                                   setSelectedInterview(interview);
                                   setView('feedback');
                                 }}
-                                className="inline-flex items-center gap-1 text-green-600 hover:text-green-700 text-sm font-medium"
+                                className="inline-flex items-center gap-1 text-link hover:text-link-hover text-sm font-medium"
                               >
                                 <ClockIcon className="w-4 h-4" />
                                 Add Feedback

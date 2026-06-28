@@ -11,6 +11,14 @@ import {
   DocumentCheckIcon
 } from '@heroicons/react/24/outline';
 
+/** Strip dangerous HTML: script tags, event handlers, and javascript: URLs */
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '')
+    .replace(/javascript\s*:/gi, '');
+}
+
 interface TemplateEditorProps {
   template?: JobAdTemplate;
   onSave?: (template: JobAdTemplate) => void;
@@ -166,6 +174,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowPlaceholders(!showPlaceholders)}
+              aria-label="Show available placeholders"
               className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-full text-muted-foreground hover:bg-accent transition-colors"
             >
               <CodeBracketIcon className="w-3.5 h-3.5 mr-1" />
@@ -173,6 +182,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
             </button>
             <button
               onClick={() => setShowPreview(!showPreview)}
+              aria-label={showPreview ? 'Hide preview' : 'Show preview'}
               className={`inline-flex items-center px-3 py-1.5 text-xs rounded-full transition-colors ${
                 showPreview
                   ? 'border-2 border-cta text-cta'
@@ -191,8 +201,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         <div className={`${showPreview ? 'w-1/2' : 'w-full'} overflow-y-auto`}>
           <div className="p-4 md:p-5">
             {error && (
-              <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-card">
-                <div className="text-red-800 text-sm">{error}</div>
+              <div className="mb-5 p-4 bg-destructive/10 border border-destructive/30 rounded-card">
+                <div className="text-destructive text-sm">{error}</div>
               </div>
             )}
 
@@ -390,28 +400,28 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   {preview.intro && (
                     <div
                       className="prose prose-sm max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: preview.intro }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview.intro) }}
                     />
                   )}
 
                   {preview.responsibilities && (
                     <div
                       className="prose prose-sm max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: preview.responsibilities }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview.responsibilities) }}
                     />
                   )}
 
                   {preview.requirements && (
                     <div
                       className="prose prose-sm max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: preview.requirements }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview.requirements) }}
                     />
                   )}
 
                   {preview.benefits && (
                     <div
                       className="prose prose-sm max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: preview.benefits }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview.benefits) }}
                     />
                   )}
 
@@ -431,12 +441,18 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       {/* Placeholders Panel */}
       {showPlaceholders && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-card max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-border shadow-xl">
+          <div
+            className="bg-card rounded-card max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-border shadow-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="placeholders-dialog-title"
+          >
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Available Placeholders</h3>
+                <h3 id="placeholders-dialog-title" className="text-sm font-semibold text-foreground">Available Placeholders</h3>
                 <button
                   onClick={() => setShowPlaceholders(false)}
+                  aria-label="Close placeholders panel"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <XMarkIcon className="w-5 h-5" />

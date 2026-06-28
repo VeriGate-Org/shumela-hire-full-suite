@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import { apiFetch } from '@/lib/api-fetch';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ErrorState from '@/components/ErrorState';
+import { TableSkeleton } from '@/components/LoadingComponents';
 import { formatEnumValue } from '@/utils/enumLabels';
 
 interface Application {
@@ -159,7 +161,7 @@ export default function ApplicationManagementConsole() {
       }
     } catch (err) {
       console.error('Error searching applications:', err);
-      setError('Failed to load applications');
+      setError('Failed to load applications. Please check your connection and try again.');
       setApplications([]);
     } finally {
       setLoading(false);
@@ -387,14 +389,14 @@ export default function ApplicationManagementConsole() {
       HIRED: 'bg-emerald-100 text-emerald-800',
       REJECTED: 'bg-red-100 text-red-800'
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || 'bg-muted/50 text-muted-foreground';
   };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <span
         key={i}
-        className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+        className={`text-sm ${i < rating ? 'text-yellow-400' : 'text-muted-foreground/40'}`}
       >
         &#9733;
       </span>
@@ -404,19 +406,21 @@ export default function ApplicationManagementConsole() {
   return (
     <div className="space-y-6">
       {/* Header with Statistics */}
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="enterprise-card p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Application Management Console</h2>
+          <h2 className="text-2xl font-bold text-foreground">Application Management Console</h2>
           <div className="flex space-x-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="flex items-center px-4 py-2 border border-border rounded-full text-sm font-medium text-foreground hover:bg-accent"
+              aria-label={showFilters ? 'Hide filters' : 'Show filters'}
             >
               Filters
             </button>
             <button
               onClick={exportApplications}
-              className="flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="flex items-center px-4 py-2 border border-border rounded-full text-sm font-medium text-foreground hover:bg-accent"
+              aria-label="Export applications as CSV"
             >
               Export
             </button>
@@ -464,12 +468,13 @@ export default function ApplicationManagementConsole() {
               value={filters.searchTerm}
               onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+              aria-label="Search applications by candidate name, email, or job title"
+              className="w-full pl-4 pr-4 py-2 border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold-500/60"
+            className="btn-primary px-6 py-2 rounded-full"
           >
             Search
           </button>
@@ -478,16 +483,17 @@ export default function ApplicationManagementConsole() {
 
       {/* Advanced Filters */}
       {showFilters && (
-        <div className="bg-white rounded-sm shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Advanced Filters</h3>
+        <div className="enterprise-card p-6">
+          <h3 className="text-lg font-medium text-foreground mb-4">Advanced Filters</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <select
                 multiple
                 value={filters.statuses}
                 onChange={(e) => handleFilterChange('statuses', Array.from(e.target.selectedOptions, option => option.value))}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                aria-label="Filter by status"
+                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {statusOptions.map(status => (
                   <option key={status} value={status}>{formatEnumValue(status)}</option>
@@ -496,12 +502,13 @@ export default function ApplicationManagementConsole() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Department</label>
               <select
                 multiple
                 value={filters.departments}
                 onChange={(e) => handleFilterChange('departments', Array.from(e.target.selectedOptions, option => option.value))}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                aria-label="Filter by department"
+                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {departmentOptions.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -510,7 +517,7 @@ export default function ApplicationManagementConsole() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Rating Range</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Rating Range</label>
               <div className="flex space-x-2">
                 <input
                   type="number"
@@ -519,7 +526,8 @@ export default function ApplicationManagementConsole() {
                   placeholder="Min"
                   value={filters.minRating || ''}
                   onChange={(e) => handleFilterChange('minRating', parseInt(e.target.value) || 0)}
-                  className="flex-1 border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                  aria-label="Minimum rating"
+                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
                 <input
                   type="number"
@@ -528,38 +536,42 @@ export default function ApplicationManagementConsole() {
                   placeholder="Max"
                   value={filters.maxRating || ''}
                   onChange={(e) => handleFilterChange('maxRating', parseInt(e.target.value) || 5)}
-                  className="flex-1 border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                  aria-label="Maximum rating"
+                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date From</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Date From</label>
               <input
                 type="datetime-local"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                aria-label="Filter from date"
+                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date To</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Date To</label>
               <input
                 type="datetime-local"
                 value={filters.dateTo}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                aria-label="Filter to date"
+                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Sort By</label>
               <div className="flex space-x-2">
                 <select
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                  aria-label="Sort by field"
+                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 >
                   <option value="submittedAt">Submit Date</option>
                   <option value="lastUpdated">Last Updated</option>
@@ -569,7 +581,8 @@ export default function ApplicationManagementConsole() {
                 <select
                   value={filters.sortDirection}
                   onChange={(e) => handleFilterChange('sortDirection', e.target.value)}
-                  className="border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60"
+                  aria-label="Sort direction"
+                  className="border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 >
                   <option value="desc">Desc</option>
                   <option value="asc">Asc</option>
@@ -581,7 +594,7 @@ export default function ApplicationManagementConsole() {
           <div className="mt-4 flex space-x-3">
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600"
+              className="btn-primary px-4 py-2 rounded-full"
             >
               Apply Filters
             </button>
@@ -603,7 +616,7 @@ export default function ApplicationManagementConsole() {
                 });
                 searchApplications();
               }}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50"
+              className="px-4 py-2 border border-border text-foreground rounded-full hover:bg-accent"
             >
               Clear Filters
             </button>
@@ -613,10 +626,10 @@ export default function ApplicationManagementConsole() {
 
       {/* Bulk Actions */}
       {selectedApplications.length > 0 && (
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="enterprise-card p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-4">
+              <span className="text-sm text-foreground mr-4">
                 {selectedApplications.length} application(s) selected
               </span>
               <button
@@ -628,19 +641,21 @@ export default function ApplicationManagementConsole() {
             </div>
             <button
               onClick={() => setSelectedApplications([])}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
+              aria-label="Clear all selected applications"
             >
               Clear Selection
             </button>
           </div>
 
           {showBulkActions && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-sm">
+            <div className="mt-4 p-4 bg-muted/50 rounded-sm">
               <div className="flex items-center space-x-4">
                 <select
                   value={bulkOperation.type}
                   onChange={(e) => setBulkOperation(prev => ({ ...prev, type: e.target.value as any }))}
-                  className="border border-gray-300 rounded-sm px-3 py-2"
+                  aria-label="Bulk operation type"
+                  className="border border-border rounded-sm px-3 py-2"
                 >
                   <option value="status">Update Status</option>
                   <option value="rating">Set Rating</option>
@@ -651,7 +666,8 @@ export default function ApplicationManagementConsole() {
                   <select
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
-                    className="border border-gray-300 rounded-sm px-3 py-2"
+                    aria-label="Select status for bulk update"
+                    className="border border-border rounded-sm px-3 py-2"
                   >
                     <option value="">Select Status</option>
                     {statusOptions.map(status => (
@@ -664,7 +680,8 @@ export default function ApplicationManagementConsole() {
                   <select
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
-                    className="border border-gray-300 rounded-sm px-3 py-2"
+                    aria-label="Select rating for bulk update"
+                    className="border border-border rounded-sm px-3 py-2"
                   >
                     <option value="">Select Rating</option>
                     {[1, 2, 3, 4, 5].map(rating => (
@@ -677,7 +694,8 @@ export default function ApplicationManagementConsole() {
                   <select
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
-                    className="border border-gray-300 rounded-sm px-3 py-2"
+                    aria-label="Select stage for bulk update"
+                    className="border border-border rounded-sm px-3 py-2"
                   >
                     <option value="">Select Stage</option>
                     {stageOptions.map(stage => (
@@ -689,7 +707,7 @@ export default function ApplicationManagementConsole() {
                 <button
                   onClick={executeBulkOperation}
                   disabled={!bulkOperation.value}
-                  className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:bg-muted disabled:text-muted-foreground"
                 >
                   Execute
                 </button>
@@ -701,126 +719,131 @@ export default function ApplicationManagementConsole() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-sm p-4 text-red-700 text-sm">
-          {error}
-          <button onClick={searchApplications} className="ml-2 underline hover:no-underline">
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Unable to load applications"
+          message={error}
+          onRetry={searchApplications}
+          retryLabel="Retry Search"
+        />
       )}
 
       {/* Applications Table */}
-      <div className="bg-white rounded-sm shadow overflow-hidden">
+      <div className="enterprise-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   <input
                     type="checkbox"
                     checked={selectedApplications.length === applications.length && applications.length > 0}
                     onChange={handleSelectAll}
-                    className="rounded border-gray-300 text-gold-600 shadow-sm focus:border-violet-300 focus:ring focus:ring-violet-200 focus:ring-opacity-50"
+                    aria-label="Select all applications"
+                    className="rounded border-border text-gold-600 shadow-sm focus:border-ring focus:ring focus:ring-ring/40"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Candidate
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Job
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Stage
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Rating
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Submitted
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                    Loading applications...
+                  <td colSpan={8}>
+                    <TableSkeleton rows={5} columns={8} />
                   </td>
                 </tr>
-              ) : applications.length === 0 ? (
+              ) : applications.length === 0 && !error ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
                     No applications found matching your criteria.
                   </td>
                 </tr>
               ) : (
                 applications.map((application) => (
-                  <tr key={application.id} className="hover:bg-gray-50">
+                  <tr key={application.id} className="hover:bg-accent">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
                         checked={selectedApplications.includes(application.id)}
                         onChange={() => handleSelectApplication(application.id)}
-                        className="rounded border-gray-300 text-gold-600 shadow-sm focus:border-violet-300 focus:ring focus:ring-violet-200 focus:ring-opacity-50"
+                        aria-label={`Select application from ${application.candidateName || 'unknown candidate'}`}
+                        className="rounded border-border text-gold-600 shadow-sm focus:border-ring focus:ring focus:ring-ring/40"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-foreground">
                             {application.candidateName || 'Unknown Candidate'}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             {application.email}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{application.jobTitle}</div>
-                      <div className="text-sm text-gray-500">{application.department}</div>
+                      <div className="text-sm text-foreground">{application.jobTitle}</div>
+                      <div className="text-sm text-muted-foreground">{application.department}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(application.status)}`}>
                         {formatEnumValue(application.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                       {application.pipelineStage}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {renderStars(application.rating)}
-                        <span className="ml-2 text-sm text-gray-600">
+                        <span className="ml-2 text-sm text-muted-foreground">
                           ({application.rating})
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {formatDate(application.submittedAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => handleViewApplication(application.id)}
-                        className="text-gold-600 hover:text-violet-900 mr-3"
+                        className="text-primary hover:text-primary/80 mr-3"
+                        aria-label={`View application from ${application.candidateName || 'candidate'}`}
                       >
                         View
                       </button>
                       <button
                         onClick={() => handleReviewApplication(application.id)}
                         className="text-green-600 hover:text-green-900 mr-3"
+                        aria-label={`Review application from ${application.candidateName || 'candidate'}`}
                       >
                         Review
                       </button>
                       <button
                         onClick={() => handleRejectApplication(application.id)}
                         className="text-red-600 hover:text-red-900"
+                        aria-label={`Reject application from ${application.candidateName || 'candidate'}`}
                       >
                         Reject
                       </button>
@@ -834,26 +857,28 @@ export default function ApplicationManagementConsole() {
 
         {/* Pagination */}
         {applications.length > 0 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="px-4 py-3 flex items-center justify-between border-t border-border sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => handleFilterChange('page', Math.max(0, filters.page - 1))}
                 disabled={filters.page === 0}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
+                className="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-full text-foreground hover:bg-accent disabled:bg-muted disabled:text-muted-foreground"
+                aria-label="Previous page"
               >
                 Previous
               </button>
               <button
                 onClick={() => handleFilterChange('page', filters.page + 1)}
                 disabled={(filters.page + 1) * filters.size >= totalElements}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100"
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-full text-foreground hover:bg-accent disabled:bg-muted disabled:text-muted-foreground"
+                aria-label="Next page"
               >
                 Next
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-muted-foreground">
                   Showing{' '}
                   <span className="font-medium">{filters.page * filters.size + 1}</span>
                   {' '}to{' '}
@@ -866,18 +891,20 @@ export default function ApplicationManagementConsole() {
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px">
+                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px" aria-label="Pagination">
                   <button
                     onClick={() => handleFilterChange('page', Math.max(0, filters.page - 1))}
                     disabled={filters.page === 0}
-                    className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
+                    className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-border text-sm font-medium text-muted-foreground hover:bg-accent disabled:bg-muted disabled:text-muted-foreground"
+                    aria-label="Previous page"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => handleFilterChange('page', filters.page + 1)}
                     disabled={(filters.page + 1) * filters.size >= totalElements}
-                    className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100"
+                    className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-border text-sm font-medium text-muted-foreground hover:bg-accent disabled:bg-muted disabled:text-muted-foreground"
+                    aria-label="Next page"
                   >
                     Next
                   </button>
