@@ -11,6 +11,7 @@ import {
 } from '@/components/analytics';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { FunnelIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 // Filter configuration for analytics
 const analyticsFilters: FilterConfig[] = [
@@ -75,6 +76,13 @@ const analyticsFilters: FilterConfig[] = [
   },
 ];
 
+const timeRangeOptions = [
+  { key: 'week' as const, label: '7 Days' },
+  { key: 'month' as const, label: '30 Days' },
+  { key: 'quarter' as const, label: '3 Months' },
+  { key: 'year' as const, label: '12 Months' },
+];
+
 interface Insight {
   type: 'positive' | 'warning';
   text: string;
@@ -82,6 +90,8 @@ interface Insight {
 
 export default function AnalyticsPage() {
   const [filterValues, setFilterValues] = useState<FilterValue[]>([]);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [showFilters, setShowFilters] = useState(false);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
   const { setCurrentRole } = useTheme();
@@ -109,7 +119,6 @@ export default function AnalyticsPage() {
       const kpis = json.kpis ?? {};
       const derived: Insight[] = [];
 
-      // Derive insights from real KPI values
       const interviewConversion = kpis['interview_conversion_rate']?.value;
       if (interviewConversion !== undefined) {
         const rate = Number(interviewConversion);
@@ -172,38 +181,108 @@ export default function AnalyticsPage() {
     loadInsights();
   }, [loadInsights]);
 
-  const actions = (
-    <div className="flex items-center gap-2 text-sm text-gray-500">
-      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-      Live Data
-    </div>
-  );
+  const handleExportCSV = async () => {
+    try {
+      const res = await apiFetch('/api/analytics/kpis');
+      if (!res.ok) return;
+      const json = await res.json();
+      const kpis = json.kpis ?? {};
+      const rows = [['Metric', 'Value', 'Trend', 'Variance']];
+      for (const [key, kpi] of Object.entries(kpis)) {
+        const k = kpi as { value?: number; trend?: string; variance?: number };
+        rows.push([key, String(k.value ?? ''), k.trend ?? '', String(k.variance ?? '')]);
+      }
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* silent */ }
+  };
 
   const positiveInsights = insights.filter(i => i.type === 'positive');
   const warningInsights = insights.filter(i => i.type === 'warning');
 
+  const activeFilterCount = filterValues.length;
+
+  const actions = (
+    <button
+      onClick={handleExportCSV}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+    >
+      <ArrowDownTrayIcon className="w-4 h-4" />
+      Export CSV
+    </button>
+  );
+
   return (
     <PageWrapper
-      title="Advanced Analytics"
-      subtitle="Comprehensive recruitment metrics, insights, and real-time performance monitoring"
+      title="Analytics"
+      subtitle="Recruitment performance metrics and insights"
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Interactive Filters */}
-        <InteractiveFilters
-          filters={analyticsFilters}
-          values={filterValues}
-          onChange={handleFilterChange}
-          onReset={handleFilterReset}
-        />
+        {/* Compact time range + filter bar */}
+        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex gap-2">
+              {timeRangeOptions.map((range) => (
+                <button
+                  key={range.key}
+                  onClick={() => setSelectedTimeRange(range.key)}
+                  className={`px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
+                    selectedTimeRange === range.key
+                      ? 'bg-gold-50 text-gold-800 border-gold-300'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-sm text-sm font-medium border transition-colors ${
+                  showFilters
+                    ? 'bg-gold-50 text-gold-800 border-gold-300'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <FunnelIcon className="w-4 h-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="bg-gold-500 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={handleFilterReset}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
-        {/* Real-Time Metrics Widget */}
-        <RealTimeMetrics updateInterval={3000} />
+        {/* Collapsible filters */}
+        {showFilters && (
+          <InteractiveFilters
+            filters={analyticsFilters}
+            values={filterValues}
+            onChange={handleFilterChange}
+            onReset={handleFilterReset}
+          />
+        )}
 
-        {/* Advanced Analytics Dashboard */}
-        <AdvancedAnalyticsDashboard filters={filterValues} />
-
-        {/* Key Insights Section — derived from real KPI data */}
+        {/* Key Insights — promoted to top */}
         {!insightsLoading && insights.length > 0 && (
           <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Insights & Recommendations</h3>
@@ -243,6 +322,12 @@ export default function AnalyticsPage() {
             <p className="text-sm text-gray-500">Not enough data to generate insights</p>
           </div>
         )}
+
+        {/* Real-Time Metrics — reduced polling interval */}
+        <RealTimeMetrics updateInterval={10000} />
+
+        {/* Main Dashboard — no header, no tabs, flat layout */}
+        <AdvancedAnalyticsDashboard filters={filterValues} timeRange={selectedTimeRange} />
       </div>
     </PageWrapper>
   );
