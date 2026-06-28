@@ -72,10 +72,12 @@ const ALL_STATUSES = [
 ];
 
 export default function JobPostingsPage() {
-  const [view, setView] = useState<'list' | 'create' | 'edit' | 'workflow'>('list');
+  const [view, setView] = useState<'list' | 'workflow'>('list');
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [selectedJobPosting, setSelectedJobPosting] = useState<JobPosting | null>(null);
   const [cloneInitialData, setCloneInitialData] = useState<Record<string, unknown> | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingJobPostingId, setEditingJobPostingId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -115,7 +117,7 @@ export default function JobPostingsPage() {
   // Handle ?action=create from dashboard "Create Position" button
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
-      setView('create');
+      setShowFormModal(true);
     }
   }, [searchParams]);
 
@@ -184,7 +186,8 @@ export default function JobPostingsPage() {
   const handleJobPostingSaved = (jobPosting: { id: string | number; title: string; status: string }) => {
     console.log('Job posting saved:', jobPosting);
     setCloneInitialData(null);
-    setView('list');
+    setShowFormModal(false);
+    setEditingJobPostingId(null);
     loadJobPostings(0);
   };
 
@@ -244,8 +247,8 @@ export default function JobPostingsPage() {
           daysFromCreation: _dfc, daysFromPublication: _dfp, applicationsCount: _ac, viewsCount: _vc,
           ...formFields } = data;
         setCloneInitialData(formFields);
-        setView('create');
-        window.scrollTo(0, 0);
+        setEditingJobPostingId(null);
+        setShowFormModal(true);
       } else {
         toast('Failed to load job posting for cloning', 'error');
       }
@@ -385,8 +388,6 @@ export default function JobPostingsPage() {
 
   const getPageTitle = () => {
     switch (view) {
-      case 'create': return 'Create Job Posting';
-      case 'edit': return 'Edit Job Posting';
       case 'workflow': return 'Job Posting Workflow';
       default: return 'Job Postings';
     }
@@ -394,8 +395,6 @@ export default function JobPostingsPage() {
 
   const getPageSubtitle = () => {
     switch (view) {
-      case 'create': return 'Fill in the details to create a new job posting.';
-      case 'edit': return 'Update the job posting details.';
       case 'workflow': return 'Manage the approval and publishing workflow.';
       default: return 'Create, review, and publish job postings with full workflow controls.';
     }
@@ -411,7 +410,7 @@ export default function JobPostingsPage() {
         Export CSV
       </button>
       <button
-        onClick={() => { setCloneInitialData(null); setView('create'); }}
+        onClick={() => { setCloneInitialData(null); setEditingJobPostingId(null); setShowFormModal(true); }}
         className="px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
       >
         Create Job Posting
@@ -550,7 +549,7 @@ export default function JobPostingsPage() {
                     }
                     action={!searchTerm && statusFilter === 'ALL' ? {
                       label: 'Create Job Posting',
-                      onClick: () => setView('create'),
+                      onClick: () => { setCloneInitialData(null); setEditingJobPostingId(null); setShowFormModal(true); },
                     } : undefined}
                   />
                 ) : (
@@ -631,9 +630,9 @@ export default function JobPostingsPage() {
                               {jobPosting.canBeEdited && (
                                 <button
                                   onClick={() => {
-                                    setSelectedJobPosting(jobPosting);
-                                    setView('edit');
-                                    window.scrollTo(0, 0);
+                                    setCloneInitialData(null);
+                                    setEditingJobPostingId(jobPosting.id);
+                                    setShowFormModal(true);
                                   }}
                                   className="text-gold-600 hover:text-gold-800 text-sm font-medium"
                                 >
@@ -722,46 +721,6 @@ export default function JobPostingsPage() {
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {view === 'create' && (
-          <div>
-            <div className="mb-4">
-              <button
-                onClick={() => { setCloneInitialData(null); setView('list'); }}
-                className="text-violet-500 hover:text-gold-700 font-medium"
-              >
-                &larr; Back to Job Postings
-              </button>
-            </div>
-
-            <JobPostingForm
-              initialData={cloneInitialData ?? undefined}
-              currentUserId={currentUserId}
-              onSuccess={handleJobPostingSaved}
-              onCancel={() => { setCloneInitialData(null); setView('list'); }}
-            />
-          </div>
-        )}
-
-        {view === 'edit' && selectedJobPosting && (
-          <div>
-            <div className="mb-4">
-              <button
-                onClick={() => setView('list')}
-                className="text-violet-500 hover:text-gold-700 font-medium"
-              >
-                &larr; Back to Job Postings
-              </button>
-            </div>
-
-            <JobPostingForm
-              jobPostingId={selectedJobPosting.id}
-              currentUserId={currentUserId}
-              onSuccess={handleJobPostingSaved}
-              onCancel={() => setView('list')}
-            />
           </div>
         )}
 
@@ -856,6 +815,17 @@ export default function JobPostingsPage() {
         onConfirm={handleBulkDelete}
         onCancel={() => setShowBulkDeleteConfirm(false)}
       />
+
+      {showFormModal && (
+        <JobPostingForm
+          jobPostingId={editingJobPostingId ?? undefined}
+          initialData={cloneInitialData ?? undefined}
+          currentUserId={currentUserId}
+          onSuccess={handleJobPostingSaved}
+          onCancel={() => { setShowFormModal(false); setEditingJobPostingId(null); setCloneInitialData(null); }}
+          variant="modal"
+        />
+      )}
     </PageWrapper>
   );
 }

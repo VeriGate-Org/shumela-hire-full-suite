@@ -18,8 +18,6 @@ import { apiFetch } from '@/lib/api-fetch';
 import InterviewScheduler from '@/components/InterviewScheduler';
 import InterviewCalendar, { type Interview as CalendarInterview } from '@/components/InterviewCalendar';
 import InterviewFeedbackForm from '@/components/InterviewFeedbackForm';
-import AiAssistPanel from '@/components/ai/AiAssistPanel';
-import AiInterviewQuestionGenerator from '@/components/ai/AiInterviewQuestionGenerator';
 import ErrorState from '@/components/ErrorState';
 import { useToast } from '@/components/Toast';
 import { CardSkeleton } from '@/components/LoadingComponents';
@@ -73,13 +71,15 @@ interface Interview extends CalendarInterview {
   feedbackCount?: number;
 }
 
-type InterviewView = 'calendar' | 'schedule' | 'feedback' | 'list';
+type InterviewView = 'calendar' | 'feedback' | 'list';
 
 export default function InterviewsPage() {
   const { toast } = useToast();
   const [view, setView] = useState<InterviewView>('calendar');
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [showSchedulerModal, setShowSchedulerModal] = useState(false);
+  const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -115,8 +115,9 @@ export default function InterviewsPage() {
 
   const handleInterviewScheduled = useCallback((interview: { id: number; title: string }) => {
     toast('Interview scheduled successfully', 'success');
+    setShowSchedulerModal(false);
+    setEditingInterview(null);
     setSelectedInterview(null);
-    setView('calendar');
     void loadInterviews();
   }, [loadInterviews, toast]);
 
@@ -175,7 +176,6 @@ export default function InterviewsPage() {
   const getPageTitle = () => {
     switch (view) {
       case 'calendar': return 'Interview Calendar';
-      case 'schedule': return selectedInterview ? 'Edit Interview' : 'Schedule Interview';
       case 'feedback': return 'Interview Feedback';
       default: return 'Interview Management';
     }
@@ -184,9 +184,6 @@ export default function InterviewsPage() {
   const getPageSubtitle = () => {
     switch (view) {
       case 'calendar': return 'Coordinate interviews, track status, and manage actions from one calendar.';
-      case 'schedule': return selectedInterview
-        ? 'Update logistics, timing, and interview structure for the selected interview.'
-        : 'Schedule a new interview with validated timing and interviewer availability.';
       case 'feedback': return 'Submit structured, auditable feedback for completed interviews.';
       default: return 'Search, filter, and manage the full interview pipeline.';
     }
@@ -203,7 +200,6 @@ export default function InterviewsPage() {
 
   const tabs: Array<{ id: InterviewView; label: string; icon: typeof CalendarDaysIcon }> = [
     { id: 'calendar', label: 'Calendar', icon: CalendarDaysIcon },
-    { id: 'schedule', label: selectedInterview ? 'Edit' : 'Schedule', icon: PlusIcon },
     { id: 'list', label: 'List', icon: ListBulletIcon },
   ];
 
@@ -219,12 +215,7 @@ export default function InterviewsPage() {
                 aria-selected={view === id}
                 aria-controls={`interviews-panel-${id}`}
                 id={`interviews-tab-${id}`}
-                onClick={() => {
-                  if (id === 'schedule' && !selectedInterview) {
-                    setSelectedInterview(null);
-                  }
-                  setView(id);
-                }}
+                onClick={() => setView(id)}
                 className={`inline-flex items-center gap-2 px-3 py-2 border rounded-control text-sm font-medium transition-colors ${
                   view === id
                     ? 'border-cta bg-cta/10 text-primary'
@@ -288,9 +279,8 @@ export default function InterviewsPage() {
               <h2 className="text-xl font-semibold text-foreground">Interview Calendar</h2>
               <button
                 onClick={() => {
-                  setSelectedInterview(null);
-                  setView('schedule');
-                  window.scrollTo(0, 0);
+                  setEditingInterview(null);
+                  setShowSchedulerModal(true);
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
               >
@@ -314,41 +304,6 @@ export default function InterviewsPage() {
               onInterviewUpdate={handleInterviewUpdated}
             />
             )}
-          </section>
-        )}
-
-        {view === 'schedule' && (
-          <section
-            role="tabpanel"
-            id="interviews-panel-schedule"
-            aria-labelledby="interviews-tab-schedule"
-            className="space-y-4"
-          >
-            <button
-              onClick={() => {
-                setView('calendar');
-                setSelectedInterview(null);
-              }}
-              className="inline-flex items-center gap-2 text-link hover:text-link-hover font-medium"
-            >
-              <ArrowLeftIcon className="w-4 h-4" />
-              Back to Calendar
-            </button>
-
-            <InterviewScheduler
-              interviewId={selectedInterview?.id}
-              onSuccess={handleInterviewScheduled}
-              onCancel={() => {
-                setView('calendar');
-                setSelectedInterview(null);
-              }}
-            />
-
-            <AiAssistPanel title="AI Interview Questions" feature="AI_INTERVIEW_QUESTIONS" description="Generate tailored interview questions based on the role and requirements">
-              <AiInterviewQuestionGenerator
-                jobTitle={selectedInterview?.application?.jobPosting?.title}
-              />
-            </AiAssistPanel>
           </section>
         )}
 
@@ -392,9 +347,8 @@ export default function InterviewsPage() {
               <h2 className="text-xl font-semibold text-foreground">All Interviews</h2>
               <button
                 onClick={() => {
-                  setSelectedInterview(null);
-                  setView('schedule');
-                  window.scrollTo(0, 0);
+                  setEditingInterview(null);
+                  setShowSchedulerModal(true);
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
               >
@@ -469,8 +423,8 @@ export default function InterviewsPage() {
                     </p>
                     <button
                       onClick={() => {
-                        setSelectedInterview(null);
-                        setView('schedule');
+                        setEditingInterview(null);
+                        setShowSchedulerModal(true);
                       }}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
                     >
@@ -534,8 +488,8 @@ export default function InterviewsPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => {
-                                setSelectedInterview(interview);
-                                setView('schedule');
+                                setEditingInterview(interview);
+                                setShowSchedulerModal(true);
                               }}
                               className="inline-flex items-center gap-1 text-link hover:text-link-hover text-sm font-medium"
                             >
@@ -566,6 +520,18 @@ export default function InterviewsPage() {
           </section>
         )}
       </div>
+
+      {showSchedulerModal && (
+        <InterviewScheduler
+          interviewId={editingInterview?.id}
+          onSuccess={handleInterviewScheduled}
+          onCancel={() => {
+            setShowSchedulerModal(false);
+            setEditingInterview(null);
+          }}
+          variant="modal"
+        />
+      )}
     </PageWrapper>
   );
 }

@@ -1618,23 +1618,19 @@ export default function PipelinePage() {
 
       {/* Interview Scheduler Modal */}
       {schedulerApplicationId !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSchedulerApplicationId(null)} />
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-card rounded-[2px] shadow-xl mx-4">
-            <InterviewScheduler
-              applicationId={schedulerApplicationId}
-              onSuccess={() => {
-                setSchedulerApplicationId(null);
-                toast('Interview scheduled', 'success');
-                // Refresh the interview panel if detail modal is open
-                if (selectedApplication) {
-                  setSelectedApplication({ ...selectedApplication });
-                }
-              }}
-              onCancel={() => setSchedulerApplicationId(null)}
-            />
-          </div>
-        </div>
+        <InterviewScheduler
+          applicationId={schedulerApplicationId}
+          onSuccess={() => {
+            setSchedulerApplicationId(null);
+            toast('Interview scheduled', 'success');
+            // Refresh the interview panel if detail modal is open
+            if (selectedApplication) {
+              setSelectedApplication({ ...selectedApplication });
+            }
+          }}
+          onCancel={() => setSchedulerApplicationId(null)}
+          variant="modal"
+        />
       )}
     </PageWrapper>
   );

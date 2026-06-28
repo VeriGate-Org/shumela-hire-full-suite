@@ -8,7 +8,9 @@ import { useEmploymentTypes, useExperienceLevels, useSalaryCurrencies } from '@/
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiJobDescriptionWriter from '@/components/ai/AiJobDescriptionWriter';
 import { JobDescriptionResult } from '@/types/ai';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { useToast } from '@/components/Toast';
+import { useWizardDraft } from '@/hooks/useWizardDraft';
 import WizardShell, { WizardStep } from '@/components/WizardShell';
 
 interface JobPostingFormProps {
@@ -17,6 +19,7 @@ interface JobPostingFormProps {
   currentUserId?: string | number | null;
   onSuccess?: (jobPosting: { id: string | number; title: string; status: string }) => void;
   onCancel?: () => void;
+  variant?: 'page' | 'modal';
 }
 
 interface CheckType {
@@ -75,8 +78,34 @@ const errorInputClass =
 const labelClass =
   'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
 
-export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
+const DEFAULT_JOB_POSTING_DATA: JobPostingData = {
+  title: '',
+  department: '',
+  location: '',
+  employmentType: 'FULL_TIME',
+  experienceLevel: 'MID_LEVEL',
+  description: '',
+  requirements: '',
+  responsibilities: '',
+  qualifications: '',
+  benefits: '',
+  salaryCurrency: 'ZAR',
+  remoteWorkAllowed: false,
+  travelRequired: false,
+  positionsAvailable: 1,
+  internalNotes: '',
+  seoTitle: '',
+  seoDescription: '',
+  seoKeywords: '',
+  featured: false,
+  urgent: false,
+  requiredCheckTypes: [],
+  enforceCheckCompletion: false,
+};
+
+export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel, variant = 'modal' }: JobPostingFormProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { departments: DEPARTMENTS } = useDepartments();
   const { employmentTypes: EMPLOYMENT_TYPES } = useEmploymentTypes();
   const { experienceLevels: EXPERIENCE_LEVELS } = useExperienceLevels();
@@ -113,11 +142,68 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
   const [availableCheckTypes, setAvailableCheckTypes] = useState<CheckType[]>([]);
   const [checkTypesLoading, setCheckTypesLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [draftId, setDraftId] = useState<string | number | undefined>(undefined);
 
   const actorId = useMemo(() => {
     if (currentUserId) return String(currentUserId);
     return user?.id || null;
   }, [currentUserId, user?.id]);
+
+  const draft = useWizardDraft(formData, {
+    wizardType: 'job-posting',
+    entityId: jobPostingId,
+    initialData: DEFAULT_JOB_POSTING_DATA,
+    currentStep,
+    enabled: !jobPostingId,
+    onDraftRestored: (data, step) => {
+      setFormData(data);
+      setCurrentStep(step);
+    },
+    backendSave: async (data) => {
+      if (!actorId) throw new Error('Unable to determine the signed-in user');
+      const submitData = {
+        ...data,
+        status: 'DRAFT',
+        applicationDeadline: data.applicationDeadline
+          ? new Date(data.applicationDeadline).toISOString() : null,
+        requiredCheckTypes: data.requiredCheckTypes.length > 0
+          ? JSON.stringify(data.requiredCheckTypes) : null,
+      };
+      const isUpdate = !!draftId;
+      const actorParam = isUpdate ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
+      const url = isUpdate
+        ? `/api/job-postings/${draftId}?${actorParam}`
+        : `/api/job-postings?${actorParam}`;
+      const method = isUpdate ? 'PUT' : 'POST';
+      const response = await apiFetch(url, {
+        method,
+        body: JSON.stringify(submitData),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (!isUpdate && result.id) setDraftId(result.id);
+        toast('Draft saved successfully', 'success');
+      } else {
+        const errorData = await response.json().catch(() => null);
+        toast(`Error: ${errorData?.message || 'Failed to save draft'}`, 'error');
+        throw new Error(errorData?.message || 'Failed to save draft');
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (draft.draftRestored) {
+      toast('Draft restored', 'info', {
+        label: 'Discard',
+        onClick: () => {
+          setFormData({ ...DEFAULT_JOB_POSTING_DATA });
+          setCurrentStep(0);
+          draft.discardDraft();
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.draftRestored]);
 
   const loadJobPosting = useCallback(async () => {
     if (!jobPostingId) return;
@@ -259,6 +345,7 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
 
       if (response.ok) {
         const result = await response.json();
+        draft.clearDraft();
         if (onSuccess) onSuccess(result);
       } else {
         const errorData = await response.json();
@@ -823,6 +910,16 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             Cancel
           </button>
         )}
+        {!jobPostingId && (
+          <button
+            onClick={() => { void draft.saveDraftToBackend(); }}
+            disabled={loading || draft.isSavingToBackend}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <BookmarkIcon className="w-3.5 h-3.5" />
+            {draft.isSavingToBackend ? 'Saving...' : 'Save Draft'}
+          </button>
+        )}
         <button
           onClick={handleSubmit}
           disabled={loading}
@@ -853,21 +950,23 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <WizardShell
-        steps={WIZARD_STEPS}
-        currentStep={currentStep}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSkip={handleSkip}
-        canProceed={canProceedFromStep(currentStep)}
-        title={jobPostingId ? 'Edit Job Posting' : 'Create Job Posting'}
-        subtitle={jobPostingId ? 'Update job posting details and requirements' : 'Create a new job posting with detailed requirements'}
-        footer={reviewFooter}
-      >
-        {renderStepContent()}
-      </WizardShell>
-    </div>
+    <WizardShell
+      steps={WIZARD_STEPS}
+      currentStep={currentStep}
+      onNext={handleNext}
+      onBack={handleBack}
+      onSkip={handleSkip}
+      canProceed={canProceedFromStep(currentStep)}
+      title={jobPostingId ? 'Edit Job Posting' : 'Create Job Posting'}
+      subtitle={jobPostingId ? 'Update job posting details and requirements' : 'Create a new job posting with detailed requirements'}
+      footer={reviewFooter}
+      variant={variant}
+      maxWidth="4xl"
+      onClose={onCancel}
+      statusIndicator={draft.statusText || undefined}
+    >
+      {renderStepContent()}
+    </WizardShell>
   );
 }
 

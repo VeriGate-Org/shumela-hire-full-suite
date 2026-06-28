@@ -4,14 +4,20 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 
 type ToastType = 'success' | 'error' | 'info';
 
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  action?: ToastAction;
 }
 
 interface ToastContextType {
-  toast: (message: string, type?: ToastType) => void;
+  toast: (message: string, type?: ToastType, action?: ToastAction) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -29,9 +35,9 @@ export function useToast() {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string, type: ToastType = 'info') => {
+  const toast = useCallback((message: string, type: ToastType = 'info', action?: ToastAction) => {
     const id = nextId++;
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts(prev => [...prev, { id, message, type, action }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);
@@ -58,7 +64,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role="alert"
           >
             <div className="flex items-start justify-between gap-2">
-              <span>{t.message}</span>
+              <span>
+                {t.message}
+                {t.action && (
+                  <button
+                    onClick={() => { t.action!.onClick(); dismiss(t.id); }}
+                    className="ml-2 underline font-medium hover:opacity-80 transition-opacity"
+                  >
+                    {t.action.label}
+                  </button>
+                )}
+              </span>
               <button
                 onClick={() => dismiss(t.id)}
                 className="ml-2 opacity-60 hover:opacity-100 text-xs leading-none"

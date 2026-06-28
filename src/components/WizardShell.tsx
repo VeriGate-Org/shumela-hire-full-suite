@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { CheckIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
 export interface WizardStep {
@@ -9,6 +9,16 @@ export interface WizardStep {
   description?: string;
   skippable?: boolean;
 }
+
+const MAX_WIDTH_CLASSES = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
+} as const;
 
 interface WizardShellProps {
   steps: WizardStep[];
@@ -22,7 +32,9 @@ interface WizardShellProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   variant?: 'page' | 'modal';
+  maxWidth?: keyof typeof MAX_WIDTH_CLASSES;
   onClose?: () => void;
+  statusIndicator?: React.ReactNode;
 }
 
 export default function WizardShell({
@@ -37,11 +49,15 @@ export default function WizardShell({
   children,
   footer,
   variant = 'page',
+  maxWidth = '2xl',
   onClose,
+  statusIndicator,
 }: WizardShellProps) {
   const isFirst = currentStep === 0;
   const isLast = currentStep === steps.length - 1;
   const currentStepConfig = steps[currentStep];
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -56,6 +72,53 @@ export default function WizardShell({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  // Body scroll lock for modal
+  useEffect(() => {
+    if (variant !== 'modal') return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [variant]);
+
+  // Focus management for modal
+  useEffect(() => {
+    if (variant !== 'modal') return;
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const timer = setTimeout(() => panelRef.current?.focus(), 100);
+    return () => {
+      clearTimeout(timer);
+      previousFocusRef.current?.focus();
+    };
+  }, [variant]);
+
+  // Focus trap for modal
+  useEffect(() => {
+    if (variant !== 'modal') return;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [variant]);
 
   const stepIndicator = (
     <div className="flex items-center px-6 py-4 bg-off-white dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
@@ -150,8 +213,12 @@ export default function WizardShell({
     </div>
   );
 
+  const isModal = variant === 'modal';
+
   const shell = (
-    <div className="bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 rounded-[2px] overflow-hidden shadow-sm">
+    <div className={`bg-white dark:bg-charcoal border border-gray-200 dark:border-gray-700 overflow-hidden ${
+      isModal ? 'rounded-card shadow-xl' : 'rounded-[2px] shadow-sm'
+    }`}>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div>
@@ -163,10 +230,15 @@ export default function WizardShell({
           )}
         </div>
         <div className="flex items-center gap-3">
+          {statusIndicator && (
+            <span className="italic text-[10px] text-gray-400 dark:text-gray-500">
+              {statusIndicator}
+            </span>
+          )}
           <span className="text-xs text-gray-400 dark:text-gray-500">
             Step {currentStep + 1} of {steps.length}
           </span>
-          {variant === 'modal' && onClose && (
+          {isModal && onClose && (
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-lg leading-none"
@@ -188,10 +260,25 @@ export default function WizardShell({
     </div>
   );
 
-  if (variant === 'modal') {
+  if (isModal) {
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black/50 animate-fade-in"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+
+        {/* Dialog panel */}
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          tabIndex={-1}
+          className={`relative w-full ${MAX_WIDTH_CLASSES[maxWidth]} max-h-[90vh] overflow-y-auto animate-scale-in outline-none`}
+        >
           {shell}
         </div>
       </div>
