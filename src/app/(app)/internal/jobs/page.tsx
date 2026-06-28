@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
+import { CardSkeleton } from '@/components/LoadingComponents';
 import { apiFetch } from '@/lib/api-fetch';
 import {
   MagnifyingGlassIcon,
@@ -142,6 +144,7 @@ export default function InternalJobsBoard() {
       });
     } catch (err) {
       console.error('Error fetching internal jobs:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load internal jobs');
       setAllJobs([]);
     } finally {
       setLoading(false);
@@ -183,7 +186,7 @@ export default function InternalJobsBoard() {
     return filtered;
   }, [allJobs, filters]);
 
-  const totalJobs = jobs.length;
+  const totalJobs = allJobs.length;
 
   const handleFilterChange = (key: keyof JobFilters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -247,14 +250,14 @@ export default function InternalJobsBoard() {
     const description = stripHtmlTags(job.htmlBody).substring(0, 120) + '...';
 
     return (
-      <div className="bg-white rounded-sm shadow-md hover:shadow-lg transition-shadow border border-gray-200 p-6">
+      <div className="enterprise-card hover:shadow-md transition-shadow p-6">
         <JobBadges job={job} />
 
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{job.title}</h3>
-          <p className="text-gray-600 text-sm mb-3">{description}</p>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{job.title}</h3>
+          <p className="text-muted-foreground text-sm mb-3">{description}</p>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-3">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
             {job.department && (
               <div className="flex items-center">
                 <BuildingOfficeIcon className="w-4 h-4 mr-1" />
@@ -283,7 +286,7 @@ export default function InternalJobsBoard() {
           )}
 
           {job.closingDate && (
-            <div className="flex items-center text-sm text-gray-500 mb-4">
+            <div className="flex items-center text-sm text-muted-foreground mb-4">
               <CalendarIcon className="w-4 h-4 mr-1" />
               {daysLeft > 0 ? (
                 <span>Closes in {daysLeft} days ({new Date(job.closingDate).toLocaleDateString()})</span>
@@ -295,16 +298,17 @@ export default function InternalJobsBoard() {
         </div>
 
         <div className="flex items-center justify-between">
-          <Link href={`/internal/jobs/${job.id}`}>
-            <button className="text-gold-600 hover:text-gold-800 text-sm font-medium rounded-full">
-              View Details
-            </button>
+          <Link
+            href={`/internal/jobs/${job.id}`}
+            className="text-primary hover:text-primary/80 text-sm font-medium"
+          >
+            View Details
           </Link>
 
           {daysLeft > 0 && (
             <button
               onClick={() => handleApply(job)}
-              className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              className="btn-primary"
             >
               Apply Now
             </button>
@@ -314,6 +318,73 @@ export default function InternalJobsBoard() {
     );
   };
 
+  const JobTable = () => (
+    <div className="enterprise-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Title</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Department</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Location</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Type</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Closing</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Salary</th>
+              <th className="text-right px-4 py-3 font-semibold text-foreground">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {jobs.map((job) => {
+              const daysLeft = getDaysUntilExpiry(job.closingDate);
+              return (
+                <tr key={job.id} className="hover:bg-accent/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/internal/jobs/${job.id}`} className="font-medium text-foreground hover:text-primary">
+                        {job.title}
+                      </Link>
+                      {isJobNew(job.createdAt) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800">New</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{job.department || '—'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{job.location || '—'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{job.employmentType || '—'}</td>
+                  <td className="px-4 py-3">
+                    {job.closingDate ? (
+                      daysLeft > 0 ? (
+                        <span className={daysLeft <= 7 ? 'text-orange-600 font-medium' : 'text-muted-foreground'}>
+                          {daysLeft}d left
+                        </span>
+                      ) : (
+                        <span className="text-destructive font-medium">Expired</span>
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {(job.salaryRangeMin || job.salaryRangeMax)
+                      ? formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax)
+                      : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {daysLeft > 0 && (
+                      <button onClick={() => handleApply(job)} className="btn-primary text-xs px-3 py-1.5">
+                        Apply
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   if (!isAuthenticated) {
     return null; // Will redirect to login
   }
@@ -321,7 +392,7 @@ export default function InternalJobsBoard() {
   const actions = (
     <button
       onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-      className="px-3 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50"
+      className="px-3 py-2 border border-border rounded-full text-sm hover:bg-accent text-foreground"
     >
       {viewMode === 'cards' ? 'Table View' : 'Card View'}
     </button>
@@ -330,9 +401,19 @@ export default function InternalJobsBoard() {
   if (loading) {
     return (
       <PageWrapper title="Internal Job Board" subtitle="Browse internal opportunities and advance your career" actions={actions}>
-        <div className="flex items-center justify-center p-8">
-          <div className="text-gray-500">Loading internal job board...</div>
-        </div>
+        <CardSkeleton count={6} />
+      </PageWrapper>
+    );
+  }
+
+  if (error && allJobs.length === 0) {
+    return (
+      <PageWrapper title="Internal Job Board" subtitle="Browse internal opportunities and advance your career" actions={actions}>
+        <ErrorState
+          title="Error Loading Jobs"
+          message={error}
+          onRetry={fetchJobs}
+        />
       </PageWrapper>
     );
   }
@@ -345,16 +426,17 @@ export default function InternalJobsBoard() {
     >
       <div className="space-y-6">
         {/* Search and Filters */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="enterprise-card p-6">
             {/* Search Bar */}
             <div className="relative mb-4">
-              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search jobs by title, keywords, or description..."
+                placeholder="Search by job title or department..."
+                aria-label="Search jobs by title or department"
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full pl-10 pr-4 py-3 border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
@@ -362,7 +444,9 @@ export default function InternalJobsBoard() {
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 text-foreground"
+                aria-expanded={showFilters}
+                aria-controls="job-filters-panel"
+                className="inline-flex items-center px-4 py-2 border border-border rounded-sm hover:bg-accent text-foreground"
               >
                 <FunnelIcon className="w-4 h-4 mr-2" />
                 Filters
@@ -373,23 +457,23 @@ export default function InternalJobsBoard() {
                 )}
               </button>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Showing {jobs.length} of {totalJobs} jobs
               </div>
             </div>
 
             {/* Advanced Filters */}
             {showFilters && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div id="job-filters-panel" className="mt-6 pt-6 border-t border-border">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Department
                     </label>
                     <select
                       value={filters.department}
                       onChange={(e) => handleFilterChange('department', e.target.value)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Departments</option>
                       {filterOptions.departments.map(dept => (
@@ -399,13 +483,13 @@ export default function InternalJobsBoard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Location
                     </label>
                     <select
                       value={filters.location}
                       onChange={(e) => handleFilterChange('location', e.target.value)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Locations</option>
                       {filterOptions.locations.map(location => (
@@ -415,13 +499,13 @@ export default function InternalJobsBoard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Employment Type
                     </label>
                     <select
                       value={filters.employmentType}
                       onChange={(e) => handleFilterChange('employmentType', e.target.value)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">All Types</option>
                       {filterOptions.employmentTypes.map(type => (
@@ -431,13 +515,13 @@ export default function InternalJobsBoard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Closing Date
                     </label>
                     <select
                       value={filters.closingDate}
                       onChange={(e) => handleFilterChange('closingDate', e.target.value)}
-                      className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full border border-border rounded-sm px-3 py-2 bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     >
                       <option value="">Any Time</option>
                       <option value="7">Next 7 days</option>
@@ -452,7 +536,7 @@ export default function InternalJobsBoard() {
                   <div className="mt-4">
                     <button
                       onClick={clearFilters}
-                      className="text-sm text-gold-600 hover:text-gold-800"
+                      className="text-sm text-primary hover:text-primary/80"
                     >
                       Clear all filters
                     </button>
@@ -498,33 +582,37 @@ export default function InternalJobsBoard() {
           />
         ) : (
           <>
-            <div className={`${viewMode === 'cards' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
-              {jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
+            {viewMode === 'cards' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {jobs.map((job) => (
+                  <JobCard key={job.id} job={job} />
+                ))}
+              </div>
+            ) : (
+              <JobTable />
+            )}
 
             {/* Pagination Controls */}
             {allJobs.length >= INTERNAL_PAGE_SIZE && (
               <div className="flex items-center justify-between pt-6">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Page {currentPage + 1}
                 </p>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
                     disabled={currentPage === 0}
-                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1 text-sm rounded-full border border-border text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
-                  <span className="px-3 py-1 text-sm bg-gold-500 text-white rounded-full border border-gold-500">
+                  <span className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-full">
                     {currentPage + 1}
                   </span>
                   <button
                     onClick={() => setCurrentPage(prev => prev + 1)}
                     disabled={allJobs.length < INTERNAL_PAGE_SIZE}
-                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1 text-sm rounded-full border border-border text-foreground hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>

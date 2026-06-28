@@ -3,6 +3,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { useToast } from '@/components/Toast';
+import { CardSkeleton } from '@/components/LoadingComponents';
+import ErrorState from '@/components/ErrorState';
 
 interface Interview {
   id: number;
@@ -77,8 +80,10 @@ const RECOMMENDATIONS = [
 
 export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }: InterviewFeedbackFormProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [existingFeedbacks, setExistingFeedbacks] = useState<FeedbackEntry[]>([]);
   const [loadingFeedbacks, setLoadingFeedbacks] = useState(false);
+  const [feedbacksError, setFeedbacksError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FeedbackFormData>({
     feedback: '',
     rating: 0,
@@ -99,17 +104,23 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
   const loadExistingFeedbacks = useCallback(async () => {
     try {
       setLoadingFeedbacks(true);
+      setFeedbacksError(null);
       const response = await apiFetch(`/api/interviews/${interview.id}/feedbacks`);
       if (response.ok) {
         const data = await response.json();
         setExistingFeedbacks(data);
+      } else {
+        setFeedbacksError('Failed to load existing feedbacks.');
+        toast('Failed to load existing feedbacks', 'error');
       }
     } catch (error) {
       console.error('Error loading feedbacks:', error);
+      setFeedbacksError('Failed to load existing feedbacks. Please try again.');
+      toast('Failed to load existing feedbacks', 'error');
     } finally {
       setLoadingFeedbacks(false);
     }
-  }, [interview.id]);
+  }, [interview.id, toast]);
 
   // Load existing feedbacks and check if current user already submitted
   useEffect(() => {
@@ -213,16 +224,19 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
       });
 
       if (response.ok) {
+        toast('Feedback submitted successfully', 'success');
         if (onSuccess) {
           onSuccess(interview.id);
         }
       } else {
         const errorData = await response.json();
         setErrors({ general: errorData.message || 'Failed to submit feedback' });
+        toast('Failed to submit feedback', 'error');
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
       setErrors({ general: 'An error occurred while submitting feedback' });
+      toast('Failed to submit feedback', 'error');
     } finally {
       setLoading(false);
     }
@@ -332,10 +346,16 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
         </div>
       )}
 
+      {feedbacksError && (
+        <ErrorState
+          title="Failed to load feedbacks"
+          message={feedbacksError}
+          onRetry={loadExistingFeedbacks}
+        />
+      )}
+
       {loadingFeedbacks && (
-        <div className="flex items-center justify-center p-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cta" />
-        </div>
+        <CardSkeleton count={2} />
       )}
 
       {/* Feedback Form */}
@@ -354,7 +374,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
 
         <form onSubmit={handleSubmit} className="p-6">
           {errors.general && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-control">
+            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-control">
               {errors.general}
             </div>
           )}
@@ -368,7 +388,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Average Skills Rating
                 </label>
-                <div className="text-2xl font-bold text-gold-700">
+                <div className="text-2xl font-bold text-primary">
                   {getAverageSkillRating() || 'N/A'}
                 </div>
                 <p className="text-sm text-muted-foreground">Based on communication, technical, and cultural fit</p>
@@ -387,7 +407,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 aria-required="true"
                 aria-invalid={!!errors.feedback}
                 aria-describedby={errors.feedback ? 'feedback-error' : undefined}
-                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary ${errors.feedback ? 'border-red-500' : 'border-border'}`}
+                className={`w-full p-3 border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring ${errors.feedback ? 'border-red-500' : 'border-border'}`}
                 placeholder="Provide your overall assessment of the candidate's interview performance"
               />
               {errors.feedback && <p id="feedback-error" role="alert" className="text-red-500 text-sm mt-1">{errors.feedback}</p>}
@@ -433,7 +453,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 value={formData.overallImpression}
                 onChange={(event) => handleInputChange('overallImpression', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 placeholder="What stood out about this candidate, positive or negative"
               />
             </div>
@@ -446,7 +466,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 value={formData.nextSteps}
                 onChange={(event) => handleInputChange('nextSteps', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 placeholder="What should happen next with this candidate"
               />
             </div>
@@ -460,7 +480,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                   value={formData.technicalAssessment}
                   onChange={(event) => handleInputChange('technicalAssessment', event.target.value)}
                   rows={4}
-                  className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                  className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                   placeholder="Capture technical questioning, evaluation, and demonstrated competency"
                 />
               </div>
@@ -474,7 +494,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 value={formData.candidateQuestions}
                 onChange={(event) => handleInputChange('candidateQuestions', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 placeholder="Document candidate questions and engagement level"
               />
             </div>
@@ -487,7 +507,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                 value={formData.interviewerNotes}
                 onChange={(event) => handleInputChange('interviewerNotes', event.target.value)}
                 rows={3}
-                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                className="w-full p-3 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 placeholder="Internal notes for recruiter and hiring team discussion"
               />
               <p className="text-sm text-muted-foreground mt-1">

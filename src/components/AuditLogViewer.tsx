@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AuditLogEntry } from '../types/workflow';
 import { apiFetch } from '@/lib/api-fetch';
+import ErrorState from '@/components/ErrorState';
+import { TableSkeleton } from '@/components/LoadingComponents';
 
 interface AuditLogViewerProps {
   requisitionId: string;
@@ -86,7 +88,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
     if (action.includes('updated')) {
       return 'bg-gold-100 text-gold-800';
     }
-    return 'bg-gray-100 text-gray-800';
+    return 'bg-muted text-muted-foreground';
   };
 
   // Pagination logic
@@ -101,29 +103,27 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center p-8 ${className}`}>
-        <div className="text-gray-500">Loading audit logs...</div>
+      <div className={className}>
+        <TableSkeleton rows={5} columns={6} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`p-4 bg-red-50 border border-red-200 rounded-sm ${className}`}>
-        <div className="text-red-800">Error: {error}</div>
-        <button 
-          onClick={fetchAuditLogs}
-          className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-        >
-          Retry
-        </button>
+      <div className={className}>
+        <ErrorState
+          title="Failed to load audit logs"
+          message={error}
+          onRetry={fetchAuditLogs}
+        />
       </div>
     );
   }
 
   if (auditLogs.length === 0) {
     return (
-      <div className={`text-center p-8 text-gray-500 ${className}`}>
+      <div className={`text-center p-8 text-muted-foreground ${className}`}>
         No audit logs found for this requisition.
       </div>
     );
@@ -131,53 +131,53 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
 
   return (
     <div className={className}>
-      <div className="bg-white shadow overflow-hidden sm:rounded-sm">
+      <div className="enterprise-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Timestamp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Action
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Entity Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Entity ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Details
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-border">
               {currentLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr key={log.id} className="hover:bg-accent">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {formatTimestamp(log.timestamp)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{log.userId}</div>
-                    <div className="text-xs text-gray-500">{log.userRole}</div>
+                    <div className="text-sm text-foreground">{log.userId}</div>
+                    <div className="text-xs text-muted-foreground">{log.userRole}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getActionBadgeColor(log.action)}`}>
                       {formatAction(log.action)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {log.entityType}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-muted-foreground">
                     {log.entityId}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                  <td className="px-6 py-4 text-sm text-foreground max-w-xs">
                     <div className="truncate" title={formatDetails(log.details)}>
                       {formatDetails(log.details)}
                     </div>
@@ -190,41 +190,44 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="bg-card px-4 py-3 flex items-center justify-between border-t border-border sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Go to previous page"
+                className="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-sm text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Go to next page"
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-sm text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-muted-foreground">
                   Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
                   <span className="font-medium">{Math.min(endIndex, auditLogs.length)}</span> of{' '}
                   <span className="font-medium">{auditLogs.length}</span> results
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px" aria-label="Pagination">
+                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px" aria-label="Audit log pagination">
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Go to previous page"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
-                  
+
                   {/* Page numbers */}
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -237,26 +240,29 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <button
                         key={pageNum}
                         onClick={() => goToPage(pageNum)}
+                        aria-label={`Go to page ${pageNum}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === pageNum
-                            ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            ? 'z-10 bg-primary/10 border-primary text-primary'
+                            : 'bg-card border-border text-muted-foreground hover:bg-accent'
                         }`}
                       >
                         {pageNum}
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Go to next page"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>
