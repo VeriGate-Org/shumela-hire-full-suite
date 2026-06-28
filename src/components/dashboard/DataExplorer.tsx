@@ -250,7 +250,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-2">
             {/* View Toggle */}
-            <div className="flex bg-gray-100 rounded-sm p-1">
+            <div className="flex bg-gray-100 rounded-control p-1">
               <button
                 onClick={() => setView('table')}
                 className={`flex items-center gap-1 px-3 py-1 rounded text-sm font-medium transition-colors ${
@@ -280,7 +280,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
               <select
                 value={chartType}
                 onChange={(e) => setChartType(e.target.value as any)}
-                className="border border-gray-300 rounded-sm px-3 py-1 text-sm"
+                className="border border-gray-300 rounded-control px-3 py-1 text-sm"
               >
                 <option value="bar">Bar Chart</option>
                 <option value="line">Line Chart</option>
@@ -298,7 +298,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
                 placeholder="Search data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
               />
             </div>
 
@@ -313,7 +313,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
                       e.target.value = '';
                     }}
                     defaultValue=""
-                    className="text-sm border border-gray-300 rounded-sm px-2 py-1.5 pr-8 bg-white"
+                    className="text-sm border border-gray-300 rounded-control px-2 py-1.5 pr-8 bg-white"
                   >
                     <option value="" disabled>Saved Views ({savedViews.length})</option>
                     {savedViews.map(view => (
@@ -326,19 +326,19 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
               <div className="relative">
                 <button
                   onClick={() => setShowSavePopover(!showSavePopover)}
-                  className="text-sm px-3 py-1.5 border border-gray-300 rounded-sm text-gray-700 hover:bg-gray-50"
+                  className="text-sm px-3 py-1.5 border border-gray-300 rounded-control text-gray-700 hover:bg-gray-50"
                 >
                   Save View
                 </button>
 
                 {showSavePopover && (
-                  <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-sm shadow-lg p-3 z-10 w-64">
+                  <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-control shadow-lg p-3 z-10 w-64">
                     <input
                       type="text"
                       value={newViewName}
                       onChange={(e) => setNewViewName(e.target.value)}
                       placeholder="View name..."
-                      className="w-full text-sm p-2 border border-gray-300 rounded-sm mb-2"
+                      className="w-full text-sm p-2 border border-gray-300 rounded-control mb-2"
                       onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
                       autoFocus
                     />
@@ -352,7 +352,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
                       <button
                         onClick={handleSaveView}
                         disabled={!newViewName.trim()}
-                        className="text-xs px-3 py-1 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+                        className="text-xs px-3 py-1 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
                       >
                         Save
                       </button>
@@ -366,7 +366,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
             {exportable && (
               <button
                 onClick={exportData}
-                className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200 text-sm"
+                className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-control hover:bg-gray-200 text-sm"
               >
                 <ArrowDownTrayIcon className="w-4 h-4" />
                 Export
@@ -379,7 +379,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
         {savedViews.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {savedViews.map(view => (
-              <span key={view.id} className="inline-flex items-center gap-1 px-2 py-1 bg-gold-50 text-violet-700 text-xs rounded-sm">
+              <span key={view.id} className="inline-flex items-center gap-1 px-2 py-1 bg-gold-50 text-violet-700 text-xs rounded-control">
                 <button onClick={() => handleApplyView(view)} className="hover:underline">
                   {view.name}
                 </button>
@@ -396,7 +396,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
 
         {/* Chart Column Selection */}
         {view === 'chart' && (
-          <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-sm">
+          <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-control">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">X-Axis</label>
               <select
@@ -425,7 +425,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
         )}
 
         {/* Data Summary */}
-        <div className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-sm">
+        <div className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-control">
           <span>
             Showing {processedData.length.toLocaleString()} of {data.length.toLocaleString()} records
             {searchTerm && ` (filtered)`}
@@ -451,7 +451,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({
         </div>
 
         {/* Content */}
-        <div className="border border-gray-200 rounded-sm overflow-hidden">
+        <div className="border border-gray-200 rounded-control overflow-hidden">
           {view === 'table' ? (
             <>
               {/* Table */}

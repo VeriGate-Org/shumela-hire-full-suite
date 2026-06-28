@@ -42,9 +42,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const colors: Record<ToastType, string> = {
-    success: 'bg-green-50 border-green-300 text-green-800',
-    error: 'bg-red-50 border-red-300 text-red-800',
-    info: 'bg-slate-50 border-slate-300 text-slate-800',
+    success: 'bg-surface-teal border-l-accent-teal text-green-800',
+    error: 'bg-surface-pink border-l-accent-pink text-red-800',
+    info: 'bg-surface-navy border-l-accent-navy text-foreground',
   };
 
   return (
@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map(t => (
           <div
             key={t.id}
-            className={`border rounded-sm px-4 py-3 text-sm shadow-md animate-in slide-in-from-right ${colors[t.type]}`}
+            className={`border border-l-4 rounded-card px-4 py-3 text-sm shadow-lg animate-in slide-in-from-right ${colors[t.type]}`}
             role="alert"
           >
             <div className="flex items-start justify-between gap-2">

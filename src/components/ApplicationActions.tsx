@@ -47,7 +47,7 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="withdraw-modal-title"
-        className="bg-white rounded-sm p-6 w-full max-w-md"
+        className="bg-white rounded-control p-6 w-full max-w-md"
       >
         <div className="flex items-center mb-4">
           <div className="bg-yellow-100 rounded-full p-2 mr-3">
@@ -72,7 +72,7 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please provide a reason for withdrawing your application..."
-              className="w-full p-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
               rows={3}
               maxLength={500}
               required
@@ -87,14 +87,14 @@ function WithdrawModal({ isOpen, onClose, onConfirm, isSubmitting }: WithdrawMod
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-sm hover:bg-gray-300 disabled:opacity-50"
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-control hover:bg-gray-300 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !reason.trim()}
-              className="px-4 py-2 bg-yellow-600 text-white rounded-sm hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-yellow-600 text-white rounded-control hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting && (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -120,7 +120,7 @@ function DeleteConfirmation({ isOpen, onClose, onConfirm, isDeleting }: DeleteCo
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-modal-title"
-        className="bg-white rounded-sm p-6 w-full max-w-md"
+        className="bg-white rounded-control p-6 w-full max-w-md"
       >
         <div className="flex items-center mb-4">
           <div className="bg-red-100 rounded-full p-2 mr-3">
@@ -156,14 +156,14 @@ function DeleteConfirmation({ isOpen, onClose, onConfirm, isDeleting }: DeleteCo
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-sm hover:bg-gray-300 disabled:opacity-50"
+            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-control hover:bg-gray-300 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-4 py-2 bg-red-600 text-white rounded-control hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isDeleting && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -267,7 +267,7 @@ export default function ApplicationActions({
 
       {/* Messages */}
       {message && (
-        <div className={`p-4 rounded-sm ${
+        <div className={`p-4 rounded-control ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
@@ -304,7 +304,7 @@ export default function ApplicationActions({
         {canWithdraw && (
           <button
             onClick={() => setShowWithdrawModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-sm hover:bg-yellow-200 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            className="flex items-center gap-2 px-4 py-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-control hover:bg-yellow-200 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.598 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -316,7 +316,7 @@ export default function ApplicationActions({
         {canDelete && (
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-red-700 bg-red-100 border border-red-300 rounded-sm hover:bg-red-200 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="flex items-center gap-2 px-4 py-2 text-red-700 bg-red-100 border border-red-300 rounded-control hover:bg-red-200 focus:ring-2 focus:ring-red-500 focus:border-transparent"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

@@ -218,7 +218,7 @@ export default function TrainingPage() {
         {/* Stats Overview */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <BookOpenIcon className="w-8 h-8 text-violet-500" />
@@ -230,7 +230,7 @@ export default function TrainingPage() {
               </div>
             </div>
             
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <TrophyIcon className="w-8 h-8 text-green-500" />
@@ -242,7 +242,7 @@ export default function TrainingPage() {
               </div>
             </div>
             
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <ClockIcon className="w-8 h-8 text-yellow-500" />
@@ -254,7 +254,7 @@ export default function TrainingPage() {
               </div>
             </div>
             
-            <div className="bg-white rounded-sm shadow p-6">
+            <div className="bg-white rounded-control shadow p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <StarIcon className="w-8 h-8 text-purple-500" />
@@ -269,7 +269,7 @@ export default function TrainingPage() {
         )}
 
         {/* View Toggle */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <div className="flex gap-1">
               {[
@@ -280,7 +280,7 @@ export default function TrainingPage() {
                 <button
                   key={view.id}
                   onClick={() => setSelectedView(view.id as any)}
-                  className={`flex items-center px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                  className={`flex items-center px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                     selectedView === view.id
                       ? 'bg-gold-100 text-gold-800'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -298,14 +298,14 @@ export default function TrainingPage() {
                 placeholder="Search training..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="px-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
               <div className="flex gap-2 flex-wrap">
                 {categories.map(category => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-2 rounded-sm whitespace-nowrap text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-control whitespace-nowrap text-sm font-medium transition-colors ${
                       selectedCategory === category.id
                         ? 'bg-gold-100 text-gold-800 border border-violet-200'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -330,7 +330,7 @@ export default function TrainingPage() {
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {filteredModules.map(module => (
-                  <div key={module.id} className="bg-white rounded-sm shadow hover:shadow-md transition-shadow">
+                  <div key={module.id} className="bg-white rounded-control shadow hover:shadow-md transition-shadow">
                     <div className="p-6">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -448,7 +448,7 @@ export default function TrainingPage() {
         {selectedView === 'paths' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {trainingPaths.map(path => (
-              <div key={path.id} className="bg-white rounded-sm shadow">
+              <div key={path.id} className="bg-white rounded-control shadow">
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{path.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{path.description}</p>
@@ -483,7 +483,7 @@ export default function TrainingPage() {
 
         {/* Progress View */}
         {selectedView === 'progress' && (
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">My Learning Progress</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -510,7 +510,7 @@ export default function TrainingPage() {
             <div className="space-y-4">
               <h4 className="font-medium text-gray-900">Recent Activity</h4>
               {modules.filter(m => m.status !== 'not-started').map(module => (
-                <div key={module.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-sm">
+                <div key={module.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-control">
                   <div className="flex items-center gap-3">
                     {getStatusIcon(module.status)}
                     <div>

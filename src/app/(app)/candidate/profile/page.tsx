@@ -268,7 +268,7 @@ export default function CandidateProfilePage() {
   if (!profile) {
     return (
       <PageWrapper title="My Profile" subtitle="Manage your professional profile" actions={actions}>
-        <div className="bg-white rounded-sm shadow p-12 text-center">
+        <div className="bg-white rounded-control shadow p-12 text-center">
           <UserIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No profile data</h3>
           <p className="text-sm text-gray-500">Your profile information will appear here once connected to the system.</p>
@@ -285,7 +285,7 @@ export default function CandidateProfilePage() {
     >
       <div className="space-y-6">
         {/* Profile Header Card */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <div className="flex items-start space-x-6">
             <div className="relative">
               <div className="w-24 h-24 bg-violet-600 rounded-full flex items-center justify-center">
@@ -354,7 +354,7 @@ export default function CandidateProfilePage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-sm shadow">
+        <div className="bg-white rounded-control shadow">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               {[
@@ -475,11 +475,11 @@ export default function CandidateProfilePage() {
                 
                 <div className="space-y-6">
                   {experiences.map((exp, _index) => (
-                    <div key={exp.id} className="border border-gray-200 rounded-sm p-6">
+                    <div key={exp.id} className="border border-gray-200 rounded-control p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
                               <BriefcaseIcon className="w-6 h-6 text-gray-600" />
                             </div>
                             <div className="flex-1">
@@ -546,11 +546,11 @@ export default function CandidateProfilePage() {
                 
                 <div className="space-y-6">
                   {education.map((edu, _index) => (
-                    <div key={edu.id} className="border border-gray-200 rounded-sm p-6">
+                    <div key={edu.id} className="border border-gray-200 rounded-control p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
                               <AcademicCapIcon className="w-6 h-6 text-gray-600" />
                             </div>
                             <div className="flex-1">
@@ -628,7 +628,7 @@ export default function CandidateProfilePage() {
                       <div className="space-y-3">
                         {skills.filter(skill => skill.category === category).map((skill) => (
                           <div key={skill.id} className="relative">
-                            <div className={`inline-flex items-center px-3 py-2 rounded-sm border text-sm font-medium ${getSkillLevelColor(skill.level)}`}>
+                            <div className={`inline-flex items-center px-3 py-2 rounded-control border text-sm font-medium ${getSkillLevelColor(skill.level)}`}>
                               <span>{skill.name}</span>
                               <span className="ml-2 text-xs opacity-75">
                                 {skill.level} ({skill.years}y)
@@ -663,10 +663,10 @@ export default function CandidateProfilePage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="border border-gray-200 rounded-sm p-4 hover:border-gray-300 transition-colors">
+                    <div key={doc.id} className="border border-gray-200 rounded-control p-4 hover:border-gray-300 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
-                          <div className="w-10 h-10 bg-gold-100 rounded-sm flex items-center justify-center">
+                          <div className="w-10 h-10 bg-gold-100 rounded-control flex items-center justify-center">
                             <DocumentTextIcon className="w-5 h-5 text-gold-600" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -707,11 +707,11 @@ export default function CandidateProfilePage() {
                 
                 <div className="space-y-4">
                   {applications.map((app) => (
-                    <div key={app.id} className="border border-gray-200 rounded-sm p-6 hover:border-gray-300 transition-colors">
+                    <div key={app.id} className="border border-gray-200 rounded-control p-6 hover:border-gray-300 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gray-100 rounded-control flex items-center justify-center">
                               <BriefcaseIcon className="w-6 h-6 text-gray-600" />
                             </div>
                             <div>

@@ -429,28 +429,28 @@ export default function ApplicationManagementConsole() {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gold-50 p-4 rounded-sm">
+          <div className="bg-gold-50 p-4 rounded-control">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gold-600">Total Applications</p>
               {statsError && <span className="text-orange-500 text-xs" title="Failed to load statistics">&#9888;</span>}
             </div>
             <p className="text-2xl font-bold text-violet-900">{statistics.totalApplications}</p>
           </div>
-          <div className="bg-green-50 p-4 rounded-sm">
+          <div className="bg-green-50 p-4 rounded-control">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-green-600">New Applications</p>
               {statsError && <span className="text-orange-500 text-xs" title="Failed to load statistics">&#9888;</span>}
             </div>
             <p className="text-2xl font-bold text-green-900">{statistics.newApplications}</p>
           </div>
-          <div className="bg-yellow-50 p-4 rounded-sm">
+          <div className="bg-yellow-50 p-4 rounded-control">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-yellow-600">In Review</p>
               {statsError && <span className="text-orange-500 text-xs" title="Failed to load statistics">&#9888;</span>}
             </div>
             <p className="text-2xl font-bold text-yellow-900">{statistics.inReviewApplications}</p>
           </div>
-          <div className="bg-purple-50 p-4 rounded-sm">
+          <div className="bg-purple-50 p-4 rounded-control">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-purple-600">Avg Rating</p>
               {statsError && <span className="text-orange-500 text-xs" title="Failed to load statistics">&#9888;</span>}
@@ -469,7 +469,7 @@ export default function ApplicationManagementConsole() {
               onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               aria-label="Search applications by candidate name, email, or job title"
-              className="w-full pl-4 pr-4 py-2 border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+              className="w-full pl-4 pr-4 py-2 border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
             />
           </div>
           <button
@@ -493,7 +493,7 @@ export default function ApplicationManagementConsole() {
                 value={filters.statuses}
                 onChange={(e) => handleFilterChange('statuses', Array.from(e.target.selectedOptions, option => option.value))}
                 aria-label="Filter by status"
-                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {statusOptions.map(status => (
                   <option key={status} value={status}>{formatEnumValue(status)}</option>
@@ -508,7 +508,7 @@ export default function ApplicationManagementConsole() {
                 value={filters.departments}
                 onChange={(e) => handleFilterChange('departments', Array.from(e.target.selectedOptions, option => option.value))}
                 aria-label="Filter by department"
-                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {departmentOptions.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -527,7 +527,7 @@ export default function ApplicationManagementConsole() {
                   value={filters.minRating || ''}
                   onChange={(e) => handleFilterChange('minRating', parseInt(e.target.value) || 0)}
                   aria-label="Minimum rating"
-                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="flex-1 border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
                 <input
                   type="number"
@@ -537,7 +537,7 @@ export default function ApplicationManagementConsole() {
                   value={filters.maxRating || ''}
                   onChange={(e) => handleFilterChange('maxRating', parseInt(e.target.value) || 5)}
                   aria-label="Maximum rating"
-                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="flex-1 border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
               </div>
             </div>
@@ -549,7 +549,7 @@ export default function ApplicationManagementConsole() {
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
                 aria-label="Filter from date"
-                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
@@ -560,7 +560,7 @@ export default function ApplicationManagementConsole() {
                 value={filters.dateTo}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
                 aria-label="Filter to date"
-                className="w-full border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
               />
             </div>
 
@@ -571,7 +571,7 @@ export default function ApplicationManagementConsole() {
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
                   aria-label="Sort by field"
-                  className="flex-1 border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="flex-1 border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 >
                   <option value="submittedAt">Submit Date</option>
                   <option value="lastUpdated">Last Updated</option>
@@ -582,7 +582,7 @@ export default function ApplicationManagementConsole() {
                   value={filters.sortDirection}
                   onChange={(e) => handleFilterChange('sortDirection', e.target.value)}
                   aria-label="Sort direction"
-                  className="border border-border rounded-sm px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="border border-border rounded-control px-3 py-2 focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 >
                   <option value="desc">Desc</option>
                   <option value="asc">Asc</option>
@@ -649,13 +649,13 @@ export default function ApplicationManagementConsole() {
           </div>
 
           {showBulkActions && (
-            <div className="mt-4 p-4 bg-muted/50 rounded-sm">
+            <div className="mt-4 p-4 bg-muted/50 rounded-control">
               <div className="flex items-center space-x-4">
                 <select
                   value={bulkOperation.type}
                   onChange={(e) => setBulkOperation(prev => ({ ...prev, type: e.target.value as any }))}
                   aria-label="Bulk operation type"
-                  className="border border-border rounded-sm px-3 py-2"
+                  className="border border-border rounded-control px-3 py-2"
                 >
                   <option value="status">Update Status</option>
                   <option value="rating">Set Rating</option>
@@ -667,7 +667,7 @@ export default function ApplicationManagementConsole() {
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
                     aria-label="Select status for bulk update"
-                    className="border border-border rounded-sm px-3 py-2"
+                    className="border border-border rounded-control px-3 py-2"
                   >
                     <option value="">Select Status</option>
                     {statusOptions.map(status => (
@@ -681,7 +681,7 @@ export default function ApplicationManagementConsole() {
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
                     aria-label="Select rating for bulk update"
-                    className="border border-border rounded-sm px-3 py-2"
+                    className="border border-border rounded-control px-3 py-2"
                   >
                     <option value="">Select Rating</option>
                     {[1, 2, 3, 4, 5].map(rating => (
@@ -695,7 +695,7 @@ export default function ApplicationManagementConsole() {
                     value={bulkOperation.value}
                     onChange={(e) => setBulkOperation(prev => ({ ...prev, value: e.target.value }))}
                     aria-label="Select stage for bulk update"
-                    className="border border-border rounded-sm px-3 py-2"
+                    className="border border-border rounded-control px-3 py-2"
                   >
                     <option value="">Select Stage</option>
                     {stageOptions.map(stage => (
@@ -891,7 +891,7 @@ export default function ApplicationManagementConsole() {
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px" aria-label="Pagination">
+                <nav className="relative z-0 inline-flex rounded-control shadow-sm -space-x-px" aria-label="Pagination">
                   <button
                     onClick={() => handleFilterChange('page', Math.max(0, filters.page - 1))}
                     disabled={filters.page === 0}

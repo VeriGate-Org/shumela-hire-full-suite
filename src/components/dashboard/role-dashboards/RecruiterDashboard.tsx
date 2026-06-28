@@ -118,7 +118,7 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-control border border-gray-200 p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 rounded w-1/4"></div>
             <div className="h-3 bg-gray-200 rounded w-1/2"></div>

@@ -104,7 +104,7 @@ export default function SearchableDropdown({
       {/* Trigger / selected chips area */}
       <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full min-h-[38px] px-3 py-1.5 text-sm border rounded-sm cursor-pointer flex flex-wrap items-center gap-1.5 ${
+        className={`w-full min-h-[38px] px-3 py-1.5 text-sm border rounded-control cursor-pointer flex flex-wrap items-center gap-1.5 ${
           disabled
             ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
             : isOpen
@@ -149,7 +149,7 @@ export default function SearchableDropdown({
 
       {/* Dropdown panel */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-lg">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-control shadow-lg">
           {/* Search input */}
           <div className="p-2 border-b border-gray-100">
             <input
@@ -158,7 +158,7 @@ export default function SearchableDropdown({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
             />
           </div>
 

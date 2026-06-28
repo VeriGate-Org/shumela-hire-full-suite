@@ -284,7 +284,7 @@ export default function OrganizationalOverviewPage() {
             placeholder="Search departments..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
       )}
@@ -292,7 +292,7 @@ export default function OrganizationalOverviewPage() {
       <select
         value={selectedPeriod}
         onChange={(e) => setSelectedPeriod(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="month">This Month</option>
         <option value="quarter">This Quarter</option>
@@ -324,7 +324,7 @@ export default function OrganizationalOverviewPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-white rounded-control shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', name: 'Executive Summary', icon: ChartBarIcon },
@@ -335,7 +335,7 @@ export default function OrganizationalOverviewPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-violet-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -353,7 +353,7 @@ export default function OrganizationalOverviewPage() {
           <div className="space-y-6">
             {/* Key Organizational Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <UserGroupIconSolid className="w-8 h-8 text-violet-500" />
                   <div className="ml-4">
@@ -368,7 +368,7 @@ export default function OrganizationalOverviewPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ArrowTrendingUpIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
@@ -381,7 +381,7 @@ export default function OrganizationalOverviewPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <TrophyIconSolid className="w-8 h-8 text-purple-500" />
                   <div className="ml-4">
@@ -394,7 +394,7 @@ export default function OrganizationalOverviewPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <GlobeAltIcon className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
@@ -407,7 +407,7 @@ export default function OrganizationalOverviewPage() {
             </div>
 
             {/* Critical Alerts */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Critical Organizational Alerts"
                 variant="alert"
@@ -434,7 +434,7 @@ export default function OrganizationalOverviewPage() {
             </div>
 
             {/* Company Milestones */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Strategic Milestones"
                 variant="milestone"
@@ -474,7 +474,7 @@ export default function OrganizationalOverviewPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredDepartments.map((dept) => (
-                <div key={dept.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500">
+                <div key={dept.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -563,7 +563,7 @@ export default function OrganizationalOverviewPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {locations.map((location) => (
-                <div key={location.id} className="bg-white rounded-sm shadow">
+                <div key={location.id} className="bg-white rounded-control shadow">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -625,7 +625,7 @@ export default function OrganizationalOverviewPage() {
                     </div>
 
                     {location.leaseExpiry && (
-                      <div className={`p-2 rounded-sm text-sm ${
+                      <div className={`p-2 rounded-control text-sm ${
                         new Date(location.leaseExpiry) < new Date('2026-01-01') ? 'bg-yellow-50 text-yellow-800' : 'bg-gray-50 text-gray-800'
                       }`}>
                         Lease expires: {new Date(location.leaseExpiry).toLocaleDateString()}
@@ -642,7 +642,7 @@ export default function OrganizationalOverviewPage() {
         {activeView === 'insights' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Organizational Health Score</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -671,7 +671,7 @@ export default function OrganizationalOverviewPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Growth Trajectory</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -710,7 +710,7 @@ export default function OrganizationalOverviewPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="All Organizational Alerts"
                 variant="alert"
@@ -739,7 +739,7 @@ export default function OrganizationalOverviewPage() {
         {/* Department Details Modal */}
         {selectedDepartment && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -759,19 +759,19 @@ export default function OrganizationalOverviewPage() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Metrics</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-gray-50 rounded-sm p-4">
+                        <div className="bg-gray-50 rounded-control p-4">
                           <p className="text-sm text-gray-500">Productivity Score</p>
                           <p className="text-xl font-semibold text-gray-900">{selectedDepartment.keyMetrics.productivity}/5.0</p>
                         </div>
-                        <div className="bg-gray-50 rounded-sm p-4">
+                        <div className="bg-gray-50 rounded-control p-4">
                           <p className="text-sm text-gray-500">Satisfaction</p>
                           <p className="text-xl font-semibold text-gray-900">{selectedDepartment.keyMetrics.satisfaction}/5.0</p>
                         </div>
-                        <div className="bg-gray-50 rounded-sm p-4">
+                        <div className="bg-gray-50 rounded-control p-4">
                           <p className="text-sm text-gray-500">Retention Rate</p>
                           <p className="text-xl font-semibold text-gray-900">{selectedDepartment.keyMetrics.retention}%</p>
                         </div>
-                        <div className="bg-gray-50 rounded-sm p-4">
+                        <div className="bg-gray-50 rounded-control p-4">
                           <p className="text-sm text-gray-500">Diversity Score</p>
                           <p className="text-xl font-semibold text-gray-900">{selectedDepartment.keyMetrics.diversity}%</p>
                         </div>
@@ -782,7 +782,7 @@ export default function OrganizationalOverviewPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Geographic Distribution</h3>
                       <div className="space-y-3">
                         {selectedDepartment.locations.map((loc, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                             <div className="flex items-center">
                               <MapPinIcon className="w-4 h-4 text-gray-400 mr-2" />
                               <span className="text-sm font-medium text-gray-900">{loc.city}</span>
@@ -806,7 +806,7 @@ export default function OrganizationalOverviewPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Critical Open Roles</h3>
                       <div className="space-y-2">
                         {selectedDepartment.criticalRoles.map((role, index) => (
-                          <div key={index} className="flex items-center p-2 bg-red-50 border border-red-200 rounded-sm">
+                          <div key={index} className="flex items-center p-2 bg-red-50 border border-red-200 rounded-control">
                             <ExclamationTriangleIcon className="w-4 h-4 text-red-500 mr-2" />
                             <span className="text-sm font-medium text-red-800">{role}</span>
                           </div>
@@ -818,7 +818,7 @@ export default function OrganizationalOverviewPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Upcoming Milestones</h3>
                       <div className="space-y-3">
                         {selectedDepartment.upcomingMilestones.map((milestone, index) => (
-                          <div key={index} className="p-3 border border-gray-200 rounded-sm">
+                          <div key={index} className="p-3 border border-gray-200 rounded-control">
                             <h4 className="text-sm font-medium text-gray-900">{milestone.title}</h4>
                             <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
                               <span>Date: {new Date(milestone.date).toLocaleDateString()}</span>
@@ -837,7 +837,7 @@ export default function OrganizationalOverviewPage() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Budget Overview</h3>
-                      <div className="bg-gray-50 rounded-sm p-4">
+                      <div className="bg-gray-50 rounded-control p-4">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-600">Annual Budget</span>
                           <span className="text-lg font-semibold text-gray-900">

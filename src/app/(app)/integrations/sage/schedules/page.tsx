@@ -152,7 +152,7 @@ export default function SageSchedulesPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500" />
           </div>
         ) : schedules.length === 0 ? (
-          <div className="bg-white rounded-sm shadow p-12 text-center">
+          <div className="bg-white rounded-control shadow p-12 text-center">
             <CalendarDaysIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sync Schedules</h3>
             <p className="text-gray-500 text-sm mb-6">
@@ -173,7 +173,7 @@ export default function SageSchedulesPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-sm shadow overflow-hidden">
+          <div className="bg-white rounded-control shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">

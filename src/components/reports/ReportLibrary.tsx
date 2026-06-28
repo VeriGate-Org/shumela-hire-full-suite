@@ -182,7 +182,7 @@ export default function ReportLibrary({
   };
 
   return (
-    <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -201,7 +201,7 @@ export default function ReportLibrary({
                 placeholder="Search reports..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-4 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-64 pl-4 pr-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             
@@ -213,7 +213,7 @@ export default function ReportLibrary({
                 setSortBy(field as any);
                 setSortOrder(order as any);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             >
               <option value="updated-desc">Recently Updated</option>
               <option value="created-desc">Recently Created</option>
@@ -235,7 +235,7 @@ export default function ReportLibrary({
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-sm ${
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-control ${
                     selectedCategory === category.id
                       ? 'bg-gold-100 text-violet-700'
                       : 'text-gray-600 hover:bg-gray-100'
@@ -272,7 +272,7 @@ export default function ReportLibrary({
                   return (
                     <div
                       key={report.id}
-                      className="bg-white border border-gray-200 rounded-sm p-4 hover:shadow-md transition-shadow"
+                      className="bg-white border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow"
                     >
                       {/* Report Header */}
                       <div className="flex items-start justify-between mb-3">
@@ -376,7 +376,7 @@ export default function ReportLibrary({
                         
                         <button
                           onClick={() => onRun(report)}
-                          className="px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-sm hover:bg-gold-600"
+                          className="px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-control hover:bg-gold-600"
                         >
                           <PlayIcon className="h-3 w-3 inline mr-1" />
                           Run

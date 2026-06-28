@@ -724,7 +724,7 @@ export default function PipelinePage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <div className="flex rounded-sm border border-border">
+      <div className="flex rounded-control border border-border">
         {[
           { id: 'kanban', name: 'Kanban', icon: UserGroupIcon },
           { id: 'list', name: 'List', icon: ChartBarIcon },
@@ -785,17 +785,19 @@ export default function PipelinePage() {
         {/* Pipeline Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: UserGroupIcon, label: 'Total Applications', value: pipelineMetrics.totalApplications, color: 'text-violet-500' },
-            { icon: ClockIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, color: 'text-green-500' },
-            { icon: ChartBarIcon, label: 'Avg. Time to Hire', value: `${pipelineMetrics.averageTimeToHire} days`, color: 'text-purple-500' },
-            { icon: CheckCircleIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, color: 'text-yellow-500' },
+            { icon: UserGroupIcon, label: 'Total Applications', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy', borderColor: 'border-l-accent-navy' },
+            { icon: ClockIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal', borderColor: 'border-l-accent-teal' },
+            { icon: ChartBarIcon, label: 'Avg. Time to Hire', value: `${pipelineMetrics.averageTimeToHire} days`, iconColor: 'text-accent-gold', iconBg: 'bg-icon-bg-gold', borderColor: 'border-l-accent-gold' },
+            { icon: CheckCircleIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink', borderColor: 'border-l-accent-pink' },
           ].map((metric) => (
-            <div key={metric.label} className="enterprise-card p-4">
+            <div key={metric.label} className={`enterprise-card border-l-4 ${metric.borderColor} p-4`}>
               <div className="flex items-center">
-                <metric.icon className={`w-8 h-8 ${metric.color} shrink-0`} />
+                <div className={`w-10 h-10 rounded-full ${metric.iconBg} flex items-center justify-center shrink-0`}>
+                  <metric.icon className={`w-5 h-5 ${metric.iconColor}`} />
+                </div>
                 <div className="ml-3 min-w-0">
                   <p className="text-xs font-medium text-muted-foreground truncate">{metric.label}</p>
-                  <p className="text-xl font-semibold text-foreground">{metric.value}</p>
+                  <p className="text-2xl font-bold text-foreground">{metric.value}</p>
                 </div>
               </div>
             </div>
@@ -814,7 +816,7 @@ export default function PipelinePage() {
                   aria-label="Search candidates or jobs"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="pl-10 pr-4 py-2 w-full border border-border rounded-control bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
               </div>
             </div>
@@ -824,7 +826,7 @@ export default function PipelinePage() {
                 value={selectedStage}
                 onChange={(e) => setSelectedStage(e.target.value)}
                 aria-label="Filter by stage"
-                className="px-3 py-2 border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="px-3 py-2 border border-border rounded-control bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 <option value="all">All Stages</option>
                 {STAGE_GROUPS.map(stage => (
@@ -885,7 +887,7 @@ export default function PipelinePage() {
                     </div>
                     <div className="flex-1 bg-muted rounded-full h-8 relative">
                       <div
-                        className="h-8 rounded-full flex items-center justify-between px-4 text-primary-foreground text-sm font-medium transition-all bg-primary"
+                        className="h-8 rounded-full flex items-center justify-between px-4 text-primary-foreground text-sm font-medium transition-all bg-gradient-to-r from-primary to-teal-500"
                         style={{ width: `${Math.max(width, 10)}%` }}
                       >
                         <span>{metrics.count} candidates</span>
@@ -914,7 +916,7 @@ export default function PipelinePage() {
 
                 return (
                   <div key={stage.id} role="list" aria-label={`${stage.displayName} stage`} className="flex-shrink-0 w-64">
-                    <div className={`rounded-sm border-2 ${stage.color} p-4 mb-4`}>
+                    <div className={`rounded-card border-2 ${stage.color} p-4 mb-4`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <input
@@ -948,7 +950,7 @@ export default function PipelinePage() {
 
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {stageApplications.map(application => (
-                        <div key={application.id} role="listitem" className="bg-card rounded-sm p-4 border border-border hover:shadow-sm transition-all">
+                        <div key={application.id} role="listitem" className="bg-card rounded-card p-4 border border-border hover:shadow-md hover:-translate-y-0.5 transition-all">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-start gap-2 flex-1">
                               <input
@@ -1055,9 +1057,9 @@ export default function PipelinePage() {
                             />
                           )}
 
-                          <div className="bg-muted rounded-full h-2 mb-3">
+                          <div className="bg-muted rounded-full h-2.5 mb-3">
                             <div
-                              className="bg-primary h-2 rounded-full transition-all"
+                              className="bg-gradient-to-r from-primary to-teal-500 h-2.5 rounded-full transition-all"
                               style={{ width: `${Math.min(application.progress, 100)}%` }}
                             />
                           </div>
@@ -1260,7 +1262,7 @@ export default function PipelinePage() {
 
         {/* Bulk Action Bar */}
         {selectedIds.size > 0 && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-card border border-border rounded-sm shadow-lg px-6 py-3 flex items-center gap-4 z-50">
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-card border border-border rounded-control shadow-lg px-6 py-3 flex items-center gap-4 z-50">
             <span className="text-sm font-medium text-foreground">
               {selectedIds.size} selected
             </span>
@@ -1273,7 +1275,7 @@ export default function PipelinePage() {
                 }
               }}
               aria-label="Move selected candidates to stage"
-              className="text-sm border border-border rounded-sm px-2 py-1 bg-card text-foreground"
+              className="text-sm border border-border rounded-control px-2 py-1 bg-card text-foreground"
               defaultValue=""
             >
               <option value="" disabled>Move to...</option>
@@ -1316,7 +1318,7 @@ export default function PipelinePage() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="pipeline-detail-title"
-              className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
+              className="bg-card rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
             >
               {/* Modal Header with stage badge and move button */}
               <div className="px-6 py-4 border-b border-border flex items-start justify-between">
@@ -1382,7 +1384,7 @@ export default function PipelinePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">Candidate Information</h3>
-                    <div className="bg-muted/50 rounded-sm p-4 space-y-2">
+                    <div className="bg-muted/50 rounded-control p-4 space-y-2">
                       <p><strong>Email:</strong> {selectedApplication.candidate.email}</p>
                       <p><strong>Phone:</strong> {selectedApplication.candidate.phone}</p>
                       <p><strong>Applied:</strong> {new Date(selectedApplication.submittedAt).toLocaleDateString()}</p>
@@ -1401,7 +1403,7 @@ export default function PipelinePage() {
                           Screening Notes
                         </button>
                         {screeningNotesOpen && (
-                          <div className="mt-2 bg-muted/50 rounded-sm p-3 text-sm text-foreground">
+                          <div className="mt-2 bg-muted/50 rounded-control p-3 text-sm text-foreground">
                             {selectedApplication.screeningNotes}
                           </div>
                         )}
@@ -1424,7 +1426,7 @@ export default function PipelinePage() {
                       ) : (
                         <div className="space-y-2">
                           {documents.map((doc: any) => (
-                            <div key={doc.id} className="flex items-center justify-between bg-muted/50 rounded-sm p-2.5 border border-border">
+                            <div key={doc.id} className="flex items-center justify-between bg-muted/50 rounded-control p-2.5 border border-border">
                               <div className="flex items-center gap-2 min-w-0">
                                 <DocumentTextIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                 <div className="min-w-0">

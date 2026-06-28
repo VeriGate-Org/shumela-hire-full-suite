@@ -48,7 +48,7 @@ export default function VacancyReportActions({ jobId, showDemographics = false }
         <button
           onClick={() => handleDownload('summary')}
           disabled={downloading !== null}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-control hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {downloading === 'summary' ? 'Generating...' : 'Vacancy Summary'}
         </button>
@@ -56,7 +56,7 @@ export default function VacancyReportActions({ jobId, showDemographics = false }
         <button
           onClick={() => handleDownload('shortlist')}
           disabled={downloading !== null}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-control hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {downloading === 'shortlist' ? 'Generating...' : 'Shortlist Pack'}
         </button>
@@ -64,7 +64,7 @@ export default function VacancyReportActions({ jobId, showDemographics = false }
         <button
           onClick={() => handleDownload('response-handling')}
           disabled={downloading !== null}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-control hover:bg-gold-100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {downloading === 'response-handling' ? 'Generating...' : 'Response Handling'}
         </button>
@@ -74,7 +74,7 @@ export default function VacancyReportActions({ jobId, showDemographics = false }
             href="/reports/demographics-ee-report.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-sm hover:bg-gold-100"
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-violet-700 bg-gold-50 border border-violet-200 rounded-control hover:bg-gold-100"
           >
             Demographics / EE
           </a>

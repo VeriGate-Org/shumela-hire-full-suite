@@ -386,7 +386,7 @@ export default function MyOffersPage() {
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+        className="px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
       >
         <option value="all">All Offers</option>
         <option value="pending">Pending</option>
@@ -421,7 +421,7 @@ export default function MyOffersPage() {
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <CurrencyDollarIcon className="w-8 h-8 text-green-500" />
               <div className="ml-4">
@@ -431,7 +431,7 @@ export default function MyOffersPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-500" />
               <div className="ml-4">
@@ -443,7 +443,7 @@ export default function MyOffersPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <ChatBubbleLeftRightIcon className="w-8 h-8 text-violet-500" />
               <div className="ml-4">
@@ -455,7 +455,7 @@ export default function MyOffersPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <CheckCircleIcon className="w-8 h-8 text-green-500" />
               <div className="ml-4">
@@ -476,12 +476,12 @@ export default function MyOffersPage() {
             const isExpired = daysUntilExpiry <= 0;
 
             return (
-              <div key={offer.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500 overflow-hidden">
+              <div key={offer.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500 overflow-hidden">
                 <div className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-start space-x-4">
-                        <div className="w-16 h-16 bg-violet-600 rounded-sm flex items-center justify-center">
+                        <div className="w-16 h-16 bg-violet-600 rounded-control flex items-center justify-center">
                           <BriefcaseIcon className="w-8 h-8 text-white" />
                         </div>
 
@@ -525,7 +525,7 @@ export default function MyOffersPage() {
                       </div>
 
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-green-50 rounded-sm p-4">
+                        <div className="bg-green-50 rounded-control p-4">
                           <div className="flex items-center">
                             <CurrencyDollarIcon className="w-5 h-5 text-green-600" />
                             <div className="ml-3">
@@ -536,7 +536,7 @@ export default function MyOffersPage() {
                         </div>
 
                         {offer.bonus && (
-                          <div className="bg-gold-50 rounded-sm p-4">
+                          <div className="bg-gold-50 rounded-control p-4">
                             <div className="flex items-center">
                               <StarIcon className="w-5 h-5 text-gold-600" />
                               <div className="ml-3">
@@ -549,7 +549,7 @@ export default function MyOffersPage() {
                           </div>
                         )}
 
-                        <div className="bg-purple-50 rounded-sm p-4">
+                        <div className="bg-purple-50 rounded-control p-4">
                           <div className="flex items-center">
                             <CalendarIcon className="w-5 h-5 text-purple-600" />
                             <div className="ml-3">
@@ -563,7 +563,7 @@ export default function MyOffersPage() {
                       </div>
 
                       {offer.negotiations.length > 0 && (
-                        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-sm p-3">
+                        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-control p-3">
                           <h4 className="text-sm font-medium text-yellow-800 mb-2">Active Negotiations</h4>
                           <div className="space-y-2">
                             {offer.negotiations.filter(n => n.status === 'pending').map((negotiation) => (
@@ -652,7 +652,7 @@ export default function MyOffersPage() {
         {/* Offer Details Modal */}
         {selectedOffer && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -671,7 +671,7 @@ export default function MyOffersPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Compensation</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="font-medium">Base Salary:</span>
                           <span>{formatSalary(selectedOffer.salary)}</span>
@@ -705,7 +705,7 @@ export default function MyOffersPage() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Work Details</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="font-medium">Schedule:</span>
                           <span>{getEnumLabel('workSchedule', selectedOffer.workSchedule.type)}</span>
@@ -743,7 +743,7 @@ export default function MyOffersPage() {
 
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
-                      <div className="bg-gray-50 rounded-sm p-4 space-y-3">
+                      <div className="bg-gray-50 rounded-control p-4 space-y-3">
                         <div>
                           <p className="font-medium">{selectedOffer.contactPerson.name || 'Not provided'}</p>
                           <p className="text-sm text-gray-600">{selectedOffer.contactPerson.title}</p>
@@ -767,7 +767,7 @@ export default function MyOffersPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Documents</h3>
                       <div className="space-y-2">
                         {selectedOffer.documents.length > 0 ? selectedOffer.documents.map((doc, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                             <div className="flex items-center">
                               <DocumentTextIcon className="w-5 h-5 text-violet-500 mr-3" />
                               <span className="text-sm font-medium">{doc.name}</span>
@@ -785,7 +785,7 @@ export default function MyOffersPage() {
                 </div>
 
                 {selectedOffer.additionalNotes && (
-                  <div className="mt-6 p-4 bg-gold-50 rounded-sm">
+                  <div className="mt-6 p-4 bg-gold-50 rounded-control">
                     <h4 className="font-medium text-violet-900 mb-2">Additional Notes</h4>
                     <p className="text-violet-800 text-sm">{selectedOffer.additionalNotes}</p>
                   </div>
@@ -807,7 +807,7 @@ export default function MyOffersPage() {
         {/* O1: Decline Reason Modal */}
         {showDeclineModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
-            <div className="bg-white rounded-sm shadow-xl max-w-md w-full">
+            <div className="bg-white rounded-control shadow-xl max-w-md w-full">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Decline Offer</h3>
                 <p className="text-sm text-gray-600 mb-4">Please provide a reason for declining this offer.</p>
@@ -815,7 +815,7 @@ export default function MyOffersPage() {
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   rows={4}
-                  className="w-full border border-gray-300 rounded-sm p-3 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="w-full border border-gray-300 rounded-control p-3 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                   placeholder="Reason for declining..."
                 />
                 <div className="flex justify-end mt-4 space-x-3">
@@ -842,13 +842,13 @@ export default function MyOffersPage() {
         {/* O2: Negotiation Modal */}
         {showNegotiationModal && negotiationOfferId && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
-            <div className="bg-white rounded-sm shadow-xl max-w-md w-full">
+            <div className="bg-white rounded-control shadow-xl max-w-md w-full">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Submit Counter-Offer</h3>
                 {(() => {
                   const offer = offers.find(o => o.id === negotiationOfferId);
                   return offer ? (
-                    <div className="mb-4 bg-gray-50 rounded-sm p-3">
+                    <div className="mb-4 bg-gray-50 rounded-control p-3">
                       <p className="text-sm font-medium text-gray-900">{offer.jobTitle}</p>
                       <p className="text-sm text-gray-600">Current offer: {formatSalary(offer.salary)}</p>
                     </div>
@@ -862,7 +862,7 @@ export default function MyOffersPage() {
                     value={counterOfferText}
                     onChange={(e) => setCounterOfferText(e.target.value)}
                     rows={4}
-                    className="w-full border border-gray-300 rounded-sm p-3 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                    className="w-full border border-gray-300 rounded-control p-3 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                     placeholder="Describe your counter-offer (e.g., desired salary, benefits, start date adjustments)..."
                   />
                 </div>

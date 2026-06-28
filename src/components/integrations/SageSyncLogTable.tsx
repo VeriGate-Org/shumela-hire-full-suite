@@ -35,7 +35,7 @@ function formatDuration(startedAt: string, completedAt: string | null): string {
 export default function SageSyncLogTable({ logs, loading }: SageSyncLogTableProps) {
   if (loading) {
     return (
-      <div className="bg-white rounded-sm shadow p-8 text-center">
+      <div className="bg-white rounded-control shadow p-8 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto mb-4" />
         <p className="text-gray-500 text-sm">Loading sync logs...</p>
       </div>
@@ -44,7 +44,7 @@ export default function SageSyncLogTable({ logs, loading }: SageSyncLogTableProp
 
   if (logs.length === 0) {
     return (
-      <div className="bg-white rounded-sm shadow p-8 text-center">
+      <div className="bg-white rounded-control shadow p-8 text-center">
         <ClockIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
         <p className="text-gray-500 text-sm">No sync logs recorded yet.</p>
         <p className="text-gray-400 text-xs mt-1">Sync logs will appear here once a sync schedule runs.</p>
@@ -53,7 +53,7 @@ export default function SageSyncLogTable({ logs, loading }: SageSyncLogTableProp
   }
 
   return (
-    <div className="bg-white rounded-sm shadow overflow-hidden">
+    <div className="bg-white rounded-control shadow overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

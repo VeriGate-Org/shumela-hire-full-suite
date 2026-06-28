@@ -787,7 +787,7 @@ export default function JobPostingsPage() {
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={() => setShowPublishWizard(true)}
-                    className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 text-sm font-medium"
+                    className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 text-sm font-medium"
                   >
                     Publish to All Channels
                   </button>

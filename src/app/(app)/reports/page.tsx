@@ -439,7 +439,7 @@ export default function ReportsPage() {
                       <button
                         key={result.id}
                         onClick={() => setCurrentResult(result)}
-                        className="p-4 text-left border border-gray-200 rounded-sm hover:border-violet-300 hover:bg-gold-50"
+                        className="p-4 text-left border border-gray-200 rounded-control hover:border-violet-300 hover:bg-gold-50"
                       >
                         <h4 className="font-medium text-gray-900">{result.config.name}</h4>
                         <p className="text-sm text-gray-500 mt-1">

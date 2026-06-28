@@ -85,7 +85,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
       <div className={`flex space-x-3 ${className}`}>
         <button
           onClick={() => handleActionClick('approve')}
-          className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-control transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
           <CheckIcon className="w-4 h-4 mr-2" />
           Approve
@@ -93,7 +93,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
         
         <button
           onClick={() => handleActionClick('reject')}
-          className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-control transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
           <XMarkIcon className="w-4 h-4 mr-2" />
           Reject
@@ -103,7 +103,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
       {/* Comment Modal */}
       {showCommentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-sm max-w-md w-full">
+          <div className="bg-white rounded-control max-w-md w-full">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
                 {actionType === 'approve' ? 'Approve Requisition' : 'Reject Requisition'}
@@ -119,7 +119,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
                 rows={4}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm focus:outline-none focus:ring-gold-500/60 focus:border-violet-400 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control shadow-sm focus:outline-none focus:ring-gold-500/60 focus:border-violet-400 resize-none"
                 placeholder={`Enter your ${actionType === 'approve' ? 'approval' : 'rejection'} comment...`}
                 disabled={isSubmitting}
               />
@@ -129,7 +129,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
               <button
                 onClick={handleCloseModal}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -137,7 +137,7 @@ const ApprovalActions: React.FC<ApprovalActionsProps> = ({
               <button
                 onClick={handleSubmitAction}
                 disabled={isSubmitting || (actionType === 'reject' && !comment.trim())}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`px-4 py-2 text-sm font-medium text-white rounded-control focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                   actionType === 'approve'
                     ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
                     : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'

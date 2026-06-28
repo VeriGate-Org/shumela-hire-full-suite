@@ -214,14 +214,14 @@ export default function BudgetApprovalsPage() {
               placeholder="Search requests..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+              className="pl-10 pr-4 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
             />
           </div>
           
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+            className="px-3 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -257,7 +257,7 @@ export default function BudgetApprovalsPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-card rounded-sm shadow p-4">
+        <div className="bg-card rounded-control shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', name: 'Executive Overview', icon: ChartBarIcon },
@@ -268,7 +268,7 @@ export default function BudgetApprovalsPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -286,7 +286,7 @@ export default function BudgetApprovalsPage() {
           <div className="space-y-6">
             {/* Key Financial Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <CurrencyDollarIconSolid className="w-8 h-8 text-primary" />
                   <div className="ml-4">
@@ -301,7 +301,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ReceiptPercentIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
@@ -314,7 +314,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ClockIconSolid className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
@@ -327,7 +327,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                   <div className="ml-4">
@@ -342,7 +342,7 @@ export default function BudgetApprovalsPage() {
             </div>
 
             {/* Budget Status Overview */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Budget Status by Category"
                 variant="goal"
@@ -367,7 +367,7 @@ export default function BudgetApprovalsPage() {
             </div>
 
             {/* Critical Approvals */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Critical Approvals Required"
                 variant="approval"
@@ -402,7 +402,7 @@ export default function BudgetApprovalsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {budgetItems.map((item) => (
-                <div key={item.id} className="bg-card rounded-sm shadow border-l-4 border-l-primary">
+                <div key={item.id} className="bg-card rounded-control shadow border-l-4 border-l-primary">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -473,7 +473,7 @@ export default function BudgetApprovalsPage() {
         {activeView === 'approvals' && (
           <div className="space-y-6">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-card rounded-sm shadow">
+              <div key={request.id} className="bg-card rounded-control shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -555,7 +555,7 @@ export default function BudgetApprovalsPage() {
         {activeView === 'analytics' && analytics && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Cost Per Hire</p>
@@ -565,7 +565,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Monthly Burn Rate</p>
@@ -575,7 +575,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Forecast Accuracy</p>
@@ -585,7 +585,7 @@ export default function BudgetApprovalsPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-sm shadow p-6">
+              <div className="bg-card rounded-control shadow p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Budget Variance</p>
@@ -596,7 +596,7 @@ export default function BudgetApprovalsPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <h3 className="text-lg font-medium text-foreground mb-6">Detailed Financial Analytics</h3>
               <div className="text-center py-12">
                 <ChartBarIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -612,7 +612,7 @@ export default function BudgetApprovalsPage() {
         {/* Approval Request Details Modal */}
         {selectedRequest && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-control shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
@@ -638,7 +638,7 @@ export default function BudgetApprovalsPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-foreground mb-3">Request Details</h3>
-                      <div className="bg-muted rounded-sm p-4 space-y-3">
+                      <div className="bg-muted rounded-control p-4 space-y-3">
                         <div>
                           <span className="font-medium text-foreground">Requested by:</span>
                           <div className="mt-1">
@@ -688,7 +688,7 @@ export default function BudgetApprovalsPage() {
                       <h3 className="text-lg font-semibold text-foreground mb-3">Supporting Documents</h3>
                       <div className="space-y-2">
                         {selectedRequest.supportingDocuments.map((doc, index) => (
-                          <div key={index} className="flex items-center p-2 bg-muted rounded-sm">
+                          <div key={index} className="flex items-center p-2 bg-muted rounded-control">
                             <DocumentTextIcon className="w-5 h-5 text-primary mr-3" />
                             <span className="text-sm text-foreground">{doc}</span>
                           </div>
@@ -700,7 +700,7 @@ export default function BudgetApprovalsPage() {
                       <h3 className="text-lg font-semibold text-foreground mb-3">Comments & Discussion</h3>
                       <div className="space-y-3 max-h-60 overflow-y-auto">
                         {selectedRequest.comments.map((comment) => (
-                          <div key={comment.id} className="bg-muted rounded-sm p-3">
+                          <div key={comment.id} className="bg-muted rounded-control p-3">
                             <div className="flex items-center justify-between mb-2">
                               <span className="font-medium text-sm text-foreground">{comment.author}</span>
                               <span className="text-xs text-muted-foreground">{new Date(comment.timestamp).toLocaleDateString()}</span>
@@ -713,7 +713,7 @@ export default function BudgetApprovalsPage() {
                       <div className="mt-4">
                         <textarea
                           placeholder="Add a comment..."
-                          className="w-full px-3 py-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                          className="w-full px-3 py-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
                           rows={3}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter' && e.ctrlKey) {

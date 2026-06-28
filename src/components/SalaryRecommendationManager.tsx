@@ -207,7 +207,7 @@ export default function SalaryRecommendationManager() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-gold-500 text-violet-950 text-sm font-medium rounded-sm hover:bg-gold-600"
+          className="px-4 py-2 bg-gold-500 text-violet-950 text-sm font-medium rounded-control hover:bg-gold-600"
         >
           New Recommendation
         </button>
@@ -215,7 +215,7 @@ export default function SalaryRecommendationManager() {
 
       {/* Load Error Banner */}
       {loadError && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-sm flex items-center justify-between">
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-control flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />
             <span className="text-sm text-red-700">{loadError}</span>
@@ -230,7 +230,7 @@ export default function SalaryRecommendationManager() {
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto border border-gray-200 rounded-sm">
+      <div className="overflow-x-auto border border-gray-200 rounded-control">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -287,21 +287,21 @@ export default function SalaryRecommendationManager() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">New Salary Recommendation</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Position Title *</label>
                 <input type="text" value={createForm.positionTitle}
                   onChange={e => setCreateForm(prev => ({ ...prev, positionTitle: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
                   <select value={createForm.department || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, department: e.target.value }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm">
+                    className="w-full p-2 border border-gray-300 rounded-control text-sm">
                     <option value="">Select department</option>
                     {departments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -312,7 +312,7 @@ export default function SalaryRecommendationManager() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Job Grade</label>
                   <input type="text" value={createForm.jobGrade || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, jobGrade: e.target.value }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                    className="w-full p-2 border border-gray-300 rounded-control text-sm" />
                 </div>
               </div>
               <div>
@@ -320,7 +320,7 @@ export default function SalaryRecommendationManager() {
                 <select
                   value={createForm.positionLevel || ''}
                   onChange={e => setCreateForm(prev => ({ ...prev, positionLevel: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 >
                   <option value="">Select level</option>
                   {positionLevels.map(level => (
@@ -332,34 +332,34 @@ export default function SalaryRecommendationManager() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Candidate Name</label>
                 <input type="text" value={createForm.candidateName || ''}
                   onChange={e => setCreateForm(prev => ({ ...prev, candidateName: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm" />
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Min Salary (ZAR)</label>
                   <input type="number" value={createForm.proposedMinSalary || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, proposedMinSalary: e.target.value ? Number(e.target.value) : undefined }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                    className="w-full p-2 border border-gray-300 rounded-control text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Target Salary</label>
                   <input type="number" value={createForm.proposedTargetSalary || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, proposedTargetSalary: e.target.value ? Number(e.target.value) : undefined }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                    className="w-full p-2 border border-gray-300 rounded-control text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Max Salary</label>
                   <input type="number" value={createForm.proposedMaxSalary || ''}
                     onChange={e => setCreateForm(prev => ({ ...prev, proposedMaxSalary: e.target.value ? Number(e.target.value) : undefined }))}
-                    className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                    className="w-full p-2 border border-gray-300 rounded-control text-sm" />
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50">Cancel</button>
+                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50">Cancel</button>
               <button onClick={handleCreate} disabled={actionLoading === -1}
-                className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50">
+                className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50">
                 {actionLoading === -1 ? 'Creating...' : 'Create'}
               </button>
             </div>
@@ -370,27 +370,27 @@ export default function SalaryRecommendationManager() {
       {/* Recommend Modal */}
       {showRecommendModal !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Provide Salary Recommendation</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Recommended Salary (ZAR) *</label>
                 <input type="number" value={recommendForm.recommendedSalary || ''}
                   onChange={e => setRecommendForm(prev => ({ ...prev, recommendedSalary: Number(e.target.value) }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm" />
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Justification</label>
                 <textarea value={recommendForm.recommendationJustification}
                   onChange={e => setRecommendForm(prev => ({ ...prev, recommendationJustification: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm text-sm" rows={4} />
+                  className="w-full p-2 border border-gray-300 rounded-control text-sm" rows={4} />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button onClick={() => setShowRecommendModal(null)}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-sm hover:bg-gray-50">Cancel</button>
+                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50">Cancel</button>
               <button onClick={handleProvideRecommendation} disabled={actionLoading === showRecommendModal}
-                className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50">
+                className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50">
                 {actionLoading === showRecommendModal ? 'Submitting...' : 'Submit Recommendation'}
               </button>
             </div>
@@ -401,14 +401,14 @@ export default function SalaryRecommendationManager() {
       {/* Approve Modal */}
       {showApproveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Approve Recommendation</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Approval Notes (optional)</label>
               <textarea
                 value={approvalNotes}
                 onChange={e => setApprovalNotes(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 rows={3}
                 placeholder="Add any notes about this approval..."
               />
@@ -435,7 +435,7 @@ export default function SalaryRecommendationManager() {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-sm shadow-xl max-w-md w-full mx-4 p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-md w-full mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Reject Recommendation</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -444,7 +444,7 @@ export default function SalaryRecommendationManager() {
               <textarea
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-sm text-sm"
+                className="w-full p-2 border border-gray-300 rounded-control text-sm"
                 rows={4}
                 placeholder="Please provide a detailed reason for rejection..."
               />

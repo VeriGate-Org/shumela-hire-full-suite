@@ -403,7 +403,7 @@ export default function WorkflowPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id)}
-                className={`flex items-center gap-3 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-violet-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -479,7 +479,7 @@ export default function WorkflowPage() {
       {/* Execution Detail Modal */}
       {selectedExecution && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full p-6">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Execution Details</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
@@ -511,7 +511,7 @@ export default function WorkflowPage() {
               {selectedExecution.executionLog.length > 0 && (
                 <div>
                   <p className="font-medium text-gray-600 mb-2">Execution Log</p>
-                  <div className="max-h-48 overflow-y-auto space-y-1 bg-gray-50 p-2 rounded-sm">
+                  <div className="max-h-48 overflow-y-auto space-y-1 bg-gray-50 p-2 rounded-control">
                     {selectedExecution.executionLog.map((entry) => (
                       <div key={entry.id} className="text-xs text-gray-700">
                         <span className="text-gray-400">{new Date(entry.timestamp).toLocaleTimeString()}</span>{' '}

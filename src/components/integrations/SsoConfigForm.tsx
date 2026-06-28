@@ -119,14 +119,14 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
   return (
     <div className="space-y-6">
       {/* Provider Selection */}
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Identity Provider</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {PROVIDER_OPTIONS.map(option => (
             <button
               key={option.value}
               onClick={() => handleChange('provider', option.value)}
-              className={`p-4 border-2 rounded-sm text-left transition-colors ${
+              className={`p-4 border-2 rounded-control text-left transition-colors ${
                 form.provider === option.value
                   ? 'border-violet-500 bg-violet-50'
                   : 'border-gray-200 hover:border-gray-300'
@@ -148,7 +148,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
       </div>
 
       {/* Basic Configuration */}
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Configuration</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -158,7 +158,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
               value={form.displayName}
               onChange={e => handleChange('displayName', e.target.value)}
               placeholder="e.g., Corporate Azure AD"
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
           </div>
           <div>
@@ -166,7 +166,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
             <select
               value={form.defaultRole}
               onChange={e => handleChange('defaultRole', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             >
               {ROLE_OPTIONS.map(role => (
                 <option key={role.value} value={role.value}>{role.label}</option>
@@ -178,7 +178,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
 
       {/* OAuth/OIDC Fields (Azure AD, Okta) */}
       {(showOAuthFields || showAdfsFields) && (
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             {showAdfsFields ? 'ADFS Configuration' : 'OAuth 2.0 / OIDC Configuration'}
           </h3>
@@ -190,7 +190,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                 value={form.clientId}
                 onChange={e => handleChange('clientId', e.target.value)}
                 placeholder="Application (client) ID"
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div>
@@ -203,7 +203,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                 value={form.clientSecret}
                 onChange={e => handleChange('clientSecret', e.target.value)}
                 placeholder={initialConfig ? '********' : 'Client secret value'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div>
@@ -215,7 +215,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                 value={form.tenantIdentifier}
                 onChange={e => handleChange('tenantIdentifier', e.target.value)}
                 placeholder={form.provider === 'AZURE_AD' ? 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' : 'Organization identifier'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div>
@@ -231,7 +231,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                     ? 'https://adfs.yourdomain.com'
                     : 'https://dev-example.okta.com'
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
 
       {/* SAML Fields */}
       {showSamlFields && (
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">SAML 2.0 Configuration</h3>
           <div className="space-y-4">
             <div>
@@ -250,7 +250,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                 value={form.discoveryUrl}
                 onChange={e => handleChange('discoveryUrl', e.target.value)}
                 placeholder="https://idp.example.com/saml2/metadata"
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div>
@@ -260,7 +260,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
                 onChange={e => handleChange('metadataXml', e.target.value)}
                 rows={8}
                 placeholder="<EntityDescriptor ...>"
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 font-mono text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 font-mono text-sm"
               />
             </div>
           </div>
@@ -268,7 +268,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
       )}
 
       {/* Feature Toggles */}
-      <div className="bg-white rounded-sm shadow p-6">
+      <div className="bg-white rounded-control shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
         <div className="space-y-4">
           <label className="flex items-center gap-3">
@@ -301,7 +301,7 @@ export default function SsoConfigForm({ initialConfig, onSaved }: SsoConfigFormP
 
       {/* Test Result */}
       {testResult && (
-        <div className={`rounded-sm border p-4 ${
+        <div className={`rounded-control border p-4 ${
           testResult.success
             ? 'bg-green-50 border-green-200'
             : 'bg-red-50 border-red-200'

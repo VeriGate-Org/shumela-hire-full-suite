@@ -28,10 +28,10 @@ export default function AiSmartSearch() {
       <div className="flex gap-2">
         <input type="text" value={query} onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          className="flex-1 text-sm p-2.5 border border-gray-300 rounded-sm"
+          className="flex-1 text-sm p-2.5 border border-gray-300 rounded-control"
           placeholder="e.g. Find senior Java developers who applied in the last month" />
         <button onClick={handleSearch} disabled={loading || !query.trim()}
-          className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
           {loading ? 'Searching...' : 'Search'}
         </button>
       </div>
@@ -61,7 +61,7 @@ export default function AiSmartSearch() {
             <div className="space-y-2">
               <p className="text-xs text-gray-500">{result.totalResults} result{result.totalResults !== 1 ? 's' : ''} found</p>
               {result.results.map((item, i) => (
-                <div key={i} className="p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                <div key={i} className="p-3 bg-gray-50 border border-gray-200 rounded-control">
                   <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(item, null, 2)}</pre>
                 </div>
               ))}

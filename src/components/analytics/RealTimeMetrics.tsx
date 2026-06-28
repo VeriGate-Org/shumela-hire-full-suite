@@ -179,7 +179,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -221,10 +221,10 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 
             return (
               <div key={metric.id} className="relative group">
-                <div className="bg-gray-50 rounded-sm p-4 transition-all duration-300 group-hover:shadow-md">
+                <div className="bg-gray-50 rounded-control p-4 transition-all duration-300 group-hover:shadow-md">
                   {/* Icon and trend indicator */}
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`p-2 rounded-sm ${metric.color}`}>
+                    <div className={`p-2 rounded-control ${metric.color}`}>
                       <metric.icon className="w-5 h-5" />
                     </div>
                     {change.direction !== 'neutral' && (

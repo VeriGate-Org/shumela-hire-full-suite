@@ -293,7 +293,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
               type="text"
               value={profileData.name}
               onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
               placeholder="Enter your full name"
             />
           </div>
@@ -305,7 +305,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
               type="email"
               value={profileData.email}
               onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
               placeholder="Enter your email"
             />
           </div>
@@ -317,7 +317,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
               type="tel"
               value={profileData.phone}
               onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 transition-colors"
               placeholder="Enter your phone number"
             />
           </div>
@@ -334,8 +334,8 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
       </p>
 
       {/* Role badge */}
-      <div className="flex items-center gap-3 p-4 bg-gold-50 border border-violet-100 rounded-sm mb-6">
-        <div className="h-10 w-10 rounded-sm bg-gold-500 grid place-items-center">
+      <div className="flex items-center gap-3 p-4 bg-gold-50 border border-violet-100 rounded-control mb-6">
+        <div className="h-10 w-10 rounded-control bg-gold-500 grid place-items-center">
           <span className="text-violet-950 font-bold text-sm">{roleName.charAt(0)}</span>
         </div>
         <div>
@@ -362,7 +362,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
       {/* Dashboard preview */}
       <div>
         <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Dashboard Preview</h3>
-        <div className="border border-gray-200 rounded-sm overflow-hidden">
+        <div className="border border-gray-200 rounded-control overflow-hidden">
           <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
             <div className="flex items-center gap-1.5">
               <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
@@ -374,12 +374,12 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
           <div className="p-4 bg-white">
             <div className="grid grid-cols-3 gap-3 mb-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-14 rounded-sm bg-gray-100 animate-pulse" />
+                <div key={i} className="h-14 rounded-control bg-gray-100 animate-pulse" />
               ))}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="h-24 rounded-sm bg-gray-100 animate-pulse" />
-              <div className="h-24 rounded-sm bg-gray-100 animate-pulse" />
+              <div className="h-24 rounded-control bg-gray-100 animate-pulse" />
+              <div className="h-24 rounded-control bg-gray-100 animate-pulse" />
             </div>
             <p className="text-center text-[10px] text-gray-400 mt-3">
               Your personalized dashboard will display widgets relevant to the {roleName} role.
@@ -405,9 +405,9 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
             {highlightedFeatures.map((feature) => (
               <div
                 key={feature.key}
-                className="flex items-start gap-3 p-3 bg-gold-50 border border-violet-100 rounded-sm"
+                className="flex items-start gap-3 p-3 bg-gold-50 border border-violet-100 rounded-control"
               >
-                <div className="mt-0.5 h-8 w-8 rounded-sm bg-gold-500 grid place-items-center flex-shrink-0">
+                <div className="mt-0.5 h-8 w-8 rounded-control bg-gold-500 grid place-items-center flex-shrink-0">
                   <svg className="h-4 w-4 text-violet-950" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
                   </svg>
@@ -436,7 +436,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
             {otherFeatures.map((feature) => (
               <div
                 key={feature.key}
-                className="flex items-center justify-between gap-3 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-sm"
+                className="flex items-center justify-between gap-3 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-control"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-800">{feature.title}</p>
@@ -554,7 +554,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
       </div>
 
       {/* Step content card */}
-      <div className="bg-white border border-gray-200 rounded-sm shadow-sm p-6 sm:p-8">
+      <div className="bg-white border border-gray-200 rounded-control shadow-sm p-6 sm:p-8">
         {stepRenderers[currentStep]()}
       </div>
 
@@ -565,7 +565,7 @@ export default function OnboardingWizard({ companyName = 'ShumelaHire', onComple
             {!isFirstStep && (
               <button
                 onClick={handleBack}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/40 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-control hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/40 transition-colors"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />

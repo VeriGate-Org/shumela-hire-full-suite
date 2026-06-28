@@ -128,7 +128,7 @@ const QuickActions: React.FC = () => {
             <Link
               key={action.id}
               href={action.href}
-              className={`relative p-4 rounded-sm border-2 transition-all duration-200 transform hover:scale-105 ${
+              className={`relative p-4 rounded-control border-2 transition-all duration-200 transform hover:scale-105 ${
                 action.disabled 
                   ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200' 
                   : `${action.color} cursor-pointer`
@@ -177,7 +177,7 @@ const QuickActions: React.FC = () => {
             View all →
           </Link>
         </div>
-        <div className="bg-white rounded-sm border border-gray-200 divide-y divide-gray-200">
+        <div className="bg-white rounded-control border border-gray-200 divide-y divide-gray-200">
           {recentActions.map((action) => (
             <Link
               key={action.id}
@@ -211,7 +211,7 @@ const QuickActions: React.FC = () => {
       </div>
 
       {/* Keyboard Shortcuts */}
-      <div className="bg-gray-50 rounded-sm p-4">
+      <div className="bg-gray-50 rounded-control p-4">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Keyboard Shortcuts</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
           <div className="flex items-center justify-between">

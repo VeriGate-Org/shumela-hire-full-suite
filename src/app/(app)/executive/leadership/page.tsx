@@ -194,14 +194,14 @@ export default function LeadershipTeamPage() {
               placeholder="Search leaders..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
           </div>
           
           <select
             value={filterDepartment}
             onChange={(e) => setFilterDepartment(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="px-3 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           >
             <option value="all">All Departments</option>
             {departments.map(dept => (
@@ -236,7 +236,7 @@ export default function LeadershipTeamPage() {
     >
       <div className="space-y-6">
         {/* View Navigation */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-white rounded-control shadow p-4">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', name: 'Team Overview', icon: ChartBarIcon },
@@ -247,7 +247,7 @@ export default function LeadershipTeamPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? 'bg-gold-100 text-violet-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -265,7 +265,7 @@ export default function LeadershipTeamPage() {
           <div className="space-y-6">
             {/* Key Leadership Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <UsersIcon className="w-8 h-8 text-violet-500" />
                   <div className="ml-4">
@@ -278,7 +278,7 @@ export default function LeadershipTeamPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <TrophyIconSolid className="w-8 h-8 text-purple-500" />
                   <div className="ml-4">
@@ -289,7 +289,7 @@ export default function LeadershipTeamPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <ShieldCheckIcon className="w-8 h-8 text-green-500" />
                   <div className="ml-4">
@@ -300,7 +300,7 @@ export default function LeadershipTeamPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <StarIconSolid className="w-8 h-8 text-orange-500" />
                   <div className="ml-4">
@@ -313,7 +313,7 @@ export default function LeadershipTeamPage() {
             </div>
 
             {/* Leadership Alerts */}
-            <div className="bg-card rounded-sm shadow p-6">
+            <div className="bg-card rounded-control shadow p-6">
               <ExecutiveTimeline
                 title="Leadership Alerts"
                 variant="alert"
@@ -334,7 +334,7 @@ export default function LeadershipTeamPage() {
             </div>
 
             {/* Executive Team Summary */}
-            <div className="bg-white rounded-sm shadow">
+            <div className="bg-white rounded-control shadow">
               <div className="p-6 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Executive Team at a Glance</h3>
               </div>
@@ -368,7 +368,7 @@ export default function LeadershipTeamPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredLeaders.map((leader) => (
-                <div key={leader.id} className="bg-white rounded-sm shadow border-l-4 border-l-violet-500">
+                <div key={leader.id} className="bg-white rounded-control shadow border-l-4 border-l-violet-500">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4">
@@ -452,14 +452,14 @@ export default function LeadershipTeamPage() {
         {/* Performance Metrics */}
         {activeView === 'performance' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-sm shadow">
+            <div className="bg-white rounded-control shadow">
               <div className="p-6 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Leadership Performance Dashboard</h3>
               </div>
               <div className="p-6">
                 <div className="space-y-8">
                   {leaders.map((leader) => (
-                    <div key={leader.id} className="border border-gray-200 rounded-sm p-4">
+                    <div key={leader.id} className="border border-gray-200 rounded-control p-4">
                       <div className="flex items-center space-x-4 mb-4">
                         <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center text-lg">
                           {leader.avatar}
@@ -532,14 +532,14 @@ export default function LeadershipTeamPage() {
         {/* Succession Planning */}
         {activeView === 'succession' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-sm shadow">
+            <div className="bg-white rounded-control shadow">
               <div className="p-6 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Leadership Succession Planning</h3>
               </div>
               <div className="p-6">
                 <div className="space-y-6">
                   {leaders.map((leader) => (
-                    <div key={leader.id} className="border border-gray-200 rounded-sm p-4">
+                    <div key={leader.id} className="border border-gray-200 rounded-control p-4">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center text-lg">
@@ -593,7 +593,7 @@ export default function LeadershipTeamPage() {
         {/* Leader Profile Modal */}
         {selectedLeader && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-control shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center space-x-4">
@@ -624,12 +624,12 @@ export default function LeadershipTeamPage() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Experience</h3>
                       <div className="space-y-3">
-                        <div className="bg-gold-50 border border-violet-200 rounded-sm p-3">
+                        <div className="bg-gold-50 border border-violet-200 rounded-control p-3">
                           <h4 className="font-medium text-violet-900">{selectedLeader.title}</h4>
                           <p className="text-sm text-violet-700">Current Company • {selectedLeader.experience.yearsAtCompany} years</p>
                         </div>
                         {selectedLeader.experience.previousRoles.map((role, index) => (
-                          <div key={index} className="bg-gray-50 border border-gray-200 rounded-sm p-3">
+                          <div key={index} className="bg-gray-50 border border-gray-200 rounded-control p-3">
                             <h4 className="font-medium text-gray-900">{role.title}</h4>
                             <p className="text-sm text-gray-600">{role.company} • {role.duration}</p>
                           </div>
@@ -641,7 +641,7 @@ export default function LeadershipTeamPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Current Focus Areas</h3>
                       <div className="space-y-3">
                         {selectedLeader.currentFocus.map((focus, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-control">
                             <div>
                               <h4 className="font-medium text-gray-900">{focus.initiative}</h4>
                               <p className="text-sm text-gray-600">Timeline: {focus.timeline}</p>

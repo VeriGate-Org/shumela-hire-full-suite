@@ -34,7 +34,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top nav — fixed full width */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-card border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-card border-b border-border shadow-sm">
         <div className="flex h-full items-center justify-between px-4">
           {/* Left: hamburger + logo + breadcrumb */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -137,7 +137,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
       `}>
         <main className="min-h-[calc(100vh-3.5rem)]" style={{ padding: 'var(--density-padding)' }}>
           {(title || subtitle || actions) && (
-            <section className="enterprise-card p-4 md:p-5 mb-4">
+            <section className="enterprise-card border-l-4 border-l-cta p-4 md:p-5 mb-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   {title && (
@@ -158,7 +158,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
           </div>
         </main>
 
-        <footer className="border-t border-border bg-card">
+        <footer className="border-t border-border bg-surface-navy">
           <div className="px-6 py-4 flex flex-col sm:flex-row justify-between items-center text-xs text-muted-foreground">
             <p>&copy; 2026 <span className="text-primary">Shumela</span><span className="text-cta">Hire</span></p>
             <div className="flex gap-4 mt-2 sm:mt-0">

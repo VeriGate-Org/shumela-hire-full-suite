@@ -147,7 +147,7 @@ export function PerformanceMonitor() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black bg-opacity-80 text-white text-xs p-3 rounded-sm max-w-xs">
+    <div className="fixed bottom-4 right-4 bg-black bg-opacity-80 text-white text-xs p-3 rounded-control max-w-xs">
       <h4 className="font-bold mb-2">Performance Metrics</h4>
       <div className="space-y-1">
         {metrics.lcp && (

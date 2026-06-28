@@ -58,7 +58,7 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Email Type</label>
           <select value={emailType} onChange={e => setEmailType(e.target.value as EmailType)}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm">
+            className="w-full text-sm p-2 border border-gray-300 rounded-control">
             {emailTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
@@ -67,7 +67,7 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
           <div className="flex gap-2">
             {(['formal', 'friendly', 'concise'] as const).map(t => (
               <button key={t} onClick={() => setTone(t)}
-                className={`px-3 py-1.5 text-xs rounded-sm border ${tone === t ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+                className={`px-3 py-1.5 text-xs rounded-control border ${tone === t ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
                 {t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
@@ -76,12 +76,12 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Candidate Name</label>
           <input type="text" value={candidateName} onChange={e => setCandidateName(e.target.value)}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Job Title</label>
           <input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)}
-            className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+            className="w-full text-sm p-2 border border-gray-300 rounded-control" />
         </div>
       </div>
 
@@ -90,16 +90,16 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
         <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Additional Context</label>
         <div className="flex gap-2">
           <input type="text" value={contextKey} onChange={e => setContextKey(e.target.value)}
-            className="w-1/3 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Key" />
+            className="w-1/3 text-sm p-2 border border-gray-300 rounded-control" placeholder="Key" />
           <input type="text" value={contextValue} onChange={e => setContextValue(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addContext()}
-            className="flex-1 text-sm p-2 border border-gray-300 rounded-sm" placeholder="Value" />
+            className="flex-1 text-sm p-2 border border-gray-300 rounded-control" placeholder="Value" />
           <button onClick={addContext} className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200">Add</button>
         </div>
         {Object.keys(context).length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {Object.entries(context).map(([k, v]) => (
-              <span key={k} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-sm">
+              <span key={k} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-control">
                 <strong>{k}:</strong> {v}
                 <button onClick={() => { const c = { ...context }; delete c[k]; setContext(c); }}
                   className="text-gray-400 hover:text-red-500">&times;</button>
@@ -116,25 +116,25 @@ export default function AiEmailDrafter({ candidateName: initialName, jobTitle: i
 
       {/* Result */}
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-3">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Subject</label>
             <input type="text" value={editedSubject} onChange={e => setEditedSubject(e.target.value)}
-              className="w-full text-sm p-2 border border-gray-300 rounded-sm" />
+              className="w-full text-sm p-2 border border-gray-300 rounded-control" />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Body</label>
             <textarea value={editedBody} onChange={e => setEditedBody(e.target.value)}
-              rows={10} className="w-full text-sm p-3 border border-gray-300 rounded-sm resize-y leading-relaxed" />
+              rows={10} className="w-full text-sm p-3 border border-gray-300 rounded-control resize-y leading-relaxed" />
           </div>
           <div className="flex gap-2">
             <button onClick={() => navigator.clipboard.writeText(`Subject: ${editedSubject}\n\n${editedBody}`)}
-              className="px-3 py-1.5 text-xs border border-gray-300 rounded-sm text-gray-700 hover:bg-gray-100">
+              className="px-3 py-1.5 text-xs border border-gray-300 rounded-control text-gray-700 hover:bg-gray-100">
               Copy
             </button>
             {onSend && (
               <button onClick={() => onSend(editedSubject, editedBody)}
-                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600">
+                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600">
                 Send Email
               </button>
             )}

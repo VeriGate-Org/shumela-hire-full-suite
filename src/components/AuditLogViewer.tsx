@@ -196,7 +196,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 aria-label="Go to previous page"
-                className="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-sm text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-control text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
@@ -204,7 +204,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 aria-label="Go to next page"
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-sm text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-control text-foreground bg-card hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -218,7 +218,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px" aria-label="Audit log pagination">
+                <nav className="relative z-0 inline-flex rounded-control shadow-sm -space-x-px" aria-label="Audit log pagination">
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}

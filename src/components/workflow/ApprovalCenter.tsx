@@ -195,12 +195,12 @@ export default function ApprovalCenter({
   ).length;
 
   return (
-    <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gold-100 rounded-sm">
+            <div className="p-2 bg-gold-100 rounded-control">
               <DocumentTextIcon className="h-6 w-6 text-gold-600" />
             </div>
             <div>
@@ -281,7 +281,7 @@ export default function ApprovalCenter({
         ) : (
           <div className="space-y-4">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="border border-gray-200 rounded-sm p-4">
+              <div key={request.id} className="border border-gray-200 rounded-control p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -435,7 +435,7 @@ export default function ApprovalCenter({
       {/* Comment Modal */}
       {showCommentModal && selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-sm p-6 w-full max-w-md">
+          <div className="bg-white rounded-control p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
             </h3>
@@ -451,7 +451,7 @@ export default function ApprovalCenter({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={actionType === 'approve' ? 'Optional comment...' : 'Reason for rejection...'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               rows={3}
               required={actionType === 'reject'}
             />
@@ -460,7 +460,7 @@ export default function ApprovalCenter({
               <button
                 onClick={handleSubmitAction}
                 disabled={actionType === 'reject' && !comment.trim()}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-sm ${
+                className={`px-4 py-2 text-sm font-medium text-white rounded-control ${
                   actionType === 'approve'
                     ? 'bg-green-600 hover:bg-green-700'
                     : 'bg-red-600 hover:bg-red-700'
@@ -475,7 +475,7 @@ export default function ApprovalCenter({
                   setSelectedRequest(null);
                   setActionType(null);
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-control hover:bg-gray-200"
               >
                 Cancel
               </button>

@@ -172,7 +172,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           className={`
             group flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent
             ${isActive
-              ? 'bg-cta/10 text-primary border-l-[3px] border-l-cta border-y-transparent border-r-transparent pl-[7px]'
+              ? 'bg-white dark:bg-card shadow-sm text-primary border-l-[3px] border-l-cta border-y-transparent border-r-transparent pl-[7px]'
               : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             }
             ${isCollapsed ? 'justify-center px-2' : ''}
@@ -212,7 +212,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
   return (
     <aside ref={sidebarRef} className={`
-      fixed left-0 top-14 bottom-0 bg-card border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
+      fixed left-0 top-14 bottom-0 bg-surface-navy border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
       ${isCollapsed ? 'w-16' : 'w-60'}
     `}>
       {/* Search */}
@@ -225,7 +225,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-control bg-muted text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-transparent"
+              className="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-control bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-transparent"
             />
             {searchQuery && (
               <button
@@ -293,7 +293,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         )}
       </div>
 
-      <div className="sticky bottom-0 border-t border-border bg-card p-2 space-y-1">
+      <div className="sticky bottom-0 border-t border-border bg-surface-navy p-2 space-y-1">
         {/* Pinned Settings link */}
         <Link
           href="/settings"

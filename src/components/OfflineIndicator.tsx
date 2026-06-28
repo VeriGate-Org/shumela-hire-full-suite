@@ -9,7 +9,7 @@ export const OfflineIndicator: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 left-4 z-50 max-w-sm">
-      <div className={`rounded-sm p-4 shadow-lg border ${
+      <div className={`rounded-control p-4 shadow-lg border ${
         isOnline ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'
       }`}>
         <div className="flex items-center justify-between">

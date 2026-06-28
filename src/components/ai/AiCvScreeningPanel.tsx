@@ -74,7 +74,7 @@ export default function AiCvScreeningPanel({ applicationId, jobRequirements = []
       </div>
 
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-4">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-4">
           {/* Scores */}
           <div className="space-y-3">
             <div>
@@ -91,7 +91,7 @@ export default function AiCvScreeningPanel({ applicationId, jobRequirements = []
 
           {/* Explainability section */}
           {(result.scoringMethodology || result.weightBreakdown) && (
-            <div className="border border-gray-200 rounded-sm bg-white">
+            <div className="border border-gray-200 rounded-control bg-white">
               <button
                 onClick={() => setShowMethodology(!showMethodology)}
                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -138,7 +138,7 @@ export default function AiCvScreeningPanel({ applicationId, jobRequirements = []
                       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
                         {result.weightBreakdown.map((item, idx) => (
                           <div key={idx} className="flex items-center gap-1">
-                            <span className={`w-2 h-2 rounded-sm ${WEIGHT_COLORS[idx % WEIGHT_COLORS.length]}`} />
+                            <span className={`w-2 h-2 rounded-control ${WEIGHT_COLORS[idx % WEIGHT_COLORS.length]}`} />
                             <span className="text-[10px] text-gray-500">{item.factor} {item.weight}%</span>
                           </div>
                         ))}

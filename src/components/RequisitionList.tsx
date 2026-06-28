@@ -141,7 +141,7 @@ const RequisitionList: React.FC<RequisitionListProps> = ({
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-sm p-4">
+      <div className="bg-red-50 border border-red-200 rounded-control p-4">
         <p className="text-red-600">Error: {error}</p>
         <button 
           onClick={fetchRequisitions}
@@ -170,7 +170,7 @@ const RequisitionList: React.FC<RequisitionListProps> = ({
   return (
     <div className="space-y-4">
       {requisitions.map((requisition) => (
-        <div key={requisition.id} className="bg-white rounded-sm shadow border border-gray-200 p-6">
+        <div key={requisition.id} className="bg-white rounded-control shadow border border-gray-200 p-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">

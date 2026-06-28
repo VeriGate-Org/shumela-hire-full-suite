@@ -185,24 +185,24 @@ export default function EmployeeDetailPage() {
           <InlineLoading message="Loading employee..." />
         </div>
       ) : forbidden ? (
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-orange-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-orange-500 p-6">
           <p className="font-semibold text-gray-900">Access denied</p>
           <p className="text-sm text-gray-600 mt-1">
             You don&apos;t have permission to view this employee record.
           </p>
         </div>
       ) : error ? (
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-red-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-red-500 p-6">
           <p className="font-semibold text-red-700">Failed to load</p>
           <p className="text-sm text-gray-600 mt-1">{error}</p>
         </div>
       ) : !employee ? (
-        <div className="bg-white rounded-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-control border border-gray-200 p-6">
           <p className="text-sm text-gray-600">No employee data.</p>
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
             <div className="flex items-start gap-4">
               <div className="h-16 w-16 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-lg font-semibold flex-shrink-0 overflow-hidden">
                 {employee.profilePhotoUrl ? (
@@ -282,7 +282,7 @@ export default function EmployeeDetailPage() {
                   key={link.label}
                   type="button"
                   onClick={() => router.push(link.href)}
-                  className="bg-white rounded-sm border border-gray-200 p-4 text-left hover:shadow-md transition-shadow"
+                  className="bg-white rounded-control border border-gray-200 p-4 text-left hover:shadow-md transition-shadow"
                 >
                   <div className={`inline-flex p-2 rounded-full ${link.tone}`}>
                     <link.icon className="h-5 w-5" />

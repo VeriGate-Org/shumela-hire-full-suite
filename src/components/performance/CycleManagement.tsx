@@ -110,7 +110,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
   }
 
   return (
-    <div className="bg-white shadow rounded-sm">
+    <div className="bg-white shadow rounded-control">
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -124,7 +124,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
           {canManage && (
             <button
               onClick={() => setShowCreateForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-control text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500/60"
             >
               Create New Cycle
             </button>
@@ -132,7 +132,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-control">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -140,7 +140,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
         {/* Create Cycle Modal */}
         {showCreateForm && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-sm bg-white">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-control bg-white">
               <div className="mt-3">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Create New Performance Cycle
@@ -155,7 +155,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                       required
                       value={newCycle.name}
                       onChange={(e) => setNewCycle(prev => ({ ...prev, name: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                     />
                   </div>
                   
@@ -167,7 +167,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                       rows={3}
                       value={newCycle.description}
                       onChange={(e) => setNewCycle(prev => ({ ...prev, description: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                     />
                   </div>
                   
@@ -181,7 +181,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                         required
                         value={newCycle.startDate}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, startDate: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                       />
                     </div>
                     
@@ -194,7 +194,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                         required
                         value={newCycle.endDate}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, endDate: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                       />
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                         required
                         value={newCycle.midYearDeadline}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, midYearDeadline: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                       />
                     </div>
                     
@@ -222,7 +222,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                         required
                         value={newCycle.finalReviewDeadline}
                         onChange={(e) => setNewCycle(prev => ({ ...prev, finalReviewDeadline: e.target.value }))}
-                        className="mt-1 block w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="mt-1 block w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-gold-500/60 focus:border-violet-400"
                       />
                     </div>
                   </div>
@@ -231,13 +231,13 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                     <button
                       type="button"
                       onClick={() => setShowCreateForm(false)}
-                      className="px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 rounded-control text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 border border-transparent rounded-sm text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
+                      className="px-4 py-2 border border-transparent rounded-control text-sm font-medium text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
                     >
                       Create Cycle
                     </button>
@@ -258,7 +258,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
             cycles.map((cycle) => (
               <div
                 key={cycle.id}
-                className="border border-gray-200 rounded-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="border border-gray-200 rounded-control p-4 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => onCycleSelect?.(cycle)}
               >
                 <div className="flex justify-between items-start">
@@ -291,7 +291,7 @@ export default function CycleManagement({ tenantId, userId, onCycleSelect, canMa
                         e.stopPropagation();
                         handleActivateCycle(cycle.id);
                       }}
-                      className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-sm hover:bg-green-200"
+                      className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-control hover:bg-green-200"
                     >
                       Activate
                     </button>

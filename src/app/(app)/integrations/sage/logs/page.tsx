@@ -77,7 +77,7 @@ export default function SageLogsPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="bg-white rounded-sm shadow px-6 py-4 flex items-center justify-between">
+            <div className="bg-white rounded-control shadow px-6 py-4 flex items-center justify-between">
               <p className="text-sm text-gray-600">
                 Page {currentPage + 1} of {totalPages} ({totalElements.toLocaleString()} total)
               </p>

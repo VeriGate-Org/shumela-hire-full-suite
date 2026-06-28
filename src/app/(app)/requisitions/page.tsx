@@ -215,7 +215,7 @@ export default function RequisitionsPage() {
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   aria-label="Search requisitions by job title, department, or location"
-                  className="pl-10 pr-4 py-2 w-full border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                  className="pl-10 pr-4 py-2 w-full border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
               </div>
             </div>
@@ -224,7 +224,7 @@ export default function RequisitionsPage() {
                 value={statusFilter}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
                 aria-label="Filter requisitions by status"
-                className="w-full py-2 px-3 border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full py-2 px-3 border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>

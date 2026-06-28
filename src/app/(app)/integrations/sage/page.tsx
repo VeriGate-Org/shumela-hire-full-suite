@@ -80,21 +80,21 @@ export default function SageDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Link
                 href="/integrations/sage/config"
-                className="flex items-center gap-2 bg-white rounded-sm shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                className="flex items-center gap-2 bg-white rounded-control shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
               >
                 <Cog6ToothIcon className="w-5 h-5 text-violet-500" />
                 Connector Configuration
               </Link>
               <Link
                 href="/integrations/sage/schedules"
-                className="flex items-center gap-2 bg-white rounded-sm shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                className="flex items-center gap-2 bg-white rounded-control shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
               >
                 <CalendarDaysIcon className="w-5 h-5 text-green-500" />
                 Sync Schedules
               </Link>
               <Link
                 href="/integrations/sage/logs"
-                className="flex items-center gap-2 bg-white rounded-sm shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                className="flex items-center gap-2 bg-white rounded-control shadow border p-4 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
               >
                 <ClipboardDocumentListIcon className="w-5 h-5 text-blue-500" />
                 Sync Logs
@@ -103,7 +103,7 @@ export default function SageDashboardPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <LinkIcon className="w-8 h-8 text-violet-500" />
@@ -115,7 +115,7 @@ export default function SageDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <CheckCircleIcon className="w-8 h-8 text-green-500" />
@@ -127,7 +127,7 @@ export default function SageDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <SignalIcon className="w-8 h-8 text-blue-500" />
@@ -141,7 +141,7 @@ export default function SageDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-sm shadow p-6">
+              <div className="bg-white rounded-control shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <ClockIcon className="w-8 h-8 text-yellow-500" />
@@ -166,7 +166,7 @@ export default function SageDashboardPage() {
                 </Link>
               </div>
               {connectors.length === 0 ? (
-                <div className="bg-white rounded-sm shadow border p-6 text-center text-gray-500">
+                <div className="bg-white rounded-control shadow border p-6 text-center text-gray-500">
                   No connectors configured.{' '}
                   <Link href="/integrations/sage/config" className="text-gold-600 hover:underline">
                     Create one now
@@ -175,7 +175,7 @@ export default function SageDashboardPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {connectors.map((connector) => (
-                    <div key={connector.id} className="bg-white rounded-sm shadow border p-5">
+                    <div key={connector.id} className="bg-white rounded-control shadow border p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="text-sm font-semibold text-gray-900">{connector.name}</h3>
@@ -225,11 +225,11 @@ export default function SageDashboardPage() {
                 </Link>
               </div>
               {recentLogs.length === 0 ? (
-                <div className="bg-white rounded-sm shadow border p-6 text-center text-gray-500">
+                <div className="bg-white rounded-control shadow border p-6 text-center text-gray-500">
                   No sync activity recorded yet.
                 </div>
               ) : (
-                <div className="bg-white rounded-sm shadow overflow-hidden">
+                <div className="bg-white rounded-control shadow overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>

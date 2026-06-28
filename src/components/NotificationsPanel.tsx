@@ -177,7 +177,7 @@ export default function NotificationsPanel({
         {notifications.map((notification) => (
           <div 
             key={notification.id} 
-            className={`p-4 border rounded-sm cursor-pointer transition-all duration-200 ${
+            className={`p-4 border rounded-control cursor-pointer transition-all duration-200 ${
               notification.isRead 
                 ? 'bg-white border-gray-200 hover:bg-gray-50' 
                 : 'bg-gold-50 border-violet-200 hover:bg-gold-100 shadow-sm'

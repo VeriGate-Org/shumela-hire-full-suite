@@ -68,7 +68,7 @@ const InteractiveFilters: React.FC<InteractiveFiltersProps> = ({
               placeholder={filter.placeholder || `Search ${filter.label.toLowerCase()}...`}
               value={value}
               onChange={(e) => updateFilter(filter.id, e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
             />
           </div>
         );
@@ -79,7 +79,7 @@ const InteractiveFilters: React.FC<InteractiveFiltersProps> = ({
             <select
               value={value}
               onChange={(e) => updateFilter(filter.id, e.target.value)}
-              className="w-full appearance-none bg-white border border-gray-300 rounded-sm px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+              className="w-full appearance-none bg-white border border-gray-300 rounded-control px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
             >
               <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
               {filter.options?.map((option) => (
@@ -113,7 +113,7 @@ const InteractiveFilters: React.FC<InteractiveFiltersProps> = ({
                 type="date"
                 value={value?.start || ''}
                 onChange={(e) => updateFilter(filter.id, { ...value, start: e.target.value })}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
               />
             </div>
             <div className="relative">
@@ -122,7 +122,7 @@ const InteractiveFilters: React.FC<InteractiveFiltersProps> = ({
                 type="date"
                 value={value?.end || ''}
                 onChange={(e) => updateFilter(filter.id, { ...value, end: e.target.value })}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ const InteractiveFilters: React.FC<InteractiveFiltersProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-control border border-gray-200 ${className}`}>
       {/* Filter Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-left text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent flex justify-between items-center"
+        className="w-full bg-white border border-gray-300 rounded-control px-3 py-2 text-left text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-transparent flex justify-between items-center"
       >
         <span className={values.length === 0 ? 'text-gray-500' : 'text-gray-900'}>
           {displayText}
@@ -286,7 +286,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-control shadow-lg max-h-60 overflow-auto">
           {options.map((option) => (
             <label
               key={option.value}

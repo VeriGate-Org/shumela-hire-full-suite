@@ -128,7 +128,7 @@ function LoginContent() {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-sm">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
               {error}
             </div>
           )}
@@ -144,7 +144,7 @@ function LoginContent() {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Enter new password"
                 autoComplete="new-password"
               />
@@ -173,7 +173,7 @@ function LoginContent() {
                 required
                 value={confirmNewPwd}
                 onChange={(e) => setConfirmNewPwd(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Confirm new password"
                 autoComplete="new-password"
               />
@@ -207,13 +207,13 @@ function LoginContent() {
           </div>
 
           {registeredSuccess && (
-            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-sm">
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-control">
               Account created successfully. Sign in to continue.
             </div>
           )}
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-sm">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
               {error}
             </div>
           )}
@@ -229,7 +229,7 @@ function LoginContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="you@company.com"
               />
             </div>
@@ -244,7 +244,7 @@ function LoginContent() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Enter your password"
               />
             </div>

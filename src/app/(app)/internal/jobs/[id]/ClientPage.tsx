@@ -259,7 +259,7 @@ export default function InternalJobDetailPage() {
     >
       <div className="space-y-6">
         {/* Job Header Card */}
-        <div className="bg-white rounded-sm shadow border border-gray-200 p-6">
+        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
           <JobBadges />
 
           <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-gray-600">
@@ -306,7 +306,7 @@ export default function InternalJobDetailPage() {
 
         {/* Apply Now */}
         {isActive && (
-          <div className="bg-gold-50 border border-gold-200 rounded-sm p-6 flex items-center justify-between">
+          <div className="bg-gold-50 border border-gold-200 rounded-control p-6 flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-900">Ready to apply?</p>
               <p className="text-sm text-gray-600">As an internal candidate, you have priority access to this opportunity.</p>
@@ -323,7 +323,7 @@ export default function InternalJobDetailPage() {
 
         {/* Expired Notice */}
         {!isActive && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-control">
             <div className="flex">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
               <p className="ml-3 text-sm text-red-800">
@@ -334,13 +334,13 @@ export default function InternalJobDetailPage() {
         )}
 
         {/* Job Description */}
-        <div className="bg-white rounded-sm shadow border border-gray-200 p-6">
+        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
           <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Job Description</h3>
           <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: job.htmlBody }} />
         </div>
 
         {/* Internal Application Benefits */}
-        <div className="bg-white rounded-sm shadow border border-gray-200 p-6">
+        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
           <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Benefits</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start">
@@ -384,7 +384,7 @@ export default function InternalJobDetailPage() {
 
         {/* Job Stats */}
         {(job.applicationCount !== undefined || job.viewCount !== undefined) && (
-          <div className="bg-white rounded-sm shadow border border-gray-200 p-6">
+          <div className="bg-white rounded-control shadow border border-gray-200 p-6">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Application Statistics</h3>
             <div className="grid grid-cols-2 gap-4">
               {job.viewCount !== undefined && (

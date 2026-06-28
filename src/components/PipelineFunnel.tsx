@@ -59,7 +59,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
   };
 
   return (
-    <div className="bg-white rounded-sm shadow p-6">
+    <div className="bg-white rounded-control shadow p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-medium text-gray-900">Recruitment Pipeline Funnel</h3>
         <div className="text-sm text-gray-500">
@@ -86,7 +86,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
               style={{ width: `${getFunnelWidth(stage.count)}%`, minWidth: '200px' }}
               onClick={() => onStageClick && onStageClick(stage.name)}
             >
-              <div className={`${stage.cssClass} border-2 rounded-sm p-4 text-center`}>
+              <div className={`${stage.cssClass} border-2 rounded-control p-4 text-center`}>
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <span className="text-lg">{stage.statusIcon}</span>
                   <h4 className="font-medium text-sm">{stage.displayName}</h4>
@@ -144,7 +144,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
               return (
                 <div 
                   key={stage.name}
-                  className={`${stage.cssClass} border rounded-sm p-4 cursor-pointer hover:shadow-md transition-shadow`}
+                  className={`${stage.cssClass} border rounded-control p-4 cursor-pointer hover:shadow-md transition-shadow`}
                   onClick={() => onStageClick && onStageClick(stage.name)}
                 >
                   <div className="flex items-center justify-between">
@@ -169,13 +169,13 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
       <div className="mt-6 pt-6 border-t border-gray-200">
         <h4 className="text-md font-medium text-gray-900 mb-4">Pipeline Metrics</h4>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-          <div className="bg-gold-50 rounded-sm p-3">
+          <div className="bg-gold-50 rounded-control p-3">
             <p className="font-medium text-violet-900">Total Funnel</p>
             <p className="text-lg font-bold text-gold-600">{funnelStages[0]?.count || 0}</p>
             <p className="text-xs text-violet-700">applications started</p>
           </div>
           
-          <div className="bg-green-50 rounded-sm p-3">
+          <div className="bg-green-50 rounded-control p-3">
             <p className="font-medium text-green-900">Success Rate</p>
             <p className="text-lg font-bold text-green-600">
               {funnelStages[0]?.count > 0 ? 
@@ -186,7 +186,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
             <p className="text-xs text-green-700">hired successfully</p>
           </div>
           
-          <div className="bg-red-50 rounded-sm p-3">
+          <div className="bg-red-50 rounded-control p-3">
             <p className="font-medium text-red-900">Drop-off Rate</p>
             <p className="text-lg font-bold text-red-600">
               {funnelStages[0]?.count > 0 ? 
@@ -197,7 +197,7 @@ export default function PipelineFunnel({ funnelData, stages, onStageClick }: Pip
             <p className="text-xs text-red-700">rejected in process</p>
           </div>
           
-          <div className="bg-yellow-50 rounded-sm p-3">
+          <div className="bg-yellow-50 rounded-control p-3">
             <p className="font-medium text-yellow-900">Avg. Conversion</p>
             <p className="text-lg font-bold text-yellow-600">
               {funnelStages.length > 1 ? 

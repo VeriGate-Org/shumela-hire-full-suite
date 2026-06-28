@@ -162,7 +162,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           <p className="text-gray-600">Failed to load performance metrics</p>
           <button
             onClick={fetchPerformanceMetrics}
-            className="mt-4 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-sm"
+            className="mt-4 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-4 py-2 rounded-control"
           >
             Retry
           </button>
@@ -214,7 +214,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="border border-gray-300 rounded-sm px-3 py-2"
+            className="border border-gray-300 rounded-control px-3 py-2"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -227,7 +227,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         {kpis.map((kpi, index) => (
-          <div key={index} className="bg-white p-6 rounded-sm shadow">
+          <div key={index} className="bg-white p-6 rounded-control shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">{kpi.title}</p>
@@ -279,7 +279,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Conversion Funnel */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Conversion Funnel</h3>
             <div className="space-y-4">
               {[
@@ -311,7 +311,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Source Effectiveness */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Source Effectiveness</h3>
             <div className="space-y-4">
               {Object.entries(metrics.recruitmentMetrics.sourceEffectiveness.bySource)
@@ -340,7 +340,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Interview Performance */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Interview Performance</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
@@ -371,7 +371,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Top Bottlenecks */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Process Bottlenecks</h3>
             <div className="space-y-4">
               {metrics.efficiencyMetrics.bottlenecks
@@ -406,7 +406,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {activeTab === 'recruitment' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Time to Hire by Department */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Time to Hire by Department</h3>
             <div className="space-y-4">
               {Object.entries(metrics.recruitmentMetrics.timeToHire.byDepartment)
@@ -423,7 +423,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Cost Analysis */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Cost Analysis</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-gold-50 rounded">
@@ -452,7 +452,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {activeTab === 'interviews' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Interviewers */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Top Performing Interviewers</h3>
             <div className="space-y-4">
               {metrics.interviewPerformance.interviewerStats
@@ -479,7 +479,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Score Breakdown */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Average Score Breakdown</h3>
             <div className="space-y-4">
               {[
@@ -511,7 +511,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {activeTab === 'trends' && (
         <div className="grid grid-cols-1 gap-6">
           {/* Monthly Hiring Trends */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Monthly Hiring Trends</h3>
             <div className="h-64 flex items-end space-x-2">
               {metrics.hiringTrends.monthlyTrends.slice(-12).map((month, index) => (
@@ -532,7 +532,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Department Hiring Distribution */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Hiring by Department</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(metrics.hiringTrends.departmentPatterns.byDepartment).map(([dept, count]) => (
@@ -549,7 +549,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
       {activeTab === 'efficiency' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Resource Utilization */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Resource Utilization</h3>
             <div className="space-y-4">
               {Object.entries(metrics.efficiencyMetrics.resourceMetrics.metrics).map(([metric, value]) => (
@@ -578,7 +578,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Process Optimization */}
-          <div className="bg-white p-6 rounded-sm shadow">
+          <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Process Optimization Opportunities</h3>
             <div className="space-y-4">
               {metrics.efficiencyMetrics.bottlenecks.map((bottleneck, index) => (

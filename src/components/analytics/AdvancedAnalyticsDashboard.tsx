@@ -339,7 +339,7 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
         {statCards.map((stat) => (
           <div key={stat.title} className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className={`p-2 rounded-sm ${stat.color}`}>
+              <div className={`p-2 rounded-control ${stat.color}`}>
                 <stat.icon className="w-5 h-5" />
               </div>
               {stat.change && (

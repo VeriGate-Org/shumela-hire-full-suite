@@ -44,7 +44,7 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
           <div className="flex gap-2">
             {(['executive', 'hr', 'hiring_manager'] as const).map(a => (
               <button key={a} onClick={() => setAudience(a)}
-                className={`px-3 py-1.5 text-xs rounded-sm border ${audience === a ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+                className={`px-3 py-1.5 text-xs rounded-control border ${audience === a ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
                 {a === 'hiring_manager' ? 'Hiring Mgr' : a.charAt(0).toUpperCase() + a.slice(1)}
               </button>
             ))}
@@ -55,7 +55,7 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
           <div className="flex gap-2">
             {(['formal', 'concise', 'detailed'] as const).map(t => (
               <button key={t} onClick={() => setTone(t)}
-                className={`px-3 py-1.5 text-xs rounded-sm border ${tone === t ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+                className={`px-3 py-1.5 text-xs rounded-control border ${tone === t ? 'bg-gold-500 text-violet-950 border-gold-500' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
                 {t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
@@ -64,12 +64,12 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
       </div>
 
       <button onClick={handleGenerate} disabled={loading}
-        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {loading ? 'Generating...' : 'Generate Executive Summary'}
       </button>
 
       {result && (
-        <div className="border border-gray-200 rounded-sm p-4 bg-gray-50 space-y-4">
+        <div className="border border-gray-200 rounded-control p-4 bg-gray-50 space-y-4">
           {result.executiveSummary && (
             <div>
               <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Executive Summary</h5>
@@ -107,12 +107,12 @@ export default function AiReportNarrative({ reportType, jobId, reportData, onInc
             <button onClick={() => {
               const text = `Executive Summary:\n${result.executiveSummary}\n\nKey Findings:\n${result.keyFindings?.map(f => `- ${f}`).join('\n')}\n\nRecommendations:\n${result.recommendations?.map(r => `- ${r}`).join('\n')}`;
               navigator.clipboard.writeText(text);
-            }} className="px-3 py-1.5 text-xs border border-gray-300 rounded-sm text-gray-700 hover:bg-gray-100">
+            }} className="px-3 py-1.5 text-xs border border-gray-300 rounded-control text-gray-700 hover:bg-gray-100">
               Copy
             </button>
             {onIncludeInReport && (
               <button onClick={() => onIncludeInReport(result)}
-                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600">
+                className="px-3 py-1.5 text-xs bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600">
                 Include in Report
               </button>
             )}

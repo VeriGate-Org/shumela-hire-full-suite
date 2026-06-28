@@ -118,7 +118,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
     if (!metric.drillDown?.data) return null;
 
     return (
-      <div className="mt-4 p-4 bg-gray-50 rounded-sm">
+      <div className="mt-4 p-4 bg-gray-50 rounded-control">
         <h4 className="text-sm font-medium text-gray-900 mb-3">
           {metric.label} Trend
         </h4>
@@ -151,7 +151,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
     >
       <div className="space-y-6">
         {/* Summary Header */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-sm">
+        <div className="flex items-center justify-between p-4 bg-surface-navy rounded-card">
           <div className="flex items-center gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">{summaryStats.totalMetrics}</div>
@@ -184,7 +184,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowBenchmarks(!showBenchmarks)}
-              className={`px-3 py-1 text-sm rounded-sm transition-colors ${
+              className={`px-3 py-1 text-sm rounded-control transition-colors ${
                 showBenchmarks 
                   ? 'bg-gold-100 text-violet-700' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -203,7 +203,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {metrics.map((metric) => (
-            <div key={metric.id} className="border border-gray-200 rounded-sm overflow-hidden">
+            <div key={metric.id} className="border border-gray-200 rounded-control overflow-hidden">
               <div 
                 className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => setExpandedMetric(
@@ -295,7 +295,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
         </div>
 
         {/* Action Items */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-sm p-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-control p-4">
           <h4 className="font-medium text-yellow-800 mb-2">Recommended Actions</h4>
           <ul className="space-y-1 text-sm text-yellow-700">
             {summaryStats.criticalMetrics > 0 && (

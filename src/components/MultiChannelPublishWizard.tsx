@@ -117,7 +117,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="publish-wizard-title">
-      <div ref={focusTrapRef} className="bg-card rounded-sm shadow-xl max-w-lg w-full m-4 border border-border">
+      <div ref={focusTrapRef} className="bg-card rounded-control shadow-xl max-w-lg w-full m-4 border border-border">
         <div className="px-6 py-4 border-b border-border">
           <h3 id="publish-wizard-title" className="text-lg font-medium text-foreground">
             Publish to Job Boards
@@ -141,7 +141,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
               {results.map((result, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between p-3 rounded-sm border ${
+                  className={`flex items-center justify-between p-3 rounded-control border ${
                     result.success
                       ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950'
                       : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950'
@@ -186,7 +186,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
               {availableBoards.map((board) => (
                 <label
                   key={board.type}
-                  className={`flex items-center p-4 rounded-sm border cursor-pointer transition-colors ${
+                  className={`flex items-center p-4 rounded-control border cursor-pointer transition-colors ${
                     selectedBoards.has(board.type)
                       ? 'border-violet-300 bg-gold-50 dark:border-violet-600 dark:bg-gold-950'
                       : 'border-border bg-card hover:bg-muted'
@@ -216,7 +216,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
           <button
             onClick={handleClose}
             disabled={publishing}
-            className="px-4 py-2 text-foreground border border-border rounded-sm hover:bg-muted"
+            className="px-4 py-2 text-foreground border border-border rounded-control hover:bg-muted"
           >
             {results ? 'Close' : 'Cancel'}
           </button>
@@ -224,7 +224,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
             <button
               onClick={handlePublish}
               disabled={publishing || selectedBoards.size === 0}
-              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50"
+              className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
             >
               {publishing ? 'Publishing...' : `Publish to ${selectedBoards.size} Channel${selectedBoards.size !== 1 ? 's' : ''}`}
             </button>

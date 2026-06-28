@@ -174,7 +174,7 @@ export default function JobApplicationForm({
 
   if (!canApply) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-sm p-6">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-control p-6">
         <div className="flex items-center mb-4">
           <span className="text-yellow-600 text-2xl mr-3">⚠️</span>
           <h3 className="text-lg font-medium text-yellow-800">Application Not Available</h3>
@@ -185,7 +185,7 @@ export default function JobApplicationForm({
         {onCancel && (
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-yellow-600 text-white rounded-sm hover:bg-yellow-700"
+            className="px-4 py-2 bg-yellow-600 text-white rounded-control hover:bg-yellow-700"
           >
             Go Back
           </button>
@@ -196,10 +196,10 @@ export default function JobApplicationForm({
 
   if (createdApplication) {
     return (
-      <div className="max-w-2xl mx-auto bg-white rounded-sm shadow-lg p-6">
+      <div className="max-w-2xl mx-auto bg-white rounded-control shadow-lg p-6">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Screening Questions</h2>
-          <div className="bg-gold-50 border border-violet-200 rounded-sm p-4">
+          <div className="bg-gold-50 border border-violet-200 rounded-control p-4">
             <h3 className="font-medium text-violet-900">{jobTitle}</h3>
             {department && <p className="text-violet-700 text-sm">{department}</p>}
           </div>
@@ -221,10 +221,10 @@ export default function JobApplicationForm({
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-sm shadow-lg p-6">
+    <div className="max-w-2xl mx-auto bg-white rounded-control shadow-lg p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Apply for Position</h2>
-        <div className="bg-gold-50 border border-violet-200 rounded-sm p-4">
+        <div className="bg-gold-50 border border-violet-200 rounded-control p-4">
           <h3 className="font-medium text-violet-900">{jobTitle}</h3>
           {department && <p className="text-violet-700 text-sm">{department}</p>}
         </div>
@@ -233,7 +233,7 @@ export default function JobApplicationForm({
       {applicant && (
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-3">Applicant Information</h3>
-          <div className="bg-gray-50 rounded-sm p-4">
+          <div className="bg-gray-50 rounded-control p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -267,7 +267,7 @@ export default function JobApplicationForm({
           <select
             value={applicationSource}
             onChange={(e) => setApplicationSource(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full p-3 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           >
             {formSources.map(s => (
               <option key={s.value} value={s.value}>{s.label}</option>
@@ -285,7 +285,7 @@ export default function JobApplicationForm({
             onChange={(e) => setCoverLetter(e.target.value)}
             placeholder="Please explain why you are interested in this position and how your skills and experience make you a good fit..."
             rows={8}
-            className={`w-full p-3 border rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 ${
+            className={`w-full p-3 border rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400 ${
               errors.coverLetter ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -300,7 +300,7 @@ export default function JobApplicationForm({
         </div>
 
         {/* Application Notes */}
-        <div className="bg-gray-50 border border-gray-200 rounded-sm p-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-control p-4">
           <h4 className="font-medium text-gray-900 mb-2">Important Notes</h4>
           <ul className="text-sm text-gray-600 space-y-1">
             <li>• Ensure your applicant profile is complete before submitting</li>
@@ -316,7 +316,7 @@ export default function JobApplicationForm({
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50"
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-control hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -324,7 +324,7 @@ export default function JobApplicationForm({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center">

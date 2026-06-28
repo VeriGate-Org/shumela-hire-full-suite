@@ -15,7 +15,7 @@ export function RecruiterDashboardFilters() {
       <select
         value={dateRange}
         onChange={(e) => setDateRange(e.target.value)}
-        className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
+        className="border border-gray-300 rounded-control px-3 py-2 text-sm"
       >
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
@@ -25,7 +25,7 @@ export function RecruiterDashboardFilters() {
       <select
         value={selectedDepartment}
         onChange={(e) => setSelectedDepartment(e.target.value)}
-        className="border border-gray-300 rounded-sm px-3 py-2 text-sm"
+        className="border border-gray-300 rounded-control px-3 py-2 text-sm"
       >
         <option value="">All Departments</option>
         {departments.map((dept) => (
@@ -112,7 +112,7 @@ const RecruiterDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Applications</p>
@@ -127,7 +127,7 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Job Postings</p>
@@ -142,7 +142,7 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Interview Rate</p>
@@ -157,7 +157,7 @@ const RecruiterDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Hire Rate</p>
@@ -175,7 +175,7 @@ const RecruiterDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pipeline Funnel */}
-        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
           <p className="text-sm text-gray-600 mb-6">{pipelineFunnel.department} - {pipelineFunnel.period}</p>
             <div className="space-y-4">
@@ -205,7 +205,7 @@ const RecruiterDashboard: React.FC = () => {
           </div>
 
         {/* Applications per Vacancy */}
-        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Applications per Vacancy</h3>
             <p className="text-sm text-gray-600 mb-6">Job postings with highest application volume</p>
             <div className="space-y-3">
@@ -233,7 +233,7 @@ const RecruiterDashboard: React.FC = () => {
           </div>
 
         {/* Time to Fill */}
-        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Time to Fill</h3>
           <p className="text-sm text-gray-600 mb-6">
             Average: {timeToFill.averageDays.toFixed(1)} days ({timeToFill.department})
@@ -255,7 +255,7 @@ const RecruiterDashboard: React.FC = () => {
           </div>
 
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
           <p className="text-sm text-gray-600 mb-6">Latest recruitment activities</p>
           <div className="space-y-4">
@@ -278,7 +278,7 @@ const RecruiterDashboard: React.FC = () => {
       </div>
 
       {/* Department Statistics */}
-      <div className="bg-white p-6 rounded-sm shadow border border-gray-200">
+      <div className="bg-white p-6 rounded-control shadow border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Performance</h3>
         <p className="text-sm text-gray-600 mb-6">Statistics by department for {departmentStats.period}</p>
           <div className="overflow-x-auto">

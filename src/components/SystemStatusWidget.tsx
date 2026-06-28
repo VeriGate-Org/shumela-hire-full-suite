@@ -94,7 +94,7 @@ const SystemStatusWidget: React.FC = () => {
     : 'degraded';
 
   return (
-    <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-4">
+    <div className="bg-white rounded-control shadow-sm border border-gray-200 p-4">
       <div 
         className="flex items-center justify-between cursor-pointer"
         onClick={() => setExpanded(!expanded)}

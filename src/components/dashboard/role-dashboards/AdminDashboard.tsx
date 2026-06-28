@@ -110,17 +110,18 @@ function getEventColor(action: string): string {
 
 interface QuickAction {
   label: string;
-  color: string;
+  surface: string;
+  borderColor: string;
   route?: string;
   disabled?: boolean;
 }
 
 const quickActions: QuickAction[] = [
-  { label: 'User Management', color: 'bg-gold-500 text-violet-950', route: '/admin/permissions' },
-  { label: 'Audit Logs', color: 'bg-orange-600 text-white', route: '/admin/audit-logs' },
-  { label: 'System Settings', color: 'bg-gold-500 text-violet-950', route: '/settings' },
-  { label: 'Role Permissions', color: 'bg-red-600 text-white', route: '/admin/permissions' },
-  { label: 'Backup Database', color: 'bg-green-600 text-white', disabled: true },  // Not available in demo
+  { label: 'User Management', surface: 'bg-surface-navy', borderColor: 'border-l-accent-navy', route: '/admin/permissions' },
+  { label: 'Audit Logs', surface: 'bg-surface-gold', borderColor: 'border-l-accent-gold', route: '/admin/audit-logs' },
+  { label: 'System Settings', surface: 'bg-surface-teal', borderColor: 'border-l-accent-teal', route: '/settings' },
+  { label: 'Role Permissions', surface: 'bg-surface-pink', borderColor: 'border-l-accent-pink', route: '/admin/permissions' },
+  { label: 'Backup Database', surface: 'bg-surface-navy', borderColor: 'border-l-accent-navy', disabled: true },
 ];
 
 export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _onTimeframeChange }: AdminDashboardProps) {
@@ -204,7 +205,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-control border border-gray-200 p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 rounded w-1/4"></div>
             <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -291,7 +292,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {recentEvents.length > 0 ? (
                   recentEvents.map((event) => (
-                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
+                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
                       <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getEventColor(event.action)}`}></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-900 truncate">
@@ -322,7 +323,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
                     key={action.label}
                     onClick={() => action.route && router.push(action.route)}
                     disabled={action.disabled}
-                    className={`${action.color} p-3 rounded-full hover:opacity-90 transition-opacity text-sm font-medium text-center w-full ${
+                    className={`${action.surface} ${action.borderColor} border-l-4 p-3 rounded-card hover:shadow-sm transition-all text-sm font-medium text-left w-full text-foreground ${
                       action.disabled ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >

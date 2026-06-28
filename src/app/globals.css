@@ -4,7 +4,7 @@
 
 :root {
   /* ShumelaHire Design System */
-  --background: #F8FAFC;
+  --background: #F1F5F9;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
@@ -24,11 +24,25 @@
   --input: #E2E8F0;
   --ring: #05527E;
 
-  /* Brand Radius — IDC sharp */
-  --radius: 2px;
-  --radius-control: 2px;
-  --radius-card: 2px;
+  /* Brand Radius — contemporary */
+  --radius: 10px;
+  --radius-control: 8px;
+  --radius-card: 12px;
   --radius-button: 9999px;
+
+  /* Semantic surface tints */
+  --surface-navy: #F0F7FB;
+  --surface-teal: #EFFEFB;
+  --surface-gold: #FFFCF0;
+  --surface-pink: #FFF1F2;
+  --icon-bg-navy: #DCEEF7;
+  --icon-bg-teal: #C8FFF5;
+  --icon-bg-gold: #FEF6D8;
+  --icon-bg-pink: #FFE0E3;
+  --accent-navy: #05527E;
+  --accent-teal: #047469;
+  --accent-gold: #D4A832;
+  --accent-pink: #D63050;
 
   /* IDC CTA & Accent */
   --cta: #F1C54B;
@@ -40,11 +54,11 @@
   --divider-accent: #F1C54B;
   --divider-secondary: #008C7F;
 
-  /* Stripe Dual-Layer Shadows */
-  --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.09), 0 1px 3px rgba(0, 0, 0, 0.07);
-  --shadow-md: 0 4px 10px rgba(50, 50, 93, 0.09), 0 2px 5px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 20px rgba(50, 50, 93, 0.09), 0 5px 10px rgba(0, 0, 0, 0.07);
-  --shadow-xl: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+  /* Stripe Dual-Layer Shadows — elevated baseline */
+  --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 10px rgba(50, 50, 93, 0.12), 0 2px 5px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 20px rgba(50, 50, 93, 0.12), 0 5px 10px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 15px 35px rgba(50, 50, 93, 0.14), 0 5px 15px rgba(0, 0, 0, 0.08);
 
   /* Motion Tokens */
   --motion-duration-quick: 100ms;
@@ -115,10 +129,24 @@
   --divider-accent: #F6CE5E;
   --divider-secondary: #21D4C4;
 
-  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
-  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.18);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.25), 0 2px 5px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.25), 0 5px 10px rgba(0, 0, 0, 0.18);
+  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.18);
+
+  /* Semantic surface tints — dark */
+  --surface-navy: #0D1B2A;
+  --surface-teal: #0A1F1D;
+  --surface-gold: #1A1608;
+  --surface-pink: #1F0A10;
+  --icon-bg-navy: #0F2A3E;
+  --icon-bg-teal: #0B2D28;
+  --icon-bg-gold: #2A2210;
+  --icon-bg-pink: #2E1018;
+  --accent-navy: #4CA6D0;
+  --accent-teal: #21D4C4;
+  --accent-gold: #F6CE5E;
+  --accent-pink: #FF6B7D;
 
   /* Gray scale inverted */
   --tw-gray-50: #0B1120;
@@ -253,11 +281,13 @@
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--motion-duration-show) var(--motion-easing),
-                border-color var(--motion-duration-show) var(--motion-easing);
+                border-color var(--motion-duration-show) var(--motion-easing),
+                transform var(--motion-duration-show) var(--motion-easing);
   }
 
   .enterprise-card:hover {
     box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
   }
 
   .enterprise-card-elevated {
@@ -445,7 +475,7 @@
   background: linear-gradient(
     90deg,
     var(--muted) 0%,
-    var(--accent) 50%,
+    color-mix(in srgb, var(--accent) 80%, var(--primary) 20%) 50%,
     var(--muted) 100%
   );
   background-size: 200% 100%;
@@ -470,6 +500,8 @@
 
   .form-input:focus {
     border-color: var(--ring);
+    border-bottom-color: var(--cta);
+    border-bottom-width: 2px;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent);
   }
 

@@ -108,7 +108,7 @@ export default function LinkedInPostToCompany({ jobPosting, isOpen, onClose }: L
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="linkedin-dialog-title">
-      <div ref={focusTrapRef} className="bg-white rounded-sm shadow-xl w-full max-w-lg mx-4">
+      <div ref={focusTrapRef} className="bg-white rounded-control shadow-xl w-full max-w-lg mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -165,7 +165,7 @@ export default function LinkedInPostToCompany({ jobPosting, isOpen, onClose }: L
                   value={postText}
                   onChange={(e) => setPostText(e.target.value)}
                   rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-[#0A66C2]/30 focus:border-[#0A66C2] resize-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-[#0A66C2]/30 focus:border-[#0A66C2] resize-none text-sm"
                   placeholder="Write your LinkedIn post..."
                 />
               </div>

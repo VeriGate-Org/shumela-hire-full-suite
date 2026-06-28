@@ -280,7 +280,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
   };
   
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-lg">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-control shadow-lg">
       <h1 className="text-2xl font-bold mb-6">
         {applicantId ? 'Edit Applicant Profile' : 'Create Applicant Profile'}
       </h1>
@@ -308,7 +308,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              className={`w-full p-2 border rounded-sm ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
           </div>
@@ -321,7 +321,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
               type="text"
               value={formData.surname}
               onChange={(e) => setFormData(prev => ({ ...prev, surname: e.target.value }))}
-              className={`w-full p-2 border rounded-sm ${errors.surname ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.surname ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.surname && <p className="text-red-500 text-sm mt-1">{errors.surname}</p>}
           </div>
@@ -334,7 +334,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              className={`w-full p-2 border rounded-sm ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-2 border rounded-control ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
@@ -347,7 +347,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-sm"
+              className="w-full p-2 border border-gray-300 rounded-control"
             />
           </div>
           
@@ -359,7 +359,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
               type="text"
               value={formData.idPassportNumber}
               onChange={(e) => setFormData(prev => ({ ...prev, idPassportNumber: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-sm"
+              className="w-full p-2 border border-gray-300 rounded-control"
             />
           </div>
           
@@ -370,7 +370,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             <textarea
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              className="w-full p-2 border border-gray-300 rounded-sm"
+              className="w-full p-2 border border-gray-300 rounded-control"
               rows={3}
             />
           </div>
@@ -394,14 +394,14 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             <button
               type="button"
               onClick={addEducation}
-              className="px-3 py-1 bg-gold-500 text-white rounded-sm text-sm hover:bg-gold-600"
+              className="px-3 py-1 bg-gold-500 text-white rounded-control text-sm hover:bg-gold-600"
             >
               Add Education
             </button>
           </div>
           
           {formData.education.map((edu, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 p-3 border rounded-sm">
+            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 p-3 border rounded-control">
               <input
                 type="text"
                 placeholder="Institution"
@@ -411,7 +411,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   newEducation[index].institution = e.target.value;
                   setFormData(prev => ({ ...prev, education: newEducation }));
                 }}
-                className="p-2 border border-gray-300 rounded-sm"
+                className="p-2 border border-gray-300 rounded-control"
               />
               <input
                 type="text"
@@ -422,7 +422,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   newEducation[index].degree = e.target.value;
                   setFormData(prev => ({ ...prev, education: newEducation }));
                 }}
-                className="p-2 border border-gray-300 rounded-sm"
+                className="p-2 border border-gray-300 rounded-control"
               />
               <input
                 type="text"
@@ -433,7 +433,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   newEducation[index].fieldOfStudy = e.target.value;
                   setFormData(prev => ({ ...prev, education: newEducation }));
                 }}
-                className="p-2 border border-gray-300 rounded-sm"
+                className="p-2 border border-gray-300 rounded-control"
               />
               <input
                 type="number"
@@ -444,7 +444,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   newEducation[index].graduationYear = parseInt(e.target.value);
                   setFormData(prev => ({ ...prev, education: newEducation }));
                 }}
-                className="p-2 border border-gray-300 rounded-sm"
+                className="p-2 border border-gray-300 rounded-control"
               />
             </div>
           ))}
@@ -457,7 +457,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
             <button
               type="button"
               onClick={addSkill}
-              className="px-3 py-1 bg-green-500 text-white rounded-sm text-sm hover:bg-green-600"
+              className="px-3 py-1 bg-green-500 text-white rounded-control text-sm hover:bg-green-600"
             >
               Add Skill
             </button>
@@ -514,7 +514,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                 <select
                   value={formData.gender || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control"
                 >
                   <option value="">Select...</option>
                   <option value="Male">Male</option>
@@ -529,7 +529,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                 <select
                   value={formData.race || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, race: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control"
                 >
                   <option value="">Select...</option>
                   <option value="African">African</option>
@@ -546,7 +546,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                 <select
                   value={formData.disabilityStatus || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, disabilityStatus: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control"
                 >
                   <option value="">Select...</option>
                   <option value="Yes">Yes</option>
@@ -560,7 +560,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                 <select
                   value={formData.citizenshipStatus || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, citizenshipStatus: e.target.value || undefined }))}
-                  className="w-full p-2 border border-gray-300 rounded-sm"
+                  className="w-full p-2 border border-gray-300 rounded-control"
                 >
                   <option value="">Select...</option>
                   <option value="South African">South African</option>
@@ -577,7 +577,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gold-500 text-white rounded-sm hover:bg-gold-600 disabled:opacity-50"
+            className="px-6 py-2 bg-gold-500 text-white rounded-control hover:bg-gold-600 disabled:opacity-50"
           >
             {loading ? 'Saving...' : (applicantId ? 'Update Profile' : 'Create Profile')}
           </button>
@@ -603,7 +603,7 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   if (file) handleFileUpload(file, 'CV');
                 }}
                 disabled={uploading}
-                className="w-full p-2 border border-gray-300 rounded-sm"
+                className="w-full p-2 border border-gray-300 rounded-control"
               />
             </div>
             
@@ -619,14 +619,14 @@ export default function ApplicantProfile({ applicantId, onSave }: ApplicantProfi
                   if (file) handleFileUpload(file, 'SUPPORT');
                 }}
                 disabled={uploading}
-                className="w-full p-2 border border-gray-300 rounded-sm"
+                className="w-full p-2 border border-gray-300 rounded-control"
               />
             </div>
           </div>
           
           {/* Documents List */}
           {documents.length > 0 && (
-            <div className="bg-gray-50 rounded-sm p-4">
+            <div className="bg-gray-50 rounded-control p-4">
               <h4 className="font-medium mb-3">Uploaded Documents</h4>
               <div className="space-y-2">
                 {documents.map((doc) => (

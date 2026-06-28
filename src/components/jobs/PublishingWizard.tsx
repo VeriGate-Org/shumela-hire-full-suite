@@ -202,7 +202,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.title}
             onChange={(e) => handleFormChange('title', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -214,7 +214,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.companyName}
             onChange={(e) => handleFormChange('companyName', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -226,7 +226,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.department}
             onChange={(e) => handleFormChange('department', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             placeholder="e.g., Engineering"
           />
         </div>
@@ -239,7 +239,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="email"
             value={formData.contactEmail}
             onChange={(e) => handleFormChange('contactEmail', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -251,7 +251,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.location}
             onChange={(e) => handleFormChange('location', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           />
         </div>
 
@@ -262,7 +262,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           <select
             value={formData.employmentType}
             onChange={(e) => handleFormChange('employmentType', e.target.value)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
           >
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
@@ -282,14 +282,14 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="number"
             value={formData.salaryRangeMin || ''}
             onChange={(e) => handleFormChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             placeholder="Min salary"
           />
           <input
             type="number"
             value={formData.salaryRangeMax || ''}
             onChange={(e) => handleFormChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
-            className="w-full border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="w-full border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             placeholder="Max salary"
           />
         </div>
@@ -306,7 +306,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
             type="text"
             value={formData.customSlug}
             onChange={(e) => handleFormChange('customSlug', e.target.value)}
-            className="flex-1 border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+            className="flex-1 border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             placeholder={generatedSlug}
           />
         </div>
@@ -344,7 +344,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
         {/* Internal Channel */}
         <div
           onClick={() => handleChannelToggle(PublishingChannel.INTERNAL)}
-          className={`p-6 border-2 rounded-sm cursor-pointer transition-colors ${
+          className={`p-6 border-2 rounded-control cursor-pointer transition-colors ${
             formData.channels.includes(PublishingChannel.INTERNAL)
               ? 'border-gold-500 bg-gold-50'
               : 'border-gray-200 hover:border-gray-300'
@@ -374,7 +374,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
         {/* External Channel */}
         <div
           onClick={() => handleChannelToggle(PublishingChannel.EXTERNAL)}
-          className={`p-6 border-2 rounded-sm cursor-pointer transition-colors ${
+          className={`p-6 border-2 rounded-control cursor-pointer transition-colors ${
             formData.channels.includes(PublishingChannel.EXTERNAL)
               ? 'border-gold-500 bg-gold-50'
               : 'border-gray-200 hover:border-gray-300'
@@ -414,7 +414,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
           onChange={(e) => handleFormChange('expiresAt', new Date(e.target.value))}
           min={new Date().toISOString().split('T')[0]}
           max={new Date(Date.now() + DEFAULT_PUBLISHING_SETTINGS.maxExpiryDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-          className="w-full md:w-auto border border-gray-300 rounded-sm px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+          className="w-full md:w-auto border border-gray-300 rounded-control px-3 py-2 focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
         />
         <p className="text-xs text-gray-500 mt-1">
           Job will automatically unpublish after this date. Maximum {DEFAULT_PUBLISHING_SETTINGS.maxExpiryDays} days from today.
@@ -422,7 +422,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
       </div>
 
       {formData.channels.length === 0 && (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-sm">
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-control">
           <div className="flex">
             <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400" />
             <div className="ml-3">
@@ -462,7 +462,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
       </div>
 
       {/* Preview */}
-      <div className="border border-gray-200 rounded-sm overflow-hidden">
+      <div className="border border-gray-200 rounded-control overflow-hidden">
         <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
           <span className="text-sm text-gray-600">Preview</span>
         </div>
@@ -503,7 +503,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
       </div>
 
       {/* Publishing Summary */}
-      <div className="bg-gray-50 rounded-sm p-6">
+      <div className="bg-gray-50 rounded-control p-6">
         <h4 className="font-semibold text-gray-900 mb-4">Publishing Summary</h4>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
@@ -538,7 +538,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
       </div>
 
       {/* Warning about expiry */}
-      <div className="p-4 bg-gold-50 border border-violet-200 rounded-sm">
+      <div className="p-4 bg-gold-50 border border-violet-200 rounded-control">
         <div className="flex">
           <InformationCircleIcon className="w-5 h-5 text-violet-400" />
           <div className="ml-3">
@@ -577,14 +577,14 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
   // Success state
   if (currentStep >= steps.length && publishedJobAd) {
     return (
-      <div className={`bg-white rounded-sm shadow-lg p-8 text-center ${className}`}>
+      <div className={`bg-white rounded-control shadow-lg p-8 text-center ${className}`}>
         <CheckIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Job Ad Published!</h2>
         <p className="text-gray-600 mb-6">
           Your job ad is now live and accepting applications.
         </p>
         
-        <div className="bg-gray-50 rounded-sm p-4 mb-6">
+        <div className="bg-gray-50 rounded-control p-4 mb-6">
           <div className="text-sm space-y-2">
             <div><strong>Job ID:</strong> {publishedJobAd.id}</div>
             <div><strong>Channels:</strong> {publishedJobAd.channels.map(ch => 
@@ -616,7 +616,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
   }
 
   return (
-    <div className={`bg-white rounded-sm shadow-lg ${className}`}>
+    <div className={`bg-white rounded-control shadow-lg ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -673,7 +673,7 @@ const PublishingWizard: React.FC<PublishingWizardProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-sm">
+        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-control">
           <div className="text-red-800">{error}</div>
         </div>
       )}

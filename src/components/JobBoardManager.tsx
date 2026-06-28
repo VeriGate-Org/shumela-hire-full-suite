@@ -122,7 +122,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
           <select
             value={selectedBoard}
             onChange={e => setSelectedBoard(e.target.value)}
-            className="text-sm p-2 border border-gray-300 rounded-sm flex-1"
+            className="text-sm p-2 border border-gray-300 rounded-control flex-1"
           >
             <option value="">Select a board...</option>
             {unpostedBoards.map(board => (
@@ -134,7 +134,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
           <button
             onClick={handlePost}
             disabled={!selectedBoard || actionLoading === -1}
-            className="px-3 py-2 text-sm bg-gold-500 text-violet-950 rounded-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {actionLoading === -1 ? 'Posting...' : 'Post'}
           </button>
@@ -147,7 +147,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
       ) : (
         <div className="space-y-2">
           {postings.map(posting => (
-            <div key={posting.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm border border-gray-200">
+            <div key={posting.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-control border border-gray-200">
               <div className="flex items-center gap-3">
                 <span className="font-medium text-sm text-gray-900">
                   {getBoardDisplayName(posting.boardType)}

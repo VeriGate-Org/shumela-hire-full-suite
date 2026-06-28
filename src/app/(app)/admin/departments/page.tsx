@@ -154,13 +154,13 @@ export default function AdminDepartmentsPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-sm shadow p-6 animate-pulse">
+              <div key={i} className="bg-white rounded-control shadow p-6 animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
                 <div className="h-8 bg-gray-200 rounded w-16" />
               </div>
             ))}
           </div>
-          <div className="bg-white rounded-sm shadow p-6 animate-pulse">
+          <div className="bg-white rounded-control shadow p-6 animate-pulse">
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="h-12 bg-gray-200 rounded" />
@@ -175,7 +175,7 @@ export default function AdminDepartmentsPage() {
   if (loadError) {
     return (
       <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
-        <div className="bg-white rounded-sm shadow p-12 text-center">
+        <div className="bg-white rounded-control shadow p-12 text-center">
           <p className="text-gray-500 mb-4">{loadError}</p>
           <button
             onClick={loadDepartments}
@@ -193,22 +193,22 @@ export default function AdminDepartmentsPage() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total</p>
             <p className="text-2xl font-bold text-shumelahire-900 mt-1">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active</p>
             <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
           </div>
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Inactive</p>
             <p className="text-2xl font-bold text-gray-400 mt-1">{stats.inactive}</p>
           </div>
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-sm shadow p-4">
+        <div className="bg-white rounded-control shadow p-4">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -216,7 +216,7 @@ export default function AdminDepartmentsPage() {
               placeholder="Search departments by name, code or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
             />
           </div>
         </div>
@@ -229,7 +229,7 @@ export default function AdminDepartmentsPage() {
             description={searchTerm ? 'Try a different search term' : 'Create your first department to get started'}
           />
         ) : (
-          <div className="bg-white rounded-sm shadow overflow-hidden">
+          <div className="bg-white rounded-control shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -303,7 +303,7 @@ export default function AdminDepartmentsPage() {
       {/* Create/Edit Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-sm shadow-xl max-w-lg w-full">
+          <div className="bg-white rounded-control shadow-xl max-w-lg w-full">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
                 {editingDepartment ? 'Edit Department' : 'Create Department'}
@@ -320,7 +320,7 @@ export default function AdminDepartmentsPage() {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="e.g. Engineering"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                 />
               </div>
               <div>
@@ -333,7 +333,7 @@ export default function AdminDepartmentsPage() {
                   onChange={(e) => setFormDescription(e.target.value)}
                   placeholder="Optional description of this department"
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                 />
               </div>
             </div>

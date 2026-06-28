@@ -19,7 +19,7 @@ export default function RecruiterDashboardPage() {
     return (
       <PageWrapper title="Access Denied">
         <div className="flex items-center justify-center py-16">
-          <div className="bg-white p-8 rounded-sm shadow border border-gray-200 max-w-md w-full text-center">
+          <div className="bg-white p-8 rounded-control shadow border border-gray-200 max-w-md w-full text-center">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Insufficient Permissions</h2>
             <p className="text-gray-600 mb-6">
               You need recruiter or HR permissions to access this dashboard.

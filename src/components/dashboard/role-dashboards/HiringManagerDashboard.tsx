@@ -341,7 +341,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
   if (loading) {
     return (
       <div className="space-y-6 max-w-full overflow-hidden">
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
             <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -359,7 +359,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
     <div className="space-y-6 max-w-full overflow-hidden">
       {/* Real-Time Hiring Metrics */}
       {!isMounted ? (
-        <div className="bg-white rounded-sm border border-gray-200 border-t-2 border-t-gold-500 p-6">
+        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
           <div className="animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
             <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -373,7 +373,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-sm p-4 flex items-center justify-between">
+        <div className="bg-red-50 border border-red-200 rounded-control p-4 flex items-center justify-between">
           <p className="text-sm text-red-700">{error}</p>
           <button onClick={fetchData} className="text-sm text-red-600 hover:text-red-800 font-medium">
             Retry
@@ -414,7 +414,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
             {openPositions.length > 0 ? (
               <div className="space-y-4">
                 {openPositions.map((position: any) => (
-                  <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+                  <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">{position.title || position.role}</p>
                       <p className="text-sm text-gray-500">
@@ -480,7 +480,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
             {upcomingInterviews.length > 0 ? (
               <div className="space-y-3">
                 {upcomingInterviews.map((interview: any) => (
-                  <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-sm">
+                  <div key={interview.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-control">
                     <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-gold-500"></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">

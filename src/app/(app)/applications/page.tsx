@@ -288,13 +288,13 @@ export default function ApplicationsPage() {
                     value={searchTerm}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     aria-label="Search applications by name, job title, department, or email"
-                    className="pl-10 pr-4 py-2 w-full border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                    className="pl-10 pr-4 py-2 w-full border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => setAiSearchMode(!aiSearchMode)}
-                  className={`px-3 py-2 text-xs font-medium rounded-sm border transition-colors whitespace-nowrap ${
+                  className={`px-3 py-2 text-xs font-medium rounded-control border transition-colors whitespace-nowrap ${
                     aiSearchMode
                       ? 'bg-teal-50 border-teal-300 text-teal-700'
                       : 'border-border text-muted-foreground hover:bg-accent'
@@ -309,7 +309,7 @@ export default function ApplicationsPage() {
                 value={statusFilter}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
                 aria-label="Filter by application status"
-                className="w-full py-2 px-3 border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full py-2 px-3 border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>
@@ -323,7 +323,7 @@ export default function ApplicationsPage() {
                 value={departmentFilter}
                 onChange={(e) => handleDepartmentFilterChange(e.target.value)}
                 aria-label="Filter by department"
-                className="w-full py-2 px-3 border border-border rounded-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="w-full py-2 px-3 border border-border rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 <option value="ALL">All Departments</option>
                 {DEPARTMENT_OPTIONS.map(dept => (
@@ -344,7 +344,7 @@ export default function ApplicationsPage() {
                 value={`${sortBy}-${sortDir}`}
                 onChange={(e) => handleSortChange(e.target.value)}
                 aria-label="Sort applications"
-                className="py-1 px-2 border border-border rounded-sm text-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="py-1 px-2 border border-border rounded-control text-sm focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 <option value="submittedAt-desc">Newest first</option>
                 <option value="submittedAt-asc">Oldest first</option>

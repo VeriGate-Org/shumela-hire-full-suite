@@ -89,7 +89,7 @@ export default function SsoGroupMappingTable() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-sm shadow p-8 text-center">
+      <div className="bg-white rounded-control shadow p-8 text-center">
         <ArrowPathIcon className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
         <p className="text-gray-500">Loading group mappings...</p>
       </div>
@@ -99,7 +99,7 @@ export default function SsoGroupMappingTable() {
   return (
     <div className="space-y-6">
       {/* Info Banner */}
-      <div className="bg-violet-50 border border-violet-200 rounded-sm p-4">
+      <div className="bg-violet-50 border border-violet-200 rounded-control p-4">
         <div className="flex items-start gap-3">
           <UserGroupIcon className="w-5 h-5 text-violet-600 mt-0.5" />
           <div>
@@ -114,7 +114,7 @@ export default function SsoGroupMappingTable() {
       </div>
 
       {/* Mappings Table */}
-      <div className="bg-white rounded-sm shadow overflow-hidden">
+      <div className="bg-white rounded-control shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">
             Group Mappings ({mappings.length})
@@ -161,14 +161,14 @@ export default function SsoGroupMappingTable() {
                         value={mapping.adGroupName}
                         onChange={e => handleUpdateMapping(index, 'adGroupName', e.target.value)}
                         placeholder="e.g., ShumelaHire-Admins"
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                       />
                     </td>
                     <td className="px-6 py-4">
                       <select
                         value={mapping.mappedRole}
                         onChange={e => handleUpdateMapping(index, 'mappedRole', e.target.value)}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-sm text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-control text-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
                       >
                         {AVAILABLE_ROLES.map(role => (
                           <option key={role.value} value={role.value}>{role.label}</option>

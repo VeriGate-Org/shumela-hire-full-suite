@@ -17,7 +17,7 @@ export default function OfflinePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-sm shadow-lg p-8 text-center">
+      <div className="max-w-md w-full bg-white rounded-control shadow-lg p-8 text-center">
         {/* Offline icon */}
         <div className="w-20 h-20 mx-auto mb-6 bg-orange-100 rounded-full flex items-center justify-center">
           <span className="text-4xl">📱</span>
@@ -42,7 +42,7 @@ export default function OfflinePage() {
         {/* Retry button */}
         <button
           onClick={handleRetry}
-          className="w-full bg-gold-500 text-violet-950 py-3 px-4 rounded-sm font-medium hover:bg-gold-600 transition-colors mb-6"
+          className="w-full bg-gold-500 text-violet-950 py-3 px-4 rounded-control font-medium hover:bg-gold-600 transition-colors mb-6"
         >
           Try Again
         </button>
@@ -57,7 +57,7 @@ export default function OfflinePage() {
               <Link
                 key={page.href}
                 href={page.href}
-                className="flex flex-col items-center p-3 bg-gray-50 rounded-sm hover:bg-gray-100 transition-colors"
+                className="flex flex-col items-center p-3 bg-gray-50 rounded-control hover:bg-gray-100 transition-colors"
               >
                 <span className="text-2xl mb-2">{page.icon}</span>
                 <span className="text-sm font-medium text-gray-700">
@@ -69,7 +69,7 @@ export default function OfflinePage() {
         </div>
 
         {/* Offline features notice */}
-        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-sm">
+        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-control">
           <h4 className="text-sm font-medium text-orange-800 mb-2">
             Offline Features Available:
           </h4>

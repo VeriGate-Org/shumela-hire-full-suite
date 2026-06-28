@@ -203,7 +203,7 @@ export default function IntegrationsPage() {
         title="Access Denied"
         subtitle="You do not have permission to manage integrations"
       >
-        <div className="bg-white rounded-sm shadow p-8 text-center border border-gray-200">
+        <div className="bg-white rounded-control shadow p-8 text-center border border-gray-200">
           <p className="text-sm text-gray-600">
             Integrations can be managed by administrators and HR managers.
           </p>
@@ -221,7 +221,7 @@ export default function IntegrationsPage() {
       <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <LinkIcon className="w-8 h-8 text-violet-500" />
@@ -233,7 +233,7 @@ export default function IntegrationsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <CheckCircleIcon className="w-8 h-8 text-green-500" />
@@ -245,7 +245,7 @@ export default function IntegrationsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="bg-white rounded-control shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
@@ -259,7 +259,7 @@ export default function IntegrationsPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="bg-white rounded-control shadow p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -267,7 +267,7 @@ export default function IntegrationsPage() {
                 placeholder="Search integrations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="w-full px-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto">
@@ -301,12 +301,12 @@ export default function IntegrationsPage() {
               const IconComponent = meta.icon;
 
               return (
-                <div key={integration.id} className="bg-white rounded-sm shadow hover:shadow-md transition-shadow">
+                <div key={integration.id} className="bg-white rounded-control shadow hover:shadow-md transition-shadow">
                   <div className="p-6">
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
-                        <div className="p-2 bg-gray-100 rounded-sm mr-3">
+                        <div className="p-2 bg-gray-100 rounded-control mr-3">
                           <IconComponent className="w-6 h-6 text-gray-700" />
                         </div>
                         <div>

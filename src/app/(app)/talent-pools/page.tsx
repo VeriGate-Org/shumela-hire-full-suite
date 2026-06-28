@@ -621,7 +621,7 @@ export default function TalentPoolsPage() {
                   type="text"
                   value={poolForm.poolName}
                   onChange={(e) => setPoolForm((f) => ({ ...f, poolName: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="e.g. Senior Engineers"
                 />
               </div>
@@ -630,7 +630,7 @@ export default function TalentPoolsPage() {
                 <textarea
                   value={poolForm.description}
                   onChange={(e) => setPoolForm((f) => ({ ...f, description: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={2}
                   placeholder="Brief description of this pool..."
                 />
@@ -651,7 +651,7 @@ export default function TalentPoolsPage() {
                   <select
                     value={poolForm.experienceLevel}
                     onChange={(e) => setPoolForm((f) => ({ ...f, experienceLevel: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   >
                     <option value="">Select level</option>
                     <option value="Intern">Intern</option>
@@ -731,7 +731,7 @@ export default function TalentPoolsPage() {
                   type="number"
                   value={entryForm.applicantId}
                   onChange={(e) => setEntryForm((f) => ({ ...f, applicantId: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   placeholder="Enter applicant ID"
                 />
               </div>
@@ -745,7 +745,7 @@ export default function TalentPoolsPage() {
                       sourceType: e.target.value as typeof entryForm.sourceType,
                     }))
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                 >
                   <option value="MANUAL">Manual</option>
                   <option value="AUTO_REJECTED">Auto-Rejected</option>
@@ -757,7 +757,7 @@ export default function TalentPoolsPage() {
                 <textarea
                   value={entryForm.notes}
                   onChange={(e) => setEntryForm((f) => ({ ...f, notes: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                   rows={3}
                   placeholder="Optional notes about this candidate..."
                 />
@@ -802,7 +802,7 @@ export default function TalentPoolsPage() {
               <textarea
                 value={removeReason}
                 onChange={(e) => setRemoveReason(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
                 rows={3}
                 placeholder="Why is this candidate being removed?"
               />

@@ -166,7 +166,7 @@ const JobAdPreview: React.FC<JobAdPreviewProps> = ({
 
       {/* Footer */}
       <div className="mt-8 pt-6 border-t border-gray-200">
-        <div className="bg-gray-50 rounded-sm p-6">
+        <div className="bg-gray-50 rounded-control p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Ready to Apply?</h3>
           <p className="text-gray-600 mb-4">
             Send your application to join our team and make an impact!
@@ -201,7 +201,7 @@ const JobAdPreview: React.FC<JobAdPreviewProps> = ({
 
       {/* Internal only: Analytics preview */}
       {isInternal && jobAd && (
-        <div className="mt-6 p-4 bg-gold-50 rounded-sm">
+        <div className="mt-6 p-4 bg-gold-50 rounded-control">
           <h4 className="text-sm font-semibold text-violet-900 mb-2">Performance Metrics</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
