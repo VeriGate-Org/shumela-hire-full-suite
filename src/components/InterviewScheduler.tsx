@@ -9,6 +9,7 @@ import WizardShell from '@/components/WizardShell';
 import type { WizardStep } from '@/components/WizardShell';
 import type { DropdownOption } from '@/components/SearchableDropdown';
 import { useToast } from '@/components/Toast';
+import { useWizardDraft } from '@/hooks/useWizardDraft';
 import { CardSkeleton } from '@/components/LoadingComponents';
 import ErrorState from '@/components/ErrorState';
 
@@ -17,6 +18,7 @@ interface InterviewSchedulerProps {
   applicationId?: number;
   onSuccess?: (interview: InterviewSaveResponse) => void;
   onCancel?: () => void;
+  variant?: 'page' | 'modal';
 }
 
 interface Application {
@@ -80,7 +82,24 @@ const selectClass =
 
 const labelClass = 'block text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-1.5';
 
-export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel }: InterviewSchedulerProps) {
+const DEFAULT_INTERVIEW_DATA: InterviewData = {
+  title: '',
+  type: 'VIDEO',
+  round: 'SCREENING',
+  scheduledAt: '',
+  durationMinutes: 60,
+  location: '',
+  meetingLink: '',
+  phoneNumber: '',
+  meetingRoom: '',
+  instructions: '',
+  agenda: '',
+  interviewerId: 1,
+  interviewerIds: [],
+  applicationId: 0,
+};
+
+export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel, variant = 'modal' }: InterviewSchedulerProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { interviewTypes: INTERVIEW_TYPES } = useInterviewTypes();
@@ -89,21 +108,35 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   const [currentStep, setCurrentStep] = useState(interviewId || skipCandidateStep ? 1 : 0);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [formData, setFormData] = useState<InterviewData>({
-    title: '',
-    type: 'VIDEO',
-    round: 'SCREENING',
-    scheduledAt: '',
-    durationMinutes: 60,
-    location: '',
-    meetingLink: '',
-    phoneNumber: '',
-    meetingRoom: '',
-    instructions: '',
-    agenda: '',
-    interviewerId: 1,
-    interviewerIds: [],
+    ...DEFAULT_INTERVIEW_DATA,
     applicationId: prefilledApplicationId || 0,
   });
+
+  const draft = useWizardDraft(formData, {
+    wizardType: 'interview',
+    entityId: interviewId,
+    initialData: { ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || 0 },
+    currentStep,
+    enabled: !interviewId,
+    onDraftRestored: (data, step) => {
+      setFormData(data);
+      setCurrentStep(step);
+    },
+  });
+
+  useEffect(() => {
+    if (draft.draftRestored) {
+      toast('Draft restored', 'info', {
+        label: 'Discard',
+        onClick: () => {
+          setFormData({ ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || 0 });
+          setCurrentStep(skipCandidateStep ? 1 : 0);
+          draft.discardDraft();
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.draftRestored]);
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [applicationsLoading, setApplicationsLoading] = useState(false);
@@ -341,6 +374,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
       if (response.ok) {
         const result = await response.json() as InterviewSaveResponse;
+        draft.clearDraft();
         toast('Interview scheduled successfully', 'success');
         onSuccess?.(result);
       } else {
@@ -697,21 +731,21 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   );
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <WizardShell
-        steps={steps}
-        currentStep={effectiveStep}
-        onNext={handleNext}
-        onBack={handleBack}
-        canProceed={canProceedFromStep(currentStep)}
-        title={interviewId ? 'Edit Interview' : 'Schedule Interview'}
-        subtitle={selectedApplication ? `${selectedApplication.applicantName} — ${selectedApplication.jobTitle}` : undefined}
-        footer={currentStep === 4 || (interviewId && currentStep === 4) ? reviewFooter : undefined}
-        onClose={onCancel}
-      >
-        {stepContent[currentStep]()}
-      </WizardShell>
-    </div>
+    <WizardShell
+      steps={steps}
+      currentStep={effectiveStep}
+      onNext={handleNext}
+      onBack={handleBack}
+      canProceed={canProceedFromStep(currentStep)}
+      title={interviewId ? 'Edit Interview' : 'Schedule Interview'}
+      subtitle={selectedApplication ? `${selectedApplication.applicantName} — ${selectedApplication.jobTitle}` : undefined}
+      footer={currentStep === 4 || (interviewId && currentStep === 4) ? reviewFooter : undefined}
+      variant={variant}
+      onClose={onCancel}
+      statusIndicator={draft.statusText || undefined}
+    >
+      {stepContent[currentStep]()}
+    </WizardShell>
   );
 }
 

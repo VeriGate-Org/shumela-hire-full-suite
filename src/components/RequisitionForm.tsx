@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
+import { useWizardDraft } from '@/hooks/useWizardDraft';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useEmploymentTypes } from '@/hooks/useLookups';
 import { ArrowLeftIcon, DocumentTextIcon, BookmarkIcon } from '@heroicons/react/24/outline';
@@ -33,6 +34,8 @@ interface RequisitionFormProps {
   onSubmitForApproval?: (data: RequisitionFormData) => void;
   initialData?: Partial<RequisitionFormData>;
   onSuccess?: (requisition: unknown) => void;
+  variant?: 'page' | 'modal';
+  onCancel?: () => void;
 }
 
 const WIZARD_STEPS: WizardStep[] = [
@@ -51,11 +54,23 @@ const labelClass =
 const errorInputClass =
   'w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-300 focus:border-red-400';
 
+const DEFAULT_REQUISITION_DATA: RequisitionFormData = {
+  jobTitle: '',
+  department: '',
+  location: '',
+  employmentType: '',
+  salaryMin: '',
+  salaryMax: '',
+  description: '',
+};
+
 const RequisitionForm: React.FC<RequisitionFormProps> = ({
   onSaveDraft,
   onSubmitForApproval,
   initialData = {},
   onSuccess,
+  variant = 'page',
+  onCancel,
 }) => {
   const { toast } = useToast();
   const { departments } = useDepartments();
@@ -70,6 +85,57 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
     salaryMax: initialData.salaryMax || '',
     description: initialData.description || '',
   });
+
+  const isEditMode = !!initialData.jobTitle;
+
+  const draft = useWizardDraft(formData, {
+    wizardType: 'requisition',
+    initialData: DEFAULT_REQUISITION_DATA,
+    currentStep,
+    enabled: !isEditMode,
+    onDraftRestored: (data, step) => {
+      setFormData(data);
+      setCurrentStep(step);
+    },
+    backendSave: async (data) => {
+      if (onSaveDraft) {
+        onSaveDraft(data);
+        return;
+      }
+      const response = await apiFetch('/api/requisitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          salaryMin: data.salaryMin ? Number(data.salaryMin) : undefined,
+          salaryMax: data.salaryMax ? Number(data.salaryMax) : undefined,
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        toast('Draft saved successfully', 'success');
+        if (onSuccess) onSuccess(result);
+      } else {
+        const err = await response.json().catch(() => null);
+        toast(`Error: ${err?.message || 'Failed to save draft'}`, 'error');
+        throw new Error(err?.message || 'Failed to save draft');
+      }
+    },
+  });
+
+  React.useEffect(() => {
+    if (draft.draftRestored) {
+      toast('Draft restored', 'info', {
+        label: 'Discard',
+        onClick: () => {
+          setFormData(DEFAULT_REQUISITION_DATA);
+          setCurrentStep(0);
+          draft.discardDraft();
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.draftRestored]);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -221,6 +287,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
 
         if (submitResponse.ok) {
           const submitted = await submitResponse.json();
+          draft.clearDraft();
           toast('Requisition submitted for approval successfully', 'success');
           if (onSuccess) onSuccess(submitted);
         } else {
@@ -466,12 +533,12 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
       </button>
       <div className="flex items-center gap-2">
         <button
-          onClick={handleSaveDraft}
-          disabled={isSubmitting}
+          onClick={() => { void draft.saveDraftToBackend(); }}
+          disabled={isSubmitting || draft.isSavingToBackend}
           className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <BookmarkIcon className="w-3.5 h-3.5" />
-          {isSubmitting ? 'Saving...' : 'Save Draft'}
+          {draft.isSavingToBackend ? 'Saving...' : 'Save Draft'}
         </button>
         <button
           onClick={handleSubmitForApproval}
@@ -486,21 +553,22 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({
   ) : undefined;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <WizardShell
-        steps={WIZARD_STEPS}
-        currentStep={currentStep}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSkip={handleSkip}
-        canProceed={canProceedFromStep(currentStep)}
-        title="Job Requisition"
-        subtitle="Create a new job requisition for your department"
-        footer={reviewFooter}
-      >
-        {renderStepContent()}
-      </WizardShell>
-    </div>
+    <WizardShell
+      steps={WIZARD_STEPS}
+      currentStep={currentStep}
+      onNext={handleNext}
+      onBack={handleBack}
+      onSkip={handleSkip}
+      canProceed={canProceedFromStep(currentStep)}
+      title="Job Requisition"
+      subtitle="Create a new job requisition for your department"
+      footer={reviewFooter}
+      variant={variant}
+      onClose={onCancel}
+      statusIndicator={draft.statusText || undefined}
+    >
+      {renderStepContent()}
+    </WizardShell>
   );
 };
 
