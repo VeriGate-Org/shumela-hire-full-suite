@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
-  CalendarIcon,
   ChartBarIcon,
   UsersIcon,
   ClockIcon,
@@ -15,23 +14,23 @@ import {
   SourceEffectivenessChart,
   TimeToHireChart,
   PerformanceGaugeChart,
-  HiringManagerPerformanceChart,
   MonthlyTrendsChart,
 } from '../charts';
 import { apiFetch } from '@/lib/api-fetch';
 import { FilterValue } from './InteractiveFilters';
 
-// Time range selector
-const timeRanges = [
-  { key: 'week', label: 'Last 7 Days', days: 7 },
-  { key: 'month', label: 'Last 30 Days', days: 30 },
-  { key: 'quarter', label: 'Last 3 Months', days: 90 },
-  { key: 'year', label: 'Last 12 Months', days: 365 },
-] as const;
+// Time range days lookup (kept internal for filtering volume data)
+const timeRangeDays: Record<string, number> = {
+  week: 7,
+  month: 30,
+  quarter: 90,
+  year: 365,
+};
 
 interface AdvancedAnalyticsDashboardProps {
   className?: string;
   filters?: FilterValue[];
+  timeRange?: 'week' | 'month' | 'quarter' | 'year';
 }
 
 interface DashboardData {
@@ -40,32 +39,18 @@ interface DashboardData {
   source: Array<{ source: string; applications: number; hires: number; conversionRate: number }>;
   timeToHire: Array<{ position: string; timeToHire: number; target: number }>;
   performance: Array<{ metric: string; current: number; target: number; percentage: number }>;
-  hiringManager: Array<{ manager: string; positions: number; timeToFill: number; satisfaction: number }>;
   monthly: Array<{ month: string; applications: number; interviews: number; offers: number; hires: number; rejections: number }>;
   summary: {
     totalApplications: number;
     totalHires: number;
     conversionRate: number;
     avgTimeToHire: number;
-    activePositions: number;
-    pipelineValue: number;
     applicationsTrend: string;
     hiresTrend: string;
     conversionTrend: string;
     timeToHireTrend: string;
   };
 }
-
-const viewOptions: Array<{
-  key: 'overview' | 'performance' | 'sources' | 'managers';
-  label: string;
-  icon: typeof ChartBarIcon;
-}> = [
-  { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-  { key: 'performance', label: 'Performance', icon: ArrowTrendingUpIcon },
-  { key: 'sources', label: 'Sources', icon: DocumentChartBarIcon },
-  { key: 'managers', label: 'Managers', icon: UsersIcon },
-];
 
 function buildFilterQuery(filters?: FilterValue[]): string {
   if (!filters || filters.length === 0) return '';
@@ -94,7 +79,6 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
   const offersMade = kpis['offers_made']?.value ?? 0;
   const acceptanceRate = kpis['acceptance_rate']?.value ?? 0;
   const timeToFillDays = kpis['time_to_fill_days']?.value ?? 0;
-  const interviewsConducted = kpis['interviews_conducted']?.value ?? 0;
 
   // Application Volume from trends
   const appTrends = trends['total_applications'] ?? [];
@@ -113,12 +97,11 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
     stage,
     count: Math.round(Number(kpis[stageKeys[i]]?.value ?? 0) * Number(totalApplications) / 100) || 0,
   }));
-  // If pipeline is all zeros, use totalApplications as base for "Applied"
   if (pipeline.every(p => p.count === 0) && totalApplications > 0) {
     pipeline[0].count = Number(totalApplications);
   }
 
-  // Source effectiveness from source_effectiveness_score or derive
+  // Source effectiveness
   const sourceEffectiveness = kpis['source_effectiveness_score']?.value;
   const source = sourceEffectiveness
     ? [{ source: 'All Sources', applications: Number(totalApplications), hires: Number(offersMade), conversionRate: Number(sourceEffectiveness) }]
@@ -129,7 +112,7 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
     ? [{ position: 'Overall', timeToHire: Number(timeToFillDays), target: 30 }]
     : [];
 
-  // Performance gauges from KPIs
+  // Performance gauges
   const performance: DashboardData['performance'] = [];
   if (interviewConversionRate) {
     performance.push({ metric: 'Interview Conversion', current: Number(interviewConversionRate), target: 100, percentage: Number(interviewConversionRate) });
@@ -146,7 +129,7 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
     performance.push({ metric: 'Avg Interview Score', current: avgScore, target: 4, percentage: Math.min(100, (avgScore / 4) * 100) });
   }
 
-  // Monthly trends from trend data
+  // Monthly trends
   const monthlyMap = new Map<string, { applications: number; interviews: number; offers: number; hires: number; rejections: number }>();
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   for (const entry of appTrends) {
@@ -177,15 +160,12 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
     source,
     timeToHire,
     performance,
-    hiringManager: [],
     monthly,
     summary: {
       totalApplications: Number(totalApplications),
       totalHires,
       conversionRate,
       avgTimeToHire: Number(timeToFillDays) || Number(avgResponseTimeHours) / 24 || 0,
-      activePositions: Number(interviewsConducted) || 0,
-      pipelineValue: pipeline.reduce((sum, s) => sum + s.count, 0),
       applicationsTrend: getTrendStr('total_applications'),
       hiresTrend: getTrendStr('offers_made'),
       conversionTrend: getTrendStr('interview_conversion_rate'),
@@ -197,9 +177,8 @@ function mapDashboardResponse(dashboardData: Record<string, unknown>, kpiData: R
 export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProps> = ({
   className = '',
   filters,
+  timeRange = 'month',
 }) => {
-  const [selectedTimeRange, setSelectedTimeRange] = useState<typeof timeRanges[number]['key']>('month');
-  const [selectedView, setSelectedView] = useState<'overview' | 'performance' | 'sources' | 'managers'>('overview');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -235,13 +214,11 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
             }
             return Promise.resolve(0);
           };
-          const [totalApps, totalInt, totalOffers] = await Promise.all([getTotal(appRes), getTotal(intRes), getTotal(offerRes)]);
-          if (totalApps > 0 || totalInt > 0 || totalOffers > 0) {
+          const [totalApps, , totalOffers] = await Promise.all([getTotal(appRes), getTotal(intRes), getTotal(offerRes)]);
+          if (totalApps > 0 || totalOffers > 0) {
             mapped.summary.totalApplications = totalApps;
             mapped.summary.totalHires = totalOffers;
-            mapped.summary.activePositions = totalInt;
             mapped.summary.conversionRate = totalApps > 0 ? Math.round((totalOffers / totalApps) * 1000) / 10 : 0;
-            mapped.summary.pipelineValue = totalApps;
             if (mapped.pipeline.length > 0 && mapped.pipeline.every(p => p.count === 0)) {
               mapped.pipeline[0].count = totalApps;
             }
@@ -261,23 +238,20 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, selectedTimeRange]);
+  }, [fetchData, timeRange]);
 
-  // Filter application volume by selected time range
+  // Filter application volume by time range
   const filteredVolumeData = useMemo(() => {
     if (!data) return [];
-    const range = timeRanges.find(r => r.key === selectedTimeRange);
-    const days = range?.days ?? 30;
+    const days = timeRangeDays[timeRange] ?? 30;
     return data.applicationVolume.slice(-days);
-  }, [data, selectedTimeRange]);
+  }, [data, timeRange]);
 
   const summaryStats = data?.summary ?? {
     totalApplications: 0,
     totalHires: 0,
     conversionRate: 0,
     avgTimeToHire: 0,
-    activePositions: 0,
-    pipelineValue: 0,
     applicationsTrend: '',
     hiresTrend: '',
     conversionTrend: '',
@@ -287,14 +261,8 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
   if (loading) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <div className="bg-card rounded-card border border-border p-6 shadow-sm">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-            <div className="h-4 bg-muted rounded w-1/2"></div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-card rounded-card border border-border p-6 shadow-sm animate-pulse">
               <div className="h-10 bg-muted rounded mb-4"></div>
               <div className="h-6 bg-muted rounded w-2/3"></div>
@@ -362,73 +330,12 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
       change: summaryStats.timeToHireTrend || null,
       changeType: summaryStats.timeToHireTrend?.startsWith('-') ? 'positive' : 'negative',
     },
-    {
-      title: 'Active Positions',
-      value: summaryStats.activePositions.toString(),
-      icon: ChartBarIcon,
-      color: 'text-link bg-link/10',
-      change: null,
-      changeType: 'positive',
-    },
-    {
-      title: 'Pipeline Value',
-      value: summaryStats.pipelineValue.toLocaleString(),
-      icon: CalendarIcon,
-      color: 'text-teal-600 bg-teal-100',
-      change: null,
-      changeType: 'positive',
-    },
   ];
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header with controls */}
-      <div className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Advanced Analytics Dashboard</h1>
-            <p className="text-muted-foreground">Comprehensive recruitment metrics and insights</p>
-          </div>
-
-          {/* Time range selector */}
-          <div className="flex flex-wrap gap-2">
-            {timeRanges.map((range) => (
-              <button
-                key={range.key}
-                onClick={() => setSelectedTimeRange(range.key)}
-                className={`px-4 py-2 rounded-control text-sm font-medium border transition-colors ${
-                  selectedTimeRange === range.key
-                    ? 'bg-primary/10 text-primary border-primary/20'
-                    : 'bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-foreground'
-                }`}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* View selector */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {viewOptions.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setSelectedView(key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
-                  selectedView === key
-                    ? 'bg-cta text-cta-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
-                }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {/* 4 Summary stat cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <div key={stat.title} className="bg-card rounded-card border border-border border-t-2 border-t-cta p-6 shadow-sm">
             <div className="flex items-center justify-between">
@@ -453,37 +360,26 @@ export const AdvancedAnalyticsDashboard: React.FC<AdvancedAnalyticsDashboardProp
         ))}
       </div>
 
-      {/* Main content based on selected view */}
-      {selectedView === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ApplicationVolumeChart
-            data={filteredVolumeData}
-            timeframe={selectedTimeRange === 'week' ? 'week' : selectedTimeRange === 'month' ? 'month' : 'quarter'}
-            className="lg:col-span-2"
-          />
-          <PipelineFunnelChart data={data?.pipeline ?? []} />
-          <MonthlyTrendsChart data={data?.monthly ?? []} />
-        </div>
-      )}
+      {/* Application Volume — full width */}
+      <ApplicationVolumeChart
+        data={filteredVolumeData}
+        timeframe={timeRange === 'week' ? 'week' : timeRange === 'month' ? 'month' : 'quarter'}
+      />
 
-      {selectedView === 'performance' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <PerformanceGaugeChart data={data?.performance ?? []} />
-          <TimeToHireChart data={data?.timeToHire ?? []} />
-        </div>
-      )}
+      {/* Pipeline Funnel + Performance Gauges — 2 col */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PipelineFunnelChart data={data?.pipeline ?? []} />
+        <PerformanceGaugeChart data={data?.performance ?? []} />
+      </div>
 
-      {selectedView === 'sources' && (
-        <div className="grid grid-cols-1 gap-6">
-          <SourceEffectivenessChart data={data?.source ?? []} />
-        </div>
-      )}
+      {/* Monthly Trends — full width */}
+      <MonthlyTrendsChart data={data?.monthly ?? []} />
 
-      {selectedView === 'managers' && (
-        <div className="grid grid-cols-1 gap-6">
-          <HiringManagerPerformanceChart data={data?.hiringManager ?? []} />
-        </div>
-      )}
+      {/* Source Effectiveness + Time to Hire — 2 col */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SourceEffectivenessChart data={data?.source ?? []} />
+        <TimeToHireChart data={data?.timeToHire ?? []} />
+      </div>
     </div>
   );
 };
