@@ -13,6 +13,7 @@ import { useToast } from '@/components/Toast';
 import { apiFetch } from '@/lib/api-fetch';
 import { formatSalaryRange } from '@/utils/currency';
 import { RequisitionData, ApprovalRole, WorkflowAction } from '@/types/workflow';
+import RequisitionForm from '@/components/RequisitionForm';
 import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
@@ -55,6 +56,7 @@ export default function RequisitionsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [showNewRequisitionModal, setShowNewRequisitionModal] = useState(false);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -165,12 +167,12 @@ export default function RequisitionsPage() {
         <ArrowPathIcon className="w-4 h-4 mr-1.5" />
         Refresh
       </button>
-      <Link
-        href="/requisitions/new"
+      <button
+        onClick={() => setShowNewRequisitionModal(true)}
         className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider"
       >
         New Requisition
-      </Link>
+      </button>
     </div>
   );
 
@@ -398,6 +400,17 @@ export default function RequisitionsPage() {
           </div>
         )}
       </div>
+
+      {showNewRequisitionModal && (
+        <RequisitionForm
+          variant="modal"
+          onCancel={() => setShowNewRequisitionModal(false)}
+          onSuccess={() => {
+            setShowNewRequisitionModal(false);
+            loadRequisitions(currentPage, statusFilter, debouncedSearch);
+          }}
+        />
+      )}
     </PageWrapper>
   );
 }
