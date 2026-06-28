@@ -7,7 +7,7 @@ import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, CandidatePipeline } from '../../dashboard';
 import { ApplicationVolumeChart } from '../../charts';
 import EmptyState from '@/components/EmptyState';
-import { BriefcaseIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface HiringManagerDashboardProps {
   selectedTimeframe: string;
@@ -218,6 +218,8 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
   const [upcomingInterviews, setUpcomingInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [positionsPage, setPositionsPage] = useState(0);
+  const POSITIONS_PAGE_SIZE = 5;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -413,7 +415,9 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
           >
             {openPositions.length > 0 ? (
               <div className="space-y-4">
-                {openPositions.map((position: any) => (
+                {openPositions
+                  .slice(positionsPage * POSITIONS_PAGE_SIZE, (positionsPage + 1) * POSITIONS_PAGE_SIZE)
+                  .map((position: any) => (
                   <div key={position.id || position.title} className="flex items-center justify-between p-3 bg-gray-50 rounded-control">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">{position.title || position.role}</p>
@@ -432,6 +436,34 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
                     </div>
                   </div>
                 ))}
+                {openPositions.length > POSITIONS_PAGE_SIZE && (() => {
+                  const totalPages = Math.ceil(openPositions.length / POSITIONS_PAGE_SIZE);
+                  const rangeStart = positionsPage * POSITIONS_PAGE_SIZE + 1;
+                  const rangeEnd = Math.min((positionsPage + 1) * POSITIONS_PAGE_SIZE, openPositions.length);
+                  return (
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                      <span className="text-xs text-gray-500">
+                        {rangeStart}–{rangeEnd} of {openPositions.length}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setPositionsPage(p => p - 1)}
+                          disabled={positionsPage === 0}
+                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeftIcon className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <button
+                          onClick={() => setPositionsPage(p => p + 1)}
+                          disabled={positionsPage >= totalPages - 1}
+                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronRightIcon className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             ) : (
               <EmptyState

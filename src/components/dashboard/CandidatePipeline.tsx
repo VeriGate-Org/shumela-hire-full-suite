@@ -8,6 +8,8 @@ import {
   PhoneIcon,
   CalendarIcon,
   DocumentTextIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import DashboardWidget from './DashboardWidget';
 import EmptyState from '@/components/EmptyState';
@@ -55,9 +57,11 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
   subtitle = "Drag candidates between stages",
   className = '',
 }) => {
+  const PAGE_SIZE = 5;
   const [stages, setStages] = useState<PipelineStage[]>(initialStages);
   const [draggedCandidate, setDraggedCandidate] = useState<Candidate | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
+  const [stagePages, setStagePages] = useState<Record<string, number>>({});
 
   const handleDragStart = (candidate: Candidate) => {
     setDraggedCandidate(candidate);
@@ -217,7 +221,15 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
 
                 {/* Candidates */}
                 <div className="space-y-3 flex-1 overflow-y-auto pr-1">
-                  {stage.candidates.map((candidate) => (
+                  {(() => {
+                    const currentPage = stagePages[stage.id] || 0;
+                    const totalPages = Math.ceil(stage.candidates.length / PAGE_SIZE);
+                    const paginatedCandidates = stage.candidates.slice(
+                      currentPage * PAGE_SIZE,
+                      (currentPage + 1) * PAGE_SIZE,
+                    );
+                    return paginatedCandidates;
+                  })().map((candidate) => (
                     <div
                       key={candidate.id}
                       draggable
@@ -323,6 +335,43 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                       action={{ label: 'Create Job Posting', href: '/job-postings' }}
                     />
                   )}
+
+                  {/* Pagination */}
+                  {stage.candidates.length > PAGE_SIZE && (() => {
+                    const currentPage = stagePages[stage.id] || 0;
+                    const totalPages = Math.ceil(stage.candidates.length / PAGE_SIZE);
+                    const rangeStart = currentPage * PAGE_SIZE + 1;
+                    const rangeEnd = Math.min((currentPage + 1) * PAGE_SIZE, stage.candidates.length);
+                    return (
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-200 mt-1">
+                        <span className="text-[10px] text-gray-500">
+                          {rangeStart}–{rangeEnd} of {stage.candidates.length}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setStagePages(prev => ({ ...prev, [stage.id]: currentPage - 1 }));
+                            }}
+                            disabled={currentPage === 0}
+                            className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <ChevronLeftIcon className="w-3.5 h-3.5 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setStagePages(prev => ({ ...prev, [stage.id]: currentPage + 1 }));
+                            }}
+                            disabled={currentPage >= totalPages - 1}
+                            className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <ChevronRightIcon className="w-3.5 h-3.5 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
