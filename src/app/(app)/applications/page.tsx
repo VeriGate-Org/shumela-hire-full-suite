@@ -502,139 +502,110 @@ export default function ApplicationsPage() {
         </div>
 
         {/* Application Detail Modal */}
-        {selectedApplication && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="enterprise-card shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-label="Application details">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      {selectedApplication.applicantName || 'Name not available'}
-                    </h2>
-                    <p className="text-muted-foreground mt-1">
-                      {selectedApplication.jobTitle} — {selectedApplication.department}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setSelectedApplication(null)}
-                    className="text-muted-foreground hover:text-foreground"
-                    aria-label="Close application details"
-                  >
-                    <XCircleIcon className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <ApplicationStatusTracker
-                  application={selectedApplication}
-                  onWithdraw={handleWithdraw}
-                  showWithdrawOption={selectedApplication.canBeWithdrawn}
-                />
-
-                <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-border">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Email</p>
-                    <p className="text-sm text-foreground">{selectedApplication.applicantEmail}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Source</p>
-                    <p className="text-sm text-foreground">{selectedApplication.applicationSource || 'Unknown'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Submitted</p>
-                    <p className="text-sm text-foreground">{formatDate(selectedApplication.submittedAt)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Days Since Submission</p>
-                    <p className="text-sm text-foreground">{selectedApplication.daysFromSubmission} days</p>
-                  </div>
-                  {selectedApplication.rating && (
-                    <div className="col-span-2">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Rating</p>
-                      <div className="flex items-center gap-1">{renderStars(selectedApplication.rating)}</div>
+        {selectedApplication && (() => {
+          const name = selectedApplication.applicantName || 'Unknown';
+          const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div
+                className="fixed inset-0 bg-black/50"
+                onClick={() => setSelectedApplication(null)}
+                aria-hidden="true"
+              />
+              <div
+                className="relative enterprise-card shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Application details"
+              >
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-border shrink-0">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-cta/15 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-cta">{initials}</span>
                     </div>
-                  )}
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-lg font-bold text-foreground truncate">{name}</h2>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {selectedApplication.jobTitle}
+                        {selectedApplication.department && ` · ${selectedApplication.department}`}
+                      </p>
+                      <span className={`inline-flex mt-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedApplication.status)}`}>
+                        {selectedApplication.statusDisplayName}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedApplication(null)}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-lg leading-none mt-1"
+                      aria-label="Close application details"
+                    >
+                      &times;
+                    </button>
+                  </div>
                 </div>
 
-                {/* Cover Letter Section */}
-                {selectedApplication.coverLetter && (
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <button
-                      onClick={() => toggleDetailSection('coverLetter')}
-                      className="flex items-center justify-between w-full text-left"
-                      aria-expanded={expandedDetailSections.coverLetter ?? false}
-                    >
-                      <div className="flex items-center gap-2">
-                        <DocumentTextIcon className="w-5 h-5 text-muted-foreground" />
-                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Cover Letter</h3>
-                      </div>
-                      {expandedDetailSections.coverLetter ? (
-                        <ChevronUpIcon className="w-5 h-5 text-muted-foreground" />
-                      ) : (
-                        <ChevronDownIcon className="w-5 h-5 text-muted-foreground" />
-                      )}
-                    </button>
-                    {expandedDetailSections.coverLetter && (
-                      <div className="mt-3 p-4 bg-muted/50 rounded-md">
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{selectedApplication.coverLetter}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Scrollable Body */}
+                <div className="p-6 space-y-5 overflow-y-auto flex-1">
+                  {/* Status Tracker */}
+                  <ApplicationStatusTracker
+                    application={selectedApplication}
+                    onWithdraw={handleWithdraw}
+                    showWithdrawOption={selectedApplication.canBeWithdrawn}
+                  />
 
-                {/* Screening Notes Section */}
-                {selectedApplication.screeningNotes && (
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <button
-                      onClick={() => toggleDetailSection('screeningNotes')}
-                      className="flex items-center justify-between w-full text-left"
-                      aria-expanded={expandedDetailSections.screeningNotes ?? false}
-                    >
-                      <div className="flex items-center gap-2">
-                        <EyeIcon className="w-5 h-5 text-muted-foreground" />
-                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Screening Notes</h3>
-                      </div>
-                      {expandedDetailSections.screeningNotes ? (
-                        <ChevronUpIcon className="w-5 h-5 text-muted-foreground" />
-                      ) : (
-                        <ChevronDownIcon className="w-5 h-5 text-muted-foreground" />
-                      )}
-                    </button>
-                    {expandedDetailSections.screeningNotes && (
-                      <div className="mt-3 p-4 bg-muted/50 rounded-md">
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{selectedApplication.screeningNotes}</p>
-                      </div>
-                    )}
+                  {/* Metadata Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-muted/30 rounded-card p-3">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.05em]">Email</p>
+                      <p className="text-sm text-foreground mt-0.5 truncate">{selectedApplication.applicantEmail}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-card p-3">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.05em]">Source</p>
+                      <p className="text-sm text-foreground mt-0.5">{selectedApplication.applicationSource || 'Unknown'}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-card p-3">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.05em]">Submitted</p>
+                      <p className="text-sm text-foreground mt-0.5">{formatDate(selectedApplication.submittedAt)}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-card p-3">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.05em]">Days in Pipeline</p>
+                      <p className="text-sm text-foreground mt-0.5">{selectedApplication.daysFromSubmission} days</p>
+                    </div>
                   </div>
-                )}
 
-                {/* Interview Feedback Section */}
-                {selectedApplication.interviewFeedback && (
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <button
-                      onClick={() => toggleDetailSection('interviewFeedback')}
-                      className="flex items-center justify-between w-full text-left"
-                      aria-expanded={expandedDetailSections.interviewFeedback ?? false}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="w-5 h-5 text-muted-foreground" />
-                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Interview Feedback</h3>
-                      </div>
-                      {expandedDetailSections.interviewFeedback ? (
-                        <ChevronUpIcon className="w-5 h-5 text-muted-foreground" />
-                      ) : (
-                        <ChevronDownIcon className="w-5 h-5 text-muted-foreground" />
+                  {/* Expandable Sections */}
+                  {[
+                    { key: 'coverLetter', label: 'Cover Letter', icon: DocumentTextIcon, content: selectedApplication.coverLetter },
+                    { key: 'screeningNotes', label: 'Screening Notes', icon: EyeIcon, content: selectedApplication.screeningNotes },
+                    { key: 'interviewFeedback', label: 'Interview Feedback', icon: CheckCircleIcon, content: selectedApplication.interviewFeedback },
+                  ].filter(section => section.content).map(section => (
+                    <div key={section.key} className="border border-border rounded-card overflow-hidden">
+                      <button
+                        onClick={() => toggleDetailSection(section.key)}
+                        className="flex items-center justify-between w-full text-left px-4 py-3 hover:bg-accent/50 transition-colors"
+                        aria-expanded={expandedDetailSections[section.key] ?? false}
+                      >
+                        <div className="flex items-center gap-2">
+                          <section.icon className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-xs font-semibold text-foreground uppercase tracking-[0.05em]">{section.label}</span>
+                        </div>
+                        {expandedDetailSections[section.key] ? (
+                          <ChevronUpIcon className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDownIcon className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </button>
+                      {expandedDetailSections[section.key] && (
+                        <div className="px-4 pb-4">
+                          <div className="p-3 bg-muted/30 rounded-card">
+                            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{section.content}</p>
+                          </div>
+                        </div>
                       )}
-                    </button>
-                    {expandedDetailSections.interviewFeedback && (
-                      <div className="mt-3 p-4 bg-muted/50 rounded-md">
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{selectedApplication.interviewFeedback}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  ))}
 
-                {/* AI Candidate Assist */}
-                <div className="mt-6 pt-6 border-t border-border">
+                  {/* AI Candidate Assist */}
                   <AiCandidatePanel
                     applicationId={String(selectedApplication.id)}
                     candidateName={selectedApplication.applicantName}
@@ -642,18 +613,19 @@ export default function ApplicationsPage() {
                   />
                 </div>
 
-                <div className="flex justify-end mt-6 pt-6 border-t border-border">
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-border shrink-0 flex justify-end">
                   <button
                     onClick={() => setSelectedApplication(null)}
-                    className="px-4 py-2 bg-muted/50 text-foreground rounded-full hover:bg-accent text-sm font-medium"
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground border border-border rounded-full hover:bg-accent transition-colors"
                   >
                     Close
                   </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </PageWrapper>
   );

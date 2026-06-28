@@ -206,34 +206,40 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               </div>
             )}
 
-            <div className="space-y-5">
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Template Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name || ''}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={inputClasses}
-                  placeholder="e.g., Software Engineer Template"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={formData.description || ''}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  className={inputClasses}
-                  placeholder="Brief description of this template"
-                />
+            {/* Section 1: Template Details */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-cta" />
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-[0.08em]">Template Details</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Template Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name || ''}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className={inputClasses}
+                    placeholder="e.g., Software Engineer Template"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.description || ''}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    className={inputClasses}
+                    placeholder="Brief description of this template"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
                     Employment Type
@@ -263,31 +269,41 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   />
                 </div>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Job Title Template *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title || ''}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  className={inputClasses}
-                  placeholder="{{jobTitle}} - {{department}}"
-                />
+            {/* Section 2: Job Content */}
+            <div className="space-y-4 mt-8 pt-6 border-t border-border">
+              <div className="flex items-center gap-2 pb-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-cta" />
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-[0.08em]">Job Content</h3>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Location Template
-                </label>
-                <input
-                  type="text"
-                  value={formData.location || ''}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  className={inputClasses}
-                  placeholder="{{location}}"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Job Title Template *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title || ''}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    className={inputClasses}
+                    placeholder="{{jobTitle}} - {{department}}"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Location Template
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.location || ''}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className={inputClasses}
+                    placeholder="{{location}}"
+                  />
+                </div>
               </div>
 
               {[
@@ -303,48 +319,60 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                   <textarea
                     value={(formData[key as keyof JobAdTemplate] as string) || ''}
                     onChange={(e) => handleInputChange(key as keyof JobAdTemplate, e.target.value)}
-                    rows={6}
-                    className={`${inputClasses} font-mono`}
+                    rows={5}
+                    className={`${inputClasses} font-mono text-xs leading-relaxed`}
                     placeholder={placeholder}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Supports HTML formatting and placeholders like {`{{jobTitle}}`}
+                  <p className="text-[10px] text-muted-foreground/70 mt-1">
+                    HTML and placeholders supported — e.g. {`{{jobTitle}}`}, {`{{department}}`}
                   </p>
                 </div>
               ))}
+            </div>
 
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Salary Range (Optional)
-                </label>
-                <div className="grid grid-cols-2 gap-4">
+            {/* Section 3: Compensation & Dates */}
+            <div className="space-y-4 mt-8 pt-6 border-t border-border">
+              <div className="flex items-center gap-2 pb-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-cta" />
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-[0.08em]">Compensation & Dates</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Minimum Salary
+                  </label>
                   <input
                     type="number"
                     value={formData.salaryRangeMin || ''}
                     onChange={(e) => handleInputChange('salaryRangeMin', parseInt(e.target.value) || undefined)}
                     className={inputClasses}
-                    placeholder="Min salary"
+                    placeholder="e.g., 350000"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Maximum Salary
+                  </label>
                   <input
                     type="number"
                     value={formData.salaryRangeMax || ''}
                     onChange={(e) => handleInputChange('salaryRangeMax', parseInt(e.target.value) || undefined)}
                     className={inputClasses}
-                    placeholder="Max salary"
+                    placeholder="e.g., 550000"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
-                  Default Closing Date (Optional)
-                </label>
-                <input
-                  type="date"
-                  value={formData.closingDate ? formData.closingDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => handleInputChange('closingDate', e.target.value ? new Date(e.target.value) : undefined)}
-                  className={inputClasses}
-                />
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1.5">
+                    Default Closing Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.closingDate ? formData.closingDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => handleInputChange('closingDate', e.target.value ? new Date(e.target.value) : undefined)}
+                    className={`${inputClasses} md:max-w-xs`}
+                  />
+                </div>
               </div>
             </div>
           </div>
