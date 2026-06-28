@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useToast } from './Toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { linkedInSocialService, LinkedInConnectionStatus } from '@/services/linkedInSocialService';
 
 interface JobPostingInfo {
@@ -42,6 +43,7 @@ function buildDefaultPostText(job: JobPostingInfo): string {
 
 export default function LinkedInPostToCompany({ jobPosting, isOpen, onClose }: LinkedInPostToCompanyProps) {
   const { toast } = useToast();
+  const focusTrapRef = useFocusTrap(isOpen, onClose);
   const [postText, setPostText] = useState('');
   const [loading, setLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<LinkedInConnectionStatus | null>(null);
@@ -105,15 +107,15 @@ export default function LinkedInPostToCompany({ jobPosting, isOpen, onClose }: L
   const isOverLimit = charsRemaining < 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-sm shadow-xl w-full max-w-lg mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="linkedin-dialog-title">
+      <div ref={focusTrapRef} className="bg-white rounded-sm shadow-xl w-full max-w-lg mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#0A66C2">
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
             </svg>
-            <h2 className="text-lg font-semibold text-gray-900">Post to Company LinkedIn</h2>
+            <h2 id="linkedin-dialog-title" className="text-lg font-semibold text-gray-900">Post to Company LinkedIn</h2>
           </div>
           <button
             onClick={onClose}

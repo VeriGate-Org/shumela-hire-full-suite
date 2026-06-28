@@ -13,6 +13,7 @@ import WizardShell, { WizardStep } from '@/components/WizardShell';
 
 interface JobPostingFormProps {
   jobPostingId?: string | number;
+  initialData?: Partial<JobPostingData>;
   currentUserId?: string | number | null;
   onSuccess?: (jobPosting: { id: string | number; title: string; status: string }) => void;
   onCancel?: () => void;
@@ -74,13 +75,13 @@ const errorInputClass =
 const labelClass =
   'block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
 
-export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
+export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel }: JobPostingFormProps) {
   const { user } = useAuth();
   const { departments: DEPARTMENTS } = useDepartments();
   const { employmentTypes: EMPLOYMENT_TYPES } = useEmploymentTypes();
   const { experienceLevels: EXPERIENCE_LEVELS } = useExperienceLevels();
   const { salaryCurrencies } = useSalaryCurrencies();
-  const [formData, setFormData] = useState<JobPostingData>({
+  const [formData, setFormData] = useState<JobPostingData>(() => ({
     title: '',
     department: '',
     location: '',
@@ -103,7 +104,9 @@ export default function JobPostingForm({ jobPostingId, currentUserId, onSuccess,
     urgent: false,
     requiredCheckTypes: [],
     enforceCheckCompletion: false,
-  });
+    ...(initialData ?? {}),
+    id: undefined, // ensure no id for cloned postings
+  }));
 
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);

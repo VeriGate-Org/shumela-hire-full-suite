@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -81,15 +81,17 @@ const stripHtmlTags = (html: string | null | undefined): string => {
   return html.replace(/<[^>]*>/g, '').trim();
 };
 
+const INTERNAL_PAGE_SIZE = 20;
+
 export default function InternalJobsBoard() {
   const { user: _user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  
-  const [jobs, setJobs] = useState<InternalJobAd[]>([]);
+
+  const [allJobs, setAllJobs] = useState<InternalJobAd[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [totalJobs, setTotalJobs] = useState(0);
-  
+  const [currentPage, setCurrentPage] = useState(0);
+
   // Filter states
   const [filters, setFilters] = useState<JobFilters>({
     department: '',
@@ -98,10 +100,10 @@ export default function InternalJobsBoard() {
     closingDate: '',
     search: ''
   });
-  
+
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-  
+
   // Filter options (these would typically come from backend)
   const [filterOptions, setFilterOptions] = useState({
     departments: [] as string[],
@@ -117,7 +119,7 @@ export default function InternalJobsBoard() {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  // Fetch jobs from backend
+  // Fetch jobs from backend (only on mount / page change)
   const fetchJobs = useCallback(async () => {
     if (!isAuthenticated) return;
 
@@ -125,32 +127,13 @@ export default function InternalJobsBoard() {
     setError(null);
 
     try {
-      const response = await apiFetch(`/api/ads/internal?size=50`);
+      const response = await apiFetch(`/api/ads/internal?page=${currentPage}&size=${INTERNAL_PAGE_SIZE}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const result = await response.json();
       const content = result.data?.content || result.content || [];
 
-      // Apply client-side filters since the internal endpoint doesn't support them
-      let filtered = content;
-      if (filters.search) {
-        const q = filters.search.toLowerCase();
-        filtered = filtered.filter((j: InternalJobAd) =>
-          j.title?.toLowerCase().includes(q) || j.department?.toLowerCase().includes(q)
-        );
-      }
-      if (filters.department) {
-        filtered = filtered.filter((j: InternalJobAd) => j.department === filters.department);
-      }
-      if (filters.location) {
-        filtered = filtered.filter((j: InternalJobAd) => j.location === filters.location);
-      }
-      if (filters.employmentType) {
-        filtered = filtered.filter((j: InternalJobAd) => j.employmentType === filters.employmentType);
-      }
-
-      setJobs(filtered);
-      setTotalJobs(filtered.length);
+      setAllJobs(content);
       // Filter options derived from full results (before filtering).
       setFilterOptions({
         departments: [...new Set(content.map((j: InternalJobAd) => j.department).filter(Boolean))] as string[],
@@ -159,18 +142,48 @@ export default function InternalJobsBoard() {
       });
     } catch (err) {
       console.error('Error fetching internal jobs:', err);
-      // On permission or network errors, show empty state rather than error banner
-      setJobs([]);
-      setTotalJobs(0);
+      setAllJobs([]);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, filters]);
+  }, [isAuthenticated, currentPage]);
 
-  // Fetch jobs on mount and filter changes
+  // Fetch jobs on mount and page changes only
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
+  // Client-side filtering (no re-fetch)
+  const jobs = useMemo(() => {
+    let filtered = allJobs;
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      filtered = filtered.filter((j) =>
+        j.title?.toLowerCase().includes(q) || j.department?.toLowerCase().includes(q)
+      );
+    }
+    if (filters.department) {
+      filtered = filtered.filter((j) => j.department === filters.department);
+    }
+    if (filters.location) {
+      filtered = filtered.filter((j) => j.location === filters.location);
+    }
+    if (filters.employmentType) {
+      filtered = filtered.filter((j) => j.employmentType === filters.employmentType);
+    }
+    if (filters.closingDate) {
+      const days = parseInt(filters.closingDate, 10);
+      if (!isNaN(days)) {
+        filtered = filtered.filter((j) => {
+          const daysLeft = getDaysUntilExpiry(j.closingDate);
+          return daysLeft >= 0 && daysLeft <= days;
+        });
+      }
+    }
+    return filtered;
+  }, [allJobs, filters]);
+
+  const totalJobs = jobs.length;
 
   const handleFilterChange = (key: keyof JobFilters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -484,11 +497,41 @@ export default function InternalJobsBoard() {
             } : undefined}
           />
         ) : (
-          <div className={`${viewMode === 'cards' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
-            {jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
+          <>
+            <div className={`${viewMode === 'cards' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {allJobs.length >= INTERNAL_PAGE_SIZE && (
+              <div className="flex items-center justify-between pt-6">
+                <p className="text-sm text-gray-600">
+                  Page {currentPage + 1}
+                </p>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <span className="px-3 py-1 text-sm bg-gold-500 text-white rounded-full border border-gold-500">
+                    {currentPage + 1}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    disabled={allJobs.length < INTERNAL_PAGE_SIZE}
+                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </PageWrapper>

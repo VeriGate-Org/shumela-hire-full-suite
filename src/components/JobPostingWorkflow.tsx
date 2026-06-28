@@ -36,7 +36,7 @@ interface JobPostingWorkflowProps {
     applicationsCount: number;
     viewsCount: number;
   };
-  onStatusChange?: (jobPostingId: string | number, newStatus: string) => void;
+  onStatusChange?: (updatedPosting: JobPostingWorkflowProps['jobPosting']) => void;
   currentUserId?: string | number;
 }
 
@@ -48,6 +48,8 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   const [loading, setLoading] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [pendingApproval, setPendingApproval] = useState(false);
+  const [pendingRejection, setPendingRejection] = useState(false);
 
   const workflowSteps = [
     { key: 'DRAFT', label: 'Draft', marker: '1', description: 'Job posting is being created' },
@@ -96,10 +98,10 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   };
 
   const handleWorkflowAction = async (action: string, notes?: string) => {
-    if (!currentUserId || !Number.isFinite(currentUserId)) {
+    if (!currentUserId) {
       setActionFeedback({
         type: 'error',
-        message: 'Unable to determine the current user for audit tracking. Please sign in again.',
+        message: 'User ID required. Please sign in again.',
       });
       return;
     }
@@ -150,13 +152,22 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
 
       if (response.ok) {
         const updatedJobPosting = await response.json();
-        if (onStatusChange) {
-          onStatusChange(jobPosting.id, updatedJobPosting.status);
-        }
+
+        // Optimistic success feedback
         setActionFeedback({
           type: 'success',
           message: `Successfully completed "${action.replace('-', ' ')}".`,
         });
+
+        // Auto-dismiss success feedback after 3 seconds
+        setTimeout(() => {
+          setActionFeedback(prev => prev?.type === 'success' ? null : prev);
+        }, 3000);
+
+        // Pass full updated posting to parent
+        if (onStatusChange) {
+          onStatusChange(updatedJobPosting);
+        }
 
         // Reset forms
         setShowApprovalForm(false);
@@ -357,7 +368,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
                     Cancel
                   </button>
                   <button
-                    onClick={() => handleWorkflowAction('approve', approvalNotes)}
+                    onClick={() => setPendingApproval(true)}
                     disabled={loading === 'approve'}
                     className="rounded-md bg-green-600 px-4 py-1 text-white hover:bg-green-700 disabled:opacity-50"
                   >
@@ -388,7 +399,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
                 Cancel
               </button>
               <button
-                onClick={() => handleWorkflowAction('reject', rejectionReason)}
+                onClick={() => setPendingRejection(true)}
                 disabled={loading === 'reject' || !rejectionReason.trim()}
                 className="rounded-md bg-red-600 px-4 py-1 text-white hover:bg-red-700 disabled:opacity-50"
               >
@@ -442,6 +453,26 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           variant={pendingAction === 'close' ? 'warning' : 'default'}
           onConfirm={() => { const action = pendingAction!; setPendingAction(null); handleWorkflowAction(action); }}
           onCancel={() => setPendingAction(null)}
+        />
+
+        <ConfirmDialog
+          open={pendingApproval}
+          title="Approve Job Posting"
+          message="Are you sure you want to approve this job posting? It will become eligible for publishing."
+          confirmLabel="Approve"
+          variant="default"
+          onConfirm={() => { setPendingApproval(false); handleWorkflowAction('approve', approvalNotes); }}
+          onCancel={() => setPendingApproval(false)}
+        />
+
+        <ConfirmDialog
+          open={pendingRejection}
+          title="Reject Job Posting"
+          message="Are you sure you want to reject this job posting? The submitter will be notified."
+          confirmLabel="Reject"
+          variant="danger"
+          onConfirm={() => { setPendingRejection(false); handleWorkflowAction('reject', rejectionReason); }}
+          onCancel={() => setPendingRejection(false)}
         />
       </div>
 

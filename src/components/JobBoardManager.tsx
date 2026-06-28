@@ -28,18 +28,27 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [postingsData, boardsData] = await Promise.all([
+      const [postingsResult, boardsResult] = await Promise.allSettled([
         jobBoardService.getPostingsByJob(jobId),
         jobBoardService.getAvailableBoards(),
       ]);
-      setPostings(postingsData);
-      setAvailableBoards(boardsData);
+      if (postingsResult.status === 'fulfilled') {
+        setPostings(postingsResult.value);
+      } else {
+        toast('Failed to load board postings', 'error');
+      }
+      if (boardsResult.status === 'fulfilled') {
+        setAvailableBoards(boardsResult.value);
+      } else {
+        toast('Failed to load available boards', 'error');
+      }
     } catch (error) {
       console.error('Failed to load job board data:', error);
+      toast('Failed to load job board data', 'error');
     } finally {
       setLoading(false);
     }
-  }, [jobId]);
+  }, [jobId, toast]);
 
   useEffect(() => {
     loadData();
@@ -173,7 +182,7 @@ export default function JobBoardManager({ jobId }: JobBoardManagerProps) {
                         disabled={actionLoading === posting.id}
                         className="text-xs px-2 py-1 text-blue-700 border border-blue-200 rounded hover:bg-blue-50 disabled:opacity-50"
                       >
-                        Sync
+                        {actionLoading === posting.id ? 'Syncing...' : 'Sync'}
                       </button>
                       <button
                         onClick={() => handleRemove(posting.id)}

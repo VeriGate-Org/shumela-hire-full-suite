@@ -11,6 +11,8 @@ import {
   CalendarIcon,
 } from '@heroicons/react/24/outline';
 
+const JOBS_PER_PAGE = 20;
+
 interface Props {
   jobs: BackendJobAd[];
 }
@@ -21,6 +23,10 @@ export default function IDCJobListClient({ jobs }: Props) {
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Reset page when filters change
+  useEffect(() => setCurrentPage(0), [searchTerm, locationFilter, departmentFilter, employmentTypeFilter]);
 
   const filteredJobs = useMemo(() => {
     let filtered = jobs;
@@ -55,6 +61,21 @@ export default function IDCJobListClient({ jobs }: Props) {
 
     return filtered;
   }, [jobs, searchTerm, locationFilter, departmentFilter, employmentTypeFilter]);
+
+  const totalPages = Math.ceil(filteredJobs.length / JOBS_PER_PAGE);
+  const paginatedJobs = filteredJobs.slice(currentPage * JOBS_PER_PAGE, (currentPage + 1) * JOBS_PER_PAGE);
+
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+    const end = Math.min(totalPages, start + maxVisible);
+    start = Math.max(0, end - maxVisible);
+    for (let i = start; i < end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   const clearFilters = useCallback(() => {
     setSearchTerm('');
@@ -129,7 +150,7 @@ export default function IDCJobListClient({ jobs }: Props) {
             </button>
 
             <span className="text-sm text-muted-foreground">
-              Showing {filteredJobs.length} of {jobs.length}
+              Showing {currentPage * JOBS_PER_PAGE + 1}–{Math.min((currentPage + 1) * JOBS_PER_PAGE, filteredJobs.length)} of {filteredJobs.length}
             </span>
           </div>
 
@@ -222,63 +243,103 @@ export default function IDCJobListClient({ jobs }: Props) {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredJobs.map((job) => {
-              const daysLeft = getDaysUntilExpiry(job.closingDate);
+          <>
+            <div className="space-y-4">
+              {paginatedJobs.map((job) => {
+                const daysLeft = getDaysUntilExpiry(job.closingDate);
 
-              return (
-                <div
-                  key={job.id}
-                  className="bg-white rounded-[2px] shadow hover:shadow-md transition-shadow border border-gray-200"
-                >
-                  <div className="p-6 flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
+                return (
+                  <div
+                    key={job.id}
+                    className="bg-white rounded-[2px] shadow hover:shadow-md transition-shadow border border-gray-200"
+                  >
+                    <div className="p-6 flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/jobs/${job.slug}`}
+                          className="text-xl font-bold text-foreground hover:text-primary tracking-[-0.03em] transition-colors"
+                        >
+                          {job.title}
+                        </Link>
+
+                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          {job.department && <span>{job.department}</span>}
+                          {job.location && (
+                            <span className="inline-flex items-center">
+                              <MapPinIcon className="w-4 h-4 mr-1" />
+                              {job.location}
+                            </span>
+                          )}
+                          {job.employmentType && (
+                            <span className="inline-flex items-center">
+                              <BriefcaseIcon className="w-4 h-4 mr-1" />
+                              {job.employmentType}
+                            </span>
+                          )}
+                          {job.closingDate && (
+                            <span className="inline-flex items-center">
+                              <CalendarIcon className="w-4 h-4 mr-1" />
+                              Closes {new Date(job.closingDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && (
+                                <span className="ml-2 text-orange-600 font-medium">
+                                  ({daysLeft}d left)
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
                       <Link
                         href={`/jobs/${job.slug}`}
-                        className="text-xl font-bold text-foreground hover:text-primary tracking-[-0.03em] transition-colors"
+                        className="ml-6 shrink-0 inline-flex items-center px-6 py-2 bg-cta text-cta-foreground text-sm font-medium uppercase tracking-[0.05em] rounded-full hover:bg-cta/90 transition-colors"
                       >
-                        {job.title}
+                        View Position
                       </Link>
-
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                        {job.department && <span>{job.department}</span>}
-                        {job.location && (
-                          <span className="inline-flex items-center">
-                            <MapPinIcon className="w-4 h-4 mr-1" />
-                            {job.location}
-                          </span>
-                        )}
-                        {job.employmentType && (
-                          <span className="inline-flex items-center">
-                            <BriefcaseIcon className="w-4 h-4 mr-1" />
-                            {job.employmentType}
-                          </span>
-                        )}
-                        {job.closingDate && (
-                          <span className="inline-flex items-center">
-                            <CalendarIcon className="w-4 h-4 mr-1" />
-                            Closes {new Date(job.closingDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            {daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && (
-                              <span className="ml-2 text-orange-600 font-medium">
-                                ({daysLeft}d left)
-                              </span>
-                            )}
-                          </span>
-                        )}
-                      </div>
                     </div>
-
-                    <Link
-                      href={`/jobs/${job.slug}`}
-                      className="ml-6 shrink-0 inline-flex items-center px-6 py-2 bg-cta text-cta-foreground text-sm font-medium uppercase tracking-[0.05em] rounded-full hover:bg-cta/90 transition-colors"
-                    >
-                      View Position
-                    </Link>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6">
+                <p className="text-sm text-muted-foreground">
+                  Page {currentPage + 1} of {totalPages}
+                </p>
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  {getPageNumbers().map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 text-sm rounded-full ${
+                        page === currentPage
+                          ? 'bg-cta text-cta-foreground border border-cta'
+                          : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                    disabled={currentPage >= totalPages - 1}
+                    className="px-3 py-1 text-sm rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
