@@ -40,6 +40,9 @@ import OfferSummaryPanel from '@/components/OfferSummaryPanel';
 import InterviewSummaryPanel from '@/components/InterviewSummaryPanel';
 import InterviewScheduler from '@/components/InterviewScheduler';
 import StatusPill from '@/components/StatusPill';
+import ErrorState from '@/components/ErrorState';
+import EmptyState from '@/components/EmptyState';
+import { KanbanSkeleton } from '@/components/LoadingComponents';
 
 // --- Stage grouping: maps 16 backend PipelineStage enum values into 7 display columns ---
 
@@ -57,7 +60,7 @@ const STAGE_GROUPS = [
     id: 'screening',
     displayName: 'Screening',
     order: 2,
-    color: 'bg-gold-100 text-gold-800 border-violet-300',
+    color: 'bg-gold-100 text-gold-800 border-gold-300',
     icon: EyeIcon,
     description: 'Resume and initial screening',
     backendStages: ['INITIAL_SCREENING', 'PHONE_SCREENING'],
@@ -218,6 +221,7 @@ export default function PipelinePage() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'funnel'>('kanban');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelineEntries, setTimelineEntries] = useState<Array<{
@@ -282,6 +286,7 @@ export default function PipelinePage() {
 
   const loadPipelineData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await apiFetch('/api/applications/manage/search?size=200');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -390,9 +395,11 @@ export default function PipelinePage() {
           })
           .catch(() => {});
       });
-    } catch (error) {
-      console.error('Failed to load pipeline data:', error);
-      toast('Failed to load pipeline data', 'error');
+    } catch (err) {
+      console.error('Failed to load pipeline data:', err);
+      const msg = err instanceof Error ? err.message : 'Failed to load pipeline data';
+      setError(msg);
+      toast(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -717,7 +724,7 @@ export default function PipelinePage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <div className="flex rounded-sm border border-gray-300">
+      <div className="flex rounded-sm border border-border">
         {[
           { id: 'kanban', name: 'Kanban', icon: UserGroupIcon },
           { id: 'list', name: 'List', icon: ChartBarIcon },
@@ -726,18 +733,22 @@ export default function PipelinePage() {
           <button
             key={mode.id}
             onClick={() => setViewMode(mode.id as any)}
-            className={`px-3 py-2 text-sm font-medium ${
+            aria-pressed={viewMode === mode.id}
+            className={`px-3 py-2 text-sm font-medium transition-colors ${
               viewMode === mode.id
-                ? 'bg-gold-500 text-violet-950'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            } ${mode.id === 'kanban' ? 'rounded-l-lg' : mode.id === 'funnel' ? 'rounded-r-lg' : ''}`}
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+            } ${mode.id === 'kanban' ? 'rounded-l-sm' : mode.id === 'funnel' ? 'rounded-r-sm' : ''}`}
           >
             <mode.icon className="w-4 h-4 mr-2 inline" />
             {mode.name}
           </button>
         ))}
       </div>
-      <button className="inline-flex items-center px-4 py-2 border-2 border-gold-500 text-sm font-medium rounded-full shadow-sm bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
+      <button
+        onClick={() => toast('Add Application feature coming soon', 'info')}
+        className="btn-primary inline-flex items-center"
+      >
         <PlusIcon className="w-4 h-4 mr-2" />
         Add Application
       </button>
@@ -747,9 +758,19 @@ export default function PipelinePage() {
   if (loading) {
     return (
       <PageWrapper title="Recruitment Pipeline" subtitle="Loading pipeline data..." actions={actions}>
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
-        </div>
+        <KanbanSkeleton />
+      </PageWrapper>
+    );
+  }
+
+  if (error && applications.length === 0) {
+    return (
+      <PageWrapper title="Recruitment Pipeline" subtitle="Track candidates through the hiring process" actions={actions}>
+        <ErrorState
+          title="Failed to Load Pipeline"
+          message={error}
+          onRetry={loadPipelineData}
+        />
       </PageWrapper>
     );
   }
@@ -762,68 +783,38 @@ export default function PipelinePage() {
     >
       <div className="space-y-6">
         {/* Pipeline Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <UserGroupIcon className="w-8 h-8 text-violet-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Applications</p>
-                <p className="text-2xl font-semibold text-gray-900">{pipelineMetrics.totalApplications}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ClockIcon className="w-8 h-8 text-green-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Applications</p>
-                <p className="text-2xl font-semibold text-gray-900">{pipelineMetrics.activeApplications}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { icon: UserGroupIcon, label: 'Total Applications', value: pipelineMetrics.totalApplications, color: 'text-violet-500' },
+            { icon: ClockIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, color: 'text-green-500' },
+            { icon: ChartBarIcon, label: 'Avg. Time to Hire', value: `${pipelineMetrics.averageTimeToHire} days`, color: 'text-purple-500' },
+            { icon: CheckCircleIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, color: 'text-yellow-500' },
+          ].map((metric) => (
+            <div key={metric.label} className="enterprise-card p-4">
+              <div className="flex items-center">
+                <metric.icon className={`w-8 h-8 ${metric.color} shrink-0`} />
+                <div className="ml-3 min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground truncate">{metric.label}</p>
+                  <p className="text-xl font-semibold text-foreground">{metric.value}</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ChartBarIcon className="w-8 h-8 text-purple-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Avg. Time to Hire</p>
-                <p className="text-2xl font-semibold text-gray-900">{pipelineMetrics.averageTimeToHire} days</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircleIcon className="w-8 h-8 text-yellow-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
-                <p className="text-2xl font-semibold text-gray-900">{pipelineMetrics.conversionRate}%</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-sm shadow p-6">
+        <div className="enterprise-card p-4">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search candidates or jobs..."
+                  aria-label="Search candidates or jobs"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="pl-10 pr-4 py-2 w-full border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
                 />
               </div>
             </div>
@@ -832,7 +823,8 @@ export default function PipelinePage() {
               <select
                 value={selectedStage}
                 onChange={(e) => setSelectedStage(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                aria-label="Filter by stage"
+                className="px-3 py-2 border border-border rounded-sm bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
               >
                 <option value="all">All Stages</option>
                 {STAGE_GROUPS.map(stage => (
@@ -842,7 +834,7 @@ export default function PipelinePage() {
                 ))}
               </select>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 {filteredApplications.length} of {applications.length} applications
               </div>
             </div>
@@ -863,12 +855,22 @@ export default function PipelinePage() {
           return null;
         })()}
 
+        {/* Empty state when no applications exist at all */}
+        {applications.length === 0 && (
+          <EmptyState
+            icon={FunnelIcon}
+            title="Your pipeline is empty"
+            description="Start by creating a job posting to receive applications, or add a candidate manually."
+            action={{ label: 'Add Application', onClick: () => toast('Add Application feature coming soon', 'info') }}
+          />
+        )}
+
         {/* Pipeline Views */}
         {viewMode === 'funnel' && (
-          <div className="bg-white rounded-sm shadow p-6">
+          <div className="enterprise-card p-6">
             <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Pipeline Funnel</h3>
-              <p className="text-xs text-gray-400">Percentages show stage-to-stage conversion</p>
+              <h3 className="text-lg font-semibold text-foreground">Pipeline Funnel</h3>
+              <p className="text-xs text-muted-foreground">Percentages show stage-to-stage conversion</p>
             </div>
             <div className="space-y-4">
               {STAGE_GROUPS.map((stage) => {
@@ -878,19 +880,19 @@ export default function PipelinePage() {
 
                 return (
                   <div key={stage.id} className="flex items-center space-x-4">
-                    <div className="w-32 text-sm font-medium text-gray-900 text-right">
+                    <div className="w-32 text-sm font-medium text-foreground text-right">
                       {stage.displayName}
                     </div>
-                    <div className="flex-1 bg-gray-200 rounded-full h-8 relative">
+                    <div className="flex-1 bg-muted rounded-full h-8 relative">
                       <div
-                        className="h-8 rounded-full flex items-center justify-between px-4 text-white text-sm font-medium transition-all bg-gold-500"
+                        className="h-8 rounded-full flex items-center justify-between px-4 text-primary-foreground text-sm font-medium transition-all bg-primary"
                         style={{ width: `${Math.max(width, 10)}%` }}
                       >
                         <span>{metrics.count} candidates</span>
-                        <span>{metrics.averageDays} days avg</span>
+                        <span>{metrics.averageDays}d avg</span>
                       </div>
                     </div>
-                    <div className="w-16 text-sm text-gray-600 text-center">
+                    <div className="w-16 text-sm text-muted-foreground text-center">
                       {metrics.conversionRate.toFixed(1)}%
                     </div>
                   </div>
@@ -901,8 +903,8 @@ export default function PipelinePage() {
         )}
 
         {viewMode === 'kanban' && (
-          <div className="bg-white rounded-sm shadow p-6">
-            <div className="flex space-x-6 overflow-x-auto pb-4">
+          <div className="enterprise-card p-4">
+            <div role="region" aria-label="Pipeline kanban board" className="flex space-x-4 overflow-x-auto pb-4">
               {STAGE_GROUPS.map((stage, stageIndex) => {
                 const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
                 const nextStage = STAGE_GROUPS[stageIndex + 1];
@@ -911,7 +913,7 @@ export default function PipelinePage() {
                   : 0;
 
                 return (
-                  <div key={stage.id} className="flex-shrink-0 w-80">
+                  <div key={stage.id} role="list" aria-label={`${stage.displayName} stage`} className="flex-shrink-0 w-64">
                     <div className={`rounded-sm border-2 ${stage.color} p-4 mb-4`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -935,7 +937,7 @@ export default function PipelinePage() {
                         <span className="text-sm font-medium">
                           {stageApplications.length}
                           {stageIndex < STAGE_GROUPS.length - 1 && stageApplications.length > 0 && (
-                            <span className="text-[10px] text-gray-400 font-normal ml-2">
+                            <span className="text-[10px] text-muted-foreground font-normal ml-2">
                               &rarr; {Math.round((nextStageCount / stageApplications.length) * 100)}%
                             </span>
                           )}
@@ -946,7 +948,7 @@ export default function PipelinePage() {
 
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {stageApplications.map(application => (
-                        <div key={application.id} className="bg-gray-50 rounded-sm p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                        <div key={application.id} role="listitem" className="bg-card rounded-sm p-4 border border-border hover:shadow-sm transition-all">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-start gap-2 flex-1">
                               <input
@@ -961,22 +963,22 @@ export default function PipelinePage() {
                                 className="mt-1 rounded border-gray-300 text-gold-600 focus:ring-gold-500"
                               />
                               <div>
-                              <h4 className="font-medium text-gray-900">
+                              <h4 className="font-medium text-foreground">
                                 {application.candidate.firstName} {application.candidate.lastName}
                               </h4>
-                              <p className="text-sm text-gray-600">{application.job.title}</p>
-                              <p className="text-xs text-gray-500">{application.job.department}</p>
+                              <p className="text-sm text-muted-foreground">{application.job.title}</p>
+                              <p className="text-xs text-muted-foreground">{application.job.department}</p>
                               {application.rating > 0 && (
                                 <div className="flex items-center gap-0.5 mt-0.5">
                                   {[1, 2, 3, 4, 5].map(s => (
                                     s <= application.rating
                                       ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
-                                      : <StarIcon key={s} className="w-3 h-3 text-gray-300" />
+                                      : <StarIcon key={s} className="w-3 h-3 text-muted-foreground/40" />
                                   ))}
                                 </div>
                               )}
                               {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                                <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-gray-200 text-gray-600 rounded">
+                                <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
                                   {BACKEND_STAGE_DISPLAY[application.backendStage]}
                                 </span>
                               )}
@@ -993,7 +995,7 @@ export default function PipelinePage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                             <span className={`inline-flex items-center gap-1 ${
                               application.daysInStage <= 3 ? 'text-green-600' :
                               application.daysInStage <= 7 ? 'text-yellow-600' :
@@ -1053,17 +1055,17 @@ export default function PipelinePage() {
                             />
                           )}
 
-                          <div className="bg-gray-200 rounded-full h-2 mb-3">
+                          <div className="bg-muted rounded-full h-2 mb-3">
                             <div
-                              className="bg-gold-500 h-2 rounded-full transition-all"
+                              className="bg-primary h-2 rounded-full transition-all"
                               style={{ width: `${Math.min(application.progress, 100)}%` }}
-                            ></div>
+                            />
                           </div>
 
                           <div className="flex justify-between items-center">
                             <button
                               onClick={() => setSelectedApplication(application)}
-                              className="text-gold-600 hover:text-gold-800 text-xs font-medium"
+                              className="text-primary hover:text-primary/80 text-xs font-medium"
                             >
                               <EyeIcon className="w-4 h-4 inline mr-1" />
                               View Details
@@ -1080,7 +1082,7 @@ export default function PipelinePage() {
                                   disabled={checksBlocked}
                                   className={`text-xs font-medium ${
                                     checksBlocked
-                                      ? 'text-gray-400 cursor-not-allowed'
+                                      ? 'text-muted-foreground cursor-not-allowed'
                                       : 'text-green-600 hover:text-green-800'
                                   }`}
                                   title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${nextGroup?.displayName || 'Next'}`}
@@ -1102,61 +1104,61 @@ export default function PipelinePage() {
         )}
 
         {viewMode === 'list' && (
-          <div className="bg-white rounded-sm shadow overflow-hidden">
+          <div className="enterprise-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-border">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Candidate
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Position
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Stage
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Progress
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Days in Stage
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Priority
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredApplications.slice(0, 50).map((application) => {
+                <tbody className="divide-y divide-border">
+                  {filteredApplications.map((application) => {
                     const currentStageGroup = STAGE_GROUPS.find(s => s.id === application.currentStage);
 
                     return (
-                      <tr key={application.id} className="hover:bg-gray-50">
+                      <tr key={application.id} className="hover:bg-accent/50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
-                              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                                <UserIcon className="w-6 h-6 text-gray-600" />
+                              <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-semibold">
+                                {application.candidate.firstName?.[0]}{application.candidate.lastName?.[0]}
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-foreground">
                                 {application.candidate.firstName} {application.candidate.lastName}
                               </div>
-                              <div className="text-sm text-gray-500">{application.candidate.email}</div>
+                              <div className="text-sm text-muted-foreground">{application.candidate.email}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{application.job.title}</div>
-                          <div className="text-sm text-gray-500">{application.job.department}</div>
+                          <div className="text-sm text-foreground">{application.job.title}</div>
+                          <div className="text-sm text-muted-foreground">{application.job.department}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {currentStageGroup && (
@@ -1166,22 +1168,24 @@ export default function PipelinePage() {
                                 {currentStageGroup.displayName}
                               </span>
                               {currentStageGroup.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                                <div className="text-[10px] text-gray-500 mt-0.5">{BACKEND_STAGE_DISPLAY[application.backendStage]}</div>
+                                <div className="text-[10px] text-muted-foreground mt-0.5">{BACKEND_STAGE_DISPLAY[application.backendStage]}</div>
                               )}
                             </div>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-2">
                             <div
-                              className="bg-gold-500 h-2 rounded-full"
+                              className="bg-primary h-2 rounded-full transition-all"
                               style={{ width: `${Math.min(application.progress, 100)}%` }}
-                            ></div>
+                            />
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">{application.progress.toFixed(0)}%</div>
+                          <div className="text-xs text-muted-foreground mt-1">{application.progress.toFixed(0)}%</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {application.daysInStage} days
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          <span className={application.daysInStage > 7 ? 'text-destructive font-medium' : application.daysInStage > 3 ? 'text-yellow-600' : ''}>
+                            {application.daysInStage}d
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(application.priority)}`}>
@@ -1256,11 +1260,11 @@ export default function PipelinePage() {
 
         {/* Bulk Action Bar */}
         {selectedIds.size > 0 && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-sm shadow-lg px-6 py-3 flex items-center gap-4 z-50">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-card border border-border rounded-sm shadow-lg px-6 py-3 flex items-center gap-4 z-50">
+            <span className="text-sm font-medium text-foreground">
               {selectedIds.size} selected
             </span>
-            <div className="h-4 w-px bg-gray-300" />
+            <div className="h-4 w-px bg-border" />
             <select
               onChange={(e) => {
                 if (e.target.value) {
@@ -1268,7 +1272,8 @@ export default function PipelinePage() {
                   e.target.value = '';
                 }
               }}
-              className="text-sm border border-gray-300 rounded-sm px-2 py-1"
+              aria-label="Move selected candidates to stage"
+              className="text-sm border border-border rounded-sm px-2 py-1 bg-card text-foreground"
               defaultValue=""
             >
               <option value="" disabled>Move to...</option>
@@ -1278,13 +1283,13 @@ export default function PipelinePage() {
             </select>
             <button
               onClick={handleBulkReject}
-              className="text-sm text-red-600 hover:text-red-800 font-medium"
+              className="text-sm text-destructive hover:text-destructive/80 font-medium"
             >
               Reject Selected
             </button>
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Clear
             </button>
@@ -1306,18 +1311,23 @@ export default function PipelinePage() {
           const showAiPanels = !isChecksStage && !isHiredStage;
 
           return (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pipeline-detail-title"
+              className="bg-card rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
+            >
               {/* Modal Header with stage badge and move button */}
-              <div className="px-6 py-4 border-b border-gray-200 flex items-start justify-between">
+              <div className="px-6 py-4 border-b border-border flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 id="pipeline-detail-title" className="text-2xl font-bold text-foreground">
                       {selectedApplication.candidate.firstName} {selectedApplication.candidate.lastName}
                     </h2>
                     <StatusPill value={selectedApplication.backendStage} domain="pipelineStage" size="sm" />
                   </div>
-                  <p className="text-gray-600">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
+                  <p className="text-muted-foreground">{selectedApplication.job.title} - {selectedApplication.job.department}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {selectedApplication.status === 'active' && nextGroupStage && (
@@ -1326,7 +1336,7 @@ export default function PipelinePage() {
                       disabled={checksBlocked}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                         checksBlocked
-                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed'
                           : 'bg-cta text-cta-foreground hover:opacity-90'
                       }`}
                       title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${nextGroup?.displayName || 'Next'}`}
@@ -1337,7 +1347,8 @@ export default function PipelinePage() {
                   )}
                   <button
                     onClick={() => setSelectedApplication(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    aria-label="Close detail panel"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     <XCircleIcon className="w-6 h-6" />
                   </button>
@@ -1347,7 +1358,7 @@ export default function PipelinePage() {
               <div className="p-6 space-y-6">
                 {/* Rating */}
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-700">Rating</span>
+                  <span className="text-sm font-medium text-foreground">Rating</span>
                   <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map(s => (
                       <button
@@ -1358,7 +1369,7 @@ export default function PipelinePage() {
                       >
                         {s <= selectedApplication.rating
                           ? <StarIconSolid className="w-5 h-5 text-yellow-400 hover:text-yellow-500" />
-                          : <StarIcon className="w-5 h-5 text-gray-300 hover:text-yellow-300" />
+                          : <StarIcon className="w-5 h-5 text-muted-foreground/40 hover:text-yellow-300" />
                         }
                       </button>
                     ))}
@@ -1370,8 +1381,8 @@ export default function PipelinePage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Candidate Information</h3>
-                    <div className="bg-gray-50 rounded-sm p-4 space-y-2">
+                    <h3 className="text-lg font-semibold text-foreground">Candidate Information</h3>
+                    <div className="bg-muted/50 rounded-sm p-4 space-y-2">
                       <p><strong>Email:</strong> {selectedApplication.candidate.email}</p>
                       <p><strong>Phone:</strong> {selectedApplication.candidate.phone}</p>
                       <p><strong>Applied:</strong> {new Date(selectedApplication.submittedAt).toLocaleDateString()}</p>
@@ -1384,13 +1395,13 @@ export default function PipelinePage() {
                       <div>
                         <button
                           onClick={() => setScreeningNotesOpen(!screeningNotesOpen)}
-                          className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900"
+                          className="flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-foreground/80"
                         >
                           <ChevronDownIcon className={`w-4 h-4 transition-transform ${screeningNotesOpen ? 'rotate-180' : ''}`} />
                           Screening Notes
                         </button>
                         {screeningNotesOpen && (
-                          <div className="mt-2 bg-gray-50 rounded-sm p-3 text-sm text-gray-700">
+                          <div className="mt-2 bg-muted/50 rounded-sm p-3 text-sm text-foreground">
                             {selectedApplication.screeningNotes}
                           </div>
                         )}
@@ -1399,26 +1410,26 @@ export default function PipelinePage() {
 
                     {/* Documents / CV Section */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5">
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
                         <PaperClipIcon className="w-4 h-4" />
                         Documents
                       </h4>
                       {documentsLoading ? (
-                        <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-500"></div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                           Loading documents...
                         </div>
                       ) : documents.length === 0 ? (
-                        <p className="text-sm text-gray-500">No documents attached.</p>
+                        <p className="text-sm text-muted-foreground">No documents attached.</p>
                       ) : (
                         <div className="space-y-2">
                           {documents.map((doc: any) => (
-                            <div key={doc.id} className="flex items-center justify-between bg-gray-50 rounded-sm p-2.5 border border-gray-200">
+                            <div key={doc.id} className="flex items-center justify-between bg-muted/50 rounded-sm p-2.5 border border-border">
                               <div className="flex items-center gap-2 min-w-0">
-                                <DocumentTextIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <DocumentTextIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                 <div className="min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">{doc.filename}</p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-sm font-medium text-foreground truncate">{doc.filename}</p>
+                                  <p className="text-xs text-muted-foreground">
                                     {doc.type === 'CV' ? 'CV / Resume' : doc.type === 'SUPPORT' ? 'Supporting Document' : formatEnumValue(doc.type)}
                                     {doc.fileSizeFormatted && ` - ${doc.fileSizeFormatted}`}
                                   </p>
@@ -1443,14 +1454,14 @@ export default function PipelinePage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Application Timeline</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Application Timeline</h3>
                     <div className="space-y-4 max-h-64 overflow-y-auto">
                       {timelineLoading ? (
                         <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                         </div>
                       ) : timelineEntries.length === 0 ? (
-                        <p className="text-sm text-gray-500 py-4">No timeline entries recorded yet.</p>
+                        <p className="text-sm text-muted-foreground py-4">No timeline entries recorded yet.</p>
                       ) : (
                         timelineEntries.map((event, index) => (
                           <div key={index} className="flex space-x-3">
@@ -1460,14 +1471,14 @@ export default function PipelinePage() {
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-foreground">
                                 <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
-                                {event.performedBy && <span className="text-gray-500"> by {event.performedBy}</span>}
+                                {event.performedBy && <span className="text-muted-foreground"> by {event.performedBy}</span>}
                               </div>
                               {event.reason && (
-                                <div className="text-xs text-gray-600 mt-0.5">{event.reason}</div>
+                                <div className="text-xs text-muted-foreground mt-0.5">{event.reason}</div>
                               )}
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-muted-foreground">
                                 {new Date(event.createdAt).toLocaleDateString()} at {new Date(event.createdAt).toLocaleTimeString()}
                               </div>
                             </div>
@@ -1480,7 +1491,7 @@ export default function PipelinePage() {
 
                 {/* Interview Summary Panel (Interview stages) */}
                 {isInterviewStage && (
-                  <div className="pt-6 border-t border-gray-200">
+                  <div className="pt-6 border-t border-border">
                     <InterviewSummaryPanel
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
@@ -1494,10 +1505,10 @@ export default function PipelinePage() {
 
                 {/* Offer Summary Panel (Offer/Accepted/Hired) */}
                 {isOfferRelated && (
-                  <div className="pt-6 border-t border-gray-200">
+                  <div className="pt-6 border-t border-border">
                     {offerLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-500"></div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                         Loading offer data...
                       </div>
                     ) : (
@@ -1513,7 +1524,7 @@ export default function PipelinePage() {
 
                 {/* Verification Summary (for checks stage) */}
                 {isChecksStage && verificationSummaries[selectedApplication.id] && (
-                  <div className="pt-6 border-t border-gray-200">
+                  <div className="pt-6 border-t border-border">
                     <VerificationStatusSummary
                       summary={verificationSummaries[selectedApplication.id]}
                     />
@@ -1522,7 +1533,7 @@ export default function PipelinePage() {
 
                 {/* Background Screening */}
                 {(isChecksStage || isHiredStage) && (
-                  <div className="pt-6 border-t border-gray-200">
+                  <div className="pt-6 border-t border-border">
                     <BackgroundCheckPanel
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
@@ -1537,7 +1548,7 @@ export default function PipelinePage() {
 
                 {/* AI Candidate Assist — hidden for Checks and Hired stages */}
                 {showAiPanels && (
-                  <div className="pt-6 border-t border-gray-200 space-y-4">
+                  <div className="pt-6 border-t border-border space-y-4">
                     <AiCandidatePanel
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}

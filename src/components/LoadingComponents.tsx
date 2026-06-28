@@ -10,15 +10,15 @@ export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; column
         {/* Table header */}
         <div className="grid grid-cols-4 gap-4 p-4 border-b">
           {Array.from({ length: columns }).map((_, i) => (
-            <div key={i} className="h-4 bg-gray-200 rounded"></div>
+            <div key={i} className="h-4 loading-shimmer rounded"></div>
           ))}
         </div>
         
         {/* Table rows */}
         {Array.from({ length: rows }).map((_, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100">
+          <div key={rowIndex} className="grid grid-cols-4 gap-4 p-4 border-b border-border">
             {Array.from({ length: columns }).map((_, colIndex) => (
-              <div key={colIndex} className="h-4 bg-gray-200 rounded"></div>
+              <div key={colIndex} className="h-4 loading-shimmer rounded"></div>
             ))}
           </div>
         ))}
@@ -31,11 +31,11 @@ export function CardSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white rounded-sm shadow p-6 animate-pulse">
-          <div className="h-6 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div key={i} className="enterprise-card p-6 animate-pulse">
+          <div className="h-6 loading-shimmer rounded mb-4"></div>
+          <div className="h-4 loading-shimmer rounded mb-2"></div>
+          <div className="h-4 loading-shimmer rounded mb-2"></div>
+          <div className="h-4 loading-shimmer rounded w-2/3"></div>
         </div>
       ))}
     </div>
@@ -46,13 +46,13 @@ export function ListSkeleton({ items = 5 }: { items?: number }) {
   return (
     <div className="space-y-4">
       {Array.from({ length: items }).map((_, i) => (
-        <div key={i} className="flex items-center space-x-4 p-4 bg-white rounded-sm shadow animate-pulse">
-          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+        <div key={i} className="flex items-center space-x-4 p-4 enterprise-card animate-pulse">
+          <div className="w-12 h-12 loading-shimmer rounded-full"></div>
           <div className="flex-1">
-            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+            <div className="h-4 loading-shimmer rounded mb-2"></div>
+            <div className="h-3 loading-shimmer rounded w-2/3"></div>
           </div>
-          <div className="w-20 h-8 bg-gray-200 rounded"></div>
+          <div className="w-20 h-8 loading-shimmer rounded"></div>
         </div>
       ))}
     </div>
@@ -61,20 +61,20 @@ export function ListSkeleton({ items = 5 }: { items?: number }) {
 
 export function FormSkeleton() {
   return (
-    <div className="bg-white rounded-sm shadow p-6 animate-pulse">
-      <div className="h-6 bg-gray-200 rounded mb-6"></div>
+    <div className="enterprise-card p-6 animate-pulse">
+      <div className="h-6 loading-shimmer rounded mb-6"></div>
       
       <div className="space-y-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i}>
-            <div className="h-4 bg-gray-200 rounded mb-2 w-24"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-4 loading-shimmer rounded mb-2 w-24"></div>
+            <div className="h-10 loading-shimmer rounded"></div>
           </div>
         ))}
         
         <div className="flex justify-end space-x-4 mt-6">
-          <div className="w-20 h-10 bg-gray-200 rounded"></div>
-          <div className="w-20 h-10 bg-gray-200 rounded"></div>
+          <div className="w-20 h-10 loading-shimmer rounded"></div>
+          <div className="w-20 h-10 loading-shimmer rounded"></div>
         </div>
       </div>
     </div>
@@ -86,33 +86,33 @@ export function DashboardSkeleton() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded mb-4 w-64"></div>
-        <div className="h-4 bg-gray-200 rounded w-96"></div>
+        <div className="h-8 loading-shimmer rounded mb-4 w-64"></div>
+        <div className="h-4 loading-shimmer rounded w-96"></div>
       </div>
       
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-white rounded-sm shadow p-6 animate-pulse">
+          <div key={i} className="enterprise-card p-6 animate-pulse">
             <div className="flex items-center justify-between">
-              <div className="h-4 bg-gray-200 rounded w-20"></div>
-              <div className="w-8 h-8 bg-gray-200 rounded"></div>
+              <div className="h-4 loading-shimmer rounded w-20"></div>
+              <div className="w-8 h-8 loading-shimmer rounded"></div>
             </div>
-            <div className="h-8 bg-gray-200 rounded mt-4 w-16"></div>
-            <div className="h-3 bg-gray-200 rounded mt-2 w-24"></div>
+            <div className="h-8 loading-shimmer rounded mt-4 w-16"></div>
+            <div className="h-3 loading-shimmer rounded mt-2 w-24"></div>
           </div>
         ))}
       </div>
       
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-sm shadow p-6 animate-pulse">
-          <div className="h-6 bg-gray-200 rounded mb-4 w-32"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="enterprise-card p-6 animate-pulse">
+          <div className="h-6 loading-shimmer rounded mb-4 w-32"></div>
+          <div className="h-64 loading-shimmer rounded"></div>
         </div>
-        <div className="bg-white rounded-sm shadow p-6 animate-pulse">
-          <div className="h-6 bg-gray-200 rounded mb-4 w-32"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="enterprise-card p-6 animate-pulse">
+          <div className="h-6 loading-shimmer rounded mb-4 w-32"></div>
+          <div className="h-64 loading-shimmer rounded"></div>
         </div>
       </div>
     </div>
@@ -131,8 +131,8 @@ export function LoadingSpinner({ size = 'md', color = 'blue' }: {
   };
   
   const colorClasses = {
-    blue: 'text-gold-600',
-    gray: 'text-gray-400',
+    blue: 'text-primary',
+    gray: 'text-muted-foreground',
     white: 'text-white'
   };
   
@@ -162,10 +162,10 @@ export function LoadingSpinner({ size = 'md', color = 'blue' }: {
 // Page loading wrapper
 export function PageLoading({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-gray-600">{message}</p>
+        <p className="mt-4 text-muted-foreground">{message}</p>
       </div>
     </div>
   );
@@ -176,7 +176,7 @@ export function InlineLoading({ message = 'Loading...' }: { message?: string }) 
   return (
     <div className="flex items-center justify-center py-8">
       <LoadingSpinner />
-      <span className="ml-3 text-gray-600">{message}</span>
+      <span className="ml-3 text-muted-foreground">{message}</span>
     </div>
   );
 }
@@ -207,20 +207,73 @@ export function LoadingButton({
   );
 }
 
+// Kanban pipeline skeleton
+export function KanbanSkeleton({ columns = 6, cardsPerColumn = 3 }: { columns?: number; cardsPerColumn?: number }) {
+  return (
+    <div className="space-y-4">
+      {/* Metric cards skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="enterprise-card p-4 animate-pulse">
+            <div className="h-3 loading-shimmer rounded w-24 mb-2" />
+            <div className="h-7 loading-shimmer rounded w-16 mb-1" />
+            <div className="h-3 loading-shimmer rounded w-20" />
+          </div>
+        ))}
+      </div>
+
+      {/* Filter bar skeleton */}
+      <div className="enterprise-card p-4 animate-pulse flex items-center gap-4">
+        <div className="h-9 loading-shimmer rounded flex-1 max-w-xs" />
+        <div className="h-9 loading-shimmer rounded w-32" />
+      </div>
+
+      {/* Kanban columns skeleton */}
+      <div className="flex gap-4 overflow-hidden">
+        {Array.from({ length: columns }).map((_, col) => (
+          <div key={col} className="min-w-[256px] flex-shrink-0">
+            <div className="enterprise-card animate-pulse">
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <div className="h-4 loading-shimmer rounded w-20" />
+                <div className="h-5 loading-shimmer rounded-full w-8" />
+              </div>
+              <div className="p-2 space-y-2">
+                {Array.from({ length: Math.max(1, cardsPerColumn - col) }).map((_, card) => (
+                  <div key={card} className="p-3 rounded border border-border space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 loading-shimmer rounded-full" />
+                      <div className="flex-1">
+                        <div className="h-3.5 loading-shimmer rounded w-24 mb-1" />
+                        <div className="h-3 loading-shimmer rounded w-16" />
+                      </div>
+                    </div>
+                    <div className="h-3 loading-shimmer rounded w-full" />
+                    <div className="h-2 loading-shimmer rounded-full w-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Error boundary fallback
 export function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center max-w-md">
         <div className="text-red-500 text-6xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-4">Something went wrong</h2>
+        <p className="text-muted-foreground mb-6">
           {process.env.NODE_ENV === 'development' ? error.message : 
            'We encountered an error while loading this page. Please try again.'}
         </p>
-        <button 
+        <button
           onClick={resetError}
-          className="bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider px-6 py-2 rounded-sm transition-colors"
+          className="btn-primary"
         >
           Try again
         </button>

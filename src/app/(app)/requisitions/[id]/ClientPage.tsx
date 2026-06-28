@@ -8,6 +8,8 @@ import WorkflowStatusBadge from '@/components/WorkflowStatusBadge';
 import WorkflowActions from '@/components/WorkflowActions';
 import ApprovalTimeline, { ApprovalStep } from '@/components/ApprovalTimeline';
 import AuditLogViewer from '@/components/AuditLogViewer';
+import ErrorState from '@/components/ErrorState';
+import { FormSkeleton } from '@/components/LoadingComponents';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { approvalTimelineService } from '@/services/approvalTimelineService';
@@ -132,8 +134,9 @@ export default function RequisitionDetailPage() {
   if (loading) {
     return (
       <PageWrapper title="Requisition Details" subtitle="Loading requisition..." actions={actions}>
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
+        <div className="space-y-6">
+          <FormSkeleton />
+          <FormSkeleton />
         </div>
       </PageWrapper>
     );
@@ -142,29 +145,11 @@ export default function RequisitionDetailPage() {
   if (error) {
     return (
       <PageWrapper title="Requisition Details" subtitle="An error occurred">
-        <div className="bg-white rounded-[10px] border border-gray-200 p-8">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BriefcaseIcon className="w-6 h-6 text-red-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">{error}</h3>
-            <p className="text-sm text-gray-500 mb-6">Please try again or go back to the requisitions list.</p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={fetchRequisitionDetails}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full text-sm font-medium hover:bg-gold-600"
-              >
-                Retry
-              </button>
-              <Link
-                href="/requisitions"
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-50"
-              >
-                Back to Requisitions
-              </Link>
-            </div>
-          </div>
-        </div>
+        <ErrorState
+          title={error}
+          message="Please try again or go back to the requisitions list."
+          onRetry={fetchRequisitionDetails}
+        />
       </PageWrapper>
     );
   }
@@ -172,10 +157,10 @@ export default function RequisitionDetailPage() {
   if (!requisition) {
     return (
       <PageWrapper title="Requisition Details" subtitle="Requisition not found">
-        <div className="bg-white rounded-[10px] border border-gray-200 p-12 text-center">
-          <BriefcaseIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">Requisition not found</h3>
-          <p className="text-sm text-gray-500 mb-6">The requisition you are looking for does not exist.</p>
+        <div className="enterprise-card p-12 text-center">
+          <BriefcaseIcon className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-1">Requisition not found</h3>
+          <p className="text-sm text-muted-foreground mb-6">The requisition you are looking for does not exist.</p>
           <Link
             href="/requisitions"
             className="px-4 py-2 bg-gold-500 text-violet-950 rounded-full text-sm font-medium hover:bg-gold-600"
@@ -197,18 +182,19 @@ export default function RequisitionDetailPage() {
         {/* Back link */}
         <button
           onClick={() => router.push('/requisitions')}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gold-600 transition-colors"
+          aria-label="Navigate back to requisitions list"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gold-600 transition-colors"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           Back to Requisitions
         </button>
 
         {/* Status + Summary Card */}
-        <div className="bg-white rounded-[10px] border border-gray-200 p-6">
+        <div className="enterprise-card p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{requisition.jobTitle}</h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <h2 className="text-xl font-bold text-foreground">{requisition.jobTitle}</h2>
+              <p className="text-sm text-muted-foreground mt-1">
                 {requisition.department} &middot; {requisition.location}
               </p>
             </div>
@@ -221,8 +207,8 @@ export default function RequisitionDetailPage() {
                 <BuildingOfficeIcon className="w-4 h-4 text-gold-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Department</p>
-                <p className="text-sm text-gray-900 mt-0.5">{requisition.department}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Department</p>
+                <p className="text-sm text-foreground mt-0.5">{requisition.department}</p>
               </div>
             </div>
 
@@ -231,8 +217,8 @@ export default function RequisitionDetailPage() {
                 <MapPinIcon className="w-4 h-4 text-gold-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Location</p>
-                <p className="text-sm text-gray-900 mt-0.5">{requisition.location}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Location</p>
+                <p className="text-sm text-foreground mt-0.5">{requisition.location}</p>
               </div>
             </div>
 
@@ -241,8 +227,8 @@ export default function RequisitionDetailPage() {
                 <BriefcaseIcon className="w-4 h-4 text-gold-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Employment Type</p>
-                <p className="text-sm text-gray-900 mt-0.5">{requisition.employmentType ? getEnumLabel('employmentType', requisition.employmentType) : 'N/A'}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Employment Type</p>
+                <p className="text-sm text-foreground mt-0.5">{requisition.employmentType ? getEnumLabel('employmentType', requisition.employmentType) : 'N/A'}</p>
               </div>
             </div>
 
@@ -251,30 +237,30 @@ export default function RequisitionDetailPage() {
                 <CurrencyDollarIcon className="w-4 h-4 text-gold-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Salary Range</p>
-                <p className="text-sm text-gray-900 mt-0.5">{formatSalaryRange(requisition.salaryMin, requisition.salaryMax)}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Salary Range</p>
+                <p className="text-sm text-foreground mt-0.5">{formatSalaryRange(requisition.salaryMin, requisition.salaryMax)}</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 pt-6 border-t border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 pt-6 border-t border-border">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center flex-shrink-0">
-                <UserIcon className="w-4 h-4 text-gray-500" />
+              <div className="w-9 h-9 bg-muted/50 rounded-full flex items-center justify-center flex-shrink-0">
+                <UserIcon className="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</p>
-                <p className="text-sm text-gray-900 mt-0.5">{requisition.createdBy}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</p>
+                <p className="text-sm text-foreground mt-0.5">{requisition.createdBy}</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center flex-shrink-0">
-                <CalendarIcon className="w-4 h-4 text-gray-500" />
+              <div className="w-9 h-9 bg-muted/50 rounded-full flex items-center justify-center flex-shrink-0">
+                <CalendarIcon className="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Created</p>
-                <p className="text-sm text-gray-900 mt-0.5">{formatDate(String(requisition.createdAt))}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</p>
+                <p className="text-sm text-foreground mt-0.5">{formatDate(String(requisition.createdAt))}</p>
               </div>
             </div>
           </div>
@@ -282,32 +268,36 @@ export default function RequisitionDetailPage() {
 
         {/* Job Description */}
         {requisition.description && (
-          <div className="bg-white rounded-[10px] border border-gray-200 p-6">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Job Description</h3>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{requisition.description}</p>
+          <div className="enterprise-card p-6">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Job Description</h3>
+            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{requisition.description}</p>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-[10px] border border-gray-200 overflow-hidden">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+        <div className="enterprise-card overflow-hidden">
+          <div className="border-b border-border">
+            <nav className="flex space-x-8 px-6" aria-label="Requisition detail tabs">
               <button
                 onClick={() => setActiveTab('timeline')}
+                aria-selected={activeTab === 'timeline'}
+                role="tab"
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'timeline'
                     ? 'border-gold-500 text-gold-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 Approval Timeline
               </button>
               <button
                 onClick={() => setActiveTab('audit')}
+                aria-selected={activeTab === 'audit'}
+                role="tab"
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'audit'
                     ? 'border-gold-500 text-gold-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 Audit Log
@@ -321,7 +311,7 @@ export default function RequisitionDetailPage() {
                 {timelineSteps.length > 0 ? (
                   <ApprovalTimeline steps={timelineSteps} />
                 ) : (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-muted-foreground py-8">
                     No approval timeline available yet.
                   </div>
                 )}
@@ -330,7 +320,7 @@ export default function RequisitionDetailPage() {
 
             {activeTab === 'audit' && (
               <div>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Complete audit trail showing all actions performed on this requisition.
                 </p>
                 <AuditLogViewer requisitionId={requisitionId} />

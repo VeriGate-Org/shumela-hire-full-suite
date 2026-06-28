@@ -8,6 +8,9 @@ import { useInterviewTypes, useInterviewRounds } from '@/hooks/useLookups';
 import WizardShell from '@/components/WizardShell';
 import type { WizardStep } from '@/components/WizardShell';
 import type { DropdownOption } from '@/components/SearchableDropdown';
+import { useToast } from '@/components/Toast';
+import { CardSkeleton } from '@/components/LoadingComponents';
+import ErrorState from '@/components/ErrorState';
 
 interface InterviewSchedulerProps {
   interviewId?: number;
@@ -70,15 +73,16 @@ const WIZARD_STEPS: WizardStep[] = [
 ];
 
 const inputClass = (hasError?: boolean) =>
-  `w-full p-3 border rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gold-500/60 focus:border-primary focus:outline-none ${hasError ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'}`;
+  `w-full p-3 border rounded-[2px] bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring focus:outline-none ${hasError ? 'border-destructive' : 'border-border'}`;
 
 const selectClass =
-  'w-full p-3 border border-gray-200 dark:border-gray-700 rounded-[2px] bg-white dark:bg-charcoal text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gold-500/60 focus:border-primary focus:outline-none';
+  'w-full p-3 border border-border rounded-[2px] bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring focus:outline-none';
 
-const labelClass = 'block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1.5';
+const labelClass = 'block text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-1.5';
 
 export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel }: InterviewSchedulerProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { interviewTypes: INTERVIEW_TYPES } = useInterviewTypes();
   const { interviewRounds: INTERVIEW_ROUNDS } = useInterviewRounds();
   const skipCandidateStep = !!(prefilledApplicationId && prefilledApplicationId > 0);
@@ -337,6 +341,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
       if (response.ok) {
         const result = await response.json() as InterviewSaveResponse;
+        toast('Interview scheduled successfully', 'success');
         onSuccess?.(result);
       } else {
         let errorMessage = 'Failed to save interview';
@@ -347,10 +352,12 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
           // Response body may be empty on 400
         }
         setErrors({ general: errorMessage });
+        toast('Failed to save interview', 'error');
       }
     } catch (error) {
       console.error('Error saving interview:', error);
       setErrors({ general: 'An error occurred while saving' });
+      toast('Failed to save interview', 'error');
     } finally {
       setLoading(false);
     }
@@ -360,8 +367,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
   const renderCandidateStep = () => (
     <div>
-      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Select Candidate</h3>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Search for the application you want to schedule an interview for.</p>
+      <h3 className="text-sm font-bold text-foreground mb-1">Select Candidate</h3>
+      <p className="text-xs text-muted-foreground mb-5">Search for the application you want to schedule an interview for.</p>
 
       <SearchableDropdown
         label="Application"
@@ -383,8 +390,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
   const renderSetupStep = () => (
     <div>
-      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Interview Setup</h3>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Configure the interview round, type, and panel.</p>
+      <h3 className="text-sm font-bold text-foreground mb-1">Interview Setup</h3>
+      <p className="text-xs text-muted-foreground mb-5">Configure the interview round, type, and panel.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -425,7 +432,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
           className={inputClass()}
           placeholder="Auto-populated from round + job title"
         />
-        <p className="text-[10px] text-gray-400 mt-1">Auto-populated from round and job title</p>
+        <p className="text-[10px] text-muted-foreground mt-1">Auto-populated from round and job title</p>
       </div>
 
       <div className="mt-4">
@@ -445,8 +452,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
   const renderScheduleStep = () => (
     <div>
-      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Date and Time</h3>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Choose when the interview will take place. Availability is checked automatically.</p>
+      <h3 className="text-sm font-bold text-foreground mb-1">Date and Time</h3>
+      <p className="text-xs text-muted-foreground mb-5">Choose when the interview will take place. Availability is checked automatically.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -491,7 +498,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
                 key={time}
                 type="button"
                 onClick={() => handleSuggestedTimeSelect(time)}
-                className="px-3 py-1.5 bg-white dark:bg-charcoal border border-emerald-200 dark:border-emerald-700 rounded-full text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
+                className="px-3 py-1.5 bg-card border border-border rounded-full text-xs font-medium text-foreground hover:bg-accent transition-colors"
               >
                 {new Date(time).toLocaleString()}
               </button>
@@ -504,8 +511,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
   const renderDetailsStep = () => (
     <div>
-      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Interview Details</h3>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Add location, agenda, and candidate instructions.</p>
+      <h3 className="text-sm font-bold text-foreground mb-1">Interview Details</h3>
+      <p className="text-xs text-muted-foreground mb-5">Add location, agenda, and candidate instructions.</p>
 
       {/* Conditional location fields */}
       {formData.type === 'VIDEO' && (
@@ -611,8 +618,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
     return (
       <div>
-        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Review Interview</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Confirm all details before scheduling.</p>
+        <h3 className="text-sm font-bold text-foreground mb-1">Review Interview</h3>
+        <p className="text-xs text-muted-foreground mb-5">Confirm all details before scheduling.</p>
 
         {errors.general && (
           <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[2px] text-xs text-red-700 dark:text-red-300">
@@ -646,14 +653,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   // ── Render ───────────────────────────────────────────────────────────
 
   if (loading && interviewId) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cta mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">Loading interview...</p>
-        </div>
-      </div>
-    );
+    return <CardSkeleton count={2} />;
   }
 
   const steps = interviewId ? WIZARD_STEPS.slice(1) : WIZARD_STEPS;
@@ -662,10 +662,10 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   const stepContent = [renderCandidateStep, renderSetupStep, renderScheduleStep, renderDetailsStep, renderReviewStep];
 
   const reviewFooter = (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+    <div className="flex items-center justify-between px-6 py-4 border-t border-border">
       <button
         onClick={handleBack}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-muted-foreground border border-border rounded-full hover:bg-accent transition-colors"
       >
         &larr; Back
       </button>
@@ -673,7 +673,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         {onCancel && (
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Cancel
           </button>
@@ -681,7 +681,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold btn-cta rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -717,10 +717,10 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
 function ReviewCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
-      <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-1">{label}</div>
-      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words">{value}</div>
-      {sub && <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sub}</div>}
+    <div className="bg-muted/50 border border-border rounded-[2px] p-4">
+      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-1">{label}</div>
+      <div className="text-sm font-semibold text-foreground break-words">{value}</div>
+      {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
     </div>
   );
 }

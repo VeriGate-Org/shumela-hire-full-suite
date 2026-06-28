@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import { useToast } from '@/components/Toast';
 
 export interface Interview {
   id: number;
@@ -64,6 +65,8 @@ const MONTHS = [
 
 export default function InterviewCalendar({ interviews, onInterviewSelect, onInterviewUpdate }: InterviewCalendarProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const modalRef = useRef<HTMLDivElement>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>('month');
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
@@ -74,6 +77,61 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
   const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
+
+  const closeModal = useCallback(() => {
+    setShowActionModal(false);
+    setSelectedInterview(null);
+    setModalMode('overview');
+    setRescheduleDateTime('');
+    setRescheduleReason('');
+    setCancelReason('');
+    setActionError('');
+    setActionLoading(false);
+  }, []);
+
+  // Focus trap for the action modal
+  useEffect(() => {
+    if (!showActionModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        return;
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    // Focus the first focusable element in the modal
+    requestAnimationFrame(() => {
+      const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      firstFocusable?.focus();
+    });
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showActionModal, closeModal]);
 
   const calendarDays = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -145,17 +203,6 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
     setCurrentDate(newDate);
   };
 
-  const closeModal = () => {
-    setShowActionModal(false);
-    setSelectedInterview(null);
-    setModalMode('overview');
-    setRescheduleDateTime('');
-    setRescheduleReason('');
-    setCancelReason('');
-    setActionError('');
-    setActionLoading(false);
-  };
-
   const handleInterviewClick = (interview: Interview) => {
     setSelectedInterview(interview);
     setShowActionModal(true);
@@ -203,15 +250,19 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
         if (onInterviewUpdate) {
           onInterviewUpdate(interviewId, updatedInterview);
         }
+        toast(`Interview ${action === 'start' ? 'started' : action === 'complete' ? 'completed' : action === 'reschedule' ? 'rescheduled' : 'cancelled'} successfully`, 'success');
         closeModal();
         return;
       }
 
       const errorData = await response.json();
-      setActionError(errorData.message || `Failed to ${action}`);
+      const errorMessage = errorData.message || `Failed to ${action}`;
+      setActionError(errorMessage);
+      toast(`Failed to ${action} interview`, 'error');
     } catch (error) {
       console.error(`Error performing ${action}:`, error);
       setActionError(`An error occurred while trying to ${action}.`);
+      toast(`Failed to ${action} interview`, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -348,9 +399,10 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
               <button
                 key={calendarView}
                 onClick={() => setView(calendarView)}
+                aria-label={`${calendarView.charAt(0).toUpperCase() + calendarView.slice(1)} view`}
                 className={`px-3 py-2 text-sm font-medium border-r border-border last:border-r-0 ${
                   view === calendarView
-                    ? 'bg-gold-50 text-primary'
+                    ? 'bg-primary/10 text-primary'
                     : 'bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
                 }`}
               >
@@ -381,11 +433,11 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                     key={index}
                     className={`min-h-[100px] p-2 border rounded-control ${
                       isCurrentMonth(date) ? 'bg-card' : 'bg-muted'
-                    } ${isToday(date) ? 'bg-gold-50 border-primary/30' : 'border-border'}`}
+                    } ${isToday(date) ? 'bg-primary/5 border-primary/30' : 'border-border'}`}
                   >
                     <div className={`text-sm font-medium mb-1 ${
                       isCurrentMonth(date) ? 'text-foreground' : 'text-muted-foreground'
-                    } ${isToday(date) ? 'text-gold-700' : ''}`}
+                    } ${isToday(date) ? 'text-primary' : ''}`}
                     >
                       {date.getDate()}
                     </div>
@@ -425,7 +477,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
 
               {weekDays.map((date) => (
                 <div key={date.toString()} className={`p-2 text-center border-b border-border ${
-                  isToday(date) ? 'bg-gold-50 text-gold-700 font-medium' : 'text-foreground'
+                  isToday(date) ? 'bg-primary/5 text-primary font-medium' : 'text-foreground'
                 }`}
                 >
                   <div className="text-sm">{WEEKDAYS[date.getDay()]}</div>
@@ -518,6 +570,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
       {showActionModal && selectedInterview && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeModal}>
           <div
+            ref={modalRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="interview-action-title"
@@ -535,7 +588,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
 
             <div className="px-6 py-4 space-y-4">
               {actionError && (
-                <div className="rounded-control border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
+                <div className="rounded-control border border-destructive/30 bg-destructive/10 text-destructive px-3 py-2 text-sm">
                   {actionError}
                 </div>
               )}
@@ -572,7 +625,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                       type="datetime-local"
                       value={rescheduleDateTime}
                       onChange={(event) => setRescheduleDateTime(event.target.value)}
-                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     />
                   </label>
 
@@ -582,7 +635,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                       value={rescheduleReason}
                       onChange={(event) => setRescheduleReason(event.target.value)}
                       rows={3}
-                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     />
                   </label>
                 </div>
@@ -596,7 +649,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                       value={cancelReason}
                       onChange={(event) => setCancelReason(event.target.value)}
                       rows={3}
-                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-gold-500/60 focus:border-primary"
+                      className="mt-1 w-full p-2 border border-border rounded-control bg-card focus:ring-2 focus:ring-ring/40 focus:border-ring"
                     />
                   </label>
                 </div>
@@ -617,7 +670,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                   {selectedInterview.canBeStarted && (
                     <button
                       onClick={handleStart}
-                      className="px-3 py-2 bg-green-600 text-white text-sm rounded-control hover:bg-green-700 disabled:opacity-60"
+                      className="px-3 py-2 btn-primary text-sm rounded-control disabled:opacity-60"
                       disabled={actionLoading}
                     >
                       Start
@@ -640,7 +693,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                         setModalMode('reschedule');
                         setActionError('');
                       }}
-                      className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-control hover:bg-yellow-700 disabled:opacity-60"
+                      className="px-3 py-2 bg-cta text-cta-foreground text-sm rounded-control hover:bg-cta-hover disabled:opacity-60"
                       disabled={actionLoading}
                     >
                       Reschedule
@@ -653,7 +706,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                         setModalMode('cancel');
                         setActionError('');
                       }}
-                      className="px-3 py-2 bg-red-600 text-white text-sm rounded-control hover:bg-red-700 disabled:opacity-60"
+                      className="px-3 py-2 bg-destructive text-destructive-foreground text-sm rounded-control hover:bg-destructive/90 disabled:opacity-60"
                       disabled={actionLoading}
                     >
                       Cancel
@@ -676,7 +729,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                   </button>
                   <button
                     onClick={handleRescheduleSubmit}
-                    className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-control hover:bg-yellow-700 disabled:opacity-60"
+                    className="px-3 py-2 bg-cta text-cta-foreground text-sm rounded-control hover:bg-cta-hover disabled:opacity-60"
                     disabled={actionLoading}
                   >
                     {actionLoading ? 'Saving...' : 'Confirm Reschedule'}
@@ -698,7 +751,7 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
                   </button>
                   <button
                     onClick={handleCancelSubmit}
-                    className="px-3 py-2 bg-red-600 text-white text-sm rounded-control hover:bg-red-700 disabled:opacity-60"
+                    className="px-3 py-2 bg-destructive text-destructive-foreground text-sm rounded-control hover:bg-destructive/90 disabled:opacity-60"
                     disabled={actionLoading}
                   >
                     {actionLoading ? 'Saving...' : 'Confirm Cancel'}
