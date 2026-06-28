@@ -22,15 +22,6 @@ interface JobPostingFormProps {
   variant?: 'page' | 'modal';
 }
 
-interface CheckType {
-  code: string;
-  name: string;
-  description: string;
-  turnaround: string;
-  price: number;
-  currency: string;
-}
-
 interface JobPostingData {
   id?: number;
   title: string;
@@ -56,15 +47,12 @@ interface JobPostingData {
   seoKeywords: string;
   featured: boolean;
   urgent: boolean;
-  requiredCheckTypes: string[];
-  enforceCheckCompletion: boolean;
 }
 
 const WIZARD_STEPS: WizardStep[] = [
   { id: 'basic', label: 'Basics', description: 'Position details' },
   { id: 'details', label: 'Details', description: 'Description and requirements' },
   { id: 'compensation', label: 'Compensation', description: 'Salary range', skippable: true },
-  { id: 'verification', label: 'Verification', description: 'Background checks', skippable: true },
   { id: 'seo', label: 'SEO & Notes', description: 'Search and internal notes', skippable: true },
   { id: 'review', label: 'Review', description: 'Review and submit' },
 ];
@@ -99,8 +87,6 @@ const DEFAULT_JOB_POSTING_DATA: JobPostingData = {
   seoKeywords: '',
   featured: false,
   urgent: false,
-  requiredCheckTypes: [],
-  enforceCheckCompletion: false,
 };
 
 export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel, variant = 'modal' }: JobPostingFormProps) {
@@ -131,16 +117,12 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
     seoKeywords: '',
     featured: false,
     urgent: false,
-    requiredCheckTypes: [],
-    enforceCheckCompletion: false,
     ...(initialData ?? {}),
     id: undefined, // ensure no id for cloned postings
   }));
 
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [availableCheckTypes, setAvailableCheckTypes] = useState<CheckType[]>([]);
-  const [checkTypesLoading, setCheckTypesLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [draftId, setDraftId] = useState<string | number | undefined>(undefined);
 
@@ -166,8 +148,6 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         status: 'DRAFT',
         applicationDeadline: data.applicationDeadline
           ? new Date(data.applicationDeadline).toISOString() : null,
-        requiredCheckTypes: data.requiredCheckTypes.length > 0
-          ? JSON.stringify(data.requiredCheckTypes) : null,
       };
       const isUpdate = !!draftId;
       const actorParam = isUpdate ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
@@ -212,18 +192,12 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       const response = await apiFetch(`/api/job-postings/${jobPostingId}`);
       if (response.ok) {
         const data = await response.json();
-        let parsedCheckTypes: string[] = [];
-        if (data.requiredCheckTypes) {
-          try { parsedCheckTypes = JSON.parse(data.requiredCheckTypes); } catch { /* ignore */ }
-        }
         setFormData({
           ...data,
           applicationDeadline: data.applicationDeadline
             ? new Date(data.applicationDeadline).toISOString().slice(0, 16) : '',
           salaryMin: data.salaryMin || undefined,
           salaryMax: data.salaryMax || undefined,
-          requiredCheckTypes: parsedCheckTypes,
-          enforceCheckCompletion: data.enforceCheckCompletion || false,
         });
       }
     } catch (error) {
@@ -236,24 +210,6 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
   useEffect(() => {
     if (jobPostingId) loadJobPosting();
   }, [jobPostingId, loadJobPosting]);
-
-  useEffect(() => {
-    async function loadCheckTypes() {
-      setCheckTypesLoading(true);
-      try {
-        const response = await apiFetch('/api/background-checks/check-types');
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data)) setAvailableCheckTypes(data);
-        }
-      } catch {
-        // Feature gate may block this
-      } finally {
-        setCheckTypesLoading(false);
-      }
-    }
-    loadCheckTypes();
-  }, []);
 
   const handleInputChange = <K extends keyof JobPostingData>(field: K, value: JobPostingData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -285,12 +241,10 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
         return !!(formData.description.trim() && formData.description.length >= 100);
       case 2: // Compensation
         return !(formData.salaryMin && formData.salaryMax && formData.salaryMin > formData.salaryMax);
-      case 3: // Verification
-        return true;
-      case 4: // SEO
+      case 3: // SEO
         return !(formData.seoTitle && formData.seoTitle.length > 60) &&
           !(formData.seoDescription && formData.seoDescription.length > 160);
-      case 5: // Review
+      case 4: // Review
         return true;
       default:
         return false;
@@ -327,8 +281,6 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       ...formData,
       applicationDeadline: formData.applicationDeadline
         ? new Date(formData.applicationDeadline).toISOString() : null,
-      requiredCheckTypes: formData.requiredCheckTypes.length > 0
-        ? JSON.stringify(formData.requiredCheckTypes) : null,
     };
 
     const actorParam = jobPostingId ? `updatedBy=${actorId}` : `createdBy=${actorId}`;
@@ -663,98 +615,6 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
     </div>
   );
 
-  const renderVerificationStep = () => (
-    <div className="space-y-5">
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Required Verification Checks</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          Select the background checks that must be completed for candidates applying to this role.
-        </p>
-      </div>
-
-      {checkTypesLoading ? (
-        <div className="flex items-center justify-center py-8 text-gray-500 dark:text-gray-400 text-sm">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cta mr-2" />
-          Loading check types...
-        </div>
-      ) : availableCheckTypes.length === 0 ? (
-        <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          Background checks feature is not available for your account.
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {availableCheckTypes.map(ct => {
-              const isSelected = formData.requiredCheckTypes.includes(ct.code);
-              return (
-                <label
-                  key={ct.code}
-                  className={`flex items-start p-3 rounded-[2px] border cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-primary/5 border-primary/30'
-                      : 'bg-white dark:bg-charcoal border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        requiredCheckTypes: isSelected
-                          ? prev.requiredCheckTypes.filter(c => c !== ct.code)
-                          : [...prev.requiredCheckTypes, ct.code],
-                      }));
-                    }}
-                    className="mt-0.5 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
-                  />
-                  <div className="ml-3 flex-1">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{ct.name}</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ct.description}</p>
-                    <div className="flex items-center space-x-3 mt-1">
-                      <span className="text-[10px] text-gray-400 dark:text-gray-500">{ct.turnaround}</span>
-                      <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
-                        R{ct.price.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-
-          {formData.requiredCheckTypes.length > 0 && (
-            <div className="bg-primary/5 border border-primary/20 rounded-[2px] px-4 py-3">
-              <span className="text-sm text-primary">
-                {formData.requiredCheckTypes.length} check{formData.requiredCheckTypes.length > 1 ? 's' : ''} required for this role
-              </span>
-            </div>
-          )}
-
-          <div className="bg-off-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-[2px] p-4">
-            <label className="flex items-start space-x-3">
-              <input
-                type="checkbox"
-                checked={formData.enforceCheckCompletion}
-                onChange={(e) => handleInputChange('enforceCheckCompletion', e.target.checked)}
-                className="mt-0.5 h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-[2px] focus:ring-primary/30"
-              />
-              <div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Enforce check completion
-                </span>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  When enabled, candidates cannot progress past the Background Check pipeline stage
-                  until all required checks are completed with a CLEAR result.
-                </p>
-              </div>
-            </label>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
   const renderSeoStep = () => (
     <div className="space-y-5">
       <div>
@@ -853,7 +713,6 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
             }
           />
           <ReviewCard label="Deadline" value={formData.applicationDeadline ? new Date(formData.applicationDeadline).toLocaleDateString() : 'No deadline'} />
-          <ReviewCard label="Checks Required" value={formData.requiredCheckTypes.length > 0 ? `${formData.requiredCheckTypes.length} check(s)` : 'None'} />
         </div>
 
         {flags.length > 0 && (
@@ -885,9 +744,8 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       case 0: return renderBasicStep();
       case 1: return renderDetailsStep();
       case 2: return renderCompensationStep();
-      case 3: return renderVerificationStep();
-      case 4: return renderSeoStep();
-      case 5: return renderReviewStep();
+      case 3: return renderSeoStep();
+      case 4: return renderReviewStep();
       default: return null;
     }
   };
