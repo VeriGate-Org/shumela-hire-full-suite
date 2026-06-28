@@ -160,11 +160,7 @@ const WorkflowActions: React.FC<WorkflowActionsProps> = ({
   };
 
   if (allowedTransitions.length === 0) {
-    return (
-      <div className="text-sm text-muted-foreground italic">
-        No actions available for your role
-      </div>
-    );
+    return null;
   }
 
   return (
