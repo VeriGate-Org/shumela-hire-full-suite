@@ -9,6 +9,8 @@ import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import JobBoardManager from '@/components/JobBoardManager';
 import MultiChannelPublishWizard from '@/components/MultiChannelPublishWizard';
 import VacancyReportActions from '@/components/VacancyReportActions';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useToast } from '@/components/Toast';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
@@ -73,6 +75,7 @@ export default function JobPostingsPage() {
   const [view, setView] = useState<'list' | 'create' | 'edit' | 'workflow'>('list');
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [selectedJobPosting, setSelectedJobPosting] = useState<JobPosting | null>(null);
+  const [cloneInitialData, setCloneInitialData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -81,14 +84,22 @@ export default function JobPostingsPage() {
   const [totalElements, setTotalElements] = useState(0);
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [linkedInJobPosting, setLinkedInJobPosting] = useState<JobPosting | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingJobPosting, setDeletingJobPosting] = useState<JobPosting | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPublishWizard, setShowPublishWizard] = useState(false);
+  // Bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+  const [bulkStatusAction, setBulkStatusAction] = useState('');
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
   const { setCurrentRole } = useTheme();
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  // String-based currentUserId (Issue #12)
   const currentUserId = useMemo(() => {
-    return user?.id || null;
+    return user?.id != null ? String(user.id) : null;
   }, [user?.id]);
 
   // Debounce timer ref
@@ -131,96 +142,245 @@ export default function JobPostingsPage() {
         setJobPostings(data.content || []);
         setTotalPages(data.totalPages || 0);
         setTotalElements(data.totalElements || 0);
+      } else {
+        const errorText = await response.text();
+        let message = 'Failed to load job postings';
+        try { message = JSON.parse(errorText).message ?? message; } catch {}
+        toast(message, 'error');
       }
     } catch (error) {
       console.error('Error loading job postings:', error);
+      toast('Failed to load job postings', 'error');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchTerm, statusFilter]);
+  }, [currentPage, searchTerm, statusFilter, toast]);
 
-  // Load when view switches to list or pagination/filters change
+  // Consolidated effect: load when view is list (Issue #1)
   useEffect(() => {
-    if (view === 'list') {
-      loadJobPostings();
-    }
+    if (view !== 'list') return;
+    loadJobPostings();
   }, [view, currentPage, loadJobPostings]);
 
-  // Reset page to 0 when search or filter changes (debounced for search)
-  useEffect(() => {
+  // Search debounce handler (Issue #1 — move page reset into handlers)
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setCurrentPage(0), 300);
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
     setCurrentPage(0);
-  }, [statusFilter]);
+  };
 
+  // Clean up debounce timer
   useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = setTimeout(() => {
-      setCurrentPage(0);
-    }, 300);
-
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [searchTerm]);
+  }, []);
 
   const handleJobPostingSaved = (jobPosting: { id: string | number; title: string; status: string }) => {
     console.log('Job posting saved:', jobPosting);
+    setCloneInitialData(null);
     setView('list');
     loadJobPostings(0);
   };
 
-  const handleStatusChange = async (jobPostingId: string | number, _newStatus: string) => {
-    // Refresh the list to get server-authoritative data
-    await loadJobPostings();
-
-    // If viewing workflow, re-fetch individual posting for updated canBe* flags
-    if (view === 'workflow') {
-      try {
-        const response = await apiFetch(`/api/job-postings/${jobPostingId}`);
-        if (response.ok) {
-          const updated = await response.json();
-          setSelectedJobPosting(updated);
-        }
-      } catch (error) {
-        console.error('Error refreshing job posting:', error);
-      }
-    }
+  // Updated to accept full posting from workflow (Issue #11)
+  // The API response includes all JobPosting fields; the workflow type is narrower
+  const handleStatusChange = (updatedPosting: Record<string, unknown>) => {
+    setSelectedJobPosting(updatedPosting as unknown as JobPosting);
+    loadJobPostings(); // refresh list only
   };
 
+  // Delete using request body (Issue #13) + toast errors (Issue #9)
   const handleDeleteJobPosting = async () => {
     if (!deletingJobPosting || !currentUserId) return;
 
     try {
       setIsDeleting(true);
       const response = await apiFetch(
-        `/api/job-postings/${deletingJobPosting.id}?deletedBy=${currentUserId}`,
-        { method: 'DELETE' }
+        `/api/job-postings/${deletingJobPosting.id}`,
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deletedBy: currentUserId }),
+        }
       );
 
       if (response.ok) {
-        setShowDeleteConfirm(false);
         setDeletingJobPosting(null);
+        toast('Job posting deleted', 'success');
         loadJobPostings();
       } else {
+        const errorText = await response.text();
         let message = 'Failed to delete job posting';
-        try {
-          const errorData = await response.json();
-          if (errorData?.message) {
-            message = errorData.message;
-          }
-        } catch {
-          // Leave default message
-        }
-        console.error(message);
+        try { message = JSON.parse(errorText).message ?? message; } catch {}
+        toast(message, 'error');
       }
     } catch (error) {
       console.error('Error deleting job posting:', error);
+      toast('Failed to delete job posting', 'error');
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  // Clone action (Issue #6)
+  const handleClone = async (jobPosting: JobPosting) => {
+    try {
+      const response = await apiFetch(`/api/job-postings/${jobPosting.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Strip id and status-related fields for the clone
+        const { id: _id, status: _status, statusDisplayName: _sdn, statusCssClass: _scc, statusIcon: _si,
+          canBeEdited: _cbe, canBeSubmittedForApproval: _cbsa, canBeApproved: _cba, canBeRejected: _cbr,
+          canBePublished: _cbp, canBeUnpublished: _cbu, canBeClosed: _cbc,
+          createdAt: _ca, submittedForApprovalAt: _sfaa, approvedAt: _aa, publishedAt: _pa,
+          unpublishedAt: _ua, closedAt: _cla, approvalNotes: _an, rejectionReason: _rr,
+          createdBy: _cb, approvedBy: _ab, publishedBy: _pb,
+          daysFromCreation: _dfc, daysFromPublication: _dfp, applicationsCount: _ac, viewsCount: _vc,
+          ...formFields } = data;
+        setCloneInitialData(formFields);
+        setView('create');
+        window.scrollTo(0, 0);
+      } else {
+        toast('Failed to load job posting for cloning', 'error');
+      }
+    } catch {
+      toast('Failed to clone job posting', 'error');
+    }
+  };
+
+  // CSV export (Issue #8)
+  const handleExportCsv = () => {
+    const headers = ['Title', 'Department', 'Status', 'Employment Type', 'Location', 'Applications', 'Created'];
+    const rows = jobPostings.map(jp => [
+      jp.title,
+      jp.department,
+      jp.statusDisplayName,
+      jp.employmentTypeDisplayName,
+      jp.location || '',
+      String(jp.applicationsCount),
+      jp.createdAt,
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `job-postings-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Bulk actions (Issue #4)
+  const toggleSelectAll = () => {
+    if (selectedIds.size === jobPostings.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(jobPostings.map(jp => jp.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string | number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkStatusChange = async () => {
+    if (!bulkStatusAction || selectedIds.size === 0 || !currentUserId) return;
+    setBulkActionLoading(true);
+    let successCount = 0;
+    for (const id of selectedIds) {
+      try {
+        const payload = new URLSearchParams();
+        const actionMap: Record<string, string> = {
+          'submit-for-approval': 'submittedBy',
+          'approve': 'approvedBy',
+          'publish': 'publishedBy',
+          'unpublish': 'unpublishedBy',
+          'close': 'closedBy',
+        };
+        const paramKey = actionMap[bulkStatusAction];
+        if (paramKey) payload.append(paramKey, currentUserId);
+
+        const response = await apiFetch(`/api/job-postings/${id}/${bulkStatusAction}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload.toString(),
+        });
+        if (response.ok) successCount++;
+      } catch {
+        // Continue with next
+      }
+    }
+    setBulkActionLoading(false);
+    setBulkStatusAction('');
+    setSelectedIds(new Set());
+    toast(`Updated ${successCount} of ${selectedIds.size} postings`, successCount > 0 ? 'success' : 'error');
+    loadJobPostings();
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0 || !currentUserId) return;
+    setBulkActionLoading(true);
+    setShowBulkDeleteConfirm(false);
+    let successCount = 0;
+    for (const id of selectedIds) {
+      const posting = jobPostings.find(jp => jp.id === id);
+      if (!posting || (posting.status !== 'DRAFT' && posting.status !== 'REJECTED')) continue;
+      try {
+        const response = await apiFetch(`/api/job-postings/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deletedBy: currentUserId }),
+        });
+        if (response.ok) successCount++;
+      } catch {
+        // Continue with next
+      }
+    }
+    setBulkActionLoading(false);
+    setSelectedIds(new Set());
+    toast(`Deleted ${successCount} postings`, successCount > 0 ? 'success' : 'error');
+    loadJobPostings();
+  };
+
+  const handleBulkExport = () => {
+    const selected = jobPostings.filter(jp => selectedIds.has(jp.id));
+    const headers = ['Title', 'Department', 'Status', 'Employment Type', 'Location', 'Applications', 'Created'];
+    const rows = selected.map(jp => [
+      jp.title,
+      jp.department,
+      jp.statusDisplayName,
+      jp.employmentTypeDisplayName,
+      jp.location || '',
+      String(jp.applicationsCount),
+      jp.createdAt,
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `job-postings-selected-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const getPageTitle = () => {
@@ -242,12 +402,21 @@ export default function JobPostingsPage() {
   };
 
   const pageActions = view === 'list' ? (
-    <button
-      onClick={() => setView('create')}
-      className="px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
-    >
-      Create Job Posting
-    </button>
+    <div className="flex items-center space-x-3">
+      <button
+        onClick={handleExportCsv}
+        disabled={jobPostings.length === 0}
+        className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-40"
+      >
+        Export CSV
+      </button>
+      <button
+        onClick={() => { setCloneInitialData(null); setView('create'); }}
+        className="px-4 py-2 bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full font-medium"
+      >
+        Create Job Posting
+      </button>
+    </div>
   ) : undefined;
 
   // Pagination helpers
@@ -275,7 +444,7 @@ export default function JobPostingsPage() {
           <div>
             {!currentUserId && (
               <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                Workflow actions require a valid signed-in numeric user ID for audit tracking.
+                Workflow actions require a valid signed-in user ID for audit tracking.
               </div>
             )}
 
@@ -289,7 +458,7 @@ export default function JobPostingsPage() {
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                     placeholder="Search by title or department..."
                     className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   />
@@ -300,7 +469,7 @@ export default function JobPostingsPage() {
                   </label>
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e) => handleStatusFilterChange(e.target.value)}
                     className="w-full rounded-md border border-gray-300 p-2 focus:border-violet-400 focus:ring-2 focus:ring-gold-500/60"
                   >
                     <option value="ALL">All Statuses</option>
@@ -311,6 +480,57 @@ export default function JobPostingsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Bulk Action Bar (Issue #4) */}
+            {selectedIds.size > 0 && (
+              <div className="rounded-md border border-violet-200 bg-violet-50 p-3 mb-4 flex items-center justify-between flex-wrap gap-2">
+                <span className="text-sm font-medium text-violet-800">
+                  {selectedIds.size} selected
+                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <select
+                    value={bulkStatusAction}
+                    onChange={(e) => setBulkStatusAction(e.target.value)}
+                    className="text-sm border border-gray-300 rounded-md px-2 py-1"
+                  >
+                    <option value="">Change Status...</option>
+                    <option value="submit-for-approval">Submit for Approval</option>
+                    <option value="approve">Approve</option>
+                    <option value="publish">Publish</option>
+                    <option value="unpublish">Unpublish</option>
+                    <option value="close">Close</option>
+                  </select>
+                  {bulkStatusAction && (
+                    <button
+                      onClick={handleBulkStatusChange}
+                      disabled={bulkActionLoading}
+                      className="text-sm px-3 py-1 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50"
+                    >
+                      {bulkActionLoading ? 'Applying...' : 'Apply'}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowBulkDeleteConfirm(true)}
+                    disabled={bulkActionLoading}
+                    className="text-sm px-3 py-1 text-red-700 border border-red-300 rounded-md hover:bg-red-50 disabled:opacity-50"
+                  >
+                    Delete Selected
+                  </button>
+                  <button
+                    onClick={handleBulkExport}
+                    className="text-sm px-3 py-1 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Export Selected
+                  </button>
+                  <button
+                    onClick={() => setSelectedIds(new Set())}
+                    className="text-sm px-3 py-1 text-gray-500 hover:text-gray-700"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Job Postings List */}
             {loading ? (
@@ -335,49 +555,71 @@ export default function JobPostingsPage() {
                   />
                 ) : (
                   <>
+                    {/* Select All */}
+                    <div className="flex items-center px-2">
+                      <label className="flex items-center text-sm text-gray-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === jobPostings.length && jobPostings.length > 0}
+                          onChange={toggleSelectAll}
+                          className="mr-2 h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-gold-500"
+                        />
+                        Select all on page
+                      </label>
+                    </div>
+
                     {jobPostings.map((jobPosting) => (
                       <div key={jobPosting.id} className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
                         <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <h3
-                                className="text-lg font-medium text-gray-900 cursor-pointer hover:text-[#05527E] transition-colors"
-                                onClick={() => { setSelectedJobPosting(jobPosting); setView('workflow'); window.scrollTo(0, 0); }}
-                              >{jobPosting.title}</h3>
-                              {jobPosting.featured && (
-                                <span className="inline-flex items-center rounded-full border border-yellow-300 bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800">
-                                  Featured
-                                </span>
-                              )}
-                              {jobPosting.urgent && (
-                                <span className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
-                                  Urgent
-                                </span>
-                              )}
-                              {jobPosting.remoteWorkAllowed && (
-                                <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                                  Remote
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                              <div>
-                                <p><strong>Department:</strong> {jobPosting.department}</p>
-                                <p><strong>Type:</strong> {jobPosting.employmentTypeDisplayName}</p>
-                                <p><strong>Experience:</strong> {jobPosting.experienceLevelDisplayName}</p>
+                          <div className="flex items-start gap-3 flex-1">
+                            {/* Checkbox for bulk select */}
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(jobPosting.id)}
+                              onChange={() => toggleSelectOne(jobPosting.id)}
+                              className="mt-1.5 h-4 w-4 text-violet-600 border-gray-300 rounded focus:ring-gold-500 shrink-0"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <h3
+                                  className="text-lg font-medium text-gray-900 cursor-pointer hover:text-[#05527E] transition-colors"
+                                  onClick={() => { setSelectedJobPosting(jobPosting); setView('workflow'); window.scrollTo(0, 0); }}
+                                >{jobPosting.title}</h3>
+                                {jobPosting.featured && (
+                                  <span className="inline-flex items-center rounded-full border border-yellow-300 bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800">
+                                    Featured
+                                  </span>
+                                )}
+                                {jobPosting.urgent && (
+                                  <span className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+                                    Urgent
+                                  </span>
+                                )}
+                                {jobPosting.remoteWorkAllowed && (
+                                  <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+                                    Remote
+                                  </span>
+                                )}
                               </div>
-                              <div>
-                                <p><strong>Location:</strong> {jobPosting.location || 'Not specified'}</p>
-                                <p><strong>Salary:</strong> {jobPosting.salaryRange}</p>
-                                <p><strong>Applications:</strong> {jobPosting.applicationsCount}</p>
-                              </div>
-                            </div>
 
-                            <p className="text-sm text-gray-500 mt-2">
-                              Created {jobPosting.daysFromCreation} days ago
-                              {jobPosting.status === 'PUBLISHED' && ` • Published ${jobPosting.daysFromPublication} days ago`}
-                            </p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div>
+                                  <p><strong>Department:</strong> {jobPosting.department}</p>
+                                  <p><strong>Type:</strong> {jobPosting.employmentTypeDisplayName}</p>
+                                  <p><strong>Experience:</strong> {jobPosting.experienceLevelDisplayName}</p>
+                                </div>
+                                <div>
+                                  <p><strong>Location:</strong> {jobPosting.location || 'Not specified'}</p>
+                                  <p><strong>Salary:</strong> {jobPosting.salaryRange}</p>
+                                  <p><strong>Applications:</strong> {jobPosting.applicationsCount}</p>
+                                </div>
+                              </div>
+
+                              <p className="text-sm text-gray-500 mt-2">
+                                Created {jobPosting.daysFromCreation} days ago
+                                {jobPosting.status === 'PUBLISHED' && ` • Published ${jobPosting.daysFromPublication} days ago`}
+                              </p>
+                            </div>
                           </div>
 
                           <div className="flex items-center space-x-3">
@@ -399,15 +641,12 @@ export default function JobPostingsPage() {
                                 </button>
                               )}
 
+                              {/* Clone button (Issue #6) */}
                               <button
-                                onClick={() => {
-                                  setSelectedJobPosting(jobPosting);
-                                  setView('workflow');
-                                  window.scrollTo(0, 0);
-                                }}
-                                className="text-violet-600 hover:text-violet-800 text-sm font-medium"
+                                onClick={() => handleClone(jobPosting)}
+                                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
                               >
-                                Workflow
+                                Clone
                               </button>
 
                               {jobPosting.status === 'PUBLISHED' && user?.role && ['ADMIN', 'HR_MANAGER', 'RECRUITER'].includes(user.role) && (
@@ -430,7 +669,6 @@ export default function JobPostingsPage() {
                                 <button
                                   onClick={() => {
                                     setDeletingJobPosting(jobPosting);
-                                    setShowDeleteConfirm(true);
                                   }}
                                   className="text-red-600 hover:text-red-800 text-sm font-medium"
                                 >
@@ -491,7 +729,7 @@ export default function JobPostingsPage() {
           <div>
             <div className="mb-4">
               <button
-                onClick={() => setView('list')}
+                onClick={() => { setCloneInitialData(null); setView('list'); }}
                 className="text-violet-500 hover:text-gold-700 font-medium"
               >
                 &larr; Back to Job Postings
@@ -499,9 +737,10 @@ export default function JobPostingsPage() {
             </div>
 
             <JobPostingForm
+              initialData={cloneInitialData ?? undefined}
               currentUserId={currentUserId}
               onSuccess={handleJobPostingSaved}
-              onCancel={() => setView('list')}
+              onCancel={() => { setCloneInitialData(null); setView('list'); }}
             />
           </div>
         )}
@@ -589,51 +828,34 @@ export default function JobPostingsPage() {
           isOpen={showPublishWizard}
           onClose={() => setShowPublishWizard(false)}
           onComplete={() => {
-            // Refresh to reflect new postings
             if (selectedJobPosting) {
-              handleStatusChange(selectedJobPosting.id, selectedJobPosting.status);
+              loadJobPostings();
             }
           }}
         />
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && deletingJobPosting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div
-            className="mx-4 w-full max-w-md rounded-md border border-gray-200 bg-white p-6 shadow-lg"
-            role="dialog"
-            aria-modal="true"
-          >
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Delete Job Posting</h3>
-            <p className="text-sm text-gray-600 mb-1">
-              Are you sure you want to delete <strong>{deletingJobPosting.title}</strong>?
-            </p>
-            <p className="text-sm text-red-600 mb-6">
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => {
-                  setShowDeleteConfirm(false);
-                  setDeletingJobPosting(null);
-                }}
-                disabled={isDeleting}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteJobPosting}
-                disabled={isDeleting}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-full hover:bg-red-700 disabled:opacity-50"
-              >
-                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation — using ConfirmDialog (Issue #5) */}
+      <ConfirmDialog
+        open={deletingJobPosting !== null}
+        title="Delete Job Posting"
+        message={`Are you sure you want to delete "${deletingJobPosting?.title ?? ''}"? This action cannot be undone.`}
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
+        variant="danger"
+        onConfirm={handleDeleteJobPosting}
+        onCancel={() => setDeletingJobPosting(null)}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        title="Delete Selected Postings"
+        message={`Delete ${selectedIds.size} selected posting(s)? Only DRAFT and REJECTED postings will be deleted. This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={handleBulkDelete}
+        onCancel={() => setShowBulkDeleteConfirm(false)}
+      />
     </PageWrapper>
   );
 }

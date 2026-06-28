@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { jobBoardService } from '@/services/jobBoardService';
 import { AvailableBoard, JobBoardType, BatchPostResult, getBoardDisplayName } from '@/types/jobBoard';
 
@@ -14,6 +15,7 @@ interface MultiChannelPublishWizardProps {
 
 export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onComplete }: MultiChannelPublishWizardProps) {
   const { toast } = useToast();
+  const focusTrapRef = useFocusTrap(isOpen, onClose);
   const [availableBoards, setAvailableBoards] = useState<AvailableBoard[]>([]);
   const [selectedBoards, setSelectedBoards] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -114,10 +116,10 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-card rounded-sm shadow-xl max-w-lg w-full m-4 border border-border">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="publish-wizard-title">
+      <div ref={focusTrapRef} className="bg-card rounded-sm shadow-xl max-w-lg w-full m-4 border border-border">
         <div className="px-6 py-4 border-b border-border">
-          <h3 className="text-lg font-medium text-foreground">
+          <h3 id="publish-wizard-title" className="text-lg font-medium text-foreground">
             Publish to Job Boards
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
