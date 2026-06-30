@@ -9,6 +9,7 @@ import JobPostingWorkflow from '@/components/JobPostingWorkflow';
 import JobBoardManager from '@/components/JobBoardManager';
 import MultiChannelPublishWizard from '@/components/MultiChannelPublishWizard';
 import VacancyReportActions from '@/components/VacancyReportActions';
+import ShortlistingPanel from '@/components/ShortlistingPanel';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useToast } from '@/components/Toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -755,6 +756,15 @@ export default function JobPostingsPage() {
                   <JobBoardManager jobId={String(selectedJobPosting.id)} />
                 </div>
               </>
+            )}
+
+            {(selectedJobPosting.status === 'PUBLISHED' || selectedJobPosting.status === 'CLOSED') && (
+              <div className="mt-6 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                <ShortlistingPanel
+                  jobPostingId={String(selectedJobPosting.id)}
+                  currentUserId={currentUserId}
+                />
+              </div>
             )}
 
             {(selectedJobPosting.status === 'PUBLISHED' || selectedJobPosting.status === 'CLOSED') && (
