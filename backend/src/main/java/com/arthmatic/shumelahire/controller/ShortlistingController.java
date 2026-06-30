@@ -10,18 +10,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/shortlisting")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
 public class ShortlistingController {
 
     @Autowired
     private ShortlistingService shortlistingService;
 
     @PostMapping("/job-postings/{id}/calculate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> calculateScores(@PathVariable String id) {
         return ResponseEntity.ok(shortlistingService.calculateScoresForJobPosting(id));
     }
 
     @PostMapping("/job-postings/{id}/auto-shortlist")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> autoShortlist(
             @PathVariable String id,
             @RequestParam(defaultValue = "60") double threshold) {
@@ -29,11 +30,13 @@ public class ShortlistingController {
     }
 
     @GetMapping("/job-postings/{id}/scores")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getScores(@PathVariable String id) {
         return ResponseEntity.ok(shortlistingService.getShortlistingSummary(id));
     }
 
     @PostMapping("/scores/{id}/override")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<?> overrideDecision(
             @PathVariable String id,
             @RequestBody Map<String, Object> request) {
