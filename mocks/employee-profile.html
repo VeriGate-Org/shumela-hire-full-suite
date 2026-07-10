@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipho Ndlovu — Employee Profile | ShumelaHire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: #F1F5F9;
+            color: #0F172A;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #05527E;
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #047469;
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--muted);
+            transition: color 200ms ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--border);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb .current {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: background 200ms ease, color 200ms ease;
+            position: relative;
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .nav-icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--pink);
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .user-avatar-nav {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: box-shadow 200ms ease;
+        }
+
+        .user-avatar-nav:hover {
+            box-shadow: 0 0 0 3px var(--icon-navy);
+        }
+
+        /* ===== PROFILE HEADER BANNER ===== */
+        .profile-banner {
+            background: linear-gradient(135deg, #05527E 0%, #047469 100%);
+            padding: 48px 24px 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .profile-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .banner-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .profile-avatar-large {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .banner-info h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .banner-info .title {
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .dept-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: var(--radius-button);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .banner-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .emp-id {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: var(--radius-button);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.active {
+            background: var(--surface-teal);
+            color: var(--teal);
+        }
+
+        .status-badge.active::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--teal);
+        }
+
+        .tenure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-gold);
+            color: var(--gold);
+            padding: 5px 14px;
+            border-radius: var(--radius-button);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .tenure-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ===== ACTION BAR ===== */
+        .action-bar-wrapper {
+            max-width: 1400px;
+            margin: -28px auto 24px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .action-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 200ms ease;
+            border: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-cta {
+            background: var(--cta);
+            border-color: var(--cta);
+            color: var(--text);
+        }
+
+        .btn-cta:hover {
+            background: var(--cta-hover);
+            border-color: var(--cta-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== TAB BAR ===== */
+        .tab-bar-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .tab-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card) var(--radius-card) 0 0;
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 16px 24px;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 200ms ease;
+            white-space: nowrap;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-family: 'Manrope', system-ui, sans-serif;
+        }
+
+        .tab-item:hover {
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .tab-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--cta);
+        }
+
+        /* ===== CONTENT AREA ===== */
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 48px;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 300ms ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== TWO-COLUMN LAYOUT ===== */
+        .two-col {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .col-left, .col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .card-header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-control);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-header-icon.navy { background: var(--icon-navy); color: var(--primary); }
+        .card-header-icon.teal { background: var(--icon-teal); color: var(--teal); }
+        .card-header-icon.gold { background: var(--icon-gold); color: var(--gold); }
+        .card-header-icon.pink { background: var(--icon-pink); color: var(--pink); }
+
+        .card-header-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .card-title {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-divider {
+            height: 3px;
+            width: 48px;
+            background: var(--cta);
+            border-radius: 2px;
+            margin-bottom: 20px;
+        }
+
+        /* ===== INFO GRID ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .info-value {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .info-value a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: var(--icon-navy);
+            text-underline-offset: 2px;
+        }
+
+        .info-value a:hover {
+            text-decoration-color: var(--primary);
+        }
+
+        /* ===== QUICK STATS ===== */
+        .quick-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: box-shadow 200ms ease, transform 200ms ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.navy { background: var(--icon-navy); color: var(--primary); }
+        .stat-icon.teal { background: var(--icon-teal); color: var(--teal); }
+        .stat-icon.gold { background: var(--icon-gold); color: var(--gold); }
+        .stat-icon.pink { background: var(--icon-pink); color: var(--pink); }
+
+        .stat-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== SKILLS BARS ===== */
+        .skills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .skill-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .skill-pct {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .skill-track {
+            width: 100%;
+            height: 8px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .skill-bar {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .skill-bar.navy { background: var(--primary); }
+        .skill-bar.teal { background: var(--teal); }
+        .skill-bar.gold { background: var(--gold); }
+
+        .skills-animated .skill-bar {
+            width: var(--target-width);
+        }
+
+        /* ===== EDUCATION TIMELINE ===== */
+        .edu-timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .edu-timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .edu-entry {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .edu-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .edu-entry::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--icon-navy);
+        }
+
+        .edu-year {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .edu-degree {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .edu-institution {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* ===== EMERGENCY CONTACT ===== */
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ===== ORG POSITION WIDGET ===== */
+        .org-widget {
+            margin-top: 24px;
+        }
+
+        .org-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 24px 0;
+        }
+
+        .org-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px 24px;
+            text-align: center;
+            min-width: 200px;
+            transition: box-shadow 200ms ease;
+        }
+
+        .org-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .org-card.current {
+            border-color: var(--cta);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .org-card-label {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .org-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .org-avatar.navy-bg {
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .org-avatar.primary-bg {
+            background: var(--primary);
+            color: white;
+        }
+
+        .org-avatar.teal-bg {
+            background: var(--icon-teal);
+            color: var(--teal);
+        }
+
+        .org-card-name {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .org-card-title {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .org-connector {
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .org-connector svg {
+            width: 48px;
+            height: 24px;
+            color: var(--border);
+        }
+
+        .stacked-avatars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .stacked-avatars .mini-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            margin-left: -8px;
+        }
+
+        .stacked-avatars .mini-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .mini-avatar.bg1 { background: var(--icon-navy); color: var(--primary); }
+        .mini-avatar.bg2 { background: var(--icon-teal); color: var(--teal); }
+        .mini-avatar.bg3 { background: var(--icon-gold); color: var(--gold); }
+        .mini-avatar.bg4 { background: var(--icon-pink); color: var(--pink); }
+
+        /* ===== ACTIVITY TIMELINE ===== */
+        .activity-section {
+            margin-top: 24px;
+        }
+
+        .activity-list {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .activity-list::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .activity-entry {
+            position: relative;
+            padding-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .activity-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .activity-dot {
+            position: absolute;
+            left: -28px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .activity-dot.teal { background: var(--teal); border: 3px solid var(--icon-teal); }
+        .activity-dot.navy { background: var(--primary); border: 3px solid var(--icon-navy); }
+        .activity-dot.gold { background: var(--gold); border: 3px solid var(--icon-gold); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .activity-desc {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .activity-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: var(--radius-button);
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .activity-badge.leave { background: var(--surface-teal); color: var(--teal); }
+        .activity-badge.review { background: var(--surface-navy); color: var(--primary); }
+        .activity-badge.document { background: var(--surface-gold); color: var(--gold); }
+        .activity-badge.meeting { background: var(--surface-navy); color: var(--primary); }
+        .activity-badge.training { background: var(--surface-teal); color: var(--teal); }
+
+        /* ===== PLACEHOLDER TABS ===== */
+        .placeholder-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+            text-align: center;
+        }
+
+        .placeholder-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--surface-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .placeholder-icon svg {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+        }
+
+        .placeholder-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .placeholder-desc {
+            font-size: 0.9375rem;
+            color: var(--muted);
+            max-width: 400px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .org-chart {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .org-connector {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav-inner {
+                padding: 0 16px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .profile-banner {
+                padding: 32px 16px 56px;
+            }
+
+            .banner-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .banner-right {
+                align-items: flex-start;
+            }
+
+            .profile-avatar-large {
+                width: 72px;
+                height: 72px;
+                font-size: 1.5rem;
+            }
+
+            .banner-info h1 {
+                font-size: 1.375rem;
+            }
+
+            .action-bar {
+                justify-content: stretch;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .action-bar .btn {
+                justify-content: center;
+                padding: 10px 12px;
+                font-size: 0.75rem;
+            }
+
+            .action-bar-wrapper {
+                padding: 0 16px;
+            }
+
+            .tab-bar-wrapper, .content-wrapper {
+                padding: 0 16px;
+            }
+
+            .info-grid, .emergency-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .org-card {
+                min-width: 160px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+    <!-- ===== TOP NAVIGATION BAR ===== -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+                <div class="logo">Shumela<span>Hire</span></div>
+                <div class="breadcrumb">
+                    <a href="#">Dashboard</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <a href="#">HR Management</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <a href="#">Employee Directory</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span class="current">Sipho Ndlovu</span>
+                </div>
+            </div>
+            <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+                <button class="nav-icon-btn" aria-label="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                </button>
+                <button class="nav-icon-btn" aria-label="Notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="user-avatar-nav">ND</div>
+            </div>
+        </div>
+    </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link active">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- ===== PROFILE HEADER BANNER ===== -->
+    <section class="profile-banner">
+        <div class="banner-inner">
+            <div class="banner-left">
+                <div class="profile-avatar-large">SN</div>
+                <div class="banner-info">
+                    <h1>Sipho Ndlovu</h1>
+                    <div class="title">Operations Manager</div>
+                    <span class="dept-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                        Operations
+                    </span>
+                </div>
+            </div>
+            <div class="banner-right">
+                <span class="emp-id">ID: UTH-2020-001</span>
+                <span class="status-badge active">Active</span>
+                <span class="tenure-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                    5 Years, 4 Months
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ACTION BAR ===== -->
+    <div class="action-bar-wrapper">
+        <div class="action-bar">
+            <button class="btn btn-outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Profile
+            </button>
+            <button class="btn btn-outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Send Message
+            </button>
+            <button class="btn btn-outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                View Documents
+            </button>
+            <button class="btn btn-cta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== TAB BAR ===== -->
+    <div class="tab-bar-wrapper">
+        <div class="tab-bar" role="tablist">
+            <button class="tab-item active" role="tab" data-tab="overview">Overview</button>
+            <button class="tab-item" role="tab" data-tab="documents">Documents</button>
+            <button class="tab-item" role="tab" data-tab="leave">Leave</button>
+            <button class="tab-item" role="tab" data-tab="performance">Performance</button>
+            <button class="tab-item" role="tab" data-tab="training">Training</button>
+        </div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div class="content-wrapper">
+
+        <!-- ===== OVERVIEW TAB ===== -->
+        <div class="tab-panel active" id="panel-overview">
+
+            <div class="two-col">
+                <!-- LEFT COLUMN -->
+                <div class="col-left">
+
+                    <!-- Personal Information -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-icon navy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <h2 class="card-title">Personal Information</h2>
+                        </div>
+                        <div class="card-divider"></div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">sipho.ndlovu@uthukela.gov.za</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Phone</span>
+                                <span class="info-value">+27 36 638 1234</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Date of Birth</span>
+                                <span class="info-value">15 March 1985</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Gender</span>
+                                <span class="info-value">Male</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ID Number</span>
+                                <span class="info-value">8503&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Nationality</span>
+                                <span class="info-value">South African</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">Address</span>
+                                <span class="info-value">23 Harrismith Road, Ladysmith, 3370, KwaZulu-Natal</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">Languages</span>
+                                <span class="info-value">English, isiZulu, Afrikaans</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-icon teal">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                            </div>
+                            <h2 class="card-title">Employment Details</h2>
+                        </div>
+                        <div class="card-divider"></div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Hire Date</span>
+                                <span class="info-value">15 March 2020</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Employment Type</span>
+                                <span class="info-value">Full-time (Permanent)</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Job Grade</span>
+                                <span class="info-value">C5 - Senior Management</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Reporting To</span>
+                                <span class="info-value"><a href="#">Dr. Mbongeni Nkosi (Municipal Manager)</a></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Work Location</span>
+                                <span class="info-value">Ladysmith Head Office</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Cost Centre</span>
+                                <span class="info-value">CC-OPS-001</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Probation Status</span>
+                                <span class="info-value">Completed</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Contract End</span>
+                                <span class="info-value">N/A (Permanent)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="col-right">
+
+                    <!-- Quick Stats -->
+                    <div class="quick-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon navy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value">5y 4m</span>
+                                <span class="stat-label">Tenure</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon teal">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value">12 days</span>
+                                <span class="stat-label">Leave Balance</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon gold">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value">97.2%</span>
+                                <span class="stat-label">Attendance Rate</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon pink">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value">4.2/5.0</span>
+                                <span class="stat-label">Performance Score</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills & Competencies -->
+                    <div class="card" id="skills-card">
+                        <div class="card-header">
+                            <div class="card-header-icon gold">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            </div>
+                            <h2 class="card-title">Skills & Competencies</h2>
+                        </div>
+                        <div class="card-divider"></div>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Water Operations Management</span>
+                                    <span class="skill-pct">92%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar navy" style="--target-width: 92%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Team Leadership</span>
+                                    <span class="skill-pct">88%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar teal" style="--target-width: 88%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Project Management</span>
+                                    <span class="skill-pct">85%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar navy" style="--target-width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Budget Management</span>
+                                    <span class="skill-pct">78%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar gold" style="--target-width: 78%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Health & Safety Compliance</span>
+                                    <span class="skill-pct">95%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar teal" style="--target-width: 95%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-header">
+                                    <span class="skill-name">Infrastructure Planning</span>
+                                    <span class="skill-pct">72%</span>
+                                </div>
+                                <div class="skill-track">
+                                    <div class="skill-bar navy" style="--target-width: 72%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Education & Qualifications -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-icon navy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+                            </div>
+                            <h2 class="card-title">Education & Qualifications</h2>
+                        </div>
+                        <div class="card-divider"></div>
+                        <div class="edu-timeline">
+                            <div class="edu-entry">
+                                <span class="edu-year">2020</span>
+                                <div class="edu-degree">Project Management Professional (PMP)</div>
+                                <div class="edu-institution">PMI</div>
+                            </div>
+                            <div class="edu-entry">
+                                <span class="edu-year">2015</span>
+                                <div class="edu-degree">Certificate in Municipal Finance Management</div>
+                                <div class="edu-institution">LGSETA</div>
+                            </div>
+                            <div class="edu-entry">
+                                <span class="edu-year">2012</span>
+                                <div class="edu-degree">Master of Engineering (Water Resources)</div>
+                                <div class="edu-institution">University of KwaZulu-Natal</div>
+                            </div>
+                            <div class="edu-entry">
+                                <span class="edu-year">2008</span>
+                                <div class="edu-degree">Bachelor of Engineering (Civil)</div>
+                                <div class="edu-institution">University of Pretoria</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-icon pink">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            </div>
+                            <h2 class="card-title">Emergency Contact</h2>
+                        </div>
+                        <div class="card-divider"></div>
+                        <div class="emergency-grid">
+                            <div class="info-item">
+                                <span class="info-label">Name</span>
+                                <span class="info-value">Thandi Ndlovu</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Relationship</span>
+                                <span class="info-value">Spouse</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Phone</span>
+                                <span class="info-value">+27 36 638 5678</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Alt Phone</span>
+                                <span class="info-value">+27 82 456 7890</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ===== ORG POSITION WIDGET ===== -->
+            <div class="org-widget card">
+                <div class="card-header">
+                    <div class="card-header-icon navy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="6" rx="1"/><rect x="14" y="2" width="8" height="6" rx="1"/><rect x="8" y="16" width="8" height="6" rx="1"/><path d="M6 8v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/><path d="M12 12v4"/></svg>
+                    </div>
+                    <h2 class="card-title">Organisational Position</h2>
+                </div>
+                <div class="card-divider"></div>
+                <div class="org-chart">
+                    <!-- Reports To -->
+                    <div class="org-card">
+                        <div class="org-card-label">Reports To</div>
+                        <div class="org-avatar navy-bg">MN</div>
+                        <div class="org-card-name">Dr. Mbongeni Nkosi</div>
+                        <div class="org-card-title">Municipal Manager</div>
+                    </div>
+
+                    <!-- Connector -->
+                    <div class="org-connector">
+                        <svg viewBox="0 0 48 24" fill="none">
+                            <line x1="0" y1="12" x2="38" y2="12" stroke="#CBD5E1" stroke-width="2"/>
+                            <polygon points="38,6 48,12 38,18" fill="#CBD5E1"/>
+                        </svg>
+                    </div>
+
+                    <!-- Current Employee -->
+                    <div class="org-card current">
+                        <div class="org-card-label">Current</div>
+                        <div class="org-avatar primary-bg">SN</div>
+                        <div class="org-card-name">Sipho Ndlovu</div>
+                        <div class="org-card-title">Operations Manager</div>
+                    </div>
+
+                    <!-- Connector -->
+                    <div class="org-connector">
+                        <svg viewBox="0 0 48 24" fill="none">
+                            <line x1="0" y1="12" x2="38" y2="12" stroke="#CBD5E1" stroke-width="2"/>
+                            <polygon points="38,6 48,12 38,18" fill="#CBD5E1"/>
+                        </svg>
+                    </div>
+
+                    <!-- Direct Reports -->
+                    <div class="org-card">
+                        <div class="org-card-label">Direct Reports</div>
+                        <div class="stacked-avatars">
+                            <div class="mini-avatar bg1">TM</div>
+                            <div class="mini-avatar bg2">LK</div>
+                            <div class="mini-avatar bg3">NZ</div>
+                            <div class="mini-avatar bg4">JD</div>
+                        </div>
+                        <div class="org-card-name">4 Team Members</div>
+                        <div class="org-card-title">Operations Team</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ACTIVITY TIMELINE ===== -->
+            <div class="activity-section card">
+                <div class="card-header">
+                    <div class="card-header-icon teal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <h2 class="card-title">Recent Activity</h2>
+                </div>
+                <div class="card-divider"></div>
+                <div class="activity-list">
+                    <div class="activity-entry">
+                        <div class="activity-dot teal"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">Today</div>
+                            <div class="activity-desc">Annual leave request approved (3 days)</div>
+                            <span class="activity-badge leave">Leave</span>
+                        </div>
+                    </div>
+                    <div class="activity-entry">
+                        <div class="activity-dot navy"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">2 days ago</div>
+                            <div class="activity-desc">Performance review completed &mdash; Q2 2025</div>
+                            <span class="activity-badge review">Review</span>
+                        </div>
+                    </div>
+                    <div class="activity-entry">
+                        <div class="activity-dot gold"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">1 week ago</div>
+                            <div class="activity-desc">Safety compliance certificate uploaded</div>
+                            <span class="activity-badge document">Document</span>
+                        </div>
+                    </div>
+                    <div class="activity-entry">
+                        <div class="activity-dot navy"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">2 weeks ago</div>
+                            <div class="activity-desc">Team meeting scheduled &mdash; Operations Review</div>
+                            <span class="activity-badge meeting">Meeting</span>
+                        </div>
+                    </div>
+                    <div class="activity-entry">
+                        <div class="activity-dot teal"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">1 month ago</div>
+                            <div class="activity-desc">Training completed: Advanced Water Treatment</div>
+                            <span class="activity-badge training">Training</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== DOCUMENTS TAB ===== -->
+        <div class="tab-panel" id="panel-documents">
+            <div class="card" style="margin-top: 24px;">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <div class="placeholder-title">Documents Management</div>
+                    <div class="placeholder-desc">Documents management coming soon. This section will allow you to view, upload, and manage employee documents.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== LEAVE TAB ===== -->
+        <div class="tab-panel" id="panel-leave">
+            <div class="card" style="margin-top: 24px;">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                    </div>
+                    <div class="placeholder-title">Leave Management</div>
+                    <div class="placeholder-desc">Leave management coming soon. This section will display leave balances, history, and allow leave requests.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PERFORMANCE TAB ===== -->
+        <div class="tab-panel" id="panel-performance">
+            <div class="card" style="margin-top: 24px;">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div class="placeholder-title">Performance Reviews</div>
+                    <div class="placeholder-desc">Performance reviews coming soon. This section will display performance evaluations, goals, and development plans.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TRAINING TAB ===== -->
+        <div class="tab-panel" id="panel-training">
+            <div class="card" style="margin-top: 24px;">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+                    </div>
+                    <div class="placeholder-title">Training Records</div>
+                    <div class="placeholder-desc">Training records coming soon. This section will display completed and upcoming training, certifications, and development programmes.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Tab switching
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-item');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    // Deactivate all tabs
+                    tabs.forEach(function (t) { t.classList.remove('active'); });
+                    // Deactivate all panels
+                    panels.forEach(function (p) { p.classList.remove('active'); });
+
+                    // Activate clicked tab
+                    tab.classList.add('active');
+
+                    // Activate corresponding panel
+                    var panelId = 'panel-' + tab.getAttribute('data-tab');
+                    var panel = document.getElementById(panelId);
+                    if (panel) {
+                        panel.classList.add('active');
+                    }
+                });
+            });
+
+            // Skill bars animation on page load
+            var skillsCard = document.getElementById('skills-card');
+            if (skillsCard) {
+                // Use IntersectionObserver for better UX, fallback to timeout
+                if ('IntersectionObserver' in window) {
+                    var observer = new IntersectionObserver(function (entries) {
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.querySelector('.skills-list').classList.add('skills-animated');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    observer.observe(skillsCard);
+                } else {
+                    setTimeout(function () {
+                        skillsCard.querySelector('.skills-list').classList.add('skills-animated');
+                    }, 500);
+                }
+            }
+
+            // Also trigger animation immediately if skills card is already visible
+            // (for cases where IntersectionObserver fires late)
+            setTimeout(function () {
+                var list = document.querySelector('.skills-list');
+                if (list && !list.classList.contains('skills-animated')) {
+                    list.classList.add('skills-animated');
+                }
+            }, 800);
+        });
+    </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

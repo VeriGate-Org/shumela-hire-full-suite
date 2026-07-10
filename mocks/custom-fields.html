@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Fields | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 2px solid var(--pink);
+      color: var(--pink);
+    }
+    .btn-danger:hover {
+      background: var(--pink);
+      color: #FFFFFF;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--pink);
+      border-radius: var(--radius-button);
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== DEMO TOGGLE ========== */
+    .demo-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-button);
+      padding: 0.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-toggle-btn {
+      padding: 0.375rem 1rem;
+      border: none;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 200ms ease;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .demo-toggle-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== ENTITY TABS ========== */
+    .entity-tabs {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 0.375rem;
+    }
+
+    .entity-tab {
+      flex: 1;
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-control);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .entity-tab:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .entity-tab.active {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .entity-tab svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .entity-tab-count {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      background: rgba(255,255,255,0.2);
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+      line-height: 1.2;
+    }
+
+    .entity-tab.active .entity-tab-count {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .entity-tab:not(.active) .entity-tab-count {
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+
+    /* ========== TWO COLUMN LAYOUT ========== */
+    .fields-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ========== FIELD CREATION FORM ========== */
+    .field-form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.5rem;
+      position: sticky;
+      top: 88px;
+    }
+
+    .field-form-card h2 {
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .field-form-card h2 svg {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+      letter-spacing: 0.02em;
+    }
+
+    .form-input, .form-select {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      transition: all 200ms ease;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ========== TOGGLE SWITCH ========== */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+
+    .toggle-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: var(--radius-button);
+      transition: all 200ms ease;
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      top: 3px;
+      left: 3px;
+      transition: all 200ms ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--teal);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .form-actions {
+      margin-top: 1.25rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .form-actions .btn {
+      flex: 1;
+    }
+
+    /* ========== FIELDS TABLE ========== */
+    .fields-table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .fields-table-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .fields-table-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .fields-table-header h2 svg {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+    }
+
+    .entity-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.1875rem 0.75rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .fields-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .fields-table thead {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fields-table th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .fields-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .fields-table tbody tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    .fields-table tbody tr {
+      transition: background 200ms ease;
+    }
+
+    .fields-table tbody tr:hover {
+      background: var(--primary-tint);
+    }
+
+    .fields-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ========== DRAG HANDLE ========== */
+    .drag-handle {
+      color: var(--border);
+      cursor: grab;
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      user-select: none;
+      transition: color 200ms ease;
+      line-height: 1;
+    }
+
+    .drag-handle:hover {
+      color: var(--primary);
+    }
+
+    /* ========== TYPE BADGES ========== */
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .type-text { background: var(--navy-tint); color: var(--primary); }
+    .type-number { background: var(--teal-tint); color: var(--teal); }
+    .type-date { background: var(--gold-tint); color: var(--gold); }
+    .type-select { background: var(--pink-tint); color: var(--pink); }
+    .type-multi-select { background: #F3E8FF; color: #7C3AED; }
+    .type-checkbox { background: #ECFDF5; color: #059669; }
+    .type-url { background: #FFF7ED; color: #EA580C; }
+
+    .required-yes {
+      color: var(--teal);
+      font-weight: 600;
+      font-size: 0.8125rem;
+    }
+
+    .required-no {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .order-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg);
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== TABLE ACTIONS ========== */
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .action-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .action-btn.delete-btn:hover {
+      background: var(--pink-tint);
+      color: var(--pink);
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== FIELD NAME WITH ICON ========== */
+    .field-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .field-name-cell .field-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-control);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .field-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .field-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .field-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .field-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .field-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .field-name-text {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .field-key {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .empty-state p {
+      font-size: 0.875rem;
+    }
+
+    /* ========== SKELETON ========== */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-control);
+    }
+
+    .skeleton-stat-number {
+      width: 60px;
+      height: 28px;
+      margin-bottom: 0.25rem;
+    }
+
+    .skeleton-stat-label {
+      width: 100px;
+      height: 14px;
+    }
+
+    .skeleton-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+    }
+
+    .skeleton-tab {
+      width: 100%;
+      height: 42px;
+      border-radius: var(--radius-control);
+    }
+
+    .skeleton-form-label {
+      width: 90px;
+      height: 13px;
+      margin-bottom: 0.375rem;
+    }
+
+    .skeleton-form-input {
+      width: 100%;
+      height: 40px;
+      border-radius: var(--radius-control);
+    }
+
+    .skeleton-table-row {
+      width: 100%;
+      height: 16px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-table-row-short {
+      width: 70%;
+      height: 16px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-badge {
+      width: 72px;
+      height: 24px;
+      border-radius: var(--radius-button);
+    }
+
+    /* skeleton visibility */
+    .content-normal { display: block; }
+    .content-skeleton { display: none; }
+    body.skeleton-mode .content-normal { display: none; }
+    body.skeleton-mode .content-skeleton { display: block; }
+
+    /* grid skeleton fix */
+    .stats-bar .content-normal,
+    .stats-bar .content-skeleton {
+      display: contents;
+    }
+    body.skeleton-mode .stats-bar .content-normal { display: none; }
+    body.skeleton-mode .stats-bar .content-skeleton { display: contents; }
+
+    /* entity tabs skeleton */
+    .entity-tabs .content-normal,
+    .entity-tabs .content-skeleton {
+      display: contents;
+    }
+    body.skeleton-mode .entity-tabs .content-normal { display: none; }
+    body.skeleton-mode .entity-tabs .content-skeleton { display: contents; }
+
+    /* fields layout skeleton */
+    .fields-layout .content-normal,
+    .fields-layout .content-skeleton {
+      display: contents;
+    }
+    body.skeleton-mode .fields-layout .content-normal { display: none; }
+    body.skeleton-mode .fields-layout .content-skeleton { display: contents; }
+
+    body.skeleton-mode .fields-layout {
+      display: grid;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .fields-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .field-form-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .entity-tabs {
+        flex-wrap: wrap;
+      }
+
+      .entity-tab {
+        flex: 1 1 calc(50% - 0.125rem);
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .fields-table-wrapper {
+        overflow-x: auto;
+      }
+
+      .fields-table {
+        min-width: 600px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .entity-tab {
+        flex: 1 1 100%;
+        font-size: 0.8125rem;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Administration</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Custom Fields</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link active">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Custom Fields</h1>
+        <p>Configure custom data fields for employees, jobs, applications, and interviews</p>
+      </div>
+      <div class="page-header-right">
+        <!-- Demo Toggle -->
+        <div class="demo-toggle">
+          <button class="demo-toggle-btn active" onclick="setDemoState('normal')">Normal</button>
+          <button class="demo-toggle-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+        </div>
+        <button class="btn btn-cta" id="addFieldBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Field
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <!-- Normal State -->
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-navy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">24</div>
+            <div class="stat-label">Total Fields</div>
+          </div>
+        </div>
+      </div>
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">8</div>
+            <div class="stat-label">Required Fields</div>
+          </div>
+        </div>
+      </div>
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Entity Types</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton State -->
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entity Tabs -->
+    <div class="entity-tabs">
+      <!-- Normal -->
+      <div class="content-normal" style="display:contents">
+        <button class="entity-tab active" data-entity="employee">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Employee
+          <span class="entity-tab-count">10</span>
+        </button>
+        <button class="entity-tab" data-entity="job">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          Job
+          <span class="entity-tab-count">6</span>
+        </button>
+        <button class="entity-tab" data-entity="application">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Application
+          <span class="entity-tab-count">4</span>
+        </button>
+        <button class="entity-tab" data-entity="interview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Interview
+          <span class="entity-tab-count">4</span>
+        </button>
+      </div>
+      <!-- Skeleton -->
+      <div class="content-skeleton" style="display:none">
+        <div class="skeleton skeleton-tab" style="flex:1"></div>
+        <div class="skeleton skeleton-tab" style="flex:1"></div>
+        <div class="skeleton skeleton-tab" style="flex:1"></div>
+        <div class="skeleton skeleton-tab" style="flex:1"></div>
+      </div>
+    </div>
+
+    <!-- Fields Layout: Form + Table -->
+    <div class="fields-layout">
+      <!-- Left: Field Creation Form -->
+      <div class="content-normal" style="display:block">
+        <div class="field-form-card" id="fieldFormCard">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span id="formTitle">Add New Field</span>
+          </h2>
+
+          <div class="form-group">
+            <label class="form-label" for="fieldName">Field Name</label>
+            <input type="text" class="form-input" id="fieldName" placeholder="e.g. Employee ID Number">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fieldType">Field Type</label>
+            <select class="form-select" id="fieldType">
+              <option value="Text">Text</option>
+              <option value="Number">Number</option>
+              <option value="Date">Date</option>
+              <option value="Select">Select</option>
+              <option value="Multi-Select">Multi-Select</option>
+              <option value="Checkbox">Checkbox</option>
+              <option value="URL">URL</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="optionsGroup" style="display: none;">
+            <label class="form-label" for="fieldOptions">Options</label>
+            <input type="text" class="form-input" id="fieldOptions" placeholder="Option 1, Option 2, Option 3">
+            <div class="form-hint">Enter comma-separated values for dropdown options</div>
+          </div>
+
+          <div class="form-group">
+            <div class="toggle-row">
+              <span class="toggle-label">Required</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="fieldRequired">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-ghost btn-sm" id="cancelBtn" style="display:none">
+              Cancel
+            </button>
+            <button class="btn btn-cta btn-sm" id="saveFieldBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Save Field
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton: Form -->
+      <div class="content-skeleton">
+        <div class="field-form-card">
+          <div style="margin-bottom:1.25rem">
+            <div class="skeleton" style="width:140px;height:20px"></div>
+          </div>
+          <div class="form-group">
+            <div class="skeleton skeleton-form-label"></div>
+            <div class="skeleton skeleton-form-input"></div>
+          </div>
+          <div class="form-group">
+            <div class="skeleton skeleton-form-label"></div>
+            <div class="skeleton skeleton-form-input"></div>
+          </div>
+          <div class="form-group">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="skeleton" style="width:70px;height:14px"></div>
+              <div class="skeleton" style="width:44px;height:24px;border-radius:9999px"></div>
+            </div>
+          </div>
+          <div style="margin-top:1.25rem">
+            <div class="skeleton" style="width:100%;height:36px;border-radius:9999px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Fields Table -->
+      <div class="content-normal" style="display:block">
+        <div class="fields-table-card">
+          <div class="fields-table-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              <span id="tableTitle">Employee Fields</span>
+            </h2>
+            <span class="entity-label" id="entityLabel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Employee
+            </span>
+          </div>
+          <div class="fields-table-wrapper" style="overflow-x:auto">
+            <table class="fields-table">
+              <thead>
+                <tr>
+                  <th style="width:40px"></th>
+                  <th>Field Name</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Order</th>
+                  <th style="width:100px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="fieldsTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton: Table -->
+      <div class="content-skeleton">
+        <div class="fields-table-card">
+          <div class="fields-table-header">
+            <div class="skeleton" style="width:160px;height:20px"></div>
+            <div class="skeleton skeleton-badge"></div>
+          </div>
+          <div style="padding:1rem">
+            <div style="display:flex;gap:1rem;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
+              <div class="skeleton" style="width:30px;height:14px"></div>
+              <div class="skeleton" style="width:140px;height:14px"></div>
+              <div class="skeleton" style="width:60px;height:14px"></div>
+              <div class="skeleton" style="width:70px;height:14px"></div>
+              <div class="skeleton" style="width:50px;height:14px"></div>
+              <div class="skeleton" style="width:80px;height:14px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:1rem">
+              <div style="display:flex;gap:1rem;align-items:center">
+                <div class="skeleton" style="width:20px;height:16px"></div>
+                <div class="skeleton" style="width:180px;height:16px"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton" style="width:40px;height:16px"></div>
+                <div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div>
+                <div class="skeleton" style="width:60px;height:16px"></div>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:center">
+                <div class="skeleton" style="width:20px;height:16px"></div>
+                <div class="skeleton" style="width:160px;height:16px"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton" style="width:40px;height:16px"></div>
+                <div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div>
+                <div class="skeleton" style="width:60px;height:16px"></div>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:center">
+                <div class="skeleton" style="width:20px;height:16px"></div>
+                <div class="skeleton" style="width:200px;height:16px"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton" style="width:40px;height:16px"></div>
+                <div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div>
+                <div class="skeleton" style="width:60px;height:16px"></div>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:center">
+                <div class="skeleton" style="width:20px;height:16px"></div>
+                <div class="skeleton" style="width:150px;height:16px"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton" style="width:40px;height:16px"></div>
+                <div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div>
+                <div class="skeleton" style="width:60px;height:16px"></div>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:center">
+                <div class="skeleton" style="width:20px;height:16px"></div>
+                <div class="skeleton" style="width:170px;height:16px"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton" style="width:40px;height:16px"></div>
+                <div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div>
+                <div class="skeleton" style="width:60px;height:16px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+  (function() {
+    "use strict";
+
+    // ===== FIELD DATA =====
+    var fieldsData = {
+      employee: [
+        { id: 1, name: "ID Number", key: "id_number", type: "Text", required: true, order: 1, icon: "navy" },
+        { id: 2, name: "Tax Reference", key: "tax_reference", type: "Text", required: true, order: 2, icon: "navy" },
+        { id: 3, name: "Skills", key: "skills", type: "Multi-Select", required: false, order: 3, options: "Leadership, Communication, Technical, Analytical, Project Management", icon: "navy" },
+        { id: 4, name: "Date of Birth", key: "date_of_birth", type: "Date", required: true, order: 4, icon: "teal" },
+        { id: 5, name: "Emergency Contact", key: "emergency_contact", type: "Text", required: true, order: 5, icon: "navy" },
+        { id: 6, name: "Medical Aid Number", key: "medical_aid_number", type: "Text", required: false, order: 6, icon: "navy" },
+        { id: 7, name: "Disability Status", key: "disability_status", type: "Select", required: false, order: 7, options: "None, Physical, Visual, Hearing, Other", icon: "pink" },
+        { id: 8, name: "LinkedIn Profile", key: "linkedin_profile", type: "URL", required: false, order: 8, icon: "teal" },
+        { id: 9, name: "Years of Experience", key: "years_experience", type: "Number", required: false, order: 9, icon: "gold" },
+        { id: 10, name: "Driver's License", key: "drivers_license", type: "Checkbox", required: false, order: 10, icon: "gold" }
+      ],
+      job: [
+        { id: 11, name: "Remote Option", key: "remote_option", type: "Select", required: true, order: 1, options: "On-site, Hybrid, Fully Remote", icon: "navy" },
+        { id: 12, name: "Travel Required", key: "travel_required", type: "Checkbox", required: false, order: 2, icon: "teal" },
+        { id: 13, name: "Salary Range Min", key: "salary_range_min", type: "Number", required: true, order: 3, icon: "gold" },
+        { id: 14, name: "Salary Range Max", key: "salary_range_max", type: "Number", required: true, order: 4, icon: "gold" },
+        { id: 15, name: "Required Certifications", key: "required_certifications", type: "Multi-Select", required: false, order: 5, options: "PMP, PRINCE2, AWS, Azure, CISSP", icon: "pink" },
+        { id: 16, name: "Closing Date", key: "closing_date", type: "Date", required: true, order: 6, icon: "navy" }
+      ],
+      application: [
+        { id: 17, name: "Source", key: "source", type: "Select", required: true, order: 1, options: "Job Board, Referral, Website, Social Media, Recruitment Agency", icon: "navy" },
+        { id: 18, name: "Referral", key: "referral", type: "Text", required: false, order: 2, icon: "teal" },
+        { id: 19, name: "Notice Period", key: "notice_period", type: "Select", required: false, order: 3, options: "Immediate, 2 Weeks, 1 Month, 2 Months, 3 Months", icon: "gold" },
+        { id: 20, name: "Expected Salary", key: "expected_salary", type: "Number", required: false, order: 4, icon: "pink" }
+      ],
+      interview: [
+        { id: 21, name: "Room", key: "room", type: "Select", required: true, order: 1, options: "Boardroom A, Boardroom B, Meeting Room 1, Meeting Room 2, Virtual", icon: "navy" },
+        { id: 22, name: "Equipment Needed", key: "equipment_needed", type: "Multi-Select", required: false, order: 2, options: "Projector, Whiteboard, Laptop, Conference Phone, Video Camera", icon: "teal" },
+        { id: 23, name: "Panel Size", key: "panel_size", type: "Number", required: false, order: 3, icon: "gold" },
+        { id: 24, name: "Assessment Required", key: "assessment_required", type: "Checkbox", required: true, order: 4, icon: "pink" }
+      ]
+    };
+
+    var currentEntity = "employee";
+    var editingFieldId = null;
+    var nextId = 25;
+
+    // ===== SVG ICONS =====
+    var editSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+    var deleteSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+
+    // ===== TYPE BADGE CLASS MAP =====
+    var typeClassMap = {
+      "Text": "type-text",
+      "Number": "type-number",
+      "Date": "type-date",
+      "Select": "type-select",
+      "Multi-Select": "type-multi-select",
+      "Checkbox": "type-checkbox",
+      "URL": "type-url"
+    };
+
+    // ===== TYPE ICON SVGs =====
+    var typeIconMap = {
+      "Text": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>',
+      "Number": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>',
+      "Date": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+      "Select": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>',
+      "Multi-Select": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>',
+      "Checkbox": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>',
+      "URL": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'
+    };
+
+    // ===== ENTITY LABELS =====
+    var entityLabels = {
+      employee: "Employee",
+      job: "Job",
+      application: "Application",
+      interview: "Interview"
+    };
+
+    var entityIcons = {
+      employee: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+      job: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
+      application: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
+      interview: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>'
+    };
+
+    // ===== RENDER TABLE =====
+    function renderTable() {
+      var tbody = document.getElementById("fieldsTableBody");
+      var fields = fieldsData[currentEntity];
+
+      if (!fields || fields.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>' +
+          '<h3>No custom fields</h3><p>Add your first custom field for ' + entityLabels[currentEntity] + ' using the form.</p></div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = fields.map(function(f) {
+        var typeClass = typeClassMap[f.type] || "type-text";
+        var reqHTML = f.required
+          ? '<span class="required-yes">Yes</span>'
+          : '<span class="required-no">No</span>';
+
+        return '<tr>' +
+          '<td><span class="drag-handle" title="Drag to reorder">&equiv;</span></td>' +
+          '<td><div class="field-name-cell"><div class="field-icon field-icon-' + f.icon + '">' + (typeIconMap[f.type] || typeIconMap["Text"]) + '</div><div><div class="field-name-text">' + f.name + '</div><div class="field-key">' + f.key + '</div></div></div></td>' +
+          '<td><span class="type-badge ' + typeClass + '">' + f.type + '</span></td>' +
+          '<td>' + reqHTML + '</td>' +
+          '<td><span class="order-number">' + f.order + '</span></td>' +
+          '<td><div class="table-actions">' +
+            '<button class="action-btn edit-btn" data-id="' + f.id + '" title="Edit">' + editSVG + '</button>' +
+            '<button class="action-btn delete-btn" data-id="' + f.id + '" title="Delete">' + deleteSVG + '</button>' +
+          '</div></td>' +
+        '</tr>';
+      }).join("");
+    }
+
+    // ===== SWITCH ENTITY =====
+    function switchEntity(entity) {
+      currentEntity = entity;
+      editingFieldId = null;
+      resetForm();
+
+      // Update tab active state
+      document.querySelectorAll(".entity-tab").forEach(function(tab) {
+        tab.classList.toggle("active", tab.getAttribute("data-entity") === entity);
+      });
+
+      // Update table header
+      document.getElementById("tableTitle").textContent = entityLabels[entity] + " Fields";
+      document.getElementById("entityLabel").innerHTML = entityIcons[entity] + " " + entityLabels[entity];
+
+      renderTable();
+    }
+
+    // ===== FORM HANDLING =====
+    function resetForm() {
+      document.getElementById("fieldName").value = "";
+      document.getElementById("fieldType").value = "Text";
+      document.getElementById("fieldOptions").value = "";
+      document.getElementById("fieldRequired").checked = false;
+      document.getElementById("optionsGroup").style.display = "none";
+      document.getElementById("formTitle").textContent = "Add New Field";
+      document.getElementById("cancelBtn").style.display = "none";
+      editingFieldId = null;
+    }
+
+    function showOptionsField() {
+      var type = document.getElementById("fieldType").value;
+      var optionsGroup = document.getElementById("optionsGroup");
+      if (type === "Select" || type === "Multi-Select") {
+        optionsGroup.style.display = "block";
+      } else {
+        optionsGroup.style.display = "none";
+      }
+    }
+
+    function toKey(name) {
+      return name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+    }
+
+    function saveField() {
+      var name = document.getElementById("fieldName").value.trim();
+      var type = document.getElementById("fieldType").value;
+      var options = document.getElementById("fieldOptions").value.trim();
+      var required = document.getElementById("fieldRequired").checked;
+
+      if (!name) {
+        document.getElementById("fieldName").style.borderColor = "var(--pink)";
+        document.getElementById("fieldName").focus();
+        setTimeout(function() {
+          document.getElementById("fieldName").style.borderColor = "";
+        }, 2000);
+        return;
+      }
+
+      var fields = fieldsData[currentEntity];
+
+      if (editingFieldId !== null) {
+        // Update existing
+        for (var i = 0; i < fields.length; i++) {
+          if (fields[i].id === editingFieldId) {
+            fields[i].name = name;
+            fields[i].key = toKey(name);
+            fields[i].type = type;
+            fields[i].required = required;
+            if (type === "Select" || type === "Multi-Select") {
+              fields[i].options = options;
+            } else {
+              delete fields[i].options;
+            }
+            break;
+          }
+        }
+      } else {
+        // Add new
+        var iconChoices = ["navy", "teal", "gold", "pink"];
+        var newField = {
+          id: nextId++,
+          name: name,
+          key: toKey(name),
+          type: type,
+          required: required,
+          order: fields.length + 1,
+          icon: iconChoices[fields.length % iconChoices.length]
+        };
+        if (type === "Select" || type === "Multi-Select") {
+          newField.options = options;
+        }
+        fields.push(newField);
+      }
+
+      updateTabCounts();
+      renderTable();
+      resetForm();
+    }
+
+    function editField(id) {
+      var fields = fieldsData[currentEntity];
+      var field = null;
+      for (var i = 0; i < fields.length; i++) {
+        if (fields[i].id === id) {
+          field = fields[i];
+          break;
+        }
+      }
+      if (!field) return;
+
+      editingFieldId = id;
+      document.getElementById("fieldName").value = field.name;
+      document.getElementById("fieldType").value = field.type;
+      document.getElementById("fieldRequired").checked = field.required;
+      document.getElementById("fieldOptions").value = field.options || "";
+      document.getElementById("formTitle").textContent = "Edit Field";
+      document.getElementById("cancelBtn").style.display = "inline-flex";
+      showOptionsField();
+
+      // Scroll form into view on mobile
+      document.getElementById("fieldFormCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function deleteField(id) {
+      var fields = fieldsData[currentEntity];
+      for (var i = 0; i < fields.length; i++) {
+        if (fields[i].id === id) {
+          fields.splice(i, 1);
+          break;
+        }
+      }
+      // Reorder
+      for (var j = 0; j < fields.length; j++) {
+        fields[j].order = j + 1;
+      }
+      updateTabCounts();
+      renderTable();
+      if (editingFieldId === id) {
+        resetForm();
+      }
+    }
+
+    function updateTabCounts() {
+      var tabs = document.querySelectorAll(".entity-tab");
+      tabs.forEach(function(tab) {
+        var entity = tab.getAttribute("data-entity");
+        if (entity && fieldsData[entity]) {
+          var countEl = tab.querySelector(".entity-tab-count");
+          if (countEl) {
+            countEl.textContent = fieldsData[entity].length;
+          }
+        }
+      });
+
+      // Update stat cards
+      var total = 0;
+      var required = 0;
+      var entities = ["employee", "job", "application", "interview"];
+      entities.forEach(function(e) {
+        total += fieldsData[e].length;
+        fieldsData[e].forEach(function(f) {
+          if (f.required) required++;
+        });
+      });
+      var statNumbers = document.querySelectorAll(".content-normal .stat-number");
+      if (statNumbers[0]) statNumbers[0].textContent = total;
+      if (statNumbers[1]) statNumbers[1].textContent = required;
+    }
+
+    // ===== DEMO STATE TOGGLE =====
+    window.setDemoState = function(state) {
+      var toggleBtns = document.querySelectorAll(".demo-toggle-btn");
+      toggleBtns.forEach(function(btn) {
+        btn.classList.remove("active");
+      });
+
+      if (state === "skeleton") {
+        document.body.classList.add("skeleton-mode");
+        toggleBtns[1].classList.add("active");
+      } else {
+        document.body.classList.remove("skeleton-mode");
+        toggleBtns[0].classList.add("active");
+      }
+    };
+
+    // ===== INIT =====
+    document.addEventListener("DOMContentLoaded", function() {
+      renderTable();
+
+      // Entity tabs
+      document.querySelectorAll(".entity-tab").forEach(function(tab) {
+        tab.addEventListener("click", function() {
+          var entity = this.getAttribute("data-entity");
+          if (entity) {
+            switchEntity(entity);
+          }
+        });
+      });
+
+      // Field type change
+      document.getElementById("fieldType").addEventListener("change", showOptionsField);
+
+      // Save field
+      document.getElementById("saveFieldBtn").addEventListener("click", saveField);
+
+      // Cancel edit
+      document.getElementById("cancelBtn").addEventListener("click", resetForm);
+
+      // Add Field button in header
+      document.getElementById("addFieldBtn").addEventListener("click", function() {
+        resetForm();
+        document.getElementById("fieldName").focus();
+        document.getElementById("fieldFormCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      // Table action delegation
+      document.getElementById("fieldsTableBody").addEventListener("click", function(evt) {
+        var editBtn = evt.target.closest(".edit-btn");
+        var deleteBtn = evt.target.closest(".delete-btn");
+
+        if (editBtn) {
+          var editId = parseInt(editBtn.getAttribute("data-id"), 10);
+          editField(editId);
+        } else if (deleteBtn) {
+          var deleteId = parseInt(deleteBtn.getAttribute("data-id"), 10);
+          deleteField(deleteId);
+        }
+      });
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,3354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements | ShumelaHire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: #F1F5F9;
+            color: #0F172A;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #05527E;
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #047469;
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .breadcrumb .current {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--icon-navy);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .page-header-text h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .page-header-text p {
+            color: var(--muted);
+            font-size: 0.9375rem;
+            margin-top: 4px;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.875rem;
+            background: var(--card);
+            color: var(--text);
+            transition: border-color 200ms, box-shadow 200ms;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5,82,126,0.1);
+        }
+
+        .search-box input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+
+        /* ===== STATE TOGGLE BAR ===== */
+        .state-toggle-bar {
+            max-width: 900px;
+            margin: 20px auto 0;
+            padding: 0 24px;
+        }
+
+        .state-toggle-inner {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-button);
+            padding: 4px;
+            width: fit-content;
+        }
+
+        .state-toggle-btn {
+            padding: 6px 16px;
+            border-radius: var(--radius-button);
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms;
+            white-space: nowrap;
+        }
+
+        .state-toggle-btn:hover {
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .state-toggle-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 24px 48px;
+        }
+
+        /* ===== PINNED / HERO ANNOUNCEMENT ===== */
+        .pinned-announcement {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--cta);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pinned-announcement::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cta), var(--cta-hover), var(--primary));
+        }
+
+        .pinned-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .pinned-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--surface-gold);
+            color: var(--gold);
+            font-size: 0.6875rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: var(--radius-button);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .pinned-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: var(--radius-button);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-general { background: var(--surface-navy); color: var(--primary); }
+        .badge-hr { background: var(--surface-teal); color: var(--teal); }
+        .badge-finance { background: var(--surface-gold); color: var(--gold); }
+        .badge-operations { background: var(--surface-navy); color: var(--primary); }
+        .badge-safety { background: var(--surface-pink); color: var(--pink); }
+        .badge-ict { background: var(--surface-teal); color: var(--teal); }
+        .badge-events { background: var(--surface-gold); color: var(--gold); }
+
+        .pinned-announcement h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+
+        .pinned-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .pinned-meta .author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+        }
+
+        .avatar-navy { background: var(--icon-navy); color: var(--primary); }
+        .avatar-teal { background: var(--icon-teal); color: var(--teal); }
+        .avatar-gold { background: var(--icon-gold); color: var(--gold); }
+        .avatar-pink { background: var(--icon-pink); color: var(--pink); }
+
+        .pinned-meta .date-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pinned-meta .date-info svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .pinned-preview {
+            color: var(--muted);
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .pinned-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 200ms;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background: #064a6f;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .btn-outline-gold {
+            background: transparent;
+            color: var(--gold);
+            border: 2px solid var(--gold);
+        }
+
+        .btn-outline-gold:hover {
+            background: var(--gold);
+            color: #FFFFFF;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--primary);
+            padding: 8px 16px;
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface-navy);
+        }
+
+        .btn-sm {
+            padding: 7px 18px;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .category-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 7px 18px;
+            border-radius: var(--radius-button);
+            border: 1px solid var(--border);
+            background: var(--card);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms;
+            white-space: nowrap;
+        }
+
+        .pill:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pill.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .sort-select {
+            padding: 8px 36px 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text);
+            background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") right 12px center no-repeat;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 200ms;
+        }
+
+        .sort-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* ===== ANNOUNCEMENT CARDS ===== */
+        .announcements-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .announcement-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            padding: 24px 28px;
+            margin-bottom: 16px;
+            transition: box-shadow 200ms, transform 200ms;
+        }
+
+        .announcement-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            transition: color 200ms;
+        }
+
+        .card-title:hover {
+            color: var(--primary);
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-meta .author-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-meta .author-info .author-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .card-meta .author-info .author-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.8125rem;
+        }
+
+        .card-meta .author-info .author-role {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .card-meta .date-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-meta .date-group svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .card-meta .relative-time {
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+
+        .card-preview {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .read-more-link {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 200ms;
+        }
+
+        .read-more-link:hover {
+            gap: 8px;
+        }
+
+        .read-more-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .reaction-strip {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .reaction-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: default;
+        }
+
+        .reaction-item .emoji {
+            font-size: 0.95rem;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .pagination-info {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 200ms;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .page-btn.next {
+            width: auto;
+            padding: 0 14px;
+            gap: 4px;
+        }
+
+        .page-btn.next svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 250ms, visibility 250ms;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 720px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(16px) scale(0.98);
+            transition: transform 250ms;
+            overflow: hidden;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .modal-header h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--surface-navy);
+            color: var(--muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 200ms;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .modal-close svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .modal-body {
+            padding: 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-author .avatar-md {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .modal-author .author-detail {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .modal-author .author-detail .name {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .modal-author .author-detail .role {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .modal-date {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .modal-date svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .modal-content {
+            font-size: 0.9375rem;
+            line-height: 1.75;
+            color: var(--text);
+            margin-bottom: 28px;
+        }
+
+        .modal-content p {
+            margin-bottom: 14px;
+        }
+
+        .modal-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Attachments */
+        .attachments-section {
+            margin-bottom: 28px;
+        }
+
+        .attachments-section h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--surface-navy);
+            border-radius: var(--radius-control);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 200ms;
+        }
+
+        .attachment-item:hover {
+            background: var(--icon-navy);
+        }
+
+        .attachment-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .attachment-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .attachment-info {
+            flex: 1;
+        }
+
+        .attachment-info .file-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .attachment-info .file-size {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+        }
+
+        .comments-section h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comment-item:last-of-type {
+            border-bottom: none;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .comment-body .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .comment-body .comment-header .cname {
+            font-weight: 700;
+            font-size: 0.8125rem;
+            color: var(--text);
+        }
+
+        .comment-body .comment-header .cdate {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .comment-body .comment-text {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .comment-input-row input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            transition: border-color 200ms, box-shadow 200ms;
+        }
+
+        .comment-input-row input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5,82,126,0.1);
+        }
+
+        .comment-input-row input::placeholder {
+            color: var(--muted);
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .skeleton-line {
+            background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 37%, #E2E8F0 63%);
+            background-size: 800px 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        .skeleton-hero {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--border);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+        }
+
+        .skeleton-hero .sk-badge {
+            width: 80px;
+            height: 22px;
+            margin-bottom: 14px;
+        }
+
+        .skeleton-hero .sk-title {
+            width: 65%;
+            height: 24px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-hero .sk-meta {
+            width: 40%;
+            height: 16px;
+            margin-bottom: 14px;
+        }
+
+        .skeleton-hero .sk-text1 {
+            width: 100%;
+            height: 14px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-hero .sk-text2 {
+            width: 85%;
+            height: 14px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-hero .sk-text3 {
+            width: 60%;
+            height: 14px;
+            margin-bottom: 18px;
+        }
+
+        .skeleton-hero .sk-btn {
+            width: 120px;
+            height: 38px;
+        }
+
+        .skeleton-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 24px 28px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-card .sk-badge-sm {
+            width: 70px;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-card .sk-title-sm {
+            width: 55%;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-card .sk-meta-sm {
+            width: 35%;
+            height: 14px;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-card .sk-line1 {
+            width: 100%;
+            height: 13px;
+            margin-bottom: 7px;
+        }
+
+        .skeleton-card .sk-line2 {
+            width: 90%;
+            height: 13px;
+            margin-bottom: 7px;
+        }
+
+        .skeleton-card .sk-line3 {
+            width: 45%;
+            height: 13px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--surface-navy);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-icon svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state .clear-link {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .empty-state .clear-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== ERROR STATE ===== */
+        .error-state {
+            text-align: center;
+            padding: 64px 24px;
+        }
+
+        .error-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--error-bg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .error-state-icon svg {
+            width: 36px;
+            height: 36px;
+            color: var(--error);
+        }
+
+        .error-state h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .error-state p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            min-width: 300px;
+            max-width: 420px;
+            padding: 14px 20px;
+            border-radius: var(--radius-control);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 350ms cubic-bezier(0.175,0.885,0.32,1.275), opacity 350ms;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.removing {
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 250ms ease-in, opacity 250ms ease-in;
+        }
+
+        .toast-success {
+            background: var(--success-bg);
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        .toast-error {
+            background: var(--error-bg);
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .toast-warning {
+            background: var(--warning-bg);
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+
+        .toast svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            padding: 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        .toast-close svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ===== HIDDEN UTILITY ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .search-box {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .pinned-announcement {
+                padding: 20px;
+            }
+
+            .announcement-card {
+                padding: 20px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .category-pills {
+                width: 100%;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .modal {
+                max-height: 95vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .state-toggle-inner {
+                flex-wrap: wrap;
+            }
+
+            .pagination-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ===== TOP NAVIGATION ===== -->
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+            <div class="logo">Shumela<span>Hire</span></div>
+            <div class="breadcrumb">
+                <a href="#">Dashboard</a>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <span class="current">Announcements</span>
+            </div>
+        </div>
+        <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+            <div class="nav-avatar">AM</div>
+        </div>
+    </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="announcements.html" class="sidebar-link active">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header">
+    <div class="page-header-text">
+        <h1>Announcements</h1>
+        <p>Stay informed with the latest company updates</p>
+    </div>
+    <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search announcements...">
+    </div>
+</div>
+
+<!-- ===== STATE TOGGLE BAR ===== -->
+<div class="state-toggle-bar">
+    <div class="state-toggle-inner">
+        <button class="state-toggle-btn active" data-state="normal">Normal</button>
+        <button class="state-toggle-btn" data-state="skeleton">Skeleton</button>
+        <button class="state-toggle-btn" data-state="empty">Empty State</button>
+        <button class="state-toggle-btn" data-state="error">Error State</button>
+    </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-content">
+
+    <!-- ===== NORMAL STATE ===== -->
+    <div id="normalState">
+
+        <!-- ===== PINNED ANNOUNCEMENT (HERO) ===== -->
+        <div class="pinned-announcement" id="pinnedAnnouncement">
+            <div class="pinned-header">
+                <span class="pinned-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                    PINNED
+                </span>
+                <span class="category-badge badge-finance">Finance</span>
+            </div>
+            <h2>2026/2027 Financial Year Budget Approval</h2>
+            <div class="pinned-meta">
+                <div class="author">
+                    <span class="avatar-sm avatar-gold">PvM</span>
+                    <span>Published by <strong>Pieter van der Merwe</strong>, Finance Manager</span>
+                </div>
+                <div class="date-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    5 July 2026
+                </div>
+            </div>
+            <p class="pinned-preview">We are pleased to announce that the municipal council has approved the 2026/2027 financial year budget. Key allocations include R45M for infrastructure upgrades, R12M for water treatment plant modernisation, and R8M for ICT systems improvement...</p>
+            <div class="pinned-footer">
+                <button class="btn btn-outline btn-sm" onclick="openModal(0)">
+                    READ MORE
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== FILTER BAR ===== -->
+        <div class="filter-bar" id="filterBar">
+            <div class="category-pills" id="categoryPills">
+                <button class="pill active" data-category="all">All</button>
+                <button class="pill" data-category="general">General</button>
+                <button class="pill" data-category="hr">HR &amp; People</button>
+                <button class="pill" data-category="finance">Finance</button>
+                <button class="pill" data-category="operations">Operations</button>
+                <button class="pill" data-category="safety">Safety</button>
+                <button class="pill" data-category="ict">ICT</button>
+                <button class="pill" data-category="events">Events</button>
+            </div>
+            <select class="sort-select" id="sortSelect">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+        </div>
+
+        <!-- ===== ANNOUNCEMENT FEED ===== -->
+        <div class="announcements-feed" id="announcementsFeed">
+
+            <!-- Card 1 -->
+            <div class="announcement-card" data-category="hr" data-date="2026-07-03" data-index="1">
+                <div class="card-top">
+                    <span class="category-badge badge-hr">HR &amp; People</span>
+                </div>
+                <div class="card-title" onclick="openModal(1)">Annual Performance Review Cycle Begins</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-teal">ND</span>
+                        <div class="author-text">
+                            <span class="author-name">Nomvula Dlamini</span>
+                            <span class="author-role">HR Manager</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        3 Jul 2026
+                        <span class="relative-time">&middot; 6 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">The Q2 2026 performance review cycle is now open. All employees must complete their self-assessments by 15 July 2026. Managers are expected to schedule review meetings with their direct reports before the end of the month.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(1)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 18</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 5 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 89 views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="announcement-card" data-category="ict" data-date="2026-07-02" data-index="2">
+                <div class="card-top">
+                    <span class="category-badge badge-ict">ICT</span>
+                </div>
+                <div class="card-title" onclick="openModal(2)">Scheduled System Maintenance &mdash; 15 July</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-teal">BZ</span>
+                        <div class="author-text">
+                            <span class="author-name">Bongani Zulu</span>
+                            <span class="author-role">ICT Administrator</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        2 Jul 2026
+                        <span class="relative-time">&middot; 7 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">Please be advised that ShumelaHire and related HR systems will undergo scheduled maintenance on 15 July from 22:00 to 02:00. During this window, the system will be unavailable. Please ensure all critical tasks are completed beforehand.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(2)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 7</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 2 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 112 views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="announcement-card" data-category="operations" data-date="2026-06-28" data-index="3">
+                <div class="card-top">
+                    <span class="category-badge badge-operations">Operations</span>
+                </div>
+                <div class="card-title" onclick="openModal(3)">Water Conservation Awareness Week</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-navy">TK</span>
+                        <div class="author-text">
+                            <span class="author-name">Thabo Khumalo</span>
+                            <span class="author-role">Operations Manager</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        28 Jun 2026
+                        <span class="relative-time">&middot; 11 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">uThukela Water will be participating in National Water Conservation Week from 1-7 July. All departments are encouraged to promote water-saving initiatives in their communities and workplaces.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(3)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 24</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 8 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 156 views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="announcement-card" data-category="finance" data-date="2026-06-25" data-index="4">
+                <div class="card-top">
+                    <span class="category-badge badge-finance">Finance</span>
+                </div>
+                <div class="card-title" onclick="openModal(4)">Updated Travel &amp; Expense Policy</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-gold">PvM</span>
+                        <div class="author-text">
+                            <span class="author-name">Pieter van der Merwe</span>
+                            <span class="author-role">Finance Manager</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        25 Jun 2026
+                        <span class="relative-time">&middot; 14 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">The revised travel and expense policy is now in effect. Key changes include increased mileage rates (R4.50/km), simplified approval workflow for claims under R2,000, and updated per diem allowances for overnight travel.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(4)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 12</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 3 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 45 views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="announcement-card" data-category="safety" data-date="2026-06-20" data-index="5">
+                <div class="card-top">
+                    <span class="category-badge badge-safety">Safety</span>
+                </div>
+                <div class="card-title" onclick="openModal(5)">Health &amp; Safety Training &mdash; Mandatory</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-pink">JP</span>
+                        <div class="author-text">
+                            <span class="author-name">Johan Pretorius</span>
+                            <span class="author-role">Health &amp; Safety Officer</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        20 Jun 2026
+                        <span class="relative-time">&middot; 19 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">All field staff are required to complete the updated Health &amp; Safety training module by 31 July 2026. This training covers new PPE requirements, emergency procedures, and updated protocols for working near water infrastructure.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(5)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 15</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 4 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 78 views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="announcement-card" data-category="events" data-date="2026-06-15" data-index="6">
+                <div class="card-top">
+                    <span class="category-badge badge-events">Events</span>
+                </div>
+                <div class="card-title" onclick="openModal(6)">Year-End Function Planning</div>
+                <div class="card-meta">
+                    <div class="author-info">
+                        <span class="avatar-sm avatar-gold">AM</span>
+                        <div class="author-text">
+                            <span class="author-name">Ayanda Mkhize</span>
+                            <span class="author-role">Social Committee Chair</span>
+                        </div>
+                    </div>
+                    <div class="date-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        15 Jun 2026
+                        <span class="relative-time">&middot; 24 days ago</span>
+                    </div>
+                </div>
+                <p class="card-preview">The social committee is excited to announce that planning for the annual year-end function has begun! Please complete the survey by 30 June to help us choose the venue, theme, and menu preferences.</p>
+                <div class="card-footer">
+                    <span class="read-more-link" onclick="openModal(6)">
+                        Read More
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="reaction-strip">
+                        <span class="reaction-item"><span class="emoji">&#128077;</span> 31</span>
+                        <span class="reaction-item"><span class="emoji">&#128172;</span> 11 comments</span>
+                        <span class="reaction-item"><span class="emoji">&#128065;</span> 203 views</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== NO SEARCH RESULTS (filtered empty) ===== -->
+        <div class="empty-state hidden" id="filteredEmpty">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="8" x2="14" y2="14"/><line x1="14" y1="8" x2="8" y2="14"/></svg>
+            </div>
+            <h3>No announcements match your search</h3>
+            <p>Try adjusting your search terms or clearing your filters.</p>
+            <span class="clear-link" onclick="clearFilters()">Clear all filters</span>
+        </div>
+
+        <!-- ===== PAGINATION ===== -->
+        <div class="pagination-bar" id="paginationBar">
+            <span class="pagination-info">Showing 1&ndash;6 of 24 announcements</span>
+            <div class="pagination-buttons">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn next">
+                    Next
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /normalState -->
+
+    <!-- ===== SKELETON STATE ===== -->
+    <div id="skeletonState" class="hidden">
+        <div class="skeleton-hero">
+            <div class="skeleton-line sk-badge"></div>
+            <div class="skeleton-line sk-title"></div>
+            <div class="skeleton-line sk-meta"></div>
+            <div class="skeleton-line sk-text1"></div>
+            <div class="skeleton-line sk-text2"></div>
+            <div class="skeleton-line sk-text3"></div>
+            <div class="skeleton-line sk-btn"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-line sk-badge-sm"></div>
+            <div class="skeleton-line sk-title-sm"></div>
+            <div class="skeleton-line sk-meta-sm"></div>
+            <div class="skeleton-line sk-line1"></div>
+            <div class="skeleton-line sk-line2"></div>
+            <div class="skeleton-line sk-line3"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-line sk-badge-sm"></div>
+            <div class="skeleton-line sk-title-sm"></div>
+            <div class="skeleton-line sk-meta-sm"></div>
+            <div class="skeleton-line sk-line1"></div>
+            <div class="skeleton-line sk-line2"></div>
+            <div class="skeleton-line sk-line3"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-line sk-badge-sm"></div>
+            <div class="skeleton-line sk-title-sm"></div>
+            <div class="skeleton-line sk-meta-sm"></div>
+            <div class="skeleton-line sk-line1"></div>
+            <div class="skeleton-line sk-line2"></div>
+            <div class="skeleton-line sk-line3"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-line sk-badge-sm"></div>
+            <div class="skeleton-line sk-title-sm"></div>
+            <div class="skeleton-line sk-meta-sm"></div>
+            <div class="skeleton-line sk-line1"></div>
+            <div class="skeleton-line sk-line2"></div>
+            <div class="skeleton-line sk-line3"></div>
+        </div>
+    </div>
+
+    <!-- ===== EMPTY STATE ===== -->
+    <div id="emptyState" class="hidden">
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <h3>No announcements yet</h3>
+            <p>When new announcements are posted, they will appear here.</p>
+        </div>
+    </div>
+
+    <!-- ===== ERROR STATE ===== -->
+    <div id="errorState" class="hidden">
+        <div class="error-state">
+            <div class="error-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3>Unable to load announcements</h3>
+            <p>Something went wrong while fetching announcements. Please try again.</p>
+            <button class="btn btn-primary btn-sm" onclick="retryLoad()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                RETRY
+            </button>
+        </div>
+    </div>
+
+</div><!-- /main-content -->
+
+<!-- ===== MODAL OVERLAY ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 id="modalTitle">Announcement</h2>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-meta">
+                <span class="category-badge" id="modalBadge">Category</span>
+                <div class="modal-date" id="modalDate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span></span>
+                </div>
+            </div>
+            <div class="modal-author" id="modalAuthor">
+                <div class="avatar-md avatar-navy" id="modalAvatar">XX</div>
+                <div class="author-detail">
+                    <span class="name" id="modalAuthorName">Author Name</span>
+                    <span class="role" id="modalAuthorRole">Role</span>
+                </div>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <p>Content loading...</p>
+            </div>
+
+            <!-- Attachments -->
+            <div class="attachments-section" id="modalAttachments">
+                <h4>Attachments</h4>
+                <div id="attachmentsList"></div>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments-section">
+                <h4 id="commentsHeading">Comments (2)</h4>
+                <div id="commentsList"></div>
+                <div class="comment-input-row">
+                    <input type="text" id="commentInput" placeholder="Write a comment...">
+                    <button class="btn btn-primary btn-sm" onclick="postComment()">POST COMMENT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+(function() {
+    'use strict';
+
+    /* =========================================
+       DATA
+    ========================================= */
+    const announcements = [
+        {
+            id: 0,
+            title: '2026/2027 Financial Year Budget Approval',
+            category: 'finance',
+            badgeClass: 'badge-finance',
+            categoryLabel: 'Finance',
+            author: 'Pieter van der Merwe',
+            role: 'Finance Manager',
+            initials: 'PvM',
+            avatarClass: 'avatar-gold',
+            date: '5 July 2026',
+            dateISO: '2026-07-05',
+            pinned: true,
+            preview: 'We are pleased to announce that the municipal council has approved the 2026/2027 financial year budget. Key allocations include R45M for infrastructure upgrades, R12M for water treatment plant modernisation, and R8M for ICT systems improvement...',
+            fullContent: '<p>We are pleased to announce that the municipal council has approved the 2026/2027 financial year budget during the special council sitting held on 30 June 2026.</p><p>Key allocations for the upcoming financial year include:</p><p><strong>Infrastructure Upgrades — R45 million</strong><br>This includes the rehabilitation of ageing water reticulation networks in Ladysmith, Estcourt, and surrounding areas. Priority projects include the Colenso-Weenen pipeline extension and the Bergville bulk water supply augmentation.</p><p><strong>Water Treatment Plant Modernisation — R12 million</strong><br>Funding has been approved for critical upgrades to the Ezakheni and Ladysmith water treatment works, including new filtration systems, SCADA integration, and laboratory equipment.</p><p><strong>ICT Systems Improvement — R8 million</strong><br>The ICT budget will support the continued rollout of ShumelaHire across all departments, implementation of a new asset management system, and cybersecurity enhancements.</p><p>Department heads are expected to submit their detailed operational budgets by 31 July 2026. Finance will host budget workshops during the week of 14 July to assist with the process.</p><p>For questions, please contact the Finance department at finance@uthukela.gov.za.</p>',
+            attachments: [
+                { name: 'Budget_Summary_2026.pdf', size: '2.4 MB' },
+                { name: 'Council_Resolution_30Jun2026.pdf', size: '856 KB' }
+            ],
+            comments: [
+                { author: 'Zanele Mthembu', initials: 'ZM', avatarClass: 'avatar-teal', text: 'Thanks for sharing this! Great to see the ICT allocation increased this year.', date: '6 Jul 2026' },
+                { author: 'Sipho Ndlovu', initials: 'SN', avatarClass: 'avatar-navy', text: 'When will the department allocations be finalised? We need to plan our procurement schedule accordingly.', date: '5 Jul 2026' }
+            ]
+        },
+        {
+            id: 1,
+            title: 'Annual Performance Review Cycle Begins',
+            category: 'hr',
+            badgeClass: 'badge-hr',
+            categoryLabel: 'HR & People',
+            author: 'Nomvula Dlamini',
+            role: 'HR Manager',
+            initials: 'ND',
+            avatarClass: 'avatar-teal',
+            date: '3 Jul 2026',
+            dateISO: '2026-07-03',
+            pinned: false,
+            preview: 'The Q2 2026 performance review cycle is now open. All employees must complete their self-assessments by 15 July 2026. Managers are expected to schedule review meetings...',
+            fullContent: '<p>The Q2 2026 performance review cycle is now open on ShumelaHire. All employees must complete their self-assessments by <strong>15 July 2026</strong>.</p><p>Managers are expected to schedule one-on-one review meetings with each of their direct reports before <strong>31 July 2026</strong>. Please use the performance management module in ShumelaHire to access your review forms and track completion status.</p><p><strong>Key dates:</strong></p><p>1 July — Self-assessment opens<br>15 July — Self-assessment deadline<br>16-31 July — Manager review meetings<br>7 August — Final ratings submission deadline</p><p>HR will host a virtual information session on <strong>8 July at 10:00</strong> to walk managers through the updated review process. The meeting link has been shared via email.</p><p>For assistance with the system, please contact HR at hr@uthukela.gov.za or log a support ticket via ShumelaHire.</p>',
+            attachments: [
+                { name: 'Performance_Review_Guide_2026.pdf', size: '1.1 MB' }
+            ],
+            comments: [
+                { author: 'Thandi Nkosi', initials: 'TN', avatarClass: 'avatar-pink', text: 'Will there be an extension for staff currently on leave?', date: '4 Jul 2026' },
+                { author: 'Nomvula Dlamini', initials: 'ND', avatarClass: 'avatar-teal', text: 'Yes, staff on approved leave will receive an automatic extension of 5 working days after their return date.', date: '4 Jul 2026' },
+                { author: 'Mbuso Shabalala', initials: 'MS', avatarClass: 'avatar-navy', text: 'The information session link is not working for me. Can someone share the updated link?', date: '3 Jul 2026' }
+            ]
+        },
+        {
+            id: 2,
+            title: 'Scheduled System Maintenance \u2014 15 July',
+            category: 'ict',
+            badgeClass: 'badge-ict',
+            categoryLabel: 'ICT',
+            author: 'Bongani Zulu',
+            role: 'ICT Administrator',
+            initials: 'BZ',
+            avatarClass: 'avatar-teal',
+            date: '2 Jul 2026',
+            dateISO: '2026-07-02',
+            pinned: false,
+            preview: 'Please be advised that ShumelaHire and related HR systems will undergo scheduled maintenance on 15 July from 22:00 to 02:00. During this window, the system will be unavailable...',
+            fullContent: '<p>Please be advised that ShumelaHire and related HR systems will undergo scheduled maintenance on <strong>Wednesday, 15 July 2026 from 22:00 to 02:00 (SAST)</strong>.</p><p>During this maintenance window, the following systems will be unavailable:</p><p>- ShumelaHire (all modules)<br>- Employee Self-Service Portal<br>- Leave Management System<br>- Payroll Integration Interface</p><p>The maintenance is required to apply critical security patches and database performance optimisations. We have scheduled this during off-peak hours to minimise disruption.</p><p><strong>What you need to do:</strong><br>Please ensure all pending leave requests, timesheets, and expense claims are submitted before 21:00 on 15 July. Any unsaved work will be lost when systems go offline.</p><p>We will send a notification via email and SMS once systems are restored. If the maintenance extends beyond the planned window, we will communicate updates via the ICT WhatsApp group.</p><p>For questions, contact the ICT helpdesk at ict@uthukela.gov.za.</p>',
+            attachments: [],
+            comments: [
+                { author: 'Linda Nxumalo', initials: 'LN', avatarClass: 'avatar-gold', text: 'Thanks for the advance notice. Will payroll processing be affected?', date: '3 Jul 2026' },
+                { author: 'Bongani Zulu', initials: 'BZ', avatarClass: 'avatar-teal', text: 'No, payroll processing for July is scheduled for the 20th and will not be impacted by this maintenance.', date: '3 Jul 2026' }
+            ]
+        },
+        {
+            id: 3,
+            title: 'Water Conservation Awareness Week',
+            category: 'operations',
+            badgeClass: 'badge-operations',
+            categoryLabel: 'Operations',
+            author: 'Thabo Khumalo',
+            role: 'Operations Manager',
+            initials: 'TK',
+            avatarClass: 'avatar-navy',
+            date: '28 Jun 2026',
+            dateISO: '2026-06-28',
+            pinned: false,
+            preview: 'uThukela Water will be participating in National Water Conservation Week from 1-7 July. All departments are encouraged to promote water-saving initiatives in their communities...',
+            fullContent: '<p>uThukela Water will be participating in <strong>National Water Conservation Week from 1-7 July 2026</strong>. This year\'s theme is "Every Drop Counts: Building Water-Resilient Communities."</p><p>All departments are encouraged to promote water-saving initiatives in their communities and workplaces. The Operations team has prepared a series of activities:</p><p><strong>Monday 1 July</strong> — Launch event at Ladysmith Civic Centre (08:00-10:00)<br><strong>Tuesday 2 July</strong> — School outreach programme in Ezakheni<br><strong>Wednesday 3 July</strong> — Community workshop on household water conservation<br><strong>Thursday 4 July</strong> — Internal water audit at all uThukela Water offices<br><strong>Friday 5 July</strong> — Social media campaign launch (#EveryDropCounts)</p><p>Volunteers are welcome to assist with any of these activities. Please sign up via the shared Google Form (link sent via email) by 29 June.</p><p>Remember: South Africa is a water-scarce country, and as water service providers, we have a responsibility to lead by example. Let us show our communities that conservation starts with us.</p>',
+            attachments: [
+                { name: 'Water_Conservation_Poster.pdf', size: '3.8 MB' },
+                { name: 'Activity_Schedule.pdf', size: '420 KB' }
+            ],
+            comments: [
+                { author: 'Nompilo Zondi', initials: 'NZ', avatarClass: 'avatar-teal', text: 'I have signed up for the school outreach on Tuesday. Looking forward to it!', date: '29 Jun 2026' },
+                { author: 'David Botha', initials: 'DB', avatarClass: 'avatar-navy', text: 'Can we get branded water bottles for the launch event? It would be great for visibility.', date: '28 Jun 2026' },
+                { author: 'Thabo Khumalo', initials: 'TK', avatarClass: 'avatar-navy', text: 'Good idea David. I have requested 200 branded bottles from Corporate Affairs. They should be ready by Friday.', date: '28 Jun 2026' }
+            ]
+        },
+        {
+            id: 4,
+            title: 'Updated Travel & Expense Policy',
+            category: 'finance',
+            badgeClass: 'badge-finance',
+            categoryLabel: 'Finance',
+            author: 'Pieter van der Merwe',
+            role: 'Finance Manager',
+            initials: 'PvM',
+            avatarClass: 'avatar-gold',
+            date: '25 Jun 2026',
+            dateISO: '2026-06-25',
+            pinned: false,
+            preview: 'The revised travel and expense policy is now in effect. Key changes include increased mileage rates (R4.50/km), simplified approval workflow for claims under R2,000...',
+            fullContent: '<p>The revised Travel and Expense Policy is now in effect as of <strong>25 June 2026</strong>. This policy replaces the previous version dated March 2024.</p><p><strong>Key changes include:</strong></p><p><strong>1. Mileage Rates</strong><br>The reimbursement rate for private vehicle use on official business has been increased from R3.80/km to <strong>R4.50/km</strong>, in line with SARS guidelines for the 2026/2027 tax year.</p><p><strong>2. Simplified Approval Workflow</strong><br>Expense claims under R2,000 now require only line manager approval (previously required both line manager and finance approval). Claims above R2,000 continue to follow the dual-approval process.</p><p><strong>3. Per Diem Allowances</strong><br>Updated per diem rates:<br>- Accommodation (major city): R1,200/night (was R950)<br>- Accommodation (other): R850/night (was R700)<br>- Meals: R350/day (was R280)</p><p><strong>4. Submission Deadlines</strong><br>All expense claims must be submitted within <strong>14 calendar days</strong> of travel completion (reduced from 30 days). Late submissions will require GM-level approval.</p><p>The full policy document is attached below. Please familiarise yourself with all changes. Finance will host a Q&A session on <strong>2 July at 14:00</strong> for any questions.</p>',
+            attachments: [
+                { name: 'Policy_Update_v3.pdf', size: '1.7 MB' },
+                { name: 'Expense_Claim_Template.xlsx', size: '245 KB' }
+            ],
+            comments: [
+                { author: 'Sarah van Wyk', initials: 'SvW', avatarClass: 'avatar-gold', text: 'The increased mileage rate is much appreciated. Will this be backdated to claims submitted in June?', date: '26 Jun 2026' },
+                { author: 'Pieter van der Merwe', initials: 'PvM', avatarClass: 'avatar-gold', text: 'No, the new rates apply to travel from 25 June onwards. Claims for travel before this date should use the previous rate.', date: '26 Jun 2026' }
+            ]
+        },
+        {
+            id: 5,
+            title: 'Health & Safety Training \u2014 Mandatory',
+            category: 'safety',
+            badgeClass: 'badge-safety',
+            categoryLabel: 'Safety',
+            author: 'Johan Pretorius',
+            role: 'Health & Safety Officer',
+            initials: 'JP',
+            avatarClass: 'avatar-pink',
+            date: '20 Jun 2026',
+            dateISO: '2026-06-20',
+            pinned: false,
+            preview: 'All field staff are required to complete the updated Health & Safety training module by 31 July 2026. This training covers new PPE requirements, emergency procedures...',
+            fullContent: '<p>All field staff are required to complete the updated Health & Safety training module by <strong>31 July 2026</strong>. This is a mandatory requirement for all employees who work in the field, at treatment works, or at pump stations.</p><p><strong>The training covers:</strong></p><p>1. <strong>New PPE Requirements</strong> — Updated specifications for hard hats, high-visibility vests, steel-toed boots, and chemical-resistant gloves. All PPE must comply with SANS standards effective 1 July 2026.</p><p>2. <strong>Emergency Procedures</strong> — Revised evacuation routes, assembly points, and emergency contact protocols for all uThukela Water facilities.</p><p>3. <strong>Confined Space Entry</strong> — Updated procedures for entering manholes, reservoirs, and other confined spaces, including new atmospheric monitoring requirements.</p><p>4. <strong>Chemical Handling</strong> — Safe handling procedures for chlorine, lime, and coagulant chemicals used in water treatment processes.</p><p><strong>How to complete the training:</strong><br>The training module is available on ShumelaHire under Learning & Development. It consists of 6 modules (approximately 3 hours total) and a final assessment. A score of 80% or above is required to pass.</p><p>Employees who do not complete the training by the deadline will not be permitted to perform field duties until compliance is achieved. Line managers are responsible for ensuring their teams complete the training on time.</p><p>For questions, contact the Health & Safety office at safety@uthukela.gov.za.</p>',
+            attachments: [
+                { name: 'HS_Training_Guide_2026.pdf', size: '4.2 MB' },
+                { name: 'PPE_Requirements_Update.pdf', size: '890 KB' }
+            ],
+            comments: [
+                { author: 'Sizwe Mabaso', initials: 'SM', avatarClass: 'avatar-navy', text: 'Can the training be completed on mobile devices? Some of our field staff do not have regular access to desktop computers.', date: '21 Jun 2026' },
+                { author: 'Johan Pretorius', initials: 'JP', avatarClass: 'avatar-pink', text: 'Yes, the training modules are fully responsive and can be completed on any smartphone or tablet with an internet connection.', date: '21 Jun 2026' }
+            ]
+        },
+        {
+            id: 6,
+            title: 'Year-End Function Planning',
+            category: 'events',
+            badgeClass: 'badge-events',
+            categoryLabel: 'Events',
+            author: 'Ayanda Mkhize',
+            role: 'Social Committee Chair',
+            initials: 'AM',
+            avatarClass: 'avatar-gold',
+            date: '15 Jun 2026',
+            dateISO: '2026-06-15',
+            pinned: false,
+            preview: 'The social committee is excited to announce that planning for the annual year-end function has begun! Please complete the survey by 30 June to help us choose the venue...',
+            fullContent: '<p>The social committee is excited to announce that planning for the annual year-end function has officially begun!</p><p>This year, we want to make the event extra special and we need your input. Please complete the <strong>venue and theme preference survey</strong> by <strong>30 June 2026</strong>. The survey link has been emailed to all staff and is also available on the ShumelaHire noticeboard.</p><p><strong>What we are planning:</strong></p><p>- <strong>Date:</strong> Saturday, 6 December 2026<br>- <strong>Time:</strong> 18:00 - Late<br>- <strong>Venue options:</strong> Royal Hotel Ladysmith, Drakensberg Sun Resort, or Champagne Sports Resort<br>- <strong>Theme options:</strong> "Masquerade Ball", "Decades Party", or "African Elegance"</p><p><strong>Budget:</strong> The approved budget for the event is R180,000, which includes venue hire, catering, entertainment, and decor. Each employee is entitled to bring one guest (plus-one).</p><p><strong>Committee members:</strong><br>- Ayanda Mkhize (Chair)<br>- Thandi Nkosi (Events coordination)<br>- Bongani Zulu (Technical & AV)<br>- Nompilo Zondi (Decor & theme)<br>- David Botha (Transport & logistics)</p><p>We will share the survey results and final venue announcement by <strong>15 July 2026</strong>. In the meantime, start thinking about your outfits!</p><p>For suggestions or to volunteer, email socialcommittee@uthukela.gov.za.</p>',
+            attachments: [
+                { name: 'YearEnd_Survey_Link.pdf', size: '156 KB' }
+            ],
+            comments: [
+                { author: 'Zanele Mthembu', initials: 'ZM', avatarClass: 'avatar-teal', text: 'Drakensberg Sun gets my vote! The views there are incredible.', date: '16 Jun 2026' },
+                { author: 'Thabo Khumalo', initials: 'TK', avatarClass: 'avatar-navy', text: 'African Elegance theme would be amazing. Count me in for volunteering!', date: '15 Jun 2026' },
+                { author: 'Linda Nxumalo', initials: 'LN', avatarClass: 'avatar-gold', text: 'Will there be transport arranged from Estcourt and Bergville?', date: '15 Jun 2026' }
+            ]
+        }
+    ];
+
+    /* =========================================
+       STATE
+    ========================================= */
+    let currentState = 'normal';
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let sortOrder = 'newest';
+    let currentModalId = null;
+    let debounceTimer = null;
+
+    /* =========================================
+       DOM REFS
+    ========================================= */
+    const normalState = document.getElementById('normalState');
+    const skeletonState = document.getElementById('skeletonState');
+    const emptyState = document.getElementById('emptyState');
+    const errorState = document.getElementById('errorState');
+    const announcementsFeed = document.getElementById('announcementsFeed');
+    const pinnedAnnouncement = document.getElementById('pinnedAnnouncement');
+    const filterBar = document.getElementById('filterBar');
+    const paginationBar = document.getElementById('paginationBar');
+    const filteredEmpty = document.getElementById('filteredEmpty');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const toastContainer = document.getElementById('toastContainer');
+
+    /* =========================================
+       STATE TOGGLE
+    ========================================= */
+    document.querySelectorAll('.state-toggle-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.state-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            currentState = btn.dataset.state;
+            renderState();
+        });
+    });
+
+    function renderState() {
+        normalState.classList.add('hidden');
+        skeletonState.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        errorState.classList.add('hidden');
+
+        switch(currentState) {
+            case 'normal':
+                normalState.classList.remove('hidden');
+                applyFilters();
+                break;
+            case 'skeleton':
+                skeletonState.classList.remove('hidden');
+                break;
+            case 'empty':
+                emptyState.classList.remove('hidden');
+                break;
+            case 'error':
+                errorState.classList.remove('hidden');
+                showToast('Failed to load announcements', 'error');
+                break;
+        }
+    }
+
+    /* =========================================
+       CATEGORY FILTERING
+    ========================================= */
+    document.querySelectorAll('#categoryPills .pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            document.querySelectorAll('#categoryPills .pill').forEach(function(p) { p.classList.remove('active'); });
+            pill.classList.add('active');
+            activeCategory = pill.dataset.category;
+            applyFilters();
+        });
+    });
+
+    /* =========================================
+       SEARCH
+    ========================================= */
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            searchQuery = searchInput.value.trim().toLowerCase();
+            applyFilters();
+        }, 250);
+    });
+
+    /* =========================================
+       SORT
+    ========================================= */
+    sortSelect.addEventListener('change', function() {
+        sortOrder = sortSelect.value;
+        applyFilters();
+    });
+
+    /* =========================================
+       APPLY FILTERS
+    ========================================= */
+    function applyFilters() {
+        var cards = announcementsFeed.querySelectorAll('.announcement-card');
+        var visibleCount = 0;
+
+        // Pinned announcement visibility
+        var pinnedData = announcements[0];
+        var pinnedVisible = true;
+        if (activeCategory !== 'all' && pinnedData.category !== activeCategory) {
+            pinnedVisible = false;
+        }
+        if (searchQuery && !pinnedData.title.toLowerCase().includes(searchQuery) && !pinnedData.preview.toLowerCase().includes(searchQuery)) {
+            pinnedVisible = false;
+        }
+        pinnedAnnouncement.classList.toggle('hidden', !pinnedVisible);
+        if (pinnedVisible) visibleCount++;
+
+        // Sort cards
+        var cardArray = Array.from(cards);
+        cardArray.sort(function(a, b) {
+            var dateA = a.dataset.date;
+            var dateB = b.dataset.date;
+            if (sortOrder === 'newest') {
+                return dateB.localeCompare(dateA);
+            } else {
+                return dateA.localeCompare(dateB);
+            }
+        });
+        cardArray.forEach(function(card) {
+            announcementsFeed.appendChild(card);
+        });
+
+        // Filter cards
+        cards.forEach(function(card) {
+            var cat = card.dataset.category;
+            var idx = parseInt(card.dataset.index);
+            var data = announcements[idx];
+            var show = true;
+
+            if (activeCategory !== 'all' && cat !== activeCategory) {
+                show = false;
+            }
+            if (searchQuery && !data.title.toLowerCase().includes(searchQuery) && !data.preview.toLowerCase().includes(searchQuery)) {
+                show = false;
+            }
+            card.classList.toggle('hidden', !show);
+            if (show) visibleCount++;
+        });
+
+        // Show filtered empty state if nothing visible
+        if (visibleCount === 0) {
+            filteredEmpty.classList.remove('hidden');
+            paginationBar.classList.add('hidden');
+        } else {
+            filteredEmpty.classList.add('hidden');
+            paginationBar.classList.remove('hidden');
+        }
+    }
+
+    /* =========================================
+       CLEAR FILTERS
+    ========================================= */
+    window.clearFilters = function() {
+        searchInput.value = '';
+        searchQuery = '';
+        activeCategory = 'all';
+        document.querySelectorAll('#categoryPills .pill').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelector('#categoryPills .pill[data-category="all"]').classList.add('active');
+        sortSelect.value = 'newest';
+        sortOrder = 'newest';
+        applyFilters();
+    };
+
+    /* =========================================
+       RETRY LOAD
+    ========================================= */
+    window.retryLoad = function() {
+        document.querySelectorAll('.state-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelector('.state-toggle-btn[data-state="normal"]').classList.add('active');
+        currentState = 'normal';
+        renderState();
+        showToast('Announcements loaded successfully', 'success');
+    };
+
+    /* =========================================
+       MODAL
+    ========================================= */
+    window.openModal = function(id) {
+        var data = announcements[id];
+        if (!data) return;
+        currentModalId = id;
+
+        document.getElementById('modalTitle').textContent = data.title;
+
+        var badge = document.getElementById('modalBadge');
+        badge.textContent = data.categoryLabel;
+        badge.className = 'category-badge ' + data.badgeClass;
+
+        document.getElementById('modalDate').querySelector('span').textContent = data.date;
+
+        var avatar = document.getElementById('modalAvatar');
+        avatar.textContent = data.initials;
+        avatar.className = 'avatar-md ' + data.avatarClass;
+
+        document.getElementById('modalAuthorName').textContent = data.author;
+        document.getElementById('modalAuthorRole').textContent = data.role;
+
+        document.getElementById('modalContent').innerHTML = data.fullContent;
+
+        // Attachments
+        var attachmentsSection = document.getElementById('modalAttachments');
+        var attachmentsList = document.getElementById('attachmentsList');
+        attachmentsList.innerHTML = '';
+        if (data.attachments && data.attachments.length > 0) {
+            attachmentsSection.classList.remove('hidden');
+            data.attachments.forEach(function(att) {
+                var ext = att.name.split('.').pop().toLowerCase();
+                var iconSvg = ext === 'pdf'
+                    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+                    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+                var el = document.createElement('div');
+                el.className = 'attachment-item';
+                el.innerHTML = '<div class="attachment-icon">' + iconSvg + '</div><div class="attachment-info"><div class="file-name">' + att.name + '</div><div class="file-size">' + att.size + '</div></div>';
+                attachmentsList.appendChild(el);
+            });
+        } else {
+            attachmentsSection.classList.add('hidden');
+        }
+
+        // Comments
+        renderComments(data);
+
+        modalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    function renderComments(data) {
+        var commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '';
+        var heading = document.getElementById('commentsHeading');
+        heading.textContent = 'Comments (' + data.comments.length + ')';
+
+        data.comments.forEach(function(c) {
+            var el = document.createElement('div');
+            el.className = 'comment-item';
+            el.innerHTML = '<div class="comment-avatar ' + c.avatarClass + '">' + c.initials + '</div>' +
+                '<div class="comment-body">' +
+                '<div class="comment-header"><span class="cname">' + c.author + '</span><span class="cdate">' + c.date + '</span></div>' +
+                '<div class="comment-text">' + c.text + '</div>' +
+                '</div>';
+            commentsList.appendChild(el);
+        });
+    }
+
+    window.closeModal = function() {
+        modalOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+        currentModalId = null;
+    };
+
+    window.closeModalOutside = function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    };
+
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
+            closeModal();
+        }
+    });
+
+    /* =========================================
+       POST COMMENT
+    ========================================= */
+    window.postComment = function() {
+        var input = document.getElementById('commentInput');
+        var text = input.value.trim();
+        if (!text) return;
+
+        if (currentModalId === null) return;
+        var data = announcements[currentModalId];
+
+        var newComment = {
+            author: 'You',
+            initials: 'AM',
+            avatarClass: 'avatar-navy',
+            text: text,
+            date: 'Just now'
+        };
+
+        data.comments.push(newComment);
+        renderComments(data);
+        input.value = '';
+        showToast('Comment posted successfully', 'success');
+    };
+
+    // Enter key to post comment
+    document.getElementById('commentInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            postComment();
+        }
+    });
+
+    /* =========================================
+       TOASTS
+    ========================================= */
+    var toastId = 0;
+    function showToast(message, type) {
+        type = type || 'success';
+        var id = ++toastId;
+
+        var iconSvg;
+        switch (type) {
+            case 'success':
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+                break;
+            case 'error':
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+                break;
+            case 'warning':
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+                break;
+            default:
+                iconSvg = '';
+        }
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.dataset.toastId = id;
+        toast.innerHTML = iconSvg +
+            '<span class="toast-message">' + message + '</span>' +
+            '<button class="toast-close" onclick="dismissToast(' + id + ')">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>';
+
+        toastContainer.appendChild(toast);
+
+        // Trigger reflow then animate in
+        toast.offsetHeight;
+        toast.classList.add('show');
+
+        // Auto-dismiss after 4 seconds
+        setTimeout(function() {
+            dismissToast(id);
+        }, 4000);
+    }
+
+    window.dismissToast = function(id) {
+        var toast = toastContainer.querySelector('[data-toast-id="' + id + '"]');
+        if (!toast || toast.classList.contains('removing')) return;
+        toast.classList.remove('show');
+        toast.classList.add('removing');
+        setTimeout(function() {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+    };
+
+    window.showToast = showToast;
+
+    /* =========================================
+       PAGINATION (visual mock)
+    ========================================= */
+    document.querySelectorAll('.page-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.page-btn').forEach(function(b) { b.classList.remove('active'); });
+            if (!btn.classList.contains('next')) {
+                btn.classList.add('active');
+            } else {
+                // simulate "next" — activate page 2
+                var page2 = document.querySelectorAll('.page-btn')[1];
+                if (page2) page2.classList.add('active');
+            }
+            showToast('Page navigation is a visual mock', 'warning');
+        });
+    });
+
+    /* =========================================
+       INIT
+    ========================================= */
+    renderState();
+
+})();
+</script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

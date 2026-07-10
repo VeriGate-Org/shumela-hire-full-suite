@@ -7,15 +7,72 @@ interface LeaveBalanceCardsProps {
   loading?: boolean;
 }
 
+function DonutChart({
+  used,
+  total,
+  available,
+  colorCode,
+}: {
+  used: number;
+  total: number;
+  available: number;
+  colorCode: string;
+}) {
+  const radius = 14;
+  const circumference = 2 * Math.PI * radius;
+  const usedPct = total > 0 ? Math.min(1, used / total) : 0;
+  const dashArray = `${usedPct * circumference} ${circumference}`;
+  // Lighter track color derived from the accent
+  const trackOpacity = 0.15;
+
+  return (
+    <div className="relative w-[70px] h-[70px] flex-shrink-0">
+      <svg viewBox="0 0 36 36" className="w-[70px] h-[70px] -rotate-90">
+        <circle
+          cx="18"
+          cy="18"
+          r={radius}
+          fill="none"
+          stroke={colorCode}
+          strokeWidth="3"
+          opacity={trackOpacity}
+        />
+        <circle
+          cx="18"
+          cy="18"
+          r={radius}
+          fill="none"
+          stroke={colorCode}
+          strokeWidth="3"
+          strokeDasharray={dashArray}
+          strokeLinecap="round"
+          className="transition-all duration-500 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="text-xl font-extrabold leading-none text-foreground">
+          {available}
+        </span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground leading-tight">
+          left
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function LeaveBalanceCards({ balances, loading }: LeaveBalanceCardsProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-lg shadow border p-4 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-24 mb-3" />
-            <div className="h-8 bg-gray-200 rounded w-16 mb-2" />
-            <div className="h-3 bg-gray-200 rounded w-32" />
+          <div key={i} className="enterprise-card p-5 flex items-center gap-4 animate-pulse">
+            <div className="w-[70px] h-[70px] rounded-full bg-muted flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-muted rounded w-4/5" />
+              <div className="h-3 bg-muted rounded w-3/5" />
+              <div className="h-1 bg-muted rounded w-full mt-2" />
+            </div>
           </div>
         ))}
       </div>
@@ -24,48 +81,54 @@ export default function LeaveBalanceCards({ balances, loading }: LeaveBalanceCar
 
   if (balances.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow border p-6 text-center text-gray-500">
+      <div className="enterprise-card p-6 text-center text-muted-foreground">
         No leave balances found for this cycle year.
       </div>
     );
   }
 
+  const totalDays = (b: LeaveBalance) => b.entitledDays + b.carriedForwardDays;
+  const usedDays = (b: LeaveBalance) => b.takenDays + b.pendingDays;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {balances.map((balance) => (
-        <div
-          key={balance.id}
-          className="bg-white rounded-lg shadow border p-4 relative overflow-hidden"
-        >
+      {balances.map((balance) => {
+        const total = totalDays(balance) || 1;
+        const used = usedDays(balance);
+        const pct = Math.min(100, (used / total) * 100);
+
+        return (
           <div
-            className="absolute top-0 left-0 w-1 h-full"
-            style={{ backgroundColor: balance.colorCode }}
-          />
-          <div className="pl-3">
-            <p className="text-sm font-medium text-gray-600">{balance.leaveTypeName}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {balance.availableDays}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              of {balance.entitledDays + balance.carriedForwardDays} days available
-            </p>
-            <div className="mt-3 flex gap-3 text-xs text-gray-500">
-              <span>Taken: {balance.takenDays}</span>
-              <span>Pending: {balance.pendingDays}</span>
-            </div>
-            {/* Progress bar */}
-            <div className="mt-2 w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className="h-1.5 rounded-full"
-                style={{
-                  backgroundColor: balance.colorCode,
-                  width: `${Math.min(100, ((balance.takenDays + balance.pendingDays) / (balance.entitledDays + balance.carriedForwardDays || 1)) * 100)}%`,
-                }}
-              />
+            key={balance.id}
+            className="enterprise-card p-5 flex items-center gap-4"
+          >
+            <DonutChart
+              used={used}
+              total={totalDays(balance)}
+              available={balance.availableDays}
+              colorCode={balance.colorCode}
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground truncate">
+                {balance.leaveTypeName}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {used} of {totalDays(balance)} days used
+              </p>
+              {/* Progress bar */}
+              <div className="mt-2 w-full h-1 bg-border rounded-sm overflow-hidden">
+                <div
+                  className="h-full rounded-sm transition-all duration-500 ease-out"
+                  style={{
+                    backgroundColor: balance.colorCode,
+                    width: `${pct}%`,
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

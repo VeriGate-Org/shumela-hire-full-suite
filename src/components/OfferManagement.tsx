@@ -58,6 +58,16 @@ function getApplicantName(applicant?: { name?: string; surname?: string; fullNam
   return `${first} ${last}`.trim() || 'Unknown Candidate';
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 interface OfferSearchFilters {
   status?: string;
   offerType?: string;
@@ -87,6 +97,73 @@ const OFFER_TYPES = [
   'CONTRACT_RENEWABLE', 'CONSULTANT', 'INTERNSHIP', 'APPRENTICESHIP',
   'TEMPORARY', 'PROBATIONARY', 'EXECUTIVE'
 ];
+
+const AVATAR_COLORS = [
+  { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
+  { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
+  { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+  { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
+];
+
+function getAvatarColor(index: number) {
+  return AVATAR_COLORS[index % AVATAR_COLORS.length];
+}
+
+/* Tab definitions mapping to backend status groups */
+const TABS = [
+  { key: 'draft', label: 'Draft', statuses: ['DRAFT', 'PENDING_APPROVAL'] },
+  { key: 'sent', label: 'Sent', statuses: ['APPROVED', 'SENT', 'UNDER_NEGOTIATION'] },
+  { key: 'accepted', label: 'Accepted', statuses: ['ACCEPTED'] },
+  { key: 'declined', label: 'Declined', statuses: ['DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'] },
+];
+
+function getStatusBadge(status: string): { className: string; label: string } {
+  switch (status) {
+    case 'DRAFT':
+      return { className: 'bg-icon-bg-navy text-accent-navy', label: 'Draft' };
+    case 'PENDING_APPROVAL':
+      return { className: 'bg-warning-bg text-amber-800', label: 'Pending Approval' };
+    case 'APPROVED':
+      return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Approved' };
+    case 'SENT':
+      return { className: 'bg-warning-bg text-amber-800', label: 'Sent' };
+    case 'UNDER_NEGOTIATION':
+      return { className: 'bg-icon-bg-gold text-accent-gold', label: 'Negotiating' };
+    case 'ACCEPTED':
+      return { className: 'bg-success-bg text-emerald-800', label: 'Accepted' };
+    case 'DECLINED':
+      return { className: 'bg-error-bg text-red-800', label: 'Declined' };
+    case 'WITHDRAWN':
+      return { className: 'bg-error-bg text-red-800', label: 'Withdrawn' };
+    case 'EXPIRED':
+      return { className: 'bg-muted text-muted-foreground', label: 'Expired' };
+    case 'SUPERSEDED':
+      return { className: 'bg-muted text-muted-foreground', label: 'Superseded' };
+    default:
+      return { className: 'bg-muted text-muted-foreground', label: status };
+  }
+}
+
+function getStatusDotColor(status: string): string {
+  switch (status) {
+    case 'DRAFT':
+    case 'PENDING_APPROVAL':
+      return 'bg-accent-navy';
+    case 'APPROVED':
+    case 'SENT':
+    case 'UNDER_NEGOTIATION':
+      return 'bg-warning';
+    case 'ACCEPTED':
+      return 'bg-success';
+    case 'DECLINED':
+    case 'WITHDRAWN':
+    case 'EXPIRED':
+    case 'SUPERSEDED':
+      return 'bg-error';
+    default:
+      return 'bg-muted-foreground';
+  }
+}
 
 export default function OfferManagement() {
   const { user } = useAuth();
@@ -119,6 +196,7 @@ export default function OfferManagement() {
   const [payrollOffer, setPayrollOffer] = useState<Offer | null>(null);
   const [payrollSending, setPayrollSending] = useState(false);
   const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
+  const [activeTab, setActiveTab] = useState('draft');
 
   const computeClientSideCounts = useCallback((offersList: Offer[]): DashboardCounts => {
     const now = new Date();
@@ -231,12 +309,12 @@ export default function OfferManagement() {
         method: 'POST',
         body: body ?? undefined,
       });
-      
+
       if (response.ok) {
         setShowActionModal(false);
         if (actionType === 'approve' && selectedOffer) {
           setLetterGenerated(prev => ({ ...prev, [selectedOffer.id]: true }));
-          toast('Offer approved — letter generated automatically', 'success');
+          toast('Offer approved -- letter generated automatically', 'success');
           window.open('/reports/offer-letter-sample.pdf', '_blank');
         }
         if (actionType === 'accept' && selectedOffer) {
@@ -261,7 +339,11 @@ export default function OfferManagement() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-ZA', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
   };
 
   const getTimeUntilExpiry = (expiryDate: string) => {
@@ -269,17 +351,27 @@ export default function OfferManagement() {
     const expiry = new Date(expiryDate);
     const diffMs = expiry.getTime() - now.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
+
     if (diffHours < 0) return 'Expired';
     if (diffHours < 24) return `${diffHours}h remaining`;
-    
+
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays}d remaining`;
   };
 
+  const getTimeSince = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    return `${diffDays} days ago`;
+  };
+
   const canPerformAction = (offer: Offer, action: string) => {
     const userRole = currentRole || '';
-    
+
     switch (action) {
       case 'approve':
         return offer.status === 'PENDING_APPROVAL' &&
@@ -305,9 +397,14 @@ export default function OfferManagement() {
 
   if (!canManageOffers) {
     return (
-      <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
-        <h3 className="text-lg font-semibold text-gray-900">Access denied</h3>
-        <p className="text-sm text-gray-500 mt-2">
+      <div className="enterprise-card flex flex-col items-center justify-center py-16 px-4">
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">Access denied</h3>
+        <p className="text-sm text-muted-foreground mt-2">
           Offer management is available to administrators and HR managers.
         </p>
       </div>
@@ -354,276 +451,269 @@ export default function OfferManagement() {
     }
   };
 
+  /* Filter offers for the active tab */
+  const activeTabDef = TABS.find(t => t.key === activeTab) || TABS[0];
+  const filteredOffers = offers.filter(o => activeTabDef.statuses.includes(o.status));
+
+  /* Tab counts */
+  const tabCounts: Record<string, number> = {};
+  TABS.forEach(tab => {
+    tabCounts[tab.key] = offers.filter(o => tab.statuses.includes(o.status)).length;
+  });
+
   return (
     <div className="space-y-6">
-      {/* Dashboard Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-control p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-yellow-800">Pending Approval</p>
-              <p className="text-2xl font-bold text-yellow-900">{dashboardCounts.pendingApproval}</p>
-            </div>
-            <svg className="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+      {/* ====== STAT STRIP ====== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Active Offers */}
+        <div className="enterprise-card p-5 flex items-center gap-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center">
+            <svg className="w-[22px] h-[22px] text-accent-navy" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
             </svg>
           </div>
-        </div>
-        
-        <div className="bg-red-50 border border-red-200 rounded-control p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-red-800">Near Expiry</p>
-              <p className="text-2xl font-bold text-red-900">{dashboardCounts.nearExpiry}</p>
-            </div>
-            <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
+          <div>
+            <div className="text-2xl font-extrabold text-foreground leading-tight">{offers.length}</div>
+            <div className="text-[0.813rem] font-medium text-muted-foreground">Active Offers</div>
           </div>
         </div>
-        
-        <div className="bg-gold-50 border border-violet-200 rounded-control p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-violet-800">Active Negotiations</p>
-              <p className="text-2xl font-bold text-violet-900">{dashboardCounts.activeNegotiations}</p>
-            </div>
-            <svg className="w-6 h-6 text-violet-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+
+        {/* Acceptance Rate */}
+        <div className="enterprise-card p-5 flex items-center gap-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center">
+            <svg className="w-[22px] h-[22px] text-accent-teal" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-        </div>
-        
-        <div className="bg-green-50 border border-green-200 rounded-control p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-green-800">Recent Acceptances</p>
-              <p className="text-2xl font-bold text-green-900">{dashboardCounts.recentAcceptances}</p>
+          <div>
+            <div className="text-2xl font-extrabold text-foreground leading-tight">
+              {offers.length > 0
+                ? `${Math.round((dashboardCounts.recentAcceptances / offers.length) * 100)}%`
+                : '0%'}
             </div>
-            <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div className="text-[0.813rem] font-medium text-muted-foreground">Acceptance Rate</div>
+          </div>
+        </div>
+
+        {/* Active Negotiations */}
+        <div className="enterprise-card p-5 flex items-center gap-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center">
+            <svg className="w-[22px] h-[22px] text-accent-gold" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-foreground leading-tight">{dashboardCounts.activeNegotiations}</div>
+            <div className="text-[0.813rem] font-medium text-muted-foreground">Active Negotiations</div>
+          </div>
+        </div>
+
+        {/* Pending Approval */}
+        <div className="enterprise-card p-5 flex items-center gap-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-pink flex items-center justify-center">
+            <svg className="w-[22px] h-[22px] text-accent-pink" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-foreground leading-tight">{dashboardCounts.pendingApproval}</div>
+            <div className="text-[0.813rem] font-medium text-muted-foreground">Pending Approval</div>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-control shadow p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Filters</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              value={filters.status || ''}
-              onChange={(e) => setFilters({...filters, status: e.target.value || undefined})}
-              className="w-full p-2 border border-gray-300 rounded-control text-sm"
+      {/* ====== TABBED CONTENT ====== */}
+      <div className="enterprise-card overflow-hidden">
+        {/* Tab Header */}
+        <div className="flex border-b border-border px-6 overflow-x-auto">
+          {TABS.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`relative top-[1px] px-5 py-4 font-semibold text-sm border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab.key
+                  ? 'text-primary border-primary'
+                  : 'text-muted-foreground border-transparent hover:text-primary'
+              }`}
             >
-              <option value="">All Statuses</option>
-              {OFFER_STATUSES.map(status => (
-                <option key={status} value={status}>
-                  {getEnumLabel('offerStatus', status)}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-            <select
-              value={filters.offerType || ''}
-              onChange={(e) => setFilters({...filters, offerType: e.target.value || undefined})}
-              className="w-full p-2 border border-gray-300 rounded-control text-sm"
-            >
-              <option value="">All Types</option>
-              {OFFER_TYPES.map(type => (
-                <option key={type} value={type}>
-                  {getEnumLabel('offerType', type)}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <input
-              type="text"
-              value={filters.department || ''}
-              onChange={(e) => setFilters({...filters, department: e.target.value || undefined})}
-              placeholder="Filter by department"
-              className="w-full p-2 border border-gray-300 rounded-control text-sm"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Min Salary</label>
-            <input
-              type="number"
-              value={filters.minSalary || ''}
-              onChange={(e) => setFilters({...filters, minSalary: e.target.value ? Number(e.target.value) : undefined})}
-              placeholder="Min salary"
-              className="w-full p-2 border border-gray-300 rounded-control text-sm"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Max Salary</label>
-            <input
-              type="number"
-              value={filters.maxSalary || ''}
-              onChange={(e) => setFilters({...filters, maxSalary: e.target.value ? Number(e.target.value) : undefined})}
-              placeholder="Max salary"
-              className="w-full p-2 border border-gray-300 rounded-control text-sm"
-            />
-          </div>
+              {tab.label}
+              <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[0.688rem] font-bold ml-1.5 ${
+                activeTab === tab.key
+                  ? 'bg-icon-bg-navy text-primary'
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                {tabCounts[tab.key] || 0}
+              </span>
+            </button>
+          ))}
         </div>
-        
-        <div className="mt-4 flex justify-end space-x-2">
-          <button
-            onClick={() => setFilters({})}
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-control hover:bg-gray-50"
-          >
-            Clear Filters
-          </button>
-          <button
-            onClick={() => setCurrentPage(0)}
-            className="px-4 py-2 text-sm bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
 
-      {/* Offers Table */}
-      <div className="bg-white rounded-control shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Offers</h3>
-        </div>
-        
-        <div className="overflow-x-auto">
+        {/* Tab Content */}
+        <div className="p-6">
           {loading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto"></div>
+            /* Skeleton loading state matching mock */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="border border-border rounded-card p-5 animate-pulse">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-full bg-muted" />
+                    <div className="flex-1">
+                      <div className="h-3.5 bg-muted rounded w-2/3 mb-2" />
+                      <div className="h-2.5 bg-muted rounded w-1/2" />
+                    </div>
+                    <div className="h-5 w-16 bg-muted rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <div className="h-2.5 bg-muted rounded w-1/2 mb-1" />
+                      <div className="h-3 bg-muted rounded w-3/4" />
+                    </div>
+                    <div>
+                      <div className="h-2.5 bg-muted rounded w-1/2 mb-1" />
+                      <div className="h-3 bg-muted rounded w-3/4" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <div className="h-5 w-20 bg-muted rounded" />
+                    <div className="h-5 w-16 bg-muted rounded" />
+                  </div>
+                  <div className="border-t border-border pt-4 flex justify-between items-center">
+                    <div className="h-3 bg-muted rounded w-1/3" />
+                    <div className="flex gap-2">
+                      <div className="h-8 w-16 bg-muted rounded-full" />
+                      <div className="h-8 w-20 bg-muted rounded-full" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : offers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No offers found
+          ) : filteredOffers.length === 0 ? (
+            /* Empty state */
+            <div className="text-center py-12 px-6">
+              <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">No {activeTabDef.label.toLowerCase()} offers</h3>
+              <p className="text-sm text-muted-foreground mb-5">
+                There are no offers in this category at the moment.
+              </p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Offer Details
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Candidate
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Position
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Compensation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Negotiation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Expiry
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {offers.map((offer) => (
-                  <tr key={offer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {offer.offerNumber}
+            /* Offer cards grid - 2 columns like the mock */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {filteredOffers.map((offer, idx) => {
+                const avatarColor = getAvatarColor(idx);
+                const candidateName = getApplicantName(offer.application?.applicant);
+                const initials = getInitials(candidateName);
+                const badge = getStatusBadge(offer.status);
+                const dotColor = getStatusDotColor(offer.status);
+
+                return (
+                  <div
+                    key={offer.id}
+                    className="border border-border rounded-card p-5 bg-card transition-shadow hover:shadow-sm"
+                  >
+                    {/* Card Header: avatar + name + badge */}
+                    <div className="flex items-start justify-between mb-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${avatarColor.bg} ${avatarColor.text}`}>
+                          {initials}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          Version {offer.version}
+                        <div>
+                          <div className="font-bold text-[0.938rem] text-foreground">{candidateName}</div>
+                          <div className="text-[0.813rem] text-muted-foreground mt-0.5">{offer.jobTitle}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {getApplicantName(offer.application?.applicant)}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {offer.application?.applicant?.email || ''}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {offer.jobTitle}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {offer.department}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {formatCurrency(offer.baseSalary, offer.currency)}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          Total: {formatCurrency(offer.totalCompensation, offer.currency)}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${offer.statusCssClass}`}>
-                        <span className="mr-1">{offer.statusIcon}</span>
-                        {offer.statusDisplayName}
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                        {badge.label}
                       </span>
-                      {eSignStatuses[offer.id] && eSignStatuses[offer.id] !== 'not_sent' && (
-                        <span className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getESignBadgeColor(eSignStatuses[offer.id])}`}>
+                    </div>
+
+                    {/* Card Body: salary & start date grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-3.5">
+                      <div className="text-[0.813rem]">
+                        <div className="text-muted-foreground font-medium mb-0.5">Annual Salary</div>
+                        <div className="text-foreground font-semibold">{formatCurrency(offer.baseSalary, offer.currency)}</div>
+                      </div>
+                      <div className="text-[0.813rem]">
+                        <div className="text-muted-foreground font-medium mb-0.5">Start Date</div>
+                        <div className="text-foreground font-semibold">{offer.startDate ? formatDate(offer.startDate) : 'TBD'}</div>
+                      </div>
+                    </div>
+
+                    {/* Offer Type & Department tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-3.5">
+                      {offer.offerType && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[0.688rem] font-semibold bg-muted text-muted-foreground border border-border">
+                          <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" strokeLinecap="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          {getEnumLabel('offerType', offer.offerType)}
+                        </span>
+                      )}
+                      {offer.department && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[0.688rem] font-semibold bg-muted text-muted-foreground border border-border">
+                          <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" strokeLinecap="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          {offer.department}
+                        </span>
+                      )}
+                      {offer.negotiationRounds > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[0.688rem] font-semibold bg-icon-bg-gold text-accent-gold border border-gold-200">
+                          Round {offer.negotiationRounds}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* E-Sign status badge (if applicable) */}
+                    {eSignStatuses[offer.id] && eSignStatuses[offer.id] !== 'not_sent' && (
+                      <div className="mb-3.5">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getESignBadgeColor(eSignStatuses[offer.id])}`}>
                           DocuSign: {eSignStatuses[offer.id]}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${offer.negotiationStatusCssClass}`}>
-                          <span className="mr-1">{offer.negotiationStatusIcon}</span>
-                          {offer.negotiationStatusDisplayName}
-                        </span>
-                        {offer.negotiationRounds > 0 && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Round {offer.negotiationRounds}
-                          </div>
-                        )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {offer.offerExpiryDate ? (
-                        <div>
-                          <div>{formatDate(offer.offerExpiryDate)}</div>
-                          <div className="text-xs text-gray-500">
-                            {getTimeUntilExpiry(offer.offerExpiryDate)}
-                          </div>
-                        </div>
-                      ) : (
-                        'N/A'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                    )}
+
+                    {/* Expiry warning for sent offers */}
+                    {offer.offerExpiryDate && ['SENT', 'UNDER_NEGOTIATION'].includes(offer.status) && (
+                      <div className="bg-warning-bg rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] text-amber-800">
+                        <strong>Expires:</strong> {formatDate(offer.offerExpiryDate)} ({getTimeUntilExpiry(offer.offerExpiryDate)})
+                      </div>
+                    )}
+
+                    {/* Card Footer */}
+                    <div className="flex items-center justify-between pt-3.5 border-t border-border">
+                      <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {offer.acceptedAt
+                          ? `Accepted ${getTimeSince(offer.acceptedAt)}`
+                          : offer.declinedAt
+                          ? `Declined ${getTimeSince(offer.declinedAt)}`
+                          : offer.offerSentAt
+                          ? `Sent ${getTimeSince(offer.offerSentAt)}`
+                          : `Created ${getTimeSince(offer.createdAt)}`}
+                      </div>
+                      <div className="flex gap-2">
+                        {/* Action buttons styled as pills matching the mock */}
                         {canPerformAction(offer, 'approve') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'approve')}
-                            className="text-green-600 hover:text-green-900"
+                            className="btn-primary px-3.5 py-1.5 text-xs"
                           >
                             Approve
                           </button>
@@ -631,7 +721,7 @@ export default function OfferManagement() {
                         {canPerformAction(offer, 'send') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'send')}
-                            className="text-gold-600 hover:text-violet-900"
+                            className="btn-primary px-3.5 py-1.5 text-xs"
                           >
                             Send
                           </button>
@@ -639,23 +729,15 @@ export default function OfferManagement() {
                         {canPerformAction(offer, 'accept') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'accept')}
-                            className="text-green-600 hover:text-green-900"
+                            className="btn-primary px-3.5 py-1.5 text-xs"
                           >
                             Accept
-                          </button>
-                        )}
-                        {canPerformAction(offer, 'decline') && (
-                          <button
-                            onClick={() => handleOfferAction(offer, 'decline')}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Decline
                           </button>
                         )}
                         {canPerformAction(offer, 'negotiate') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'negotiate')}
-                            className="text-gold-600 hover:text-violet-900"
+                            className="btn-secondary px-3.5 py-1.5 text-xs"
                           >
                             Negotiate
                           </button>
@@ -663,17 +745,25 @@ export default function OfferManagement() {
                         {canPerformAction(offer, 'withdraw') && (
                           <button
                             onClick={() => handleOfferAction(offer, 'withdraw')}
-                            className="text-orange-600 hover:text-orange-900"
+                            className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full border-2 border-error text-error bg-transparent hover:bg-error hover:text-white transition-colors"
                           >
                             Withdraw
+                          </button>
+                        )}
+                        {canPerformAction(offer, 'decline') && (
+                          <button
+                            onClick={() => handleOfferAction(offer, 'decline')}
+                            className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full border-2 border-error text-error bg-transparent hover:bg-error hover:text-white transition-colors"
+                          >
+                            Decline
                           </button>
                         )}
                         {['DRAFT', 'APPROVED'].includes(offer.status) && !letterGenerated[offer.id] && (
                           <button
                             onClick={() => { setLetterOffer(offer); setShowLetterModal(true); }}
-                            className="text-[#05527E] hover:text-[#033d5e]"
+                            className="btn-secondary px-3.5 py-1.5 text-xs"
                           >
-                            Generate Letter
+                            Letter
                           </button>
                         )}
                         {letterGenerated[offer.id] && (
@@ -681,7 +771,7 @@ export default function OfferManagement() {
                             href="/reports/offer-letter-sample.pdf"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#05527E] hover:text-[#033d5e]"
+                            className="btn-secondary px-3.5 py-1.5 text-xs inline-flex items-center"
                           >
                             View Letter
                           </a>
@@ -689,7 +779,7 @@ export default function OfferManagement() {
                         {offer.status === 'SENT' && (!eSignStatuses[offer.id] || eSignStatuses[offer.id] === 'not_sent') && (
                           <button
                             onClick={() => { setESignOffer(offer); setShowESignModal(true); }}
-                            className="text-violet-600 hover:text-violet-900"
+                            className="btn-secondary px-3.5 py-1.5 text-xs"
                           >
                             E-Sign
                           </button>
@@ -697,51 +787,54 @@ export default function OfferManagement() {
                         {eSignStatuses[offer.id] === 'completed' && (
                           <button
                             onClick={() => handleDownloadSigned(offer.id)}
-                            className="text-green-600 hover:text-green-900"
+                            className="btn-secondary px-3.5 py-1.5 text-xs"
                           >
-                            Download Signed
+                            Download
                           </button>
                         )}
                         {offer.status === 'ACCEPTED' && !payrollSent[offer.id] && (
                           <button
                             onClick={() => { setPayrollOffer(offer); setShowPayrollModal(true); }}
-                            className="text-[#05527E] hover:text-[#033d5e]"
+                            className="btn-primary px-3.5 py-1.5 text-xs"
                           >
-                            Send to Payroll
+                            Payroll
                           </button>
                         )}
                         {payrollSent[offer.id] && (
-                          <span className="text-green-600 text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-success-bg text-emerald-800">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" strokeLinecap="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
                             Payroll Sent
                           </span>
                         )}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="px-6 py-3 bg-muted border-t border-border flex items-center justify-between">
+            <div className="text-sm text-foreground">
               Page {currentPage + 1} of {totalPages}
             </div>
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
                 disabled={currentPage === 0}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
+                className="btn-secondary px-4 py-1.5 text-xs disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
                 disabled={currentPage === totalPages - 1}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
+                className="btn-secondary px-4 py-1.5 text-xs disabled:opacity-50"
               >
                 Next
               </button>
@@ -750,29 +843,40 @@ export default function OfferManagement() {
         )}
       </div>
 
-      {/* Action Modal */}
+      {/* ====== ACTION MODAL ====== */}
       {showActionModal && selectedOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-md w-full m-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-8">
+          <div className="bg-card rounded-card shadow-lg w-full max-w-[640px] max-h-[90vh] overflow-y-auto animate-in fade-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <h2 className="text-lg font-bold text-foreground">
                 {actionType.charAt(0).toUpperCase() + actionType.slice(1)} Offer
-              </h3>
+              </h2>
+              <button
+                onClick={() => setShowActionModal(false)}
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              >
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
-            
+
+            {/* Modal Body */}
             <div className="p-6">
               <div className="mb-4">
-                <p className="text-sm text-gray-600">
-                  Offer: {selectedOffer.offerNumber} - {selectedOffer.jobTitle}
+                <p className="text-sm text-muted-foreground">
+                  Offer: <span className="font-medium text-foreground">{selectedOffer.offerNumber}</span> &mdash; {selectedOffer.jobTitle}
                 </p>
-                <p className="text-sm text-gray-600">
-                  Candidate: {getApplicantName(selectedOffer.application?.applicant)}
+                <p className="text-sm text-muted-foreground">
+                  Candidate: <span className="font-medium text-foreground">{getApplicantName(selectedOffer.application?.applicant)}</span>
                 </p>
               </div>
-              
+
               {['approve', 'reject', 'withdraw', 'decline', 'negotiate', 'escalate'].includes(actionType) && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     {actionType === 'approve' && 'Approval Notes'}
                     {actionType === 'reject' && 'Rejection Reason'}
                     {actionType === 'withdraw' && 'Withdrawal Reason'}
@@ -792,23 +896,24 @@ export default function OfferManagement() {
                       setActionData({...actionData, [field]: e.target.value});
                     }}
                     rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-control"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                     placeholder={`Enter ${actionType} details...`}
                   />
                 </div>
               )}
             </div>
-            
-            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
               <button
                 onClick={() => setShowActionModal(false)}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
+                className="btn-secondary px-5 py-2 text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={executeAction}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
+                className="btn-primary px-5 py-2 text-sm"
               >
                 Confirm {actionType.charAt(0).toUpperCase() + actionType.slice(1)}
               </button>
@@ -816,58 +921,66 @@ export default function OfferManagement() {
           </div>
         </div>
       )}
-      {/* Generate Offer Letter Modal */}
+
+      {/* ====== GENERATE LETTER MODAL ====== */}
       {showLetterModal && letterOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-lg w-full m-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
-                Generate Offer Letter
-              </h3>
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-8">
+          <div className="bg-card rounded-card shadow-lg w-full max-w-[640px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <h2 className="text-lg font-bold text-foreground">Generate Offer Letter</h2>
+              <button
+                onClick={() => { setShowLetterModal(false); setLetterOffer(null); }}
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              >
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="rounded-control border border-gray-200 bg-gray-50 p-4 space-y-1">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-700">Offer:</span> {letterOffer.offerNumber}
+              <div className="rounded-control border border-border bg-muted p-4 space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Offer:</span> {letterOffer.offerNumber}
                 </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-700">Position:</span> {letterOffer.jobTitle} — {letterOffer.department}
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Position:</span> {letterOffer.jobTitle} &mdash; {letterOffer.department}
                 </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-700">Candidate:</span> {getApplicantName(letterOffer.application?.applicant)}
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Candidate:</span> {getApplicantName(letterOffer.application?.applicant)}
                 </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-700">Compensation:</span> {formatCurrency(letterOffer.baseSalary, letterOffer.currency)}
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Compensation:</span> {formatCurrency(letterOffer.baseSalary, letterOffer.currency)}
                 </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-700">Start Date:</span> {letterOffer.startDate ? formatDate(letterOffer.startDate) : 'TBD'}
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Start Date:</span> {letterOffer.startDate ? formatDate(letterOffer.startDate) : 'TBD'}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Generation Mode</label>
+                <label className="block text-sm font-semibold text-foreground mb-1">Generation Mode</label>
                 <div className="flex gap-3">
-                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                    <input type="radio" name="letterMode" value="automatic" defaultChecked className="text-[#05527E]" />
-                    Automatic — use standard template
+                  <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                    <input type="radio" name="letterMode" value="automatic" defaultChecked className="accent-primary" />
+                    Automatic &mdash; use standard template
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                    <input type="radio" name="letterMode" value="manual" className="text-[#05527E]" />
-                    Manual — review before finalising
+                  <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                    <input type="radio" name="letterMode" value="manual" className="accent-primary" />
+                    Manual &mdash; review before finalising
                   </label>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 The offer letter will be generated using company templates and the offer details above. You can preview and download the letter once generated.
               </p>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
               <button
                 onClick={() => { setShowLetterModal(false); setLetterOffer(null); }}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
+                className="btn-secondary px-5 py-2 text-sm"
               >
                 Cancel
               </button>
@@ -879,7 +992,7 @@ export default function OfferManagement() {
                   setLetterOffer(null);
                   window.open('/reports/offer-letter-sample.pdf', '_blank');
                 }}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600"
+                className="btn-primary px-5 py-2 text-sm"
               >
                 Generate Letter
               </button>
@@ -888,74 +1001,81 @@ export default function OfferManagement() {
         </div>
       )}
 
-      {/* Send to Payroll Modal */}
+      {/* ====== SEND TO PAYROLL MODAL ====== */}
       {showPayrollModal && payrollOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-lg w-full m-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
-                Send to Payroll
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Register this new employee in the payroll system
-              </p>
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-8">
+          <div className="bg-card rounded-card shadow-lg w-full max-w-[640px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Send to Payroll</h2>
+                <p className="text-sm text-muted-foreground mt-1">Register this new employee in the payroll system</p>
+              </div>
+              <button
+                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              >
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="rounded-control border border-gray-200 bg-gray-50 p-4 space-y-2">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Employee Details</p>
+              <div className="rounded-control border border-border bg-muted p-4 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Employee Details</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Name:</span> {getApplicantName(payrollOffer.application?.applicant)}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Name:</span> {getApplicantName(payrollOffer.application?.applicant)}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Email:</span> {payrollOffer.application?.applicant?.email || '—'}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Email:</span> {payrollOffer.application?.applicant?.email || '\u2014'}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Position:</span> {payrollOffer.jobTitle}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Position:</span> {payrollOffer.jobTitle}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Department:</span> {payrollOffer.department}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Department:</span> {payrollOffer.department}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Base Salary:</span> {formatCurrency(payrollOffer.baseSalary, payrollOffer.currency)}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Base Salary:</span> {formatCurrency(payrollOffer.baseSalary, payrollOffer.currency)}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Total Comp:</span> {formatCurrency(payrollOffer.totalCompensation, payrollOffer.currency)}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Total Comp:</span> {formatCurrency(payrollOffer.totalCompensation, payrollOffer.currency)}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Start Date:</span> {payrollOffer.startDate ? formatDate(payrollOffer.startDate) : 'TBD'}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Start Date:</span> {payrollOffer.startDate ? formatDate(payrollOffer.startDate) : 'TBD'}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-700">Offer Type:</span> {payrollOffer.offerType ? getEnumLabel('offerType', payrollOffer.offerType) : '—'}
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Offer Type:</span> {payrollOffer.offerType ? getEnumLabel('offerType', payrollOffer.offerType) : '\u2014'}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-control border border-[#05527E]/20 bg-[#05527E]/5 p-4">
+              <div className="rounded-control border border-primary/20 bg-surface-navy p-4">
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-[#05527E] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-[#05527E]">Sage 300 People</p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-sm font-medium text-primary">Sage 300 People</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       The employee record will be created in Sage with the details above. Payroll processing, tax setup, and benefits enrolment will be configured based on the offer type and department defaults.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 This action will transmit the candidate&apos;s details to the connected payroll system. Ensure all details are correct before proceeding.
               </p>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 flex justify-between items-center">
+            <div className="px-6 py-4 border-t border-border flex justify-between items-center">
               <button
                 onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
                 disabled={payrollSending}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
+                className="btn-secondary px-5 py-2 text-sm"
               >
                 Cancel
               </button>
@@ -963,14 +1083,13 @@ export default function OfferManagement() {
                 <button
                   onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
                   disabled={payrollSending}
-                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-control hover:bg-gray-50"
+                  className="btn-secondary px-4 py-2 text-xs"
                 >
                   Skip for Now
                 </button>
                 <button
                   onClick={() => {
                     setPayrollSending(true);
-                    // Mock: simulate API call delay
                     setTimeout(() => {
                       setPayrollSent(prev => ({ ...prev, [payrollOffer.id]: true }));
                       toast('Employee details sent to Sage 300 People successfully', 'success');
@@ -980,7 +1099,7 @@ export default function OfferManagement() {
                     }, 1500);
                   }}
                   disabled={payrollSending}
-                  className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
+                  className="btn-primary px-5 py-2 text-sm disabled:opacity-50"
                 >
                   {payrollSending ? 'Sending...' : 'Send to Payroll'}
                 </button>
@@ -990,49 +1109,56 @@ export default function OfferManagement() {
         </div>
       )}
 
-      {/* E-Sign Modal */}
+      {/* ====== E-SIGN MODAL ====== */}
       {showESignModal && eSignOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-md w-full m-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
-                Send for E-Signature
-              </h3>
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-8">
+          <div className="bg-card rounded-card shadow-lg w-full max-w-[640px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <h2 className="text-lg font-bold text-foreground">Send for E-Signature</h2>
+              <button
+                onClick={() => { setShowESignModal(false); setESignOffer(null); }}
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              >
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
             <div className="p-6">
               <div className="mb-4">
-                <p className="text-sm text-gray-600">
-                  Offer: {eSignOffer.offerNumber} - {eSignOffer.jobTitle}
+                <p className="text-sm text-muted-foreground">
+                  Offer: <span className="font-medium text-foreground">{eSignOffer.offerNumber}</span> &mdash; {eSignOffer.jobTitle}
                 </p>
-                <p className="text-sm text-gray-600">
-                  Candidate: {getApplicantName(eSignOffer.application?.applicant)}
+                <p className="text-sm text-muted-foreground">
+                  Candidate: <span className="font-medium text-foreground">{getApplicantName(eSignOffer.application?.applicant)}</span>
                 </p>
               </div>
 
-              <div className="mb-4 rounded-control border border-gray-200 bg-gray-50 p-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">DocuSign will send to:</p>
-                <p className="text-sm text-gray-900">{getApplicantName(eSignOffer.application?.applicant)}</p>
-                <p className="text-sm text-gray-500">{eSignOffer.application?.applicant?.email || ''}</p>
+              <div className="mb-4 rounded-control border border-border bg-muted p-4">
+                <p className="text-sm font-medium text-foreground mb-2">DocuSign will send to:</p>
+                <p className="text-sm text-foreground">{getApplicantName(eSignOffer.application?.applicant)}</p>
+                <p className="text-sm text-muted-foreground">{eSignOffer.application?.applicant?.email || ''}</p>
               </div>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 The offer letter will be sent via DocuSign for electronic signature. The candidate will receive an email with a link to review and sign the document.
               </p>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
               <button
                 onClick={() => { setShowESignModal(false); setESignOffer(null); }}
                 disabled={eSignLoading}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-control hover:bg-gray-50"
+                className="btn-secondary px-5 py-2 text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendForSignature}
                 disabled={eSignLoading}
-                className="px-4 py-2 bg-gold-500 text-violet-950 rounded-control hover:bg-gold-600 disabled:opacity-50"
+                className="btn-primary px-5 py-2 text-sm disabled:opacity-50"
               >
                 {eSignLoading ? 'Sending...' : 'Send for Signature'}
               </button>

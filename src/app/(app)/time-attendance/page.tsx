@@ -11,6 +11,12 @@ import {
   MapPinIcon,
   ExclamationTriangleIcon,
   PlusIcon,
+  CalendarDaysIcon,
+  CheckCircleIcon,
+  ArrowDownTrayIcon,
+  DocumentTextIcon,
+  PauseIcon,
+  PlayIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import StatusPill from '@/components/StatusPill';
@@ -21,6 +27,13 @@ function formatDuration(ms: number): string {
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.floor((ms % 3600000) / 60000);
   return `${hours}h ${minutes}m`;
+}
+
+function formatTimerDisplay(ms: number): string {
+  const hours = Math.floor(ms / 3600000);
+  const minutes = Math.floor((ms % 3600000) / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function getStartOfWeek(date: Date): Date {
@@ -52,6 +65,7 @@ export default function TimeAttendancePage() {
   const [error, setError] = useState('');
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [elapsed, setElapsed] = useState('');
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [showOvertimeForm, setShowOvertimeForm] = useState(false);
   const [overtimeForm, setOvertimeForm] = useState({ date: '', hours: '', reason: '' });
   const [submittingOvertime, setSubmittingOvertime] = useState(false);
@@ -112,13 +126,14 @@ export default function TimeAttendancePage() {
 
   // Live duration timer
   useEffect(() => {
-    if (!todayRecord) { setElapsed(''); return; }
+    if (!todayRecord) { setElapsed(''); setElapsedMs(0); return; }
     const update = () => {
       const diff = Date.now() - new Date(todayRecord.clockIn).getTime();
       setElapsed(formatDuration(diff));
+      setElapsedMs(diff);
     };
     update();
-    const interval = setInterval(update, 60000);
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [todayRecord]);
 
@@ -145,7 +160,16 @@ export default function TimeAttendancePage() {
       .filter(r => new Date(r.date) >= startOfMonth)
       .reduce((sum, r) => sum + r.hours, 0);
 
-    return { weekHours, monthHours, weekDays, monthDays, totalWorkingDaysMonth, weekOT, monthOT };
+    // Punctuality: calculate percentage of on-time records
+    const completedRecords = monthRecords.filter(r => r.status);
+    const onTimeRecords = completedRecords.filter(r =>
+      r.status?.toLowerCase() === 'on_time' || r.status?.toLowerCase() === 'present' || r.status?.toLowerCase() === 'completed'
+    );
+    const punctuality = completedRecords.length > 0
+      ? Math.round((onTimeRecords.length / completedRecords.length) * 100)
+      : 100;
+
+    return { weekHours, monthHours, weekDays, monthDays, totalWorkingDaysMonth, weekOT, monthOT, punctuality };
   }, [recentRecords, overtimeRecords]);
 
   const handleClockIn = async () => {
@@ -232,20 +256,20 @@ export default function TimeAttendancePage() {
     <FeatureGate feature="TIME_ATTENDANCE">
       <PageWrapper
         title="Time & Attendance"
-        subtitle="Track your working hours and manage overtime"
+        subtitle="Track your working hours, clock in/out, and manage overtime"
       >
         <div className="space-y-6">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
+            <div className="flex items-center gap-2 p-3 bg-error-bg border border-error/20 rounded-control text-sm text-error dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
               <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" /> {error}
             </div>
           )}
 
-          {/* Today's Status — Hero */}
-          <div className="enterprise-card p-6">
-            <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-4">
-              Today&apos;s Status
-            </h2>
+          {/* ====== CLOCK-IN STATUS CARD ====== */}
+          <div className={`enterprise-card relative overflow-hidden p-8 ${todayRecord ? '' : ''}`}>
+            {/* Top accent bar */}
+            <div className={`absolute top-0 left-0 right-0 h-1 ${todayRecord ? 'bg-success' : 'bg-muted-foreground'}`} />
+
             {!employeeId ? (
               <p className="text-sm text-muted-foreground">
                 Resolve your employee profile to use clock in/out.
@@ -253,55 +277,79 @@ export default function TimeAttendancePage() {
             ) : loading ? (
               <TableSkeleton />
             ) : (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-foreground">{dateStr}</p>
-                  {todayRecord ? (
-                    <>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-sm font-medium text-green-700 dark:text-green-400">
-                          Clocked In
-                        </span>
-                      </div>
-                      <p className="text-3xl font-bold text-foreground mt-1">
-                        {elapsed || '0h 0m'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Since{' '}
-                        {new Date(todayRecord.clockIn).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600" />
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Not Clocked In
-                        </span>
-                      </div>
-                      <p className="text-3xl font-bold text-muted-foreground/30 mt-1">--:--</p>
-                    </>
-                  )}
+              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                {/* Left: Timer + Info */}
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  {/* Timer Display */}
+                  <div className="text-center">
+                    <p className="text-5xl font-extrabold text-foreground tabular-nums tracking-wide leading-none">
+                      {todayRecord ? formatTimerDisplay(elapsedMs) : '--:--:--'}
+                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-1.5">
+                      Hours Today
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="hidden md:block w-px h-16 bg-border" />
+                  <div className="block md:hidden h-px w-16 bg-border" />
+
+                  {/* Clock Info */}
+                  <div className="flex flex-col gap-1.5 text-center md:text-left">
+                    {todayRecord ? (
+                      <>
+                        <div className="flex items-center gap-1.5 justify-center md:justify-start">
+                          <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                          <span className="text-[15px] font-bold text-success">
+                            Clocked In
+                          </span>
+                        </div>
+                        {currentLocation && (
+                          <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground justify-center md:justify-start">
+                            <MapPinIcon className="w-3.5 h-3.5" />
+                            Current Location
+                          </div>
+                        )}
+                        <p className="text-[13px] text-muted-foreground">
+                          Clocked in at{' '}
+                          {new Date(todayRecord.clockIn).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-1.5 justify-center md:justify-start">
+                          <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+                          <span className="text-[15px] font-bold text-muted-foreground">
+                            Not Clocked In
+                          </span>
+                        </div>
+                        <p className="text-[13px] text-muted-foreground">{dateStr}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="w-full sm:w-auto">
+
+                {/* Right: Clock Button */}
+                <div>
                   {todayRecord ? (
                     <button
                       onClick={handleClockOut}
                       disabled={clockingOut}
-                      className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                      className="inline-flex items-center gap-2 px-8 py-3.5 rounded-button bg-error border-2 border-error text-white font-bold text-[15px] uppercase tracking-widest hover:bg-red-600 hover:border-red-600 disabled:opacity-50 transition-all"
                     >
+                      <PauseIcon className="w-[18px] h-[18px]" />
                       {clockingOut ? 'Clocking Out...' : 'Clock Out'}
                     </button>
                   ) : (
                     <button
                       onClick={handleClockIn}
                       disabled={clockingIn}
-                      className="w-full sm:w-auto px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+                      className="inline-flex items-center gap-2 px-8 py-3.5 rounded-button bg-success border-2 border-success text-white font-bold text-[15px] uppercase tracking-widest hover:bg-green-600 hover:border-green-600 disabled:opacity-50 transition-all"
                     >
+                      <PlayIcon className="w-[18px] h-[18px]" />
                       {clockingIn ? 'Clocking In...' : 'Clock In'}
                     </button>
                   )}
@@ -310,158 +358,238 @@ export default function TimeAttendancePage() {
             )}
           </div>
 
-          {/* Summary Stats */}
+          {/* ====== STAT CARDS ====== */}
           {!loading && employeeId && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="enterprise-card p-4">
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  This Week
-                </h3>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {stats.weekHours.toFixed(1)}h
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {stats.weekDays} / 5 days
-                </p>
-                {stats.weekOT > 0 && (
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                    +{stats.weekOT}h overtime
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Hours This Week */}
+              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center">
+                  <ClockIcon className="w-[22px] h-[22px] text-accent-navy" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
+                    {stats.weekHours.toFixed(1)}
                   </p>
-                )}
+                  <p className="text-[13px] font-semibold text-muted-foreground">
+                    Hours This Week
+                  </p>
+                </div>
               </div>
-              <div className="enterprise-card p-4">
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  This Month
-                </h3>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {stats.monthHours.toFixed(1)}h
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {stats.monthDays} / {stats.totalWorkingDaysMonth} days
-                </p>
-                {stats.monthOT > 0 && (
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                    +{stats.monthOT}h overtime
+
+              {/* Days Present */}
+              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center">
+                  <CalendarDaysIcon className="w-[22px] h-[22px] text-accent-teal" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
+                    {stats.weekDays}/5
                   </p>
-                )}
+                  <p className="text-[13px] font-semibold text-muted-foreground">
+                    Days Present
+                  </p>
+                </div>
+              </div>
+
+              {/* Overtime Hours */}
+              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-[22px] h-[22px] text-accent-gold" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
+                    {stats.weekOT.toFixed(1)}
+                  </p>
+                  <p className="text-[13px] font-semibold text-muted-foreground">
+                    Overtime Hours
+                  </p>
+                </div>
+              </div>
+
+              {/* Punctuality Rate */}
+              <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-pink flex items-center justify-center">
+                  <CheckCircleIcon className="w-[22px] h-[22px] text-accent-pink" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl font-extrabold text-foreground leading-none mb-0.5">
+                    {stats.punctuality}%
+                  </p>
+                  <p className="text-[13px] font-semibold text-muted-foreground">
+                    Punctuality Rate
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Location Map */}
+          {/* ====== LOCATION MAP ====== */}
           {currentLocation && (
-            <div className="enterprise-card p-6">
-              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                Your Location
-              </h2>
-              <LocationMap
-                center={[currentLocation.lat, currentLocation.lng]}
-                zoom={15}
-                height="200px"
-                markers={[
-                  { lat: currentLocation.lat, lng: currentLocation.lng, label: 'Current Location' },
-                ]}
-              />
+            <div className="enterprise-card overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                  <MapPinIcon className="w-[18px] h-[18px] text-primary" />
+                  Your Location
+                </h2>
+              </div>
+              <div className="p-6">
+                <LocationMap
+                  center={[currentLocation.lat, currentLocation.lng]}
+                  zoom={15}
+                  height="200px"
+                  markers={[
+                    { lat: currentLocation.lat, lng: currentLocation.lng, label: 'Current Location' },
+                  ]}
+                />
+              </div>
             </div>
           )}
 
-          {/* Recent Records */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Recent Records
+          {/* ====== RECENT ATTENDANCE RECORDS ====== */}
+          <div className="enterprise-card overflow-hidden">
+            {/* Section Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="21" x2="9" y2="9" />
+                </svg>
+                Recent Attendance Records
               </h2>
-              <Link
-                href="/time-attendance/records"
-                className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-              >
-                View all
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/time-attendance/records"
+                  className="btn-secondary text-xs inline-flex items-center gap-1.5"
+                >
+                  <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                  EXPORT
+                </Link>
+              </div>
             </div>
+
+            {/* Table Body */}
             {loading ? (
-              <div className="enterprise-card p-6">
+              <div className="p-6">
                 <TableSkeleton />
               </div>
             ) : recentRecords.length === 0 ? (
-              <div className="enterprise-card p-6 text-center text-muted-foreground text-sm">
+              <div className="p-6 text-center text-muted-foreground text-sm">
                 No attendance records yet.
               </div>
             ) : (
-              <div className="enterprise-card overflow-x-auto">
-                <table className="min-w-full divide-y divide-border">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Date
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Clock In
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Clock Out
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Hours
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {recentRecords.slice(0, 5).map((rec) => (
-                      <tr key={rec.id} className="hover:bg-muted">
-                        <td className="px-4 py-3 text-sm text-foreground">
-                          {new Date(rec.clockIn).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {new Date(rec.clockIn).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {rec.clockOut
-                            ? new Date(rec.clockOut).toLocaleTimeString([], {
+              <div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="bg-background">
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                          Date
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                          Clock In
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                          Clock Out
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                          Total Hours
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentRecords.slice(0, 6).map((rec) => (
+                        <tr key={rec.id} className="border-b border-border last:border-b-0 hover:bg-surface-navy transition-colors">
+                          <td className="px-4 py-3.5 text-sm text-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <CalendarDaysIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                              {new Date(rec.clockIn).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-sm">
+                            <strong className="text-foreground">
+                              {new Date(rec.clockIn).toLocaleTimeString([], {
                                 hour: '2-digit',
                                 minute: '2-digit',
-                              })
-                            : '—'}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {rec.totalHours != null ? `${rec.totalHours.toFixed(1)}h` : '—'}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <StatusPill value={rec.status} domain="attendanceStatus" />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                              })}
+                            </strong>
+                          </td>
+                          <td className="px-4 py-3.5 text-sm text-muted-foreground">
+                            {rec.clockOut
+                              ? new Date(rec.clockOut).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })
+                              : <span className="italic text-muted-foreground">In progress</span>}
+                          </td>
+                          <td className="px-4 py-3.5 text-sm text-foreground">
+                            {rec.totalHours != null ? `${rec.totalHours.toFixed(2)} hrs` : '---'}
+                          </td>
+                          <td className="px-4 py-3.5 text-sm">
+                            <StatusPill value={rec.status} domain="attendanceStatus" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {recentRecords.length > 6 && (
+                  <div className="flex items-center justify-between px-6 py-4 border-t border-border">
+                    <p className="text-[13px] text-muted-foreground">
+                      Showing 1-6 of {recentRecords.length} records
+                    </p>
+                    <Link
+                      href="/time-attendance/records"
+                      className="text-sm font-semibold text-link hover:text-link-hover hover:underline"
+                    >
+                      View all records
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* My Overtime */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                My Overtime
+          {/* ====== OVERTIME RECORDS ====== */}
+          <div className="enterprise-card overflow-hidden">
+            {/* Section Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                <ClockIcon className="w-[18px] h-[18px] text-accent-gold" />
+                Overtime Records
               </h2>
-              <button
-                onClick={() => setShowOvertimeForm(!showOvertimeForm)}
-                disabled={!employeeId}
-                className="text-sm text-blue-600 hover:underline dark:text-blue-400 inline-flex items-center gap-1 disabled:opacity-50"
-              >
-                <PlusIcon className="w-4 h-4" /> Submit Request
-              </button>
+              <div className="flex items-center gap-3">
+                {stats.weekOT > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-button bg-warning-bg text-[13px] font-semibold text-yellow-800 dark:text-yellow-200 dark:bg-yellow-900/30">
+                    {stats.weekOT}h this week
+                  </span>
+                )}
+                <button
+                  onClick={() => setShowOvertimeForm(!showOvertimeForm)}
+                  disabled={!employeeId}
+                  className="btn-cta text-xs inline-flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <PlusIcon className="w-3.5 h-3.5" /> SUBMIT REQUEST
+                </button>
+              </div>
             </div>
 
+            {/* Overtime Form */}
             {showOvertimeForm && employeeId && (
-              <div className="enterprise-card p-4 mb-3">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="px-6 py-5 border-b border-border bg-surface-navy">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                       Date
                     </label>
                     <input
@@ -470,11 +598,11 @@ export default function TimeAttendancePage() {
                       onChange={(e) =>
                         setOvertimeForm({ ...overtimeForm, date: e.target.value })
                       }
-                      className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                      className="w-full border border-border rounded-control px-3 py-2 text-sm bg-card text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                       Hours
                     </label>
                     <input
@@ -484,12 +612,12 @@ export default function TimeAttendancePage() {
                       onChange={(e) =>
                         setOvertimeForm({ ...overtimeForm, hours: e.target.value })
                       }
-                      className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                      className="w-full border border-border rounded-control px-3 py-2 text-sm bg-card text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                       placeholder="e.g. 2.5"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
                       Reason
                     </label>
                     <input
@@ -498,12 +626,12 @@ export default function TimeAttendancePage() {
                       onChange={(e) =>
                         setOvertimeForm({ ...overtimeForm, reason: e.target.value })
                       }
-                      className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-                      placeholder="Optional"
+                      className="w-full border border-border rounded-control px-3 py-2 text-sm bg-card text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                      placeholder="Optional reason"
                     />
                   </div>
                 </div>
-                <div className="flex gap-2 mt-3">
+                <div className="flex gap-3 mt-4">
                   <button
                     onClick={handleSubmitOvertime}
                     disabled={
@@ -515,7 +643,7 @@ export default function TimeAttendancePage() {
                   </button>
                   <button
                     onClick={() => setShowOvertimeForm(false)}
-                    className="px-3 py-1.5 border text-sm rounded-md hover:bg-muted"
+                    className="btn-secondary text-sm"
                   >
                     Cancel
                   </button>
@@ -523,77 +651,105 @@ export default function TimeAttendancePage() {
               </div>
             )}
 
-            {loading ? (
-              <div className="enterprise-card p-6">
+            {/* Overtime Cards Grid */}
+            <div className="p-6">
+              {loading ? (
                 <TableSkeleton />
-              </div>
-            ) : overtimeRecords.length === 0 ? (
-              <div className="enterprise-card p-4 text-center text-muted-foreground text-sm">
-                No overtime records.
-              </div>
-            ) : (
-              <div className="enterprise-card overflow-x-auto">
-                <table className="min-w-full divide-y divide-border">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Date
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Hours
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Reason
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {overtimeRecords.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-muted">
-                        <td className="px-4 py-3 text-sm text-foreground">{rec.date}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">{rec.hours}h</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {rec.reason || '—'}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <StatusPill value={rec.status} domain="overtimeStatus" />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+              ) : overtimeRecords.length === 0 ? (
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No overtime records.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {overtimeRecords.map((rec) => (
+                    <div
+                      key={rec.id}
+                      className="border border-border rounded-card p-5 bg-card hover:shadow-sm transition-shadow"
+                    >
+                      {/* Card Header: Date + Status */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{rec.date}</p>
+                        </div>
+                        <StatusPill value={rec.status} domain="overtimeStatus" />
+                      </div>
+                      {/* Hours */}
+                      <p className="text-xl font-extrabold text-primary mb-0.5">
+                        {rec.hours} hrs
+                      </p>
+                      {/* Reason */}
+                      {rec.reason && (
+                        <div className="mt-3 text-[13px] text-foreground bg-background rounded-md px-3 py-2 italic">
+                          &ldquo;{rec.reason}&rdquo;
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Manager/Admin Quick Links — only visible to users with manage_attendance permission */}
+          {/* ====== MANAGER QUICK LINKS ====== */}
           {isManager && (
-            <div>
-              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                Management
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <Link
-                  href="/time-attendance/team"
-                  className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground"
-                >
-                  <UsersIcon className="w-5 h-5 text-green-500" /> Team View
-                </Link>
-                <Link
-                  href="/time-attendance/geofences"
-                  className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground"
-                >
-                  <MapPinIcon className="w-5 h-5 text-purple-500" /> Geofences
-                </Link>
-                <Link
-                  href="/time-attendance/overtime"
-                  className="flex items-center gap-2 enterprise-card p-3 hover:bg-muted text-sm font-medium text-muted-foreground"
-                >
-                  <ClockIcon className="w-5 h-5 text-orange-500" /> Overtime Approvals
-                </Link>
+            <div className="enterprise-card overflow-hidden">
+              {/* Section Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                  <UsersIcon className="w-[18px] h-[18px] text-primary" />
+                  Manager Quick Links
+                </h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Team View */}
+                  <Link
+                    href="/time-attendance/team"
+                    className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
+                  >
+                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-navy flex items-center justify-center mx-auto mb-3.5">
+                      <UsersIcon className="w-[26px] h-[26px] text-accent-navy" />
+                    </div>
+                    <h3 className="text-[15px] font-semibold text-foreground mb-1">
+                      View Team Attendance
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Monitor your team&apos;s daily attendance and hours
+                    </p>
+                  </Link>
+
+                  {/* Overtime Approvals */}
+                  <Link
+                    href="/time-attendance/overtime"
+                    className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
+                  >
+                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-gold flex items-center justify-center mx-auto mb-3.5">
+                      <ClockIcon className="w-[26px] h-[26px] text-accent-gold" />
+                    </div>
+                    <h3 className="text-[15px] font-semibold text-foreground mb-1">
+                      Approve Overtime
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Review and approve pending overtime requests
+                    </p>
+                  </Link>
+
+                  {/* Geofences / Reports */}
+                  <Link
+                    href="/time-attendance/geofences"
+                    className="border border-border rounded-card p-6 bg-card text-center hover:shadow-md hover:-translate-y-0.5 hover:border-primary transition-all block"
+                  >
+                    <div className="w-14 h-14 rounded-[14px] bg-icon-bg-teal flex items-center justify-center mx-auto mb-3.5">
+                      <DocumentTextIcon className="w-[26px] h-[26px] text-accent-teal" />
+                    </div>
+                    <h3 className="text-[15px] font-semibold text-foreground mb-1">
+                      Geofences & Reports
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Manage geofences and generate attendance reports
+                    </p>
+                  </Link>
+                </div>
               </div>
             </div>
           )}

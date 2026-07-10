@@ -1,0 +1,3062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Templates | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--pink);
+      border-radius: var(--radius-button);
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== DEMO TOGGLE ========== */
+    .demo-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-button);
+      padding: 0.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-toggle-btn {
+      padding: 0.375rem 1rem;
+      border: none;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 200ms ease;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .demo-toggle-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-number-text {
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== FILTER BAR ========== */
+    .filter-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-bar-center {
+      flex: 0 1 320px;
+      min-width: 200px;
+    }
+
+    .form-select, .form-input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 200ms ease;
+      appearance: none;
+      outline: none;
+    }
+
+    .form-select {
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    .form-select:focus, .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input-wrapper .form-input {
+      width: 100%;
+      padding-left: 2.25rem;
+    }
+
+    /* ========== CONTENT LAYOUT ========== */
+    .content-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ========== TEMPLATE LIST PANEL ========== */
+    .template-list-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 680px;
+    }
+
+    .template-list-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .template-list-header h2 {
+      font-size: 1rem;
+    }
+
+    .template-list-count {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+    }
+
+    .template-list-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .template-list-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .template-list-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .template-list-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .template-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 200ms ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+    }
+
+    .template-item:last-child {
+      border-bottom: none;
+    }
+
+    .template-item:hover {
+      background: var(--primary-tint);
+    }
+
+    .template-item.active {
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+    }
+
+    .template-item-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-control);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .template-item-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .template-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .template-item-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .template-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .template-item-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .template-item-meta-item svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .usage-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+      background: var(--teal-tint);
+      color: var(--teal);
+      white-space: nowrap;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .cat-engineering { background: var(--navy-bg); color: var(--primary); }
+    .cat-finance { background: var(--gold-bg); color: var(--gold); }
+    .cat-hr { background: var(--pink-bg); color: var(--pink); }
+    .cat-operations { background: var(--teal-bg); color: var(--teal); }
+    .cat-it { background: var(--navy-bg); color: var(--primary); }
+    .cat-management { background: var(--gold-bg); color: var(--gold); }
+
+    /* ========== EDITOR PANEL ========== */
+    .editor-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .editor-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .editor-tab {
+      flex: 1;
+      padding: 0.875rem 1.25rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .editor-tab:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .editor-tab.active {
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .editor-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .editor-tab svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .editor-tab-content {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .editor-tab-content.active {
+      display: flex;
+    }
+
+    /* Editor Toolbar */
+    .editor-toolbar {
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: #FAFBFC;
+    }
+
+    .editor-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .editor-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tag-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 0.25rem;
+    }
+
+    .tag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.3125rem 0.625rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .tag-btn:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .tag-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Editor Area */
+    .editor-area {
+      flex: 1;
+      padding: 1.25rem;
+    }
+
+    .editor-title-input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1.125rem;
+      font-weight: 700;
+      padding: 0.625rem 0;
+      border: none;
+      border-bottom: 2px solid var(--border);
+      background: transparent;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 200ms ease;
+      margin-bottom: 1rem;
+    }
+
+    .editor-title-input:focus {
+      border-bottom-color: var(--primary);
+    }
+
+    .editor-textarea {
+      width: 100%;
+      min-height: 300px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      outline: none;
+      resize: vertical;
+      transition: border-color 200ms ease;
+    }
+
+    .editor-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .editor-footer {
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FAFBFC;
+      flex-shrink: 0;
+    }
+
+    .editor-footer-info {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .editor-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ========== AI GENERATE TAB ========== */
+    .ai-generate-content {
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .ai-header {
+      text-align: center;
+    }
+
+    .ai-header-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--teal-bg) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .ai-header-icon svg {
+      width: 32px;
+      height: 32px;
+      color: var(--primary);
+    }
+
+    .ai-header h2 {
+      margin-bottom: 0.375rem;
+    }
+
+    .ai-header p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .ai-prompt-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .ai-prompt-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ai-prompt-textarea {
+      width: 100%;
+      min-height: 120px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      padding: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      outline: none;
+      resize: vertical;
+      transition: border-color 200ms ease;
+    }
+
+    .ai-prompt-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .ai-prompt-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .ai-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .ai-option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .ai-option-group label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .ai-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .ai-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .ai-suggestion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.875rem;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-button);
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .ai-suggestion-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .ai-suggestion-chip svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-control);
+    }
+
+    .skeleton-stat-number {
+      width: 60px;
+      height: 28px;
+      margin-bottom: 0.25rem;
+    }
+
+    .skeleton-stat-label {
+      width: 100px;
+      height: 14px;
+    }
+
+    .skeleton-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+    }
+
+    .skeleton-template-title {
+      width: 80%;
+      height: 16px;
+      margin-bottom: 0.375rem;
+    }
+
+    .skeleton-template-meta {
+      width: 60%;
+      height: 12px;
+    }
+
+    .skeleton-template-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-control);
+    }
+
+    .skeleton-editor-title {
+      width: 50%;
+      height: 24px;
+      margin-bottom: 1rem;
+    }
+
+    .skeleton-editor-line {
+      width: 100%;
+      height: 14px;
+      margin-bottom: 0.625rem;
+    }
+
+    .skeleton-editor-line-short {
+      width: 70%;
+      height: 14px;
+      margin-bottom: 0.625rem;
+    }
+
+    .skeleton-editor-line-medium {
+      width: 85%;
+      height: 14px;
+      margin-bottom: 0.625rem;
+    }
+
+    .skeleton-tag {
+      width: 80px;
+      height: 28px;
+      border-radius: var(--radius-control);
+    }
+
+    /* skeleton visibility */
+    .content-normal { display: block; }
+    .content-skeleton { display: none; }
+    body.skeleton-mode .content-normal { display: none; }
+    body.skeleton-mode .content-skeleton { display: block; }
+
+    /* grid skeleton fix */
+    .stats-bar .content-normal,
+    .stats-bar .content-skeleton {
+      display: contents;
+    }
+    body.skeleton-mode .stats-bar .content-normal { display: none; }
+    body.skeleton-mode .stats-bar .content-skeleton { display: contents; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .content-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .template-list-panel {
+        max-height: 400px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-left {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-center {
+        flex: auto;
+      }
+
+      .form-select {
+        width: 100%;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .editor-toolbar-left {
+        flex-wrap: wrap;
+      }
+
+      .ai-options {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .editor-tabs {
+        flex-direction: column;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Recruitment</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Job Templates</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link active">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Job Templates</h1>
+        <p>Create and manage reusable job description templates for uThukela Water</p>
+      </div>
+      <div class="page-header-right">
+        <!-- Demo Toggle -->
+        <div class="demo-toggle">
+          <button class="demo-toggle-btn active" onclick="setDemoState('normal')">Normal</button>
+          <button class="demo-toggle-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+        </div>
+        <button class="btn btn-cta" onclick="handleCreateTemplate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Template
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <!-- Normal State -->
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-navy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">24</div>
+            <div class="stat-label">Total Templates</div>
+          </div>
+        </div>
+      </div>
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number-text">Senior Engineer</div>
+            <div class="stat-label">Most Used Template</div>
+          </div>
+        </div>
+      </div>
+      <div class="content-normal">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Recently Updated</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton State -->
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+      <div class="content-skeleton">
+        <div class="stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton skeleton-stat-number"></div>
+            <div class="skeleton skeleton-stat-label"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-bar-left">
+        <select class="form-select" id="filterCategory">
+          <option value="">All Categories</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Finance">Finance</option>
+          <option value="HR">HR</option>
+          <option value="Operations">Operations</option>
+          <option value="IT">IT</option>
+          <option value="Management">Management</option>
+        </select>
+      </div>
+      <div class="filter-bar-center">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="form-input" id="searchInput" placeholder="Search templates...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="content-layout">
+
+      <!-- Left: Template List -->
+      <div class="template-list-panel">
+        <div class="template-list-header">
+          <h2>Templates</h2>
+          <span class="template-list-count" id="templateCount">24 templates</span>
+        </div>
+        <!-- Normal -->
+        <div class="template-list-scroll content-normal" id="templateList"></div>
+        <!-- Skeleton -->
+        <div class="template-list-scroll content-skeleton">
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+          <div class="template-item">
+            <div class="skeleton skeleton-template-icon"></div>
+            <div class="template-item-content">
+              <div class="skeleton skeleton-template-title"></div>
+              <div class="skeleton skeleton-template-meta"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Editor Panel -->
+      <div class="editor-panel">
+        <div class="editor-tabs">
+          <button class="editor-tab active" data-tab="editor" onclick="switchTab('editor')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Template Editor
+          </button>
+          <button class="editor-tab" data-tab="ai" onclick="switchTab('ai')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            AI Generate
+          </button>
+          <button class="editor-tab" data-tab="preview" onclick="switchTab('preview')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Preview
+          </button>
+        </div>
+
+        <!-- Tab: Template Editor -->
+        <div class="editor-tab-content active" id="tabEditor">
+          <!-- Normal -->
+          <div class="content-normal">
+            <div class="editor-toolbar">
+              <div class="editor-toolbar-left">
+                <span class="tag-label">Insert Tag:</span>
+                <button class="tag-btn" onclick="insertTag('{company}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  {company}
+                </button>
+                <button class="tag-btn" onclick="insertTag('{department}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  {department}
+                </button>
+                <button class="tag-btn" onclick="insertTag('{location}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  {location}
+                </button>
+                <button class="tag-btn" onclick="insertTag('{salary_range}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  {salary_range}
+                </button>
+                <button class="tag-btn" onclick="insertTag('{benefits}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  {benefits}
+                </button>
+              </div>
+            </div>
+            <div class="editor-area">
+              <input type="text" class="editor-title-input" id="editorTitle" value="Senior Water Engineer" placeholder="Template title...">
+              <textarea class="editor-textarea" id="editorTextarea" placeholder="Write your job description template here...">About {company}
+
+{company} is a leading water services authority and provider in the uThukela District of KwaZulu-Natal, South Africa. We are committed to providing sustainable and reliable water and sanitation services to our communities.
+
+Position: Senior Water Engineer
+Department: {department}
+Location: {location}
+Salary: {salary_range}
+
+Job Purpose:
+We are looking for a highly skilled and experienced Senior Water Engineer to join our {department} team. The successful candidate will be responsible for the planning, design, and oversight of water infrastructure projects across the uThukela District.
+
+Key Responsibilities:
+- Lead the design and implementation of water treatment and distribution systems
+- Conduct feasibility studies and environmental impact assessments
+- Manage project budgets and timelines in accordance with municipal regulations
+- Mentor and supervise junior engineers and technicians
+- Ensure compliance with SANS 241 drinking water quality standards
+- Collaborate with the Department of Water and Sanitation (DWS)
+- Prepare technical reports for council and stakeholder presentations
+- Oversee the maintenance and upgrade of existing water infrastructure
+
+Minimum Requirements:
+- BSc/BEng in Civil or Water Engineering (NQF Level 8)
+- Registration as a Professional Engineer (Pr.Eng) with ECSA
+- Minimum 8 years of experience in water/wastewater engineering
+- Valid driver's licence (Code B)
+- Knowledge of Municipal Finance Management Act (MFMA)
+- Experience with AutoCAD, EPANET, or similar hydraulic modelling software
+
+Preferred Qualifications:
+- Master's degree in Water Resource Management
+- Government Competency Certificate (Municipal Regulations on Minimum Competency Levels)
+- Experience in a municipal or water board environment
+
+What We Offer:
+{benefits}
+
+uThukela Water is an equal opportunity employer. We encourage applications from designated groups in line with our Employment Equity Plan. Preference will be given to candidates from underrepresented groups.
+
+Closing Date: To be confirmed
+Enquiries: HR Department - recruitment@uthukelawater.gov.za</textarea>
+            </div>
+            <div class="editor-footer">
+              <div class="editor-footer-info">
+                <span id="charCount">0 characters</span> &middot; Last edited: 2 hours ago
+              </div>
+              <div class="editor-footer-actions">
+                <button class="btn btn-ghost btn-sm" onclick="handleDiscardChanges()">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="handleSaveDraft()">Save Draft</button>
+                <button class="btn btn-cta btn-sm" onclick="handlePublishTemplate()">Publish</button>
+              </div>
+            </div>
+          </div>
+          <!-- Skeleton -->
+          <div class="content-skeleton">
+            <div class="editor-toolbar">
+              <div class="editor-toolbar-left">
+                <div class="skeleton skeleton-tag" style="width:80px"></div>
+                <div class="skeleton skeleton-tag" style="width:100px"></div>
+                <div class="skeleton skeleton-tag" style="width:75px"></div>
+                <div class="skeleton skeleton-tag" style="width:110px"></div>
+                <div class="skeleton skeleton-tag" style="width:85px"></div>
+              </div>
+            </div>
+            <div class="editor-area">
+              <div class="skeleton skeleton-editor-title"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line-medium"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line-short"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line-medium"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line-short"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line"></div>
+              <div class="skeleton skeleton-editor-line-medium"></div>
+              <div class="skeleton skeleton-editor-line-short"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: AI Generate -->
+        <div class="editor-tab-content" id="tabAi">
+          <div class="ai-generate-content">
+            <div class="ai-header">
+              <div class="ai-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
+              <h2>AI Job Description Generator</h2>
+              <p>Describe the role you need and our AI will generate a professional job description template tailored for uThukela Water.</p>
+            </div>
+
+            <div class="ai-prompt-group">
+              <label class="ai-prompt-label">Describe the position</label>
+              <textarea class="ai-prompt-textarea" id="aiPromptInput" placeholder="e.g. We need a Senior Water Process Controller for our Ezakheni Treatment Works. The role requires managing daily plant operations, ensuring SANS 241 compliance, and supervising a team of 6 operators. Must have N6 Water Treatment or equivalent."></textarea>
+            </div>
+
+            <div class="ai-options">
+              <div class="ai-option-group">
+                <label>Department</label>
+                <select class="form-select" id="aiDepartment">
+                  <option value="">Select department...</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Human Resources">Human Resources</option>
+                  <option value="Operations">Operations</option>
+                  <option value="ICT">ICT</option>
+                  <option value="Management">Management</option>
+                  <option value="Water Quality">Water Quality</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Supply Chain">Supply Chain</option>
+                  <option value="Community Services">Community Services</option>
+                </select>
+              </div>
+              <div class="ai-option-group">
+                <label>Tone</label>
+                <select class="form-select" id="aiTone">
+                  <option value="professional">Professional</option>
+                  <option value="formal">Formal (Government)</option>
+                  <option value="friendly">Friendly</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ai-actions">
+              <button class="btn btn-cta" onclick="handleGenerate()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Generate
+              </button>
+            </div>
+
+            <div style="text-align:center">
+              <span class="tag-label" style="display:block;margin-bottom:0.5rem">Quick Prompts</span>
+              <div class="ai-suggestions">
+                <button class="ai-suggestion-chip" onclick="setQuickPrompt('water-engineer')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  Water Engineer
+                </button>
+                <button class="ai-suggestion-chip" onclick="setQuickPrompt('process-controller')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  Process Controller
+                </button>
+                <button class="ai-suggestion-chip" onclick="setQuickPrompt('finance-manager')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  Finance Manager
+                </button>
+                <button class="ai-suggestion-chip" onclick="setQuickPrompt('hr-officer')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  HR Officer
+                </button>
+                <button class="ai-suggestion-chip" onclick="setQuickPrompt('it-specialist')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  IT Specialist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Preview -->
+        <div class="editor-tab-content" id="tabPreview">
+          <div class="editor-area" id="previewArea" style="min-height:400px">
+            <div style="color:var(--text-muted);text-align:center;padding:3rem 1rem">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1rem;opacity:0.5">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <h3 style="margin-bottom:0.375rem">Template Preview</h3>
+              <p style="font-size:0.9375rem">Select a template and switch to the Preview tab to see how it will appear in a job posting.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== MOCK DATA =====
+      var templates = [
+        {
+          id: 1,
+          title: "Senior Water Engineer",
+          category: "Engineering",
+          department: "Engineering",
+          usageCount: 18,
+          lastUpdated: "2 hours ago",
+          status: "published",
+          body: "About {company}\n\n{company} is a leading water services authority and provider in the uThukela District of KwaZulu-Natal, South Africa. We are committed to providing sustainable and reliable water and sanitation services to our communities.\n\nPosition: Senior Water Engineer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nWe are looking for a highly skilled and experienced Senior Water Engineer to join our {department} team. The successful candidate will be responsible for the planning, design, and oversight of water infrastructure projects across the uThukela District.\n\nKey Responsibilities:\n- Lead the design and implementation of water treatment and distribution systems\n- Conduct feasibility studies and environmental impact assessments\n- Manage project budgets and timelines in accordance with municipal regulations\n- Mentor and supervise junior engineers and technicians\n- Ensure compliance with SANS 241 drinking water quality standards\n- Collaborate with the Department of Water and Sanitation (DWS)\n- Prepare technical reports for council and stakeholder presentations\n- Oversee the maintenance and upgrade of existing water infrastructure\n\nMinimum Requirements:\n- BSc/BEng in Civil or Water Engineering (NQF Level 8)\n- Registration as a Professional Engineer (Pr.Eng) with ECSA\n- Minimum 8 years of experience in water/wastewater engineering\n- Valid driver's licence (Code B)\n- Knowledge of Municipal Finance Management Act (MFMA)\n- Experience with AutoCAD, EPANET, or similar hydraulic modelling software\n\nPreferred Qualifications:\n- Master's degree in Water Resource Management\n- Government Competency Certificate (Municipal Regulations on Minimum Competency Levels)\n- Experience in a municipal or water board environment\n\nWhat We Offer:\n{benefits}\n\nuThukela Water is an equal opportunity employer. We encourage applications from designated groups in line with our Employment Equity Plan. Preference will be given to candidates from underrepresented groups.\n\nClosing Date: To be confirmed\nEnquiries: HR Department - recruitment@uthukelawater.gov.za"
+        },
+        {
+          id: 2,
+          title: "Financial Controller",
+          category: "Finance",
+          department: "Finance",
+          usageCount: 14,
+          lastUpdated: "1 day ago",
+          status: "published",
+          body: "About {company}\n\n{company} is the water services authority for the uThukela District Municipality in KwaZulu-Natal.\n\nPosition: Financial Controller\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Financial Controller will be responsible for overseeing all financial operations of {company}, ensuring compliance with the Municipal Finance Management Act (MFMA), Generally Recognised Accounting Practice (GRAP), and all relevant Treasury regulations.\n\nKey Responsibilities:\n- Prepare and manage the annual budget in accordance with MFMA requirements\n- Oversee monthly financial reporting and year-end audit processes\n- Ensure compliance with National Treasury regulations and GRAP standards\n- Manage the revenue collection and billing systems\n- Supervise the finance team including accounts payable, receivable, and payroll\n- Prepare financial reports for council, audit committee, and stakeholders\n- Coordinate with the Auditor-General South Africa (AGSA) during audit periods\n- Implement and maintain internal financial controls\n- Manage cash flow forecasting and investment strategies\n\nMinimum Requirements:\n- BCom Accounting or equivalent (NQF Level 7)\n- Completed articles with a registered audit firm\n- CA(SA) or CIMA qualification advantageous\n- Minimum 5 years in a senior financial management role\n- Knowledge of MFMA, GRAP, and Division of Revenue Act\n- Advanced proficiency in SAP or similar ERP system\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}\n\nClosing Date: To be confirmed\nEnquiries: HR Department - recruitment@uthukelawater.gov.za"
+        },
+        {
+          id: 3,
+          title: "HR Business Partner",
+          category: "HR",
+          department: "Human Resources",
+          usageCount: 11,
+          lastUpdated: "3 days ago",
+          status: "published",
+          body: "About {company}\n\n{company} serves as the water services provider in the uThukela District of KwaZulu-Natal.\n\nPosition: HR Business Partner\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe HR Business Partner will serve as a strategic partner to line management, providing expert HR guidance and support to drive organisational effectiveness across {company}.\n\nKey Responsibilities:\n- Partner with business units to develop and implement people strategies\n- Manage the full employee lifecycle from recruitment to exit\n- Advise management on Labour Relations Act (LRA) and BCEA compliance\n- Facilitate performance management and talent development processes\n- Drive Employment Equity planning and reporting\n- Manage workplace transformation and change management initiatives\n- Coordinate skills development in line with the Water Sector SETA requirements\n- Handle disciplinary and grievance procedures\n- Prepare HR reports for management and council committees\n\nMinimum Requirements:\n- Bachelor's degree in Human Resources Management or Industrial Psychology (NQF Level 7)\n- Minimum 5 years of HR generalist experience\n- Sound knowledge of LRA, BCEA, EEA, and Skills Development Act\n- Experience with VIP Payroll or similar HRIS\n- Valid driver's licence (Code B)\n\nPreferred:\n- Postgraduate qualification in HR or Labour Law\n- Experience in local government or public sector\n- SABPP registration\n\nWhat We Offer:\n{benefits}\n\nClosing Date: To be confirmed\nEnquiries: HR Department - recruitment@uthukelawater.gov.za"
+        },
+        {
+          id: 4,
+          title: "Water Process Controller",
+          category: "Operations",
+          department: "Operations",
+          usageCount: 16,
+          lastUpdated: "5 days ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Water Process Controller\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Water Process Controller will be responsible for the daily operation and monitoring of water treatment processes at the Ezakheni Water Treatment Works.\n\nKey Responsibilities:\n- Operate and control water treatment plant processes\n- Monitor and adjust chemical dosing systems (chlorine, lime, polyelectrolyte)\n- Conduct routine water quality tests in accordance with SANS 241\n- Record and report on daily plant performance data\n- Perform minor maintenance on plant equipment\n- Respond to plant emergencies and process upsets\n- Supervise general workers and assistant operators\n- Ensure compliance with the Blue Drop and Green Drop certification requirements\n\nMinimum Requirements:\n- National Diploma in Water Treatment or N6 Water Treatment Certificate\n- Class III Water Process Controller certification (Department of Water and Sanitation)\n- Minimum 3 years of experience in water treatment operations\n- Knowledge of SANS 241 water quality standards\n- Willingness to work shifts, weekends, and public holidays\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 5,
+          title: "ICT Systems Administrator",
+          category: "IT",
+          department: "ICT",
+          usageCount: 7,
+          lastUpdated: "1 week ago",
+          status: "published",
+          body: "About {company}\n\nPosition: ICT Systems Administrator\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe ICT Systems Administrator will manage and maintain the IT infrastructure supporting {company}'s operations, ensuring system availability, data integrity, and cybersecurity.\n\nKey Responsibilities:\n- Administer and maintain servers, networks, and cloud infrastructure\n- Manage Active Directory, Microsoft 365, and enterprise applications\n- Implement and maintain cybersecurity policies and protocols\n- Provide Level 2/3 technical support to end users\n- Manage backup and disaster recovery systems\n- Maintain the SCADA systems interfacing with water treatment operations\n- Ensure compliance with POPIA and municipal ICT governance frameworks\n- Manage vendor relationships and SLAs for ICT services\n\nMinimum Requirements:\n- National Diploma or Degree in Information Technology (NQF Level 6/7)\n- MCSA/MCSE, CompTIA Network+, or equivalent certifications\n- Minimum 4 years of systems administration experience\n- Experience with VMware, Windows Server, and network infrastructure\n- Knowledge of SCADA systems advantageous\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 6,
+          title: "Operations Manager",
+          category: "Management",
+          department: "Operations",
+          usageCount: 9,
+          lastUpdated: "1 week ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Operations Manager\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Operations Manager will provide strategic and operational leadership for all water and wastewater services across the uThukela District, ensuring effective service delivery.\n\nKey Responsibilities:\n- Oversee the operation of all water and wastewater treatment works\n- Develop and implement operational strategies and standard operating procedures\n- Manage operational budgets and resource allocation\n- Ensure regulatory compliance with DWS, Blue Drop, and Green Drop requirements\n- Lead a team of process controllers, technicians, and support staff\n- Coordinate emergency response and disaster management plans\n- Report to executive management and council on operational performance\n- Drive infrastructure maintenance and capital project planning\n\nMinimum Requirements:\n- BTech/BSc in Civil Engineering, Water Engineering, or related field (NQF Level 7)\n- Minimum 10 years of experience in water services, with 5 years in management\n- Registration with ECSA or relevant professional body\n- Knowledge of MFMA, Water Services Act, and National Water Act\n- Government Competency Certificate advantageous\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 7,
+          title: "Supply Chain Manager",
+          category: "Finance",
+          department: "Supply Chain",
+          usageCount: 5,
+          lastUpdated: "2 weeks ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: Supply Chain Manager\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Supply Chain Manager will oversee all procurement and supply chain activities for {company}, ensuring compliance with the Municipal Supply Chain Management Regulations.\n\nKey Responsibilities:\n- Manage the end-to-end procurement process\n- Ensure compliance with MFMA Supply Chain Management Regulations\n- Oversee bid specification, evaluation, and adjudication committees\n- Manage the supplier database and vendor performance\n- Implement preferential procurement policies aligned with BBBEE requirements\n- Coordinate contract management and SLA compliance\n- Prepare SCM reports for the Accounting Officer and Audit Committee\n- Manage inventory and asset control\n\nMinimum Requirements:\n- BCom in Supply Chain Management, Logistics, or equivalent (NQF Level 7)\n- CIPS or equivalent professional certification\n- Minimum 5 years of SCM experience in local government\n- Knowledge of MFMA, PPPFA, and Treasury regulations\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 8,
+          title: "Civil Engineering Technician",
+          category: "Engineering",
+          department: "Engineering",
+          usageCount: 12,
+          lastUpdated: "2 weeks ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Civil Engineering Technician\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Civil Engineering Technician will provide technical support for the planning, design, and construction supervision of water and sanitation infrastructure projects.\n\nKey Responsibilities:\n- Prepare technical drawings and designs using AutoCAD\n- Conduct site inspections and construction supervision\n- Perform surveying and quantity calculations\n- Assist with project cost estimates and bill of quantities\n- Monitor contractor performance and quality\n- Maintain project documentation and as-built records\n- Support infrastructure condition assessments\n\nMinimum Requirements:\n- National Diploma in Civil Engineering (NQF Level 6)\n- Registration as a Candidate or Professional Engineering Technician with ECSA\n- Minimum 3 years of relevant experience\n- Proficiency in AutoCAD and MS Project\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 9,
+          title: "Community Liaison Officer",
+          category: "Operations",
+          department: "Community Services",
+          usageCount: 6,
+          lastUpdated: "3 weeks ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Community Liaison Officer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Community Liaison Officer will serve as the primary interface between {company} and the communities it serves, ensuring effective communication and stakeholder engagement.\n\nKey Responsibilities:\n- Facilitate community meetings and stakeholder engagement sessions\n- Manage water service delivery complaints and queries\n- Coordinate public awareness campaigns on water conservation\n- Liaise with ward councillors and community development workers\n- Prepare reports on community interactions and service delivery issues\n- Support the implementation of the Integrated Development Plan (IDP)\n- Manage community project steering committees\n\nMinimum Requirements:\n- National Diploma in Public Relations, Communication, or Social Science (NQF Level 6)\n- Minimum 3 years of community development or liaison experience\n- Fluency in isiZulu and English (written and verbal)\n- Knowledge of Batho Pele principles\n- Valid driver's licence (Code B)\n- Willingness to travel within the district\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 10,
+          title: "Water Quality Scientist",
+          category: "Engineering",
+          department: "Water Quality",
+          usageCount: 8,
+          lastUpdated: "3 weeks ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Water Quality Scientist\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Water Quality Scientist will lead the water quality monitoring and analysis programme for {company}, ensuring compliance with national drinking water standards.\n\nKey Responsibilities:\n- Manage the water quality monitoring programme across all supply systems\n- Conduct laboratory analyses in accordance with SANAS accreditation standards\n- Ensure compliance with SANS 241 and Blue Drop requirements\n- Interpret water quality data and prepare trend analysis reports\n- Investigate water quality incidents and non-compliance events\n- Manage the laboratory quality management system\n- Coordinate with the Department of Water and Sanitation on water quality reporting\n\nMinimum Requirements:\n- BSc in Chemistry, Microbiology, or Environmental Science (NQF Level 7)\n- Minimum 4 years of water quality analysis experience\n- Knowledge of SANS 241 and SANS 17025 laboratory standards\n- Experience with laboratory information management systems (LIMS)\n- Registration with SACNASP advantageous\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 11,
+          title: "Maintenance Artisan (Electrical)",
+          category: "Operations",
+          department: "Maintenance",
+          usageCount: 10,
+          lastUpdated: "1 month ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Maintenance Artisan (Electrical)\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Maintenance Artisan will perform electrical maintenance and repairs on water treatment plant equipment, pumping stations, and related infrastructure.\n\nKey Responsibilities:\n- Perform preventive and corrective electrical maintenance on plant equipment\n- Install and maintain switchgear, MCCs, VSD drives, and control panels\n- Troubleshoot electrical faults on pumps, motors, and instrumentation\n- Maintain PLC and SCADA system components\n- Comply with the Occupational Health and Safety Act\n- Maintain maintenance records and report on equipment condition\n- Participate in the standby roster for emergency callouts\n\nMinimum Requirements:\n- N3 Certificate with Trade Test (Electrical) - Red Seal\n- Wireman's licence advantageous\n- Minimum 3 years post-qualification experience\n- Knowledge of PLCs and instrumentation\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 12,
+          title: "General Worker",
+          category: "Operations",
+          department: "Operations",
+          usageCount: 22,
+          lastUpdated: "1 month ago",
+          status: "published",
+          body: "About {company}\n\nPosition: General Worker\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe General Worker will perform manual labour tasks supporting the operation and maintenance of water infrastructure within the uThukela District.\n\nKey Responsibilities:\n- Assist with pipe laying, trench excavation, and backfilling\n- Perform valve operations and meter reading\n- Assist with leak detection and water loss management\n- Maintain cleanliness of reservoir sites and pump stations\n- Perform general maintenance tasks as directed\n- Report infrastructure faults and water leaks\n\nMinimum Requirements:\n- Grade 10 (Standard 8) or equivalent\n- Basic literacy and numeracy\n- Physical fitness for manual labour\n- Willingness to work outdoors in all weather conditions\n- Residence within the uThukela District\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 13,
+          title: "Payroll Administrator",
+          category: "Finance",
+          department: "Finance",
+          usageCount: 4,
+          lastUpdated: "1 month ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: Payroll Administrator\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Payroll Administrator will manage the full payroll function for {company}, ensuring accurate and timely processing of employee remuneration.\n\nKey Responsibilities:\n- Process monthly payroll for all employees\n- Manage PAYE, UIF, SDL, and pension fund contributions\n- Ensure compliance with SARS requirements and tax legislation\n- Maintain employee records on VIP Payroll system\n- Process leave, overtime, and allowance adjustments\n- Prepare IRP5 certificates and EMP201 returns\n- Coordinate with medical aid and pension fund administrators\n- Attend to payroll queries from staff\n\nMinimum Requirements:\n- National Diploma in Payroll Administration or Accounting (NQF Level 6)\n- Minimum 3 years of payroll administration experience\n- Proficiency in VIP Payroll or Sage 300 People\n- Knowledge of BCEA, tax legislation, and pension fund regulations\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 14,
+          title: "Environmental Officer",
+          category: "Engineering",
+          department: "Engineering",
+          usageCount: 3,
+          lastUpdated: "5 weeks ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: Environmental Officer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Environmental Officer will manage environmental compliance for all {company} operations, ensuring adherence to NEMA and related environmental legislation.\n\nKey Responsibilities:\n- Monitor compliance with Environmental Impact Assessment regulations\n- Manage wastewater discharge licences and water use licences\n- Conduct environmental audits and prepare compliance reports\n- Coordinate waste management and recycling programmes\n- Manage the Green Drop assessment process\n- Liaise with the Department of Environmental Affairs and DWS\n- Implement environmental management plans for capital projects\n\nMinimum Requirements:\n- BSc in Environmental Science or Management (NQF Level 7)\n- Minimum 3 years of environmental management experience\n- Knowledge of NEMA, NWA, and environmental legislation\n- Registration as an Environmental Assessment Practitioner (EAP)\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 15,
+          title: "GIS Technician",
+          category: "IT",
+          department: "ICT",
+          usageCount: 2,
+          lastUpdated: "6 weeks ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: GIS Technician\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe GIS Technician will develop and maintain the geographic information system for {company}'s water and sanitation infrastructure network.\n\nKey Responsibilities:\n- Maintain and update the GIS database of water infrastructure assets\n- Digitise infrastructure maps and conduct spatial data analysis\n- Support infrastructure planning with GIS modelling\n- Prepare thematic maps for project planning and reporting\n- Conduct field data collection using GPS equipment\n- Integrate GIS with asset management systems\n\nMinimum Requirements:\n- National Diploma in GIS, Geomatics, or Surveying (NQF Level 6)\n- Proficiency in ArcGIS or QGIS\n- Minimum 2 years of GIS experience\n- Knowledge of spatial data standards and geodatabases\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 16,
+          title: "Executive Manager: Technical Services",
+          category: "Management",
+          department: "Management",
+          usageCount: 3,
+          lastUpdated: "2 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Executive Manager: Technical Services\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Executive Manager: Technical Services will provide strategic leadership for all technical and engineering functions of {company}, reporting directly to the Municipal Manager.\n\nKey Responsibilities:\n- Provide strategic direction for water and sanitation service delivery\n- Oversee engineering, project management, and infrastructure planning\n- Manage the capital and operational budget for technical services\n- Ensure compliance with the Water Services Act and National Water Act\n- Represent {company} at sector forums and with national/provincial government\n- Drive the Water Services Development Plan implementation\n- Lead organisational transformation and skills development\n\nMinimum Requirements:\n- BSc/BEng in Civil or Water Engineering (NQF Level 8)\n- Pr.Eng registration with ECSA\n- Minimum 10 years of senior management experience in water services\n- Government Competency Certificate (Municipal Regulations)\n- Strategic planning and leadership competencies\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 17,
+          title: "Data Capturer",
+          category: "Operations",
+          department: "Operations",
+          usageCount: 15,
+          lastUpdated: "2 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Data Capturer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Data Capturer will be responsible for accurate and timely capturing of operational and customer data into {company}'s information systems.\n\nKey Responsibilities:\n- Capture meter readings, billing data, and customer information\n- Maintain the customer database and resolve data discrepancies\n- Process new service connection applications\n- Generate reports from the billing and customer management system\n- File and archive documentation according to records management policy\n- Attend to walk-in customer queries related to accounts\n\nMinimum Requirements:\n- Grade 12 (Matric) with Computer Literacy certificate\n- Minimum 1 year of data capturing experience\n- Typing speed of at least 40 WPM\n- Knowledge of MS Office (Word, Excel)\n- Attention to detail and accuracy\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 18,
+          title: "Internal Auditor",
+          category: "Finance",
+          department: "Finance",
+          usageCount: 2,
+          lastUpdated: "2 months ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: Internal Auditor\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Internal Auditor will conduct independent and objective assurance reviews to evaluate the effectiveness of {company}'s risk management, governance, and internal control processes.\n\nKey Responsibilities:\n- Develop and execute the risk-based annual internal audit plan\n- Conduct performance, compliance, and financial audits\n- Evaluate internal controls and risk management processes\n- Prepare detailed audit reports with findings and recommendations\n- Follow up on implementation of audit recommendations\n- Report to the Audit Committee on audit outcomes\n- Liaise with the Auditor-General during external audits\n\nMinimum Requirements:\n- BCom in Internal Auditing or Accounting (NQF Level 7)\n- CIA or equivalent certification\n- Minimum 4 years of internal audit experience\n- Knowledge of MFMA, King IV, and IIA Standards\n- Experience with CAATs and audit management software\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 19,
+          title: "Plumber",
+          category: "Operations",
+          department: "Maintenance",
+          usageCount: 13,
+          lastUpdated: "3 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Plumber\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Plumber will perform plumbing maintenance, repairs, and installations on {company}'s water distribution and reticulation network.\n\nKey Responsibilities:\n- Install, repair, and maintain water pipes and fittings\n- Perform leak detection and repair on the water distribution network\n- Install and maintain water meters\n- Attend to customer plumbing complaints and service requests\n- Perform standpipe installations and maintenance\n- Maintain records of all plumbing work completed\n- Participate in the standby roster for water emergencies\n\nMinimum Requirements:\n- N3 Certificate with Plumbing Trade Test\n- Registered with PIRB advantageous\n- Minimum 3 years post-qualification experience\n- Knowledge of SANS 10252 (Water Supply Installations)\n- Valid driver's licence (Code B/C1)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 20,
+          title: "Receptionist",
+          category: "HR",
+          department: "Human Resources",
+          usageCount: 8,
+          lastUpdated: "3 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Receptionist\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Receptionist will be the first point of contact for {company}, providing professional front-desk services and administrative support.\n\nKey Responsibilities:\n- Manage the switchboard and direct calls to relevant departments\n- Welcome and assist visitors, customers, and stakeholders\n- Manage incoming and outgoing mail and courier services\n- Maintain the reception area and meeting room bookings\n- Provide general administrative support to management\n- Manage the visitor register and access control\n\nMinimum Requirements:\n- Grade 12 (Matric) with a certificate in Office Administration\n- Minimum 2 years of receptionist or front-desk experience\n- Fluency in isiZulu and English\n- Professional telephone manner\n- Computer literate (MS Office)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 21,
+          title: "Safety, Health & Environment Officer",
+          category: "Operations",
+          department: "Operations",
+          usageCount: 4,
+          lastUpdated: "3 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: SHE Officer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe SHE Officer will ensure compliance with the Occupational Health and Safety Act and environmental regulations across all {company} operations.\n\nKey Responsibilities:\n- Conduct workplace safety inspections and audits\n- Investigate and report workplace incidents and accidents\n- Develop and implement safety procedures and emergency plans\n- Conduct safety induction and awareness training\n- Manage PPE procurement and distribution\n- Chair the Health and Safety Committee\n- Ensure compliance with OHS Act and COIDA\n- Manage environmental compliance monitoring\n\nMinimum Requirements:\n- National Diploma in Safety Management or Environmental Health (NQF Level 6)\n- SAMTRAC or NEBOSH certification\n- Minimum 3 years of SHE experience\n- Knowledge of OHS Act, COIDA, and environmental legislation\n- Incident investigation training (ICAM or similar)\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 22,
+          title: "Meter Reader",
+          category: "Operations",
+          department: "Operations",
+          usageCount: 20,
+          lastUpdated: "4 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Meter Reader\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Meter Reader will conduct accurate water meter readings across designated routes within the uThukela District to support the billing and revenue function.\n\nKey Responsibilities:\n- Conduct water meter readings according to scheduled routes\n- Record readings accurately on handheld devices\n- Identify and report meter faults, tampering, and illegal connections\n- Verify meter installation details and update records\n- Report water leaks and infrastructure damage observed in the field\n- Meet daily and monthly reading targets\n\nMinimum Requirements:\n- Grade 12 (Matric)\n- Minimum 1 year of meter reading or field work experience\n- Basic numeracy and computer literacy\n- Physical fitness for extensive walking\n- Knowledge of the uThukela District geography\n- Valid driver's licence (Code B) advantageous\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 23,
+          title: "Project Manager",
+          category: "Management",
+          department: "Engineering",
+          usageCount: 7,
+          lastUpdated: "4 months ago",
+          status: "published",
+          body: "About {company}\n\nPosition: Project Manager\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Project Manager will plan, execute, and deliver water infrastructure capital projects for {company}, ensuring compliance with municipal project management methodologies.\n\nKey Responsibilities:\n- Manage the full project lifecycle from initiation to closeout\n- Develop project charters, plans, and implementation schedules\n- Manage project budgets in accordance with MFMA and DoRA requirements\n- Coordinate with consulting engineers and contractors\n- Conduct site inspections and monitor project progress\n- Prepare project status reports for management and funders\n- Manage project risks and stakeholder expectations\n- Ensure compliance with construction regulations and OHS Act\n\nMinimum Requirements:\n- BTech/BSc in Civil Engineering or Construction Management (NQF Level 7)\n- PMP or PRINCE2 certification advantageous\n- Minimum 5 years of project management experience in infrastructure\n- Knowledge of MFMA, CIDB, and NEC contracts\n- Proficiency in MS Project or Primavera\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        },
+        {
+          id: 24,
+          title: "Training & Development Officer",
+          category: "HR",
+          department: "Human Resources",
+          usageCount: 3,
+          lastUpdated: "5 months ago",
+          status: "draft",
+          body: "About {company}\n\nPosition: Training & Development Officer\nDepartment: {department}\nLocation: {location}\nSalary: {salary_range}\n\nJob Purpose:\nThe Training & Development Officer will coordinate and implement skills development programmes for {company} staff in line with the Workplace Skills Plan and national skills development priorities.\n\nKey Responsibilities:\n- Conduct training needs analysis across all departments\n- Develop and implement the annual Workplace Skills Plan (WSP)\n- Coordinate training programmes, bursaries, and learnerships\n- Submit the Annual Training Report (ATR) to the Water Sector SETA\n- Manage the discretionary and mandatory grant applications\n- Facilitate induction and orientation programmes for new employees\n- Monitor and evaluate training effectiveness\n- Maintain training records and the skills development database\n\nMinimum Requirements:\n- National Diploma in Human Resources or Training & Development (NQF Level 6)\n- Registered Assessor and Moderator qualifications\n- Minimum 3 years of training and development experience\n- Knowledge of Skills Development Act and SETA processes\n- Experience with e-learning platforms advantageous\n- Valid driver's licence (Code B)\n\nWhat We Offer:\n{benefits}"
+        }
+      ];
+
+      // ===== CATEGORY ICON COLORS =====
+      var categoryIconMap = {
+        "Engineering": { bg: "var(--navy-bg)", color: "var(--primary)", badgeClass: "cat-engineering" },
+        "Finance":     { bg: "var(--gold-bg)", color: "var(--gold)", badgeClass: "cat-finance" },
+        "HR":          { bg: "var(--pink-bg)", color: "var(--pink)", badgeClass: "cat-hr" },
+        "Operations":  { bg: "var(--teal-bg)", color: "var(--teal)", badgeClass: "cat-operations" },
+        "IT":          { bg: "var(--navy-bg)", color: "var(--primary)", badgeClass: "cat-it" },
+        "Management":  { bg: "var(--gold-bg)", color: "var(--gold)", badgeClass: "cat-management" }
+      };
+
+      // ===== ACTIVE TEMPLATE STATE =====
+      var activeTemplateId = 1;
+
+      // ===== SVG ICONS =====
+      var docSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>';
+
+      var usageSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>';
+
+      var clockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+
+      // ===== RENDER: TEMPLATE LIST =====
+      function renderTemplateList(filteredTemplates) {
+        var list = document.getElementById("templateList");
+        var countEl = document.getElementById("templateCount");
+
+        if (!list) return;
+
+        countEl.textContent = filteredTemplates.length + " template" + (filteredTemplates.length !== 1 ? "s" : "");
+
+        if (filteredTemplates.length === 0) {
+          list.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted)">' +
+            '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.75rem;opacity:0.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg>' +
+            '<h3 style="margin-bottom:0.25rem">No templates found</h3>' +
+            '<p style="font-size:0.875rem">Try adjusting your search or category filter.</p>' +
+          '</div>';
+          return;
+        }
+
+        list.innerHTML = filteredTemplates.map(function(t) {
+          var catInfo = categoryIconMap[t.category] || categoryIconMap["Operations"];
+          var isActive = t.id === activeTemplateId ? " active" : "";
+          var statusIndicator = t.status === "draft"
+            ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:0.25rem"></span>'
+            : '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-right:0.25rem"></span>';
+
+          return '<div class="template-item' + isActive + '" data-id="' + t.id + '" onclick="selectTemplate(' + t.id + ')">' +
+            '<div class="template-item-icon" style="background:' + catInfo.bg + ';color:' + catInfo.color + '">' + docSVG + '</div>' +
+            '<div class="template-item-content">' +
+              '<div class="template-item-title">' + t.title + '</div>' +
+              '<div class="template-item-meta">' +
+                '<span class="category-badge ' + catInfo.badgeClass + '">' + t.category + '</span>' +
+                '<span class="usage-count">' + usageSVG + ' ' + t.usageCount + ' uses</span>' +
+              '</div>' +
+              '<div class="template-item-meta" style="margin-top:0.25rem">' +
+                '<span class="template-item-meta-item">' + statusIndicator + t.status + '</span>' +
+                '<span class="template-item-meta-item">' + clockSVG + ' ' + t.lastUpdated + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join("");
+      }
+
+      // ===== SELECT TEMPLATE =====
+      function selectTemplate(id) {
+        activeTemplateId = id;
+        var t = templates.find(function(tpl) { return tpl.id === id; });
+        if (!t) return;
+
+        document.getElementById("editorTitle").value = t.title;
+        document.getElementById("editorTextarea").value = t.body;
+        updateCharCount();
+
+        // Re-render list to update active state
+        applyFilters();
+
+        // Switch to editor tab
+        switchTab("editor");
+      }
+
+      // ===== INSERT TAG =====
+      function insertTag(tag) {
+        var textarea = document.getElementById("editorTextarea");
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var text = textarea.value;
+        textarea.value = text.substring(0, start) + tag + text.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+        textarea.focus();
+        updateCharCount();
+      }
+
+      // ===== CHAR COUNT =====
+      function updateCharCount() {
+        var textarea = document.getElementById("editorTextarea");
+        var countEl = document.getElementById("charCount");
+        if (textarea && countEl) {
+          countEl.textContent = textarea.value.length + " characters";
+        }
+      }
+
+      // ===== TAB SWITCHING =====
+      function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll(".editor-tab").forEach(function(tab) {
+          tab.classList.toggle("active", tab.getAttribute("data-tab") === tabName);
+        });
+
+        // Update tab contents
+        document.getElementById("tabEditor").classList.toggle("active", tabName === "editor");
+        document.getElementById("tabAi").classList.toggle("active", tabName === "ai");
+        document.getElementById("tabPreview").classList.toggle("active", tabName === "preview");
+
+        // If preview tab, render the preview
+        if (tabName === "preview") {
+          renderPreview();
+        }
+      }
+
+      // ===== RENDER PREVIEW =====
+      function renderPreview() {
+        var previewArea = document.getElementById("previewArea");
+        var title = document.getElementById("editorTitle").value;
+        var body = document.getElementById("editorTextarea").value;
+
+        // Replace tags with sample values
+        var rendered = body
+          .replace(/\{company\}/g, "uThukela Water")
+          .replace(/\{department\}/g, "Engineering")
+          .replace(/\{location\}/g, "Ladysmith, KwaZulu-Natal")
+          .replace(/\{salary_range\}/g, "R450,000 - R650,000 per annum (Total Cost to Company)")
+          .replace(/\{benefits\}/g, "- Competitive salary package (Total Cost to Company)\n- Medical aid contribution\n- Pension/Provident fund membership\n- Housing allowance\n- 22 days annual leave\n- Skills development and training opportunities\n- Relocation assistance (where applicable)");
+
+        // Convert newlines to paragraphs
+        var html = '<div style="max-width:700px;margin:0 auto">';
+        html += '<h2 style="font-size:1.25rem;margin-bottom:1rem;color:var(--primary)">' + escapeHtml(title) + '</h2>';
+        html += '<div style="line-height:1.8;font-size:0.9375rem;color:var(--text-primary)">';
+
+        var lines = rendered.split("\n");
+        lines.forEach(function(line) {
+          if (line.trim() === "") {
+            html += '<br>';
+          } else if (line.trim().startsWith("- ")) {
+            html += '<div style="padding-left:1.5rem;position:relative;margin-bottom:0.25rem">' +
+              '<span style="position:absolute;left:0.5rem;color:var(--primary);font-weight:700">&bull;</span>' +
+              escapeHtml(line.trim().substring(2)) + '</div>';
+          } else if (line.trim().endsWith(":")) {
+            html += '<div style="font-weight:700;margin-top:1rem;margin-bottom:0.25rem;color:var(--text-primary)">' + escapeHtml(line.trim()) + '</div>';
+          } else if (line.trim().match(/^(Position|Department|Location|Salary):/)) {
+            html += '<div style="margin-bottom:0.25rem"><strong>' + escapeHtml(line.split(":")[0].trim()) + ':</strong> ' + escapeHtml(line.split(":").slice(1).join(":").trim()) + '</div>';
+          } else {
+            html += '<div style="margin-bottom:0.25rem">' + escapeHtml(line.trim()) + '</div>';
+          }
+        });
+
+        html += '</div></div>';
+        previewArea.innerHTML = html;
+      }
+
+      // ===== HELPER: ESCAPE HTML =====
+      function escapeHtml(str) {
+        var div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // ===== FILTERING =====
+      function getFilteredTemplates() {
+        var category = document.getElementById("filterCategory").value;
+        var search = document.getElementById("searchInput").value.toLowerCase().trim();
+
+        return templates.filter(function(t) {
+          if (category && t.category !== category) return false;
+          if (search) {
+            var searchable = (t.title + " " + t.category + " " + t.department).toLowerCase();
+            if (searchable.indexOf(search) === -1) return false;
+          }
+          return true;
+        });
+      }
+
+      function applyFilters() {
+        var filtered = getFilteredTemplates();
+        renderTemplateList(filtered);
+      }
+
+      // ===== DEMO STATE TOGGLE =====
+      function setDemoState(state) {
+        var toggleBtns = document.querySelectorAll(".demo-toggle-btn");
+        toggleBtns.forEach(function(btn) {
+          btn.classList.remove("active");
+        });
+
+        if (state === "skeleton") {
+          document.body.classList.add("skeleton-mode");
+          toggleBtns[1].classList.add("active");
+        } else {
+          document.body.classList.remove("skeleton-mode");
+          toggleBtns[0].classList.add("active");
+        }
+      }
+
+      // ===== QUICK PROMPTS FOR AI =====
+      var quickPrompts = {
+        "water-engineer": "Generate a job description for a Water Engineer position at uThukela Water. The role involves designing and maintaining water distribution systems across the uThukela District in KwaZulu-Natal. Requires a BSc in Civil Engineering and ECSA registration.",
+        "process-controller": "Create a job description for a Water Process Controller at the Ezakheni Water Treatment Works. Responsibilities include managing daily plant operations, chemical dosing, SANS 241 compliance testing, and supervising a team of 6 operators. Must have N6 Water Treatment certification.",
+        "finance-manager": "Write a job description for a Finance Manager at uThukela Water. The role oversees budgeting, financial reporting, MFMA compliance, revenue management, and audit coordination. Requires a BCom Accounting with CA(SA) or CIMA qualification.",
+        "hr-officer": "Generate a job description for an HR Officer at uThukela Water. The role handles recruitment, employee relations, performance management, Employment Equity planning, and skills development reporting to the Water Sector SETA.",
+        "it-specialist": "Create a job description for an IT Support Specialist at uThukela Water. The role provides technical support, manages Microsoft 365 administration, maintains network infrastructure, and supports SCADA system connectivity for water treatment plants."
+      };
+
+      function setQuickPrompt(key) {
+        var prompt = quickPrompts[key];
+        if (prompt) {
+          document.getElementById("aiPromptInput").value = prompt;
+          document.getElementById("aiPromptInput").focus();
+        }
+      }
+
+      // ===== BUTTON HANDLERS =====
+      function handleCreateTemplate() {
+        activeTemplateId = null;
+        document.getElementById("editorTitle").value = "";
+        document.getElementById("editorTextarea").value = "";
+        updateCharCount();
+        switchTab("editor");
+        document.getElementById("editorTitle").focus();
+        applyFilters();
+      }
+
+      function handleSaveDraft() {
+        alert("Template saved as draft.");
+      }
+
+      function handlePublishTemplate() {
+        alert("Template published successfully.");
+      }
+
+      function handleDiscardChanges() {
+        if (activeTemplateId) {
+          selectTemplate(activeTemplateId);
+        } else {
+          document.getElementById("editorTitle").value = "";
+          document.getElementById("editorTextarea").value = "";
+          updateCharCount();
+        }
+      }
+
+      function handleGenerate() {
+        var promptVal = document.getElementById("aiPromptInput").value.trim();
+        if (!promptVal) {
+          alert("Please describe the position you want to generate a template for.");
+          return;
+        }
+        alert("AI generation is a demo feature. In production, this would call the AI service to generate a job description based on your prompt.");
+      }
+
+      // ===== EXPOSE FUNCTIONS TO GLOBAL SCOPE =====
+      window.selectTemplate = selectTemplate;
+      window.insertTag = insertTag;
+      window.switchTab = switchTab;
+      window.setDemoState = setDemoState;
+      window.setQuickPrompt = setQuickPrompt;
+      window.handleCreateTemplate = handleCreateTemplate;
+      window.handleSaveDraft = handleSaveDraft;
+      window.handlePublishTemplate = handlePublishTemplate;
+      window.handleDiscardChanges = handleDiscardChanges;
+      window.handleGenerate = handleGenerate;
+
+      // ===== INIT =====
+      document.addEventListener("DOMContentLoaded", function() {
+        // Render initial template list
+        renderTemplateList(templates);
+
+        // Load first template into editor
+        selectTemplate(1);
+
+        // Category filter
+        document.getElementById("filterCategory").addEventListener("change", applyFilters);
+
+        // Search
+        document.getElementById("searchInput").addEventListener("input", applyFilters);
+
+        // Char count updates
+        document.getElementById("editorTextarea").addEventListener("input", updateCharCount);
+
+        // Initial char count
+        updateCharCount();
+      });
+
+    })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

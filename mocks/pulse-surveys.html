@@ -1,0 +1,2977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse Surveys | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.813rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+      border: 2px solid transparent;
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border-color: var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .btn-teal:hover {
+      background: #035e54;
+      border-color: #035e54;
+    }
+
+    .btn-red {
+      background: transparent;
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .btn-red:hover {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .btn-red-filled {
+      background: var(--error);
+      border-color: var(--error);
+      color: #fff;
+    }
+    .btn-red-filled:hover {
+      background: #DC2626;
+      border-color: #DC2626;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ========== FORM CONTROLS ========== */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+    }
+
+    .form-label .required {
+      color: var(--error);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      background: #fff;
+      transition: all 200ms ease;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5,82,126,0.2);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    .form-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ========== TOP NAV ========== */
+    .topnav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb .sep {
+      color: var(--border);
+    }
+
+    .breadcrumb .current {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notif-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+    .notif-btn:hover {
+      background: var(--primary-tint);
+      border-color: var(--primary);
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--error);
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ========== MAIN LAYOUT ========== */
+    .main-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    /* ========== DEMO STATE TOGGLE ========== */
+    .demo-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--navy-tint);
+      border: 1px dashed var(--primary-light);
+      border-radius: var(--radius-control);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .demo-toggle-bar span {
+      font-weight: 600;
+      color: var(--primary);
+      margin-right: 0.25rem;
+    }
+
+    .demo-btn {
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .demo-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header-text h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-text p {
+      color: var(--text-muted);
+      font-size: 0.938rem;
+    }
+
+    /* ========== STAT CARDS ========== */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-info .stat-value {
+      font-weight: 800;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-info .stat-label {
+      font-size: 0.813rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ========== TABS ========== */
+    .tabs-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+
+    .tab-btn {
+      padding: 1rem 1.25rem;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 200ms ease;
+      position: relative;
+      top: 1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 1.5rem;
+      animation: fadeIn 300ms ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== SURVEY CARDS ========== */
+    .survey-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .survey-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 1.25rem;
+      background: #fff;
+      transition: all 200ms ease;
+    }
+    .survey-card:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .survey-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .survey-card-title {
+      font-weight: 700;
+      font-size: 0.938rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .survey-card-dates {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .survey-response-bar {
+      margin: 0.75rem 0;
+    }
+
+    .response-bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.375rem;
+    }
+
+    .response-bar-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .response-bar-pct {
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .response-bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .response-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 600ms ease;
+    }
+
+    .survey-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .survey-respondents {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    /* ========== BADGES ========== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-active {
+      background: var(--success-bg);
+      color: #065F46;
+    }
+
+    .badge-scheduled {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .badge-completed {
+      background: var(--gold-bg);
+      color: #92400E;
+    }
+
+    .badge-draft {
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-active .badge-dot { background: var(--success); }
+    .badge-scheduled .badge-dot { background: var(--primary); }
+    .badge-completed .badge-dot { background: var(--gold); }
+    .badge-draft .badge-dot { background: var(--text-muted); }
+
+    /* ========== AI SENTIMENT PANEL ========== */
+    .content-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .sentiment-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.5rem;
+    }
+
+    .sentiment-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .sentiment-panel-header h2 {
+      font-size: 1rem;
+    }
+
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-button);
+      background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .sentiment-score {
+      text-align: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+    }
+
+    .sentiment-score-value {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--teal);
+      line-height: 1;
+    }
+
+    .sentiment-score-max {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sentiment-score-label {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      margin-top: 0.375rem;
+    }
+
+    .sentiment-gauge {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+      position: relative;
+    }
+
+    .sentiment-gauge-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--error) 0%, var(--warning) 40%, var(--success) 70%, var(--teal) 100%);
+      transition: width 600ms ease;
+    }
+
+    .sentiment-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .sentiment-section-title {
+      font-weight: 700;
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .theme-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .theme-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-primary);
+    }
+
+    .theme-tag-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dept-bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+
+    .dept-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .dept-bar-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 120px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .dept-bar-track {
+      flex: 1;
+      height: 20px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dept-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 600ms ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0.5rem;
+    }
+
+    .dept-bar-value {
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15,23,42,0.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeOverlay 200ms ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 300ms ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: var(--text-muted);
+    }
+    .modal-close:hover {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* ========== QUESTION BUILDER ========== */
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .question-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      padding: 1rem;
+      background: var(--bg);
+      position: relative;
+      animation: fadeIn 300ms ease;
+    }
+
+    .question-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .question-number {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .question-remove {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: var(--text-muted);
+    }
+    .question-remove:hover {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .question-fields {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+    }
+
+    .question-fields .form-group {
+      margin-bottom: 0;
+    }
+
+    .add-question-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-control);
+      background: transparent;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .add-question-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    /* ========== TOAST ========== */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 1.5rem;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-lg);
+      min-width: 340px;
+      max-width: 440px;
+      animation: slideIn 300ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toast.removing {
+      animation: slideOut 300ms ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    .toast-success {
+      background: var(--success-bg);
+      border: 1px solid #A7F3D0;
+    }
+
+    .toast-error {
+      background: var(--error-bg);
+      border: 1px solid #FECACA;
+    }
+
+    .toast-info {
+      background: var(--navy-tint);
+      border: 1px solid var(--primary-light);
+    }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .toast-success .toast-icon { color: var(--success); }
+    .toast-error .toast-icon { color: var(--error); }
+    .toast-info .toast-icon { color: var(--primary); }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 0.813rem;
+      margin-bottom: 0.125rem;
+    }
+
+    .toast-success .toast-title { color: #065F46; }
+    .toast-error .toast-title { color: #991B1B; }
+    .toast-info .toast-title { color: var(--primary); }
+
+    .toast-msg {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .toast-close {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toast-close:hover {
+      color: var(--text-primary);
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      border-radius: 0 0 var(--radius-control) var(--radius-control);
+      animation: progressShrink 4s linear forwards;
+    }
+
+    .toast-success .toast-progress { background: var(--success); }
+    .toast-error .toast-progress { background: var(--error); }
+    .toast-info .toast-progress { background: var(--primary); }
+
+    @keyframes progressShrink {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-circle {
+      border-radius: 50%;
+    }
+
+    .skeleton-text {
+      height: 14px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-text-sm {
+      height: 10px;
+      margin-bottom: 0.375rem;
+    }
+
+    .skeleton-block {
+      height: 44px;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .stat-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .survey-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .main-container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .stat-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs-header {
+        padding: 0 0.75rem;
+        overflow-x: auto;
+      }
+
+      .tab-panel {
+        padding: 1rem;
+      }
+
+      .dept-bar-label {
+        width: 80px;
+        font-size: 0.625rem;
+      }
+
+      .question-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ====== TOP NAV ====== -->
+<nav class="topnav">
+  <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      ShumelaHire
+    </a>
+    <div class="breadcrumb">
+      <a href="#">Home</a>
+      <span class="sep">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
+      <a href="#">Engagement</a>
+      <span class="sep">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
+      <span class="current">Pulse Surveys</span>
+    </div>
+  </div>
+  <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    <button class="notif-btn" title="Notifications">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-badge">3</span>
+    </button>
+    <div class="user-avatar" title="Sipho Ndlovu">SN</div>
+  </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link active">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ====== MAIN CONTENT ====== -->
+<main class="main-container">
+
+  <!-- Demo State Toggle -->
+  <div class="demo-toggle-bar">
+    <span>DEMO:</span>
+    <button class="demo-btn active" onclick="setDemoState('normal')">Normal</button>
+    <button class="demo-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1>Pulse Surveys</h1>
+      <p>Create surveys, track engagement, and analyse employee sentiment</p>
+    </div>
+    <button class="btn btn-cta" onclick="openModal('createSurveyModal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      CREATE SURVEY
+    </button>
+  </div>
+
+  <!-- ====== STAT CARDS ====== -->
+  <div class="stat-strip" id="statStrip">
+    <!-- Active Surveys -->
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--navy-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Active Surveys</div>
+      </div>
+    </div>
+    <!-- Avg Response Rate -->
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--teal-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">68%</div>
+        <div class="stat-label">Avg Response Rate</div>
+      </div>
+    </div>
+    <!-- Sentiment Score -->
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--gold-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">7.2</div>
+        <div class="stat-label">Sentiment Score</div>
+      </div>
+    </div>
+    <!-- Questions Created -->
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--pink-bg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">45</div>
+        <div class="stat-label">Questions Created</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton Stat Strip -->
+  <div class="stat-strip" id="statSkeleton" style="display:none;">
+    <div class="stat-card" style="gap:1rem;">
+      <div class="skeleton" style="width:52px;height:52px;flex-shrink:0;border-radius:12px;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:40%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:70%;"></div>
+      </div>
+    </div>
+    <div class="stat-card" style="gap:1rem;">
+      <div class="skeleton" style="width:52px;height:52px;flex-shrink:0;border-radius:12px;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:50%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:80%;"></div>
+      </div>
+    </div>
+    <div class="stat-card" style="gap:1rem;">
+      <div class="skeleton" style="width:52px;height:52px;flex-shrink:0;border-radius:12px;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:35%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:65%;"></div>
+      </div>
+    </div>
+    <div class="stat-card" style="gap:1rem;">
+      <div class="skeleton" style="width:52px;height:52px;flex-shrink:0;border-radius:12px;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:45%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:75%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== CONTENT LAYOUT ====== -->
+  <div class="content-layout" id="contentLayout">
+
+    <!-- Left Column: Tabbed Survey List -->
+    <div>
+      <div class="tabs-container" id="tabsContainer">
+        <div class="tabs-header" id="tabsHeader">
+          <button class="tab-btn active" data-tab="all" onclick="switchTab('all')">All</button>
+          <button class="tab-btn" data-tab="active" onclick="switchTab('active')">Active</button>
+          <button class="tab-btn" data-tab="scheduled" onclick="switchTab('scheduled')">Scheduled</button>
+          <button class="tab-btn" data-tab="completed" onclick="switchTab('completed')">Completed</button>
+          <button class="tab-btn" data-tab="draft" onclick="switchTab('draft')">Draft</button>
+        </div>
+
+        <!-- Skeleton Tabs -->
+        <div id="tabsSkeleton" style="display:none;">
+          <div style="display:flex;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+            <div class="skeleton" style="width:60px;height:20px;"></div>
+            <div class="skeleton" style="width:70px;height:20px;"></div>
+            <div class="skeleton" style="width:90px;height:20px;"></div>
+            <div class="skeleton" style="width:90px;height:20px;"></div>
+            <div class="skeleton" style="width:60px;height:20px;"></div>
+          </div>
+          <div style="padding:1.5rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+              <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+              <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+              <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- All Surveys Panel -->
+        <div class="tab-panel active" id="panel-all">
+          <div class="survey-grid" id="surveyGrid">
+            <!-- Survey Cards rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Filtered panels share the same grid, JS handles filtering -->
+        <div class="tab-panel" id="panel-active"></div>
+        <div class="tab-panel" id="panel-scheduled"></div>
+        <div class="tab-panel" id="panel-completed"></div>
+        <div class="tab-panel" id="panel-draft"></div>
+      </div>
+    </div>
+
+    <!-- Right Column: AI Sentiment Panel -->
+    <div>
+      <div class="sentiment-panel" id="sentimentPanel">
+        <div class="sentiment-panel-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <h2>AI Sentiment Analysis</h2>
+          <span class="ai-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a4 4 0 014 4v2a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M8 14h8"/><path d="M12 14v4"/><path d="M9 18h6"/></svg>
+            AI
+          </span>
+        </div>
+
+        <!-- Sentiment Score Gauge -->
+        <div class="sentiment-score">
+          <div>
+            <span class="sentiment-score-value">7.2</span><span class="sentiment-score-max">/10</span>
+          </div>
+          <div class="sentiment-score-label">Overall Sentiment Score</div>
+          <div class="sentiment-gauge">
+            <div class="sentiment-gauge-fill" style="width:72%;"></div>
+          </div>
+        </div>
+
+        <!-- Trending Themes -->
+        <div class="sentiment-section">
+          <div class="sentiment-section-title">Trending Themes</div>
+          <div class="theme-tags">
+            <span class="theme-tag">
+              <span class="theme-tag-dot" style="background:var(--teal);"></span>
+              Work-Life Balance
+            </span>
+            <span class="theme-tag">
+              <span class="theme-tag-dot" style="background:var(--primary);"></span>
+              Management
+            </span>
+            <span class="theme-tag">
+              <span class="theme-tag-dot" style="background:var(--gold);"></span>
+              Career Growth
+            </span>
+            <span class="theme-tag">
+              <span class="theme-tag-dot" style="background:var(--pink);"></span>
+              Team Collaboration
+            </span>
+            <span class="theme-tag">
+              <span class="theme-tag-dot" style="background:var(--success);"></span>
+              Safety Culture
+            </span>
+          </div>
+        </div>
+
+        <!-- Department Comparison -->
+        <div class="sentiment-section">
+          <div class="sentiment-section-title">Department Comparison</div>
+          <div class="dept-bar-chart">
+            <div class="dept-bar-row">
+              <div class="dept-bar-label">Engineering</div>
+              <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width:82%;background:var(--teal);">
+                  <span class="dept-bar-value">8.2</span>
+                </div>
+              </div>
+            </div>
+            <div class="dept-bar-row">
+              <div class="dept-bar-label">Finance</div>
+              <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width:75%;background:var(--primary);">
+                  <span class="dept-bar-value">7.5</span>
+                </div>
+              </div>
+            </div>
+            <div class="dept-bar-row">
+              <div class="dept-bar-label">Operations</div>
+              <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width:71%;background:var(--gold);">
+                  <span class="dept-bar-value">7.1</span>
+                </div>
+              </div>
+            </div>
+            <div class="dept-bar-row">
+              <div class="dept-bar-label">HR & Admin</div>
+              <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width:68%;background:var(--teal);">
+                  <span class="dept-bar-value">6.8</span>
+                </div>
+              </div>
+            </div>
+            <div class="dept-bar-row">
+              <div class="dept-bar-label">Water Services</div>
+              <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width:64%;background:var(--pink);">
+                  <span class="dept-bar-value">6.4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Sentiment -->
+      <div class="sentiment-panel" id="sentimentSkeleton" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;">
+          <div class="skeleton" style="width:20px;height:20px;border-radius:4px;"></div>
+          <div class="skeleton skeleton-text" style="width:60%;margin-bottom:0;"></div>
+        </div>
+        <div style="text-align:center;padding:1.5rem 0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;">
+          <div class="skeleton" style="width:100px;height:60px;margin:0 auto 0.5rem;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:50%;margin:0 auto 0.75rem;"></div>
+          <div class="skeleton" style="height:8px;width:100%;"></div>
+        </div>
+        <div style="margin-bottom:1.25rem;">
+          <div class="skeleton skeleton-text-sm" style="width:40%;margin-bottom:0.75rem;"></div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <div class="skeleton" style="width:120px;height:28px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:100px;height:28px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:110px;height:28px;border-radius:9999px;"></div>
+          </div>
+        </div>
+        <div>
+          <div class="skeleton skeleton-text-sm" style="width:55%;margin-bottom:0.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:100%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:90%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:85%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:75%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:70%;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ====== CREATE SURVEY MODAL ====== -->
+<div class="modal-overlay" id="createSurveyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Create New Survey</h2>
+      <button class="modal-close" onclick="closeModal('createSurveyModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="surveyForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label">Survey Title <span class="required">*</span></label>
+          <input type="text" class="form-input" id="surveyTitle" placeholder="e.g. Q3 Employee Wellness Check">
+          <div class="form-error" id="titleError">Please enter a survey title</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="surveyDesc" rows="3" placeholder="Briefly describe the purpose of this survey..."></textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">Start Date <span class="required">*</span></label>
+            <input type="date" class="form-input" id="surveyStart">
+            <div class="form-error" id="startError">Please select a start date</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date <span class="required">*</span></label>
+            <input type="date" class="form-input" id="surveyEnd">
+            <div class="form-error" id="endError">Please select an end date</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Target Audience <span class="required">*</span></label>
+          <select class="form-select" id="surveyAudience">
+            <option value="">Select target audience...</option>
+            <option value="all">All Employees</option>
+            <option value="engineering">Engineering Department</option>
+            <option value="finance">Finance Department</option>
+            <option value="operations">Operations Department</option>
+            <option value="hr">HR & Admin</option>
+            <option value="water">Water Services</option>
+            <option value="managers">All Managers</option>
+            <option value="new-hires">New Hires (< 6 months)</option>
+          </select>
+          <div class="form-error" id="audienceError">Please select a target audience</div>
+        </div>
+
+        <!-- Question Builder -->
+        <div style="margin-top:0.5rem;">
+          <label class="form-label" style="margin-bottom:0.75rem;">
+            Questions <span class="required">*</span>
+            <span class="form-hint" style="display:inline;margin:0;">&mdash; Add at least one question</span>
+          </label>
+          <div class="question-list" id="questionList">
+            <!-- Default question 1 -->
+            <div class="question-item" data-qindex="1">
+              <div class="question-item-header">
+                <span class="question-number">Question 1</span>
+                <button type="button" class="question-remove" onclick="removeQuestion(this)" title="Remove question">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div class="question-fields">
+                <div class="form-group">
+                  <input type="text" class="form-input question-text" placeholder="Enter your question...">
+                </div>
+                <div class="form-group">
+                  <select class="form-select question-type">
+                    <option value="rating">Rating (1-10)</option>
+                    <option value="multiple">Multiple Choice</option>
+                    <option value="open">Open Text</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="add-question-btn" onclick="addQuestion()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Question
+          </button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('createSurveyModal')">CANCEL</button>
+      <button class="btn btn-outline" onclick="saveDraft()">SAVE AS DRAFT</button>
+      <button class="btn btn-cta" onclick="publishSurvey()">PUBLISH SURVEY</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TOAST CONTAINER ====== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ====== JAVASCRIPT ====== -->
+<script>
+(function() {
+  'use strict';
+
+  /* ========== MOCK DATA ========== */
+  var surveys = [
+    {
+      id: 1,
+      title: 'Q3 Employee Wellness Check',
+      status: 'active',
+      startDate: '1 Jul 2026',
+      endDate: '15 Jul 2026',
+      responseRate: 74,
+      respondents: 89,
+      totalTarget: 120,
+      barColor: 'var(--teal)'
+    },
+    {
+      id: 2,
+      title: 'Workplace Safety Culture Survey',
+      status: 'active',
+      startDate: '5 Jul 2026',
+      endDate: '20 Jul 2026',
+      responseRate: 52,
+      respondents: 63,
+      totalTarget: 120,
+      barColor: 'var(--primary)'
+    },
+    {
+      id: 3,
+      title: 'Management Effectiveness Pulse',
+      status: 'active',
+      startDate: '8 Jul 2026',
+      endDate: '22 Jul 2026',
+      responseRate: 38,
+      respondents: 31,
+      totalTarget: 82,
+      barColor: 'var(--gold)'
+    },
+    {
+      id: 4,
+      title: 'Water Infrastructure Team Feedback',
+      status: 'scheduled',
+      startDate: '1 Aug 2026',
+      endDate: '14 Aug 2026',
+      responseRate: 0,
+      respondents: 0,
+      totalTarget: 45,
+      barColor: 'var(--primary)'
+    },
+    {
+      id: 5,
+      title: 'New Employee Onboarding Experience',
+      status: 'scheduled',
+      startDate: '15 Aug 2026',
+      endDate: '31 Aug 2026',
+      responseRate: 0,
+      respondents: 0,
+      totalTarget: 18,
+      barColor: 'var(--teal)'
+    },
+    {
+      id: 6,
+      title: 'Q2 Employee Engagement Survey',
+      status: 'completed',
+      startDate: '1 Apr 2026',
+      endDate: '15 Apr 2026',
+      responseRate: 81,
+      respondents: 97,
+      totalTarget: 120,
+      barColor: 'var(--teal)'
+    },
+    {
+      id: 7,
+      title: 'Return-to-Office Sentiment Poll',
+      status: 'completed',
+      startDate: '1 Mar 2026',
+      endDate: '10 Mar 2026',
+      responseRate: 92,
+      respondents: 110,
+      totalTarget: 120,
+      barColor: 'var(--success)'
+    },
+    {
+      id: 8,
+      title: 'Annual Benefits Satisfaction',
+      status: 'draft',
+      startDate: 'TBD',
+      endDate: 'TBD',
+      responseRate: 0,
+      respondents: 0,
+      totalTarget: 120,
+      barColor: 'var(--text-muted)'
+    }
+  ];
+
+  /* ========== RENDER SURVEY CARDS ========== */
+  function renderSurveyCard(survey) {
+    var badgeClass = 'badge-' + survey.status;
+    var statusLabel = survey.status.charAt(0).toUpperCase() + survey.status.slice(1);
+
+    var actionBtn = '';
+    if (survey.status === 'active') {
+      actionBtn = '<button class="btn btn-sm btn-teal" onclick="showToast(\'info\',\'Survey Opened\',\'Redirecting to survey form...\')">TAKE SURVEY</button>';
+    } else if (survey.status === 'completed') {
+      actionBtn = '<button class="btn btn-sm btn-outline" onclick="showToast(\'info\',\'Viewing Results\',\'Loading survey results...\')">VIEW RESULTS</button>';
+    } else if (survey.status === 'draft') {
+      actionBtn = '<button class="btn btn-sm btn-outline" onclick="showToast(\'info\',\'Opening Editor\',\'Loading draft survey...\')">EDIT DRAFT</button>';
+    } else {
+      actionBtn = '<button class="btn btn-sm btn-outline" disabled>SCHEDULED</button>';
+    }
+
+    var respondentIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>';
+
+    return '<div class="survey-card" data-status="' + survey.status + '">' +
+      '<div class="survey-card-header">' +
+        '<div>' +
+          '<div class="survey-card-title">' + survey.title + '</div>' +
+          '<div class="survey-card-dates">' + survey.startDate + ' &ndash; ' + survey.endDate + '</div>' +
+        '</div>' +
+        '<span class="badge ' + badgeClass + '"><span class="badge-dot"></span>' + statusLabel + '</span>' +
+      '</div>' +
+      '<div class="survey-response-bar">' +
+        '<div class="response-bar-header">' +
+          '<span class="response-bar-label">Response Rate</span>' +
+          '<span class="response-bar-pct">' + survey.responseRate + '%</span>' +
+        '</div>' +
+        '<div class="response-bar-track">' +
+          '<div class="response-bar-fill" style="width:' + survey.responseRate + '%;background:' + survey.barColor + ';"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="survey-card-footer">' +
+        '<span class="survey-respondents">' + respondentIcon + survey.respondents + ' of ' + survey.totalTarget + ' respondents</span>' +
+        actionBtn +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderSurveys(filter) {
+    var filtered = filter === 'all' ? surveys : surveys.filter(function(s) { return s.status === filter; });
+    var panelId = 'panel-' + filter;
+    var panel = document.getElementById(panelId);
+
+    if (filter === 'all') {
+      var grid = document.getElementById('surveyGrid');
+      grid.innerHTML = filtered.map(renderSurveyCard).join('');
+    } else {
+      panel.innerHTML = '<div class="survey-grid">' + filtered.map(renderSurveyCard).join('') + '</div>';
+      if (filtered.length === 0) {
+        panel.innerHTML = '<div style="text-align:center;padding:3rem 1.5rem;">' +
+          '<div style="width:80px;height:80px;margin:0 auto 1rem;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;">' +
+            '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
+          '</div>' +
+          '<h3 style="font-size:1.125rem;margin-bottom:0.375rem;">No ' + filter + ' surveys</h3>' +
+          '<p style="color:var(--text-muted);font-size:0.875rem;">There are currently no surveys with this status.</p>' +
+        '</div>';
+      }
+    }
+  }
+
+  // Initial render
+  renderSurveys('all');
+
+  /* ========== DEMO STATE ========== */
+  window.setDemoState = function(state) {
+    var demoBtns = document.querySelectorAll('.demo-btn');
+    demoBtns.forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+
+    var statNormal = document.getElementById('statStrip');
+    var statSkel = document.getElementById('statSkeleton');
+    var tabsHeader = document.getElementById('tabsHeader');
+    var tabsSkel = document.getElementById('tabsSkeleton');
+    var tabPanels = document.querySelectorAll('.tab-panel');
+    var sentimentPanel = document.getElementById('sentimentPanel');
+    var sentimentSkel = document.getElementById('sentimentSkeleton');
+
+    if (state === 'normal') {
+      statNormal.style.display = '';
+      statSkel.style.display = 'none';
+      tabsHeader.style.display = '';
+      tabsSkel.style.display = 'none';
+      tabPanels.forEach(function(p) {
+        if (p.classList.contains('active')) p.style.display = '';
+      });
+      sentimentPanel.style.display = '';
+      sentimentSkel.style.display = 'none';
+    } else if (state === 'skeleton') {
+      statNormal.style.display = 'none';
+      statSkel.style.display = '';
+      tabsHeader.style.display = 'none';
+      tabsSkel.style.display = '';
+      tabPanels.forEach(function(p) { p.style.display = 'none'; });
+      sentimentPanel.style.display = 'none';
+      sentimentSkel.style.display = '';
+    }
+  };
+
+  /* ========== TAB SWITCHING ========== */
+  window.switchTab = function(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(p) {
+      p.classList.toggle('active', p.id === 'panel-' + tabId);
+    });
+    renderSurveys(tabId);
+  };
+
+  /* ========== MODALS ========== */
+  window.openModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.remove('open');
+    document.body.style.overflow = '';
+    if (id === 'createSurveyModal') {
+      resetSurveyForm();
+    }
+  };
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+        m.classList.remove('open');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* ========== QUESTION BUILDER ========== */
+  var questionCounter = 1;
+
+  window.addQuestion = function() {
+    questionCounter++;
+    var list = document.getElementById('questionList');
+    var item = document.createElement('div');
+    item.className = 'question-item';
+    item.setAttribute('data-qindex', questionCounter);
+    item.innerHTML =
+      '<div class="question-item-header">' +
+        '<span class="question-number">Question ' + questionCounter + '</span>' +
+        '<button type="button" class="question-remove" onclick="removeQuestion(this)" title="Remove question">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+      '</div>' +
+      '<div class="question-fields">' +
+        '<div class="form-group">' +
+          '<input type="text" class="form-input question-text" placeholder="Enter your question...">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<select class="form-select question-type">' +
+            '<option value="rating">Rating (1-10)</option>' +
+            '<option value="multiple">Multiple Choice</option>' +
+            '<option value="open">Open Text</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>';
+    list.appendChild(item);
+    renumberQuestions();
+  };
+
+  window.removeQuestion = function(btn) {
+    var item = btn.closest('.question-item');
+    var list = document.getElementById('questionList');
+    if (list.children.length <= 1) {
+      showToast('error', 'Cannot Remove', 'A survey must have at least one question.');
+      return;
+    }
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(-20px)';
+    item.style.transition = 'all 200ms ease';
+    setTimeout(function() {
+      if (item.parentNode) item.parentNode.removeChild(item);
+      renumberQuestions();
+    }, 200);
+  };
+
+  function renumberQuestions() {
+    var items = document.querySelectorAll('#questionList .question-item');
+    items.forEach(function(item, index) {
+      item.querySelector('.question-number').textContent = 'Question ' + (index + 1);
+    });
+  }
+
+  /* ========== SURVEY FORM ========== */
+  function resetSurveyForm() {
+    document.getElementById('surveyForm').reset();
+    document.querySelectorAll('.form-error').forEach(function(e) { e.classList.remove('visible'); });
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+    // Reset questions to just one
+    var list = document.getElementById('questionList');
+    list.innerHTML =
+      '<div class="question-item" data-qindex="1">' +
+        '<div class="question-item-header">' +
+          '<span class="question-number">Question 1</span>' +
+          '<button type="button" class="question-remove" onclick="removeQuestion(this)" title="Remove question">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div class="question-fields">' +
+          '<div class="form-group">' +
+            '<input type="text" class="form-input question-text" placeholder="Enter your question...">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<select class="form-select question-type">' +
+              '<option value="rating">Rating (1-10)</option>' +
+              '<option value="multiple">Multiple Choice</option>' +
+              '<option value="open">Open Text</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    questionCounter = 1;
+  }
+
+  function validateForm() {
+    var valid = true;
+    document.querySelectorAll('.form-error').forEach(function(e) { e.classList.remove('visible'); });
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+
+    var title = document.getElementById('surveyTitle');
+    var start = document.getElementById('surveyStart');
+    var end = document.getElementById('surveyEnd');
+    var audience = document.getElementById('surveyAudience');
+
+    if (!title.value.trim()) {
+      title.classList.add('error');
+      document.getElementById('titleError').classList.add('visible');
+      valid = false;
+    }
+    if (!start.value) {
+      start.classList.add('error');
+      document.getElementById('startError').classList.add('visible');
+      valid = false;
+    }
+    if (!end.value) {
+      end.classList.add('error');
+      document.getElementById('endError').classList.add('visible');
+      valid = false;
+    }
+    if (start.value && end.value && new Date(end.value) < new Date(start.value)) {
+      end.classList.add('error');
+      document.getElementById('endError').classList.add('visible');
+      valid = false;
+    }
+    if (!audience.value) {
+      audience.classList.add('error');
+      document.getElementById('audienceError').classList.add('visible');
+      valid = false;
+    }
+
+    // Check that at least one question has text
+    var questions = document.querySelectorAll('#questionList .question-text');
+    var hasQuestion = false;
+    questions.forEach(function(q) {
+      if (q.value.trim()) hasQuestion = true;
+    });
+    if (!hasQuestion) {
+      questions[0].classList.add('error');
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  window.publishSurvey = function() {
+    if (!validateForm()) return;
+    closeModal('createSurveyModal');
+    showToast('success', 'Survey Published', 'Your survey is now live and collecting responses.');
+    setTimeout(function() {
+      showToast('info', 'Team Notified', 'Target audience has been notified via email.');
+    }, 1000);
+  };
+
+  window.saveDraft = function() {
+    var title = document.getElementById('surveyTitle');
+    if (!title.value.trim()) {
+      title.classList.add('error');
+      document.getElementById('titleError').classList.add('visible');
+      return;
+    }
+    closeModal('createSurveyModal');
+    showToast('success', 'Draft Saved', 'Survey saved as draft. You can continue editing later.');
+  };
+
+  /* ========== TOAST NOTIFICATIONS ========== */
+  var toastCounter = 0;
+
+  window.showToast = function(type, title, msg) {
+    var container = document.getElementById('toastContainer');
+    var id = 'toast-' + (++toastCounter);
+
+    var iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    } else if (type === 'error') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    } else {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.id = id;
+    toast.innerHTML =
+      '<div class="toast-icon">' + iconSvg + '</div>' +
+      '<div class="toast-content">' +
+        '<div class="toast-title">' + title + '</div>' +
+        '<div class="toast-msg">' + msg + '</div>' +
+      '</div>' +
+      '<button class="toast-close" onclick="dismissToast(\'' + id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>' +
+      '<div class="toast-progress"></div>';
+
+    container.appendChild(toast);
+
+    setTimeout(function() {
+      dismissToast(id);
+    }, 4000);
+  };
+
+  window.dismissToast = function(id) {
+    var toast = document.getElementById(id);
+    if (!toast) return;
+    toast.classList.add('removing');
+    setTimeout(function() {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  };
+
+})();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

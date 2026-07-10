@@ -1,0 +1,3034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Development Plans | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 2px solid var(--pink);
+      color: var(--pink);
+    }
+    .btn-danger:hover {
+      background: var(--pink);
+      color: #FFFFFF;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--pink);
+      border-radius: 9px;
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== DEMO TOGGLE ========== */
+    .demo-toggle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-button);
+      padding: 4px;
+      box-shadow: var(--shadow-sm);
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .demo-toggle-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-button);
+      border: none;
+      background: transparent;
+      font-family: 'Manrope', system-ui, sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-toggle-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-toggle-btn:hover:not(.active) {
+      color: var(--text-primary);
+      background: var(--primary-tint);
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== FILTER BAR ========== */
+    .filter-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-bar-center {
+      flex: 0 1 320px;
+      min-width: 200px;
+    }
+
+    .form-select, .form-input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 200ms ease;
+      appearance: none;
+      outline: none;
+    }
+
+    .form-select {
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    .form-select:focus, .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input-wrapper .form-input {
+      width: 100%;
+      padding-left: 2.25rem;
+    }
+
+    /* ========== IDP CARDS GRID ========== */
+    .idp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .idp-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .idp-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(5, 82, 126, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .card-menu-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .card-menu-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .card-menu-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* IDP Card Top */
+    .idp-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #FFFFFF;
+      flex-shrink: 0;
+      letter-spacing: 0.03em;
+    }
+
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      font-size: 0.6875rem;
+    }
+
+    .avatar-navy { background: var(--primary); }
+    .avatar-pink { background: var(--pink); }
+    .avatar-teal { background: var(--teal); }
+    .avatar-gold { background: var(--gold); }
+
+    .idp-card-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .idp-card-role {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .status-active {
+      background: var(--teal-tint);
+      color: var(--teal);
+    }
+
+    .status-completed {
+      background: var(--card-bg);
+      color: var(--teal);
+      border: 1.5px solid var(--teal);
+    }
+
+    .status-draft {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-active .status-dot { background: var(--teal); }
+    .status-completed .status-dot { background: var(--teal); }
+    .status-draft .status-dot { background: var(--primary); }
+
+    /* Period + Status Row */
+    .idp-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.875rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .idp-period {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .idp-period svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Progress */
+    .idp-progress-section {
+      margin-bottom: 0.875rem;
+    }
+
+    .idp-progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.375rem;
+    }
+
+    .idp-progress-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .idp-progress-count {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 600ms ease;
+      width: 0;
+    }
+
+    .progress-teal { background: var(--teal); }
+    .progress-gold { background: var(--gold); }
+    .progress-navy { background: var(--primary); }
+
+    /* Card Divider */
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.875rem 0;
+    }
+
+    /* Goal Items */
+    .idp-goals-list {
+      list-style: none;
+      margin-bottom: 0.875rem;
+    }
+
+    .idp-goal-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0;
+      font-size: 0.8125rem;
+    }
+
+    .idp-goal-item + .idp-goal-item {
+      border-top: 1px solid var(--bg);
+    }
+
+    .goal-status-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .goal-status-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .goal-done {
+      background: var(--teal-bg);
+      color: var(--teal);
+    }
+
+    .goal-in-progress {
+      background: var(--gold-bg);
+      color: var(--gold);
+    }
+
+    .goal-at-risk {
+      background: var(--pink-bg);
+      color: var(--pink);
+    }
+
+    .goal-title {
+      flex: 1;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .goal-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* Skill Tags */
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .skill-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .skill-tag-navy { background: var(--navy-bg); color: var(--primary); }
+    .skill-tag-teal { background: var(--teal-bg); color: var(--teal); }
+    .skill-tag-gold { background: var(--gold-bg); color: var(--gold); }
+    .skill-tag-pink { background: var(--pink-bg); color: var(--pink); }
+
+    /* Mentor Row */
+    .idp-mentor-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .idp-mentor-row .mentor-label {
+      font-weight: 500;
+    }
+
+    .idp-mentor-row .mentor-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Card Bottom Link */
+    .card-bottom {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .card-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 200ms ease;
+      cursor: pointer;
+    }
+
+    .card-link:hover {
+      color: var(--cta-hover);
+    }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 250ms ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      max-width: 720px;
+      width: 100%;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      transform: translateY(16px) scale(0.97);
+      transition: transform 250ms ease;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary-tint);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .modal-close:hover {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .modal-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-input-full, .form-select-full {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      width: 100%;
+      transition: all 200ms ease;
+      outline: none;
+    }
+
+    .form-select-full {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 2.5rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.875rem center;
+    }
+
+    .form-input-full:focus, .form-select-full:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Dynamic Goal Rows */
+    .goal-rows-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .goal-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.875rem;
+      background: var(--bg);
+      border-radius: var(--radius-control);
+      border: 1px solid var(--border);
+    }
+
+    .goal-row-fields {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .goal-row-top {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .goal-row-top .form-input-full {
+      flex: 1;
+    }
+
+    .goal-row-top .form-input-full:last-child {
+      max-width: 140px;
+    }
+
+    .goal-remove-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .goal-remove-btn:hover {
+      background: var(--pink-bg);
+      color: var(--pink);
+    }
+
+    .goal-remove-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .add-goal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.875rem;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-control);
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+      margin-top: 0.5rem;
+    }
+
+    .add-goal-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .add-goal-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Skill Tag Input Area */
+    .skill-input-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      min-height: 42px;
+      align-items: center;
+      cursor: text;
+      transition: all 200ms ease;
+    }
+
+    .skill-input-area:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .skill-input-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.5rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .skill-input-tag button {
+      width: 14px;
+      height: 14px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: inherit;
+      opacity: 0.6;
+      transition: opacity 200ms ease;
+      padding: 0;
+    }
+
+    .skill-input-tag button:hover {
+      opacity: 1;
+    }
+
+    .skill-input-tag button svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .skill-text-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      min-width: 100px;
+      flex: 1;
+    }
+
+    .skill-text-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    .skeleton-block {
+      background: linear-gradient(90deg, var(--border) 25%, #f0f0f0 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-control);
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-content {
+      display: none;
+    }
+
+    .skeleton-content.visible {
+      display: block;
+    }
+
+    .skeleton-view {
+      display: none;
+    }
+
+    .skeleton-view.visible {
+      display: block;
+    }
+
+    .skel-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .skel-stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .skel-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+    }
+
+    .skel-stat-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .skel-line {
+      height: 12px;
+      border-radius: 6px;
+    }
+
+    .skel-line-lg {
+      height: 22px;
+      border-radius: 6px;
+    }
+
+    .skel-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .skel-idp-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+    }
+
+    .skel-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .skel-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .skel-card-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .skel-bar {
+      height: 8px;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+    }
+
+    .skel-tags {
+      display: flex;
+      gap: 0.375rem;
+      margin: 0.5rem 0;
+    }
+
+    .skel-tag {
+      width: 70px;
+      height: 22px;
+      border-radius: var(--radius-button);
+    }
+
+    .skel-goal-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0;
+    }
+
+    .skel-goal-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .idp-grid, .skel-cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar, .skel-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .stats-bar, .skel-stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-left {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-center {
+        flex: auto;
+      }
+
+      .form-select {
+        width: 100%;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .goal-row-top {
+        flex-direction: column;
+      }
+
+      .goal-row-top .form-input-full:last-child {
+        max-width: none;
+      }
+
+      .modal {
+        margin: 0.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Talent</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Development Plans</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link active">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Development Plans</h1>
+        <p>Manage individual development plans for uThukela Water employees</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export
+        </button>
+        <button class="btn btn-cta" onclick="openModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Plan
+        </button>
+      </div>
+    </div>
+
+    <!-- Demo Toggle -->
+    <div class="demo-toggle-bar">
+      <button class="demo-toggle-btn active" onclick="setDemoState('normal')">Normal</button>
+      <button class="demo-toggle-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+    </div>
+
+    <!-- ========== SKELETON VIEW ========== -->
+    <div class="skeleton-view" id="skeletonView">
+      <div class="skel-stats-grid">
+        <div class="skel-stat-card">
+          <div class="skel-stat-icon skeleton-block"></div>
+          <div class="skel-stat-lines">
+            <div class="skel-line-lg skeleton-block" style="width:50%;"></div>
+            <div class="skel-line skeleton-block" style="width:80%;"></div>
+          </div>
+        </div>
+        <div class="skel-stat-card">
+          <div class="skel-stat-icon skeleton-block"></div>
+          <div class="skel-stat-lines">
+            <div class="skel-line-lg skeleton-block" style="width:40%;"></div>
+            <div class="skel-line skeleton-block" style="width:70%;"></div>
+          </div>
+        </div>
+        <div class="skel-stat-card">
+          <div class="skel-stat-icon skeleton-block"></div>
+          <div class="skel-stat-lines">
+            <div class="skel-line-lg skeleton-block" style="width:35%;"></div>
+            <div class="skel-line skeleton-block" style="width:75%;"></div>
+          </div>
+        </div>
+        <div class="skel-stat-card">
+          <div class="skel-stat-icon skeleton-block"></div>
+          <div class="skel-stat-lines">
+            <div class="skel-line-lg skeleton-block" style="width:30%;"></div>
+            <div class="skel-line skeleton-block" style="width:65%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skel-cards-grid">
+        <div class="skel-idp-card">
+          <div class="skel-card-top">
+            <div class="skel-avatar skeleton-block"></div>
+            <div class="skel-card-lines">
+              <div class="skel-line skeleton-block" style="width:60%;"></div>
+              <div class="skel-line skeleton-block" style="width:40%;"></div>
+            </div>
+          </div>
+          <div class="skel-line skeleton-block" style="width:50%; margin-bottom:0.5rem;"></div>
+          <div class="skel-bar skeleton-block" style="width:100%;"></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-tags"><div class="skel-tag skeleton-block"></div><div class="skel-tag skeleton-block" style="width:80px;"></div><div class="skel-tag skeleton-block" style="width:60px;"></div></div>
+        </div>
+        <div class="skel-idp-card">
+          <div class="skel-card-top">
+            <div class="skel-avatar skeleton-block"></div>
+            <div class="skel-card-lines">
+              <div class="skel-line skeleton-block" style="width:55%;"></div>
+              <div class="skel-line skeleton-block" style="width:45%;"></div>
+            </div>
+          </div>
+          <div class="skel-line skeleton-block" style="width:45%; margin-bottom:0.5rem;"></div>
+          <div class="skel-bar skeleton-block" style="width:100%;"></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-tags"><div class="skel-tag skeleton-block"></div><div class="skel-tag skeleton-block" style="width:90px;"></div></div>
+        </div>
+        <div class="skel-idp-card">
+          <div class="skel-card-top">
+            <div class="skel-avatar skeleton-block"></div>
+            <div class="skel-card-lines">
+              <div class="skel-line skeleton-block" style="width:65%;"></div>
+              <div class="skel-line skeleton-block" style="width:35%;"></div>
+            </div>
+          </div>
+          <div class="skel-line skeleton-block" style="width:55%; margin-bottom:0.5rem;"></div>
+          <div class="skel-bar skeleton-block" style="width:100%;"></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-tags"><div class="skel-tag skeleton-block"></div><div class="skel-tag skeleton-block" style="width:70px;"></div><div class="skel-tag skeleton-block" style="width:85px;"></div></div>
+        </div>
+        <div class="skel-idp-card">
+          <div class="skel-card-top">
+            <div class="skel-avatar skeleton-block"></div>
+            <div class="skel-card-lines">
+              <div class="skel-line skeleton-block" style="width:50%;"></div>
+              <div class="skel-line skeleton-block" style="width:42%;"></div>
+            </div>
+          </div>
+          <div class="skel-line skeleton-block" style="width:48%; margin-bottom:0.5rem;"></div>
+          <div class="skel-bar skeleton-block" style="width:100%;"></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-goal-line"><div class="skel-goal-dot skeleton-block"></div><div class="skel-line skeleton-block" style="flex:1;"></div></div>
+          <div class="skel-tags"><div class="skel-tag skeleton-block"></div><div class="skel-tag skeleton-block" style="width:75px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== NORMAL CONTENT ========== -->
+    <div class="skeleton-content visible" id="normalContent">
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar"></div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-bar-left">
+          <select class="form-select" id="filterStatus">
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="Draft">Draft</option>
+          </select>
+          <select class="form-select" id="filterDepartment">
+            <option value="">All Departments</option>
+            <option value="Operations">Operations</option>
+            <option value="Human Resources">Human Resources</option>
+            <option value="Engineering">Engineering</option>
+            <option value="ICT">ICT</option>
+            <option value="Water Quality">Water Quality</option>
+          </select>
+        </div>
+        <div class="filter-bar-center">
+          <div class="search-input-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="form-input" id="searchInput" placeholder="Search plans or employees...">
+          </div>
+        </div>
+      </div>
+
+      <!-- IDP Grid -->
+      <div class="idp-grid" id="idpGrid"></div>
+
+    </div>
+
+  </div>
+
+  <!-- ========== CREATE IDP MODAL ========== -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Create Development Plan</h2>
+        <button class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Employee Select -->
+        <div class="form-group">
+          <label class="form-label">Employee</label>
+          <select class="form-select-full" id="modalEmployee">
+            <option value="">Select an employee...</option>
+            <option value="sipho">Sipho Ndlovu - Operations Manager</option>
+            <option value="thandi">Thandi Mkhize - HR Business Partner</option>
+            <option value="nomsa">Nomsa Dlamini - Water Quality Analyst</option>
+            <option value="bongani">Bongani Zulu - ICT Systems Administrator</option>
+            <option value="lerato">Lerato Molefe - Civil Engineer</option>
+          </select>
+        </div>
+
+        <!-- Date Range -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-input-full" id="modalStartDate" value="2026-07-01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-input-full" id="modalEndDate" value="2026-12-31">
+          </div>
+        </div>
+
+        <!-- Goals -->
+        <div class="form-group">
+          <label class="form-label">Goals</label>
+          <div class="goal-rows-container" id="goalRowsContainer">
+            <div class="goal-row" data-goal-index="0">
+              <div class="goal-row-fields">
+                <div class="goal-row-top">
+                  <input type="text" class="form-input-full" placeholder="Goal title..." value="Complete SCADA Level 2 Certification">
+                  <input type="date" class="form-input-full" value="2026-09-30">
+                </div>
+              </div>
+              <button class="goal-remove-btn" onclick="removeGoal(this)" title="Remove goal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button class="add-goal-btn" onclick="addGoal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Goal
+          </button>
+        </div>
+
+        <!-- Skill Alignment Tags -->
+        <div class="form-group">
+          <label class="form-label">Skill Alignment</label>
+          <div class="skill-input-area" id="skillInputArea" onclick="document.getElementById('skillTextInput').focus()">
+            <span class="skill-input-tag">
+              SCADA
+              <button onclick="removeSkillTag(this)" title="Remove">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </span>
+            <input type="text" class="skill-text-input" id="skillTextInput" placeholder="Type a skill and press Enter...">
+          </div>
+        </div>
+
+        <!-- Mentor Assignment -->
+        <div class="form-group">
+          <label class="form-label">Mentor Assignment</label>
+          <select class="form-select-full" id="modalMentor">
+            <option value="">Select a mentor...</option>
+            <option value="sipho">Sipho Ndlovu - Operations Manager</option>
+            <option value="thandi">Thandi Mkhize - HR Business Partner</option>
+            <option value="nomsa">Nomsa Dlamini - Water Quality Analyst</option>
+            <option value="bongani">Bongani Zulu - ICT Systems Administrator</option>
+            <option value="lerato">Lerato Molefe - Civil Engineer</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-cta" onclick="closeModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Create Plan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== MOCK DATA =====
+      var plans = [
+        {
+          id: 1,
+          employeeName: "Sipho Ndlovu",
+          initials: "SN",
+          role: "Operations Manager",
+          department: "Operations",
+          avatarColor: "navy",
+          period: "Jul 2026 - Dec 2026",
+          status: "Active",
+          goalsCompleted: 3,
+          goalsTotal: 5,
+          goals: [
+            { title: "Complete SCADA Level 2 Certification", targetDate: "30 Sep 2026", status: "done" },
+            { title: "Lead water treatment process optimisation", targetDate: "15 Oct 2026", status: "done" },
+            { title: "Mentor two junior operators", targetDate: "30 Nov 2026", status: "done" },
+            { title: "Develop emergency response protocol", targetDate: "15 Nov 2026", status: "in-progress" },
+            { title: "Complete project management course", targetDate: "20 Dec 2026", status: "in-progress" }
+          ],
+          skills: [
+            { label: "Water Treatment", color: "navy" },
+            { label: "SCADA", color: "teal" },
+            { label: "Project Management", color: "gold" }
+          ],
+          mentor: { name: "Thandi Mkhize", initials: "TM", avatarColor: "pink" }
+        },
+        {
+          id: 2,
+          employeeName: "Thandi Mkhize",
+          initials: "TM",
+          role: "HR Business Partner",
+          department: "Human Resources",
+          avatarColor: "pink",
+          period: "Jul 2026 - Dec 2026",
+          status: "Active",
+          goalsCompleted: 2,
+          goalsTotal: 4,
+          goals: [
+            { title: "Implement talent pipeline strategy", targetDate: "31 Aug 2026", status: "done" },
+            { title: "Complete labour law advanced certification", targetDate: "30 Sep 2026", status: "done" },
+            { title: "Design onboarding improvement programme", targetDate: "15 Nov 2026", status: "in-progress" },
+            { title: "Conduct skills gap analysis for all departments", targetDate: "20 Dec 2026", status: "at-risk" }
+          ],
+          skills: [
+            { label: "Talent Management", color: "pink" },
+            { label: "Labour Law", color: "navy" },
+            { label: "Change Management", color: "teal" }
+          ],
+          mentor: { name: "Sipho Ndlovu", initials: "SN", avatarColor: "navy" }
+        },
+        {
+          id: 3,
+          employeeName: "Nomsa Dlamini",
+          initials: "ND",
+          role: "Water Quality Analyst",
+          department: "Water Quality",
+          avatarColor: "teal",
+          period: "Jan 2026 - Jun 2026",
+          status: "Completed",
+          goalsCompleted: 4,
+          goalsTotal: 4,
+          goals: [
+            { title: "Obtain SANS 241 auditor qualification", targetDate: "28 Feb 2026", status: "done" },
+            { title: "Implement automated quality monitoring", targetDate: "31 Mar 2026", status: "done" },
+            { title: "Train lab technicians on new protocols", targetDate: "30 Apr 2026", status: "done" },
+            { title: "Publish water quality annual report", targetDate: "30 Jun 2026", status: "done" }
+          ],
+          skills: [
+            { label: "Water Quality", color: "teal" },
+            { label: "SANS 241", color: "navy" },
+            { label: "Laboratory Analysis", color: "gold" }
+          ],
+          mentor: { name: "Bongani Zulu", initials: "BZ", avatarColor: "navy" }
+        },
+        {
+          id: 4,
+          employeeName: "Bongani Zulu",
+          initials: "BZ",
+          role: "ICT Systems Administrator",
+          department: "ICT",
+          avatarColor: "navy",
+          period: "Jul 2026 - Dec 2026",
+          status: "Active",
+          goalsCompleted: 1,
+          goalsTotal: 4,
+          goals: [
+            { title: "Migrate SCADA to cloud-based architecture", targetDate: "30 Sep 2026", status: "done" },
+            { title: "Implement cybersecurity framework", targetDate: "31 Oct 2026", status: "in-progress" },
+            { title: "Deploy IoT sensors for pipeline monitoring", targetDate: "30 Nov 2026", status: "at-risk" },
+            { title: "Complete Azure Solutions Architect certification", targetDate: "15 Dec 2026", status: "in-progress" }
+          ],
+          skills: [
+            { label: "SCADA", color: "teal" },
+            { label: "Cloud Architecture", color: "navy" },
+            { label: "Cybersecurity", color: "pink" }
+          ],
+          mentor: { name: "Lerato Molefe", initials: "LM", avatarColor: "gold" }
+        },
+        {
+          id: 5,
+          employeeName: "Lerato Molefe",
+          initials: "LM",
+          role: "Civil Engineer",
+          department: "Engineering",
+          avatarColor: "gold",
+          period: "Jul 2026 - Dec 2026",
+          status: "Draft",
+          goalsCompleted: 0,
+          goalsTotal: 3,
+          goals: [
+            { title: "Complete structural assessment of Tugela pipeline", targetDate: "31 Oct 2026", status: "in-progress" },
+            { title: "Obtain Professional Engineer (Pr Eng) registration", targetDate: "30 Nov 2026", status: "in-progress" },
+            { title: "Design water reticulation upgrade plan", targetDate: "20 Dec 2026", status: "in-progress" }
+          ],
+          skills: [
+            { label: "Structural Assessment", color: "gold" },
+            { label: "Project Management", color: "navy" },
+            { label: "Water Reticulation", color: "teal" }
+          ],
+          mentor: { name: "Sipho Ndlovu", initials: "SN", avatarColor: "navy" }
+        }
+      ];
+
+      // ===== SVG ICONS =====
+      var threeDotSVG = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>';
+
+      var checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+      var clockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+
+      var warningSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+
+      var calendarSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+
+      // ===== HELPER: STATUS BADGE =====
+      function statusBadge(status) {
+        var cls = 'status-active';
+        if (status === 'Completed') cls = 'status-completed';
+        if (status === 'Draft') cls = 'status-draft';
+        return '<span class="status-badge ' + cls + '"><span class="status-dot"></span>' + status + '</span>';
+      }
+
+      // ===== HELPER: GOAL STATUS ICON =====
+      function goalStatusIcon(status) {
+        if (status === 'done') return '<div class="goal-status-icon goal-done">' + checkSVG + '</div>';
+        if (status === 'at-risk') return '<div class="goal-status-icon goal-at-risk">' + warningSVG + '</div>';
+        return '<div class="goal-status-icon goal-in-progress">' + clockSVG + '</div>';
+      }
+
+      // ===== HELPER: PROGRESS COLOR =====
+      function progressColor(plan) {
+        var pct = plan.goalsTotal > 0 ? (plan.goalsCompleted / plan.goalsTotal) * 100 : 0;
+        if (pct >= 75) return 'progress-teal';
+        if (pct >= 40) return 'progress-gold';
+        return 'progress-navy';
+      }
+
+      // ===== RENDER: STATS =====
+      function renderStats() {
+        var statsEl = document.getElementById('statsBar');
+        var activePlans = plans.filter(function(p) { return p.status === 'Active'; }).length;
+        var completedPlans = plans.filter(function(p) { return p.status === 'Completed'; }).length;
+        var totalGoalsAchieved = plans.reduce(function(sum, p) { return sum + p.goalsCompleted; }, 0);
+        var totalGoals = plans.reduce(function(sum, p) { return sum + p.goalsTotal; }, 0);
+        var completionRate = totalGoals > 0 ? Math.round((totalGoalsAchieved / totalGoals) * 100) : 0;
+        var mentors = [];
+        plans.forEach(function(p) {
+          if (p.mentor && mentors.indexOf(p.mentor.name) === -1) mentors.push(p.mentor.name);
+        });
+
+        statsEl.innerHTML =
+          '<div class="stat-card">' +
+            '<div class="stat-icon stat-icon-navy">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+                '<polyline points="14 2 14 8 20 8"></polyline>' +
+                '<line x1="16" y1="13" x2="8" y2="13"></line>' +
+                '<line x1="16" y1="17" x2="8" y2="17"></line>' +
+                '<polyline points="10 9 9 9 8 9"></polyline>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="stat-content">' +
+              '<div class="stat-number">15</div>' +
+              '<div class="stat-label">Active Plans</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="stat-card">' +
+            '<div class="stat-icon stat-icon-teal">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>' +
+                '<polyline points="22 4 12 14.01 9 11.01"></polyline>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="stat-content">' +
+              '<div class="stat-number">68%</div>' +
+              '<div class="stat-label">Completion Rate</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="stat-card">' +
+            '<div class="stat-icon stat-icon-gold">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<circle cx="12" cy="8" r="7"></circle>' +
+                '<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="stat-content">' +
+              '<div class="stat-number">42</div>' +
+              '<div class="stat-label">Goals Achieved</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="stat-card">' +
+            '<div class="stat-icon stat-icon-pink">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>' +
+                '<circle cx="9" cy="7" r="4"></circle>' +
+                '<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>' +
+                '<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="stat-content">' +
+              '<div class="stat-number">8</div>' +
+              '<div class="stat-label">Mentors Assigned</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      // ===== RENDER: IDP CARDS =====
+      function renderCards(data) {
+        var grid = document.getElementById('idpGrid');
+        if (data.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 2rem;color:var(--text-muted);">' +
+            '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1rem;opacity:0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg>' +
+            '<h3>No development plans found</h3>' +
+            '<p style="font-size:0.9375rem;margin-top:0.25rem;">Try adjusting your search or filter criteria.</p>' +
+          '</div>';
+          return;
+        }
+
+        grid.innerHTML = data.map(function(plan) {
+          var pct = plan.goalsTotal > 0 ? Math.round((plan.goalsCompleted / plan.goalsTotal) * 100) : 0;
+          var pColorClass = progressColor(plan);
+
+          // Goals HTML
+          var goalsHTML = plan.goals.map(function(g) {
+            return '<li class="idp-goal-item">' +
+              goalStatusIcon(g.status) +
+              '<span class="goal-title">' + g.title + '</span>' +
+              '<span class="goal-date">' + g.targetDate + '</span>' +
+            '</li>';
+          }).join('');
+
+          // Skills HTML
+          var skillsHTML = plan.skills.map(function(s) {
+            return '<span class="skill-tag skill-tag-' + s.color + '">' + s.label + '</span>';
+          }).join('');
+
+          // Mentor HTML
+          var mentorHTML = plan.mentor
+            ? '<div class="idp-mentor-row">' +
+                '<div class="avatar avatar-sm avatar-' + plan.mentor.avatarColor + '">' + plan.mentor.initials + '</div>' +
+                '<span class="mentor-label">Mentor:</span>' +
+                '<span class="mentor-name">' + plan.mentor.name + '</span>' +
+              '</div>'
+            : '';
+
+          return '<div class="idp-card" data-id="' + plan.id + '">' +
+            '<button class="card-menu-btn" title="Actions">' + threeDotSVG + '</button>' +
+            '<div class="idp-card-top">' +
+              '<div class="avatar avatar-' + plan.avatarColor + '">' + plan.initials + '</div>' +
+              '<div>' +
+                '<div class="idp-card-name">' + plan.employeeName + '</div>' +
+                '<div class="idp-card-role">' + plan.role + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="idp-meta-row">' +
+              '<div class="idp-period">' + calendarSVG + '<span>' + plan.period + '</span></div>' +
+              statusBadge(plan.status) +
+            '</div>' +
+            '<div class="idp-progress-section">' +
+              '<div class="idp-progress-header">' +
+                '<span class="idp-progress-label">Progress</span>' +
+                '<span class="idp-progress-count">' + plan.goalsCompleted + '/' + plan.goalsTotal + ' goals completed</span>' +
+              '</div>' +
+              '<div class="progress-bar-track">' +
+                '<div class="progress-bar-fill ' + pColorClass + '" data-width="' + pct + '"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="card-divider"></div>' +
+            '<ul class="idp-goals-list">' + goalsHTML + '</ul>' +
+            '<div class="skill-tags">' + skillsHTML + '</div>' +
+            mentorHTML +
+            '<div class="card-bottom">' +
+              '<a class="card-link" href="#">View Full Plan</a>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        // Animate progress bars
+        setTimeout(function() {
+          document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(bar) {
+            bar.style.width = bar.getAttribute('data-width') + '%';
+          });
+        }, 100);
+      }
+
+      // ===== FILTERING =====
+      function getFilteredPlans() {
+        var statusVal = document.getElementById('filterStatus').value;
+        var deptVal = document.getElementById('filterDepartment').value;
+        var searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        return plans.filter(function(p) {
+          if (statusVal && p.status !== statusVal) return false;
+          if (deptVal && p.department !== deptVal) return false;
+          if (searchVal) {
+            var hay = (p.employeeName + ' ' + p.role + ' ' + p.department).toLowerCase();
+            if (hay.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+      }
+
+      function applyFilters() {
+        var filtered = getFilteredPlans();
+        renderCards(filtered);
+      }
+
+      // ===== MODAL =====
+      window.openModal = function() {
+        document.getElementById('createModal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      };
+
+      window.closeModal = function() {
+        document.getElementById('createModal').classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      // ===== DYNAMIC GOAL ADD / REMOVE =====
+      var goalCounter = 1;
+
+      window.addGoal = function() {
+        var container = document.getElementById('goalRowsContainer');
+        var row = document.createElement('div');
+        row.className = 'goal-row';
+        row.setAttribute('data-goal-index', goalCounter++);
+        row.innerHTML =
+          '<div class="goal-row-fields">' +
+            '<div class="goal-row-top">' +
+              '<input type="text" class="form-input-full" placeholder="Goal title...">' +
+              '<input type="date" class="form-input-full">' +
+            '</div>' +
+          '</div>' +
+          '<button class="goal-remove-btn" onclick="removeGoal(this)" title="Remove goal">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<line x1="18" y1="6" x2="6" y2="18"></line>' +
+              '<line x1="6" y1="6" x2="18" y2="18"></line>' +
+            '</svg>' +
+          '</button>';
+        container.appendChild(row);
+      };
+
+      window.removeGoal = function(btn) {
+        var container = document.getElementById('goalRowsContainer');
+        var row = btn.closest('.goal-row');
+        if (container.children.length > 1) {
+          row.remove();
+        }
+      };
+
+      // ===== SKILL TAG INPUT =====
+      window.removeSkillTag = function(btn) {
+        var tag = btn.closest('.skill-input-tag');
+        if (tag) tag.remove();
+      };
+
+      var skillInput = document.getElementById('skillTextInput');
+      if (skillInput) {
+        skillInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            var val = this.value.trim();
+            if (val) {
+              var tag = document.createElement('span');
+              tag.className = 'skill-input-tag';
+              tag.innerHTML = val +
+                '<button onclick="removeSkillTag(this)" title="Remove">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<line x1="18" y1="6" x2="6" y2="18"></line>' +
+                    '<line x1="6" y1="6" x2="18" y2="18"></line>' +
+                  '</svg>' +
+                '</button>';
+              var area = document.getElementById('skillInputArea');
+              area.insertBefore(tag, this);
+              this.value = '';
+            }
+          }
+        });
+      }
+
+      // ===== DEMO TOGGLE =====
+      window.setDemoState = function(state) {
+        document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+          btn.classList.toggle('active', btn.textContent.trim().toLowerCase().replace(' ', '') === state.replace(' ', ''));
+        });
+
+        var normalContent = document.getElementById('normalContent');
+        var skeletonView = document.getElementById('skeletonView');
+
+        if (state === 'skeleton') {
+          normalContent.classList.remove('visible');
+          skeletonView.classList.add('visible');
+        } else {
+          skeletonView.classList.remove('visible');
+          normalContent.classList.add('visible');
+          setTimeout(function() {
+            document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(bar) {
+              bar.style.width = bar.getAttribute('data-width') + '%';
+            });
+          }, 100);
+        }
+      };
+
+      // Fix toggle button matching
+      document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+        var originalOnclick = btn.getAttribute('onclick');
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', function() {
+          var stateMap = { 'Normal': 'normal', 'Skeleton Loading': 'skeleton' };
+          var state = stateMap[this.textContent.trim()];
+          if (state) window.setDemoState(state);
+        });
+      });
+
+      // ===== KEYBOARD: ESCAPE TO CLOSE MODAL =====
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          window.closeModal();
+        }
+      });
+
+      // ===== OVERLAY CLICK TO CLOSE =====
+      document.getElementById('createModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          window.closeModal();
+        }
+      });
+
+      // ===== INIT =====
+      document.addEventListener('DOMContentLoaded', function() {
+        renderStats();
+        renderCards(plans);
+
+        // Filter events
+        document.getElementById('filterStatus').addEventListener('change', applyFilters);
+        document.getElementById('filterDepartment').addEventListener('change', applyFilters);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+      });
+
+    })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

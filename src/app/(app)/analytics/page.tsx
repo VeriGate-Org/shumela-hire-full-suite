@@ -12,6 +12,12 @@ import {
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { FunnelIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import {
+  StarIcon,
+  ExclamationTriangleIcon,
+  CheckIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/react/24/outline';
 
 // Filter configuration for analytics
 const analyticsFilters: FilterConfig[] = [
@@ -211,64 +217,62 @@ export default function AnalyticsPage() {
   const actions = (
     <button
       onClick={handleExportCSV}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-control text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+      className="inline-flex items-center gap-2 px-6 py-2.5 bg-cta text-cta-foreground rounded-button text-sm font-bold uppercase tracking-wider hover:bg-cta-hover border-2 border-cta hover:border-cta-hover transition-colors"
     >
       <ArrowDownTrayIcon className="w-4 h-4" />
-      Export CSV
+      Export Report
     </button>
   );
 
   return (
     <PageWrapper
-      title="Analytics"
-      subtitle="Recruitment performance metrics and insights"
+      title="Analytics Dashboard"
+      subtitle="Recruitment performance insights"
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Compact time range + filter bar */}
-        <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex gap-2">
-              {timeRangeOptions.map((range) => (
-                <button
-                  key={range.key}
-                  onClick={() => setSelectedTimeRange(range.key)}
-                  className={`px-4 py-2 rounded-control text-sm font-medium border transition-colors ${
-                    selectedTimeRange === range.key
-                      ? 'bg-gold-50 text-gold-800 border-gold-300'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-3">
+        {/* Time range bar — pill toggle group + filter button */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex gap-1 bg-card border border-border rounded-button p-1">
+            {timeRangeOptions.map((range) => (
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-control text-sm font-medium border transition-colors ${
-                  showFilters
-                    ? 'bg-gold-50 text-gold-800 border-gold-300'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                key={range.key}
+                onClick={() => setSelectedTimeRange(range.key)}
+                className={`px-5 py-2 rounded-button text-sm font-semibold transition-colors ${
+                  selectedTimeRange === range.key
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-background hover:text-foreground'
                 }`}
               >
-                <FunnelIcon className="w-4 h-4" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="bg-gold-500 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
-                    {activeFilterCount}
-                  </span>
-                )}
+                {range.label}
               </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-button text-sm font-semibold border transition-colors ${
+                showFilters
+                  ? 'border-primary text-primary bg-icon-bg-navy'
+                  : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary'
+              }`}
+            >
+              <FunnelIcon className="w-4 h-4" />
+              Advanced Filters
               {activeFilterCount > 0 && (
-                <button
-                  onClick={handleFilterReset}
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Reset
-                </button>
+                <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center font-bold">
+                  {activeFilterCount}
+                </span>
               )}
-            </div>
+            </button>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleFilterReset}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Reset
+              </button>
+            )}
           </div>
         </div>
 
@@ -282,44 +286,78 @@ export default function AnalyticsPage() {
           />
         )}
 
-        {/* Key Insights — promoted to top */}
+        {/* AI Insights — two-column card grid matching mock layout */}
         {!insightsLoading && insights.length > 0 && (
-          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Insights & Recommendations</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {positiveInsights.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-medium text-gray-900">Performance Highlights</h4>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    {positiveInsights.map((insight, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">&#8226;</span>
-                        {insight.text}
-                      </li>
-                    ))}
-                  </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Highlights card */}
+            {positiveInsights.length > 0 && (
+              <div className="enterprise-card relative overflow-hidden border border-border rounded-card shadow-sm p-6">
+                {/* Teal accent bar at top */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-accent-teal" />
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-full bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                    <StarIcon className="w-[18px] h-[18px]" />
+                  </div>
+                  <h3 className="text-[0.9375rem] font-bold text-foreground">Highlights</h3>
+                  <span className="text-[0.625rem] font-bold text-primary bg-icon-bg-navy px-2 py-0.5 rounded-button uppercase tracking-wider">
+                    AI Insight
+                  </span>
                 </div>
-              )}
-              {warningInsights.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-medium text-gray-900">Areas for Improvement</h4>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    {warningInsights.map((insight, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-orange-500 mt-0.5">&#8226;</span>
-                        {insight.text}
-                      </li>
-                    ))}
-                  </ul>
+                <ul className="space-y-0">
+                  {positiveInsights.map((insight, i) => (
+                    <li
+                      key={i}
+                      className={`flex items-start gap-2.5 py-2.5 text-sm text-foreground leading-relaxed ${
+                        i < positiveInsights.length - 1 ? 'border-b border-background' : ''
+                      }`}
+                    >
+                      <span className="flex-shrink-0 mt-1 text-accent-teal">
+                        <CheckIcon className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      </span>
+                      <span>{insight.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Areas for Improvement card */}
+            {warningInsights.length > 0 && (
+              <div className="enterprise-card relative overflow-hidden border border-border rounded-card shadow-sm p-6">
+                {/* Gold accent bar at top */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-accent-gold" />
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-full bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                    <ExclamationTriangleIcon className="w-[18px] h-[18px]" />
+                  </div>
+                  <h3 className="text-[0.9375rem] font-bold text-foreground">Areas for Improvement</h3>
+                  <span className="text-[0.625rem] font-bold text-primary bg-icon-bg-navy px-2 py-0.5 rounded-button uppercase tracking-wider">
+                    AI Insight
+                  </span>
                 </div>
-              )}
-            </div>
+                <ul className="space-y-0">
+                  {warningInsights.map((insight, i) => (
+                    <li
+                      key={i}
+                      className={`flex items-start gap-2.5 py-2.5 text-sm text-foreground leading-relaxed ${
+                        i < warningInsights.length - 1 ? 'border-b border-background' : ''
+                      }`}
+                    >
+                      <span className="flex-shrink-0 mt-1 text-accent-gold">
+                        <ExclamationCircleIcon className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      </span>
+                      <span>{insight.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
         {!insightsLoading && insights.length === 0 && (
-          <div className="bg-white rounded-control border border-gray-200 border-t-2 border-t-gold-500 p-6 text-center">
-            <p className="text-sm text-gray-500">Not enough data to generate insights</p>
+          <div className="enterprise-card border border-border rounded-card shadow-sm p-6 text-center">
+            <p className="text-sm text-muted-foreground">Not enough data to generate insights</p>
           </div>
         )}
 
@@ -328,6 +366,17 @@ export default function AnalyticsPage() {
 
         {/* Main Dashboard — no header, no tabs, flat layout */}
         <AdvancedAnalyticsDashboard filters={filterValues} timeRange={selectedTimeRange} />
+
+        {/* Export section — bottom CTA */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-cta text-cta-foreground rounded-button text-sm font-bold uppercase tracking-wider hover:bg-cta-hover border-2 border-cta hover:border-cta-hover transition-colors"
+          >
+            <ArrowDownTrayIcon className="w-4 h-4" />
+            Export Report
+          </button>
+        </div>
       </div>
     </PageWrapper>
   );

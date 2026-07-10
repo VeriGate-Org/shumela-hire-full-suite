@@ -261,7 +261,7 @@ export default function AdminDashboard({ selectedTimeframe, onTimeframeChange: _
                       <Legend verticalAlign="top" height={28} iconType="square" iconSize={10}
                         formatter={(value: string) => {
                           const labels: Record<string, string> = { cpu: 'CPU', memory: 'Memory', requests: 'Req/min' };
-                          return <span style={{ color: '#64748B', fontSize: 12 }}>{labels[value] || value}</span>;
+                          return <span className="text-muted-foreground text-xs">{labels[value] || value}</span>;
                         }}
                       />
                       <Area type="monotone" dataKey="cpu" stroke="#05527E" fill="#05527E" fillOpacity={0.15} strokeWidth={2} />

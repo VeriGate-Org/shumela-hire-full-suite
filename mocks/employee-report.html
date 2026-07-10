@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Employee Report — ShumelaHire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Manrope', system-ui, sans-serif; background: #F1F5F9; color: #0F172A; line-height: 1.6; min-height: 100vh; }
+        a { color: #05527E; text-decoration: none; transition: color 200ms ease; }
+        a:hover { color: #047469; }
+
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+        }
+
+        /* NAV */
+        .top-nav { position: sticky; top: 0; z-index: 100; background: var(--card); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .top-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-left { display: flex; align-items: center; gap: 24px; }
+        .logo { font-size: 1.25rem; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; white-space: nowrap; }
+        .logo span { color: var(--cta-hover); }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--muted); }
+        .breadcrumb a { color: var(--muted); }
+        .breadcrumb a:hover { color: var(--primary); }
+        .breadcrumb .separator { color: var(--border); font-size: 0.75rem; }
+        .breadcrumb .current { color: var(--text); font-weight: 600; }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all 200ms ease; }
+        .nav-icon-btn:hover { background: var(--surface-navy); color: var(--primary); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+
+        /* MAIN */
+        .main-content { max-width: 1400px; margin: 0 auto; padding: 32px 24px 120px; }
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .page-header p { color: var(--muted); font-size: 0.9375rem; }
+
+        /* STATE TOGGLE */
+        .state-toggle { display: flex; gap: 4px; background: var(--surface-navy); border-radius: var(--radius-button); padding: 4px; margin-bottom: 24px; width: fit-content; }
+        .state-toggle button { padding: 8px 16px; border: none; background: transparent; border-radius: var(--radius-button); font-family: inherit; font-size: 0.8125rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 200ms ease; }
+        .state-toggle button.active { background: var(--card); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+        /* CARD */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-md); padding: 24px; margin-bottom: 24px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .card-title { font-size: 1.0625rem; font-weight: 700; color: var(--text); }
+        .card-subtitle { font-size: 0.8125rem; color: var(--muted); margin-top: 2px; }
+
+        /* EMPLOYEE SUMMARY */
+        .employee-summary { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .employee-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; flex-shrink: 0; }
+        .employee-info h2 { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+        .employee-info p { font-size: 0.875rem; color: var(--muted); }
+        .employee-meta { display: flex; gap: 24px; margin-left: auto; flex-wrap: wrap; }
+        .meta-item { text-align: center; }
+        .meta-label { font-size: 0.6875rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .meta-value { font-size: 0.9375rem; font-weight: 700; color: var(--text); }
+
+        /* CONFIG GRID */
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        /* SECTIONS */
+        .section-group { margin-bottom: 20px; }
+        .section-group:last-child { margin-bottom: 0; }
+        .section-group-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface-navy); border-radius: var(--radius-control); margin-bottom: 8px; cursor: pointer; user-select: none; transition: background 200ms ease; }
+        .section-group-header:hover { background: var(--icon-navy); }
+        .section-group-header.teal { background: var(--surface-teal); }
+        .section-group-header.teal:hover { background: var(--icon-teal); }
+        .section-group-header.gold { background: var(--surface-gold); }
+        .section-group-header.gold:hover { background: var(--icon-gold); }
+        .section-group-header.pink { background: var(--surface-pink); }
+        .section-group-header.pink:hover { background: var(--icon-pink); }
+        .section-group-title { display: flex; align-items: center; gap: 10px; font-size: 0.875rem; font-weight: 700; color: var(--text); }
+        .section-group-title .icon-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .section-group-title .icon-circle.navy { background: var(--icon-navy); color: var(--primary); }
+        .section-group-title .icon-circle.teal { background: var(--icon-teal); color: var(--teal); }
+        .section-group-title .icon-circle.gold { background: var(--icon-gold); color: var(--gold); }
+        .section-group-title .icon-circle.pink { background: var(--icon-pink); color: var(--pink); }
+        .toggle-all-btn { font-size: 0.75rem; font-weight: 600; color: var(--primary); background: none; border: none; cursor: pointer; font-family: inherit; padding: 4px 8px; border-radius: 4px; transition: background 200ms ease; }
+        .toggle-all-btn:hover { background: rgba(5,82,126,0.08); }
+        .section-items { padding-left: 52px; }
+        .section-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+        .section-item label { font-size: 0.875rem; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 10px; flex: 1; }
+        .section-item .restricted-badge { font-size: 0.6875rem; font-weight: 600; color: var(--pink); background: var(--surface-pink); padding: 2px 8px; border-radius: var(--radius-button); }
+
+        /* CHECKBOX */
+        input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px; cursor: pointer; position: relative; flex-shrink: 0; transition: all 200ms ease; }
+        input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
+        input[type="checkbox"]:checked::after { content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        input[type="checkbox"]:hover { border-color: var(--primary); }
+        input[type="checkbox"].group-toggle { width: 18px; height: 18px; border-radius: 4px; }
+        input[type="checkbox"].group-toggle:checked::after { left: 5px; top: 1px; width: 4px; height: 9px; }
+
+        /* RADIO */
+        input[type="radio"] { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; cursor: pointer; position: relative; flex-shrink: 0; transition: all 200ms ease; }
+        input[type="radio"]:checked { border-color: var(--primary); }
+        input[type="radio"]:checked::after { content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; background: var(--primary); border-radius: 50%; transform: translate(-50%, -50%); }
+        input[type="radio"]:hover { border-color: var(--primary); }
+
+        /* OPTIONS */
+        .option-group { margin-bottom: 20px; }
+        .option-group:last-child { margin-bottom: 0; }
+        .option-label { font-size: 0.8125rem; font-weight: 600; color: var(--text); margin-bottom: 8px; display: block; }
+        .option-sublabel { font-size: 0.75rem; color: var(--muted); font-weight: 400; }
+        .date-row { display: flex; gap: 12px; }
+        .date-row .date-field { flex: 1; }
+        .date-field label { font-size: 0.75rem; color: var(--muted); font-weight: 500; display: block; margin-bottom: 4px; }
+        input[type="date"], input[type="text"], textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-control); font-family: inherit; font-size: 0.875rem; color: var(--text); transition: border-color 200ms ease, box-shadow 200ms ease; background: var(--card); }
+        input[type="date"]:focus, input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(5,82,126,0.1); }
+        textarea { resize: vertical; min-height: 80px; }
+        .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+        .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.875rem; }
+        .radio-option input[type="radio"] { width: 18px; height: 18px; }
+        .radio-option input[type="radio"]:checked::after { width: 8px; height: 8px; }
+
+        /* TOGGLE SWITCH */
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: background 200ms ease; }
+        .toggle-slider::before { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 200ms ease; box-shadow: var(--shadow-sm); }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* LAYOUT TOGGLE */
+        .layout-toggle { display: flex; background: var(--bg); border-radius: var(--radius-control); overflow: hidden; border: 1px solid var(--border); }
+        .layout-toggle button { flex: 1; padding: 8px 16px; border: none; background: transparent; font-family: inherit; font-size: 0.8125rem; font-weight: 600; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 200ms ease; }
+        .layout-toggle button.active { background: var(--card); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+        /* PREVIEW */
+        .preview-area { background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius-control); padding: 32px; min-height: 400px; }
+        .preview-doc { background: white; max-width: 520px; margin: 0 auto; padding: 40px 36px; box-shadow: var(--shadow-lg); border-radius: 4px; min-height: 500px; }
+        .preview-letterhead { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 3px solid var(--primary); margin-bottom: 24px; }
+        .preview-letterhead-logo { width: 40px; height: 40px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.75rem; }
+        .preview-letterhead-text { font-size: 0.8125rem; font-weight: 700; color: var(--primary); }
+        .preview-letterhead-text span { display: block; font-size: 0.6875rem; font-weight: 400; color: var(--muted); }
+        .preview-title { font-size: 1.125rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .preview-subtitle { font-size: 0.8125rem; color: var(--muted); margin-bottom: 20px; }
+        .preview-sections { list-style: none; padding: 0; }
+        .preview-sections li { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.8125rem; color: var(--text); border-bottom: 1px solid #F1F5F9; }
+        .preview-sections li:last-child { border-bottom: none; }
+        .preview-sections .check-icon { color: var(--success); flex-shrink: 0; }
+        .preview-note { margin-top: 24px; padding: 12px 16px; background: var(--surface-gold); border-radius: var(--radius-control); font-size: 0.8125rem; color: var(--gold); font-weight: 500; text-align: center; }
+
+        /* ACTION BAR */
+        .action-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; background: var(--card); border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0,0,0,0.06); }
+        .action-bar-inner { max-width: 1400px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .action-bar-left { display: flex; gap: 12px; }
+        .action-bar-info { font-size: 0.8125rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .section-count { font-weight: 700; color: var(--primary); }
+
+        /* BUTTONS */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border-radius: var(--radius-button); font-family: inherit; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; border: 2px solid transparent; transition: all 200ms ease; white-space: nowrap; }
+        .btn-outline { background: transparent; border-color: var(--border); color: var(--muted); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--surface-navy); }
+        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-primary:hover { background: #044266; border-color: #044266; }
+        .btn-cta { background: var(--cta); color: var(--text); border-color: var(--cta); font-weight: 800; }
+        .btn-cta:hover { background: var(--cta-hover); border-color: var(--cta-hover); }
+        .btn-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-danger { background: var(--error); color: white; border-color: var(--error); }
+        .btn-danger:hover { background: #DC2626; border-color: #DC2626; }
+        .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
+        .btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all 200ms ease; }
+        .btn-icon:hover { border-color: var(--primary); color: var(--primary); background: var(--surface-navy); }
+
+        /* TABLE */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 16px; font-size: 0.6875rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); background: var(--bg); }
+        td { padding: 14px 16px; font-size: 0.875rem; color: var(--text); border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--surface-navy); }
+        .format-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-button); font-size: 0.75rem; font-weight: 700; }
+        .format-badge.pdf { background: var(--surface-pink); color: var(--pink); }
+        .format-badge.excel { background: var(--surface-teal); color: var(--teal); }
+        .format-badge.word { background: var(--surface-navy); color: var(--primary); }
+        .table-actions { display: flex; gap: 6px; }
+
+        /* OVERLAY */
+        .overlay { position: fixed; inset: 0; z-index: 200; background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; visibility: hidden; transition: all 300ms ease; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        .overlay-content { background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-lg); width: 100%; max-width: 480px; padding: 32px; transform: translateY(16px) scale(0.97); transition: transform 300ms ease; }
+        .overlay.active .overlay-content { transform: translateY(0) scale(1); }
+
+        /* GENERATING OVERLAY */
+        .generating-overlay .overlay-content { max-width: 520px; text-align: center; }
+        .generating-title { font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+        .generating-subtitle { font-size: 0.875rem; color: var(--muted); margin-bottom: 24px; }
+        .progress-bar-track { width: 100%; height: 8px; background: var(--bg); border-radius: 8px; overflow: hidden; margin-bottom: 28px; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--teal)); border-radius: 8px; width: 0%; transition: width 600ms ease; }
+        .gen-steps { text-align: left; margin-bottom: 28px; }
+        .gen-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 0.875rem; color: var(--muted); transition: color 300ms ease; }
+        .gen-step.active { color: var(--primary); font-weight: 600; }
+        .gen-step.done { color: var(--success); }
+        .gen-step .step-icon { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 300ms ease; }
+        .gen-step.active .step-icon { border-color: var(--primary); background: var(--surface-navy); }
+        .gen-step.done .step-icon { border-color: var(--success); background: var(--success-bg); }
+        .gen-step .spinner { width: 16px; height: 16px; border: 2px solid var(--surface-navy); border-top-color: var(--primary); border-radius: 50%; animation: spin 600ms linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .gen-complete { display: none; text-align: center; }
+        .gen-complete.show { display: block; }
+        .gen-complete-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--success-bg); color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+        .gen-complete h3 { font-size: 1.125rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .gen-complete p { font-size: 0.875rem; color: var(--muted); margin-bottom: 20px; }
+        .gen-complete-actions { display: flex; gap: 12px; justify-content: center; }
+        .gen-in-progress { }
+        .gen-in-progress.hide { display: none; }
+
+        /* MODAL */
+        .modal-title { font-size: 1.125rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .modal-subtitle { font-size: 0.875rem; color: var(--muted); margin-bottom: 20px; }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .form-group label .required { color: var(--error); }
+
+        /* DELETE MODAL */
+        .delete-modal .warning-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--error-bg); color: var(--error); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+        .delete-modal .overlay-content { text-align: center; }
+
+        /* TOAST */
+        .toast-container { position: fixed; top: 80px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+        .toast { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-control); background: var(--card); box-shadow: var(--shadow-lg); border-left: 4px solid; min-width: 320px; max-width: 440px; transform: translateX(120%); transition: transform 300ms ease; font-size: 0.875rem; font-weight: 500; }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left-color: var(--success); }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.error .toast-icon { color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        .toast.info { border-left-color: var(--primary); }
+        .toast.info .toast-icon { color: var(--primary); }
+        .toast-icon { flex-shrink: 0; }
+        .toast-text { flex: 1; color: var(--text); }
+        .toast-close { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; flex-shrink: 0; }
+        .toast-close:hover { color: var(--text); }
+        .toast .toast-retry { background: none; border: none; color: var(--primary); cursor: pointer; font-family: inherit; font-size: 0.8125rem; font-weight: 700; padding: 0; margin-left: 4px; text-decoration: underline; }
+
+        /* SKELETON */
+        .skeleton { position: relative; overflow: hidden; background: #E2E8F0; border-radius: 6px; }
+        .skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .skeleton-circle { border-radius: 50%; }
+        .skeleton-text { height: 14px; margin-bottom: 8px; }
+        .skeleton-text.lg { height: 20px; }
+        .skeleton-text.sm { height: 10px; }
+        .skeleton-block { height: 40px; margin-bottom: 10px; }
+        .skeleton-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+
+        /* ERROR STATE */
+        .error-state { text-align: center; padding: 60px 24px; }
+        .error-state-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--error-bg); color: var(--error); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .error-state h3 { font-size: 1.125rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+        .error-state p { font-size: 0.875rem; color: var(--muted); margin-bottom: 20px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .config-grid { grid-template-columns: 1fr; }
+            .employee-meta { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .breadcrumb { display: none; }
+            .action-bar-inner { flex-direction: column; gap: 12px; }
+            .action-bar-left { width: 100%; }
+            .action-bar-info { display: none; }
+        }
+        @media (max-width: 600px) {
+            .main-content { padding: 16px 12px 140px; }
+            .card { padding: 16px; }
+            .employee-summary { flex-direction: column; align-items: flex-start; }
+            .date-row { flex-direction: column; }
+            .radio-group { flex-direction: column; gap: 10px; }
+            .preview-doc { padding: 24px 20px; }
+        }
+
+        /* HIDDEN */
+        .hidden { display: none !important; }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+            <div class="logo">Shumela<span>Hire</span></div>
+            <div class="breadcrumb">
+                <a href="#">Dashboard</a>
+                <span class="separator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <a href="#">Employee Profile</a>
+                <span class="separator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <span class="current">Generate Report</span>
+            </div>
+        </div>
+        <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+            <button class="nav-icon-btn" title="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </button>
+            <button class="nav-icon-btn" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+            <div class="nav-avatar" title="Thandi Mkhize">TM</div>
+        </div>
+    </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link active">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="mainContent">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Generate Employee Report</h1>
+        <p>Create comprehensive reports for Sipho Ndlovu</p>
+    </div>
+
+    <!-- STATE TOGGLE -->
+    <div class="state-toggle">
+        <button class="active" onclick="setState('normal')">Normal</button>
+        <button onclick="setState('skeleton')">Skeleton</button>
+        <button onclick="setState('generating')">Generating</button>
+        <button onclick="setState('error')">Error State</button>
+    </div>
+
+    <!-- === NORMAL STATE === -->
+    <div id="normalState">
+
+        <!-- EMPLOYEE SUMMARY CARD -->
+        <div class="card" id="employeeSummaryCard">
+            <div class="employee-summary">
+                <div class="employee-avatar">SN</div>
+                <div class="employee-info">
+                    <h2>Sipho Ndlovu</h2>
+                    <p>Operations Manager</p>
+                </div>
+                <div class="employee-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Employee No.</div>
+                        <div class="meta-value">UTW-2024-001</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Department</div>
+                        <div class="meta-value">Water Services</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value" style="color: var(--success);">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT CONFIGURATION -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Report Configuration</div>
+                    <div class="card-subtitle">Select sections and set report options</div>
+                </div>
+            </div>
+            <div class="config-grid">
+                <!-- LEFT: SECTIONS -->
+                <div>
+                    <div style="font-size:0.8125rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Report Sections
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="section-group" data-group="personal">
+                        <div class="section-group-header" onclick="toggleGroup('personal')">
+                            <div class="section-group-title">
+                                <div class="icon-circle navy">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                </div>
+                                Personal Information
+                            </div>
+                            <button class="toggle-all-btn" data-group="personal">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="personal" data-section="Contact Details" checked> Contact Details</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="personal" data-section="Demographics" checked> Demographics</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="personal" data-section="Emergency Contacts" checked> Emergency Contacts</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div class="section-group" data-group="employment">
+                        <div class="section-group-header teal" onclick="toggleGroup('employment')">
+                            <div class="section-group-title">
+                                <div class="icon-circle teal">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                </div>
+                                Employment Details
+                            </div>
+                            <button class="toggle-all-btn" data-group="employment">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="employment" data-section="Position &amp; Grade" checked> Position &amp; Grade</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="employment" data-section="Reporting Line" checked> Reporting Line</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="employment" data-section="Employment History" checked> Employment History</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Leave & Attendance -->
+                    <div class="section-group" data-group="leave">
+                        <div class="section-group-header teal" onclick="toggleGroup('leave')">
+                            <div class="section-group-title">
+                                <div class="icon-circle teal">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                </div>
+                                Leave &amp; Attendance
+                            </div>
+                            <button class="toggle-all-btn" data-group="leave">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="leave" data-section="Leave Balances" checked> Leave Balances</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="leave" data-section="Leave History" checked> Leave History</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="leave" data-section="Attendance Summary" checked> Attendance Summary</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Performance -->
+                    <div class="section-group" data-group="performance">
+                        <div class="section-group-header gold" onclick="toggleGroup('performance')">
+                            <div class="section-group-title">
+                                <div class="icon-circle gold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                </div>
+                                Performance
+                            </div>
+                            <button class="toggle-all-btn" data-group="performance">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="performance" data-section="Current Review"> Current Review</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="performance" data-section="Performance History"> Performance History</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="performance" data-section="Goals &amp; Objectives"> Goals &amp; Objectives</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Training & Development -->
+                    <div class="section-group" data-group="training">
+                        <div class="section-group-header gold" onclick="toggleGroup('training')">
+                            <div class="section-group-title">
+                                <div class="icon-circle gold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                </div>
+                                Training &amp; Development
+                            </div>
+                            <button class="toggle-all-btn" data-group="training">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="training" data-section="Completed Courses"> Completed Courses</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="training" data-section="Certifications"> Certifications</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="training" data-section="Development Plan"> Development Plan</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Compensation -->
+                    <div class="section-group" data-group="compensation">
+                        <div class="section-group-header pink" onclick="toggleGroup('compensation')">
+                            <div class="section-group-title">
+                                <div class="icon-circle pink">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                                Compensation
+                                <span class="restricted-badge">Restricted</span>
+                            </div>
+                            <button class="toggle-all-btn" data-group="compensation">Select All</button>
+                        </div>
+                        <div class="section-items">
+                            <div class="section-item">
+                                <label><input type="checkbox" class="section-check" data-group="compensation" data-section="Salary Details"> Salary Details</label>
+                                <span class="restricted-badge">HR Permission</span>
+                            </div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="compensation" data-section="Benefits"> Benefits</label></div>
+                            <div class="section-item"><label><input type="checkbox" class="section-check" data-group="compensation" data-section="Payslip Summary"> Payslip Summary</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: OPTIONS -->
+                <div>
+                    <div style="font-size:0.8125rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Report Options
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="option-group">
+                        <span class="option-label">Date Range</span>
+                        <div class="date-row">
+                            <div class="date-field">
+                                <label for="dateFrom">From</label>
+                                <input type="date" id="dateFrom" value="2026-01-01">
+                            </div>
+                            <div class="date-field">
+                                <label for="dateTo">To</label>
+                                <input type="date" id="dateTo" value="2026-07-09">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Format -->
+                    <div class="option-group">
+                        <span class="option-label">Report Format</span>
+                        <div class="radio-group">
+                            <label class="radio-option"><input type="radio" name="format" value="PDF" checked> PDF</label>
+                            <label class="radio-option"><input type="radio" name="format" value="Excel"> Excel</label>
+                            <label class="radio-option"><input type="radio" name="format" value="Word"> Word</label>
+                        </div>
+                    </div>
+
+                    <!-- Include Charts -->
+                    <div class="option-group">
+                        <div class="toggle-row">
+                            <div>
+                                <span class="option-label" style="margin-bottom:0">Include Charts</span>
+                                <div class="option-sublabel">Visual graphs for leave and performance data</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="includeCharts" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Confidentiality -->
+                    <div class="option-group">
+                        <span class="option-label">Confidentiality Level</span>
+                        <div class="radio-group">
+                            <label class="radio-option"><input type="radio" name="confidentiality" value="Standard" checked> Standard</label>
+                            <label class="radio-option"><input type="radio" name="confidentiality" value="Confidential"> Confidential</label>
+                            <label class="radio-option"><input type="radio" name="confidentiality" value="Restricted"> Restricted</label>
+                        </div>
+                    </div>
+
+                    <!-- Watermark -->
+                    <div class="option-group">
+                        <div class="toggle-row">
+                            <div>
+                                <span class="option-label" style="margin-bottom:0">Watermark</span>
+                                <div class="option-sublabel">Add confidentiality watermark to each page</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="watermark">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Page Layout -->
+                    <div class="option-group">
+                        <span class="option-label">Page Layout</span>
+                        <div class="layout-toggle">
+                            <button class="active" onclick="setLayout(this, 'portrait')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+                                Portrait
+                            </button>
+                            <button onclick="setLayout(this, 'landscape')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+                                Landscape
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Additional Notes -->
+                    <div class="option-group">
+                        <span class="option-label">Additional Notes <span class="option-sublabel">(optional — included as cover page note)</span></span>
+                        <textarea id="additionalNotes" placeholder="Enter any additional notes for the report cover page..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT PREVIEW -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Report Preview</div>
+                    <div class="card-subtitle">Live preview of your report configuration</div>
+                </div>
+            </div>
+            <div class="preview-area">
+                <div class="preview-doc" id="previewDoc">
+                    <div class="preview-letterhead">
+                        <div class="preview-letterhead-logo">UTW</div>
+                        <div class="preview-letterhead-text">
+                            uThukela Water
+                            <span>KwaZulu-Natal, South Africa</span>
+                        </div>
+                    </div>
+                    <div class="preview-title">Employee Report &mdash; Sipho Ndlovu</div>
+                    <div class="preview-subtitle">Generated: <span id="previewDate">9 July 2026</span> &bull; Format: <span id="previewFormat">PDF</span> &bull; <span id="previewSectionCount">9</span> sections</div>
+                    <ul class="preview-sections" id="previewSections">
+                        <!-- Populated by JS -->
+                    </ul>
+                    <div class="preview-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        This is a preview. Generate to see full report.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECENT REPORTS -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Recent Reports</div>
+                    <div class="card-subtitle">Previously generated reports for Sipho Ndlovu</div>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Report</th>
+                            <th>Date Generated</th>
+                            <th>Format</th>
+                            <th>Sections</th>
+                            <th>Size</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentReportsBody">
+                        <tr>
+                            <td style="font-weight:600;">Full Employee Report</td>
+                            <td>1 Jul 2026</td>
+                            <td><span class="format-badge pdf">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                PDF</span></td>
+                            <td>12 sections</td>
+                            <td>2.4 MB</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn-icon" title="Download" onclick="showToast('info','Downloading report...')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                    <button class="btn-icon" title="Delete" onclick="openDeleteModal(0)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">Performance Summary</td>
+                            <td>15 Jun 2026</td>
+                            <td><span class="format-badge pdf">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                PDF</span></td>
+                            <td>3 sections</td>
+                            <td>840 KB</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn-icon" title="Download" onclick="showToast('info','Downloading report...')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                    <button class="btn-icon" title="Delete" onclick="openDeleteModal(1)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">Leave &amp; Attendance</td>
+                            <td>1 Jun 2026</td>
+                            <td><span class="format-badge excel">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                                Excel</span></td>
+                            <td>3 sections</td>
+                            <td>320 KB</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn-icon" title="Download" onclick="showToast('info','Downloading report...')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                    <button class="btn-icon" title="Delete" onclick="openDeleteModal(2)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SKELETON STATE === -->
+    <div id="skeletonState" class="hidden">
+        <!-- Employee Summary Skeleton -->
+        <div class="card">
+            <div style="display:flex;align-items:center;gap:20px;">
+                <div class="skeleton skeleton-circle" style="width:64px;height:64px;"></div>
+                <div style="flex:1;">
+                    <div class="skeleton skeleton-text lg" style="width:180px;"></div>
+                    <div class="skeleton skeleton-text" style="width:140px;"></div>
+                </div>
+                <div style="display:flex;gap:24px;">
+                    <div><div class="skeleton skeleton-text sm" style="width:70px;"></div><div class="skeleton skeleton-text" style="width:90px;"></div></div>
+                    <div><div class="skeleton skeleton-text sm" style="width:70px;"></div><div class="skeleton skeleton-text" style="width:90px;"></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- Config Skeleton -->
+        <div class="card">
+            <div class="skeleton skeleton-text lg" style="width:200px;margin-bottom:20px;"></div>
+            <div class="config-grid">
+                <div>
+                    <div class="skeleton skeleton-block" style="border-radius:8px;"></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:120px;margin:0;"></div></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:100px;margin:0;"></div></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:140px;margin:0;"></div></div>
+                    <div class="skeleton skeleton-block" style="border-radius:8px;margin-top:16px;"></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:110px;margin:0;"></div></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:130px;margin:0;"></div></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:150px;margin:0;"></div></div>
+                    <div class="skeleton skeleton-block" style="border-radius:8px;margin-top:16px;"></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:100px;margin:0;"></div></div>
+                    <div class="skeleton-row" style="padding-left:52px;"><div class="skeleton" style="width:20px;height:20px;border-radius:5px;"></div><div class="skeleton skeleton-text" style="width:90px;margin:0;"></div></div>
+                </div>
+                <div>
+                    <div class="skeleton skeleton-text" style="width:80px;margin-bottom:12px;"></div>
+                    <div style="display:flex;gap:12px;margin-bottom:20px;"><div class="skeleton" style="width:50%;height:40px;border-radius:8px;"></div><div class="skeleton" style="width:50%;height:40px;border-radius:8px;"></div></div>
+                    <div class="skeleton skeleton-text" style="width:100px;margin-bottom:12px;"></div>
+                    <div style="display:flex;gap:16px;margin-bottom:20px;"><div class="skeleton" style="width:60px;height:20px;border-radius:10px;"></div><div class="skeleton" style="width:60px;height:20px;border-radius:10px;"></div><div class="skeleton" style="width:60px;height:20px;border-radius:10px;"></div></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="skeleton skeleton-text" style="width:120px;margin:0;"></div><div class="skeleton" style="width:44px;height:24px;border-radius:24px;"></div></div>
+                    <div class="skeleton skeleton-text" style="width:130px;margin-bottom:12px;"></div>
+                    <div style="display:flex;gap:16px;margin-bottom:20px;"><div class="skeleton" style="width:80px;height:20px;border-radius:10px;"></div><div class="skeleton" style="width:80px;height:20px;border-radius:10px;"></div><div class="skeleton" style="width:80px;height:20px;border-radius:10px;"></div></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="skeleton skeleton-text" style="width:80px;margin:0;"></div><div class="skeleton" style="width:44px;height:24px;border-radius:24px;"></div></div>
+                    <div class="skeleton skeleton-text" style="width:90px;margin-bottom:12px;"></div>
+                    <div class="skeleton" style="width:100%;height:80px;border-radius:8px;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Reports Skeleton -->
+        <div class="card">
+            <div class="skeleton skeleton-text lg" style="width:160px;margin-bottom:20px;"></div>
+            <div class="skeleton" style="width:100%;height:40px;border-radius:8px 8px 0 0;margin-bottom:1px;"></div>
+            <div class="skeleton" style="width:100%;height:52px;border-radius:0;margin-bottom:1px;"></div>
+            <div class="skeleton" style="width:100%;height:52px;border-radius:0;margin-bottom:1px;"></div>
+            <div class="skeleton" style="width:100%;height:52px;border-radius:0 0 8px 8px;"></div>
+        </div>
+    </div>
+
+    <!-- === ERROR STATE === -->
+    <div id="errorState" class="hidden">
+        <div class="card">
+            <div class="error-state">
+                <div class="error-state-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <h3>Unable to Load Report Configuration</h3>
+                <p>We encountered an error while loading the report configuration. This might be due to a network issue or server error. Please try again.</p>
+                <button class="btn btn-primary" onclick="setState('normal')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    RETRY
+                </button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ACTION BAR -->
+<div class="action-bar" id="actionBar">
+    <div class="action-bar-inner">
+        <div class="action-bar-left">
+            <button class="btn btn-outline" onclick="showToast('warning','Report generation cancelled.')">CANCEL</button>
+            <button class="btn btn-outline" onclick="openSaveTemplateModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                SAVE TEMPLATE
+            </button>
+        </div>
+        <div class="action-bar-info">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span><span class="section-count" id="sectionCountDisplay">9</span> sections selected</span>
+        </div>
+        <button class="btn btn-cta" id="generateBtn" onclick="startGeneration()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            GENERATE REPORT
+        </button>
+    </div>
+</div>
+
+<!-- GENERATING OVERLAY -->
+<div class="overlay generating-overlay" id="generatingOverlay">
+    <div class="overlay-content">
+        <div class="gen-in-progress" id="genInProgress">
+            <div style="margin-bottom:20px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="generating-title">Generating your report...</div>
+            <div class="generating-subtitle">Please wait while we compile the report for Sipho Ndlovu</div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="gen-steps" id="genSteps">
+                <div class="gen-step" data-step="0">
+                    <div class="step-icon"></div>
+                    <span>Gathering employee data</span>
+                </div>
+                <div class="gen-step" data-step="1">
+                    <div class="step-icon"></div>
+                    <span>Compiling selected sections</span>
+                </div>
+                <div class="gen-step" data-step="2">
+                    <div class="step-icon"></div>
+                    <span>Generating charts</span>
+                </div>
+                <div class="gen-step" data-step="3">
+                    <div class="step-icon"></div>
+                    <span>Formatting document</span>
+                </div>
+                <div class="gen-step" data-step="4">
+                    <div class="step-icon"></div>
+                    <span>Finalising report</span>
+                </div>
+            </div>
+        </div>
+        <div class="gen-complete" id="genComplete">
+            <div class="gen-complete-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3>Report Generated Successfully!</h3>
+            <p>Your employee report is ready for download.</p>
+            <div class="gen-complete-actions">
+                <button class="btn btn-outline" onclick="closeGeneratingOverlay()">CLOSE</button>
+                <button class="btn btn-cta" onclick="closeGeneratingOverlay(); showToast('info','Downloading report...')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    DOWNLOAD REPORT
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SAVE TEMPLATE MODAL -->
+<div class="overlay" id="saveTemplateModal">
+    <div class="overlay-content">
+        <div class="modal-title">Save as Template</div>
+        <div class="modal-subtitle">Save the current section selection as a reusable report template.</div>
+        <div class="form-group">
+            <label for="templateName">Template Name <span class="required">*</span></label>
+            <input type="text" id="templateName" placeholder="e.g. Full Employee Report">
+        </div>
+        <div class="form-group">
+            <label for="templateDesc">Description <span class="option-sublabel">(optional)</span></label>
+            <textarea id="templateDesc" placeholder="Describe what this template includes..." style="min-height:60px;"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('saveTemplateModal')">CANCEL</button>
+            <button class="btn btn-primary" onclick="saveTemplate()">SAVE TEMPLATE</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="overlay delete-modal" id="deleteModal">
+    <div class="overlay-content">
+        <div class="warning-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="modal-title">Delete Report?</div>
+        <div class="modal-subtitle">This action cannot be undone. The report file will be permanently removed.</div>
+        <div class="modal-actions" style="justify-content:center;">
+            <button class="btn btn-outline" onclick="closeModal('deleteModal')">KEEP REPORT</button>
+            <button class="btn btn-danger" onclick="deleteReport()">DELETE</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+(function() {
+    'use strict';
+
+    /* ===== STATE ===== */
+    let currentState = 'normal';
+    let deleteTargetIndex = -1;
+    let generationTimer = null;
+
+    /* ===== STATE TOGGLE ===== */
+    window.setState = function(state) {
+        currentState = state;
+        const btns = document.querySelectorAll('.state-toggle button');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        btns.forEach(function(b) {
+            if (b.textContent.trim().toLowerCase().replace(/\s+/g, '') === state.toLowerCase().replace(/\s+/g, '')) {
+                b.classList.add('active');
+            }
+        });
+
+        document.getElementById('normalState').classList.toggle('hidden', state !== 'normal');
+        document.getElementById('skeletonState').classList.toggle('hidden', state !== 'skeleton');
+        document.getElementById('errorState').classList.toggle('hidden', state !== 'error');
+        document.getElementById('actionBar').classList.toggle('hidden', state === 'error' || state === 'skeleton');
+
+        if (state === 'generating') {
+            document.getElementById('normalState').classList.remove('hidden');
+            document.getElementById('actionBar').classList.remove('hidden');
+            startGeneration();
+        }
+    };
+
+    /* ===== SECTION TOGGLES ===== */
+    function getCheckedSections() {
+        var checks = document.querySelectorAll('.section-check:checked');
+        var sections = [];
+        checks.forEach(function(c) { sections.push(c.getAttribute('data-section')); });
+        return sections;
+    }
+
+    function updatePreview() {
+        var sections = getCheckedSections();
+        var list = document.getElementById('previewSections');
+        var countEl = document.getElementById('previewSectionCount');
+        var countDisplay = document.getElementById('sectionCountDisplay');
+        var genBtn = document.getElementById('generateBtn');
+
+        list.innerHTML = '';
+        sections.forEach(function(s) {
+            var li = document.createElement('li');
+            li.innerHTML = '<span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>' + s;
+            list.appendChild(li);
+        });
+
+        countEl.textContent = sections.length;
+        countDisplay.textContent = sections.length;
+        genBtn.disabled = sections.length === 0;
+
+        var fmt = document.querySelector('input[name="format"]:checked');
+        if (fmt) document.getElementById('previewFormat').textContent = fmt.value;
+    }
+
+    window.toggleGroup = function(group) {
+        var checks = document.querySelectorAll('.section-check[data-group="' + group + '"]');
+        var allChecked = true;
+        checks.forEach(function(c) { if (!c.checked) allChecked = false; });
+
+        checks.forEach(function(c) { c.checked = !allChecked; });
+
+        var btn = document.querySelector('.toggle-all-btn[data-group="' + group + '"]');
+        if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+
+        updatePreview();
+    };
+
+    /* Update toggle-all button text on individual checkbox change */
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('section-check')) {
+            var group = e.target.getAttribute('data-group');
+            var checks = document.querySelectorAll('.section-check[data-group="' + group + '"]');
+            var allChecked = true;
+            checks.forEach(function(c) { if (!c.checked) allChecked = false; });
+            var btn = document.querySelector('.toggle-all-btn[data-group="' + group + '"]');
+            if (btn) btn.textContent = allChecked ? 'Deselect All' : 'Select All';
+            updatePreview();
+        }
+        if (e.target.name === 'format') {
+            updatePreview();
+        }
+    });
+
+    /* Prevent group header click from also toggling when clicking the button */
+    document.querySelectorAll('.toggle-all-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var group = btn.getAttribute('data-group');
+            toggleGroup(group);
+        });
+    });
+
+    /* ===== LAYOUT TOGGLE ===== */
+    window.setLayout = function(el, layout) {
+        var btns = el.parentElement.querySelectorAll('button');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        el.classList.add('active');
+    };
+
+    /* ===== GENERATION ===== */
+    window.startGeneration = function() {
+        var sections = getCheckedSections();
+        if (sections.length === 0) {
+            showToast('error', 'Please select at least one report section.');
+            return;
+        }
+
+        var overlay = document.getElementById('generatingOverlay');
+        var bar = document.getElementById('progressBar');
+        var stepsEl = document.getElementById('genSteps');
+        var steps = stepsEl.querySelectorAll('.gen-step');
+        var inProgress = document.getElementById('genInProgress');
+        var complete = document.getElementById('genComplete');
+
+        /* Reset */
+        overlay.classList.add('active');
+        bar.style.width = '0%';
+        inProgress.classList.remove('hide');
+        complete.classList.remove('show');
+        steps.forEach(function(s) { s.classList.remove('active', 'done'); s.querySelector('.step-icon').innerHTML = ''; });
+
+        var stepIndex = 0;
+        var percents = [15, 40, 65, 85, 100];
+
+        function advanceStep() {
+            if (stepIndex > 0) {
+                var prev = steps[stepIndex - 1];
+                prev.classList.remove('active');
+                prev.classList.add('done');
+                prev.querySelector('.step-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            }
+
+            if (stepIndex < steps.length) {
+                steps[stepIndex].classList.add('active');
+                steps[stepIndex].querySelector('.step-icon').innerHTML = '<div class="spinner"></div>';
+                bar.style.width = percents[stepIndex] + '%';
+                stepIndex++;
+                generationTimer = setTimeout(advanceStep, 800 + Math.random() * 400);
+            } else {
+                /* Complete */
+                bar.style.width = '100%';
+                setTimeout(function() {
+                    inProgress.classList.add('hide');
+                    complete.classList.add('show');
+                }, 400);
+            }
+        }
+
+        setTimeout(advanceStep, 300);
+    };
+
+    window.closeGeneratingOverlay = function() {
+        if (generationTimer) clearTimeout(generationTimer);
+        document.getElementById('generatingOverlay').classList.remove('active');
+        document.getElementById('genInProgress').classList.remove('hide');
+        document.getElementById('genComplete').classList.remove('show');
+
+        if (document.getElementById('genComplete').classList.contains('show') || document.getElementById('genInProgress').classList.contains('hide')) {
+            /* If it was completed, do nothing extra — toast is handled by the button */
+        }
+        showToast('success', 'Report generated successfully!');
+    };
+
+    /* ===== MODALS ===== */
+    window.openSaveTemplateModal = function() {
+        document.getElementById('templateName').value = '';
+        document.getElementById('templateDesc').value = '';
+        document.getElementById('saveTemplateModal').classList.add('active');
+    };
+
+    window.openDeleteModal = function(index) {
+        deleteTargetIndex = index;
+        document.getElementById('deleteModal').classList.add('active');
+    };
+
+    window.closeModal = function(id) {
+        document.getElementById(id).classList.remove('active');
+    };
+
+    window.saveTemplate = function() {
+        var name = document.getElementById('templateName').value.trim();
+        if (!name) {
+            showToast('error', 'Please enter a template name.');
+            document.getElementById('templateName').focus();
+            return;
+        }
+        closeModal('saveTemplateModal');
+        showToast('info', 'Template "' + name + '" saved successfully.');
+    };
+
+    window.deleteReport = function() {
+        var rows = document.querySelectorAll('#recentReportsBody tr');
+        if (rows[deleteTargetIndex]) {
+            var reportName = rows[deleteTargetIndex].querySelector('td').textContent;
+            rows[deleteTargetIndex].style.transition = 'opacity 300ms ease, transform 300ms ease';
+            rows[deleteTargetIndex].style.opacity = '0';
+            rows[deleteTargetIndex].style.transform = 'translateX(20px)';
+            setTimeout(function() { rows[deleteTargetIndex].remove(); }, 300);
+            showToast('warning', '"' + reportName + '" has been deleted.');
+        }
+        closeModal('deleteModal');
+    };
+
+    /* Close modals on overlay click or Escape */
+    document.querySelectorAll('.overlay').forEach(function(ov) {
+        ov.addEventListener('click', function(e) {
+            if (e.target === ov) {
+                ov.classList.remove('active');
+                if (generationTimer && ov.id === 'generatingOverlay') clearTimeout(generationTimer);
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.overlay.active').forEach(function(ov) {
+                ov.classList.remove('active');
+                if (generationTimer && ov.id === 'generatingOverlay') clearTimeout(generationTimer);
+            });
+        }
+    });
+
+    /* ===== TOASTS ===== */
+    var toastIcons = {
+        success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+
+    window.showToast = function(type, message, retry) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+
+        var retryHtml = '';
+        if (retry) {
+            retryHtml = ' <button class="toast-retry" onclick="this.closest(\'.toast\').remove(); setState(\'normal\');">Retry</button>';
+        }
+
+        toast.innerHTML =
+            '<span class="toast-icon">' + toastIcons[type] + '</span>' +
+            '<span class="toast-text">' + message + retryHtml + '</span>' +
+            '<button class="toast-close" onclick="this.parentElement.classList.remove(\'show\'); setTimeout(function(){this.parentElement.remove()}.bind(this),300);">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>';
+
+        container.appendChild(toast);
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                toast.classList.add('show');
+            });
+        });
+
+        setTimeout(function() {
+            if (toast.parentElement) {
+                toast.classList.remove('show');
+                setTimeout(function() { if (toast.parentElement) toast.remove(); }, 300);
+            }
+        }, 4000);
+    };
+
+    /* ===== INIT ===== */
+    updatePreview();
+
+    /* Set initial toggle-all button text */
+    ['personal', 'employment', 'leave', 'performance', 'training', 'compensation'].forEach(function(group) {
+        var checks = document.querySelectorAll('.section-check[data-group="' + group + '"]');
+        var allChecked = true;
+        checks.forEach(function(c) { if (!c.checked) allChecked = false; });
+        var btn = document.querySelector('.toggle-all-btn[data-group="' + group + '"]');
+        if (btn) btn.textContent = allChecked ? 'Deselect All' : 'Select All';
+    });
+
+})();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>
