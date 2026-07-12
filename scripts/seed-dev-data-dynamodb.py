@@ -30,7 +30,11 @@ TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 STACK_PREFIX = os.environ.get('STACK_PREFIX', 'shumelahire-dev')
 
 NOW = datetime.now(timezone.utc)
-NOW_ISO = NOW.strftime('%Y-%m-%dT%H:%M:%SZ')
+# Two timestamp formats needed by the DynamoDB Enhanced Client:
+# - Instant fields: require 'Z' suffix (parsed by Instant.parse / ISO_INSTANT)
+# - LocalDateTime fields: require NO 'Z' suffix (parsed by LocalDateTime.parse)
+NOW_ISO = NOW.strftime('%Y-%m-%dT%H:%M:%SZ')            # For Instant fields
+NOW_ISO_LOCAL = NOW.strftime('%Y-%m-%dT%H:%M:%S')       # For LocalDateTime fields
 
 
 # ============================================================
@@ -81,13 +85,13 @@ def get_encryption_key():
 
 
 def put_item(item):
+    """Write item to DynamoDB (overwrites if exists)."""
     result = subprocess.run(
         ['aws', 'dynamodb', 'put-item',
          '--table-name', TABLE_NAME, '--region', REGION,
-         '--condition-expression', 'attribute_not_exists(PK)',
          '--item', json.dumps(item)],
         capture_output=True, text=True)
-    if result.returncode != 0 and 'ConditionalCheckFailedException' not in result.stderr:
+    if result.returncode != 0:
         return False, result.stderr.strip()
     return True, ''
 
@@ -98,8 +102,13 @@ def date_offset(days):
 
 
 def iso_offset(days=0, hours=0):
-    """Return ISO datetime string offset from now."""
+    """Return ISO datetime with Z suffix (for Instant fields)."""
     return (NOW + timedelta(days=days, hours=hours)).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def iso_offset_local(days=0, hours=0):
+    """Return ISO datetime without Z (for LocalDateTime fields)."""
+    return (NOW + timedelta(days=days, hours=hours)).strftime('%Y-%m-%dT%H:%M:%S')
 
 
 # ============================================================
@@ -930,7 +939,7 @@ def build_recruitment_items(key_bytes):
 def build_performance_items():
     items = []
 
-    # Performance Cycle
+    # Performance Cycle (PerformanceCycleItem uses LocalDateTime — no Z)
     cycle_id = deterministic_id(TENANT_ID, 'PERF_CYCLE', '2026-annual')
     item = {
         'PK':     {'S': f'TENANT#{TENANT_ID}'},
@@ -948,8 +957,8 @@ def build_performance_items():
         'status':                {'S': 'MID_YEAR'},
         'isDefault':             {'BOOL': True},
         'createdBy':             {'S': deterministic_id(TENANT_ID, 'EMPLOYEE', 'SH-002')},
-        'createdAt':             {'S': '2026-01-05T08:00:00Z'},
-        'updatedAt':             {'S': NOW_ISO},
+        'createdAt':             {'S': '2026-01-05T08:00:00'},
+        'updatedAt':             {'S': NOW_ISO_LOCAL},
     }
     items.append(('PERF_CYCLE', '2026 Annual Review', item))
 
@@ -985,12 +994,12 @@ def build_performance_items():
             'jobLevel':       {'S': grade},
             'status':         {'S': 'ACTIVE'},
             'version':        {'N': '1'},
-            'createdAt':      {'S': '2026-01-10T09:00:00Z'},
+            'createdAt':      {'S': '2026-01-10T09:00:00'},
             'updatedAt':      {'S': NOW_ISO},
         }
         items.append(('PERF_CONTRACT', f"Contract: {name}", item))
 
-    # Feedback Requests (self-assessments)
+    # Feedback Requests (FeedbackRequestItem uses LocalDateTime — no Z)
     for emp_num, name, _, _, _ in contracts[:3]:
         emp_id = deterministic_id(TENANT_ID, 'EMPLOYEE', emp_num)
         fr_id = deterministic_id(TENANT_ID, 'FEEDBACK_REQ', f"self-{emp_num}-2026")
@@ -1006,8 +1015,8 @@ def build_performance_items():
             'feedbackType': {'S': 'SELF'},
             'status':       {'S': 'PENDING'},
             'dueDate':      {'S': '2026-07-31'},
-            'createdAt':    {'S': '2026-06-15T08:00:00Z'},
-            'updatedAt':    {'S': NOW_ISO},
+            'createdAt':    {'S': '2026-06-15T08:00:00'},
+            'updatedAt':    {'S': NOW_ISO_LOCAL},
         }
         items.append(('FEEDBACK_REQ', f"Self-assessment: {name}", item))
 
@@ -1065,17 +1074,17 @@ def build_training_items():
         }
         items.append(('TRAIN_COURSE', c['title'], item))
 
-    # Sessions
+    # Sessions (TrainingSessionItem uses Instant for startDate/endDate/createdAt/updatedAt — with Z)
     sessions = [
-        (0, "2026-07-15", "2026-07-16", "IN_PROGRESS", "Sarah Johnson", "Johannesburg HQ", 15),
-        (1, "2026-06-01", "2026-06-01", "COMPLETED", "Legal Team", "Online", 95),
-        (2, "2026-08-01", "2026-09-15", "OPEN", "AWS Instructor", "Online", 8),
-        (4, "2026-05-10", "2026-05-10", "COMPLETED", "Sarah Johnson", "Johannesburg HQ", 25),
+        (0, "2026-07-15T09:00:00Z", "2026-07-16T17:00:00Z", "IN_PROGRESS", "Sarah Johnson", "Johannesburg HQ", 15),
+        (1, "2026-06-01T09:00:00Z", "2026-06-01T13:00:00Z", "COMPLETED", "Legal Team", "Online", 95),
+        (2, "2026-08-01T09:00:00Z", "2026-09-15T17:00:00Z", "OPEN", "AWS Instructor", "Online", 8),
+        (4, "2026-05-10T09:00:00Z", "2026-05-10T17:00:00Z", "COMPLETED", "Sarah Johnson", "Johannesburg HQ", 25),
     ]
 
     session_ids = []
     for course_idx, start, end, status, trainer, location, seats in sessions:
-        sid = deterministic_id(TENANT_ID, 'TRAIN_SESSION', f"sess-{courses[course_idx]['code']}-{start}")
+        sid = deterministic_id(TENANT_ID, 'TRAIN_SESSION', f"sess-{courses[course_idx]['code']}-{start[:10]}")
         session_ids.append((sid, course_idx))
         item = {
             'PK':     {'S': f'TENANT#{TENANT_ID}'},
@@ -1139,13 +1148,13 @@ def build_training_items():
 def build_engagement_items():
     items = []
 
-    # Pulse Survey
+    # Pulse Survey (SurveyItem uses LocalDateTime — no Z)
     survey_id = deterministic_id(TENANT_ID, 'SURVEY', 'q2-2026-pulse')
     item = {
         'PK':     {'S': f'TENANT#{TENANT_ID}'},
         'SK':     {'S': f'SURVEY#{survey_id}'},
         'GSI1PK': {'S': f'SURVEY_STATUS#{TENANT_ID}#ACTIVE'},
-        'GSI1SK': {'S': f'SURVEY#{NOW_ISO}'},
+        'GSI1SK': {'S': f'SURVEY#{NOW_ISO_LOCAL}'},
         'id':          {'S': survey_id},
         'tenantId':    {'S': TENANT_ID},
         'title':       {'S': 'Q2 2026 Employee Pulse Survey'},
@@ -1155,8 +1164,8 @@ def build_engagement_items():
         'startDate':   {'S': '2026-07-01'},
         'endDate':     {'S': '2026-07-31'},
         'createdBy':   {'S': deterministic_id(TENANT_ID, 'EMPLOYEE', 'SH-002')},
-        'createdAt':   {'S': '2026-06-25T09:00:00Z'},
-        'updatedAt':   {'S': NOW_ISO},
+        'createdAt':   {'S': '2026-06-25T09:00:00'},
+        'updatedAt':   {'S': NOW_ISO_LOCAL},
     }
     items.append(('SURVEY', 'Q2 Pulse Survey', item))
 
@@ -1169,6 +1178,7 @@ def build_engagement_items():
         ("What could we do better?", "TEXT"),
     ]
 
+    # Survey Questions (SurveyQuestionItem uses LocalDateTime — no Z)
     question_ids = []
     for i, (text, qtype) in enumerate(questions):
         qid = deterministic_id(TENANT_ID, 'SURVEY_Q', f"q2-2026-q{i}")
@@ -1185,13 +1195,13 @@ def build_engagement_items():
             'questionType': {'S': qtype},
             'displayOrder': {'N': str(i + 1)},
             'isRequired':   {'BOOL': True},
-            'createdAt':    {'S': NOW_ISO},
+            'createdAt':    {'S': NOW_ISO_LOCAL},
         }
         if qtype == 'RATING':
             item['options'] = {'S': json.dumps(["1", "2", "3", "4", "5"])}
         items.append(('SURVEY_Q', f"Question: {text[:30]}", item))
 
-    # Survey Responses (anonymous — from 5 employees)
+    # Survey Responses (SurveyResponseItem uses LocalDateTime — no Z)
     for emp_idx in range(5):
         emp_num = f"SH-{str(emp_idx + 3).zfill(3)}"
         emp_id = deterministic_id(TENANT_ID, 'EMPLOYEE', emp_num)
@@ -1201,13 +1211,13 @@ def build_engagement_items():
                 'PK':     {'S': f'TENANT#{TENANT_ID}'},
                 'SK':     {'S': f'SURVEY_R#{resp_id}'},
                 'GSI1PK': {'S': f'SURVR_SURV#{TENANT_ID}#{survey_id}'},
-                'GSI1SK': {'S': f'SURVEY_R#{NOW_ISO}'},
+                'GSI1SK': {'S': f'SURVEY_R#{NOW_ISO_LOCAL}'},
                 'id':         {'S': resp_id},
                 'tenantId':   {'S': TENANT_ID},
                 'surveyId':   {'S': survey_id},
                 'questionId': {'S': question_ids[q_idx]},
                 'employeeId': {'S': emp_id},
-                'createdAt':  {'S': NOW_ISO},
+                'createdAt':  {'S': NOW_ISO_LOCAL},
             }
             if qtype == 'RATING':
                 item['rating'] = {'N': str(3 + (emp_idx + q_idx) % 3)}  # 3-5 range
@@ -1559,6 +1569,44 @@ def build_tenant_item():
 
 
 # ============================================================
+# Departments
+# ============================================================
+DEPARTMENTS = [
+    {"name": "Engineering", "code": "ENG", "description": "Software engineering, platform development, and DevOps"},
+    {"name": "Product", "code": "PROD", "description": "Product management, UX design, and product strategy"},
+    {"name": "Sales & Marketing", "code": "SM", "description": "Sales, marketing, business development, and growth"},
+    {"name": "Finance", "code": "FIN", "description": "Financial planning, accounting, and payroll"},
+    {"name": "Human Resources", "code": "HR", "description": "People operations, talent acquisition, and employee experience"},
+    {"name": "Operations", "code": "OPS", "description": "Business operations, customer success, and support"},
+]
+
+
+def build_department_items():
+    """Build DynamoDB items for departments."""
+    items = []
+    for dept in DEPARTMENTS:
+        dept_id = deterministic_id(TENANT_ID, 'DEPARTMENT', dept['name'])
+        item = {
+            'PK':     {'S': f'TENANT#{TENANT_ID}'},
+            'SK':     {'S': f'DEPARTMENT#{dept_id}'},
+            'GSI1PK': {'S': 'DEPT_ACTIVE#true'},
+            'GSI1SK': {'S': f'DEPARTMENT#{dept["name"]}'},
+            'GSI4PK': {'S': f'DEPT_NAME#{TENANT_ID}#{dept["name"]}'},
+            'GSI4SK': {'S': f'DEPARTMENT#{dept_id}'},
+            'id':          {'S': dept_id},
+            'tenantId':    {'S': TENANT_ID},
+            'name':        {'S': dept['name']},
+            'code':        {'S': dept['code']},
+            'description': {'S': dept['description']},
+            'isActive':    {'BOOL': True},
+            'createdAt':   {'S': NOW_ISO_LOCAL},
+            'updatedAt':   {'S': NOW_ISO_LOCAL},
+        }
+        items.append(('DEPARTMENT', dept['name'], item))
+    return items
+
+
+# ============================================================
 # Main
 # ============================================================
 def main():
@@ -1585,6 +1633,10 @@ def main():
 
     # Tenant record
     all_items.append(build_tenant_item())
+
+    # Departments
+    print("Building departments...")
+    all_items.extend(build_department_items())
 
     # Employees
     print("Building employees...")
@@ -1641,19 +1693,15 @@ def main():
     print(f"\nTotal items to seed: {len(all_items)}")
     print()
 
-    # Write all items
+    # Write all items (overwrites existing)
     created = 0
-    skipped = 0
     failed = 0
     by_type = {}
 
     for entity_type, label, item in all_items:
         success, err = put_item(item)
         if success:
-            if 'ConditionalCheckFailedException' in (err or ''):
-                skipped += 1
-            else:
-                created += 1
+            created += 1
             by_type[entity_type] = by_type.get(entity_type, 0) + 1
         else:
             print(f"  FAIL [{entity_type}] {label}: {err}", file=sys.stderr)
@@ -1662,8 +1710,8 @@ def main():
     # Summary
     print()
     print("=" * 50)
-    print(f"  Created/Skipped: {created + skipped}")
-    print(f"  Failed:          {failed}")
+    print(f"  Written: {created}")
+    print(f"  Failed:  {failed}")
     print()
     print("  By entity type:")
     for etype, count in sorted(by_type.items()):
