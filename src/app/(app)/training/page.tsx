@@ -5,7 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import { apiFetch } from '@/lib/api-fetch';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
+import {
   AcademicCapIcon,
   PlayCircleIcon,
   CheckCircleIcon,
@@ -63,6 +63,7 @@ export default function TrainingPage() {
   const [trainingPaths, setTrainingPaths] = useState<TrainingPath[]>([]);
   const [stats, setStats] = useState<TrainingStats | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [selectedView, setSelectedView] = useState<'modules' | 'paths' | 'progress'>('modules');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -130,45 +131,65 @@ export default function TrainingPage() {
 
   const filteredModules = modules.filter(module => {
     const matchesCategory = selectedCategory === 'all' || module.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'all' || module.level === selectedLevel;
     const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          module.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          module.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesLevel && matchesSearch;
   });
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+        return <CheckCircleIcon className="w-5 h-5 text-success" />;
       case 'in-progress':
-        return <PlayCircleIcon className="w-5 h-5 text-violet-500" />;
+        return <PlayCircleIcon className="w-5 h-5 text-accent-teal" />;
       default:
-        return <ClockIcon className="w-5 h-5 text-gray-400" />;
+        return <ClockIcon className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+    const baseClasses = "px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider";
     switch (status) {
       case 'completed':
-        return `${baseClasses} bg-green-100 text-green-800`;
+        return `${baseClasses} bg-success-bg text-success`;
       case 'in-progress':
-        return `${baseClasses} bg-gold-100 text-gold-800`;
+        return `${baseClasses} bg-warning-bg text-warning`;
       default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
+        return `${baseClasses} bg-muted text-muted-foreground`;
     }
   };
 
-  const getLevelColor = (level: string) => {
+  const getLevelBadge = (level: string) => {
+    const base = "px-2.5 py-0.5 rounded-full text-[0.625rem] font-bold uppercase tracking-wider border";
     switch (level) {
       case 'beginner':
-        return 'text-green-600 bg-green-50';
+        return `${base} border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-300`;
       case 'intermediate':
-        return 'text-yellow-600 bg-yellow-50';
+        return `${base} border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-300`;
       case 'advanced':
-        return 'text-red-600 bg-red-50';
+        return `${base} border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-300`;
       default:
-        return 'text-gray-600 bg-gray-50';
+        return `${base} border-border bg-background text-muted-foreground`;
+    }
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const base = "inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold uppercase tracking-wider";
+    switch (category) {
+      case 'systems':
+      case 'recruitment':
+        return `${base} bg-icon-bg-navy text-accent-navy`;
+      case 'leadership':
+        return `${base} bg-icon-bg-teal text-accent-teal`;
+      case 'compliance':
+        return `${base} bg-icon-bg-gold text-accent-gold`;
+      case 'diversity':
+      case 'interviewing':
+        return `${base} bg-icon-bg-pink text-accent-pink`;
+      default:
+        return `${base} bg-muted text-muted-foreground`;
     }
   };
 
@@ -188,21 +209,41 @@ export default function TrainingPage() {
   };
 
   const handleStartModule = (moduleId: string) => {
-    setModules(prev => prev.map(module => 
+    setModules(prev => prev.map(module =>
       module.id === moduleId && module.status === 'not-started'
         ? { ...module, status: 'in-progress', progress: 10 }
         : module
     ));
   };
 
+  const clearFilters = () => {
+    setSelectedCategory('all');
+    setSelectedLevel('all');
+    setSearchTerm('');
+  };
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= Math.floor(rating)) {
+        stars.push(<StarIcon key={i} className="w-3.5 h-3.5 text-warning fill-warning" />);
+      } else if (i - rating < 1 && i - rating > 0) {
+        stars.push(<StarIcon key={i} className="w-3.5 h-3.5 text-warning fill-warning/50" />);
+      } else {
+        stars.push(<StarIcon key={i} className="w-3.5 h-3.5 text-border" />);
+      }
+    }
+    return stars;
+  };
+
   const actions = canManageTraining ? (
     <div className="flex items-center gap-3">
-      <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50">
-        <CalendarIcon className="w-4 h-4 mr-2" />
+      <button className="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-border text-sm font-semibold rounded-full text-muted-foreground hover:border-primary hover:text-primary uppercase tracking-wider transition-all">
+        <CalendarIcon className="w-4 h-4" />
         Schedule Training
       </button>
-      <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider">
-        <PlusIcon className="w-4 h-4 mr-2" />
+      <button className="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-cta text-sm font-semibold rounded-full text-primary bg-transparent hover:bg-cta hover:text-cta-foreground uppercase tracking-wider transition-all">
+        <PlusIcon className="w-4 h-4" />
         Create Module
       </button>
     </div>
@@ -211,328 +252,461 @@ export default function TrainingPage() {
   return (
     <PageWrapper
       title="Training & Development"
-      subtitle="Enhance team skills with comprehensive training programs and learning paths"
+      subtitle="Browse courses, track progress, and manage certifications"
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Stats Overview */}
+        {/* Stats Bar - 3-column grid matching mock */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-control shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <BookOpenIcon className="w-8 h-8 text-violet-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Total Modules</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.totalModules}</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-navy text-accent-navy">
+                <CheckCircleIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.completedModules}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground">Courses Completed</div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-control shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <TrophyIcon className="w-8 h-8 text-green-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Completed</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.completedModules}</p>
-                </div>
+
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-teal text-accent-teal">
+                <ClockIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.inProgressModules}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground">In Progress</div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-control shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <ClockIcon className="w-8 h-8 text-yellow-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Learning Hours</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.totalLearningHours}h</p>
-                </div>
+
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-px transition-transform">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-gold text-accent-gold">
+                <TrophyIcon className="w-6 h-6" />
               </div>
-            </div>
-            
-            <div className="bg-white rounded-control shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <StarIcon className="w-8 h-8 text-purple-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Avg Rating</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.averageRating}/5</p>
-                </div>
+              <div>
+                <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.totalModules}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground">Certifications</div>
               </div>
             </div>
           </div>
         )}
 
-        {/* View Toggle */}
-        <div className="bg-white rounded-control shadow p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex gap-1">
-              {[
-                { id: 'modules', name: 'Training Modules', icon: BookOpenIcon },
-                { id: 'paths', name: 'Learning Paths', icon: AcademicCapIcon },
-                { id: 'progress', name: 'My Progress', icon: ChartBarIcon }
-              ].map(view => (
-                <button
-                  key={view.id}
-                  onClick={() => setSelectedView(view.id as any)}
-                  className={`flex items-center px-4 py-2 rounded-control text-sm font-medium transition-colors ${
-                    selectedView === view.id
-                      ? 'bg-gold-100 text-gold-800'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <view.icon className="w-4 h-4 mr-2" />
-                  {view.name}
-                </button>
-              ))}
-            </div>
-            
-            <div className="flex flex-col lg:flex-row gap-4 w-full lg:w-auto">
+        {/* Tabs - underline style matching mock */}
+        <div>
+          <div className="flex border-b-2 border-border mb-6">
+            {[
+              { id: 'modules', name: 'Course Catalog', icon: BookOpenIcon },
+              { id: 'paths', name: 'My Courses', icon: AcademicCapIcon },
+              { id: 'progress', name: 'Certifications', icon: ChartBarIcon }
+            ].map(view => (
+              <button
+                key={view.id}
+                onClick={() => setSelectedView(view.id as 'modules' | 'paths' | 'progress')}
+                className={`px-6 py-3 text-sm font-semibold tracking-wide border-b-2 -mb-[2px] transition-colors ${
+                  selectedView === view.id
+                    ? 'text-primary border-primary'
+                    : 'text-muted-foreground border-transparent hover:text-primary'
+                }`}
+              >
+                {view.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Filter Bar - matching mock: category select, level select, search input, clear */}
+          {selectedView === 'modules' && (
+            <div className="enterprise-card p-4 flex items-center gap-4 flex-wrap mb-6">
+              <label className="text-[0.8125rem] font-semibold text-muted-foreground whitespace-nowrap">Category:</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="min-w-[150px] px-3 py-2 text-sm text-foreground border border-border rounded-control bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer"
+              >
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <label className="text-[0.8125rem] font-semibold text-muted-foreground whitespace-nowrap">Level:</label>
+              <select
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
+                className="min-w-[150px] px-3 py-2 text-sm text-foreground border border-border rounded-control bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer"
+              >
+                <option value="all">All Levels</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
               <input
                 type="text"
-                placeholder="Search training..."
+                placeholder="Search courses..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                className="flex-1 min-w-[200px] px-3 py-2 text-sm text-foreground border border-border rounded-control bg-card focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all"
               />
-              <div className="flex gap-2 flex-wrap">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-2 rounded-control whitespace-nowrap text-sm font-medium transition-colors ${
-                      selectedCategory === category.id
-                        ? 'bg-gold-100 text-gold-800 border border-violet-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={clearFilters}
+                className="text-[0.8125rem] font-semibold text-primary underline hover:text-cta-hover transition-colors px-2 py-1"
+              >
+                Clear Filters
+              </button>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Training Modules View */}
+        {/* Course Catalog View - 3-column grid matching mock */}
         {selectedView === 'modules' && (
           <>
             {loading ? (
-              <div className="text-center py-12">
-                <AcademicCapIcon className="w-8 h-8 text-gray-400 animate-pulse mx-auto mb-4" />
-                <p className="text-gray-500">Loading training modules...</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {filteredModules.map(module => (
-                  <div key={module.id} className="bg-white rounded-control shadow hover:shadow-md transition-shadow">
-                    <div className="p-6">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getTypeIcon(module.type)}
-                            <h3 className="text-lg font-semibold text-gray-900">{module.title}</h3>
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={getStatusBadge(module.status)}>
-                              {module.status.replace('-', ' ')}
-                            </span>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getLevelColor(module.level)}`}>
-                              {module.level}
-                            </span>
-                            {module.isRequired && (
-                              <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">
-                                Required
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {getStatusIcon(module.status)}
-                      </div>
-
-                      {/* Description */}
-                      <p className="text-gray-600 text-sm mb-4">{module.description}</p>
-
-                      {/* Progress Bar */}
-                      {module.progress > 0 && (
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm text-gray-500 mb-1">
-                            <span>Progress</span>
-                            <span>{module.progress}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gold-500 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${module.progress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {module.tags.map(tag => (
-                          <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Metadata */}
-                      <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-4">
-                          <span className="flex items-center gap-1">
-                            <ClockIcon className="w-4 h-4" />
-                            {module.duration}min
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <UserGroupIcon className="w-4 h-4" />
-                            {module.enrolledUsers}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <StarIcon className="w-4 h-4" />
-                            {module.rating}
-                          </span>
-                        </div>
-                        {module.dueDate && (
-                          <span className={`text-xs font-medium ${
-                            new Date(module.dueDate) < new Date() ? 'text-red-600' : 'text-yellow-600'
-                          }`}>
-                            Due: {new Date(module.dueDate).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Instructor */}
-                      <div className="text-sm text-gray-600 mb-4">
-                        Instructor: {module.instructor}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex gap-2">
-                        {module.status === 'not-started' ? (
-                          <button
-                            onClick={() => handleStartModule(module.id)}
-                            className="flex-1 px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 transition-colors"
-                          >
-                            Start Module
-                          </button>
-                        ) : module.status === 'in-progress' ? (
-                          <button className="flex-1 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors">
-                            Continue
-                          </button>
-                        ) : (
-                          <button className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-colors">
-                            Review
-                          </button>
-                        )}
-                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors">
-                          Details
-                        </button>
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="enterprise-card p-6 animate-pulse flex flex-col gap-3">
+                    <div className="h-5 w-20 bg-muted rounded-full" />
+                    <div className="h-4 w-4/5 bg-muted rounded" />
+                    <div className="h-3 w-3/5 bg-muted rounded" />
+                    <div className="h-3 w-2/5 bg-muted rounded" />
+                    <div className="h-3 w-full bg-muted rounded" />
+                    <div className="border-t border-border mt-1 pt-3">
+                      <div className="h-8 w-24 bg-muted rounded-full" />
                     </div>
                   </div>
                 ))}
               </div>
+            ) : filteredModules.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredModules.map(module => (
+                  <div key={module.id} className="enterprise-card p-6 flex flex-col gap-3 hover:-translate-y-1 transition-all">
+                    {/* Header: category badge + level badge */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={getCategoryBadge(module.category)}>
+                        {categories.find(c => c.id === module.category)?.name || module.category}
+                      </span>
+                      <span className={getLevelBadge(module.level)}>
+                        {module.level}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-[1.0625rem] font-bold text-foreground leading-snug">{module.title}</h3>
+
+                    {/* Provider / Instructor */}
+                    <div className="flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
+                      <UserGroupIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                      {module.instructor}
+                    </div>
+
+                    {/* Meta: duration, enrolled, type */}
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
+                        <ClockIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                        {module.duration} min
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
+                        <UserGroupIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                        {module.enrolledUsers} enrolled
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
+                        {getTypeIcon(module.type)}
+                        <span className="capitalize">{module.type}</span>
+                      </span>
+                    </div>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex gap-0.5">
+                        {renderStars(module.rating)}
+                      </div>
+                      <span className="text-[0.8125rem] font-bold text-foreground">{module.rating}</span>
+                      <span className="text-xs text-muted-foreground">/5</span>
+                    </div>
+
+                    {/* Seats / Required / Due date */}
+                    <div className="text-[0.8125rem] text-muted-foreground">
+                      {module.isRequired && (
+                        <span className="text-error font-semibold">Required</span>
+                      )}
+                      {module.dueDate && (
+                        <span className={`ml-2 text-xs font-medium ${
+                          new Date(module.dueDate) < new Date() ? 'text-error' : 'text-warning'
+                        }`}>
+                          Due: {new Date(module.dueDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Progress Bar (if in-progress or completed) */}
+                    {module.progress > 0 && (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2 bg-background rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all duration-700"
+                            style={{ width: `${module.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-[0.8125rem] font-bold text-foreground min-w-[36px] text-right">{module.progress}%</span>
+                      </div>
+                    )}
+
+                    {/* Footer: action button */}
+                    <div className="mt-auto pt-3 border-t border-border flex items-center justify-between">
+                      <span className={getStatusBadge(module.status)}>
+                        {module.status.replace('-', ' ')}
+                      </span>
+                      {module.status === 'not-started' ? (
+                        <button
+                          onClick={() => handleStartModule(module.id)}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full uppercase tracking-wider bg-cta border-2 border-cta text-cta-foreground hover:bg-cta-hover hover:border-cta-hover transition-all"
+                        >
+                          Enrol
+                        </button>
+                      ) : module.status === 'in-progress' ? (
+                        <button className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full uppercase tracking-wider bg-transparent border-2 border-accent-teal text-accent-teal hover:bg-accent-teal hover:text-white transition-all">
+                          <PlayCircleIcon className="w-3.5 h-3.5" />
+                          Continue
+                        </button>
+                      ) : (
+                        <button className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full uppercase tracking-wider bg-transparent border-2 border-border text-muted-foreground hover:border-primary hover:text-primary transition-all">
+                          Review
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={AcademicCapIcon}
+                title="No courses match your search"
+                description="Try adjusting your filters or search query to find what you are looking for."
+              />
             )}
           </>
         )}
 
-        {/* Learning Paths View */}
+        {/* My Courses View - progress cards + completed table matching mock */}
         {selectedView === 'paths' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {trainingPaths.map(path => (
-              <div key={path.id} className="bg-white rounded-control shadow">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{path.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{path.description}</p>
-                  
-                  <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                    <span>{path.modules.length} modules</span>
-                    <span>{Math.floor(path.totalDuration / 60)}h {path.totalDuration % 60}m</span>
-                    <span>{path.enrolledUsers} enrolled</span>
+          <div className="space-y-8">
+            {/* In Progress Section */}
+            {(() => {
+              const inProgressModules = modules.filter(m => m.status === 'in-progress');
+              const completedModules = modules.filter(m => m.status === 'completed');
+              return (
+                <>
+                  {/* In Progress */}
+                  <div>
+                    <div className="flex items-center gap-2 text-lg font-bold text-foreground mb-4">
+                      <ClockIcon className="w-5 h-5" />
+                      In Progress
+                      <span className="bg-primary text-primary-foreground text-[0.6875rem] font-bold px-2 py-0.5 rounded-full">
+                        {inProgressModules.length}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-4 mb-8">
+                      {inProgressModules.length > 0 ? inProgressModules.map(module => (
+                        <div key={module.id} className="enterprise-card p-6 flex items-center gap-6 hover:-translate-y-px transition-transform flex-wrap md:flex-nowrap">
+                          <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-icon-bg-navy text-accent-navy">
+                            {getTypeIcon(module.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-foreground mb-1">{module.title}</div>
+                            <div className="flex items-center gap-4 text-[0.8125rem] text-muted-foreground mb-3 flex-wrap">
+                              <span className={getCategoryBadge(module.category)} style={{ fontSize: '0.625rem', padding: '0.125rem 0.5rem' }}>
+                                {categories.find(c => c.id === module.category)?.name || module.category}
+                              </span>
+                              <span>{module.instructor}</span>
+                              <span>{module.duration} min total</span>
+                            </div>
+                            <div className="flex items-center gap-3 w-full">
+                              <div className="flex-1 h-2 bg-background rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-primary transition-all duration-1000"
+                                  style={{ width: `${module.progress}%` }}
+                                />
+                              </div>
+                              <span className="text-[0.8125rem] font-bold text-foreground min-w-[36px] text-right">{module.progress}%</span>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <button className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full uppercase tracking-wider bg-cta border-2 border-cta text-cta-foreground hover:bg-cta-hover hover:border-cta-hover transition-all">
+                              <PlayCircleIcon className="w-3.5 h-3.5" />
+                              Continue
+                            </button>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="enterprise-card p-8 text-center text-muted-foreground text-sm">
+                          No courses currently in progress.
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-500 mb-1">
-                      <span>Progress</span>
-                      <span>{path.completedModules}/{path.modules.length}</span>
+                  {/* Completed Section */}
+                  <div>
+                    <div className="flex items-center gap-2 text-lg font-bold text-foreground mb-4">
+                      <CheckCircleIcon className="w-5 h-5" />
+                      Completed
+                      <span className="bg-primary text-primary-foreground text-[0.6875rem] font-bold px-2 py-0.5 rounded-full">
+                        {completedModules.length}
+                      </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full"
-                        style={{ width: `${(path.completedModules / path.modules.length) * 100}%` }}
-                      ></div>
+                    <div className="enterprise-card overflow-hidden">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-background border-b border-border">
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Course</th>
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Category</th>
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Completed</th>
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Score</th>
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Certificate</th>
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {completedModules.length > 0 ? completedModules.map(module => (
+                            <tr key={module.id} className="border-b border-border last:border-b-0 hover:bg-surface-navy transition-colors">
+                              <td className="px-5 py-3.5 text-sm font-bold text-foreground">{module.title}</td>
+                              <td className="px-5 py-3.5">
+                                <span className={getCategoryBadge(module.category)} style={{ fontSize: '0.625rem', padding: '0.125rem 0.5rem' }}>
+                                  {categories.find(c => c.id === module.category)?.name || module.category}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3.5 text-sm text-foreground">
+                                {module.dueDate ? new Date(module.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '--'}
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                                  {module.rating >= 4.5 ? '92%' : module.rating >= 4 ? '85%' : '78%'}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <button className="inline-flex items-center gap-1 text-[0.8125rem] font-semibold text-primary hover:text-cta-hover hover:underline transition-colors">
+                                  <DocumentTextIcon className="w-3.5 h-3.5" />
+                                  View Certificate
+                                </button>
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <button className="inline-flex items-center gap-1 px-3 py-1 text-[0.6875rem] font-semibold rounded-full uppercase tracking-wider border-2 border-border text-muted-foreground hover:border-primary hover:text-primary transition-all">
+                                  Review
+                                </button>
+                              </td>
+                            </tr>
+                          )) : (
+                            <tr>
+                              <td colSpan={6} className="px-5 py-8 text-center text-muted-foreground text-sm">
+                                No completed courses yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-
-                  <button className="w-full px-4 py-2 bg-gold-500 text-violet-950 rounded-full hover:bg-gold-600 transition-colors">
-                    {path.completedModules > 0 ? 'Continue Path' : 'Start Path'}
-                  </button>
-                </div>
-              </div>
-            ))}
+                </>
+              );
+            })()}
           </div>
         )}
 
-        {/* Progress View */}
+        {/* Certifications View - 2-column cert card grid matching mock */}
         {selectedView === 'progress' && (
-          <div className="bg-white rounded-control shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">My Learning Progress</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gold-600 mb-2">
-                  {stats?.completedModules}/{stats?.totalModules}
-                </div>
-                <div className="text-gray-600">Modules Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">
-                  {stats?.totalLearningHours}h
-                </div>
-                <div className="text-gray-600">Learning Hours</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">
-                  {stats?.averageRating}/5
-                </div>
-                <div className="text-gray-600">Average Rating</div>
-              </div>
-            </div>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Certification cards from module data */}
+              {modules.filter(m => m.status === 'completed' || m.isRequired).length > 0 ? (
+                modules.filter(m => m.status === 'completed' || m.isRequired).map(module => {
+                  const isCompleted = module.status === 'completed';
+                  const certStatus = isCompleted ? 'valid' : 'pending';
+                  const iconBgMap: Record<string, string> = {
+                    systems: 'bg-icon-bg-navy text-accent-navy',
+                    recruitment: 'bg-icon-bg-navy text-accent-navy',
+                    interviewing: 'bg-icon-bg-pink text-accent-pink',
+                    compliance: 'bg-icon-bg-gold text-accent-gold',
+                    diversity: 'bg-icon-bg-teal text-accent-teal',
+                    leadership: 'bg-icon-bg-teal text-accent-teal',
+                  };
 
-            <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">Recent Activity</h4>
-              {modules.filter(m => m.status !== 'not-started').map(module => (
-                <div key={module.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-control">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(module.status)}
-                    <div>
-                      <div className="font-medium">{module.title}</div>
-                      <div className="text-sm text-gray-600">{module.progress}% complete</div>
+                  return (
+                    <div key={module.id} className="enterprise-card p-6 flex gap-5 hover:-translate-y-0.5 transition-transform">
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBgMap[module.category] || 'bg-icon-bg-navy text-accent-navy'}`}>
+                        <TrophyIcon className="w-7 h-7" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-foreground mb-1">{module.title}</div>
+                        <div className="text-[0.8125rem] text-muted-foreground mb-3">{module.instructor}</div>
+                        <div className="flex gap-6 mb-3 flex-wrap">
+                          <div className="text-[0.8125rem]">
+                            <span className="text-muted-foreground font-medium">Category: </span>
+                            <span className="text-foreground font-semibold">{categories.find(c => c.id === module.category)?.name || module.category}</span>
+                          </div>
+                          <div className="text-[0.8125rem]">
+                            <span className="text-muted-foreground font-medium">Duration: </span>
+                            <span className="text-foreground font-semibold">{module.duration} min</span>
+                          </div>
+                        </div>
+                        {/* Status badge */}
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.6875rem] font-bold uppercase tracking-wider ${
+                          certStatus === 'valid'
+                            ? 'bg-success-bg text-success'
+                            : 'bg-warning-bg text-warning'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${certStatus === 'valid' ? 'bg-success' : 'bg-warning'}`} />
+                          {certStatus === 'valid' ? 'Completed' : 'Pending'}
+                        </span>
+                        {/* Actions */}
+                        <div className="flex gap-2 mt-3">
+                          {isCompleted && (
+                            <button className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-full uppercase tracking-wider border-2 border-cta text-primary bg-transparent hover:bg-cta hover:text-cta-foreground transition-all">
+                              <DocumentTextIcon className="w-3.5 h-3.5" />
+                              Download
+                            </button>
+                          )}
+                          <button className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-full uppercase tracking-wider border-2 border-border text-muted-foreground hover:border-primary hover:text-primary transition-all">
+                            {isCompleted ? 'View' : 'Start Course'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full">
+                  <EmptyState
+                    icon={TrophyIcon}
+                    title="No certifications yet"
+                    description="Complete training courses to earn certifications."
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Progress summary within certifications tab */}
+            {stats && (
+              <div className="enterprise-card p-6">
+                <h3 className="text-lg font-bold text-foreground mb-6">Learning Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-extrabold text-accent-gold mb-2">
+                      {stats.completedModules}/{stats.totalModules}
+                    </div>
+                    <div className="text-muted-foreground text-sm">Modules Completed</div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {module.status === 'completed' ? 'Completed' : 'In Progress'}
+                  <div className="text-center">
+                    <div className="text-3xl font-extrabold text-success mb-2">
+                      {stats.totalLearningHours}h
+                    </div>
+                    <div className="text-muted-foreground text-sm">Learning Hours</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-extrabold text-primary mb-2">
+                      {stats.averageRating}/5
+                    </div>
+                    <div className="text-muted-foreground text-sm">Average Rating</div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        )}
-
-        {filteredModules.length === 0 && !loading && selectedView === 'modules' && (
-          <EmptyState
-            icon={AcademicCapIcon}
-            title="No training modules found"
-            description="Try adjusting your search or filter criteria."
-          />
         )}
       </div>
     </PageWrapper>

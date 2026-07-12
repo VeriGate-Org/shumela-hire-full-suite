@@ -21,6 +21,11 @@ import {
   DocumentTextIcon,
   CheckCircleIcon,
   PlusIcon,
+  ClipboardDocumentCheckIcon,
+  BoltIcon,
+  ShieldCheckIcon,
+  ArrowPathIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 // Maps backend entity to frontend WorkflowDefinition
@@ -339,8 +344,8 @@ export default function WorkflowPage() {
       <PageWrapper title="Access Denied" subtitle="Please log in to access the workflow automation system.">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h1>
-            <p className="text-gray-600">Please log in to access the workflow automation system.</p>
+            <h1 className="text-2xl font-semibold text-foreground mb-2">Access Denied</h1>
+            <p className="text-muted-foreground">Please log in to access the workflow automation system.</p>
           </div>
         </div>
       </PageWrapper>
@@ -353,23 +358,30 @@ export default function WorkflowPage() {
       <PageWrapper title="Access Denied" subtitle="You do not have permission to manage workflows.">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h1>
-            <p className="text-gray-600">Workflow management is available to administrators and HR managers.</p>
+            <h1 className="text-2xl font-semibold text-foreground mb-2">Access Denied</h1>
+            <p className="text-muted-foreground">Workflow management is available to administrators and HR managers.</p>
           </div>
         </div>
       </PageWrapper>
     );
   }
 
+  // Derived stats
+  const activeRuleCount = workflows.filter(w => w.isActive).length;
+  const executionsTodayCount = executions.length;
+  const completedCount = executions.filter(e => e.status === 'completed').length;
+  const finishedCount = executions.filter(e => e.status !== 'running').length;
+  const successRate = finishedCount > 0 ? Math.round((completedCount / finishedCount) * 100) : 0;
+
   const actions = (
     <div className="flex items-center gap-3">
       {activeView !== 'builder' && (
         <button
           onClick={handleCreateWorkflow}
-          className="px-4 py-2 text-sm font-medium bg-transparent border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider rounded-full flex items-center gap-2"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-button text-[0.8125rem] font-semibold uppercase tracking-wider bg-cta text-cta-foreground border border-cta-border shadow-sm hover:bg-cta-hover hover:shadow-md hover:-translate-y-px transition-all"
         >
           <PlusIcon className="h-4 w-4" />
-          Create Workflow
+          Create Rule
         </button>
       )}
     </div>
@@ -377,8 +389,8 @@ export default function WorkflowPage() {
 
   return (
     <PageWrapper
-      title="Workflow Automation"
-      subtitle="Design, manage, and monitor automated recruitment workflows"
+      title="Workflow Management"
+      subtitle="Automate hiring processes with event-driven rules and actions"
       actions={actions}
     >
       {/* Hidden file input for import */}
@@ -391,33 +403,78 @@ export default function WorkflowPage() {
       />
 
       <div className="space-y-6">
-        {/* Navigation */}
-        <div className="mb-6">
-          <nav className="flex space-x-8">
-            {[
-              { id: 'manager' as const, name: 'Manager', icon: PlayCircleIcon, desc: 'Monitor workflows and executions' },
-              { id: 'builder' as const, name: 'Builder', icon: Cog6ToothIcon, desc: 'Design and edit workflows' },
-              { id: 'library' as const, name: 'Library', icon: DocumentTextIcon, desc: 'Browse workflow templates' },
-              { id: 'approvals' as const, name: 'Approvals', icon: CheckCircleIcon, desc: 'Manage approval requests' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={`flex items-center gap-3 px-4 py-2 rounded-control text-sm font-medium transition-colors ${
-                  activeView === item.id
-                    ? 'bg-gold-100 text-violet-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <item.icon className="h-5 w-5" />
-                <div className="text-left">
-                  <div>{item.name}</div>
-                  <div className="text-xs text-gray-500">{item.desc}</div>
-                </div>
-              </button>
-            ))}
-          </nav>
+        {/* View Toggle Bar */}
+        <div className="enterprise-card px-3 py-2 flex items-center gap-2 flex-wrap">
+          <span className="text-[0.75rem] font-bold uppercase tracking-wider text-muted-foreground mr-2">
+            View:
+          </span>
+          {[
+            { id: 'manager' as const, name: 'Manager', icon: PlayCircleIcon },
+            { id: 'builder' as const, name: 'Builder', icon: Cog6ToothIcon },
+            { id: 'library' as const, name: 'Library', icon: DocumentTextIcon },
+            { id: 'approvals' as const, name: 'Approvals', icon: CheckCircleIcon },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-button text-[0.75rem] font-semibold border transition-all ${
+                activeView === item.id
+                  ? 'bg-primary text-white border-primary'
+                  : 'border-border bg-transparent text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
+              }`}
+            >
+              <item.icon className="h-3.5 w-3.5" />
+              {item.name}
+            </button>
+          ))}
         </div>
+
+        {/* Stats Bar — 3-column grid matching mock */}
+        {activeView === 'manager' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
+              <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                <ClipboardDocumentCheckIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-extrabold leading-tight text-foreground">
+                  {activeRuleCount}
+                </div>
+                <div className="text-[0.8125rem] text-muted-foreground mt-1">
+                  Active Rules
+                </div>
+              </div>
+            </div>
+
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
+              <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                <BoltIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-extrabold leading-tight text-foreground">
+                  {executionsTodayCount}
+                </div>
+                <div className="text-[0.8125rem] text-muted-foreground mt-1">
+                  Executions Today
+                </div>
+              </div>
+            </div>
+
+            <div className="enterprise-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform">
+              <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                <ShieldCheckIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-extrabold leading-tight text-foreground">
+                  {successRate}%
+                </div>
+                <div className="text-[0.8125rem] text-muted-foreground mt-1">
+                  Success Rate
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         <div className="space-y-6">
@@ -476,45 +533,71 @@ export default function WorkflowPage() {
         </div>
       </div>
 
-      {/* Execution Detail Modal */}
+      {/* Execution Detail Modal — matching mock modal styling */}
       {selectedExecution && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-lg w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Execution Details</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600">Workflow</span>
-                <span>{selectedExecution.workflowName}</span>
+        <div className="fixed inset-0 bg-foreground/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="bg-card rounded-[16px] shadow-lg w-full max-w-[640px] max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 pt-6">
+              <h2 className="text-xl font-bold text-foreground">Execution Details</h2>
+              <button
+                onClick={() => setSelectedExecution(null)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-foreground transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-6 space-y-4 text-sm">
+              <div className="flex justify-between items-center py-2 border-b border-border">
+                <span className="font-semibold text-muted-foreground">Workflow</span>
+                <span className="text-foreground font-medium">{selectedExecution.workflowName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600">Status</span>
-                <span className="capitalize">{selectedExecution.status}</span>
+              <div className="flex justify-between items-center py-2 border-b border-border">
+                <span className="font-semibold text-muted-foreground">Status</span>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-button text-[0.6875rem] font-semibold ${
+                  selectedExecution.status === 'completed' ? 'bg-surface-teal text-accent-teal' :
+                  selectedExecution.status === 'failed' ? 'bg-icon-bg-pink text-accent-pink' :
+                  selectedExecution.status === 'running' ? 'bg-icon-bg-navy text-accent-navy' :
+                  'bg-icon-bg-gold text-accent-gold'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    selectedExecution.status === 'completed' ? 'bg-accent-teal' :
+                    selectedExecution.status === 'failed' ? 'bg-accent-pink' :
+                    selectedExecution.status === 'running' ? 'bg-accent-navy' :
+                    'bg-accent-gold'
+                  }`} />
+                  <span className="capitalize">{selectedExecution.status}</span>
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600">Started</span>
-                <span>{new Date(selectedExecution.startedAt).toLocaleString()}</span>
+              <div className="flex justify-between items-center py-2 border-b border-border">
+                <span className="font-semibold text-muted-foreground">Started</span>
+                <span className="text-foreground">{new Date(selectedExecution.startedAt).toLocaleString()}</span>
               </div>
               {selectedExecution.completedAt && (
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Completed</span>
-                  <span>{new Date(selectedExecution.completedAt).toLocaleString()}</span>
+                <div className="flex justify-between items-center py-2 border-b border-border">
+                  <span className="font-semibold text-muted-foreground">Completed</span>
+                  <span className="text-foreground">{new Date(selectedExecution.completedAt).toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600">Triggered By</span>
-                <span>{selectedExecution.triggeredBy}</span>
+              <div className="flex justify-between items-center py-2 border-b border-border">
+                <span className="font-semibold text-muted-foreground">Triggered By</span>
+                <span className="text-foreground">{selectedExecution.triggeredBy}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600">Progress</span>
-                <span>{selectedExecution.currentStep ?? 0} / {selectedExecution.totalSteps} steps</span>
+              <div className="flex justify-between items-center py-2 border-b border-border">
+                <span className="font-semibold text-muted-foreground">Progress</span>
+                <span className="text-foreground">{selectedExecution.currentStep ?? 0} / {selectedExecution.totalSteps} steps</span>
               </div>
               {selectedExecution.executionLog.length > 0 && (
-                <div>
-                  <p className="font-medium text-gray-600 mb-2">Execution Log</p>
-                  <div className="max-h-48 overflow-y-auto space-y-1 bg-gray-50 p-2 rounded-control">
+                <div className="pt-2">
+                  <p className="text-[0.75rem] font-bold uppercase tracking-wider text-muted-foreground mb-3 pb-2 border-b border-border">
+                    Execution Log
+                  </p>
+                  <div className="max-h-48 overflow-y-auto space-y-1 bg-surface-navy p-3 rounded-control">
                     {selectedExecution.executionLog.map((entry) => (
-                      <div key={entry.id} className="text-xs text-gray-700">
-                        <span className="text-gray-400">{new Date(entry.timestamp).toLocaleTimeString()}</span>{' '}
+                      <div key={entry.id} className="text-xs text-foreground">
+                        <span className="text-muted-foreground">{new Date(entry.timestamp).toLocaleTimeString()}</span>{' '}
                         {entry.action} — <span className="capitalize">{entry.status}</span>
                       </div>
                     ))}
@@ -522,10 +605,12 @@ export default function WorkflowPage() {
                 </div>
               )}
             </div>
-            <div className="flex justify-end mt-6">
+
+            {/* Modal Footer */}
+            <div className="px-6 pb-6 flex justify-end gap-3">
               <button
                 onClick={() => setSelectedExecution(null)}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50"
+                className="inline-flex items-center px-5 py-2 text-sm font-semibold text-muted-foreground bg-transparent hover:bg-surface-navy hover:text-primary rounded-button transition-colors"
               >
                 Close
               </button>
@@ -533,6 +618,7 @@ export default function WorkflowPage() {
           </div>
         </div>
       )}
+
       <ConfirmDialog
         open={deleteWorkflowId !== null}
         title="Delete Workflow"

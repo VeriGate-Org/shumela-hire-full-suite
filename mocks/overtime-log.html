@@ -1,0 +1,3397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overtime Log | ShumelaHire — uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.813rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+      border: 2px solid transparent;
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border-color: var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .btn-teal:hover {
+      background: #035e54;
+      border-color: #035e54;
+    }
+
+    .btn-red {
+      background: transparent;
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .btn-red:hover {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .btn-red-filled {
+      background: var(--error);
+      border-color: var(--error);
+      color: #fff;
+    }
+    .btn-red-filled:hover {
+      background: #DC2626;
+      border-color: #DC2626;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ========== FORM CONTROLS ========== */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+    }
+
+    .form-label .required {
+      color: var(--error);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      background: #fff;
+      transition: all 200ms ease;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5,82,126,0.2);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    .form-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ========== TOP NAV ========== */
+    .topnav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb .sep {
+      color: var(--border);
+    }
+
+    .breadcrumb .current {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notif-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+    .notif-btn:hover {
+      background: var(--primary-tint);
+      border-color: var(--primary);
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--error);
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ========== MAIN LAYOUT ========== */
+    .main-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    /* ========== DEMO STATE TOGGLE ========== */
+    .demo-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--navy-tint);
+      border: 1px dashed var(--primary-light);
+      border-radius: var(--radius-control);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .demo-toggle-bar span {
+      font-weight: 600;
+      color: var(--primary);
+      margin-right: 0.25rem;
+    }
+
+    .demo-btn {
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .demo-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header-text h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-text p {
+      color: var(--text-muted);
+      font-size: 0.938rem;
+    }
+
+    /* ========== WEEKLY SUMMARY HERO ========== */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-header {
+      background: linear-gradient(135deg, #05527E 0%, #047469 100%);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-header h2 {
+      color: #fff;
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .hero-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: #fff;
+    }
+    .hero-nav-btn:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .hero-body {
+      padding: 1.5rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-stat {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: var(--radius-control);
+    }
+
+    .hero-stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ========== BAR CHART ========== */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 0.75rem;
+      height: 160px;
+      padding: 0 0.5rem;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar-value {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .bar-track {
+      width: 100%;
+      max-width: 48px;
+      border-radius: 6px 6px 0 0;
+      background: var(--teal);
+      transition: height 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      min-height: 4px;
+      position: relative;
+    }
+
+    .bar-track.empty {
+      background: var(--border);
+      min-height: 4px;
+    }
+
+    .bar-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ========== STATS CARDS ========== */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-info .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .stat-info .stat-label {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ========== TABS ========== */
+    .tabs-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+
+    .tab-btn {
+      padding: 1rem 1.25rem;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 200ms ease;
+      position: relative;
+      top: 1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 1.5rem;
+      animation: fadeIn 300ms ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== FILTER BAR ========== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar .form-select {
+      width: auto;
+      min-width: 150px;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      font-size: 0.813rem;
+    }
+
+    /* ========== TABLE ========== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .data-table td {
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: var(--primary-tint);
+    }
+
+    /* ========== BADGES ========== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-pending {
+      background: var(--warning-bg);
+      color: #92400E;
+    }
+
+    .badge-approved {
+      background: var(--success-bg);
+      color: #065F46;
+    }
+
+    .badge-rejected {
+      background: var(--error-bg);
+      color: #991B1B;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-pending .badge-dot { background: var(--warning); }
+    .badge-approved .badge-dot { background: var(--success); }
+    .badge-rejected .badge-dot { background: var(--error); }
+
+    /* ========== ACTION LINKS ========== */
+    .action-link {
+      font-size: 0.813rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      transition: color 200ms ease;
+      padding: 0;
+    }
+    .action-link:hover {
+      color: var(--teal);
+    }
+
+    .action-sep {
+      color: var(--border);
+      margin: 0 0.25rem;
+    }
+
+    .action-link-red {
+      color: var(--error);
+    }
+    .action-link-red:hover {
+      color: #DC2626;
+    }
+
+    /* ========== TEAM TABLE ========== */
+    .team-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .employee-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ========== REVIEW PANEL ========== */
+    .review-panel {
+      display: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      margin-top: 0.75rem;
+      padding: 1rem;
+      animation: fadeIn 300ms ease;
+    }
+
+    .review-panel.open {
+      display: block;
+    }
+
+    .review-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .review-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .review-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .review-item-detail {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .review-item-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15,23,42,0.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeOverlay 200ms ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 300ms ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: var(--text-muted);
+    }
+    .modal-close:hover {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* ========== HOURS CALC DISPLAY ========== */
+    .hours-calc {
+      background: var(--primary-tint);
+      border: 1px solid var(--primary-light);
+      border-radius: var(--radius-control);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .hours-calc .hours-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .hours-calc .hours-label {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== POLICY NOTICE ========== */
+    .policy-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: var(--gold-tint);
+      border: 1px solid var(--gold-bg);
+      border-radius: var(--radius-control);
+      font-size: 0.813rem;
+      color: var(--gold);
+      line-height: 1.5;
+    }
+
+    .policy-notice svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ========== CONFIRM MODAL ========== */
+    .confirm-body {
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .confirm-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .confirm-body h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .confirm-body p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .confirm-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    /* ========== VIEW DETAIL MODAL ========== */
+    .detail-row {
+      display: flex;
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      width: 140px;
+      flex-shrink: 0;
+      font-weight: 600;
+      font-size: 0.813rem;
+      color: var(--text-muted);
+    }
+
+    .detail-value {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .manager-comment {
+      background: var(--bg);
+      border-radius: var(--radius-control);
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      border-left: 3px solid var(--primary);
+    }
+
+    .manager-comment .mc-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .manager-comment .mc-text {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    /* ========== SKELETON ========== */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    .skel-hero {
+      height: 340px;
+      border-radius: var(--radius-card);
+      margin-bottom: 1.5rem;
+    }
+
+    .skel-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .skel-stat-card {
+      height: 90px;
+      border-radius: var(--radius-card);
+    }
+
+    .skel-tabs {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .skel-tab-header {
+      height: 52px;
+      margin-bottom: 1px;
+    }
+
+    .skel-table-row {
+      height: 52px;
+      margin-bottom: 1px;
+    }
+
+    /* ========== ERROR STATE ========== */
+    .error-banner {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .error-banner.visible {
+      display: flex;
+    }
+
+    .error-banner-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--error-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .error-banner h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-banner p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      max-width: 400px;
+    }
+
+    /* ========== TOAST CONTAINER ========== */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 300;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.5rem;
+      max-width: 400px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-lg);
+      border-left: 4px solid;
+      position: relative;
+      overflow: hidden;
+      animation: toastIn 300ms ease;
+    }
+
+    .toast.removing {
+      animation: toastOut 300ms ease forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(100px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100px); }
+    }
+
+    .toast-success { border-left-color: var(--success); }
+    .toast-error { border-left-color: var(--error); }
+    .toast-warning { border-left-color: var(--warning); }
+    .toast-info { border-left-color: var(--primary); }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 1px;
+    }
+
+    .toast-success .toast-icon { color: var(--success); }
+    .toast-error .toast-icon { color: var(--error); }
+    .toast-warning .toast-icon { color: var(--warning); }
+    .toast-info .toast-icon { color: var(--primary); }
+
+    .toast-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.125rem;
+    }
+
+    .toast-msg {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+    .toast-close:hover {
+      background: var(--bg);
+      color: var(--text-primary);
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      animation: toastProgress 4s linear forwards;
+    }
+
+    .toast-success .toast-progress { background: var(--success); }
+    .toast-error .toast-progress { background: var(--error); }
+    .toast-warning .toast-progress { background: var(--warning); }
+    .toast-info .toast-progress { background: var(--primary); }
+
+    @keyframes toastProgress {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    .toast-retry {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--error);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      margin-top: 0.25rem;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .hero-stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .stats-strip {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .main-container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .bar-chart {
+        height: 120px;
+      }
+
+      .stats-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .skel-stats {
+        grid-template-columns: 1fr;
+      }
+
+      /* Mobile card layout for table */
+      .data-table thead {
+        display: none;
+      }
+
+      .data-table,
+      .data-table tbody,
+      .data-table tr,
+      .data-table td {
+        display: block;
+      }
+
+      .data-table tr {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-control);
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .data-table td {
+        padding: 0.375rem 0;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-right: 1rem;
+      }
+
+      .data-table tr:hover td {
+        background: transparent;
+      }
+
+      .employee-cell {
+        flex-direction: row-reverse;
+        gap: 0.5rem;
+      }
+
+      .modal {
+        max-width: 100%;
+        margin: 0 1rem;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ====== TOP NAVIGATION ====== -->
+<nav class="topnav">
+  <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1C54B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      ShumelaHire
+    </a>
+    <div class="breadcrumb">
+      <a href="#">Dashboard</a>
+      <span class="sep">/</span>
+      <span class="current">Overtime Log</span>
+    </div>
+  </div>
+  <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    <button class="notif-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-badge">3</span>
+    </button>
+    <div class="user-avatar">TM</div>
+  </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link active">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ====== MAIN CONTENT ====== -->
+<main class="main-container">
+
+  <!-- Demo State Toggle -->
+  <div class="demo-toggle-bar">
+    <span>Demo:</span>
+    <button class="demo-btn active" onclick="setDemoState('normal')">Normal</button>
+    <button class="demo-btn" onclick="setDemoState('skeleton')">Skeleton</button>
+    <button class="demo-btn" onclick="setDemoState('error')">Error State</button>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1>Overtime Log</h1>
+      <p>Log, track, and manage overtime hours</p>
+    </div>
+    <button class="btn btn-cta" onclick="openModal('logOvertimeModal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      LOG OVERTIME
+    </button>
+  </div>
+
+  <!-- ====== NORMAL STATE ====== -->
+  <div id="normalContent">
+
+    <!-- Weekly Summary Hero Card -->
+    <div class="hero-card" id="heroCard">
+      <div class="hero-header">
+        <div class="hero-nav">
+          <button class="hero-nav-btn" onclick="changeWeek(-1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+        </div>
+        <h2 id="weekLabel">Week of 7 &ndash; 13 July 2026</h2>
+        <div class="hero-nav">
+          <button class="hero-nav-btn" onclick="changeWeek(1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="hero-body">
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="heroTotalHours">8.5h</div>
+            <div class="hero-stat-label">Total Hours This Week</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="heroPending" style="color: var(--warning);">4h</div>
+            <div class="hero-stat-label">Pending Approval</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="heroApproved" style="color: var(--success);">4.5h</div>
+            <div class="hero-stat-label">Approved</div>
+          </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="bar-chart" id="barChart">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Stats -->
+    <div class="stats-strip" id="statsStrip">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--navy-bg);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">22.5h</div>
+          <div class="stat-label">Total Overtime (Jul)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--gold-bg);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">R 4,875.00</div>
+          <div class="stat-label">Overtime Pay Est.</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--teal-bg);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">5.6h</div>
+          <div class="stat-label">Avg Weekly Hours</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Container -->
+    <div class="tabs-container" id="tabsContainer">
+      <div class="tabs-header" id="tabsHeader">
+        <button class="tab-btn active" data-tab="myLog" onclick="switchTab('myLog')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:0.375rem;vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          My Log
+        </button>
+        <button class="tab-btn" data-tab="teamOvertime" onclick="switchTab('teamOvertime')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:0.375rem;vertical-align:-2px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Team Overtime
+          <span style="background:var(--warning-bg);color:#92400E;font-size:0.625rem;font-weight:700;padding:0.125rem 0.375rem;border-radius:9999px;margin-left:0.375rem;">6</span>
+        </button>
+      </div>
+
+      <!-- ====== TAB 1: MY LOG ====== -->
+      <div class="tab-panel active" id="panel-myLog">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <select class="form-select" id="filterMonth">
+            <option value="jul-2026">Jul 2026</option>
+            <option value="jun-2026">Jun 2026</option>
+            <option value="may-2026">May 2026</option>
+          </select>
+          <select class="form-select" id="filterStatus" onchange="filterOvertimeTable()">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="overtimeTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Hours</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-status="pending">
+                <td data-label="Date">12 Jul 2026</td>
+                <td data-label="Day">Sat</td>
+                <td data-label="Start Time">08:00</td>
+                <td data-label="End Time">10:30</td>
+                <td data-label="Hours"><strong>2.5h</strong></td>
+                <td data-label="Reason">Emergency pipe repair &mdash; Bergville</td>
+                <td data-label="Status"><span class="badge badge-pending"><span class="badge-dot"></span>Pending</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openEditModal(0)">Edit</button>
+                  <span class="action-sep">/</span>
+                  <button class="action-link action-link-red" onclick="openCancelConfirm(0)">Cancel</button>
+                </td>
+              </tr>
+              <tr data-status="pending">
+                <td data-label="Date">11 Jul 2026</td>
+                <td data-label="Day">Fri</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">19:30</td>
+                <td data-label="Hours"><strong>2.5h</strong></td>
+                <td data-label="Reason">SCADA system maintenance</td>
+                <td data-label="Status"><span class="badge badge-pending"><span class="badge-dot"></span>Pending</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openEditModal(1)">Edit</button>
+                  <span class="action-sep">/</span>
+                  <button class="action-link action-link-red" onclick="openCancelConfirm(1)">Cancel</button>
+                </td>
+              </tr>
+              <tr data-status="approved">
+                <td data-label="Date">8 Jul 2026</td>
+                <td data-label="Day">Tue</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">19:00</td>
+                <td data-label="Hours"><strong>2.0h</strong></td>
+                <td data-label="Reason">Water quality testing &mdash; urgent</td>
+                <td data-label="Status"><span class="badge badge-approved"><span class="badge-dot"></span>Approved</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(2)">View</button>
+                </td>
+              </tr>
+              <tr data-status="approved">
+                <td data-label="Date">7 Jul 2026</td>
+                <td data-label="Day">Mon</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">18:30</td>
+                <td data-label="Hours"><strong>1.5h</strong></td>
+                <td data-label="Reason">Month-end reporting</td>
+                <td data-label="Status"><span class="badge badge-approved"><span class="badge-dot"></span>Approved</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(3)">View</button>
+                </td>
+              </tr>
+              <tr data-status="approved">
+                <td data-label="Date">1 Jul 2026</td>
+                <td data-label="Day">Tue</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">18:00</td>
+                <td data-label="Hours"><strong>1.0h</strong></td>
+                <td data-label="Reason">Infrastructure audit prep</td>
+                <td data-label="Status"><span class="badge badge-approved"><span class="badge-dot"></span>Approved</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(4)">View</button>
+                </td>
+              </tr>
+              <tr data-status="approved">
+                <td data-label="Date">28 Jun 2026</td>
+                <td data-label="Day">Sat</td>
+                <td data-label="Start Time">09:00</td>
+                <td data-label="End Time">14:00</td>
+                <td data-label="Hours"><strong>5.0h</strong></td>
+                <td data-label="Reason">Weekend maintenance shift</td>
+                <td data-label="Status"><span class="badge badge-approved"><span class="badge-dot"></span>Approved</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(5)">View</button>
+                </td>
+              </tr>
+              <tr data-status="approved">
+                <td data-label="Date">25 Jun 2026</td>
+                <td data-label="Day">Wed</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">20:00</td>
+                <td data-label="Hours"><strong>3.0h</strong></td>
+                <td data-label="Reason">Emergency &mdash; main line burst</td>
+                <td data-label="Status"><span class="badge badge-approved"><span class="badge-dot"></span>Approved</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(6)">View</button>
+                </td>
+              </tr>
+              <tr data-status="rejected">
+                <td data-label="Date">20 Jun 2026</td>
+                <td data-label="Day">Fri</td>
+                <td data-label="Start Time">17:00</td>
+                <td data-label="End Time">19:30</td>
+                <td data-label="Hours"><strong>2.5h</strong></td>
+                <td data-label="Reason">System upgrade support</td>
+                <td data-label="Status"><span class="badge badge-rejected"><span class="badge-dot"></span>Rejected</span></td>
+                <td data-label="Actions">
+                  <button class="action-link" onclick="openViewModal(7)">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== TAB 2: TEAM OVERTIME ====== -->
+      <div class="tab-panel" id="panel-teamOvertime">
+        <h3 style="margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Direct Reports Overtime Overview
+        </h3>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="teamTable">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Hours This Week</th>
+                <th>Hours This Month</th>
+                <th>Pending</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Employee">
+                  <div class="employee-cell">
+                    <div class="team-avatar" style="background:var(--teal-bg);color:var(--teal);">LN</div>
+                    <span>Lindiwe Ngcobo</span>
+                  </div>
+                </td>
+                <td data-label="Department">Water Process</td>
+                <td data-label="Hours This Week"><strong>4.0h</strong></td>
+                <td data-label="Hours This Month"><strong>15.5h</strong></td>
+                <td data-label="Pending"><span class="badge badge-pending"><span class="badge-dot"></span>2 requests</span></td>
+                <td data-label="Actions">
+                  <button class="btn btn-sm btn-outline" onclick="toggleReviewPanel('review-ln')">REVIEW</button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="6" style="padding:0;border-bottom:1px solid var(--border);">
+                  <div class="review-panel" id="review-ln">
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">12 Jul 2026 (Sat)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">2.0h</span>
+                      </div>
+                      <div class="review-item-detail">08:00 &ndash; 10:00 &middot; Water treatment plant inspection</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Lindiwe Ngcobo has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Lindiwe Ngcobo has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">11 Jul 2026 (Fri)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">2.0h</span>
+                      </div>
+                      <div class="review-item-detail">17:00 &ndash; 19:00 &middot; Chemical dosing adjustment</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Lindiwe Ngcobo has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Lindiwe Ngcobo has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td data-label="Employee">
+                  <div class="employee-cell">
+                    <div class="team-avatar" style="background:var(--gold-bg);color:var(--gold);">MS</div>
+                    <span>Mandla Shabalala</span>
+                  </div>
+                </td>
+                <td data-label="Department">Water Quality</td>
+                <td data-label="Hours This Week"><strong>6.0h</strong></td>
+                <td data-label="Hours This Month"><strong>18.0h</strong></td>
+                <td data-label="Pending"><span class="badge badge-pending"><span class="badge-dot"></span>1 request</span></td>
+                <td data-label="Actions">
+                  <button class="btn btn-sm btn-outline" onclick="toggleReviewPanel('review-ms')">REVIEW</button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="6" style="padding:0;border-bottom:1px solid var(--border);">
+                  <div class="review-panel" id="review-ms">
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">10 Jul 2026 (Fri)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">3.0h</span>
+                      </div>
+                      <div class="review-item-detail">17:00 &ndash; 20:00 &middot; Lab sample reprocessing &mdash; failed QC batch</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Mandla Shabalala has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Mandla Shabalala has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td data-label="Employee">
+                  <div class="employee-cell">
+                    <div class="team-avatar" style="background:var(--navy-bg);color:var(--primary);">BZ</div>
+                    <span>Bongani Zulu</span>
+                  </div>
+                </td>
+                <td data-label="Department">ICT Systems</td>
+                <td data-label="Hours This Week"><strong>2.0h</strong></td>
+                <td data-label="Hours This Month"><strong>8.5h</strong></td>
+                <td data-label="Pending"><span style="color:var(--text-muted);font-size:0.813rem;">0</span></td>
+                <td data-label="Actions">
+                  <span style="color:var(--text-muted);font-size:0.813rem;">&mdash;</span>
+                </td>
+              </tr>
+              <tr>
+                <td data-label="Employee">
+                  <div class="employee-cell">
+                    <div class="team-avatar" style="background:var(--pink-bg);color:var(--pink);">JP</div>
+                    <span>Johan Pretorius</span>
+                  </div>
+                </td>
+                <td data-label="Department">Maintenance</td>
+                <td data-label="Hours This Week"><strong style="color:var(--error);">8.0h</strong></td>
+                <td data-label="Hours This Month"><strong style="color:var(--error);">24.0h</strong></td>
+                <td data-label="Pending"><span class="badge badge-pending"><span class="badge-dot"></span>3 requests</span></td>
+                <td data-label="Actions">
+                  <button class="btn btn-sm btn-outline" onclick="toggleReviewPanel('review-jp')">REVIEW</button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="6" style="padding:0;border-bottom:1px solid var(--border);">
+                  <div class="review-panel" id="review-jp">
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">12 Jul 2026 (Sat)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">3.0h</span>
+                      </div>
+                      <div class="review-item-detail">07:00 &ndash; 10:00 &middot; Emergency generator repair</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Johan Pretorius has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Johan Pretorius has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">11 Jul 2026 (Fri)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">3.0h</span>
+                      </div>
+                      <div class="review-item-detail">17:00 &ndash; 20:00 &middot; Pump station valve replacement</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Johan Pretorius has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Johan Pretorius has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                    <div class="review-item">
+                      <div class="review-item-header">
+                        <div>
+                          <strong style="font-size:0.875rem;">9 Jul 2026 (Wed)</strong>
+                          <span class="badge badge-pending" style="margin-left:0.5rem;"><span class="badge-dot"></span>Pending</span>
+                        </div>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--primary);">2.0h</span>
+                      </div>
+                      <div class="review-item-detail">17:00 &ndash; 19:00 &middot; Scheduled maintenance overrun</div>
+                      <div class="review-item-actions">
+                        <button class="btn btn-sm btn-red" onclick="showToast('error','Request Rejected','Overtime request for Johan Pretorius has been rejected.')">REJECT</button>
+                        <button class="btn btn-sm btn-teal" onclick="showToast('success','Request Approved','Overtime request for Johan Pretorius has been approved.')">APPROVE</button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SKELETON STATE ====== -->
+  <div id="skeletonContent" style="display:none;">
+    <div class="skel-hero skeleton"></div>
+    <div class="skel-stats">
+      <div class="skel-stat-card skeleton"></div>
+      <div class="skel-stat-card skeleton"></div>
+      <div class="skel-stat-card skeleton"></div>
+    </div>
+    <div class="skel-tabs">
+      <div class="skel-tab-header skeleton"></div>
+      <div class="skel-table-row skeleton"></div>
+      <div class="skel-table-row skeleton"></div>
+      <div class="skel-table-row skeleton"></div>
+      <div class="skel-table-row skeleton"></div>
+      <div class="skel-table-row skeleton"></div>
+    </div>
+  </div>
+
+  <!-- ====== ERROR STATE ====== -->
+  <div class="error-banner" id="errorBanner">
+    <div class="error-banner-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+    <h3>Unable to Load Overtime Data</h3>
+    <p>We encountered an error loading your overtime records. Please check your connection and try again.</p>
+    <button class="btn btn-cta" onclick="setDemoState('normal');document.querySelector('.demo-btn.active').classList.remove('active');document.querySelectorAll('.demo-btn')[0].classList.add('active');">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      RETRY
+    </button>
+  </div>
+
+</main>
+
+<!-- ====== LOG OVERTIME MODAL ====== -->
+<div class="modal-overlay" id="logOvertimeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Log Overtime</h2>
+      <button class="modal-close" onclick="closeModal('logOvertimeModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="logForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label">Date <span class="required">*</span></label>
+          <input type="date" class="form-input" id="logDate">
+          <div class="form-error" id="logDateError">Please select a date</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">Start Time <span class="required">*</span></label>
+            <input type="time" class="form-input" id="logStartTime" onchange="calcOvertimeHours('log')">
+            <div class="form-error" id="logStartTimeError">Please select a start time</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time <span class="required">*</span></label>
+            <input type="time" class="form-input" id="logEndTime" onchange="calcOvertimeHours('log')">
+            <div class="form-error" id="logEndTimeError">End time must be after start time</div>
+          </div>
+        </div>
+
+        <div class="hours-calc" id="logHoursCalc" style="display:none;">
+          <div>
+            <div class="hours-label">Calculated Hours</div>
+          </div>
+          <div class="hours-num" id="logHoursNum">0h</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reason / Description <span class="required">*</span></label>
+          <textarea class="form-textarea" id="logReason" rows="3" placeholder="Describe the overtime work performed (min 10 characters)..."></textarea>
+          <div class="form-error" id="logReasonError">Reason is required (minimum 10 characters)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Project / Cost Centre</label>
+          <select class="form-select" id="logCostCentre">
+            <option value="">Select cost centre...</option>
+            <option value="CC-OPS-001">CC-OPS-001 &mdash; Operations</option>
+            <option value="CC-ICT-002">CC-ICT-002 &mdash; ICT Systems</option>
+            <option value="CC-WQ-003">CC-WQ-003 &mdash; Water Quality</option>
+            <option value="CC-MNT-004">CC-MNT-004 &mdash; Maintenance</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supporting Notes <span class="form-hint" style="display:inline;margin:0;">(Optional)</span></label>
+          <textarea class="form-textarea" id="logNotes" rows="2" placeholder="Any additional notes or references..."></textarea>
+        </div>
+
+        <div class="policy-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Overtime must be pre-approved by your line manager. Maximum 20 hours per week.</span>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('logOvertimeModal')">CANCEL</button>
+      <button class="btn btn-cta" id="submitLogBtn" onclick="submitOvertimeLog()">SUBMIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== EDIT OVERTIME MODAL ====== -->
+<div class="modal-overlay" id="editOvertimeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Overtime Entry</h2>
+      <button class="modal-close" onclick="closeModal('editOvertimeModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="editForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label">Date <span class="required">*</span></label>
+          <input type="date" class="form-input" id="editDate">
+          <div class="form-error" id="editDateError">Please select a date</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">Start Time <span class="required">*</span></label>
+            <input type="time" class="form-input" id="editStartTime" onchange="calcOvertimeHours('edit')">
+            <div class="form-error" id="editStartTimeError">Please select a start time</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time <span class="required">*</span></label>
+            <input type="time" class="form-input" id="editEndTime" onchange="calcOvertimeHours('edit')">
+            <div class="form-error" id="editEndTimeError">End time must be after start time</div>
+          </div>
+        </div>
+
+        <div class="hours-calc" id="editHoursCalc" style="display:none;">
+          <div>
+            <div class="hours-label">Calculated Hours</div>
+          </div>
+          <div class="hours-num" id="editHoursNum">0h</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reason / Description <span class="required">*</span></label>
+          <textarea class="form-textarea" id="editReason" rows="3" placeholder="Describe the overtime work performed (min 10 characters)..."></textarea>
+          <div class="form-error" id="editReasonError">Reason is required (minimum 10 characters)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Project / Cost Centre</label>
+          <select class="form-select" id="editCostCentre">
+            <option value="">Select cost centre...</option>
+            <option value="CC-OPS-001">CC-OPS-001 &mdash; Operations</option>
+            <option value="CC-ICT-002">CC-ICT-002 &mdash; ICT Systems</option>
+            <option value="CC-WQ-003">CC-WQ-003 &mdash; Water Quality</option>
+            <option value="CC-MNT-004">CC-MNT-004 &mdash; Maintenance</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supporting Notes <span class="form-hint" style="display:inline;margin:0;">(Optional)</span></label>
+          <textarea class="form-textarea" id="editNotes" rows="2" placeholder="Any additional notes or references..."></textarea>
+        </div>
+
+        <div class="policy-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Overtime must be pre-approved by your line manager. Maximum 20 hours per week.</span>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editOvertimeModal')">CANCEL</button>
+      <button class="btn btn-cta" id="updateLogBtn" onclick="submitEditOvertime()">UPDATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CANCEL CONFIRMATION MODAL ====== -->
+<div class="modal-overlay" id="cancelConfirmModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="confirm-body">
+      <div class="confirm-icon" style="background:var(--warning-bg);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3>Cancel Overtime Entry?</h3>
+      <p id="cancelConfirmText">This will cancel your pending overtime entry. This action cannot be undone.</p>
+    </div>
+    <div class="confirm-footer">
+      <button class="btn btn-outline" onclick="closeModal('cancelConfirmModal')">KEEP ENTRY</button>
+      <button class="btn btn-red-filled" onclick="confirmCancelEntry()">CANCEL ENTRY</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== VIEW DETAIL MODAL ====== -->
+<div class="modal-overlay" id="viewDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Overtime Entry Details</h2>
+      <button class="modal-close" onclick="closeModal('viewDetailModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="viewDetailBody">
+      <!-- Populated by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('viewDetailModal')">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TOAST CONTAINER ====== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ====== JAVASCRIPT ====== -->
+<script>
+(function() {
+  'use strict';
+
+  /* ========== DATA ========== */
+  var overtimeEntries = [
+    { date: '2026-07-12', day: 'Sat', start: '08:00', end: '10:30', hours: 2.5, reason: 'Emergency pipe repair \u2014 Bergville', status: 'pending', costCentre: 'CC-OPS-001', notes: 'Callout received at 07:15. Repaired burst pipe on Bergville main line.', managerComment: '' },
+    { date: '2026-07-11', day: 'Fri', start: '17:00', end: '19:30', hours: 2.5, reason: 'SCADA system maintenance', status: 'pending', costCentre: 'CC-ICT-002', notes: 'Firmware update required for SCADA PLCs. Scheduled after-hours.', managerComment: '' },
+    { date: '2026-07-08', day: 'Tue', start: '17:00', end: '19:00', hours: 2.0, reason: 'Water quality testing \u2014 urgent', status: 'approved', costCentre: 'CC-WQ-003', notes: 'Emergency resampling after elevated turbidity readings.', managerComment: 'Approved. Critical water quality matter.' },
+    { date: '2026-07-07', day: 'Mon', start: '17:00', end: '18:30', hours: 1.5, reason: 'Month-end reporting', status: 'approved', costCentre: 'CC-OPS-001', notes: '', managerComment: 'Approved for month-end close.' },
+    { date: '2026-07-01', day: 'Tue', start: '17:00', end: '18:00', hours: 1.0, reason: 'Infrastructure audit prep', status: 'approved', costCentre: 'CC-OPS-001', notes: 'Prepared documentation for upcoming DWS audit.', managerComment: 'Approved.' },
+    { date: '2026-06-28', day: 'Sat', start: '09:00', end: '14:00', hours: 5.0, reason: 'Weekend maintenance shift', status: 'approved', costCentre: 'CC-MNT-004', notes: 'Scheduled maintenance of pump station 3.', managerComment: 'Approved per maintenance schedule.' },
+    { date: '2026-06-25', day: 'Wed', start: '17:00', end: '20:00', hours: 3.0, reason: 'Emergency \u2014 main line burst', status: 'approved', costCentre: 'CC-OPS-001', notes: 'Emergency callout. Main distribution line burst near Ladysmith interchange.', managerComment: 'Approved. Emergency response.' },
+    { date: '2026-06-20', day: 'Fri', start: '17:00', end: '19:30', hours: 2.5, reason: 'System upgrade support', status: 'rejected', costCentre: 'CC-ICT-002', notes: 'Assisted with ERP system upgrade.', managerComment: 'Rejected. Overtime was not pre-approved. Please submit requests before working overtime.' }
+  ];
+
+  var weekData = [
+    { weekLabel: 'Week of 7 \u2013 13 July 2026', totalHours: 8.5, pendingHours: 4, approvedHours: 4.5, bars: [
+      { label: 'Mon', value: 1.5 },
+      { label: 'Tue', value: 2.0 },
+      { label: 'Wed', value: 0 },
+      { label: 'Thu', value: 0 },
+      { label: 'Fri', value: 2.5 },
+      { label: 'Sat', value: 2.5 },
+      { label: 'Sun', value: 0 }
+    ]},
+    { weekLabel: 'Week of 30 Jun \u2013 6 July 2026', totalHours: 1.0, pendingHours: 0, approvedHours: 1.0, bars: [
+      { label: 'Mon', value: 0 },
+      { label: 'Tue', value: 1.0 },
+      { label: 'Wed', value: 0 },
+      { label: 'Thu', value: 0 },
+      { label: 'Fri', value: 0 },
+      { label: 'Sat', value: 0 },
+      { label: 'Sun', value: 0 }
+    ]},
+    { weekLabel: 'Week of 23 \u2013 29 June 2026', totalHours: 8.0, pendingHours: 0, approvedHours: 8.0, bars: [
+      { label: 'Mon', value: 0 },
+      { label: 'Tue', value: 0 },
+      { label: 'Wed', value: 3.0 },
+      { label: 'Thu', value: 0 },
+      { label: 'Fri', value: 0 },
+      { label: 'Sat', value: 5.0 },
+      { label: 'Sun', value: 0 }
+    ]}
+  ];
+
+  var currentWeekIndex = 0;
+  var currentCancelIndex = -1;
+
+  /* ========== DEMO STATE ========== */
+  window.setDemoState = function(state) {
+    var demoBtns = document.querySelectorAll('.demo-btn');
+    demoBtns.forEach(function(b) { b.classList.remove('active'); });
+    if (event && event.target) event.target.classList.add('active');
+
+    var normal = document.getElementById('normalContent');
+    var skeleton = document.getElementById('skeletonContent');
+    var errorEl = document.getElementById('errorBanner');
+
+    if (state === 'normal') {
+      normal.style.display = '';
+      skeleton.style.display = 'none';
+      errorEl.classList.remove('visible');
+    } else if (state === 'skeleton') {
+      normal.style.display = 'none';
+      skeleton.style.display = '';
+      errorEl.classList.remove('visible');
+    } else if (state === 'error') {
+      normal.style.display = 'none';
+      skeleton.style.display = 'none';
+      errorEl.classList.add('visible');
+    }
+  };
+
+  /* ========== BAR CHART ========== */
+  function renderBarChart() {
+    var data = weekData[currentWeekIndex];
+    var chart = document.getElementById('barChart');
+    var maxVal = Math.max.apply(null, data.bars.map(function(b) { return b.value; }));
+    if (maxVal === 0) maxVal = 1;
+    var maxHeight = 110; // px
+
+    var html = '';
+    data.bars.forEach(function(bar) {
+      var h = bar.value > 0 ? Math.max((bar.value / maxVal) * maxHeight, 8) : 4;
+      var emptyClass = bar.value === 0 ? ' empty' : '';
+      html += '<div class="bar-col">';
+      html += '<div class="bar-value">' + (bar.value > 0 ? bar.value + 'h' : '0h') + '</div>';
+      html += '<div class="bar-track' + emptyClass + '" style="height:' + h + 'px;"></div>';
+      html += '<div class="bar-label">' + bar.label + '</div>';
+      html += '</div>';
+    });
+
+    chart.innerHTML = html;
+  }
+
+  function updateWeekDisplay() {
+    var data = weekData[currentWeekIndex];
+    document.getElementById('weekLabel').innerHTML = data.weekLabel;
+    document.getElementById('heroTotalHours').textContent = data.totalHours + 'h';
+    document.getElementById('heroPending').textContent = data.pendingHours + 'h';
+    document.getElementById('heroApproved').textContent = data.approvedHours + 'h';
+    renderBarChart();
+  }
+
+  window.changeWeek = function(dir) {
+    currentWeekIndex += dir;
+    if (currentWeekIndex < 0) currentWeekIndex = weekData.length - 1;
+    if (currentWeekIndex >= weekData.length) currentWeekIndex = 0;
+    updateWeekDisplay();
+  };
+
+  /* ========== TAB SWITCHING ========== */
+  window.switchTab = function(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(p) {
+      p.classList.toggle('active', p.id === 'panel-' + tabId);
+    });
+  };
+
+  /* ========== TABLE FILTER ========== */
+  window.filterOvertimeTable = function() {
+    var status = document.getElementById('filterStatus').value;
+    var rows = document.querySelectorAll('#overtimeTable tbody tr');
+
+    rows.forEach(function(row) {
+      var rowStatus = row.getAttribute('data-status');
+      if (!rowStatus) return; // skip non-data rows
+      var show = (status === 'all' || rowStatus === status);
+      row.style.display = show ? '' : 'none';
+    });
+  };
+
+  /* ========== REVIEW PANEL TOGGLE ========== */
+  window.toggleReviewPanel = function(id) {
+    var panel = document.getElementById(id);
+    if (panel.classList.contains('open')) {
+      panel.classList.remove('open');
+    } else {
+      // Close any other open panels
+      document.querySelectorAll('.review-panel.open').forEach(function(p) {
+        p.classList.remove('open');
+      });
+      panel.classList.add('open');
+    }
+  };
+
+  /* ========== MODALS ========== */
+  window.openModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.remove('open');
+    document.body.style.overflow = '';
+    // Reset form if log modal
+    if (id === 'logOvertimeModal') {
+      resetLogForm();
+    }
+    if (id === 'editOvertimeModal') {
+      resetEditForm();
+    }
+  };
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+        m.classList.remove('open');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* ========== HOURS CALCULATION ========== */
+  window.calcOvertimeHours = function(prefix) {
+    var startEl = document.getElementById(prefix + 'StartTime');
+    var endEl = document.getElementById(prefix + 'EndTime');
+    var calcEl = document.getElementById(prefix + 'HoursCalc');
+    var numEl = document.getElementById(prefix + 'HoursNum');
+
+    if (startEl.value && endEl.value) {
+      var startParts = startEl.value.split(':');
+      var endParts = endEl.value.split(':');
+      var startMin = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+      var endMin = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+
+      if (endMin > startMin) {
+        var diff = endMin - startMin;
+        var hours = diff / 60;
+        numEl.textContent = hours.toFixed(1) + 'h';
+        calcEl.style.display = '';
+      } else {
+        calcEl.style.display = 'none';
+      }
+    } else {
+      calcEl.style.display = 'none';
+    }
+  };
+
+  /* ========== FORM VALIDATION HELPERS ========== */
+  function clearFormErrors(prefix) {
+    var form = document.getElementById(prefix + 'Form');
+    if (!form) return;
+    form.querySelectorAll('.form-error').forEach(function(e) { e.classList.remove('visible'); });
+    form.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+  }
+
+  function resetLogForm() {
+    var form = document.getElementById('logForm');
+    if (form) form.reset();
+    document.getElementById('logHoursCalc').style.display = 'none';
+    clearFormErrors('log');
+  }
+
+  function resetEditForm() {
+    var form = document.getElementById('editForm');
+    if (form) form.reset();
+    document.getElementById('editHoursCalc').style.display = 'none';
+    clearFormErrors('edit');
+  }
+
+  function validateOvertimeForm(prefix) {
+    var valid = true;
+    clearFormErrors(prefix);
+
+    var dateEl = document.getElementById(prefix + 'Date');
+    var startEl = document.getElementById(prefix + 'StartTime');
+    var endEl = document.getElementById(prefix + 'EndTime');
+    var reasonEl = document.getElementById(prefix + 'Reason');
+
+    if (!dateEl.value) {
+      dateEl.classList.add('error');
+      document.getElementById(prefix + 'DateError').classList.add('visible');
+      valid = false;
+    }
+
+    if (!startEl.value) {
+      startEl.classList.add('error');
+      document.getElementById(prefix + 'StartTimeError').classList.add('visible');
+      valid = false;
+    }
+
+    if (!endEl.value) {
+      endEl.classList.add('error');
+      document.getElementById(prefix + 'EndTimeError').classList.add('visible');
+      valid = false;
+    } else if (startEl.value && endEl.value) {
+      var startParts = startEl.value.split(':');
+      var endParts = endEl.value.split(':');
+      var startMin = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+      var endMin = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+      if (endMin <= startMin) {
+        endEl.classList.add('error');
+        document.getElementById(prefix + 'EndTimeError').classList.add('visible');
+        valid = false;
+      }
+    }
+
+    if (!reasonEl.value.trim() || reasonEl.value.trim().length < 10) {
+      reasonEl.classList.add('error');
+      document.getElementById(prefix + 'ReasonError').classList.add('visible');
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  /* ========== LOG OVERTIME SUBMIT ========== */
+  window.submitOvertimeLog = function() {
+    if (!validateOvertimeForm('log')) return;
+
+    closeModal('logOvertimeModal');
+    showToast('success', 'Overtime Logged', 'Overtime logged successfully.');
+    setTimeout(function() {
+      showToast('info', 'Manager Notified', 'Your line manager has been notified for approval.');
+    }, 1000);
+  };
+
+  /* ========== EDIT OVERTIME ========== */
+  window.openEditModal = function(index) {
+    var entry = overtimeEntries[index];
+    if (!entry) return;
+
+    document.getElementById('editDate').value = entry.date;
+    document.getElementById('editStartTime').value = entry.start;
+    document.getElementById('editEndTime').value = entry.end;
+    document.getElementById('editReason').value = entry.reason;
+    document.getElementById('editCostCentre').value = entry.costCentre;
+    document.getElementById('editNotes').value = entry.notes;
+
+    calcOvertimeHours('edit');
+    openModal('editOvertimeModal');
+  };
+
+  window.submitEditOvertime = function() {
+    if (!validateOvertimeForm('edit')) return;
+
+    closeModal('editOvertimeModal');
+    showToast('info', 'Entry Updated', 'Overtime entry has been updated successfully.');
+  };
+
+  /* ========== CANCEL OVERTIME ========== */
+  window.openCancelConfirm = function(index) {
+    currentCancelIndex = index;
+    var entry = overtimeEntries[index];
+    if (entry) {
+      var dateStr = formatDateDisplay(entry.date);
+      document.getElementById('cancelConfirmText').textContent = 'This will cancel your overtime entry for ' + dateStr + ' (' + entry.hours + 'h). This action cannot be undone.';
+    }
+    openModal('cancelConfirmModal');
+  };
+
+  window.confirmCancelEntry = function() {
+    closeModal('cancelConfirmModal');
+    showToast('warning', 'Entry Cancelled', 'Overtime entry has been cancelled.');
+    currentCancelIndex = -1;
+  };
+
+  /* ========== VIEW DETAIL ========== */
+  window.openViewModal = function(index) {
+    var entry = overtimeEntries[index];
+    if (!entry) return;
+
+    var statusBadge = '';
+    if (entry.status === 'approved') {
+      statusBadge = '<span class="badge badge-approved"><span class="badge-dot"></span>Approved</span>';
+    } else if (entry.status === 'rejected') {
+      statusBadge = '<span class="badge badge-rejected"><span class="badge-dot"></span>Rejected</span>';
+    } else {
+      statusBadge = '<span class="badge badge-pending"><span class="badge-dot"></span>Pending</span>';
+    }
+
+    var html = '';
+    html += '<div class="detail-row"><div class="detail-label">Date</div><div class="detail-value">' + formatDateDisplay(entry.date) + ' (' + entry.day + ')</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Start Time</div><div class="detail-value">' + entry.start + '</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">End Time</div><div class="detail-value">' + entry.end + '</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Hours</div><div class="detail-value"><strong>' + entry.hours + 'h</strong></div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Reason</div><div class="detail-value">' + entry.reason + '</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Cost Centre</div><div class="detail-value">' + (entry.costCentre || '\u2014') + '</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Notes</div><div class="detail-value">' + (entry.notes || '\u2014') + '</div></div>';
+    html += '<div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">' + statusBadge + '</div></div>';
+
+    if (entry.managerComment) {
+      html += '<div class="manager-comment">';
+      html += '<div class="mc-label">Manager Comment</div>';
+      html += '<div class="mc-text">' + entry.managerComment + '</div>';
+      html += '</div>';
+    }
+
+    document.getElementById('viewDetailBody').innerHTML = html;
+    openModal('viewDetailModal');
+  };
+
+  function formatDateDisplay(dateStr) {
+    var parts = dateStr.split('-');
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d = parseInt(parts[2]);
+    var m = months[parseInt(parts[1]) - 1];
+    var y = parts[0];
+    return d + ' ' + m + ' ' + y;
+  }
+
+  /* ========== TOAST NOTIFICATIONS ========== */
+  var toastCounter = 0;
+
+  window.showToast = function(type, title, msg, showRetry) {
+    var container = document.getElementById('toastContainer');
+    var id = 'toast-' + (++toastCounter);
+
+    var iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    } else if (type === 'error') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    } else if (type === 'warning') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    } else {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+    }
+
+    var retryHtml = '';
+    if (showRetry) {
+      retryHtml = '<button class="toast-retry" onclick="retryOvertimeSave()">Retry</button>';
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.id = id;
+    toast.innerHTML =
+      '<div class="toast-icon">' + iconSvg + '</div>' +
+      '<div class="toast-content">' +
+        '<div class="toast-title">' + title + '</div>' +
+        '<div class="toast-msg">' + msg + retryHtml + '</div>' +
+      '</div>' +
+      '<button class="toast-close" onclick="dismissToast(\'' + id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>' +
+      '<div class="toast-progress"></div>';
+
+    container.appendChild(toast);
+
+    setTimeout(function() {
+      dismissToast(id);
+    }, 4000);
+  };
+
+  window.dismissToast = function(id) {
+    var toast = document.getElementById(id);
+    if (!toast) return;
+    toast.classList.add('removing');
+    setTimeout(function() {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  };
+
+  window.retryOvertimeSave = function() {
+    showToast('success', 'Overtime Logged', 'Overtime logged successfully.');
+  };
+
+  /* ========== DEMO TOAST TRIGGERS ========== */
+  // Expose for testing: show error toast with retry
+  window.showErrorToast = function() {
+    showToast('error', 'Failed to Save', 'Failed to save overtime entry. Please try again.', true);
+  };
+
+  /* ========== INITIALIZATION ========== */
+  updateWeekDisplay();
+
+})();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

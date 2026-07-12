@@ -311,7 +311,7 @@ export default function EmployeeDocumentsPage() {
     }
   };
 
-  // ── Helpers ──
+  // -- Helpers --
 
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return '-';
@@ -351,12 +351,10 @@ export default function EmployeeDocumentsPage() {
     return { label: 'FILE', bg: 'bg-gray-100', text: 'text-gray-600' };
   };
 
-  const getCardBorderClass = (doc: EmployeeDocument) => {
-    if (isExpired(doc.expiryDate)) return 'border-l-red-500';
-    if (isExpiringSoon(doc.expiryDate)) return 'border-l-amber-500';
-    if (doc.eSignatureStatus === 'sent') return 'border-l-purple-500';
-    if (doc.eSignatureStatus === 'completed') return 'border-l-green-500';
-    return 'border-l-transparent';
+  const getDocExpiryStatus = (doc: EmployeeDocument) => {
+    if (isExpired(doc.expiryDate)) return 'expired';
+    if (isExpiringSoon(doc.expiryDate)) return 'expiring';
+    return 'valid';
   };
 
   const getSignatureStatusBadge = (status: string | null) => {
@@ -386,7 +384,23 @@ export default function EmployeeDocumentsPage() {
     return type?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || '-';
   };
 
-  // ── Computed values ──
+  /** Map document type to a category badge palette */
+  const getCategoryBadgeClasses = (type: string) => {
+    const t = type?.toLowerCase() || '';
+    if (t.includes('id') || t.includes('identity') || t.includes('passport'))
+      return 'bg-icon-bg-navy text-accent-navy';
+    if (t.includes('qualification') || t.includes('degree') || t.includes('diploma'))
+      return 'bg-icon-bg-teal text-accent-teal';
+    if (t.includes('certificate') || t.includes('cert'))
+      return 'bg-icon-bg-gold text-accent-gold';
+    if (t.includes('contract') || t.includes('agreement'))
+      return 'bg-purple-100 text-purple-700';
+    if (t.includes('medical') || t.includes('health'))
+      return 'bg-icon-bg-pink text-accent-pink';
+    return 'bg-slate-100 text-slate-500';
+  };
+
+  // -- Computed values --
 
   const stats = useMemo(() => ({
     total: documents.length,
@@ -426,8 +440,8 @@ export default function EmployeeDocumentsPage() {
   return (
     <FeatureGate feature="EMPLOYEE_DOCUMENTS">
       <PageWrapper
-        title="My Documents"
-        subtitle="View and manage your employee documents"
+        title="Documents"
+        subtitle="Manage employee documents, certificates, and compliance records"
         actions={
           <button
             onClick={() => setShowUploadModal(true)}
@@ -438,49 +452,18 @@ export default function EmployeeDocumentsPage() {
         }
       >
         <div className="space-y-6">
-          {/* Upload Modal */}
+          {/* ===== Upload Document Modal ===== */}
           {showUploadModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">Upload Document</h3>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-6">
+              <div className="bg-card rounded-2xl shadow-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between p-6 pb-0">
+                  <h2 className="text-xl font-bold text-foreground">Upload Document</h2>
                   <button onClick={() => { setShowUploadModal(false); resetUploadForm(); }}
-                    className="text-muted-foreground hover:text-foreground">
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-foreground transition-all">
                     <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
-                <form onSubmit={handleUpload} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Document Type *</label>
-                    <select required value={uploadType}
-                      onChange={e => setUploadType(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg text-sm">
-                      <option value="">Select type...</option>
-                      {documentTypes.map(t => (
-                        <option key={t.code} value={t.code}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Title *</label>
-                    <input type="text" required value={uploadTitle}
-                      onChange={e => setUploadTitle(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
-                    <textarea rows={2} value={uploadDescription}
-                      onChange={e => setUploadDescription(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg text-sm" />
-                  </div>
-                  {selectedTypeConfig?.requiresExpiry && (
-                    <div>
-                      <label className="block text-xs font-medium text-muted-foreground mb-1">Expiry Date</label>
-                      <input type="date" value={uploadExpiryDate}
-                        onChange={e => setUploadExpiryDate(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg text-sm" />
-                    </div>
-                  )}
+                <form onSubmit={handleUpload} className="p-6 space-y-4">
                   <FileUploadDropzone
                     onFileSelect={setSelectedFile}
                     selectedFile={selectedFile}
@@ -489,14 +472,57 @@ export default function EmployeeDocumentsPage() {
                     progress={uploadProgress}
                     multiple={false}
                   />
-                  <div className="flex justify-end gap-2 pt-2">
+
+                  <div>
+                    <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                      Document Type <span className="text-destructive">*</span>
+                    </label>
+                    <select required value={uploadType}
+                      onChange={e => setUploadType(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none cursor-pointer">
+                      <option value="">Select type...</option>
+                      {documentTypes.map(t => (
+                        <option key={t.code} value={t.code}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                      Title <span className="text-destructive">*</span>
+                    </label>
+                    <input type="text" required value={uploadTitle}
+                      onChange={e => setUploadTitle(e.target.value)}
+                      placeholder="Enter document name"
+                      className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                      Description <span className="text-muted-foreground font-normal">(optional)</span>
+                    </label>
+                    <textarea rows={2} value={uploadDescription}
+                      onChange={e => setUploadDescription(e.target.value)}
+                      placeholder="Add any relevant notes about this document..."
+                      className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none resize-y min-h-[80px]" />
+                  </div>
+                  {selectedTypeConfig?.requiresExpiry && (
+                    <div>
+                      <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                        Expiry Date <span className="text-muted-foreground font-normal">(optional)</span>
+                      </label>
+                      <input type="date" value={uploadExpiryDate}
+                        onChange={e => setUploadExpiryDate(e.target.value)}
+                        className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
+                    </div>
+                  )}
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
                     <button type="button"
                       onClick={() => { setShowUploadModal(false); resetUploadForm(); }}
-                      className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">
+                      className="px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-surface-navy hover:text-primary rounded-button transition-all">
                       Cancel
                     </button>
                     <button type="submit" disabled={uploading || !selectedFile}
-                      className="btn-cta disabled:opacity-50">
+                      className="btn-cta inline-flex items-center gap-2 disabled:opacity-50">
+                      <ArrowUpTrayIcon className="w-4 h-4" />
                       {uploading ? 'Uploading...' : 'Upload'}
                     </button>
                   </div>
@@ -505,33 +531,39 @@ export default function EmployeeDocumentsPage() {
             </div>
           )}
 
-          {/* E-Signature Modal */}
+          {/* ===== E-Signature Modal ===== */}
           {signatureDocId && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">Request Signature</h3>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-6">
+              <div className="bg-card rounded-2xl shadow-xl w-full max-w-[480px]">
+                <div className="flex items-center justify-between p-6 pb-0">
+                  <h2 className="text-xl font-bold text-foreground">Request Signature</h2>
                   <button onClick={() => setSignatureDocId(null)}
-                    className="text-muted-foreground hover:text-foreground">
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-foreground transition-all">
                     <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
-                <form onSubmit={handleSendForSignature} className="space-y-4">
+                <form onSubmit={handleSendForSignature} className="p-6 space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Signer Email *</label>
+                    <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                      Signer Email <span className="text-destructive">*</span>
+                    </label>
                     <input type="email" required value={signerEmail}
                       onChange={e => setSignerEmail(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg text-sm" />
+                      className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Signer Name *</label>
+                    <label className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                      Signer Name <span className="text-destructive">*</span>
+                    </label>
                     <input type="text" required value={signerName}
                       onChange={e => setSignerName(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg text-sm" />
+                      className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
                   </div>
-                  <div className="flex justify-end gap-2 pt-2">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
                     <button type="button" onClick={() => setSignatureDocId(null)}
-                      className="px-4 py-2 text-sm text-muted-foreground border rounded-lg hover:bg-muted">Cancel</button>
+                      className="px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-surface-navy hover:text-primary rounded-button transition-all">
+                      Cancel
+                    </button>
                     <button type="submit" disabled={sendingSignature}
                       className="btn-cta disabled:opacity-50">
                       {sendingSignature ? 'Sending...' : 'Send for Signature'}
@@ -542,20 +574,20 @@ export default function EmployeeDocumentsPage() {
             </div>
           )}
 
-          {/* Bulk Action Bar */}
+          {/* ===== Bulk Action Bar ===== */}
           {selectedIds.size > 0 && (
             <div className="enterprise-card p-3 flex items-center gap-4 sticky bottom-4 z-10 shadow-lg">
-              <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
+              <span className="text-sm font-semibold text-foreground">{selectedIds.size} selected</span>
               <button onClick={handleBulkDownload}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100">
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-accent-navy bg-surface-navy rounded-button hover:bg-icon-bg-navy transition-colors">
                 <ArrowDownTrayIcon className="w-4 h-4" /> Download ZIP
               </button>
               <button onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-700 bg-red-50 rounded-lg hover:bg-red-100">
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-destructive bg-error-bg rounded-button hover:bg-red-200 transition-colors">
                 <TrashIcon className="w-4 h-4" /> Delete
               </button>
               <button onClick={() => setSelectedIds(new Set())}
-                className="ml-auto text-sm text-muted-foreground hover:text-foreground">Clear</button>
+                className="ml-auto text-sm text-muted-foreground hover:text-foreground transition-colors">Clear</button>
             </div>
           )}
 
@@ -569,133 +601,158 @@ export default function EmployeeDocumentsPage() {
             onCancel={() => setShowDeleteConfirm(false)}
           />
 
-          {/* Summary Stats */}
+          {/* ===== Stats Bar (4-col grid matching mock) ===== */}
           {!loading && documents.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <button
                 onClick={() => setStatusFilter('all')}
-                className={`enterprise-card p-4 text-left transition-all ${statusFilter === 'all' ? 'ring-2 ring-blue-500' : 'hover:shadow-md'}`}
+                className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px ${statusFilter === 'all' ? 'ring-2 ring-primary' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <DocumentTextIcon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                    <p className="text-xs text-muted-foreground">Total Documents</p>
-                  </div>
+                <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+                  <DocumentTextIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[1.5rem] font-extrabold leading-none text-foreground">{stats.total}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">Total Documents</p>
                 </div>
               </button>
+
               <button
                 onClick={() => setStatusFilter(statusFilter === 'expiring' ? 'all' : 'expiring')}
-                className={`enterprise-card p-4 text-left transition-all ${statusFilter === 'expiring' ? 'ring-2 ring-amber-500' : 'hover:shadow-md'}`}
+                className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px border-l-[3px] border-l-warning ${statusFilter === 'expiring' ? 'ring-2 ring-warning' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-100 rounded-lg">
-                    <ClockIcon className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stats.expiringSoon}</p>
-                    <p className="text-xs text-muted-foreground">Expiring Soon</p>
-                  </div>
+                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+                  <ExclamationTriangleIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[1.5rem] font-extrabold leading-none text-foreground">{stats.expiringSoon}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">Expiring Soon</p>
                 </div>
               </button>
+
               <button
                 onClick={() => setStatusFilter(statusFilter === 'awaiting_signature' ? 'all' : 'awaiting_signature')}
-                className={`enterprise-card p-4 text-left transition-all ${statusFilter === 'awaiting_signature' ? 'ring-2 ring-purple-500' : 'hover:shadow-md'}`}
+                className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px ${statusFilter === 'awaiting_signature' ? 'ring-2 ring-purple-500' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <PencilSquareIcon className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stats.awaitingSignature}</p>
-                    <p className="text-xs text-muted-foreground">Awaiting Signature</p>
-                  </div>
+                <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+                  <PencilSquareIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[1.5rem] font-extrabold leading-none text-foreground">{stats.awaitingSignature}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">Awaiting Signature</p>
                 </div>
               </button>
+
               <button
                 onClick={() => setStatusFilter(statusFilter === 'expired' ? 'all' : 'expired')}
-                className={`enterprise-card p-4 text-left transition-all ${statusFilter === 'expired' ? 'ring-2 ring-red-500' : 'hover:shadow-md'}`}
+                className={`enterprise-card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-px border-l-[3px] border-l-destructive ${statusFilter === 'expired' ? 'ring-2 ring-destructive' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <ExclamationCircleIcon className="w-5 h-5 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stats.expired}</p>
-                    <p className="text-xs text-muted-foreground">Expired</p>
-                  </div>
+                <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+                  <ExclamationCircleIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[1.5rem] font-extrabold leading-none text-foreground">{stats.expired}</p>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-1">Expired</p>
                 </div>
               </button>
             </div>
           )}
 
-          {/* Search & Filter Bar */}
+          {/* ===== Filter & View Bar (two-row layout matching mock) ===== */}
           {!loading && documents.length > 0 && (
-            <div className="enterprise-card p-4">
-              <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-                <div className="relative flex-1">
-                  <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search documents..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-background"
-                  />
-                </div>
-                <select
-                  value={typeFilter}
-                  onChange={e => setTypeFilter(e.target.value)}
-                  className="px-3 py-2 border rounded-lg text-sm bg-background"
+            <div className="enterprise-card p-4 md:p-5">
+              {/* Top row: Category filter pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={() => setTypeFilter('')}
+                  className={`px-3.5 py-1.5 rounded-button text-xs font-semibold border transition-all ${
+                    typeFilter === ''
+                      ? 'bg-primary border-primary text-primary-foreground'
+                      : 'bg-transparent border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
+                  }`}
                 >
-                  <option value="">All Types</option>
-                  {uniqueTypes.map(type => (
-                    <option key={type} value={type}>{formatTypeName(type)}</option>
-                  ))}
-                </select>
+                  All
+                </button>
+                {uniqueTypes.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setTypeFilter(typeFilter === type ? '' : type)}
+                    className={`px-3.5 py-1.5 rounded-button text-xs font-semibold border transition-all ${
+                      typeFilter === type
+                        ? 'bg-primary border-primary text-primary-foreground'
+                        : 'bg-transparent border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
+                    }`}
+                  >
+                    {formatTypeName(type)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Bottom row: Status select + Search + View toggle */}
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mt-3">
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border rounded-lg text-sm bg-background"
+                  className="text-sm font-medium px-3 py-2 border border-border rounded-control bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none cursor-pointer"
                 >
-                  <option value="all">All Status</option>
+                  <option value="all">All Statuses</option>
                   <option value="expiring">Expiring Soon</option>
                   <option value="expired">Expired</option>
                   <option value="awaiting_signature">Awaiting Signature</option>
                   <option value="signed">Signed</option>
                 </select>
-                <div className="flex gap-1 border rounded-lg p-0.5 self-center">
+
+                <div className="relative flex-1 max-w-xs">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search documents..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-control bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-0 flex-shrink-0 self-center md:self-auto ml-auto">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                    title="Grid view"
+                    className={`w-[38px] h-[38px] rounded-l-control border flex items-center justify-center transition-all ${
+                      viewMode === 'grid'
+                        ? 'bg-primary border-primary text-primary-foreground'
+                        : 'bg-card border-border text-muted-foreground hover:bg-surface-navy hover:text-primary'
+                    }`}
+                    title="Grid View"
                   >
-                    <Squares2X2Icon className="w-4 h-4" />
+                    <Squares2X2Icon className="w-[18px] h-[18px]" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                    title="List view"
+                    className={`w-[38px] h-[38px] rounded-r-control border border-l-0 flex items-center justify-center transition-all ${
+                      viewMode === 'list'
+                        ? 'bg-primary border-primary text-primary-foreground'
+                        : 'bg-card border-border text-muted-foreground hover:bg-surface-navy hover:text-primary'
+                    }`}
+                    title="List View"
                   >
-                    <ListBulletIcon className="w-4 h-4" />
+                    <ListBulletIcon className="w-[18px] h-[18px]" />
                   </button>
                 </div>
               </div>
+
+              {/* Filter result count */}
               {filteredDocuments.length !== documents.length && (
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-3">
                   Showing {filteredDocuments.length} of {documents.length} documents
                   {(searchQuery || typeFilter || statusFilter !== 'all') && (
                     <button onClick={() => { setSearchQuery(''); setTypeFilter(''); setStatusFilter('all'); }}
-                      className="ml-2 text-blue-600 hover:underline">Clear filters</button>
+                      className="ml-2 text-link hover:underline font-semibold">Clear filters</button>
                   )}
                 </p>
               )}
             </div>
           )}
 
-          {/* Select All */}
+          {/* ===== Select All ===== */}
           {!loading && filteredDocuments.length > 0 && (
             <div className="flex items-center gap-2 px-1">
               <input
@@ -704,117 +761,282 @@ export default function EmployeeDocumentsPage() {
                 onChange={toggleSelectAll}
                 className="rounded border-border"
               />
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-medium">
                 Select all ({filteredDocuments.length})
               </span>
             </div>
           )}
 
-          {/* Document Cards */}
+          {/* ===== Document Content ===== */}
           {loading ? (
             <div className="enterprise-card p-6"><TableSkeleton /></div>
           ) : documents.length === 0 ? (
-            <EmptyState icon={DocumentTextIcon} title="No Documents" description="No documents found. Upload your first document to get started." />
+            <EmptyState icon={DocumentTextIcon} title="No Documents Found" description="Upload your first document to get started. Keep all your important employee documents organized in one place." />
           ) : filteredDocuments.length === 0 ? (
-            <EmptyState icon={MagnifyingGlassIcon} title="No Results" description="No documents match your search or filters." />
-          ) : (
-            <div className={
-              viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4'
-                : 'space-y-3'
-            }>
+            <EmptyState icon={MagnifyingGlassIcon} title="No documents match your filters" description="Try adjusting your search or filters to find what you are looking for." />
+          ) : viewMode === 'grid' ? (
+            /* ===== Grid View (3-col matching mock) ===== */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {filteredDocuments.map(doc => {
                 const fileType = getFileTypeInfo(doc.contentType, doc.filename);
-                const borderClass = getCardBorderClass(doc);
+                const expiryStatus = getDocExpiryStatus(doc);
 
                 return (
                   <div
                     key={doc.id}
-                    className={`enterprise-card border-l-4 ${borderClass} transition-all hover:shadow-md ${
-                      selectedIds.has(doc.id) ? 'ring-2 ring-blue-500 bg-blue-50/30' : ''
-                    } ${viewMode === 'list' ? 'flex items-center gap-4 p-4' : 'p-4'}`}
+                    className={`enterprise-card p-5 transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer relative ${
+                      selectedIds.has(doc.id) ? 'ring-2 ring-primary bg-surface-navy/30' : ''
+                    }`}
                   >
-                    {/* Checkbox + File Type */}
-                    <div className={`flex items-start gap-3 ${viewMode === 'list' ? 'flex-shrink-0' : 'mb-3'}`}>
+                    {/* Card header: file icon + checkbox */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-14 h-14 rounded-card flex items-center justify-center text-[0.6875rem] font-extrabold uppercase tracking-wide ${fileType.bg} ${fileType.text}`}>
+                        {fileType.label}
+                      </div>
                       <input
                         type="checkbox"
                         checked={selectedIds.has(doc.id)}
                         onChange={() => toggleSelect(doc.id)}
-                        className="rounded border-border mt-0.5"
+                        className="rounded border-border mt-1"
                       />
-                      <div className={`px-2 py-1 rounded text-xs font-bold ${fileType.bg} ${fileType.text}`}>
-                        {fileType.label}
-                      </div>
-                      {viewMode === 'grid' && (
-                        <span className="ml-auto text-xs text-muted-foreground">v{doc.version}</span>
-                      )}
                     </div>
 
-                    {/* Content */}
-                    <div className={viewMode === 'list' ? 'flex-1 min-w-0' : ''}>
-                      <h4 className="font-medium text-foreground text-sm leading-tight">{doc.title}</h4>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                        {doc.filename}
-                        {doc.fileSize ? ` \u00b7 ${formatFileSize(doc.fileSize)}` : ''}
-                        {viewMode === 'list' && ` \u00b7 v${doc.version}`}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                          {formatTypeName(doc.documentType)}
-                        </span>
-                        {doc.expiryDate && (
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                            isExpired(doc.expiryDate)
-                              ? 'bg-red-100 text-red-800'
-                              : isExpiringSoon(doc.expiryDate)
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {isExpired(doc.expiryDate) && <ExclamationTriangleIcon className="w-3 h-3" />}
-                            {isExpiringSoon(doc.expiryDate) && <ClockIcon className="w-3 h-3" />}
-                            {isExpired(doc.expiryDate) ? 'Expired' : 'Expires'} {doc.expiryDate}
-                          </span>
-                        )}
-                        {getSignatureStatusBadge(doc.eSignatureStatus)}
-                      </div>
-                      {doc.description && viewMode === 'grid' && (
-                        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{doc.description}</p>
-                      )}
+                    {/* Document name */}
+                    <h4 className="text-[0.9375rem] font-bold text-foreground leading-snug mb-2">{doc.title}</h4>
+
+                    {/* Category badge */}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold uppercase tracking-wider mb-3 ${getCategoryBadgeClasses(doc.documentType)}`}>
+                      {formatTypeName(doc.documentType)}
+                    </span>
+
+                    {/* Meta row */}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                      <span className="flex items-center gap-1">
+                        <ClockIcon className="w-3.5 h-3.5" />
+                        {new Date(doc.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DocumentTextIcon className="w-3.5 h-3.5" />
+                        {formatFileSize(doc.fileSize)}
+                      </span>
+                      <span className="text-muted-foreground/60">v{doc.version}</span>
                     </div>
 
-                    {/* Actions */}
-                    <div className={`flex items-center gap-2 ${
-                      viewMode === 'list' ? 'flex-shrink-0' : 'mt-3 pt-3 border-t border-border'
+                    {/* Signature badge */}
+                    {doc.eSignatureStatus && (
+                      <div className="mb-3">{getSignatureStatusBadge(doc.eSignatureStatus)}</div>
+                    )}
+
+                    {/* Description (in grid only) */}
+                    {doc.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{doc.description}</p>
+                    )}
+
+                    {/* Expiry status footer */}
+                    <div className={`flex items-center gap-1.5 pt-3 border-t border-border text-xs font-semibold ${
+                      expiryStatus === 'expired' ? 'text-destructive' :
+                      expiryStatus === 'expiring' ? 'text-warning' :
+                      'text-success'
                     }`}>
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        expiryStatus === 'expired' ? 'bg-destructive' :
+                        expiryStatus === 'expiring' ? 'bg-warning' :
+                        'bg-success'
+                      }`} />
+                      {doc.expiryDate ? (
+                        isExpired(doc.expiryDate) ? `Expired ${doc.expiryDate}` :
+                        isExpiringSoon(doc.expiryDate) ? `Expires ${doc.expiryDate}` :
+                        `Expires ${doc.expiryDate}`
+                      ) : 'Valid'}
+                    </div>
+
+                    {/* Actions row */}
+                    <div className="flex items-center gap-2 mt-3">
                       <button
-                        onClick={() => handleDownload(doc.id)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); handleDownload(doc.id); }}
+                        className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-primary transition-all"
+                        title="Download"
                       >
-                        <ArrowDownTrayIcon className="w-3.5 h-3.5" /> Download
+                        <ArrowDownTrayIcon className="w-4 h-4" />
                       </button>
                       {!doc.eSignatureStatus && (
                         <button
-                          onClick={() => setSignatureDocId(doc.id)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); setSignatureDocId(doc.id); }}
+                          className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-primary transition-all"
+                          title="Request Signature"
                         >
-                          <PencilSquareIcon className="w-3.5 h-3.5" /> Sign
+                          <PencilSquareIcon className="w-4 h-4" />
                         </button>
                       )}
                       {doc.eSignatureStatus === 'completed' && (
                         <button
-                          onClick={() => handleDownloadSigned(doc.id)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); handleDownloadSigned(doc.id); }}
+                          className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-teal hover:text-accent-teal transition-all"
+                          title="Download Signed Copy"
                         >
-                          <CheckCircleIcon className="w-3.5 h-3.5" /> Signed Copy
+                          <CheckCircleIcon className="w-4 h-4" />
                         </button>
                       )}
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {new Date(doc.createdAt).toLocaleDateString('en-ZA')}
-                      </span>
                     </div>
                   </div>
                 );
               })}
+            </div>
+          ) : (
+            /* ===== List / Table View (matching mock table layout) ===== */
+            <div className="enterprise-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === filteredDocuments.length && filteredDocuments.length > 0}
+                          onChange={toggleSelectAll}
+                          className="rounded border-border"
+                        />
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Document
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Category
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Type
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Size
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Uploaded
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Expiry
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Status
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground border-b-2 border-border bg-surface-navy whitespace-nowrap">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDocuments.map((doc, idx) => {
+                      const fileType = getFileTypeInfo(doc.contentType, doc.filename);
+                      const expiryStatus = getDocExpiryStatus(doc);
+
+                      return (
+                        <tr
+                          key={doc.id}
+                          className={`border-b border-border transition-colors hover:bg-surface-navy ${
+                            idx % 2 === 1 ? 'bg-slate-50' : ''
+                          } ${selectedIds.has(doc.id) ? 'bg-surface-navy/50' : ''}`}
+                        >
+                          {/* Checkbox */}
+                          <td className="px-4 py-3 align-middle">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(doc.id)}
+                              onChange={() => toggleSelect(doc.id)}
+                              className="rounded border-border"
+                            />
+                          </td>
+
+                          {/* Document name cell with mini icon */}
+                          <td className="px-4 py-3 text-[0.8125rem] text-foreground align-middle">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-9 h-9 rounded-control flex items-center justify-center text-[0.5625rem] font-extrabold uppercase tracking-wider flex-shrink-0 ${fileType.bg} ${fileType.text}`}>
+                                {fileType.label}
+                              </div>
+                              <span className="font-semibold">{doc.title}</span>
+                            </div>
+                          </td>
+
+                          {/* Category */}
+                          <td className="px-4 py-3 align-middle">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-button text-[0.625rem] font-semibold uppercase tracking-wider ${getCategoryBadgeClasses(doc.documentType)}`}>
+                              {formatTypeName(doc.documentType)}
+                            </span>
+                          </td>
+
+                          {/* Type */}
+                          <td className="px-4 py-3 text-xs font-semibold uppercase text-muted-foreground align-middle">
+                            {fileType.label}
+                          </td>
+
+                          {/* Size */}
+                          <td className="px-4 py-3 text-[0.8125rem] text-foreground align-middle">
+                            {formatFileSize(doc.fileSize)}
+                          </td>
+
+                          {/* Uploaded date */}
+                          <td className="px-4 py-3 text-[0.8125rem] text-foreground align-middle">
+                            {new Date(doc.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </td>
+
+                          {/* Expiry */}
+                          <td className="px-4 py-3 text-xs text-muted-foreground align-middle">
+                            {doc.expiryDate || 'No expiry'}
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-4 py-3 align-middle">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-button text-[0.6875rem] font-semibold ${
+                              expiryStatus === 'expired' ? 'bg-error-bg text-destructive' :
+                              expiryStatus === 'expiring' ? 'bg-warning-bg text-warning' :
+                              'bg-success-bg text-success'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                expiryStatus === 'expired' ? 'bg-destructive' :
+                                expiryStatus === 'expiring' ? 'bg-warning' :
+                                'bg-success'
+                              }`} />
+                              {expiryStatus === 'expired' ? 'Expired' : expiryStatus === 'expiring' ? 'Expiring Soon' : 'Valid'}
+                            </span>
+                            {doc.eSignatureStatus && (
+                              <span className="ml-1.5">{getSignatureStatusBadge(doc.eSignatureStatus)}</span>
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-3 align-middle">
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleDownload(doc.id)}
+                                className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-primary transition-all"
+                                title="Download"
+                              >
+                                <ArrowDownTrayIcon className="w-4 h-4" />
+                              </button>
+                              {!doc.eSignatureStatus && (
+                                <button
+                                  onClick={() => setSignatureDocId(doc.id)}
+                                  className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-primary transition-all"
+                                  title="Request Signature"
+                                >
+                                  <PencilSquareIcon className="w-4 h-4" />
+                                </button>
+                              )}
+                              {doc.eSignatureStatus === 'completed' && (
+                                <button
+                                  onClick={() => handleDownloadSigned(doc.id)}
+                                  className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-teal hover:text-accent-teal transition-all"
+                                  title="Download Signed Copy"
+                                >
+                                  <CheckCircleIcon className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

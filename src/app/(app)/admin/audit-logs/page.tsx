@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
-import { 
+import {
   ClockIcon,
   UserIcon,
   DocumentTextIcon,
@@ -204,9 +204,9 @@ export default function AuditLogsPage() {
 
     const todayLogs = auditLogs.filter(log => log.timestamp >= today).length;
     const uniqueUsers = new Set(auditLogs.map(log => log.userId)).size;
-    const criticalEvents = auditLogs.filter(log => 
-      log.action.includes('delete') || 
-      log.action.includes('rejected') || 
+    const criticalEvents = auditLogs.filter(log =>
+      log.action.includes('delete') ||
+      log.action.includes('rejected') ||
       log.action === 'permission_revoked'
     ).length;
 
@@ -227,7 +227,7 @@ export default function AuditLogsPage() {
     auditLogs.forEach(log => {
       actionCounts[log.action] = (actionCounts[log.action] || 0) + 1;
     });
-    const mostCommonAction = Object.keys(actionCounts).reduce((a, b) => 
+    const mostCommonAction = Object.keys(actionCounts).reduce((a, b) =>
       actionCounts[a] > actionCounts[b] ? a : b, 'N/A'
     );
 
@@ -309,31 +309,27 @@ export default function AuditLogsPage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
-      >
-        <FunnelIcon className="w-4 h-4 mr-2" />
-        Filters
-      </button>
+      {/* Live toggle switch */}
+      <div className={`flex items-center gap-2.5 text-[0.8125rem] font-semibold ${realTimeMode ? 'text-accent-teal' : 'text-muted-foreground'}`}>
+        <span className={`w-2 h-2 rounded-full ${realTimeMode ? 'bg-accent-teal animate-pulse' : 'bg-border'}`} />
+        <span>Live Updates</span>
+        <label className="relative w-11 h-6 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={realTimeMode}
+            onChange={() => setRealTimeMode(!realTimeMode)}
+            className="sr-only peer"
+          />
+          <span className="absolute inset-0 bg-border rounded-xl transition-colors peer-checked:bg-accent-teal" />
+          <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
+        </label>
+      </div>
       <button
         onClick={handleExportLogs}
-        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+        className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 text-[0.8125rem] font-semibold uppercase tracking-wider border border-border bg-card text-foreground rounded-button hover:bg-surface-navy hover:border-primary hover:text-primary transition-all"
       >
-        <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
-        Export
-      </button>
-      <button
-        onClick={() => setRealTimeMode(!realTimeMode)}
-        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full shadow-sm uppercase tracking-wider transition-colors ${
-          realTimeMode
-            ? 'bg-gold-500 text-violet-950 border-2 border-gold-500'
-            : 'text-gold-500 bg-transparent border-2 border-gold-500 hover:bg-gold-500 hover:text-violet-950'
-        }`}
-      >
-        {realTimeMode && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2" />}
-        <ClockIcon className="w-4 h-4 mr-2" />
-        {realTimeMode ? 'Live' : 'Real-time View'}
+        <ArrowDownTrayIcon className="w-4 h-4" />
+        Export CSV
       </button>
     </div>
   );
@@ -341,8 +337,43 @@ export default function AuditLogsPage() {
   if (loading) {
     return (
       <PageWrapper title="Audit Logs" subtitle="Loading audit trail..." actions={actions}>
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500"></div>
+        {/* Skeleton: Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="enterprise-card p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-border animate-pulse" />
+              <div>
+                <div className="w-16 h-6 bg-border rounded animate-pulse mb-2" />
+                <div className="w-24 h-3 bg-border rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Skeleton: Filter bar */}
+        <div className="enterprise-card p-4 mb-6 flex gap-3">
+          <div className="flex-1 max-w-[400px] h-9 bg-border rounded-control animate-pulse" />
+          <div className="w-40 h-9 bg-border rounded-control animate-pulse" />
+        </div>
+        {/* Skeleton: Table */}
+        <div className="enterprise-card overflow-hidden">
+          <div className="flex gap-4 px-4 py-3.5 bg-surface-navy border-b-2 border-border">
+            {[120, 100, 180, 120, 70, 100].map((w, i) => (
+              <div key={i} className="bg-border rounded animate-pulse h-3" style={{ width: w }} />
+            ))}
+          </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={`flex items-center gap-4 px-4 py-3.5 border-b border-border ${i % 2 === 1 ? 'bg-muted/30' : ''}`}>
+              <div className="w-[130px] h-3.5 bg-border rounded animate-pulse" />
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-border animate-pulse" />
+                <div className="w-24 h-3.5 bg-border rounded animate-pulse" />
+              </div>
+              <div className="w-[180px] h-3.5 bg-border rounded animate-pulse" />
+              <div className="w-[110px] h-3.5 bg-border rounded animate-pulse" />
+              <div className="w-[60px] h-[22px] bg-border rounded-button animate-pulse" />
+              <div className="w-[100px] h-3.5 bg-border rounded animate-pulse" />
+            </div>
+          ))}
         </div>
       </PageWrapper>
     );
@@ -351,190 +382,229 @@ export default function AuditLogsPage() {
   return (
     <PageWrapper
       title="Audit Logs"
-      subtitle="System activity monitoring and compliance tracking"
+      subtitle="Monitor and review all system activity"
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <DocumentTextIcon className="w-8 h-8 text-violet-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Logs</p>
-                <p className="text-2xl font-semibold text-gray-900">{auditStats.totalLogs.toLocaleString()}</p>
-              </div>
+        {/* Stats Bar — 3-column grid matching mock */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Total Events */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+              <DocumentTextIcon className="w-6 h-6" />
             </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ClockIcon className="w-8 h-8 text-green-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Today</p>
-                <p className="text-2xl font-semibold text-gray-900">{auditStats.todayLogs}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <UsersIcon className="w-8 h-8 text-purple-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Users</p>
-                <p className="text-2xl font-semibold text-gray-900">{auditStats.uniqueUsers}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Critical Events</p>
-                <p className="text-2xl font-semibold text-gray-900">{auditStats.criticalEvents}</p>
-              </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground">{auditStats.totalLogs.toLocaleString()}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">Total Events</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <UserIcon className="w-8 h-8 text-yellow-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Most Active</p>
-                <p className="text-sm font-semibold text-gray-900 truncate">{auditStats.mostActiveUser}</p>
-              </div>
+          {/* Today */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+              <ClockIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground">{auditStats.todayLogs}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">Today</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-control shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <BoltIcon className="w-8 h-8 text-indigo-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Top Action</p>
-                <p className="text-sm font-semibold text-gray-900 truncate">{auditStats.mostCommonAction}</p>
-              </div>
+          {/* Warnings (Critical Events) */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+              <ExclamationTriangleIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground">{auditStats.criticalEvents}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">Warnings</p>
+            </div>
+          </div>
+
+          {/* Critical */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+              <ShieldCheckIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground">{auditStats.criticalEvents}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">Critical</p>
+            </div>
+          </div>
+
+          {/* Active Users */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+              <UsersIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground">{auditStats.uniqueUsers}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">User Actions</p>
+            </div>
+          </div>
+
+          {/* Top Action */}
+          <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+              <BoltIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold leading-none text-foreground truncate max-w-[160px]">{auditStats.mostCommonAction}</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-1">System Events</p>
             </div>
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-control shadow p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search logs..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                />
-              </div>
+        {/* Filter Bar */}
+        <div className="enterprise-card px-5 py-4">
+          <div className="flex items-center gap-3">
+            {/* Search input */}
+            <div className="relative flex-1 max-w-[400px]">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search audit logs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full py-2 pl-9 pr-3 rounded-control border border-border bg-card text-foreground text-[0.8125rem] placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-colors"
+              />
             </div>
-            
-            <div className="text-sm text-gray-600">
-              Showing {filteredLogs.length.toLocaleString()} of {totalElements.toLocaleString()} logs
-            </div>
+            {/* Advanced Filters toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-control border text-[0.8125rem] font-semibold transition-all ${
+                showFilters
+                  ? 'border-primary text-primary bg-surface-navy'
+                  : 'border-border text-muted-foreground bg-transparent hover:border-primary hover:text-primary hover:bg-surface-navy'
+              }`}
+            >
+              <FunnelIcon className="w-4 h-4" />
+              Advanced Filters
+              <svg
+                className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {/* Results count */}
+            <span className="ml-auto text-[0.8125rem] text-muted-foreground whitespace-nowrap">
+              Showing {filteredLogs.length.toLocaleString()} of {totalElements.toLocaleString()} events
+            </span>
           </div>
 
-          {/* Advanced Filters */}
+          {/* Advanced Filters panel */}
           {showFilters && (
-            <div className="border-t pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                  <select
-                    value={filters.dateRange}
-                    onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value as any }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                  >
-                    <option value="today">Today</option>
-                    <option value="week">Last Week</option>
-                    <option value="month">Last Month</option>
-                    <option value="quarter">Last Quarter</option>
-                    <option value="year">Last Year</option>
-                    <option value="custom">Custom Range</option>
-                  </select>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-4 border-t border-border">
+              <div>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Date Range
+                </label>
+                <select
+                  value={filters.dateRange}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value as AuditLogFilter['dateRange'] }))}
+                  className="w-full px-3 py-2 pr-8 rounded-control border border-border bg-card text-foreground text-[0.8125rem] appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2712%27%20height%3D%2712%27%20fill%3D%27%2364748B%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M4.646%205.646a.5.5%200%200%201%20.708%200L8%208.293l2.646-2.647a.5.5%200%200%201%20.708.708l-3%203a.5.5%200%200%201-.708%200l-3-3a.5.5%200%200%201%200-.708z%27/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-pointer transition-colors"
+                >
+                  <option value="today">Today</option>
+                  <option value="week">Last Week</option>
+                  <option value="month">Last Month</option>
+                  <option value="quarter">Last Quarter</option>
+                  <option value="year">Last Year</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Entity Type</label>
-                  <select
-                    value={filters.entityType}
-                    onChange={(e) => setFilters(prev => ({ ...prev, entityType: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                  >
-                    <option value="all">All Types</option>
-                    {uniqueEntityTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Entity Type
+                </label>
+                <select
+                  value={filters.entityType}
+                  onChange={(e) => setFilters(prev => ({ ...prev, entityType: e.target.value }))}
+                  className="w-full px-3 py-2 pr-8 rounded-control border border-border bg-card text-foreground text-[0.8125rem] appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2712%27%20height%3D%2712%27%20fill%3D%27%2364748B%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M4.646%205.646a.5.5%200%200%201%20.708%200L8%208.293l2.646-2.647a.5.5%200%200%201%20.708.708l-3%203a.5.5%200%200%201-.708%200l-3-3a.5.5%200%200%201%200-.708z%27/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-pointer transition-colors"
+                >
+                  <option value="all">All Types</option>
+                  {uniqueEntityTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Action</label>
-                  <select
-                    value={filters.action}
-                    onChange={(e) => setFilters(prev => ({ ...prev, action: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                  >
-                    <option value="all">All Actions</option>
-                    {uniqueActions.map(action => (
-                      <option key={action} value={action}>{action}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Action Type
+                </label>
+                <select
+                  value={filters.action}
+                  onChange={(e) => setFilters(prev => ({ ...prev, action: e.target.value }))}
+                  className="w-full px-3 py-2 pr-8 rounded-control border border-border bg-card text-foreground text-[0.8125rem] appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2712%27%20height%3D%2712%27%20fill%3D%27%2364748B%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M4.646%205.646a.5.5%200%200%201%20.708%200L8%208.293l2.646-2.647a.5.5%200%200%201%20.708.708l-3%203a.5.5%200%200%201-.708%200l-3-3a.5.5%200%200%201%200-.708z%27/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-pointer transition-colors"
+                >
+                  <option value="all">All Actions</option>
+                  {uniqueActions.map(action => (
+                    <option key={action} value={action}>{action}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">User Role</label>
-                  <select
-                    value={filters.userRole}
-                    onChange={(e) => setFilters(prev => ({ ...prev, userRole: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-                  >
-                    <option value="all">All Roles</option>
-                    {uniqueRoles.map(role => (
-                      <option key={role} value={role}>{getEnumLabel('userRole', role)}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Severity
+                </label>
+                <select
+                  value={filters.severity}
+                  onChange={(e) => setFilters(prev => ({ ...prev, severity: e.target.value as AuditLogFilter['severity'] }))}
+                  className="w-full px-3 py-2 pr-8 rounded-control border border-border bg-card text-foreground text-[0.8125rem] appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2712%27%20height%3D%2712%27%20fill%3D%27%2364748B%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M4.646%205.646a.5.5%200%200%201%20.708%200L8%208.293l2.646-2.647a.5.5%200%200%201%20.708.708l-3%203a.5.5%200%200%201-.708%200l-3-3a.5.5%200%200%201%200-.708z%27/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-pointer transition-colors"
+                >
+                  <option value="all">All Severities</option>
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="error">Error</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
+              {/* User Role filter - fifth column wraps on next row */}
+              <div>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                  User Role
+                </label>
+                <select
+                  value={filters.userRole}
+                  onChange={(e) => setFilters(prev => ({ ...prev, userRole: e.target.value }))}
+                  className="w-full px-3 py-2 pr-8 rounded-control border border-border bg-card text-foreground text-[0.8125rem] appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2712%27%20height%3D%2712%27%20fill%3D%27%2364748B%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M4.646%205.646a.5.5%200%200%201%20.708%200L8%208.293l2.646-2.647a.5.5%200%200%201%20.708.708l-3%203a.5.5%200%200%201-.708%200l-3-3a.5.5%200%200%201%200-.708z%27/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-pointer transition-colors"
+                >
+                  <option value="all">All Roles</option>
+                  {uniqueRoles.map(role => (
+                    <option key={role} value={role}>{getEnumLabel('userRole', role)}</option>
+                  ))}
+                </select>
               </div>
 
               {filters.dateRange === 'custom' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                    <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                      Date From
+                    </label>
                     <input
                       type="date"
                       value={filters.customStartDate || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, customStartDate: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full px-3 py-2 rounded-control border border-border bg-card text-foreground text-[0.8125rem] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-text transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                    <label className="block text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
+                      Date To
+                    </label>
                     <input
                       type="date"
                       value={filters.customEndDate || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, customEndDate: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-control focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                      className="w-full px-3 py-2 rounded-control border border-border bg-card text-foreground text-[0.8125rem] focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 cursor-text transition-colors"
                     />
                   </div>
-                </div>
+                </>
               )}
             </div>
           )}
@@ -542,13 +612,13 @@ export default function AuditLogsPage() {
 
         {/* Error State */}
         {loadError && (
-          <div className="bg-white rounded-control shadow p-8 text-center">
-            <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load audit logs</h3>
-            <p className="text-gray-500 mb-4">{loadError}</p>
+          <div className="enterprise-card p-8 text-center">
+            <ExclamationTriangleIcon className="w-12 h-12 text-accent-pink mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load audit logs</h3>
+            <p className="text-muted-foreground mb-4">{loadError}</p>
             <button
               onClick={() => loadAuditLogs()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-violet-950 rounded-full text-sm font-medium hover:bg-gold-600"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-cta text-cta-foreground rounded-button text-sm font-semibold uppercase tracking-wider hover:bg-cta-hover transition-all shadow-sm hover:shadow-md hover:-translate-y-px"
             >
               Retry
             </button>
@@ -564,233 +634,272 @@ export default function AuditLogsPage() {
               ? "Audit logging is active. Events will appear here as users interact with the system."
               : "No audit logs match your current filters. Try adjusting your search or filter criteria."}
           />
-        ) : (
-        <div className="bg-white rounded-control shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Timestamp
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Entity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Severity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Details
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredLogs.map((log) => {
-                  const ActionIcon = getActionIcon(log.action);
-                  const actionColor = getActionColor(log.action);
-                  const severity = getSeverityLevel(log);
-                  const severityColors = {
-                    info: 'bg-gold-100 text-gold-800',
-                    warning: 'bg-yellow-100 text-yellow-800',
-                    error: 'bg-red-100 text-red-800',
-                    critical: 'bg-red-600 text-white'
-                  };
-
-                  return (
-                    <tr key={log.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex flex-col">
-                          <span>{log.timestamp.toLocaleDateString()}</span>
-                          <span className="text-xs text-gray-500">
-                            {log.timestamp.toLocaleTimeString()}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className={`p-2 rounded-full ${actionColor} mr-3`}>
-                            <ActionIcon className="w-4 h-4" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">
-                            {getEnumLabel('auditAction', log.action)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{log.entityType}</div>
-                          <div className="text-sm text-gray-500 truncate max-w-32">{log.entityId}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate max-w-32" title={log.userId}>
-                        {log.userName || log.userId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                          {getEnumLabel('userRole', log.userRole)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {(() => {
-                          const severityConfig = getStatusConfig(auditSeverityConfig, severity);
-                          const SeverityIcon = severityConfig.icon;
-                          return (
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${severityColors[severity]}`}>
-                              <SeverityIcon className="w-3.5 h-3.5" />
-                              {severity}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button
-                          onClick={() => setSelectedLog(log)}
-                          className="text-gold-600 hover:text-violet-900"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                        </button>
-                      </td>
+        ) : !loadError && (
+          <>
+            <div className="enterprise-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Timestamp
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        User
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Action
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Resource
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Severity
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Role
+                      </th>
+                      <th className="px-4 py-3.5 text-left text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground bg-surface-navy border-b-2 border-border whitespace-nowrap select-none">
+                        Details
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {filteredLogs.map((log, idx) => {
+                      const ActionIcon = getActionIcon(log.action);
+                      const severity = getSeverityLevel(log);
 
-          {totalPages > 1 && (
-            <div className="px-6 py-4 bg-gray-50 border-t flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                Page {currentPage + 1} of {totalPages} ({totalElements.toLocaleString()} total logs)
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => loadAuditLogs(currentPage - 1)}
-                  disabled={currentPage === 0}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                    currentPage === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Previous
-                </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum: number;
-                  if (totalPages <= 5) {
-                    pageNum = i;
-                  } else if (currentPage < 3) {
-                    pageNum = i;
-                  } else if (currentPage > totalPages - 4) {
-                    pageNum = totalPages - 5 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => loadAuditLogs(pageNum)}
-                      className={`w-10 h-10 text-sm font-medium rounded-full transition-colors ${
-                        pageNum === currentPage
-                          ? 'bg-gold-500 text-violet-950'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum + 1}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => loadAuditLogs(currentPage + 1)}
-                  disabled={currentPage >= totalPages - 1}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                    currentPage >= totalPages - 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Next
-                </button>
+                      // Severity badge colors matching mock (pill with dot)
+                      const severityStyles: Record<string, string> = {
+                        info: 'bg-icon-bg-navy text-accent-navy',
+                        warning: 'bg-icon-bg-gold text-accent-gold',
+                        error: 'bg-icon-bg-pink text-accent-pink',
+                        critical: 'bg-icon-bg-pink text-accent-pink',
+                      };
+                      const severityDotStyles: Record<string, string> = {
+                        info: 'bg-accent-navy',
+                        warning: 'bg-accent-gold',
+                        error: 'bg-accent-pink',
+                        critical: 'bg-accent-pink',
+                      };
+
+                      // User avatar color rotation
+                      const avatarColors = [
+                        { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
+                        { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
+                        { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+                        { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
+                      ];
+                      const avatarColor = avatarColors[idx % avatarColors.length];
+                      const initials = (log.userName || log.userId)
+                        .split(' ')
+                        .map(w => w[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase();
+
+                      return (
+                        <tr
+                          key={log.id}
+                          className={`border-b border-border cursor-pointer transition-colors hover:bg-surface-navy ${idx % 2 === 1 ? 'bg-muted/30' : ''}`}
+                          onClick={() => setSelectedLog(log)}
+                        >
+                          {/* Timestamp */}
+                          <td className="px-4 py-3 whitespace-nowrap font-mono text-xs text-muted-foreground">
+                            {log.timestamp.toLocaleDateString()}{' '}
+                            {log.timestamp.toLocaleTimeString()}
+                          </td>
+                          {/* User with avatar */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[0.625rem] font-bold tracking-wide flex-shrink-0 ${avatarColor.bg} ${avatarColor.text}`}>
+                                {initials}
+                              </div>
+                              <span className="text-[0.8125rem] font-semibold text-foreground whitespace-nowrap">
+                                {log.userName || log.userId}
+                              </span>
+                            </div>
+                          </td>
+                          {/* Action */}
+                          <td className="px-4 py-3 whitespace-nowrap text-[0.8125rem] text-foreground">
+                            {getEnumLabel('auditAction', log.action)}
+                          </td>
+                          {/* Resource / Entity */}
+                          <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                            {log.entityType}
+                          </td>
+                          {/* Severity badge with dot */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {(() => {
+                              const severityConfig = getStatusConfig(auditSeverityConfig, severity);
+                              const SeverityIcon = severityConfig.icon;
+                              return (
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold uppercase tracking-wide ${severityStyles[severity]}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${severityDotStyles[severity]}`} />
+                                  {severity}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                          {/* Role */}
+                          <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                            {getEnumLabel('userRole', log.userRole)}
+                          </td>
+                          {/* Details (eye icon) */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedLog(log); }}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <EyeIcon className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Pagination — outside the table card per mock */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <p className="text-[0.8125rem] text-muted-foreground">
+                  Showing page {currentPage + 1} of {totalPages} ({totalElements.toLocaleString()} total events)
+                </p>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => loadAuditLogs(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    className="h-9 px-3 rounded-control border border-border bg-card text-muted-foreground text-[0.8125rem] font-semibold flex items-center gap-1 transition-all hover:border-primary hover:text-primary hover:bg-surface-navy disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-muted-foreground disabled:hover:bg-card"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg>
+                    Prev
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i;
+                    } else if (currentPage < 3) {
+                      pageNum = i;
+                    } else if (currentPage > totalPages - 4) {
+                      pageNum = totalPages - 5 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => loadAuditLogs(pageNum)}
+                        className={`w-9 h-9 rounded-control border text-[0.8125rem] font-semibold flex items-center justify-center transition-all ${
+                          pageNum === currentPage
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
+                        }`}
+                      >
+                        {pageNum + 1}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => loadAuditLogs(currentPage + 1)}
+                    disabled={currentPage >= totalPages - 1}
+                    className="h-9 px-3 rounded-control border border-border bg-card text-muted-foreground text-[0.8125rem] font-semibold flex items-center gap-1 transition-all hover:border-primary hover:text-primary hover:bg-surface-navy disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-muted-foreground disabled:hover:bg-card"
+                  >
+                    Next
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Log Detail Modal */}
         {selectedLog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-control shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">Audit Log Details</h2>
-                    <p className="text-gray-600 mt-1">{selectedLog.id}</p>
-                  </div>
-                  <button
-                    onClick={() => setSelectedLog(null)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <XCircleIcon className="w-6 h-6" />
-                  </button>
-                </div>
+          <div
+            className="fixed inset-0 bg-foreground/50 backdrop-blur-sm flex items-center justify-center p-6 z-50"
+            onClick={() => setSelectedLog(null)}
+          >
+            <div
+              className="bg-card rounded-2xl shadow-xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal header */}
+              <div className="flex items-center justify-between px-6 pt-6">
+                <h2 className="text-xl font-bold text-foreground">Event Details</h2>
+                <button
+                  onClick={() => setSelectedLog(null)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-foreground transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Timestamp</label>
-                      <p className="text-sm text-gray-900">{selectedLog.timestamp.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Action</label>
-                      <p className="text-sm text-gray-900">{selectedLog.action}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Entity Type</label>
-                      <p className="text-sm text-gray-900">{selectedLog.entityType}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Entity ID</label>
-                      <p className="text-sm text-gray-900">{selectedLog.entityId}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">User</label>
-                      <p className="text-sm text-gray-900">{selectedLog.userName || selectedLog.userId}</p>
-                      {selectedLog.userName && (
-                        <p className="text-xs text-gray-500">{selectedLog.userId}</p>
+              {/* Modal body */}
+              <div className="p-6 space-y-0">
+                {/* Detail rows */}
+                {[
+                  { label: 'Timestamp', value: selectedLog.timestamp.toLocaleString() },
+                  { label: 'Action', value: getEnumLabel('auditAction', selectedLog.action) },
+                  { label: 'Entity Type', value: selectedLog.entityType },
+                  { label: 'Entity ID', value: selectedLog.entityId },
+                  { label: 'User', value: selectedLog.userName || selectedLog.userId },
+                  { label: 'User Role', value: getEnumLabel('userRole', selectedLog.userRole) },
+                  { label: 'Severity', value: getSeverityLevel(selectedLog) },
+                ].map((row, i, arr) => (
+                  <div key={row.label} className={`flex py-2.5 ${i < arr.length - 1 ? 'border-b border-border' : ''}`}>
+                    <span className="w-[140px] flex-shrink-0 text-xs font-bold uppercase tracking-widest text-muted-foreground pt-0.5">
+                      {row.label}
+                    </span>
+                    <span className="text-sm text-foreground flex-1">
+                      {row.label === 'Severity' ? (
+                        (() => {
+                          const sev = row.value as 'info' | 'warning' | 'error' | 'critical';
+                          const styles: Record<string, string> = {
+                            info: 'bg-icon-bg-navy text-accent-navy',
+                            warning: 'bg-icon-bg-gold text-accent-gold',
+                            error: 'bg-icon-bg-pink text-accent-pink',
+                            critical: 'bg-icon-bg-pink text-accent-pink',
+                          };
+                          const dotStyles: Record<string, string> = {
+                            info: 'bg-accent-navy',
+                            warning: 'bg-accent-gold',
+                            error: 'bg-accent-pink',
+                            critical: 'bg-accent-pink',
+                          };
+                          return (
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-button text-[0.6875rem] font-semibold uppercase tracking-wide ${styles[sev]}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${dotStyles[sev]}`} />
+                              {sev}
+                            </span>
+                          );
+                        })()
+                      ) : (
+                        row.value
                       )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">User Role</label>
-                      <p className="text-sm text-gray-900">{selectedLog.userRole}</p>
-                    </div>
+                    </span>
                   </div>
+                ))}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Details</label>
-                    <div className="bg-gray-50 rounded-control p-4">
-                      <pre className="text-sm text-gray-900 whitespace-pre-wrap overflow-auto">
-                        {JSON.stringify(selectedLog.details, null, 2)}
-                      </pre>
-                    </div>
+                {selectedLog.userName && (
+                  <div className="flex py-2.5 border-b border-border">
+                    <span className="w-[140px] flex-shrink-0 text-xs font-bold uppercase tracking-widest text-muted-foreground pt-0.5">
+                      User ID
+                    </span>
+                    <span className="text-sm text-foreground flex-1 font-mono">
+                      {selectedLog.userId}
+                    </span>
                   </div>
-                </div>
+                )}
 
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={() => setSelectedLog(null)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-control hover:bg-gray-700"
-                  >
-                    Close
-                  </button>
+                {/* JSON details block */}
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-5 mb-2">
+                  Details Payload
+                </p>
+                <div className="bg-slate-900 text-slate-200 rounded-control p-4 font-mono text-xs leading-relaxed overflow-x-auto whitespace-pre">
+                  {JSON.stringify(selectedLog.details, null, 2)}
                 </div>
               </div>
             </div>

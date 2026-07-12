@@ -18,6 +18,9 @@ import {
   BookOpenIcon,
   PlayIcon,
   ClockIcon,
+  DocumentTextIcon,
+  StarIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline';
 import EmptyState from '@/components/EmptyState';
 import { useToast } from '@/components/Toast';
@@ -35,21 +38,21 @@ const AVAILABLE_FIELDS: ReportField[] = [
   { id: 'candidate_score', name: 'Candidate Score', type: 'number', category: 'candidate', aggregatable: true },
   { id: 'candidate_source', name: 'Application Source', type: 'string', category: 'candidate' },
   { id: 'candidate_experience_years', name: 'Years of Experience', type: 'number', category: 'candidate', aggregatable: true },
-  
+
   // Position fields
   { id: 'position_title', name: 'Position Title', type: 'string', category: 'position' },
   { id: 'position_department', name: 'Department', type: 'string', category: 'position' },
   { id: 'position_level', name: 'Job Level', type: 'string', category: 'position' },
   { id: 'position_salary_min', name: 'Minimum Salary', type: 'number', category: 'position', aggregatable: true },
   { id: 'position_salary_max', name: 'Maximum Salary', type: 'number', category: 'position', aggregatable: true },
-  
+
   // Timeline fields
   { id: 'application_date', name: 'Application Date', type: 'date', category: 'timeline' },
   { id: 'interview_date', name: 'Interview Date', type: 'date', category: 'timeline' },
   { id: 'offer_date', name: 'Offer Date', type: 'date', category: 'timeline' },
   { id: 'hire_date', name: 'Hire Date', type: 'date', category: 'timeline' },
   { id: 'time_to_hire', name: 'Time to Hire (days)', type: 'number', category: 'timeline', aggregatable: true },
-  
+
   // Performance fields
   { id: 'applications_count', name: 'Total Applications', type: 'number', category: 'performance', aggregatable: true },
   { id: 'interviews_count', name: 'Interviews Conducted', type: 'number', category: 'performance', aggregatable: true },
@@ -307,7 +310,7 @@ export default function ReportsPage() {
   }, [savedReports]);
 
   const handleUpdateSchedule = useCallback((scheduleId: string, updates: Partial<ReportSchedule>) => {
-    setSchedules(prev => prev.map(s => 
+    setSchedules(prev => prev.map(s =>
       s.id === scheduleId ? { ...s, ...updates } : s
     ));
   }, []);
@@ -323,7 +326,7 @@ export default function ReportsPage() {
   }, [deleteScheduleId]);
 
   const handleToggleSchedule = useCallback((scheduleId: string, enabled: boolean) => {
-    setSchedules(prev => prev.map(s => 
+    setSchedules(prev => prev.map(s =>
       s.id === scheduleId ? { ...s, enabled } : s
     ));
   }, []);
@@ -334,9 +337,9 @@ export default function ReportsPage() {
       const report = savedReports.find(r => r.id === schedule.reportId);
       if (report) {
         handleRunReport(report);
-        setSchedules(prev => prev.map(s => 
-          s.id === scheduleId ? { 
-            ...s, 
+        setSchedules(prev => prev.map(s =>
+          s.id === scheduleId ? {
+            ...s,
             lastRun: new Date().toISOString(),
             runCount: s.runCount + 1,
             lastStatus: 'success' as const,
@@ -354,31 +357,101 @@ export default function ReportsPage() {
   ];
 
   return (
-    <PageWrapper title="Custom Reports" subtitle="Create, manage, and automate recruitment reports">
+    <PageWrapper title="Reports" subtitle="Build, schedule, and manage organisational reports">
       <div className="space-y-6">
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+
+        {/* Stat Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Reports Generated */}
+          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-navy text-shumelahire-500">
+              <DocumentTextIcon className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Reports Generated
+              </div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">
+                {reportResults.length || 0}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">This financial year</div>
+            </div>
+          </div>
+
+          {/* Scheduled */}
+          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-teal text-teal-600">
+              <ClockIcon className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Scheduled
+              </div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">
+                {schedules.filter(s => s.enabled).length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">Active schedules</div>
+            </div>
+          </div>
+
+          {/* Most Popular */}
+          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-gold text-gold-600">
+              <StarIcon className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Most Popular
+              </div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">
+                Recruitment
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">Most requested report type</div>
+            </div>
+          </div>
+
+          {/* Avg Generation */}
+          <div className="bg-card border border-border rounded-card shadow-sm p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-icon-bg-pink text-idc-pink-600">
+              <BoltIcon className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Avg Generation
+              </div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">
+                &lt; 30s
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">Average report build time</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pill-shaped Tab Toggle */}
+        <div className="flex gap-1 bg-surface-navy rounded-full p-1 w-fit">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-full text-[0.8125rem] font-semibold transition-all duration-200 flex items-center gap-2 ${
+                activeTab === tab.id
+                  ? 'bg-card text-shumelahire-500 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.name}
+              {tab.count !== undefined && tab.count > 0 && (
+                <span className={`ml-0.5 py-0.5 px-2 rounded-full text-xs font-bold ${
                   activeTab === tab.id
-                    ? 'border-gold-500 text-gold-700'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.name}
-                {tab.count !== undefined && tab.count > 0 && (
-                  <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
+                    ? 'bg-surface-navy text-shumelahire-500'
+                    : 'bg-surface-navy text-muted-foreground'
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
@@ -392,7 +465,7 @@ export default function ReportsPage() {
               initialConfig={editingReport || undefined}
             />
           )}
-          
+
           {activeTab === 'library' && (
             <ReportLibrary
               reports={savedReports}
@@ -404,7 +477,7 @@ export default function ReportsPage() {
               onView={handleViewReport}
             />
           )}
-          
+
           {activeTab === 'results' && (
             <div className="space-y-6">
               {currentResult ? (
@@ -430,20 +503,25 @@ export default function ReportsPage() {
                   description="Run a report from the builder or library to see results here"
                 />
               )}
-              
+
               {reportResults.length > 1 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Results</h3>
+                <div className="bg-card border border-border rounded-card shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h3 className="text-[1.0625rem] font-bold text-foreground">Recent Results</h3>
+                      <p className="text-[0.8125rem] text-muted-foreground mt-0.5">Previously generated report results</p>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reportResults.slice(1).map((result) => (
                       <button
                         key={result.id}
                         onClick={() => setCurrentResult(result)}
-                        className="p-4 text-left border border-gray-200 rounded-control hover:border-violet-300 hover:bg-gold-50"
+                        className="p-4 text-left bg-background border border-border rounded-control hover:bg-surface-navy hover:border-shumelahire-500 transition-all duration-200"
                       >
-                        <h4 className="font-medium text-gray-900">{result.config.name}</h4>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {result.rowCount} rows • {new Date(result.generatedAt).toLocaleDateString()}
+                        <h4 className="font-semibold text-foreground text-sm">{result.config.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {result.rowCount} rows &middot; {new Date(result.generatedAt).toLocaleDateString()}
                         </p>
                       </button>
                     ))}
@@ -452,7 +530,7 @@ export default function ReportsPage() {
               )}
             </div>
           )}
-          
+
           {activeTab === 'scheduler' && (
             <ReportScheduler
               schedules={schedules}

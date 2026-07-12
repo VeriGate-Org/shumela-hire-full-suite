@@ -1,0 +1,3262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labour Relations | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.813rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+      border: 2px solid transparent;
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border-color: var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .btn-teal:hover {
+      background: #035e54;
+      border-color: #035e54;
+    }
+
+    .btn-red {
+      background: transparent;
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .btn-red:hover {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .btn-red-filled {
+      background: var(--error);
+      border-color: var(--error);
+      color: #fff;
+    }
+    .btn-red-filled:hover {
+      background: #DC2626;
+      border-color: #DC2626;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ========== FORM CONTROLS ========== */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+    }
+
+    .form-label .required {
+      color: var(--error);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      background: #fff;
+      transition: all 200ms ease;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5,82,126,0.2);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    .form-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ========== TOP NAV ========== */
+    .topnav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb .sep {
+      color: var(--border);
+    }
+
+    .breadcrumb .current {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notif-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+    .notif-btn:hover {
+      background: var(--primary-tint);
+      border-color: var(--primary);
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--error);
+      color: #fff;
+      font-size: 0.625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ========== MAIN LAYOUT ========== */
+    .main-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    /* ========== DEMO STATE TOGGLE ========== */
+    .demo-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--navy-tint);
+      border: 1px dashed var(--primary-light);
+      border-radius: var(--radius-control);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .demo-toggle-bar span {
+      font-weight: 600;
+      color: var(--primary);
+      margin-right: 0.25rem;
+    }
+
+    .demo-btn {
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .demo-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header-text h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-text p {
+      color: var(--text-muted);
+      font-size: 0.938rem;
+    }
+
+    /* ========== STAT CARDS ========== */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-info .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .stat-info .stat-label {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ========== TABS ========== */
+    .tabs-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+
+    .tab-btn {
+      padding: 1rem 1.25rem;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 200ms ease;
+      position: relative;
+      top: 1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 0.375rem;
+      border-radius: 10px;
+      background: var(--bg);
+      font-size: 0.688rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-left: 0.375rem;
+    }
+
+    .tab-btn.active .tab-count {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 1.5rem;
+      animation: fadeIn 300ms ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== TYPE FILTER TOGGLE ========== */
+    .type-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .type-filter-btn {
+      padding: 0.4rem 0.875rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .type-filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .type-filter-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== CASE CARDS ========== */
+    .case-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      background: #fff;
+      transition: all 200ms ease;
+      cursor: pointer;
+    }
+    .case-card:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: var(--primary-light);
+    }
+
+    .case-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .case-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .case-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .case-meta .case-number {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .case-meta .case-employee {
+      font-weight: 700;
+      font-size: 0.938rem;
+      color: var(--text-primary);
+      margin-top: 0.125rem;
+    }
+
+    .case-meta .case-description {
+      font-size: 0.813rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .case-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .case-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .case-card-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .case-card-detail svg {
+      flex-shrink: 0;
+    }
+
+    .case-card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* ========== BADGES ========== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-open {
+      background: var(--warning-bg);
+      color: #92400E;
+    }
+
+    .badge-investigation {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .badge-resolved {
+      background: var(--success-bg);
+      color: #065F46;
+    }
+
+    .badge-closed {
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+
+    .badge-grievance {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .badge-disciplinary {
+      background: var(--pink-bg);
+      color: var(--pink);
+    }
+
+    .badge-misconduct {
+      background: var(--error-bg);
+      color: #991B1B;
+    }
+
+    .badge-dispute {
+      background: var(--gold-bg);
+      color: var(--gold);
+    }
+
+    .badge-priority-low {
+      background: var(--success-bg);
+      color: #065F46;
+    }
+
+    .badge-priority-medium {
+      background: var(--warning-bg);
+      color: #92400E;
+    }
+
+    .badge-priority-high {
+      background: var(--pink-bg);
+      color: var(--pink);
+    }
+
+    .badge-priority-critical {
+      background: var(--error-bg);
+      color: #991B1B;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-open .badge-dot { background: var(--warning); }
+    .badge-investigation .badge-dot { background: var(--primary); }
+    .badge-resolved .badge-dot { background: var(--success); }
+    .badge-closed .badge-dot { background: var(--text-muted); }
+
+    /* ========== RESOLUTION TIMELINE ========== */
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 1.5rem 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 2.25rem;
+      left: 40px;
+      right: 40px;
+      height: 3px;
+      background: var(--border);
+      z-index: 0;
+    }
+
+    .timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .timeline-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .timeline-step.completed .timeline-dot {
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+
+    .timeline-step.active .timeline-dot {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(5,82,126,0.2);
+    }
+
+    .timeline-step.upcoming .timeline-dot {
+      background: #fff;
+      border-color: var(--border);
+    }
+
+    .timeline-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .timeline-step.upcoming .timeline-label {
+      color: var(--text-muted);
+    }
+
+    .timeline-date {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15,23,42,0.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeOverlay 200ms ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 300ms ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: var(--text-muted);
+    }
+    .modal-close:hover {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* ========== CASE DETAIL MODAL ========== */
+    .detail-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .detail-section-title {
+      font-weight: 700;
+      font-size: 0.813rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.375rem 0;
+      font-size: 0.875rem;
+    }
+
+    .detail-row .label {
+      color: var(--text-muted);
+    }
+
+    .detail-row .value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ========== TOAST ========== */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 1.5rem;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-lg);
+      min-width: 340px;
+      max-width: 440px;
+      animation: slideIn 300ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toast.removing {
+      animation: slideOut 300ms ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    .toast-success { background: var(--success-bg); border: 1px solid #A7F3D0; }
+    .toast-error { background: var(--error-bg); border: 1px solid #FECACA; }
+    .toast-warning { background: var(--warning-bg); border: 1px solid #FDE68A; }
+    .toast-info { background: var(--navy-tint); border: 1px solid var(--primary-light); }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .toast-success .toast-icon { color: var(--success); }
+    .toast-error .toast-icon { color: var(--error); }
+    .toast-warning .toast-icon { color: var(--warning); }
+    .toast-info .toast-icon { color: var(--primary); }
+
+    .toast-content { flex: 1; }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 0.813rem;
+      margin-bottom: 0.125rem;
+    }
+
+    .toast-success .toast-title { color: #065F46; }
+    .toast-error .toast-title { color: #991B1B; }
+    .toast-warning .toast-title { color: #92400E; }
+    .toast-info .toast-title { color: var(--primary); }
+
+    .toast-msg {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .toast-close {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toast-close:hover { color: var(--text-primary); }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      border-radius: 0 0 var(--radius-control) var(--radius-control);
+      animation: progressShrink 4s linear forwards;
+    }
+
+    .toast-success .toast-progress { background: var(--success); }
+    .toast-error .toast-progress { background: var(--error); }
+    .toast-warning .toast-progress { background: var(--warning); }
+    .toast-info .toast-progress { background: var(--primary); }
+
+    @keyframes progressShrink {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-circle { border-radius: 50%; }
+    .skeleton-text { height: 14px; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 10px; margin-bottom: 0.375rem; }
+    .skeleton-block { height: 44px; margin-bottom: 0.5rem; }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .empty-state-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .stat-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topnav { padding: 0 1rem; }
+      .breadcrumb { display: none; }
+      .main-container { padding: 1rem; }
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .stat-strip { grid-template-columns: 1fr; }
+      .tabs-header {
+        padding: 0 0.75rem;
+        overflow-x: auto;
+      }
+      .tab-panel { padding: 1rem; }
+      .type-filter-bar { flex-wrap: wrap; }
+      .case-card-top { flex-direction: column; }
+      .case-badges {
+        align-self: flex-start;
+        margin-top: 0.25rem;
+      }
+      .case-card-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .timeline {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem 0;
+      }
+      .timeline::before {
+        top: 0;
+        bottom: 0;
+        left: 15px;
+        right: auto;
+        width: 3px;
+        height: auto;
+      }
+      .timeline-step {
+        flex-direction: row;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .timeline-dot { flex-shrink: 0; }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ====== TOP NAV ====== -->
+<nav class="topnav">
+  <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      ShumelaHire
+    </a>
+    <div class="breadcrumb">
+      <a href="#">Home</a>
+      <span class="sep">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
+      <a href="#">Administration</a>
+      <span class="sep">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
+      <span class="current">Labour Relations</span>
+    </div>
+  </div>
+  <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    <button class="notif-btn" title="Notifications">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-badge">3</span>
+    </button>
+    <div class="user-avatar" title="Sipho Ndlovu">SN</div>
+  </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link active">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ====== MAIN CONTENT ====== -->
+<main class="main-container">
+
+  <!-- Demo State Toggle -->
+  <div class="demo-toggle-bar">
+    <span>DEMO:</span>
+    <button class="demo-btn active" onclick="setDemoState('normal')">Normal</button>
+    <button class="demo-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1>Labour Relations</h1>
+      <p>Manage grievances, disciplinary cases, and dispute resolution per the LRA and BCEA</p>
+    </div>
+    <button class="btn btn-cta" onclick="openModal('logCaseModal')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      LOG CASE
+    </button>
+  </div>
+
+  <!-- ====== STAT CARDS ====== -->
+  <div class="stat-strip" id="statStrip">
+    <!-- Active Cases -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-navy">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">8</div>
+        <div class="stat-label">Active Cases</div>
+      </div>
+    </div>
+    <!-- Resolution Rate -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-teal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">78%</div>
+        <div class="stat-label">Resolution Rate</div>
+      </div>
+    </div>
+    <!-- Avg Resolution Time -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-gold">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">14d</div>
+        <div class="stat-label">Avg Resolution Time</div>
+      </div>
+    </div>
+    <!-- Cases This Quarter -->
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-pink">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Cases This Quarter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton Stat Strip -->
+  <div class="stat-strip" id="statSkeleton" style="display:none;">
+    <div class="stat-card">
+      <div class="skeleton" style="width:52px;height:52px;border-radius:12px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:50%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:70%;"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton" style="width:52px;height:52px;border-radius:12px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:40%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:65%;"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton" style="width:52px;height:52px;border-radius:12px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:35%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:75%;"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton" style="width:52px;height:52px;border-radius:12px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-text" style="width:45%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TABBED CONTENT ====== -->
+  <div class="tabs-container" id="tabsContainer">
+    <div class="tabs-header" id="tabsHeader">
+      <button class="tab-btn active" data-tab="all" onclick="switchTab('all')">All <span class="tab-count">12</span></button>
+      <button class="tab-btn" data-tab="open" onclick="switchTab('open')">Open <span class="tab-count">5</span></button>
+      <button class="tab-btn" data-tab="investigation" onclick="switchTab('investigation')">Under Investigation <span class="tab-count">3</span></button>
+      <button class="tab-btn" data-tab="resolved" onclick="switchTab('resolved')">Resolved <span class="tab-count">4</span></button>
+    </div>
+
+    <!-- Skeleton Tabs -->
+    <div id="tabsSkeleton" style="display:none;">
+      <div style="display:flex;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+        <div class="skeleton" style="width:60px;height:20px;"></div>
+        <div class="skeleton" style="width:70px;height:20px;"></div>
+        <div class="skeleton" style="width:130px;height:20px;"></div>
+        <div class="skeleton" style="width:80px;height:20px;"></div>
+      </div>
+      <div style="padding:1.5rem;">
+        <div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;">
+          <div class="skeleton" style="width:60px;height:32px;border-radius:9999px;"></div>
+          <div class="skeleton" style="width:90px;height:32px;border-radius:9999px;"></div>
+          <div class="skeleton" style="width:100px;height:32px;border-radius:9999px;"></div>
+          <div class="skeleton" style="width:90px;height:32px;border-radius:9999px;"></div>
+        </div>
+        <div class="skeleton" style="height:110px;margin-bottom:1rem;border-radius:12px;"></div>
+        <div class="skeleton" style="height:110px;margin-bottom:1rem;border-radius:12px;"></div>
+        <div class="skeleton" style="height:110px;margin-bottom:1rem;border-radius:12px;"></div>
+        <div class="skeleton" style="height:110px;border-radius:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ====== TAB PANELS ====== -->
+    <div class="tab-panel active" id="panel-all">
+
+      <!-- Type Filter -->
+      <div class="type-filter-bar">
+        <button class="type-filter-btn active" data-type="all" onclick="filterByType('all')">All</button>
+        <button class="type-filter-btn" data-type="grievance" onclick="filterByType('grievance')">Grievances</button>
+        <button class="type-filter-btn" data-type="disciplinary" onclick="filterByType('disciplinary')">Disciplinary</button>
+        <button class="type-filter-btn" data-type="misconduct" onclick="filterByType('misconduct')">Misconduct</button>
+      </div>
+
+      <!-- Case Cards -->
+      <div id="caseList">
+
+        <!-- Case 1: Open Grievance -->
+        <div class="case-card" data-status="open" data-type="grievance" onclick="openCaseDetail('LR-2026-001')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--teal-bg);color:var(--teal);">TM</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-001</div>
+              <div class="case-employee">Thabo Mkhize</div>
+              <div class="case-description">Formal grievance lodged regarding unfair treatment by supervisor and lack of consultation on shift changes, per Section 23 of the LRA.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-grievance">Grievance</span>
+              <span class="badge badge-open"><span class="badge-dot"></span>Open</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 2 Jul 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-001')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-001')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 2: Under Investigation Disciplinary -->
+        <div class="case-card" data-status="investigation" data-type="disciplinary" onclick="openCaseDetail('LR-2026-002')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--gold-bg);color:var(--gold);">ZK</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-002</div>
+              <div class="case-employee">Zanele Khumalo</div>
+              <div class="case-description">Disciplinary hearing initiated for repeated unauthorised absences in contravention of the employer's attendance policy and BCEA Section 17.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-disciplinary">Disciplinary</span>
+              <span class="badge badge-investigation"><span class="badge-dot"></span>Under Investigation</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 25 Jun 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-002')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-002')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 3: Open Misconduct -->
+        <div class="case-card" data-status="open" data-type="misconduct" onclick="openCaseDetail('LR-2026-003')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--pink-bg);color:var(--pink);">SM</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-003</div>
+              <div class="case-employee">Siphelele Mthembu</div>
+              <div class="case-description">Alleged gross misconduct involving misuse of company vehicle during working hours. Investigation pending per Schedule 8 of the LRA Code of Good Practice.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-misconduct">Misconduct</span>
+              <span class="badge badge-open"><span class="badge-dot"></span>Open</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 1 Jul 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-003')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-003')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 4: Under Investigation Grievance -->
+        <div class="case-card" data-status="investigation" data-type="grievance" onclick="openCaseDetail('LR-2026-004')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--navy-bg);color:var(--primary);">LN</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-004</div>
+              <div class="case-employee">Lindiwe Ngcobo</div>
+              <div class="case-description">Grievance regarding alleged discrimination in promotion process. Employee claims non-compliance with Employment Equity Act and internal recruitment policy.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-grievance">Grievance</span>
+              <span class="badge badge-investigation"><span class="badge-dot"></span>Under Investigation</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 18 Jun 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-004')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-004')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 5: Open Dispute -->
+        <div class="case-card" data-status="open" data-type="dispute" onclick="openCaseDetail('LR-2026-005')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--teal-bg);color:var(--teal);">MS</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-005</div>
+              <div class="case-employee">Mandla Shabalala</div>
+              <div class="case-description">Dispute over overtime calculation and compensation. Employee contends BCEA Section 10 overtime provisions have not been correctly applied since January 2026.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-dispute">Dispute</span>
+              <span class="badge badge-open"><span class="badge-dot"></span>Open</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 5 Jul 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-005')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-005')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 6: Resolved Grievance -->
+        <div class="case-card" data-status="resolved" data-type="grievance" onclick="openCaseDetail('LR-2026-006')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--gold-bg);color:var(--gold);">NM</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-006</div>
+              <div class="case-employee">Nompumelelo Mabaso</div>
+              <div class="case-description">Grievance resolved regarding unsafe working conditions in water treatment facility. Corrective measures implemented as per Occupational Health and Safety Act.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-grievance">Grievance</span>
+              <span class="badge badge-resolved"><span class="badge-dot"></span>Resolved</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 10 May 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-006')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 7: Under Investigation Disciplinary -->
+        <div class="case-card" data-status="investigation" data-type="disciplinary" onclick="openCaseDetail('LR-2026-007')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--pink-bg);color:var(--pink);">PZ</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-007</div>
+              <div class="case-employee">Phindile Zulu</div>
+              <div class="case-description">Disciplinary process for failure to follow safety protocols during pipeline maintenance. Hearing scheduled per employer disciplinary code and LRA Schedule 8.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-disciplinary">Disciplinary</span>
+              <span class="badge badge-investigation"><span class="badge-dot"></span>Under Investigation</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 20 Jun 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-007')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-007')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 8: Resolved Disciplinary -->
+        <div class="case-card" data-status="resolved" data-type="disciplinary" onclick="openCaseDetail('LR-2026-008')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--navy-bg);color:var(--primary);">JD</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-008</div>
+              <div class="case-employee">Jabu Dube</div>
+              <div class="case-description">Disciplinary case concluded. Written warning issued for insubordination. Employee counselled and performance improvement plan agreed upon.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-disciplinary">Disciplinary</span>
+              <span class="badge badge-resolved"><span class="badge-dot"></span>Resolved</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 3 May 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-008')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 9: Open Grievance -->
+        <div class="case-card" data-status="open" data-type="grievance" onclick="openCaseDetail('LR-2026-009')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--teal-bg);color:var(--teal);">BN</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-009</div>
+              <div class="case-employee">Busisiwe Nene</div>
+              <div class="case-description">Formal grievance regarding unequal pay for equal work. Referral to CCMA considered under Section 191 of the LRA if not resolved internally.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-grievance">Grievance</span>
+              <span class="badge badge-open"><span class="badge-dot"></span>Open</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 7 Jul 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-009')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-009')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 10: Resolved Misconduct -->
+        <div class="case-card" data-status="resolved" data-type="misconduct" onclick="openCaseDetail('LR-2026-010')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--gold-bg);color:var(--gold);">KM</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-010</div>
+              <div class="case-employee">Khethiwe Mdlalose</div>
+              <div class="case-description">Misconduct case resolved. Employee dismissed following fair disciplinary hearing for theft of municipal property. Appeal period has lapsed per LRA requirements.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-misconduct">Misconduct</span>
+              <span class="badge badge-resolved"><span class="badge-dot"></span>Resolved</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 15 Apr 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-010')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 11: Open Disciplinary -->
+        <div class="case-card" data-status="open" data-type="disciplinary" onclick="openCaseDetail('LR-2026-011')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--navy-bg);color:var(--primary);">SZ</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-011</div>
+              <div class="case-employee">Siyabonga Zondi</div>
+              <div class="case-description">Disciplinary inquiry to be convened for habitual late-coming. Three prior verbal warnings documented. Formal process initiated per organisational disciplinary code.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-disciplinary">Disciplinary</span>
+              <span class="badge badge-open"><span class="badge-dot"></span>Open</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Bongani Sithole
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 8 Jul 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpdateModal('LR-2026-011')">UPDATE</button>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-011')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 12: Resolved Dispute -->
+        <div class="case-card" data-status="resolved" data-type="dispute" onclick="openCaseDetail('LR-2026-012')">
+          <div class="case-card-top">
+            <div class="case-avatar" style="background:var(--pink-bg);color:var(--pink);">AN</div>
+            <div class="case-meta">
+              <div class="case-number">LR-2026-012</div>
+              <div class="case-employee">Ayanda Ntuli</div>
+              <div class="case-description">Dispute resolved via internal mediation regarding retrenchment consultation process. Employer and employee reached mutual agreement per Section 189 of the LRA.</div>
+            </div>
+            <div class="case-badges">
+              <span class="badge badge-dispute">Dispute</span>
+              <span class="badge badge-resolved"><span class="badge-dot"></span>Resolved</span>
+            </div>
+          </div>
+          <div class="case-card-bottom">
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Officer: Nomsa Dlamini
+            </div>
+            <div class="case-card-detail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Filed: 20 Mar 2026
+            </div>
+            <div class="case-card-actions">
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openCaseDetail('LR-2026-012')">VIEW</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-state-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>No cases found</h3>
+        <p>No labour relations cases match the current filters.</p>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ====== LOG CASE MODAL ====== -->
+<div class="modal-overlay" id="logCaseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Log New Case</h2>
+      <button class="modal-close" onclick="closeModal('logCaseModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="logCaseForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label">Case Type <span class="required">*</span></label>
+          <select class="form-select" id="caseType">
+            <option value="">Select case type...</option>
+            <option value="grievance">Grievance</option>
+            <option value="disciplinary">Disciplinary</option>
+            <option value="misconduct">Misconduct</option>
+            <option value="dispute">Dispute</option>
+          </select>
+          <div class="form-error" id="caseTypeError">Please select a case type</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Employee <span class="required">*</span></label>
+          <select class="form-select" id="caseEmployee">
+            <option value="">Select employee...</option>
+            <option value="thabo-mkhize">Thabo Mkhize - Water Treatment Operator</option>
+            <option value="zanele-khumalo">Zanele Khumalo - Administrative Clerk</option>
+            <option value="siphelele-mthembu">Siphelele Mthembu - Maintenance Technician</option>
+            <option value="lindiwe-ngcobo">Lindiwe Ngcobo - Finance Officer</option>
+            <option value="mandla-shabalala">Mandla Shabalala - Field Inspector</option>
+            <option value="busisiwe-nene">Busisiwe Nene - HR Assistant</option>
+            <option value="siyabonga-zondi">Siyabonga Zondi - Pump Station Attendant</option>
+          </select>
+          <div class="form-error" id="caseEmployeeError">Please select an employee</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description <span class="required">*</span></label>
+          <textarea class="form-textarea" id="caseDescription" rows="4" placeholder="Provide a detailed description of the case, including relevant dates, witnesses, and applicable legislation (e.g. LRA, BCEA)..."></textarea>
+          <div class="form-error" id="caseDescriptionError">Please provide a case description</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">Priority <span class="required">*</span></label>
+            <select class="form-select" id="casePriority">
+              <option value="">Select priority...</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+            <div class="form-error" id="casePriorityError">Please select a priority</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assigned Officer <span class="required">*</span></label>
+            <select class="form-select" id="caseOfficer">
+              <option value="">Select officer...</option>
+              <option value="nomsa-dlamini">Nomsa Dlamini</option>
+              <option value="bongani-sithole">Bongani Sithole</option>
+            </select>
+            <div class="form-error" id="caseOfficerError">Please select an officer</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;background:var(--navy-tint);border:1px solid var(--primary-light);border-radius:var(--radius-control);font-size:0.813rem;color:var(--primary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Cases are processed in accordance with the Labour Relations Act 66 of 1995 and the BCEA.
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('logCaseModal')">CANCEL</button>
+      <button class="btn btn-cta" onclick="submitCase()">LOG CASE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== UPDATE CASE MODAL ====== -->
+<div class="modal-overlay" id="updateCaseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Update Case <span id="updateCaseNumber" style="color:var(--primary);font-size:0.938rem;"></span></h2>
+      <button class="modal-close" onclick="closeModal('updateCaseModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="updateCaseForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label">Status Change <span class="required">*</span></label>
+          <select class="form-select" id="updateStatus" onchange="onStatusChange()">
+            <option value="">Select new status...</option>
+            <option value="open">Open</option>
+            <option value="investigation">Under Investigation</option>
+            <option value="hearing">Hearing Scheduled</option>
+            <option value="resolved">Resolved</option>
+          </select>
+          <div class="form-error" id="updateStatusError">Please select a status</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes <span class="required">*</span></label>
+          <textarea class="form-textarea" id="updateNotes" rows="3" placeholder="Describe the update, actions taken, or hearing outcomes..."></textarea>
+          <div class="form-error" id="updateNotesError">Please provide update notes</div>
+        </div>
+
+        <div class="form-group" id="resolutionGroup" style="display:none;">
+          <label class="form-label">Resolution Outcome <span class="required">*</span></label>
+          <select class="form-select" id="resolutionOutcome">
+            <option value="">Select outcome...</option>
+            <option value="resolved-internally">Resolved Internally</option>
+            <option value="written-warning">Written Warning Issued</option>
+            <option value="final-warning">Final Written Warning</option>
+            <option value="dismissal">Dismissal</option>
+            <option value="ccma-referral">Referred to CCMA</option>
+            <option value="mediation">Resolved via Mediation</option>
+            <option value="withdrawn">Case Withdrawn</option>
+          </select>
+          <div class="form-error" id="resolutionOutcomeError">Please select a resolution outcome</div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('updateCaseModal')">CANCEL</button>
+      <button class="btn btn-teal" onclick="submitUpdate()">SAVE UPDATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CASE DETAIL MODAL ====== -->
+<div class="modal-overlay" id="caseDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2>Case Details</h2>
+      <button class="modal-close" onclick="closeModal('caseDetailModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="caseDetailBody">
+      <!-- Populated by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('caseDetailModal')">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TOAST CONTAINER ====== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ====== JAVASCRIPT ====== -->
+<script>
+(function() {
+  'use strict';
+
+  /* ========== MOCK CASE DATA ========== */
+  var cases = {
+    'LR-2026-001': {
+      number: 'LR-2026-001', employee: 'Thabo Mkhize', initials: 'TM',
+      role: 'Water Treatment Operator', type: 'Grievance', status: 'Open',
+      priority: 'Medium', officer: 'Nomsa Dlamini', filed: '2 Jul 2026',
+      description: 'Formal grievance lodged regarding unfair treatment by supervisor and lack of consultation on shift changes, per Section 23 of the LRA.',
+      timeline: [
+        { step: 'Filed', date: '2 Jul 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '3 Jul 2026', state: 'completed' },
+        { step: 'Investigation', date: null, state: 'active' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-002': {
+      number: 'LR-2026-002', employee: 'Zanele Khumalo', initials: 'ZK',
+      role: 'Administrative Clerk', type: 'Disciplinary', status: 'Under Investigation',
+      priority: 'High', officer: 'Bongani Sithole', filed: '25 Jun 2026',
+      description: 'Disciplinary hearing initiated for repeated unauthorised absences in contravention of the employer\'s attendance policy and BCEA Section 17.',
+      timeline: [
+        { step: 'Filed', date: '25 Jun 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '26 Jun 2026', state: 'completed' },
+        { step: 'Investigation', date: '30 Jun 2026', state: 'completed' },
+        { step: 'Hearing', date: '15 Jul 2026', state: 'active' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-003': {
+      number: 'LR-2026-003', employee: 'Siphelele Mthembu', initials: 'SM',
+      role: 'Maintenance Technician', type: 'Misconduct', status: 'Open',
+      priority: 'Critical', officer: 'Nomsa Dlamini', filed: '1 Jul 2026',
+      description: 'Alleged gross misconduct involving misuse of company vehicle during working hours. Investigation pending per Schedule 8 of the LRA Code of Good Practice.',
+      timeline: [
+        { step: 'Filed', date: '1 Jul 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '2 Jul 2026', state: 'active' },
+        { step: 'Investigation', date: null, state: 'upcoming' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-004': {
+      number: 'LR-2026-004', employee: 'Lindiwe Ngcobo', initials: 'LN',
+      role: 'Finance Officer', type: 'Grievance', status: 'Under Investigation',
+      priority: 'High', officer: 'Bongani Sithole', filed: '18 Jun 2026',
+      description: 'Grievance regarding alleged discrimination in promotion process. Employee claims non-compliance with Employment Equity Act and internal recruitment policy.',
+      timeline: [
+        { step: 'Filed', date: '18 Jun 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '19 Jun 2026', state: 'completed' },
+        { step: 'Investigation', date: '25 Jun 2026', state: 'active' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-005': {
+      number: 'LR-2026-005', employee: 'Mandla Shabalala', initials: 'MS',
+      role: 'Field Inspector', type: 'Dispute', status: 'Open',
+      priority: 'Medium', officer: 'Nomsa Dlamini', filed: '5 Jul 2026',
+      description: 'Dispute over overtime calculation and compensation. Employee contends BCEA Section 10 overtime provisions have not been correctly applied since January 2026.',
+      timeline: [
+        { step: 'Filed', date: '5 Jul 2026', state: 'completed' },
+        { step: 'Acknowledged', date: null, state: 'active' },
+        { step: 'Investigation', date: null, state: 'upcoming' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-006': {
+      number: 'LR-2026-006', employee: 'Nompumelelo Mabaso', initials: 'NM',
+      role: 'Safety Officer', type: 'Grievance', status: 'Resolved',
+      priority: 'Low', officer: 'Bongani Sithole', filed: '10 May 2026',
+      description: 'Grievance resolved regarding unsafe working conditions in water treatment facility. Corrective measures implemented as per Occupational Health and Safety Act.',
+      timeline: [
+        { step: 'Filed', date: '10 May 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '11 May 2026', state: 'completed' },
+        { step: 'Investigation', date: '15 May 2026', state: 'completed' },
+        { step: 'Hearing', date: '22 May 2026', state: 'completed' },
+        { step: 'Outcome', date: '28 May 2026', state: 'completed' }
+      ]
+    },
+    'LR-2026-007': {
+      number: 'LR-2026-007', employee: 'Phindile Zulu', initials: 'PZ',
+      role: 'Pipeline Technician', type: 'Disciplinary', status: 'Under Investigation',
+      priority: 'High', officer: 'Nomsa Dlamini', filed: '20 Jun 2026',
+      description: 'Disciplinary process for failure to follow safety protocols during pipeline maintenance. Hearing scheduled per employer disciplinary code and LRA Schedule 8.',
+      timeline: [
+        { step: 'Filed', date: '20 Jun 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '21 Jun 2026', state: 'completed' },
+        { step: 'Investigation', date: '28 Jun 2026', state: 'active' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-008': {
+      number: 'LR-2026-008', employee: 'Jabu Dube', initials: 'JD',
+      role: 'Operations Supervisor', type: 'Disciplinary', status: 'Resolved',
+      priority: 'Medium', officer: 'Bongani Sithole', filed: '3 May 2026',
+      description: 'Disciplinary case concluded. Written warning issued for insubordination. Employee counselled and performance improvement plan agreed upon.',
+      timeline: [
+        { step: 'Filed', date: '3 May 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '4 May 2026', state: 'completed' },
+        { step: 'Investigation', date: '8 May 2026', state: 'completed' },
+        { step: 'Hearing', date: '15 May 2026', state: 'completed' },
+        { step: 'Outcome', date: '20 May 2026', state: 'completed' }
+      ]
+    },
+    'LR-2026-009': {
+      number: 'LR-2026-009', employee: 'Busisiwe Nene', initials: 'BN',
+      role: 'HR Assistant', type: 'Grievance', status: 'Open',
+      priority: 'High', officer: 'Bongani Sithole', filed: '7 Jul 2026',
+      description: 'Formal grievance regarding unequal pay for equal work. Referral to CCMA considered under Section 191 of the LRA if not resolved internally.',
+      timeline: [
+        { step: 'Filed', date: '7 Jul 2026', state: 'completed' },
+        { step: 'Acknowledged', date: null, state: 'active' },
+        { step: 'Investigation', date: null, state: 'upcoming' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-010': {
+      number: 'LR-2026-010', employee: 'Khethiwe Mdlalose', initials: 'KM',
+      role: 'Store Clerk', type: 'Misconduct', status: 'Resolved',
+      priority: 'Critical', officer: 'Nomsa Dlamini', filed: '15 Apr 2026',
+      description: 'Misconduct case resolved. Employee dismissed following fair disciplinary hearing for theft of municipal property. Appeal period has lapsed per LRA requirements.',
+      timeline: [
+        { step: 'Filed', date: '15 Apr 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '16 Apr 2026', state: 'completed' },
+        { step: 'Investigation', date: '20 Apr 2026', state: 'completed' },
+        { step: 'Hearing', date: '30 Apr 2026', state: 'completed' },
+        { step: 'Outcome', date: '5 May 2026', state: 'completed' }
+      ]
+    },
+    'LR-2026-011': {
+      number: 'LR-2026-011', employee: 'Siyabonga Zondi', initials: 'SZ',
+      role: 'Pump Station Attendant', type: 'Disciplinary', status: 'Open',
+      priority: 'Low', officer: 'Bongani Sithole', filed: '8 Jul 2026',
+      description: 'Disciplinary inquiry to be convened for habitual late-coming. Three prior verbal warnings documented. Formal process initiated per organisational disciplinary code.',
+      timeline: [
+        { step: 'Filed', date: '8 Jul 2026', state: 'completed' },
+        { step: 'Acknowledged', date: null, state: 'active' },
+        { step: 'Investigation', date: null, state: 'upcoming' },
+        { step: 'Hearing', date: null, state: 'upcoming' },
+        { step: 'Outcome', date: null, state: 'upcoming' }
+      ]
+    },
+    'LR-2026-012': {
+      number: 'LR-2026-012', employee: 'Ayanda Ntuli', initials: 'AN',
+      role: 'Community Liaison Officer', type: 'Dispute', status: 'Resolved',
+      priority: 'Medium', officer: 'Nomsa Dlamini', filed: '20 Mar 2026',
+      description: 'Dispute resolved via internal mediation regarding retrenchment consultation process. Employer and employee reached mutual agreement per Section 189 of the LRA.',
+      timeline: [
+        { step: 'Filed', date: '20 Mar 2026', state: 'completed' },
+        { step: 'Acknowledged', date: '21 Mar 2026', state: 'completed' },
+        { step: 'Investigation', date: '28 Mar 2026', state: 'completed' },
+        { step: 'Hearing', date: '10 Apr 2026', state: 'completed' },
+        { step: 'Outcome', date: '18 Apr 2026', state: 'completed' }
+      ]
+    }
+  };
+
+  /* ========== STATUS MAP ========== */
+  var statusMap = {
+    'Open': 'open',
+    'Under Investigation': 'investigation',
+    'Resolved': 'resolved'
+  };
+
+  /* ========== DEMO STATE ========== */
+  window.setDemoState = function(state) {
+    var demoBtns = document.querySelectorAll('.demo-btn');
+    demoBtns.forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+
+    var statNormal = document.getElementById('statStrip');
+    var statSkel = document.getElementById('statSkeleton');
+    var tabsHeader = document.getElementById('tabsHeader');
+    var tabsSkel = document.getElementById('tabsSkeleton');
+    var tabPanels = document.querySelectorAll('.tab-panel');
+
+    if (state === 'normal') {
+      statNormal.style.display = '';
+      statSkel.style.display = 'none';
+      tabsHeader.style.display = '';
+      tabsSkel.style.display = 'none';
+      tabPanels.forEach(function(p) {
+        if (p.classList.contains('active')) p.style.display = '';
+      });
+    } else if (state === 'skeleton') {
+      statNormal.style.display = 'none';
+      statSkel.style.display = '';
+      tabsHeader.style.display = 'none';
+      tabsSkel.style.display = '';
+      tabPanels.forEach(function(p) { p.style.display = 'none'; });
+    }
+  };
+
+  /* ========== TAB SWITCHING ========== */
+  var currentTab = 'all';
+
+  window.switchTab = function(tabId) {
+    currentTab = tabId;
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
+    });
+
+    // All tabs share the same panel, we just filter cards
+    var panel = document.getElementById('panel-all');
+    panel.classList.add('active');
+    panel.style.display = '';
+
+    applyFilters();
+  };
+
+  /* ========== TYPE FILTER ========== */
+  var currentType = 'all';
+
+  window.filterByType = function(type) {
+    currentType = type;
+    document.querySelectorAll('.type-filter-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-type') === type);
+    });
+    applyFilters();
+  };
+
+  function applyFilters() {
+    var cards = document.querySelectorAll('.case-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+      var cardStatus = card.getAttribute('data-status');
+      var cardType = card.getAttribute('data-type');
+
+      var matchTab = (currentTab === 'all' || cardStatus === currentTab);
+      var matchType = (currentType === 'all' || cardType === currentType);
+      var show = matchTab && matchType;
+
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    var emptyState = document.getElementById('emptyState');
+    if (visibleCount === 0) {
+      emptyState.style.display = '';
+    } else {
+      emptyState.style.display = 'none';
+    }
+  }
+
+  /* ========== MODALS ========== */
+  window.openModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function(id) {
+    var m = document.getElementById(id);
+    m.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+        m.classList.remove('open');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* ========== LOG CASE ========== */
+  window.submitCase = function() {
+    var valid = true;
+    var fields = [
+      { id: 'caseType', errorId: 'caseTypeError' },
+      { id: 'caseEmployee', errorId: 'caseEmployeeError' },
+      { id: 'caseDescription', errorId: 'caseDescriptionError' },
+      { id: 'casePriority', errorId: 'casePriorityError' },
+      { id: 'caseOfficer', errorId: 'caseOfficerError' }
+    ];
+
+    // Clear previous errors
+    document.querySelectorAll('#logCaseForm .form-error').forEach(function(e) { e.classList.remove('visible'); });
+    document.querySelectorAll('#logCaseForm .form-select, #logCaseForm .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+
+    fields.forEach(function(f) {
+      var el = document.getElementById(f.id);
+      var val = el.value ? el.value.trim() : '';
+      if (!val) {
+        el.classList.add('error');
+        document.getElementById(f.errorId).classList.add('visible');
+        valid = false;
+      }
+    });
+
+    if (!valid) return;
+
+    closeModal('logCaseModal');
+    document.getElementById('logCaseForm').reset();
+    showToast('success', 'Case Logged', 'Labour relations case has been created and assigned successfully.');
+    setTimeout(function() {
+      showToast('info', 'Officer Notified', 'The assigned officer has been notified of the new case.');
+    }, 1000);
+  };
+
+  /* ========== UPDATE CASE ========== */
+  var currentUpdateCase = '';
+
+  window.openUpdateModal = function(caseNumber) {
+    currentUpdateCase = caseNumber;
+    document.getElementById('updateCaseNumber').textContent = caseNumber;
+    document.getElementById('updateCaseForm').reset();
+    document.getElementById('resolutionGroup').style.display = 'none';
+    document.querySelectorAll('#updateCaseForm .form-error').forEach(function(e) { e.classList.remove('visible'); });
+    document.querySelectorAll('#updateCaseForm .form-select, #updateCaseForm .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+    openModal('updateCaseModal');
+  };
+
+  window.onStatusChange = function() {
+    var status = document.getElementById('updateStatus').value;
+    var group = document.getElementById('resolutionGroup');
+    group.style.display = (status === 'resolved') ? '' : 'none';
+  };
+
+  window.submitUpdate = function() {
+    var valid = true;
+    var status = document.getElementById('updateStatus');
+    var notes = document.getElementById('updateNotes');
+
+    document.querySelectorAll('#updateCaseForm .form-error').forEach(function(e) { e.classList.remove('visible'); });
+    document.querySelectorAll('#updateCaseForm .form-select, #updateCaseForm .form-textarea').forEach(function(e) { e.classList.remove('error'); });
+
+    if (!status.value) {
+      status.classList.add('error');
+      document.getElementById('updateStatusError').classList.add('visible');
+      valid = false;
+    }
+
+    if (!notes.value.trim()) {
+      notes.classList.add('error');
+      document.getElementById('updateNotesError').classList.add('visible');
+      valid = false;
+    }
+
+    if (status.value === 'resolved') {
+      var outcome = document.getElementById('resolutionOutcome');
+      if (!outcome.value) {
+        outcome.classList.add('error');
+        document.getElementById('resolutionOutcomeError').classList.add('visible');
+        valid = false;
+      }
+    }
+
+    if (!valid) return;
+
+    closeModal('updateCaseModal');
+    showToast('success', 'Case Updated', 'Case ' + currentUpdateCase + ' has been updated successfully.');
+  };
+
+  /* ========== CASE DETAIL ========== */
+  window.openCaseDetail = function(caseNumber) {
+    var c = cases[caseNumber];
+    if (!c) return;
+
+    var typeClass = 'badge-' + c.type.toLowerCase();
+    var statusClass = 'badge-' + (statusMap[c.status] || 'open');
+    var priorityClass = 'badge-priority-' + c.priority.toLowerCase();
+
+    var timelineHtml = '<div class="timeline">';
+    c.timeline.forEach(function(t) {
+      timelineHtml += '<div class="timeline-step ' + t.state + '">';
+      timelineHtml += '<div class="timeline-dot">';
+      if (t.state === 'completed') {
+        timelineHtml += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else if (t.state === 'active') {
+        timelineHtml += '<div style="width:8px;height:8px;border-radius:50%;background:#fff;"></div>';
+      }
+      timelineHtml += '</div>';
+      timelineHtml += '<div class="timeline-label">' + t.step + '</div>';
+      timelineHtml += '<div class="timeline-date">' + (t.date || '--') + '</div>';
+      timelineHtml += '</div>';
+    });
+    timelineHtml += '</div>';
+
+    var body = document.getElementById('caseDetailBody');
+    body.innerHTML =
+      '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">' +
+        '<div class="case-avatar" style="background:var(--navy-bg);color:var(--primary);width:52px;height:52px;font-size:1rem;">' + c.initials + '</div>' +
+        '<div>' +
+          '<div style="font-weight:800;font-size:1.125rem;color:var(--text-primary);">' + c.employee + '</div>' +
+          '<div style="font-size:0.813rem;color:var(--text-muted);">' + c.role + ' &middot; uThukela Water</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">Case Information</div>' +
+        '<div class="detail-row"><span class="label">Case Number</span><span class="value">' + c.number + '</span></div>' +
+        '<div class="detail-row"><span class="label">Type</span><span class="value"><span class="badge ' + typeClass + '">' + c.type + '</span></span></div>' +
+        '<div class="detail-row"><span class="label">Status</span><span class="value"><span class="badge ' + statusClass + '"><span class="badge-dot"></span>' + c.status + '</span></span></div>' +
+        '<div class="detail-row"><span class="label">Priority</span><span class="value"><span class="badge ' + priorityClass + '">' + c.priority + '</span></span></div>' +
+        '<div class="detail-row"><span class="label">Assigned Officer</span><span class="value">' + c.officer + '</span></div>' +
+        '<div class="detail-row"><span class="label">Date Filed</span><span class="value">' + c.filed + '</span></div>' +
+      '</div>' +
+
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">Description</div>' +
+        '<p style="font-size:0.875rem;color:var(--text-primary);line-height:1.7;">' + c.description + '</p>' +
+      '</div>' +
+
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">Resolution Timeline</div>' +
+        timelineHtml +
+      '</div>';
+
+    openModal('caseDetailModal');
+  };
+
+  /* ========== TOAST NOTIFICATIONS ========== */
+  var toastCounter = 0;
+
+  window.showToast = function(type, title, msg) {
+    var container = document.getElementById('toastContainer');
+    var id = 'toast-' + (++toastCounter);
+
+    var iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    } else if (type === 'error') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    } else if (type === 'warning') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    } else {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.id = id;
+    toast.innerHTML =
+      '<div class="toast-icon">' + iconSvg + '</div>' +
+      '<div class="toast-content">' +
+        '<div class="toast-title">' + title + '</div>' +
+        '<div class="toast-msg">' + msg + '</div>' +
+      '</div>' +
+      '<button class="toast-close" onclick="dismissToast(\'' + id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>' +
+      '<div class="toast-progress"></div>';
+
+    container.appendChild(toast);
+
+    setTimeout(function() {
+      dismissToast(id);
+    }, 4000);
+  };
+
+  window.dismissToast = function(id) {
+    var toast = document.getElementById(id);
+    if (!toast) return;
+    toast.classList.add('removing');
+    setTimeout(function() {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  };
+
+})();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

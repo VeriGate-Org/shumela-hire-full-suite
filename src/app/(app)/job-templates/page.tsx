@@ -13,7 +13,9 @@ import {
   DocumentTextIcon,
   PlusIcon,
   SparklesIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  StarIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 
 const JobTemplatesPage: React.FC = () => {
@@ -114,68 +116,59 @@ const JobTemplatesPage: React.FC = () => {
   };
 
   const actions = (
-    <div className="flex items-center space-x-2">
-      {stats && (
-        <div className="hidden md:flex items-center space-x-4 mr-4 text-sm">
-          <div className="text-center">
-            <div className="text-lg font-bold text-cta">{stats.activeTemplates}</div>
-            <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Active</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-foreground">{stats.totalTemplates}</div>
-            <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Total</div>
-          </div>
-          {stats.mostUsedTemplate && (
-            <div className="text-center">
-              <div className="text-lg font-bold text-green-600">{stats.mostUsedTemplate.usageCount}</div>
-              <div className="text-muted-foreground text-xs uppercase tracking-[0.05em]">Most Used</div>
-            </div>
-          )}
-        </div>
-      )}
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* View toggle pill group */}
+      <div className="flex items-center gap-1 bg-card border border-border rounded-button p-1 shadow-sm">
+        <button
+          onClick={() => switchView('list')}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.05em] rounded-button transition-colors ${
+            activeView === 'list'
+              ? 'bg-primary text-white'
+              : 'bg-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <DocumentTextIcon className="w-3.5 h-3.5" />
+          Templates
+        </button>
+        <button
+          onClick={handleCreateNew}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.05em] rounded-button transition-colors ${
+            activeView === 'editor'
+              ? 'bg-primary text-white'
+              : 'bg-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <PlusIcon className="w-3.5 h-3.5" />
+          Create
+        </button>
+        <button
+          onClick={() => switchView('generate')}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.05em] rounded-button transition-colors ${
+            activeView === 'generate'
+              ? 'bg-primary text-white'
+              : 'bg-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <SparklesIcon className="w-3.5 h-3.5" />
+          Generate
+        </button>
+      </div>
 
-      <button
-        onClick={() => switchView('list')}
-        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-          activeView === 'list'
-            ? 'border-2 border-cta text-cta bg-transparent'
-            : 'border border-border text-muted-foreground hover:bg-accent'
-        }`}
-      >
-        <DocumentTextIcon className="w-4 h-4 mr-2" />
-        Templates
-      </button>
-
+      {/* CTA button */}
       <button
         onClick={handleCreateNew}
-        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-          activeView === 'editor'
-            ? 'border-2 border-cta text-cta bg-transparent'
-            : 'border border-border text-muted-foreground hover:bg-accent'
-        }`}
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta border-2 border-cta text-foreground rounded-button font-semibold text-sm uppercase tracking-[0.05em] transition-colors hover:bg-cta-hover hover:border-cta-hover"
       >
-        <PlusIcon className="w-4 h-4 mr-2" />
-        Create
-      </button>
-
-      <button
-        onClick={() => switchView('generate')}
-        className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-          activeView === 'generate'
-            ? 'border-2 border-cta text-cta bg-transparent'
-            : 'border border-border text-muted-foreground hover:bg-accent'
-        }`}
-      >
-        <SparklesIcon className="w-4 h-4 mr-2" />
-        Generate
+        <PlusIcon className="w-4 h-4" />
+        Create Template
       </button>
     </div>
   );
 
   return (
     <PageWrapper
-      title="Job Ad Templates"
-      subtitle="Create, manage, and generate job advertisements from reusable templates"
+      title="Job Templates"
+      subtitle="Create and manage reusable job description templates"
       actions={actions}
     >
       {/* Stats error */}
@@ -187,35 +180,119 @@ const JobTemplatesPage: React.FC = () => {
         />
       )}
 
-      {/* Main Content */}
-      <div className="enterprise-card min-h-[600px]">
-        {activeView === 'list' && (
-          <TemplateList
-            onEdit={handleEdit}
-            onGenerate={handleGenerate}
-            onCreateNew={handleCreateNew}
-            className="p-4 md:p-5"
-          />
-        )}
+      {/* Stats Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Total Templates */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-primary flex items-center justify-center flex-shrink-0">
+            <DocumentTextIcon className="w-6 h-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {stats ? (
+              <>
+                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.totalTemplates}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Total Templates</div>
+              </>
+            ) : (
+              <>
+                <div className="h-7 w-14 rounded-control bg-muted animate-pulse mb-1" />
+                <div className="h-3.5 w-24 rounded-control bg-muted animate-pulse" />
+              </>
+            )}
+          </div>
+        </div>
 
-        {activeView === 'editor' && (
+        {/* Most Used Template */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <StarIcon className="w-6 h-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {stats ? (
+              <>
+                <div className="text-base font-extrabold leading-snug text-foreground truncate">
+                  {stats.mostUsedTemplate?.name || 'N/A'}
+                </div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Most Used Template</div>
+              </>
+            ) : (
+              <>
+                <div className="h-5 w-32 rounded-control bg-muted animate-pulse mb-1" />
+                <div className="h-3.5 w-28 rounded-control bg-muted animate-pulse" />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Active Templates */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+            <ClockIcon className="w-6 h-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {stats ? (
+              <>
+                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.activeTemplates}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Active Templates</div>
+              </>
+            ) : (
+              <>
+                <div className="h-7 w-10 rounded-control bg-muted animate-pulse mb-1" />
+                <div className="h-3.5 w-28 rounded-control bg-muted animate-pulse" />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Two-column content layout (list view) */}
+      {activeView === 'list' && (
+        <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4">
+          {/* Left: Template List Panel */}
+          <div className="enterprise-card overflow-hidden flex flex-col max-h-[680px] lg:max-h-[680px]">
+            <TemplateList
+              onEdit={handleEdit}
+              onGenerate={handleGenerate}
+              onCreateNew={handleCreateNew}
+              className=""
+            />
+          </div>
+
+          {/* Right: Editor Panel */}
+          <div className="enterprise-card overflow-hidden flex flex-col min-h-[500px]">
+            <TemplateEditor
+              template={selectedTemplate || undefined}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              className="h-full"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Full-width editor view */}
+      {activeView === 'editor' && (
+        <div className="enterprise-card overflow-hidden min-h-[600px]">
           <TemplateEditor
             template={selectedTemplate || undefined}
             onSave={handleSave}
             onCancel={handleCancel}
             className="h-full"
           />
-        )}
+        </div>
+      )}
 
-        {activeView === 'generate' && (
+      {/* Full-width generate view */}
+      {activeView === 'generate' && (
+        <div className="enterprise-card overflow-hidden min-h-[600px]">
           <GenerateFromTemplate
             template={selectedTemplate || undefined}
             onGenerated={handleGenerated}
             onCancel={handleCancel}
             className="p-4 md:p-5"
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Available Placeholders */}
       <div className="enterprise-card p-4 md:p-5">

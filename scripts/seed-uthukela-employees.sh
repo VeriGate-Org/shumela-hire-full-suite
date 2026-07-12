@@ -16,7 +16,7 @@
 #   - AWS CLI v2 configured with credentials
 #   - jq installed
 #   - curl installed
-#   - The uthukela tenant already exists (run seed-uthukela-demo.sh first)
+#   - The uthukela tenant already exists in DynamoDB
 #   - COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID set
 #
 # Usage:

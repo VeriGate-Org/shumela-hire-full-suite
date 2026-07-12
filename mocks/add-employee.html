@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Employee | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --error-border: #FECACA;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --shadow-xl: 0 15px 30px rgba(50,50,93,0.15), 0 8px 16px rgba(0,0,0,0.1);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== DEMO TOGGLE BAR ========== */
+    .demo-bar {
+      background: #F8FAFC;
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .demo-bar-label {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .demo-btn {
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-button);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .demo-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .demo-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 33px;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .topnav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .topnav-logo { font-weight: 800; font-size: 1.25rem; color: var(--primary); letter-spacing: -0.02em; text-decoration: none; }
+    .topnav-logo span { color: var(--cta-hover); }
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 200ms ease; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb-sep { color: var(--border); }
+    .breadcrumb-current { color: var(--primary); font-weight: 600; }
+    .topnav-right { display: flex; align-items: center; gap: 1rem; }
+    .topnav-icon-btn {
+      width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); transition: all 200ms ease; position: relative;
+    }
+    .topnav-icon-btn:hover { background: var(--primary-tint); color: var(--primary); }
+    .topnav-icon-btn svg { width: 20px; height: 20px; }
+    .notif-badge {
+      position: absolute; top: 6px; right: 6px; width: 18px; height: 18px;
+      border-radius: 50%; background: var(--pink); color: white; font-size: 0.625rem;
+      font-weight: 700; display: flex; align-items: center; justify-content: center;
+      border: 2px solid white;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+      color: white; font-size: 0.75rem; font-weight: 700; display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
+      transition: box-shadow 200ms ease;
+    }
+    .user-avatar:hover { box-shadow: 0 0 0 3px var(--primary-light); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.625rem 1.25rem; border-radius: var(--radius-button);
+      font-family: inherit; font-weight: 600; font-size: 0.875rem;
+      letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
+      transition: all 200ms ease; text-decoration: none; white-space: nowrap; line-height: 1;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-cta { background: var(--cta); border: 2px solid var(--cta); color: var(--text-primary); }
+    .btn-cta:hover { background: var(--cta-hover); border-color: var(--cta-hover); }
+    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-secondary { background: var(--primary-tint); border: 2px solid var(--primary-light); color: var(--primary); }
+    .btn-secondary:hover { background: var(--primary-light); }
+    .btn-danger { background: var(--error); border: 2px solid var(--error); color: #fff; }
+    .btn-danger:hover { background: #DC2626; border-color: #DC2626; }
+    .btn-sm { padding: 0.375rem 0.875rem; font-size: 0.75rem; }
+    .btn-lg { padding: 0.75rem 1.75rem; font-size: 0.9375rem; }
+
+    /* ========== MAIN LAYOUT ========== */
+    .main-content { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .page-header-text h1 { margin-bottom: 0.25rem; }
+    .page-header-text p { color: var(--text-muted); font-size: 0.875rem; }
+    .page-header-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+    /* ========== STEPPER ========== */
+    .stepper {
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 2rem; gap: 0;
+    }
+    .step {
+      display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+      padding: 0.5rem 0; position: relative;
+    }
+    .step-circle {
+      width: 36px; height: 36px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: 700;
+      font-size: 0.875rem; border: 2px solid var(--border); background: #fff;
+      color: var(--text-muted); transition: all 200ms ease; flex-shrink: 0;
+    }
+    .step.active .step-circle { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .step.completed .step-circle { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .step-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; transition: color 200ms ease; }
+    .step.active .step-label { color: var(--primary); }
+    .step.completed .step-label { color: var(--teal); }
+    .step-connector { width: 48px; height: 2px; background: var(--border); flex-shrink: 0; margin: 0 0.25rem; }
+    .step-connector.active { background: var(--cta); }
+    .step-connector.completed { background: var(--teal); }
+
+    /* ========== CARDS ========== */
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;
+    }
+    .card-header {
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .card-header-icon {
+      width: 40px; height: 40px; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .card-header-icon svg { width: 20px; height: 20px; }
+    .card-header-icon.navy { background: var(--primary-light); color: var(--primary); }
+    .card-header-icon.teal { background: var(--teal-bg); color: var(--teal); }
+    .card-header-icon.gold { background: var(--gold-bg); color: var(--gold); }
+    .card-header-icon.pink { background: var(--pink-bg); color: var(--pink); }
+    .card-body { padding: 1.5rem; }
+
+    /* ========== FORM ========== */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
+    .form-grid .full-width { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
+    .form-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-muted);
+    }
+    .form-label .required { color: var(--error); margin-left: 2px; }
+    .form-control {
+      width: 100%; padding: 0.625rem 0.875rem; border: 1px solid var(--border);
+      border-radius: var(--radius-control); font-family: inherit; font-size: 0.875rem;
+      color: var(--text-primary); background: #fff; transition: all 200ms ease;
+      line-height: 1.5; outline: none;
+    }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(5,82,126,0.2); }
+    .form-control::placeholder { color: #94A3B8; }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+    select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2.5rem; }
+    .form-hint { font-size: 0.75rem; color: var(--text-muted); }
+    .input-group { position: relative; display: flex; align-items: stretch; }
+    .input-prefix {
+      display: flex; align-items: center; padding: 0 0.75rem;
+      background: #F8FAFC; border: 1px solid var(--border); border-right: none;
+      border-radius: var(--radius-control) 0 0 var(--radius-control);
+      font-size: 0.875rem; color: var(--text-muted); font-weight: 600;
+    }
+    .input-group .form-control { border-radius: 0 var(--radius-control) var(--radius-control) 0; }
+    .form-control.error { border-color: var(--error); }
+    .form-control.error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+    .form-error { font-size: 0.75rem; color: var(--error); display: flex; align-items: center; gap: 0.25rem; }
+    .form-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .form-section-title {
+      font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);
+      margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+    .form-section + .form-section { margin-top: 1.75rem; }
+
+    /* ========== INFO TOOLTIP ========== */
+    .info-tooltip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 50%; background: var(--primary-light);
+      color: var(--primary); cursor: help; margin-left: 0.25rem; position: relative;
+    }
+    .info-tooltip svg { width: 12px; height: 12px; }
+    .info-tooltip .tooltip-text {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); background: var(--text-primary); color: #fff;
+      font-size: 0.75rem; font-weight: 400; padding: 0.5rem 0.75rem;
+      border-radius: 6px; white-space: nowrap; z-index: 50;
+      text-transform: none; letter-spacing: 0;
+    }
+    .info-tooltip:hover .tooltip-text { display: block; }
+
+    /* ========== TOGGLE SWITCH ========== */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #F1F5F9; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { display: flex; flex-direction: column; }
+    .toggle-label { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
+    .toggle-desc { font-size: 0.75rem; color: var(--text-muted); }
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0; background: var(--border);
+      border-radius: 12px; transition: all 200ms ease;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; width: 18px; height: 18px;
+      border-radius: 50%; background: #fff; top: 3px; left: 3px;
+      transition: transform 200ms ease; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--teal); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .toggle-extra { margin-top: 0.75rem; padding-left: 1rem; border-left: 2px solid var(--teal-bg); }
+
+    /* ========== UPLOAD ZONE ========== */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius-control);
+      padding: 1.5rem; text-align: center; cursor: pointer;
+      transition: all 200ms ease; background: #FAFBFC;
+    }
+    .upload-zone:hover { border-color: var(--primary); background: var(--primary-tint); }
+    .upload-zone.dragover { border-color: var(--primary); background: var(--primary-tint); }
+    .upload-zone-icon { margin: 0 auto 0.5rem; color: var(--text-muted); }
+    .upload-zone-icon svg { width: 32px; height: 32px; }
+    .upload-zone-text { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .upload-zone-text strong { color: var(--primary); }
+    .upload-zone-hint { font-size: 0.75rem; color: #94A3B8; }
+    .upload-zone input[type="file"] { display: none; }
+    .file-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .file-chip {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.375rem 0.75rem; background: var(--primary-tint);
+      border: 1px solid var(--primary-light); border-radius: var(--radius-button);
+      font-size: 0.8125rem; color: var(--primary);
+    }
+    .file-chip svg { width: 14px; height: 14px; }
+    .file-chip-remove {
+      width: 18px; height: 18px; border-radius: 50%; border: none;
+      background: var(--primary-light); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; color: var(--primary);
+      transition: all 200ms ease; padding: 0;
+    }
+    .file-chip-remove:hover { background: var(--primary); color: #fff; }
+    .file-chip-remove svg { width: 10px; height: 10px; }
+
+    /* ========== STEP NAVIGATION ========== */
+    .step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .step-nav-left, .step-nav-right { display: flex; gap: 0.75rem; }
+
+    /* ========== REVIEW SECTION ========== */
+    .review-section { margin-bottom: 1.5rem; }
+    .review-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+    }
+    .review-section-header h3 { font-size: 0.9375rem; }
+    .review-edit-btn {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      padding: 0.25rem 0.625rem; border: 1px solid var(--border);
+      border-radius: var(--radius-button); background: #fff; cursor: pointer;
+      font-family: inherit; font-size: 0.75rem; font-weight: 600;
+      color: var(--primary); transition: all 200ms ease;
+    }
+    .review-edit-btn:hover { background: var(--primary-tint); border-color: var(--primary); }
+    .review-edit-btn svg { width: 12px; height: 12px; }
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
+    .review-item label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
+    .review-item span { font-size: 0.875rem; color: var(--text-primary); font-weight: 500; }
+
+    /* ========== ERROR BANNER ========== */
+    .error-banner {
+      background: var(--error-bg); border: 1px solid var(--error-border);
+      border-radius: var(--radius-control); padding: 0.875rem 1.25rem;
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;
+    }
+    .error-banner-icon { color: var(--error); flex-shrink: 0; }
+    .error-banner-icon svg { width: 20px; height: 20px; }
+    .error-banner-text { font-size: 0.875rem; color: var(--error); font-weight: 600; flex: 1; }
+    .error-banner-close {
+      background: none; border: none; cursor: pointer; color: var(--error);
+      padding: 0.25rem; border-radius: 4px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .error-banner-close:hover { background: rgba(239,68,68,0.1); }
+    .error-banner-close svg { width: 16px; height: 16px; }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: var(--radius-card); box-shadow: var(--shadow-xl);
+      max-width: 480px; width: 90%; padding: 2rem; position: relative;
+      animation: modalIn 200ms ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem; background: none; border: none;
+      cursor: pointer; color: var(--text-muted); padding: 0.25rem;
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #F1F5F9; color: var(--text-primary); }
+    .modal-close svg { width: 20px; height: 20px; }
+    .modal-icon {
+      width: 56px; height: 56px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; margin: 0 auto 1rem;
+    }
+    .modal-icon.warning { background: var(--warning-bg); color: var(--warning); }
+    .modal-icon svg { width: 28px; height: 28px; }
+    .modal h2 { text-align: center; margin-bottom: 0.5rem; }
+    .modal p { text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+
+    /* ========== TOAST ========== */
+    .toast-container {
+      position: fixed; top: 1rem; right: 1rem; z-index: 1100;
+      display: flex; flex-direction: column; gap: 0.75rem;
+      pointer-events: none;
+    }
+    .toast {
+      background: #fff; border-radius: 8px; box-shadow: var(--shadow-md);
+      padding: 0.875rem 1rem; display: flex; align-items: flex-start; gap: 0.75rem;
+      min-width: 340px; max-width: 420px; border-left: 4px solid;
+      pointer-events: auto; position: relative; overflow: hidden;
+      animation: toastIn 300ms ease;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    .toast-leaving { animation: toastOut 300ms ease forwards; }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--error); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast.info { border-left-color: var(--primary); }
+    .toast-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+    .toast.success .toast-icon { color: var(--success); }
+    .toast.error .toast-icon { color: var(--error); }
+    .toast.warning .toast-icon { color: var(--warning); }
+    .toast.info .toast-icon { color: var(--primary); }
+    .toast-content { flex: 1; }
+    .toast-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
+    .toast-message { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.125rem; }
+    .toast-message a { color: var(--primary); font-weight: 600; text-decoration: underline; cursor: pointer; }
+    .toast-close {
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      padding: 0.125rem; border-radius: 4px; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .toast-close:hover { background: #F1F5F9; }
+    .toast-close svg { width: 16px; height: 16px; }
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      border-radius: 0 0 0 8px;
+      animation: toastProgress 5s linear forwards;
+    }
+    .toast.success .toast-progress { background: var(--success); }
+    .toast.error .toast-progress { background: var(--error); }
+    .toast.warning .toast-progress { background: var(--warning); }
+    .toast.info .toast-progress { background: var(--primary); }
+    @keyframes toastProgress { from { width: 100%; } to { width: 0; } }
+
+    /* ========== SKELETON ========== */
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px;
+    }
+    .skeleton-text { height: 14px; width: 80px; }
+    .skeleton-input { height: 42px; width: 100%; border-radius: var(--radius-control); }
+    .skeleton-heading { height: 28px; width: 200px; border-radius: 6px; }
+    .skeleton-sub { height: 16px; width: 300px; border-radius: 6px; margin-top: 0.5rem; }
+    .skeleton-circle { border-radius: 50%; }
+    .skeleton-btn { height: 38px; width: 120px; border-radius: var(--radius-button); }
+    .skeleton-line { height: 44px; width: 100%; border-radius: var(--radius-control); }
+
+    /* ========== SUCCESS OVERLAY ========== */
+    .success-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(4px);
+    }
+    .success-overlay.open { display: flex; }
+    .success-card {
+      text-align: center; padding: 3rem 2.5rem;
+      background: #fff; border-radius: var(--radius-card); box-shadow: var(--shadow-xl);
+      max-width: 480px; width: 90%; animation: successIn 400ms ease;
+    }
+    @keyframes successIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .success-check {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--success-bg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem; animation: checkPop 500ms ease 200ms both;
+    }
+    @keyframes checkPop { from { transform: scale(0); } 60% { transform: scale(1.15); } to { transform: scale(1); } }
+    .success-check svg { width: 40px; height: 40px; color: var(--success); }
+    .success-card h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .success-card p { color: var(--text-muted); margin-bottom: 0.25rem; }
+    .success-card .emp-number { font-weight: 700; color: var(--primary); font-size: 1rem; margin-bottom: 1.5rem; display: block; }
+    .success-card .btn + .btn { margin-left: 0.75rem; }
+
+    /* ========== CONFIRM CHECKBOX ========== */
+    .confirm-check {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 1rem 1.25rem; background: var(--primary-tint);
+      border: 1px solid var(--primary-light); border-radius: var(--radius-control);
+      margin-top: 1.5rem;
+    }
+    .confirm-check input[type="checkbox"] {
+      width: 20px; height: 20px; accent-color: var(--primary);
+      flex-shrink: 0; margin-top: 2px; cursor: pointer;
+    }
+    .confirm-check label { font-size: 0.875rem; color: var(--text-primary); cursor: pointer; font-weight: 500; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .review-grid { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; }
+      .page-header-actions { width: 100%; }
+      .stepper { flex-direction: column; align-items: flex-start; gap: 0; }
+      .step-connector { width: 2px; height: 24px; margin: 0 0 0 17px; }
+      .step { padding: 0.375rem 0; }
+      .breadcrumb { display: none; }
+      .topnav { top: 33px; }
+      .main-content { padding: 1rem; }
+      .modal { padding: 1.5rem; }
+      .toast { min-width: 280px; }
+      .step-nav { flex-direction: column; gap: 0.75rem; }
+      .step-nav-left, .step-nav-right { width: 100%; }
+      .step-nav-left .btn, .step-nav-right .btn { flex: 1; justify-content: center; }
+    }
+
+    @media (max-width: 480px) {
+      .page-header-actions .btn span.btn-text-full { display: none; }
+      .topnav-left { gap: 0.75rem; }
+    }
+
+    /* ========== HIDDEN UTILITY ========== */
+    .hidden { display: none !important; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ==================== DEMO STATE TOGGLE BAR ==================== -->
+<div class="demo-bar">
+  <span class="demo-bar-label">Demo State:</span>
+  <button class="demo-btn active" onclick="setDemoState('normal')" id="demo-normal">Normal</button>
+  <button class="demo-btn" onclick="setDemoState('skeleton')" id="demo-skeleton">Skeleton Loading</button>
+  <button class="demo-btn" onclick="setDemoState('errors')" id="demo-errors">With Errors</button>
+  <button class="demo-btn" onclick="setDemoState('success')" id="demo-success">Success State</button>
+</div>
+
+<!-- ==================== TOP NAVIGATION ==================== -->
+<nav class="topnav">
+  <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+    <div class="breadcrumb">
+      <a href="#">Dashboard</a>
+      <span class="breadcrumb-sep">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+      <a href="#">HR Management</a>
+      <span class="breadcrumb-sep">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+      <a href="#">Employee Directory</a>
+      <span class="breadcrumb-sep">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+      <span class="breadcrumb-current">Add Employee</span>
+    </div>
+  </div>
+  <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    <button class="topnav-icon-btn" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge">3</span>
+    </button>
+    <div class="user-avatar" title="Nompilo Dlamini">ND</div>
+  </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link active">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ==================== TOAST CONTAINER ==================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ==================== DISCARD MODAL ==================== -->
+<div class="modal-overlay" id="discardModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('discardModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal-icon warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h2>Discard Changes?</h2>
+    <p>You have unsaved changes. Are you sure you want to leave? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('discardModal')">Keep Editing</button>
+      <button class="btn btn-danger" onclick="closeModal('discardModal')">Discard Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SUCCESS OVERLAY ==================== -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Employee Added Successfully!</h2>
+    <p>Sipho Ndlovu has been added to the system</p>
+    <span class="emp-number">Employee Number: UTH-2026-011</span>
+    <div>
+      <button class="btn btn-outline" onclick="setDemoState('normal')">View Employee Profile</button>
+      <button class="btn btn-cta" onclick="setDemoState('normal')">Add Another Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<div class="main-content" id="mainContent">
+
+  <!-- Page Header -->
+  <div class="page-header" id="pageHeader">
+    <div class="page-header-text">
+      <h1>Add New Employee</h1>
+      <p>Complete all required fields to add a new employee to the system</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" onclick="openModal('discardModal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span>Cancel</span>
+      </button>
+      <button class="btn btn-secondary" onclick="showToast('info','Draft Saved','Draft auto-saved at 14:32')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span>Save as Draft</span>
+      </button>
+      <button class="btn btn-cta" onclick="handleSave()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span>Save Employee</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Page Header Skeleton -->
+  <div class="page-header hidden" id="pageHeaderSkeleton">
+    <div class="page-header-text">
+      <div class="skeleton skeleton-heading"></div>
+      <div class="skeleton skeleton-sub"></div>
+    </div>
+    <div class="page-header-actions">
+      <div class="skeleton skeleton-btn"></div>
+      <div class="skeleton skeleton-btn"></div>
+      <div class="skeleton skeleton-btn" style="width:150px"></div>
+    </div>
+  </div>
+
+  <!-- Error Banner -->
+  <div class="error-banner hidden" id="errorBanner">
+    <div class="error-banner-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <span class="error-banner-text">Please correct the errors below before submitting</span>
+    <button class="error-banner-close" onclick="document.getElementById('errorBanner').classList.add('hidden')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- ==================== STEPPER ==================== -->
+  <div id="stepperNormal">
+    <div class="stepper" id="stepper">
+      <div class="step active" onclick="goToStep(1)" data-step="1">
+        <div class="step-circle">1</div>
+        <span class="step-label">Personal Details</span>
+      </div>
+      <div class="step-connector" data-connector="1"></div>
+      <div class="step" onclick="goToStep(2)" data-step="2">
+        <div class="step-circle">2</div>
+        <span class="step-label">Employment Info</span>
+      </div>
+      <div class="step-connector" data-connector="2"></div>
+      <div class="step" onclick="goToStep(3)" data-step="3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Compensation</span>
+      </div>
+      <div class="step-connector" data-connector="3"></div>
+      <div class="step" onclick="goToStep(4)" data-step="4">
+        <div class="step-circle">4</div>
+        <span class="step-label">Documents</span>
+      </div>
+      <div class="step-connector" data-connector="4"></div>
+      <div class="step" onclick="goToStep(5)" data-step="5">
+        <div class="step-circle">5</div>
+        <span class="step-label">Review</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stepper Skeleton -->
+  <div class="hidden" id="stepperSkeleton">
+    <div class="stepper">
+      <div class="step"><div class="skeleton skeleton-circle" style="width:36px;height:36px;"></div><div class="skeleton skeleton-text" style="width:100px;"></div></div>
+      <div style="width:48px;height:2px;" class="skeleton"></div>
+      <div class="step"><div class="skeleton skeleton-circle" style="width:36px;height:36px;"></div><div class="skeleton skeleton-text" style="width:110px;"></div></div>
+      <div style="width:48px;height:2px;" class="skeleton"></div>
+      <div class="step"><div class="skeleton skeleton-circle" style="width:36px;height:36px;"></div><div class="skeleton skeleton-text" style="width:100px;"></div></div>
+      <div style="width:48px;height:2px;" class="skeleton"></div>
+      <div class="step"><div class="skeleton skeleton-circle" style="width:36px;height:36px;"></div><div class="skeleton skeleton-text" style="width:80px;"></div></div>
+      <div style="width:48px;height:2px;" class="skeleton"></div>
+      <div class="step"><div class="skeleton skeleton-circle" style="width:36px;height:36px;"></div><div class="skeleton skeleton-text" style="width:60px;"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 1: PERSONAL DETAILS ==================== -->
+  <div class="step-content" id="step1" data-step-content="1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <h2>Personal Details</h2>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Basic information, contact details, and emergency contact</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <div class="form-section-title">Basic Information</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. Sipho" data-field="firstName">
+              <span class="form-error hidden" data-error="firstName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. Ndlovu" data-field="lastName">
+              <span class="form-error hidden" data-error="lastName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preferred Name</label>
+              <input type="text" class="form-control" placeholder="e.g. Sipho">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date of Birth <span class="required">*</span></label>
+              <input type="date" class="form-control" data-field="dob">
+              <span class="form-error hidden" data-error="dob">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender <span class="required">*</span></label>
+              <select class="form-control" data-field="gender">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+              </select>
+              <span class="form-error hidden" data-error="gender">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ID Number <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. 9001015800089" maxlength="13" data-field="idNumber">
+              <span class="form-hint">SA ID: 13 digits</span>
+              <span class="form-error hidden" data-error="idNumber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                ID number must be exactly 13 digits
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nationality <span class="required">*</span></label>
+              <select class="form-control" data-field="nationality">
+                <option value="South African" selected>South African</option>
+                <option value="Mozambican">Mozambican</option>
+                <option value="Zimbabwean">Zimbabwean</option>
+                <option value="Lesotho">Basotho</option>
+                <option value="Swazi">Swazi</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-section" style="margin-top:1.75rem;">
+          <div class="form-section-title">Contact Information</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Email Address <span class="required">*</span></label>
+              <input type="email" class="form-control" placeholder="e.g. sipho.ndlovu@uthukela.gov.za" data-field="email">
+              <span class="form-error hidden" data-error="email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Please enter a valid email address
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number <span class="required">*</span></label>
+              <div class="input-group">
+                <span class="input-prefix">+27</span>
+                <input type="tel" class="form-control" placeholder="82 123 4567" data-field="phone">
+              </div>
+              <span class="form-error hidden" data-error="phone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Please enter a valid South African phone number
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Alternative Phone</label>
+              <div class="input-group">
+                <span class="input-prefix">+27</span>
+                <input type="tel" class="form-control" placeholder="36 631 0000">
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Physical Address <span class="required">*</span></label>
+              <textarea class="form-control" placeholder="e.g. 14 Murchison Street" data-field="address"></textarea>
+              <span class="form-error hidden" data-error="address">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">City <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. Ladysmith" data-field="city">
+              <span class="form-error hidden" data-error="city">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Province <span class="required">*</span></label>
+              <select class="form-control" data-field="province">
+                <option value="">Select province</option>
+                <option selected>KwaZulu-Natal</option>
+                <option>Gauteng</option>
+                <option>Western Cape</option>
+                <option>Eastern Cape</option>
+                <option>Free State</option>
+                <option>Limpopo</option>
+                <option>Mpumalanga</option>
+                <option>North West</option>
+                <option>Northern Cape</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Postal Code <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. 3370" maxlength="4" data-field="postalCode">
+              <span class="form-error hidden" data-error="postalCode">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="form-section" style="margin-top:1.75rem;">
+          <div class="form-section-title">Emergency Contact</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Contact Name <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. Thandi Ndlovu" data-field="emergencyName">
+              <span class="form-error hidden" data-error="emergencyName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Relationship <span class="required">*</span></label>
+              <select class="form-control" data-field="relationship">
+                <option value="">Select relationship</option>
+                <option>Spouse</option>
+                <option>Parent</option>
+                <option>Sibling</option>
+                <option>Other</option>
+              </select>
+              <span class="form-error hidden" data-error="relationship">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Phone <span class="required">*</span></label>
+              <div class="input-group">
+                <span class="input-prefix">+27</span>
+                <input type="tel" class="form-control" placeholder="82 987 6543" data-field="emergencyPhone">
+              </div>
+              <span class="form-error hidden" data-error="emergencyPhone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Alternative Contact Phone</label>
+              <div class="input-group">
+                <span class="input-prefix">+27</span>
+                <input type="tel" class="form-control" placeholder="36 631 0001">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step Nav -->
+        <div class="step-nav">
+          <div class="step-nav-left"></div>
+          <div class="step-nav-right">
+            <button class="btn btn-cta" onclick="goToStep(2)">
+              Next: Employment Info
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 1: SKELETON ==================== -->
+  <div class="step-content hidden" id="step1Skeleton" data-skeleton="1">
+    <div class="card">
+      <div class="card-header">
+        <div class="skeleton skeleton-circle" style="width:40px;height:40px;border-radius:10px;"></div>
+        <div>
+          <div class="skeleton" style="height:20px;width:150px;border-radius:6px;"></div>
+          <div class="skeleton" style="height:14px;width:280px;border-radius:6px;margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="skeleton" style="height:16px;width:140px;border-radius:6px;margin-bottom:1rem;"></div>
+        <div class="form-grid">
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+        </div>
+        <div class="skeleton" style="height:16px;width:160px;border-radius:6px;margin:1.75rem 0 1rem;"></div>
+        <div class="form-grid">
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group full-width"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-line" style="margin-top:6px;height:80px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+          <div class="form-group"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-input" style="margin-top:6px;"></div></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div class="skeleton skeleton-btn" style="width:180px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 2: EMPLOYMENT INFO ==================== -->
+  <div class="step-content hidden" id="step2" data-step-content="2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div>
+          <h2>Employment Information</h2>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Position details and employment terms</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Position Details -->
+        <div class="form-section">
+          <div class="form-section-title">Position Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">
+                Employee Number <span class="required">*</span>
+                <span class="info-tooltip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <span class="tooltip-text">Auto-generated. Can be overridden if needed.</span>
+                </span>
+              </label>
+              <input type="text" class="form-control" value="UTH-2026-011" style="background:#F8FAFC;color:var(--text-muted);">
+              <span class="form-hint">Auto-generated employee number</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department <span class="required">*</span></label>
+              <select class="form-control" data-field="department">
+                <option value="">Select department</option>
+                <option>Operations</option>
+                <option>Human Resources</option>
+                <option>Engineering</option>
+                <option>Finance</option>
+                <option>ICT</option>
+                <option>Community Services</option>
+                <option>Maintenance</option>
+                <option>Supply Chain</option>
+                <option>Water Quality</option>
+              </select>
+              <span class="form-error hidden" data-error="department">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Title <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. Water Quality Technician" data-field="jobTitle">
+              <span class="form-error hidden" data-error="jobTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Grade <span class="required">*</span></label>
+              <select class="form-control" data-field="jobGrade">
+                <option value="">Select job grade</option>
+                <optgroup label="Junior">
+                  <option>A1</option><option>A2</option><option>A3</option><option>A4</option><option>A5</option>
+                </optgroup>
+                <optgroup label="Mid-Level">
+                  <option>B1</option><option>B2</option><option>B3</option><option>B4</option><option>B5</option>
+                </optgroup>
+                <optgroup label="Senior">
+                  <option>C1</option><option>C2</option><option>C3</option><option>C4</option><option>C5</option>
+                </optgroup>
+                <optgroup label="Executive">
+                  <option>D1</option><option>D2</option><option>D3</option>
+                </optgroup>
+              </select>
+              <span class="form-error hidden" data-error="jobGrade">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reports To <span class="required">*</span></label>
+              <select class="form-control" data-field="reportsTo">
+                <option value="">Search or select manager</option>
+                <option>Nompilo Dlamini - HR Director</option>
+                <option>Thabo Mkhize - Operations Manager</option>
+                <option>Zanele Khumalo - Finance Manager</option>
+                <option>Bheki Sithole - Engineering Lead</option>
+                <option>Lindiwe Zulu - ICT Manager</option>
+                <option>Mandla Nkosi - Maintenance Supervisor</option>
+              </select>
+              <span class="form-error hidden" data-error="reportsTo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Work Location <span class="required">*</span></label>
+              <select class="form-control" data-field="workLocation">
+                <option value="">Select location</option>
+                <option>Ladysmith Head Office</option>
+                <option>Estcourt Depot</option>
+                <option>Bergville Office</option>
+              </select>
+              <span class="form-error hidden" data-error="workLocation">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employment Terms -->
+        <div class="form-section" style="margin-top:1.75rem;">
+          <div class="form-section-title">Employment Terms</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Employment Type <span class="required">*</span></label>
+              <select class="form-control" data-field="employmentType" id="employmentType" onchange="toggleContractEnd()">
+                <option value="">Select type</option>
+                <option>Full-time Permanent</option>
+                <option>Fixed-term Contract</option>
+                <option>Part-time</option>
+                <option>Intern</option>
+              </select>
+              <span class="form-error hidden" data-error="employmentType">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Start Date <span class="required">*</span></label>
+              <input type="date" class="form-control" data-field="startDate">
+              <span class="form-error hidden" data-error="startDate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Probation Period</label>
+              <select class="form-control">
+                <option value="">Select period</option>
+                <option>3 months</option>
+                <option>6 months</option>
+                <option>None</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contract End Date</label>
+              <input type="date" class="form-control" id="contractEndDate" disabled style="background:#F8FAFC;">
+              <span class="form-hint">Only applicable for fixed-term contracts</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cost Centre <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. CC-OPS-001" data-field="costCentre">
+              <span class="form-hint">Format: CC-XXX-XXX</span>
+              <span class="form-error hidden" data-error="costCentre">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step Nav -->
+        <div class="step-nav">
+          <div class="step-nav-left">
+            <button class="btn btn-outline" onclick="goToStep(1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+          </div>
+          <div class="step-nav-right">
+            <button class="btn btn-cta" onclick="goToStep(3)">
+              Next: Compensation
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 3: COMPENSATION ==================== -->
+  <div class="step-content hidden" id="step3" data-step-content="3">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div>
+          <h2>Compensation &amp; Benefits</h2>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Salary information and benefits enrolment</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Salary Information -->
+        <div class="form-section">
+          <div class="form-section-title">Salary Information</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Annual Salary <span class="required">*</span></label>
+              <div class="input-group">
+                <span class="input-prefix">R</span>
+                <input type="text" class="form-control" placeholder="e.g. 450,000" data-field="salary">
+              </div>
+              <span class="form-error hidden" data-error="salary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pay Frequency <span class="required">*</span></label>
+              <select class="form-control" data-field="payFrequency">
+                <option value="">Select frequency</option>
+                <option selected>Monthly</option>
+                <option>Bi-weekly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bank Name <span class="required">*</span></label>
+              <select class="form-control" data-field="bankName">
+                <option value="">Select bank</option>
+                <option>ABSA</option>
+                <option>FNB</option>
+                <option>Nedbank</option>
+                <option>Standard Bank</option>
+                <option>Capitec</option>
+              </select>
+              <span class="form-error hidden" data-error="bankName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Number <span class="required">*</span></label>
+              <input type="password" class="form-control" placeholder="Enter account number" data-field="accountNumber">
+              <span class="form-error hidden" data-error="accountNumber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branch Code <span class="required">*</span></label>
+              <input type="text" class="form-control" placeholder="e.g. 632005" data-field="branchCode">
+              <span class="form-error hidden" data-error="branchCode">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                This field is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefits & Deductions -->
+        <div class="form-section" style="margin-top:1.75rem;">
+          <div class="form-section-title">Benefits &amp; Deductions</div>
+          <div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-label">Medical Aid</span>
+                <span class="toggle-desc">Enrol employee in a medical aid scheme</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggleMedical" onchange="toggleBenefitExtra('medicalExtra', this)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-extra hidden" id="medicalExtra">
+              <div class="form-group" style="max-width:300px;margin-top:0.5rem;">
+                <label class="form-label">Medical Aid Provider</label>
+                <select class="form-control">
+                  <option value="">Select provider</option>
+                  <option>Discovery</option>
+                  <option>Bonitas</option>
+                  <option>GEMS</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-label">Pension Fund</span>
+                <span class="toggle-desc">Enrol employee in the pension fund</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="togglePension" onchange="toggleBenefitExtra('pensionExtra', this)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-extra hidden" id="pensionExtra">
+              <div class="form-group" style="max-width:300px;margin-top:0.5rem;">
+                <label class="form-label">Contribution %</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" placeholder="e.g. 7.5" min="0" max="100" step="0.5">
+                  <span class="input-prefix" style="border-left:none;border-right:1px solid var(--border);border-radius:0 var(--radius-control) var(--radius-control) 0;">%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-label">UIF</span>
+                <span class="toggle-desc">Unemployment Insurance Fund deduction</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div style="margin-top:1rem;">
+              <div class="form-group" style="max-width:300px;">
+                <label class="form-label">Tax Number</label>
+                <input type="text" class="form-control" placeholder="e.g. 1234567890">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step Nav -->
+        <div class="step-nav">
+          <div class="step-nav-left">
+            <button class="btn btn-outline" onclick="goToStep(2)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+          </div>
+          <div class="step-nav-right">
+            <button class="btn btn-cta" onclick="goToStep(4)">
+              Next: Documents
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 4: DOCUMENTS ==================== -->
+  <div class="step-content hidden" id="step4" data-step-content="4">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <h2>Documents Upload</h2>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Upload required employee documents</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- ID Document -->
+          <div class="form-group">
+            <label class="form-label">ID Document <span class="required">*</span></label>
+            <div class="upload-zone" onclick="this.querySelector('input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'idDocChips')">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="upload-zone-text"><strong>Drag &amp; drop</strong> or click to upload</p>
+              <p class="upload-zone-hint">PDF, JPG, or PNG up to 10MB</p>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event,'idDocChips')">
+            </div>
+            <div class="file-chips" id="idDocChips"></div>
+          </div>
+
+          <!-- Proof of Address -->
+          <div class="form-group">
+            <label class="form-label">Proof of Address <span class="required">*</span></label>
+            <div class="upload-zone" onclick="this.querySelector('input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'addressDocChips')">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="upload-zone-text"><strong>Drag &amp; drop</strong> or click to upload</p>
+              <p class="upload-zone-hint">PDF, JPG, or PNG up to 10MB</p>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event,'addressDocChips')">
+            </div>
+            <div class="file-chips" id="addressDocChips"></div>
+          </div>
+
+          <!-- Qualifications -->
+          <div class="form-group">
+            <label class="form-label">Qualifications</label>
+            <div class="upload-zone" onclick="this.querySelector('input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'qualDocChips')">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="upload-zone-text"><strong>Drag &amp; drop</strong> or click to upload</p>
+              <p class="upload-zone-hint">PDF, JPG, or PNG up to 10MB. Multiple files allowed.</p>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFileSelect(event,'qualDocChips')">
+            </div>
+            <div class="file-chips" id="qualDocChips"></div>
+          </div>
+
+          <!-- Tax Certificate -->
+          <div class="form-group">
+            <label class="form-label">Tax Certificate</label>
+            <div class="upload-zone" onclick="this.querySelector('input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'taxDocChips')">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="upload-zone-text"><strong>Drag &amp; drop</strong> or click to upload</p>
+              <p class="upload-zone-hint">PDF up to 10MB</p>
+              <input type="file" accept=".pdf" onchange="handleFileSelect(event,'taxDocChips')">
+            </div>
+            <div class="file-chips" id="taxDocChips"></div>
+          </div>
+
+          <!-- Medical Certificate -->
+          <div class="form-group full-width" style="max-width:calc(50% - 0.75rem);">
+            <label class="form-label">Medical Certificate</label>
+            <div class="upload-zone" onclick="this.querySelector('input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'medDocChips')">
+              <div class="upload-zone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="upload-zone-text"><strong>Drag &amp; drop</strong> or click to upload</p>
+              <p class="upload-zone-hint">PDF, JPG, or PNG up to 10MB</p>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event,'medDocChips')">
+            </div>
+            <div class="file-chips" id="medDocChips"></div>
+          </div>
+        </div>
+
+        <!-- Step Nav -->
+        <div class="step-nav">
+          <div class="step-nav-left">
+            <button class="btn btn-outline" onclick="goToStep(3)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+          </div>
+          <div class="step-nav-right">
+            <button class="btn btn-cta" onclick="goToStep(5)">
+              Next: Review
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 5: REVIEW ==================== -->
+  <div class="step-content hidden" id="step5" data-step-content="5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <h2>Review &amp; Submit</h2>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Please review all information before submitting</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Personal Details Review -->
+        <div class="review-section">
+          <div class="review-section-header">
+            <h3>Personal Details</h3>
+            <button class="review-edit-btn" onclick="goToStep(1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+          <div class="review-grid">
+            <div class="review-item"><label>First Name</label><span>Sipho</span></div>
+            <div class="review-item"><label>Last Name</label><span>Ndlovu</span></div>
+            <div class="review-item"><label>Date of Birth</label><span>15 January 1990</span></div>
+            <div class="review-item"><label>Gender</label><span>Male</span></div>
+            <div class="review-item"><label>ID Number</label><span>900115 5800 089</span></div>
+            <div class="review-item"><label>Nationality</label><span>South African</span></div>
+            <div class="review-item"><label>Email</label><span>sipho.ndlovu@uthukela.gov.za</span></div>
+            <div class="review-item"><label>Phone</label><span>+27 82 123 4567</span></div>
+            <div class="review-item"><label>City</label><span>Ladysmith</span></div>
+            <div class="review-item"><label>Province</label><span>KwaZulu-Natal</span></div>
+          </div>
+        </div>
+
+        <!-- Employment Info Review -->
+        <div class="review-section">
+          <div class="review-section-header">
+            <h3>Employment Information</h3>
+            <button class="review-edit-btn" onclick="goToStep(2)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+          <div class="review-grid">
+            <div class="review-item"><label>Employee Number</label><span>UTH-2026-011</span></div>
+            <div class="review-item"><label>Department</label><span>Water Quality</span></div>
+            <div class="review-item"><label>Job Title</label><span>Water Quality Technician</span></div>
+            <div class="review-item"><label>Job Grade</label><span>B2</span></div>
+            <div class="review-item"><label>Reports To</label><span>Thabo Mkhize</span></div>
+            <div class="review-item"><label>Work Location</label><span>Ladysmith Head Office</span></div>
+            <div class="review-item"><label>Employment Type</label><span>Full-time Permanent</span></div>
+            <div class="review-item"><label>Start Date</label><span>1 August 2026</span></div>
+            <div class="review-item"><label>Cost Centre</label><span>CC-WQT-001</span></div>
+          </div>
+        </div>
+
+        <!-- Compensation Review -->
+        <div class="review-section">
+          <div class="review-section-header">
+            <h3>Compensation &amp; Benefits</h3>
+            <button class="review-edit-btn" onclick="goToStep(3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+          <div class="review-grid">
+            <div class="review-item"><label>Annual Salary</label><span>R 450,000</span></div>
+            <div class="review-item"><label>Pay Frequency</label><span>Monthly</span></div>
+            <div class="review-item"><label>Bank</label><span>FNB</span></div>
+            <div class="review-item"><label>Account Number</label><span>**** **** 7890</span></div>
+            <div class="review-item"><label>Medical Aid</label><span>Discovery</span></div>
+            <div class="review-item"><label>UIF</label><span>Yes</span></div>
+          </div>
+        </div>
+
+        <!-- Documents Review -->
+        <div class="review-section">
+          <div class="review-section-header">
+            <h3>Documents</h3>
+            <button class="review-edit-btn" onclick="goToStep(4)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+          <div class="review-grid">
+            <div class="review-item"><label>ID Document</label><span>sipho_id_document.pdf (2.4 MB)</span></div>
+            <div class="review-item"><label>Proof of Address</label><span>proof_of_address.pdf (1.1 MB)</span></div>
+            <div class="review-item"><label>Qualifications</label><span>btech_certificate.pdf (3.2 MB)</span></div>
+            <div class="review-item"><label>Tax Certificate</label><span>Not uploaded</span></div>
+          </div>
+        </div>
+
+        <!-- Confirmation Checkbox -->
+        <div class="confirm-check">
+          <input type="checkbox" id="confirmCheck">
+          <label for="confirmCheck">I confirm that all information provided is accurate and complete. I understand that providing false information may result in disciplinary action.</label>
+        </div>
+
+        <!-- Step Nav -->
+        <div class="step-nav">
+          <div class="step-nav-left">
+            <button class="btn btn-outline" onclick="goToStep(4)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+          </div>
+          <div class="step-nav-right">
+            <button class="btn btn-cta btn-lg" onclick="handleSubmit()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Submit Employee
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main-content -->
+
+<script>
+  // ==================== STATE MANAGEMENT ====================
+  let currentStep = 1;
+  let currentDemoState = 'normal';
+  const totalSteps = 5;
+
+  // ==================== DEMO STATE TOGGLE ====================
+  function setDemoState(state) {
+    currentDemoState = state;
+    document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('demo-' + state).classList.add('active');
+
+    const mainContent = document.getElementById('mainContent');
+    const successOverlay = document.getElementById('successOverlay');
+    const errorBanner = document.getElementById('errorBanner');
+    const pageHeader = document.getElementById('pageHeader');
+    const pageHeaderSkeleton = document.getElementById('pageHeaderSkeleton');
+    const stepperNormal = document.getElementById('stepperNormal');
+    const stepperSkeleton = document.getElementById('stepperSkeleton');
+
+    // Reset everything
+    successOverlay.classList.remove('open');
+    errorBanner.classList.add('hidden');
+    clearAllErrors();
+
+    if (state === 'normal') {
+      pageHeader.classList.remove('hidden');
+      pageHeaderSkeleton.classList.add('hidden');
+      stepperNormal.classList.remove('hidden');
+      stepperSkeleton.classList.add('hidden');
+      showNormalContent();
+    } else if (state === 'skeleton') {
+      pageHeader.classList.add('hidden');
+      pageHeaderSkeleton.classList.remove('hidden');
+      stepperNormal.classList.add('hidden');
+      stepperSkeleton.classList.remove('hidden');
+      showSkeletonContent();
+    } else if (state === 'errors') {
+      pageHeader.classList.remove('hidden');
+      pageHeaderSkeleton.classList.add('hidden');
+      stepperNormal.classList.remove('hidden');
+      stepperSkeleton.classList.add('hidden');
+      showNormalContent();
+      goToStep(1);
+      errorBanner.classList.remove('hidden');
+      showErrors();
+    } else if (state === 'success') {
+      pageHeader.classList.remove('hidden');
+      pageHeaderSkeleton.classList.add('hidden');
+      stepperNormal.classList.remove('hidden');
+      stepperSkeleton.classList.add('hidden');
+      showNormalContent();
+      successOverlay.classList.add('open');
+    }
+  }
+
+  function showNormalContent() {
+    document.querySelectorAll('[data-step-content]').forEach(el => {
+      el.classList.toggle('hidden', el.dataset.stepContent !== String(currentStep));
+    });
+    document.querySelectorAll('[data-skeleton]').forEach(el => el.classList.add('hidden'));
+  }
+
+  function showSkeletonContent() {
+    document.querySelectorAll('[data-step-content]').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('[data-skeleton]').forEach(el => {
+      el.classList.toggle('hidden', el.dataset.skeleton !== '1');
+    });
+  }
+
+  // ==================== STEPPER NAVIGATION ====================
+  function goToStep(step) {
+    if (step < 1 || step > totalSteps) return;
+    currentStep = step;
+    updateStepper();
+    if (currentDemoState === 'normal' || currentDemoState === 'errors') {
+      showNormalContent();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateStepper() {
+    document.querySelectorAll('.step[data-step]').forEach(el => {
+      const s = parseInt(el.dataset.step);
+      el.classList.remove('active', 'completed');
+      const circle = el.querySelector('.step-circle');
+      if (s === currentStep) {
+        el.classList.add('active');
+        circle.innerHTML = s;
+      } else if (s < currentStep) {
+        el.classList.add('completed');
+        circle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else {
+        circle.innerHTML = s;
+      }
+    });
+    document.querySelectorAll('.step-connector[data-connector]').forEach(el => {
+      const c = parseInt(el.dataset.connector);
+      el.classList.remove('active', 'completed');
+      if (c < currentStep) el.classList.add('completed');
+      if (c === currentStep - 1) el.classList.add('active');
+    });
+  }
+
+  // ==================== ERROR HANDLING ====================
+  function showErrors() {
+    const errorFields = ['firstName','lastName','dob','gender','idNumber','email','phone','address','city','postalCode','emergencyName','relationship','emergencyPhone'];
+    errorFields.forEach(field => {
+      const input = document.querySelector('[data-field="' + field + '"]');
+      const error = document.querySelector('[data-error="' + field + '"]');
+      if (input) input.classList.add('error');
+      if (error) error.classList.remove('hidden');
+    });
+  }
+
+  function clearAllErrors() {
+    document.querySelectorAll('.form-control.error').forEach(el => el.classList.remove('error'));
+    document.querySelectorAll('.form-error').forEach(el => el.classList.add('hidden'));
+  }
+
+  // ==================== MODAL ====================
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modal on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(m => {
+        m.classList.remove('open');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  // ==================== TOAST ====================
+  function showToast(type, title, message) {
+    const container = document.getElementById('toastContainer');
+    const icons = {
+      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+    const retryLink = type === 'error' ? ' <a onclick="showToast(\'success\',\'Retry Successful\',\'Employee saved successfully\')">Retry</a>' : '';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.innerHTML =
+      '<div class="toast-icon">' + icons[type] + '</div>' +
+      '<div class="toast-content"><div class="toast-title">' + title + '</div><div class="toast-message">' + message + retryLink + '</div></div>' +
+      '<button class="toast-close" onclick="dismissToast(this.parentElement)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+      '<div class="toast-progress"></div>';
+
+    container.appendChild(toast);
+
+    // Auto-dismiss after 5s
+    setTimeout(function() { dismissToast(toast); }, 5000);
+  }
+
+  function dismissToast(el) {
+    if (!el || el.classList.contains('toast-leaving')) return;
+    el.classList.add('toast-leaving');
+    setTimeout(function() { if (el.parentElement) el.parentElement.removeChild(el); }, 300);
+  }
+
+  // ==================== SAVE / SUBMIT ====================
+  function handleSave() {
+    showToast('success', 'Employee Saved', 'Employee record saved successfully');
+    showToast('warning', 'Incomplete Fields', 'Some optional fields are incomplete');
+  }
+
+  function handleSubmit() {
+    const cb = document.getElementById('confirmCheck');
+    if (!cb.checked) {
+      showToast('error', 'Confirmation Required', 'Please confirm the information is accurate before submitting');
+      return;
+    }
+    showToast('success', 'Employee Added', 'Sipho Ndlovu has been added to the system');
+    setTimeout(function() {
+      document.getElementById('successOverlay').classList.add('open');
+    }, 500);
+  }
+
+  // ==================== CONTRACT END DATE TOGGLE ====================
+  function toggleContractEnd() {
+    const type = document.getElementById('employmentType');
+    const endDate = document.getElementById('contractEndDate');
+    if (type.value === 'Fixed-term Contract') {
+      endDate.disabled = false;
+      endDate.style.background = '#fff';
+    } else {
+      endDate.disabled = true;
+      endDate.style.background = '#F8FAFC';
+      endDate.value = '';
+    }
+  }
+
+  // ==================== BENEFIT TOGGLE EXTRAS ====================
+  function toggleBenefitExtra(id, checkbox) {
+    const extra = document.getElementById(id);
+    if (checkbox.checked) {
+      extra.classList.remove('hidden');
+    } else {
+      extra.classList.add('hidden');
+    }
+  }
+
+  // ==================== FILE UPLOAD ====================
+  function handleFileSelect(event, chipContainerId) {
+    const files = event.target.files;
+    const container = document.getElementById(chipContainerId);
+    for (let i = 0; i < files.length; i++) {
+      addFileChip(container, files[i].name, formatFileSize(files[i].size));
+    }
+  }
+
+  function handleFileDrop(event, chipContainerId) {
+    const files = event.dataTransfer.files;
+    const container = document.getElementById(chipContainerId);
+    for (let i = 0; i < files.length; i++) {
+      addFileChip(container, files[i].name, formatFileSize(files[i].size));
+    }
+  }
+
+  function addFileChip(container, name, size) {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+      '<span>' + name + ' (' + size + ')</span>' +
+      '<button class="file-chip-remove" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>';
+    container.appendChild(chip);
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    var k = 1024;
+    var sizes = ['B', 'KB', 'MB', 'GB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  // ==================== INITIALIZATION ====================
+  updateStepper();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

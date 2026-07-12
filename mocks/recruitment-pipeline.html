@@ -1,0 +1,2729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recruitment Pipeline | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 2px solid var(--pink);
+      color: var(--pink);
+    }
+    .btn-danger:hover {
+      background: var(--pink);
+      color: #FFFFFF;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      background: var(--pink);
+      border-radius: var(--radius-button);
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== DEMO TOGGLE ========== */
+    .demo-toggle {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .demo-toggle-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-toggle-buttons {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .demo-toggle-btn {
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-toggle-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .demo-toggle-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== FILTER / VIEW BAR ========== */
+    .filter-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-bar-center {
+      flex: 0 1 280px;
+      min-width: 180px;
+    }
+
+    .filter-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .form-select, .form-input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 200ms ease;
+      appearance: none;
+      outline: none;
+    }
+
+    .form-select {
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    .form-select:focus, .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input-wrapper .form-input {
+      width: 100%;
+      padding-left: 2.25rem;
+    }
+
+    .view-toggle-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-control);
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .view-toggle-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .view-toggle-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .view-toggle-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ========== KANBAN VIEW ========== */
+    .kanban-view {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kanban-view::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .kanban-view::-webkit-scrollbar-track {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .kanban-view::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 4px;
+    }
+
+    .kanban-view::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    .kanban-column {
+      min-width: 280px;
+      max-width: 280px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .kanban-column-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      border-top: 3px solid var(--primary);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kanban-column-header h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kanban-count-badge {
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+      min-width: 24px;
+      text-align: center;
+    }
+
+    /* Column accent colors */
+    .kanban-column[data-stage="applied"] .kanban-column-header { border-top-color: var(--primary); }
+    .kanban-column[data-stage="applied"] .kanban-count-badge { background: var(--navy-bg); color: var(--primary); }
+
+    .kanban-column[data-stage="screened"] .kanban-column-header { border-top-color: #6366F1; }
+    .kanban-column[data-stage="screened"] .kanban-count-badge { background: #E0E7FF; color: #6366F1; }
+
+    .kanban-column[data-stage="phone-screen"] .kanban-column-header { border-top-color: var(--teal); }
+    .kanban-column[data-stage="phone-screen"] .kanban-count-badge { background: var(--teal-bg); color: var(--teal); }
+
+    .kanban-column[data-stage="interview"] .kanban-column-header { border-top-color: #0EA5E9; }
+    .kanban-column[data-stage="interview"] .kanban-count-badge { background: #E0F2FE; color: #0EA5E9; }
+
+    .kanban-column[data-stage="assessment"] .kanban-column-header { border-top-color: var(--gold); }
+    .kanban-column[data-stage="assessment"] .kanban-count-badge { background: var(--gold-bg); color: var(--gold); }
+
+    .kanban-column[data-stage="offer"] .kanban-column-header { border-top-color: #F97316; }
+    .kanban-column[data-stage="offer"] .kanban-count-badge { background: #FFEDD5; color: #F97316; }
+
+    .kanban-column[data-stage="hired"] .kanban-column-header { border-top-color: #22C55E; }
+    .kanban-column[data-stage="hired"] .kanban-count-badge { background: #DCFCE7; color: #16A34A; }
+
+    .kanban-cards {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      overflow-y: auto;
+      max-height: 520px;
+      flex: 1;
+    }
+
+    .kanban-cards::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .kanban-cards::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .kanban-cards::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .kanban-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 0.875rem;
+      cursor: pointer;
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .kanban-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(5, 82, 126, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .kanban-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(5, 82, 126, 0.2);
+    }
+
+    .kanban-card-checkbox {
+      position: absolute;
+      top: 0.625rem;
+      right: 0.625rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      accent-color: var(--primary);
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .kanban-card:hover .kanban-card-checkbox,
+    .kanban-card.selected .kanban-card-checkbox {
+      opacity: 1;
+    }
+
+    .kanban-card-name {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      padding-right: 1.5rem;
+    }
+
+    .kanban-card-position {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 0.625rem;
+      line-height: 1.4;
+    }
+
+    .kanban-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .kanban-card-days {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .kanban-card-days svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .kanban-card-score {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+      font-size: 0.6875rem;
+      font-weight: 700;
+    }
+
+    .score-high {
+      background: var(--teal-tint);
+      color: var(--teal);
+    }
+
+    .score-medium {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    .score-low {
+      background: var(--pink-tint);
+      color: var(--pink);
+    }
+
+    /* ========== LIST VIEW ========== */
+    .list-view {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .list-table-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .list-table thead {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .list-table th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: color 200ms ease;
+      white-space: nowrap;
+    }
+
+    .list-table th:hover {
+      color: var(--primary);
+    }
+
+    .list-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .list-table tbody tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    .list-table tbody tr {
+      transition: background 200ms ease;
+    }
+
+    .list-table tbody tr:hover {
+      background: var(--primary-tint);
+    }
+
+    .list-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .list-candidate-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .list-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.6875rem;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .avatar-navy { background: var(--primary); }
+    .avatar-pink { background: var(--pink); }
+    .avatar-teal { background: var(--teal); }
+    .avatar-gold { background: var(--gold); }
+
+    .list-candidate-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .stage-applied { background: var(--navy-tint); color: var(--primary); }
+    .stage-screened { background: #E0E7FF; color: #6366F1; }
+    .stage-phone-screen { background: var(--teal-tint); color: var(--teal); }
+    .stage-interview { background: #E0F2FE; color: #0EA5E9; }
+    .stage-assessment { background: var(--gold-tint); color: var(--gold); }
+    .stage-offer { background: #FFEDD5; color: #F97316; }
+    .stage-hired { background: #DCFCE7; color: #16A34A; }
+
+    .list-actions-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .list-actions-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .list-actions-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .list-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    /* ========== FUNNEL VIEW ========== */
+    .funnel-view {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .funnel-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 2rem;
+    }
+
+    .funnel-stage {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .funnel-label {
+      width: 120px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .funnel-bar-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .funnel-bar {
+      height: 44px;
+      border-radius: var(--radius-control);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #FFFFFF;
+      transition: all 300ms ease;
+      min-width: 60px;
+    }
+
+    .funnel-bar:hover {
+      opacity: 0.9;
+      transform: scaleY(1.05);
+    }
+
+    .funnel-bar-count {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      min-width: 30px;
+    }
+
+    .funnel-conversion {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0;
+      margin-left: 120px;
+      padding-left: 1rem;
+    }
+
+    .funnel-conversion-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-button);
+    }
+
+    .funnel-conversion-badge svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    /* ========== BULK ACTION BAR ========== */
+    .bulk-action-bar {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 300ms ease;
+    }
+
+    .bulk-action-bar.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bulk-action-count {
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .bulk-action-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .bulk-action-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: var(--radius-button);
+      border: 1px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .bulk-action-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .bulk-action-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .bulk-action-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.15);
+      color: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .bulk-action-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .bulk-action-close svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #E2E8F0 !important;
+      color: transparent !important;
+      border-color: #E2E8F0 !important;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .skeleton * {
+      color: transparent !important;
+      border-color: transparent !important;
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: skeleton-shimmer 1.5s infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .skeleton-text {
+      background: #E2E8F0;
+      border-radius: 4px;
+      height: 0.875rem;
+      width: 80%;
+    }
+
+    .skeleton-text-sm {
+      background: #E2E8F0;
+      border-radius: 4px;
+      height: 0.6875rem;
+      width: 60%;
+      margin-top: 0.375rem;
+    }
+
+    .skeleton-circle {
+      background: #E2E8F0;
+      border-radius: 50%;
+    }
+
+    .skeleton-badge {
+      background: #E2E8F0;
+      border-radius: var(--radius-button);
+      height: 1.25rem;
+      width: 3rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-left {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-bar-center {
+        flex: auto;
+      }
+
+      .filter-bar-right {
+        justify-content: center;
+      }
+
+      .form-select {
+        width: 100%;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .kanban-column {
+        min-width: 260px;
+        max-width: 260px;
+      }
+
+      .funnel-label {
+        width: 80px;
+        font-size: 0.75rem;
+      }
+
+      .list-table-wrapper {
+        overflow-x: auto;
+      }
+
+      .list-table {
+        min-width: 800px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Recruitment</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Pipeline</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link active">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Recruitment Pipeline</h1>
+        <p>Track and manage candidates across all hiring stages</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export
+        </button>
+        <button class="btn btn-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Candidate
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">50</div>
+          <div class="stat-label">Total Candidates</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">18d</div>
+          <div class="stat-label">Avg Time in Pipeline</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">13%</div>
+          <div class="stat-label">Conversion Rate</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Positions Open</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter / View Bar -->
+    <div class="filter-bar">
+      <div class="filter-bar-left">
+        <select class="form-select" id="filterPosition">
+          <option value="">All Positions</option>
+          <option value="Water Process Controller">Water Process Controller</option>
+          <option value="Civil Engineer">Civil Engineer</option>
+          <option value="Maintenance Technician">Maintenance Technician</option>
+          <option value="Finance Officer">Finance Officer</option>
+          <option value="Community Liaison Officer">Community Liaison Officer</option>
+          <option value="ICT Systems Administrator">ICT Systems Administrator</option>
+          <option value="Water Quality Analyst">Water Quality Analyst</option>
+          <option value="Supply Chain Coordinator">Supply Chain Coordinator</option>
+        </select>
+        <select class="form-select" id="filterStage">
+          <option value="">All Stages</option>
+          <option value="Applied">Applied</option>
+          <option value="Screened">Screened</option>
+          <option value="Phone Screen">Phone Screen</option>
+          <option value="Interview">Interview</option>
+          <option value="Assessment">Assessment</option>
+          <option value="Offer">Offer</option>
+          <option value="Hired">Hired</option>
+        </select>
+      </div>
+      <div class="filter-bar-center">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="form-input" id="searchInput" placeholder="Search candidates...">
+        </div>
+      </div>
+      <div class="filter-bar-right">
+        <button class="view-toggle-btn active" data-view="kanban" title="Kanban View">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="5" height="18" rx="1"></rect>
+            <rect x="10" y="3" width="5" height="12" rx="1"></rect>
+            <rect x="17" y="3" width="5" height="15" rx="1"></rect>
+          </svg>
+        </button>
+        <button class="view-toggle-btn" data-view="list" title="List View">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+        <button class="view-toggle-btn" data-view="funnel" title="Funnel View">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div class="kanban-view" id="kanbanView"></div>
+
+    <!-- List View -->
+    <div class="list-view" id="listView">
+      <div class="list-table-wrapper">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" class="list-checkbox" id="selectAllList"></th>
+              <th>Candidate</th>
+              <th>Position</th>
+              <th>Stage</th>
+              <th>Days in Stage</th>
+              <th>Score</th>
+              <th style="width:50px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="listTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Funnel View -->
+    <div class="funnel-view" id="funnelView">
+      <div class="funnel-container" id="funnelContainer"></div>
+    </div>
+
+  </div>
+
+  <!-- Bulk Action Bar -->
+  <div class="bulk-action-bar" id="bulkActionBar">
+    <span class="bulk-action-count" id="bulkActionCount">0 selected</span>
+    <div class="bulk-action-divider"></div>
+    <button class="bulk-action-btn" title="Move to stage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+      Move
+    </button>
+    <button class="bulk-action-btn" title="Email candidates">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+      </svg>
+      Email
+    </button>
+    <button class="bulk-action-btn" title="Reject candidates">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+      Reject
+    </button>
+    <div class="bulk-action-divider"></div>
+    <button class="bulk-action-close" id="bulkActionClose" title="Clear selection">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Demo Toggle -->
+  <div class="demo-toggle">
+    <span class="demo-toggle-label">Demo</span>
+    <div class="demo-toggle-buttons">
+      <button class="demo-toggle-btn active" data-mode="normal">Normal</button>
+      <button class="demo-toggle-btn" data-mode="skeleton">Skeleton Loading</button>
+    </div>
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== MOCK DATA =====
+      var candidates = [
+        // Applied (5 cards shown, total 15)
+        { id: 1, name: 'Thulani Mthethwa', initials: 'TM', position: 'Water Process Controller', stage: 'Applied', days: 2, score: 72, avatarColor: 'navy' },
+        { id: 2, name: 'Nomcebo Sithole', initials: 'NS', position: 'Civil Engineer', stage: 'Applied', days: 1, score: 85, avatarColor: 'pink' },
+        { id: 3, name: 'Siyabonga Dube', initials: 'SD', position: 'Maintenance Technician', stage: 'Applied', days: 3, score: 64, avatarColor: 'teal' },
+        { id: 4, name: 'Nothando Zwane', initials: 'NZ', position: 'Finance Officer', stage: 'Applied', days: 1, score: 91, avatarColor: 'gold' },
+        { id: 5, name: 'Lungelo Nxumalo', initials: 'LN', position: 'Water Quality Analyst', stage: 'Applied', days: 4, score: 58, avatarColor: 'navy' },
+        // Screened (4 cards shown, total 12)
+        { id: 6, name: 'Zanele Buthelezi', initials: 'ZB', position: 'Community Liaison Officer', stage: 'Screened', days: 3, score: 78, avatarColor: 'pink' },
+        { id: 7, name: 'Bhekisisa Mabaso', initials: 'BM', position: 'ICT Systems Administrator', stage: 'Screened', days: 5, score: 82, avatarColor: 'navy' },
+        { id: 8, name: 'Ntombifuthi Gumede', initials: 'NG', position: 'Water Process Controller', stage: 'Screened', days: 2, score: 69, avatarColor: 'teal' },
+        { id: 9, name: 'Mandisa Cele', initials: 'MC', position: 'Supply Chain Coordinator', stage: 'Screened', days: 4, score: 74, avatarColor: 'gold' },
+        // Phone Screen (4 cards shown, total 8)
+        { id: 10, name: 'Sibusiso Shabalala', initials: 'SS', position: 'Civil Engineer', stage: 'Phone Screen', days: 3, score: 88, avatarColor: 'navy' },
+        { id: 11, name: 'Nokuthula Khumalo', initials: 'NK', position: 'Finance Officer', stage: 'Phone Screen', days: 2, score: 76, avatarColor: 'pink' },
+        { id: 12, name: 'Themba Ngcobo', initials: 'TN', position: 'Maintenance Technician', stage: 'Phone Screen', days: 5, score: 71, avatarColor: 'teal' },
+        { id: 13, name: 'Ayanda Majola', initials: 'AM', position: 'Water Quality Analyst', stage: 'Phone Screen', days: 1, score: 83, avatarColor: 'gold' },
+        // Interview (3 cards shown, total 6)
+        { id: 14, name: 'Nkululeko Mkhize', initials: 'NM', position: 'Water Process Controller', stage: 'Interview', days: 4, score: 90, avatarColor: 'navy' },
+        { id: 15, name: 'Thandiwe Zondi', initials: 'TZ', position: 'ICT Systems Administrator', stage: 'Interview', days: 2, score: 86, avatarColor: 'pink' },
+        { id: 16, name: 'Mpho Radebe', initials: 'MR', position: 'Community Liaison Officer', stage: 'Interview', days: 6, score: 79, avatarColor: 'teal' },
+        // Assessment (3 cards shown, total 4)
+        { id: 17, name: 'Bonginkosi Ndaba', initials: 'BN', position: 'Civil Engineer', stage: 'Assessment', days: 3, score: 92, avatarColor: 'gold' },
+        { id: 18, name: 'Nonhlanhla Mbatha', initials: 'NM', position: 'Water Quality Analyst', stage: 'Assessment', days: 5, score: 87, avatarColor: 'navy' },
+        { id: 19, name: 'Sifiso Madlala', initials: 'SM', position: 'Maintenance Technician', stage: 'Assessment', days: 2, score: 81, avatarColor: 'pink' },
+        // Offer (3 cards shown, total 3)
+        { id: 20, name: 'Zinhle Nkosi', initials: 'ZN', position: 'Finance Officer', stage: 'Offer', days: 4, score: 94, avatarColor: 'teal' },
+        { id: 21, name: 'Dumisani Mthembu', initials: 'DM', position: 'Supply Chain Coordinator', stage: 'Offer', days: 2, score: 89, avatarColor: 'gold' },
+        { id: 22, name: 'Phindile Zulu', initials: 'PZ', position: 'Water Process Controller', stage: 'Offer', days: 1, score: 91, avatarColor: 'navy' },
+        // Hired (2 cards shown, total 2)
+        { id: 23, name: 'Senzo Dlamini', initials: 'SD', position: 'ICT Systems Administrator', stage: 'Hired', days: 0, score: 95, avatarColor: 'pink' },
+        { id: 24, name: 'Lindiwe Ngubane', initials: 'LN', position: 'Civil Engineer', stage: 'Hired', days: 0, score: 93, avatarColor: 'teal' }
+      ];
+
+      // Stage definitions with display totals
+      var stages = [
+        { key: 'Applied', label: 'Applied', total: 15 },
+        { key: 'Screened', label: 'Screened', total: 12 },
+        { key: 'Phone Screen', label: 'Phone Screen', total: 8 },
+        { key: 'Interview', label: 'Interview', total: 6 },
+        { key: 'Assessment', label: 'Assessment', total: 4 },
+        { key: 'Offer', label: 'Offer', total: 3 },
+        { key: 'Hired', label: 'Hired', total: 2 }
+      ];
+
+      var stageDataKey = {
+        'Applied': 'applied',
+        'Screened': 'screened',
+        'Phone Screen': 'phone-screen',
+        'Interview': 'interview',
+        'Assessment': 'assessment',
+        'Offer': 'offer',
+        'Hired': 'hired'
+      };
+
+      var stageColors = {
+        'Applied': '#05527E',
+        'Screened': '#6366F1',
+        'Phone Screen': '#047469',
+        'Interview': '#0EA5E9',
+        'Assessment': '#D4A832',
+        'Offer': '#F97316',
+        'Hired': '#22C55E'
+      };
+
+      var selectedCards = new Set();
+
+      // ===== SVGs =====
+      var clockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+      var threeDotSVG = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>';
+
+      // ===== HELPERS =====
+      function getScoreClass(score) {
+        if (score >= 80) return 'score-high';
+        if (score >= 60) return 'score-medium';
+        return 'score-low';
+      }
+
+      function getStageClass(stage) {
+        return 'stage-' + stageDataKey[stage];
+      }
+
+      function getCandidatesByStage(stage) {
+        return candidates.filter(function(c) { return c.stage === stage; });
+      }
+
+      // ===== RENDER: KANBAN =====
+      function renderKanban() {
+        var container = document.getElementById('kanbanView');
+        var html = '';
+
+        stages.forEach(function(stage) {
+          var cards = getCandidatesByStage(stage.key);
+          var dataKey = stageDataKey[stage.key];
+
+          html += '<div class="kanban-column" data-stage="' + dataKey + '">';
+          html += '<div class="kanban-column-header">';
+          html += '<h3>' + stage.label + '</h3>';
+          html += '<span class="kanban-count-badge">' + stage.total + '</span>';
+          html += '</div>';
+          html += '<div class="kanban-cards">';
+
+          cards.forEach(function(c) {
+            var isSelected = selectedCards.has(c.id);
+            html += '<div class="kanban-card' + (isSelected ? ' selected' : '') + '" data-id="' + c.id + '">';
+            html += '<input type="checkbox" class="kanban-card-checkbox" data-id="' + c.id + '"' + (isSelected ? ' checked' : '') + '>';
+            html += '<div class="kanban-card-name">' + c.name + '</div>';
+            html += '<div class="kanban-card-position">' + c.position + '</div>';
+            html += '<div class="kanban-card-footer">';
+            html += '<span class="kanban-card-days">' + clockSVG + (c.days === 0 ? 'Today' : c.days + 'd in stage') + '</span>';
+            html += '<span class="kanban-card-score ' + getScoreClass(c.score) + '">' + c.score + '%</span>';
+            html += '</div>';
+            html += '</div>';
+          });
+
+          html += '</div>';
+          html += '</div>';
+        });
+
+        container.innerHTML = html;
+      }
+
+      // ===== RENDER: LIST =====
+      function renderList() {
+        var tbody = document.getElementById('listTableBody');
+        var html = '';
+
+        candidates.forEach(function(c) {
+          var isSelected = selectedCards.has(c.id);
+          html += '<tr data-id="' + c.id + '">';
+          html += '<td><input type="checkbox" class="list-checkbox row-checkbox" data-id="' + c.id + '"' + (isSelected ? ' checked' : '') + '></td>';
+          html += '<td><div class="list-candidate-cell"><div class="list-avatar avatar-' + c.avatarColor + '">' + c.initials + '</div><span class="list-candidate-name">' + c.name + '</span></div></td>';
+          html += '<td>' + c.position + '</td>';
+          html += '<td><span class="stage-badge ' + getStageClass(c.stage) + '">' + c.stage + '</span></td>';
+          html += '<td>' + (c.days === 0 ? 'Today' : c.days + ' days') + '</td>';
+          html += '<td><span class="kanban-card-score ' + getScoreClass(c.score) + '">' + c.score + '%</span></td>';
+          html += '<td><button class="list-actions-btn" title="Actions">' + threeDotSVG + '</button></td>';
+          html += '</tr>';
+        });
+
+        tbody.innerHTML = html;
+      }
+
+      // ===== RENDER: FUNNEL =====
+      function renderFunnel() {
+        var container = document.getElementById('funnelContainer');
+        var html = '';
+        var maxTotal = stages[0].total;
+
+        stages.forEach(function(stage, idx) {
+          var pct = (stage.total / maxTotal) * 100;
+
+          html += '<div class="funnel-stage">';
+          html += '<div class="funnel-label">' + stage.label + '</div>';
+          html += '<div class="funnel-bar-wrapper">';
+          html += '<div class="funnel-bar" style="width: ' + pct + '%; background: ' + stageColors[stage.key] + ';">' + stage.total + '</div>';
+          html += '</div>';
+          html += '</div>';
+
+          // Conversion arrow between stages
+          if (idx < stages.length - 1) {
+            var conversion = Math.round((stages[idx + 1].total / stage.total) * 100);
+            html += '<div class="funnel-conversion">';
+            html += '<span class="funnel-conversion-badge">';
+            html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
+            html += ' ' + conversion + '% conversion';
+            html += '</span>';
+            html += '</div>';
+          }
+        });
+
+        container.innerHTML = html;
+      }
+
+      // ===== VIEW SWITCHING =====
+      function setActiveView(viewName) {
+        document.querySelectorAll('.view-toggle-btn').forEach(function(btn) {
+          btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+        });
+
+        var kanbanEl = document.getElementById('kanbanView');
+        var listEl = document.getElementById('listView');
+        var funnelEl = document.getElementById('funnelView');
+
+        kanbanEl.style.display = viewName === 'kanban' ? 'flex' : 'none';
+        listEl.style.display = viewName === 'list' ? 'block' : 'none';
+        funnelEl.style.display = viewName === 'funnel' ? 'block' : 'none';
+      }
+
+      // ===== BULK ACTION BAR =====
+      function updateBulkBar() {
+        var bar = document.getElementById('bulkActionBar');
+        var countEl = document.getElementById('bulkActionCount');
+        var count = selectedCards.size;
+
+        if (count > 0) {
+          bar.classList.add('visible');
+          countEl.textContent = count + ' selected';
+        } else {
+          bar.classList.remove('visible');
+        }
+      }
+
+      function clearSelection() {
+        selectedCards.clear();
+        updateBulkBar();
+        renderKanban();
+        renderList();
+        attachCardListeners();
+        attachListListeners();
+      }
+
+      // ===== CARD SELECTION (KANBAN) =====
+      function attachCardListeners() {
+        document.querySelectorAll('.kanban-card-checkbox').forEach(function(cb) {
+          cb.addEventListener('change', function(e) {
+            e.stopPropagation();
+            var id = parseInt(this.getAttribute('data-id'));
+            if (this.checked) {
+              selectedCards.add(id);
+              this.closest('.kanban-card').classList.add('selected');
+            } else {
+              selectedCards.delete(id);
+              this.closest('.kanban-card').classList.remove('selected');
+            }
+            updateBulkBar();
+          });
+        });
+
+        document.querySelectorAll('.kanban-card').forEach(function(card) {
+          card.addEventListener('click', function(e) {
+            if (e.target.classList.contains('kanban-card-checkbox')) return;
+            var cb = this.querySelector('.kanban-card-checkbox');
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change'));
+          });
+        });
+      }
+
+      // ===== LIST SELECTION =====
+      function attachListListeners() {
+        document.querySelectorAll('#listTableBody .row-checkbox').forEach(function(cb) {
+          cb.addEventListener('change', function() {
+            var id = parseInt(this.getAttribute('data-id'));
+            if (this.checked) {
+              selectedCards.add(id);
+            } else {
+              selectedCards.delete(id);
+            }
+            updateBulkBar();
+          });
+        });
+      }
+
+      // ===== SKELETON MODE =====
+      function enableSkeleton() {
+        // Stats
+        document.querySelectorAll('.stat-card').forEach(function(card) {
+          card.classList.add('skeleton');
+        });
+
+        // Kanban cards
+        document.querySelectorAll('.kanban-card').forEach(function(card) {
+          card.classList.add('skeleton');
+        });
+
+        // List rows
+        document.querySelectorAll('#listTableBody tr').forEach(function(row) {
+          row.querySelectorAll('td').forEach(function(td) {
+            td.classList.add('skeleton');
+          });
+        });
+
+        // Funnel bars
+        document.querySelectorAll('.funnel-bar').forEach(function(bar) {
+          bar.classList.add('skeleton');
+        });
+      }
+
+      function disableSkeleton() {
+        document.querySelectorAll('.skeleton').forEach(function(el) {
+          el.classList.remove('skeleton');
+        });
+      }
+
+      // ===== SELECT ALL (LIST) =====
+      function attachSelectAll() {
+        var selectAllCb = document.getElementById('selectAllList');
+        if (selectAllCb) {
+          selectAllCb.addEventListener('change', function() {
+            var checked = this.checked;
+            document.querySelectorAll('#listTableBody .row-checkbox').forEach(function(cb) {
+              cb.checked = checked;
+              var id = parseInt(cb.getAttribute('data-id'));
+              if (checked) {
+                selectedCards.add(id);
+              } else {
+                selectedCards.delete(id);
+              }
+            });
+            updateBulkBar();
+          });
+        }
+      }
+
+      // ===== INIT =====
+      document.addEventListener('DOMContentLoaded', function() {
+        // Render all views
+        renderKanban();
+        renderList();
+        renderFunnel();
+
+        // Attach event listeners
+        attachCardListeners();
+        attachListListeners();
+        attachSelectAll();
+
+        // View toggle
+        document.querySelectorAll('.view-toggle-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            setActiveView(this.getAttribute('data-view'));
+          });
+        });
+
+        // Bulk action close
+        document.getElementById('bulkActionClose').addEventListener('click', clearSelection);
+
+        // Demo toggle
+        document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.demo-toggle-btn').forEach(function(b) {
+              b.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            var mode = this.getAttribute('data-mode');
+            if (mode === 'skeleton') {
+              enableSkeleton();
+            } else {
+              disableSkeleton();
+            }
+          });
+        });
+
+        // Set initial view
+        setActiveView('kanban');
+      });
+
+    })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

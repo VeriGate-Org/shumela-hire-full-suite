@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
+import { TableSkeleton } from '@/components/LoadingComponents';
 import {
   BuildingOfficeIcon,
   PlusIcon,
@@ -10,6 +12,7 @@ import {
   MagnifyingGlassIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { departmentService, Department } from '@/services/departmentService';
 import { useToast } from '@/components/Toast';
@@ -141,9 +144,9 @@ export default function AdminDepartmentsPage() {
   const actions = canManage ? (
     <button
       onClick={openCreateModal}
-      className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full border-2 border-gold-500 bg-gold-500 text-shumelahire-900 hover:bg-gold-600 transition-colors uppercase tracking-wider"
+      className="btn-cta inline-flex items-center gap-2"
     >
-      <PlusIcon className="w-4 h-4 mr-2" />
+      <PlusIcon className="w-4 h-4" />
       Add Department
     </button>
   ) : null;
@@ -152,20 +155,30 @@ export default function AdminDepartmentsPage() {
     return (
       <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Skeleton Stats Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-control shadow p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
-                <div className="h-8 bg-gray-200 rounded w-16" />
+              <div key={i} className="enterprise-card p-5 animate-pulse">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 loading-shimmer rounded-xl flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="h-6 loading-shimmer rounded w-12 mb-2" />
+                    <div className="h-3 loading-shimmer rounded w-24" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <div className="bg-white rounded-control shadow p-6 animate-pulse">
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-12 bg-gray-200 rounded" />
-              ))}
+          {/* Skeleton Filter Bar */}
+          <div className="enterprise-card p-5 animate-pulse">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-10 loading-shimmer rounded-control" />
+              <div className="h-4 loading-shimmer rounded w-32" />
             </div>
+          </div>
+          {/* Skeleton Table */}
+          <div className="enterprise-card overflow-hidden">
+            <TableSkeleton rows={6} columns={5} />
           </div>
         </div>
       </PageWrapper>
@@ -175,15 +188,11 @@ export default function AdminDepartmentsPage() {
   if (loadError) {
     return (
       <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
-        <div className="bg-white rounded-control shadow p-12 text-center">
-          <p className="text-gray-500 mb-4">{loadError}</p>
-          <button
-            onClick={loadDepartments}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Failed to load departments"
+          message={loadError}
+          onRetry={loadDepartments}
+        />
       </PageWrapper>
     );
   }
@@ -191,33 +200,64 @@ export default function AdminDepartmentsPage() {
   return (
     <PageWrapper title="Departments" subtitle="Manage organisational departments" actions={actions}>
       <div className="space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-control shadow p-6">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total</p>
-            <p className="text-2xl font-bold text-shumelahire-900 mt-1">{stats.total}</p>
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Total Departments */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--icon-bg-navy)]">
+                <BuildingOfficeIcon className="w-6 h-6 text-[var(--accent-navy)]" />
+              </div>
+              <div>
+                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.total}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Total Departments</div>
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-control shadow p-6">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active</p>
-            <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
+          {/* Active */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--icon-bg-teal)]">
+                <CheckCircleIcon className="w-6 h-6 text-[var(--accent-teal)]" />
+              </div>
+              <div>
+                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.active}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Active</div>
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-control shadow p-6">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Inactive</p>
-            <p className="text-2xl font-bold text-gray-400 mt-1">{stats.inactive}</p>
+          {/* Inactive */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--icon-bg-gold)]">
+                <XCircleIcon className="w-6 h-6 text-[var(--accent-gold)]" />
+              </div>
+              <div>
+                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.inactive}</div>
+                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Inactive</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Search */}
-        <div className="bg-white rounded-control shadow p-4">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search departments by name, code or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
-            />
+        {/* Filter Bar */}
+        <div className="enterprise-card p-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search departments..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-border rounded-control bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-all"
+                />
+              </div>
+            </div>
+            <div className="text-[0.8125rem] font-medium text-muted-foreground whitespace-nowrap">
+              Showing {filteredDepartments.length} of {departments.length} departments
+            </div>
           </div>
         </div>
 
@@ -229,61 +269,65 @@ export default function AdminDepartmentsPage() {
             description={searchTerm ? 'Try a different search term' : 'Create your first department to get started'}
           />
         ) : (
-          <div className="bg-white rounded-control shadow overflow-hidden">
+          <div className="enterprise-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full text-sm">
+                <thead className="bg-muted/50 border-b border-border">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Code</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Code</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Description</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
                     {canManage && (
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Actions</th>
                     )}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredDepartments.map((department) => (
-                    <tr key={department.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{department.name}</span>
+                <tbody className="bg-card divide-y divide-border">
+                  {filteredDepartments.map((department, idx) => (
+                    <tr
+                      key={department.id}
+                      className={`transition-colors hover:bg-accent ${idx % 2 === 1 ? 'bg-muted/30' : ''}`}
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="font-semibold text-foreground">{department.name}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-500 font-mono">{department.code}</span>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="text-muted-foreground font-mono">{department.code}</span>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-500 line-clamp-1">{department.description || '\u2014'}</span>
+                      <td className="px-4 py-3">
+                        <span className="text-muted-foreground line-clamp-1">{department.description || '\u2014'}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {department.isActive ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--icon-bg-teal)] text-[var(--accent-teal)]">
                             <CheckCircleIcon className="w-3.5 h-3.5" />
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
                             <XCircleIcon className="w-3.5 h-3.5" />
                             Inactive
                           </span>
                         )}
                       </td>
                       {canManage && (
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="px-4 py-3 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => openEditModal(department)}
-                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                              title="Edit department"
+                              className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-[var(--accent-navy)] transition-colors"
                             >
-                              <PencilSquareIcon className="w-3.5 h-3.5 mr-1" />
-                              Edit
+                              <PencilSquareIcon className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleToggleActive(department)}
-                              className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+                              title={department.isActive ? 'Deactivate' : 'Activate'}
+                              className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border-2 transition-colors ${
                                 department.isActive
-                                  ? 'border-red-300 text-red-700 hover:bg-red-50'
-                                  : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                                  ? 'border-[var(--accent-pink)] text-[var(--accent-pink)] hover:bg-[var(--icon-bg-pink)]'
+                                  : 'border-[var(--accent-teal)] text-[var(--accent-teal)] hover:bg-[var(--icon-bg-teal)]'
                               }`}
                             >
                               {department.isActive ? 'Deactivate' : 'Activate'}
@@ -302,55 +346,64 @@ export default function AdminDepartmentsPage() {
 
       {/* Create/Edit Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-control shadow-xl max-w-lg w-full">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {editingDepartment ? 'Edit Department' : 'Create Department'}
-              </h3>
+        <div className="fixed inset-0 bg-foreground/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="bg-card rounded-2xl shadow-lg max-w-[560px] w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 pt-6">
+              <h2 className="text-xl font-bold text-foreground">
+                {editingDepartment ? 'Edit Department' : 'Add Department'}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
             </div>
-            <div className="px-6 py-4 space-y-4">
+            {/* Modal Body */}
+            <div className="px-6 py-6 space-y-4">
               <div>
-                <label htmlFor="dept-name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
+                <label htmlFor="dept-name" className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
+                  Department Name <span className="text-destructive">*</span>
                 </label>
                 <input
                   id="dept-name"
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  placeholder="e.g. Engineering"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  placeholder="e.g. Water Operations"
+                  className="w-full px-3.5 py-2.5 text-sm font-medium border border-border rounded-control bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-all"
                 />
               </div>
               <div>
-                <label htmlFor="dept-description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="dept-description" className="block text-[0.8125rem] font-semibold text-foreground mb-1.5">
                   Description
                 </label>
                 <textarea
                   id="dept-description"
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Optional description of this department"
+                  placeholder="Brief description of department responsibilities..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-500/60 focus:border-violet-400"
+                  className="w-full px-3.5 py-2.5 text-sm font-medium border border-border rounded-control bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-all resize-y min-h-[80px]"
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            {/* Modal Footer */}
+            <div className="px-6 pb-6 pt-4 flex justify-end gap-3">
               <button
                 onClick={closeModal}
                 disabled={saving}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving || !formName.trim()}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full border-2 border-gold-500 bg-gold-500 text-shumelahire-900 hover:bg-gold-600 transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-cta inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? 'Saving...' : editingDepartment ? 'Update' : 'Create'}
+                {saving ? 'Saving...' : editingDepartment ? 'Update' : 'Save Department'}
               </button>
             </div>
           </div>

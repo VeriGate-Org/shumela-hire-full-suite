@@ -199,9 +199,9 @@ function handler(event) {
             {
                 domainNames.Add($"*.{config.DomainName}");
             }
-            // Tenant subdomains (idc, uthukela, demo, uthukela-demo, etc.) are
-            // served from the prod distribution via the *.shumelahire.co.za
-            // wildcard. Dev only serves its own apex (dev.shumelahire.co.za).
+            // Tenant subdomains (idc, uthukela, etc.) are served from the prod
+            // distribution via the *.shumelahire.co.za wildcard. Dev only serves
+            // its own apex (dev.shumelahire.co.za).
 
             distributionProps.DomainNames = domainNames.ToArray();
 

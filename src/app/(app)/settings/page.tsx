@@ -14,18 +14,20 @@ import {
   ExclamationTriangleIcon,
   EyeSlashIcon,
   DocumentArrowDownIcon,
+  EnvelopeIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 
 type SettingsTab = 'notifications' | 'privacy' | 'security' | 'data';
 
 const TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-  { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-4 w-4" /> },
-  { id: 'privacy', label: 'Privacy', icon: <EyeSlashIcon className="h-4 w-4" /> },
-  { id: 'security', label: 'Security', icon: <ShieldCheckIcon className="h-4 w-4" /> },
-  { id: 'data', label: 'Data Management', icon: <DocumentArrowDownIcon className="h-4 w-4" /> },
+  { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-3.5 w-3.5" /> },
+  { id: 'privacy', label: 'Privacy', icon: <EyeSlashIcon className="h-3.5 w-3.5" /> },
+  { id: 'security', label: 'Security', icon: <ShieldCheckIcon className="h-3.5 w-3.5" /> },
+  { id: 'data', label: 'Data Management', icon: <DocumentArrowDownIcon className="h-3.5 w-3.5" /> },
 ];
 
-/* Toggle switch */
+/* Toggle switch — matches mock's .toggle-switch (44x24) */
 function ToggleSwitch({
   checked,
   onChange,
@@ -42,21 +44,21 @@ function ToggleSwitch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-        checked ? 'bg-cta' : 'bg-gray-300'
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
+        checked ? 'bg-primary' : 'bg-border'
       }`}
     >
       <span
-        className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-[18px]' : 'translate-x-[3px]'
+        className={`inline-block h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform ${
+          checked ? 'translate-x-[22px]' : 'translate-x-[3px]'
         }`}
       />
     </button>
   );
 }
 
-/* Notification row */
-function NotificationRow({
+/* Toggle row — matches mock's .toggle-row */
+function ToggleRow({
   label,
   description,
   checked,
@@ -68,12 +70,35 @@ function NotificationRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
-      <div className="min-w-0 pr-4">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+    <div className="flex items-center justify-between py-3.5 border-b border-border last:border-0">
+      <div className="flex-1 mr-4">
+        <div className="text-sm font-semibold text-foreground">{label}</div>
+        <div className="text-[0.8125rem] text-muted-foreground mt-0.5">{description}</div>
       </div>
       <ToggleSwitch checked={checked} onChange={onChange} label={label} />
+    </div>
+  );
+}
+
+/* Card header — matches mock's .card-header with icon, title, subtitle */
+function CardHeader({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div>
+        <div className="text-[1.0625rem] font-bold text-foreground flex items-center gap-2.5">
+          {icon}
+          {title}
+        </div>
+        <div className="text-[0.8125rem] text-muted-foreground mt-0.5">{subtitle}</div>
+      </div>
     </div>
   );
 }
@@ -182,66 +207,74 @@ export default function SettingsPage() {
       case 'notifications':
         return (
           <div className="space-y-6">
-            {/* Email notifications */}
+            {/* Email Notifications Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-4">
-                Email Notifications
-              </h3>
-              <NotificationRow
-                label="New Applications"
-                description="Receive an email when a new candidate applies to your job postings"
-                checked={emailNotifs.newApplications}
-                onChange={(v) => setEmailNotifs((p) => ({ ...p, newApplications: v }))}
+              <CardHeader
+                icon={<EnvelopeIcon className="h-[18px] w-[18px] text-primary" />}
+                title="Email Notifications"
+                subtitle="Choose which email notifications you receive"
               />
-              <NotificationRow
-                label="Interview Scheduled"
-                description="Get notified when interviews are scheduled or rescheduled"
-                checked={emailNotifs.interviewScheduled}
-                onChange={(v) => setEmailNotifs((p) => ({ ...p, interviewScheduled: v }))}
-              />
-              <NotificationRow
-                label="Offer Updates"
-                description="Receive updates when offer statuses change"
-                checked={emailNotifs.offerUpdates}
-                onChange={(v) => setEmailNotifs((p) => ({ ...p, offerUpdates: v }))}
-              />
-              <NotificationRow
-                label="System Alerts"
-                description="Important system updates and maintenance notifications"
-                checked={emailNotifs.systemAlerts}
-                onChange={(v) => setEmailNotifs((p) => ({ ...p, systemAlerts: v }))}
-              />
+              <div>
+                <ToggleRow
+                  label="Applications"
+                  description="Receive emails when new applications are submitted or status changes"
+                  checked={emailNotifs.newApplications}
+                  onChange={(v) => setEmailNotifs((p) => ({ ...p, newApplications: v }))}
+                />
+                <ToggleRow
+                  label="Interviews"
+                  description="Get notified about scheduled interviews, reschedules, and cancellations"
+                  checked={emailNotifs.interviewScheduled}
+                  onChange={(v) => setEmailNotifs((p) => ({ ...p, interviewScheduled: v }))}
+                />
+                <ToggleRow
+                  label="Offers"
+                  description="Notifications when offers are extended, accepted, or declined"
+                  checked={emailNotifs.offerUpdates}
+                  onChange={(v) => setEmailNotifs((p) => ({ ...p, offerUpdates: v }))}
+                />
+                <ToggleRow
+                  label="System"
+                  description="Important system updates, maintenance windows, and policy changes"
+                  checked={emailNotifs.systemAlerts}
+                  onChange={(v) => setEmailNotifs((p) => ({ ...p, systemAlerts: v }))}
+                />
+              </div>
             </div>
 
-            {/* Push notifications */}
+            {/* Push Notifications Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-4">
-                Push Notifications
-              </h3>
-              <NotificationRow
-                label="New Applications"
-                description="Browser push notification for new candidate applications"
-                checked={pushNotifs.newApplications}
-                onChange={(v) => setPushNotifs((p) => ({ ...p, newApplications: v }))}
+              <CardHeader
+                icon={<BellIcon className="h-[18px] w-[18px] text-accent-teal" />}
+                title="Push Notifications"
+                subtitle="Real-time notifications delivered to your browser"
               />
-              <NotificationRow
-                label="Interview Scheduled"
-                description="Push notification when interviews are scheduled"
-                checked={pushNotifs.interviewScheduled}
-                onChange={(v) => setPushNotifs((p) => ({ ...p, interviewScheduled: v }))}
-              />
-              <NotificationRow
-                label="Offer Updates"
-                description="Push notification for offer status changes"
-                checked={pushNotifs.offerUpdates}
-                onChange={(v) => setPushNotifs((p) => ({ ...p, offerUpdates: v }))}
-              />
-              <NotificationRow
-                label="System Alerts"
-                description="Critical system alerts via push notification"
-                checked={pushNotifs.systemAlerts}
-                onChange={(v) => setPushNotifs((p) => ({ ...p, systemAlerts: v }))}
-              />
+              <div>
+                <ToggleRow
+                  label="Applications"
+                  description="Instant alerts for new applications and status updates"
+                  checked={pushNotifs.newApplications}
+                  onChange={(v) => setPushNotifs((p) => ({ ...p, newApplications: v }))}
+                />
+                <ToggleRow
+                  label="Interviews"
+                  description="Push alerts for upcoming interviews and schedule changes"
+                  checked={pushNotifs.interviewScheduled}
+                  onChange={(v) => setPushNotifs((p) => ({ ...p, interviewScheduled: v }))}
+                />
+                <ToggleRow
+                  label="Offers"
+                  description="Real-time updates on offer activity and responses"
+                  checked={pushNotifs.offerUpdates}
+                  onChange={(v) => setPushNotifs((p) => ({ ...p, offerUpdates: v }))}
+                />
+                <ToggleRow
+                  label="System"
+                  description="Critical system notifications and security alerts"
+                  checked={pushNotifs.systemAlerts}
+                  onChange={(v) => setPushNotifs((p) => ({ ...p, systemAlerts: v }))}
+                />
+              </div>
             </div>
           </div>
         );
@@ -249,40 +282,62 @@ export default function SettingsPage() {
       case 'privacy':
         return (
           <div className="space-y-6">
+            {/* Profile Visibility Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-5">
-                Privacy Preferences
-              </h3>
-
-              {/* Profile visibility */}
-              <div className="mb-5">
-                <label className="form-label">Profile Visibility</label>
-                <select
-                  className="form-input w-full max-w-xs outline-none"
-                  value={profileVisibility}
-                  onChange={(e) => setProfileVisibility(e.target.value)}
-                >
-                  <option value="everyone">Everyone</option>
-                  <option value="team">Team Only</option>
-                  <option value="private">Private</option>
-                </select>
+              <CardHeader
+                icon={<EyeSlashIcon className="h-[18px] w-[18px] text-primary" />}
+                title="Profile Visibility"
+                subtitle="Control who can see your profile information"
+              />
+              <div className="flex flex-col gap-0">
+                {[
+                  { value: 'everyone', label: 'Public', desc: 'Your profile is visible to all users across the organisation' },
+                  { value: 'team', label: 'Team Only', desc: 'Only members of your team and direct managers can view your profile' },
+                  { value: 'private', label: 'Private', desc: 'Your profile is hidden from everyone except HR administrators' },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex items-start gap-3 py-3.5 border-b border-border last:border-0 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value={option.value}
+                      checked={profileVisibility === option.value}
+                      onChange={(e) => setProfileVisibility(e.target.value)}
+                      className="mt-0.5 h-5 w-5 shrink-0 appearance-none rounded-full border-2 border-border checked:border-primary relative
+                        before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-primary before:-translate-x-1/2 before:-translate-y-1/2 before:scale-0 checked:before:scale-100 before:transition-transform cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-foreground">{option.label}</div>
+                      <div className="text-[0.8125rem] text-muted-foreground mt-0.5">{option.desc}</div>
+                    </div>
+                  </label>
+                ))}
               </div>
+            </div>
 
-              {/* Toggle options */}
-              <div className="space-y-0">
-                <NotificationRow
+            {/* Data Sharing Card */}
+            <div className="enterprise-card p-6">
+              <CardHeader
+                icon={<ShareIcon className="h-[18px] w-[18px] text-accent-teal" />}
+                title="Data Sharing"
+                subtitle="Manage how your data is shared within the platform"
+              />
+              <div>
+                <ToggleRow
                   label="Show email to team members"
                   description="Allow other team members to see your email address"
                   checked={showEmailToTeam}
                   onChange={setShowEmailToTeam}
                 />
-                <NotificationRow
+                <ToggleRow
                   label="Show activity status"
                   description="Let others see when you are online or recently active"
                   checked={showActivityStatus}
                   onChange={setShowActivityStatus}
                 />
-                <NotificationRow
+                <ToggleRow
                   label="Data sharing with integrations"
                   description="Allow connected third-party integrations to access your profile data"
                   checked={dataSharing}
@@ -296,19 +351,21 @@ export default function SettingsPage() {
       case 'security':
         return (
           <div className="space-y-6">
-            {/* Two-factor authentication */}
+            {/* Two-Factor Authentication Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-5">
-                Two-Factor Authentication
-              </h3>
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 pr-4">
-                  <p className="text-sm font-medium text-foreground">
-                    {twoFactorEnabled ? '2FA is enabled' : 'Enable two-factor authentication'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Add an extra layer of security to your account using an authenticator app
-                  </p>
+              <CardHeader
+                icon={<ShieldCheckIcon className="h-[18px] w-[18px] text-primary" />}
+                title="Two-Factor Authentication"
+                subtitle="Add an extra layer of security to your account"
+              />
+              <div className="flex items-center justify-between py-3.5">
+                <div className="flex-1 mr-4">
+                  <div className="text-sm font-semibold text-foreground">
+                    {twoFactorEnabled ? '2FA is enabled' : 'Enable Two-Factor Authentication'}
+                  </div>
+                  <div className="text-[0.8125rem] text-muted-foreground mt-0.5">
+                    Require a verification code in addition to your password when signing in
+                  </div>
                 </div>
                 <ToggleSwitch
                   checked={twoFactorEnabled}
@@ -317,49 +374,78 @@ export default function SettingsPage() {
                 />
               </div>
               {twoFactorEnabled && (
-                <div className="mt-4 p-3 rounded-control bg-green-50 border border-green-200 text-green-700 text-sm">
-                  Two-factor authentication is active. Use your authenticator app to generate codes at login.
+                <div className="mt-4 p-4 rounded-control bg-surface-navy">
+                  <div className="text-sm font-bold text-primary mb-2">Setup Instructions</div>
+                  <ol className="list-none p-0 m-0 space-y-2">
+                    {[
+                      'Download an authenticator app (Google Authenticator, Authy, or Microsoft Authenticator)',
+                      'Scan the QR code or enter the setup key in your authenticator app',
+                      'Enter the 6-digit verification code from your authenticator app to confirm setup',
+                      'Save your backup recovery codes in a secure location',
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-[0.8125rem] text-foreground">
+                        <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[0.6875rem] font-bold shrink-0">
+                          {i + 1}
+                        </span>
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               )}
             </div>
 
-            {/* Active Sessions */}
+            {/* Active Sessions Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-5">
-                Active Sessions
-              </h3>
-              <div className="space-y-0">
-                {activeSessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="flex items-center justify-between py-3 border-b border-border last:border-0"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {session.icon}
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                          {session.device}
+              <CardHeader
+                icon={<ComputerDesktopIcon className="h-[18px] w-[18px] text-accent-teal" />}
+                title="Active Sessions"
+                subtitle="Devices currently signed into your account"
+              />
+              <div className="overflow-x-auto -mx-6 px-6">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.05em] border-b border-border bg-background">Device</th>
+                      <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.05em] border-b border-border bg-background">Location</th>
+                      <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.05em] border-b border-border bg-background">Last Active</th>
+                      <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.05em] border-b border-border bg-background">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeSessions.map((session) => (
+                      <tr key={session.id} className="hover:bg-surface-navy">
+                        <td className="px-4 py-3.5 text-sm text-foreground border-b border-border last:border-0">
+                          <span className="flex items-center gap-2 font-semibold">
+                            {session.icon}
+                            {session.device}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-sm text-foreground border-b border-border">{session.location}</td>
+                        <td className="px-4 py-3.5 text-sm text-foreground border-b border-border">
+                          {session.lastActive}
                           {session.current && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] rounded-full bg-green-50 text-green-700 border border-green-200">
+                            <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.6875rem] font-bold bg-success-bg text-success">
                               Current
                             </span>
                           )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {session.location} &middot; {session.lastActive}
-                        </p>
-                      </div>
-                    </div>
-                    {session.current && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] rounded-full bg-green-50 text-green-700 border border-green-200">
-                        Active
-                      </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-sm text-muted-foreground border-b border-border">
+                          {session.current ? (
+                            <span>&mdash;</span>
+                          ) : (
+                            <button className="btn-outline text-xs">REVOKE</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {activeSessions.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6 text-sm text-muted-foreground text-center">No active sessions.</td>
+                      </tr>
                     )}
-                  </div>
-                ))}
-                {activeSessions.length === 0 && (
-                  <p className="text-sm text-muted-foreground py-3">No active sessions.</p>
-                )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -368,15 +454,24 @@ export default function SettingsPage() {
       case 'data':
         return (
           <div className="space-y-6">
-            {/* Export */}
+            {/* Export Data Card */}
             <div className="enterprise-card p-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-foreground mb-5">
-                Export Your Data
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Download a copy of your personal data in compliance with data protection regulations.
-              </p>
-              <div className="flex flex-wrap gap-3">
+              <CardHeader
+                icon={<ArrowDownTrayIcon className="h-[18px] w-[18px] text-primary" />}
+                title="Export Your Data"
+                subtitle="Download a copy of all your personal data stored in the system"
+              />
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex-1">
+                  <div className="text-[0.9375rem] font-bold text-foreground mb-1">Personal Data Export</div>
+                  <div className="text-[0.8125rem] text-muted-foreground">
+                    This will include your profile information, application history, notification preferences, and activity logs. The export may take a few minutes to prepare.
+                  </div>
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-navy text-primary mt-1.5">
+                    <DocumentArrowDownIcon className="h-3 w-3" />
+                    Downloads as JSON
+                  </div>
+                </div>
                 <button
                   onClick={async () => {
                     try {
@@ -397,11 +492,25 @@ export default function SettingsPage() {
                       toast('Data export request submitted. An administrator will process your request.', 'info');
                     }
                   }}
-                  className="btn-primary"
+                  className="btn-outline shrink-0"
                 >
-                  <ArrowDownTrayIcon className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
-                  Export Personal Data
+                  <ArrowDownTrayIcon className="h-3.5 w-3.5 inline-block mr-1.5 -mt-0.5" />
+                  EXPORT MY DATA
                 </button>
+              </div>
+
+              {/* Activity log export as secondary action */}
+              <div className="mt-6 pt-6 border-t border-border flex items-center justify-between flex-wrap gap-4">
+                <div className="flex-1">
+                  <div className="text-[0.9375rem] font-bold text-foreground mb-1">Activity Log Export</div>
+                  <div className="text-[0.8125rem] text-muted-foreground">
+                    Download a CSV of all your activity and audit log entries.
+                  </div>
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-navy text-primary mt-1.5">
+                    <DocumentArrowDownIcon className="h-3 w-3" />
+                    Downloads as CSV
+                  </div>
+                </div>
                 <button
                   onClick={async () => {
                     try {
@@ -435,74 +544,103 @@ export default function SettingsPage() {
                       toast('Failed to download activity log', 'error');
                     }
                   }}
-                  className="btn-secondary"
+                  className="btn-outline shrink-0"
                 >
-                  <ArrowDownTrayIcon className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
-                  Download Activity Log
+                  <ArrowDownTrayIcon className="h-3.5 w-3.5 inline-block mr-1.5 -mt-0.5" />
+                  EXPORT ACTIVITY LOG
                 </button>
               </div>
             </div>
 
-            {/* Danger zone */}
-            <div className="enterprise-card p-6 border-red-200">
-              <div className="flex items-center gap-2 mb-4">
-                <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
-                <h3 className="text-sm font-bold uppercase tracking-[0.05em] text-red-600">
-                  Danger Zone
-                </h3>
+            {/* Danger Zone — matches mock's .danger-zone */}
+            <div className="rounded-card border-2 border-error bg-error-bg p-6">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-9 h-9 rounded-full bg-card text-error flex items-center justify-center shrink-0">
+                  <ExclamationTriangleIcon className="h-5 w-5" />
+                </div>
+                <div className="text-base font-extrabold text-error">Delete Account</div>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Permanently delete your account and all associated data. This action cannot be undone.
-              </p>
+              <div className="text-sm text-foreground mb-4 leading-relaxed">
+                Permanently delete your account and all associated data. This action <strong className="text-error">cannot be undone</strong>. All your profile information, application history, documents, and settings will be permanently removed from the system. We recommend exporting your data before proceeding.
+              </div>
 
               {!showDeleteConfirm ? (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 text-sm font-semibold uppercase tracking-[0.05em] rounded-full bg-red-50 text-red-600 border-2 border-red-300 hover:bg-red-100 transition-colors"
-                >
-                  <TrashIcon className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
-                  Delete Account
-                </button>
+                <div>
+                  <label className="flex items-center gap-3 mb-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showDeleteConfirm}
+                      onChange={() => setShowDeleteConfirm(true)}
+                      className="h-5 w-5 shrink-0 appearance-none rounded-[5px] border-2 border-error cursor-pointer
+                        checked:bg-error checked:border-error relative
+                        after:content-[''] after:absolute after:left-[6px] after:top-[2px] after:w-[5px] after:h-[10px] after:border-white after:border-r-2 after:border-b-2 after:rotate-45 after:scale-0 checked:after:scale-100 after:transition-transform"
+                    />
+                    <span className="text-[0.8125rem] text-foreground font-medium">
+                      I understand that this action is permanent and all my data will be deleted
+                    </span>
+                  </label>
+                  <button
+                    disabled
+                    className="px-6 py-2.5 rounded-full text-[0.8125rem] font-bold uppercase tracking-[0.05em] bg-error text-white border-2 border-error opacity-50 cursor-not-allowed transition-colors"
+                  >
+                    <TrashIcon className="h-3.5 w-3.5 inline-block mr-1.5 -mt-0.5" />
+                    DELETE ACCOUNT
+                  </button>
+                </div>
               ) : (
-                <div className="p-4 rounded-control bg-red-50 border border-red-200">
-                  <p className="text-sm font-medium text-red-700 mb-3">
-                    Are you sure? Type DELETE to confirm permanent account deletion.
-                  </p>
-                  <input
-                    type="text"
-                    value={deleteConfirmText}
-                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                    placeholder="Type DELETE to confirm"
-                    className="w-full px-3 py-2 border border-red-300 rounded-control text-sm mb-3 focus:ring-2 focus:ring-red-500/60 focus:border-red-400"
-                  />
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
-                      className="btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      disabled={deleteConfirmText !== 'DELETE'}
-                      onClick={async () => {
-                        try {
-                          const res = await apiFetch('/api/user/account', { method: 'DELETE' });
-                          if (res.ok) {
-                            toast('Account deleted. You will be signed out.', 'success');
-                            setTimeout(() => window.location.href = '/', 2000);
-                          } else {
+                <div>
+                  <label className="flex items-center gap-3 mb-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showDeleteConfirm}
+                      onChange={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                      className="h-5 w-5 shrink-0 appearance-none rounded-[5px] border-2 border-error bg-error cursor-pointer relative
+                        after:content-[''] after:absolute after:left-[6px] after:top-[2px] after:w-[5px] after:h-[10px] after:border-white after:border-r-2 after:border-b-2 after:rotate-45 after:transition-transform"
+                    />
+                    <span className="text-[0.8125rem] text-foreground font-medium">
+                      I understand that this action is permanent and all my data will be deleted
+                    </span>
+                  </label>
+                  <div className="p-4 rounded-control bg-card border border-error/30 mb-4">
+                    <p className="text-sm font-medium text-error mb-3">
+                      Type DELETE to confirm permanent account deletion.
+                    </p>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="Type DELETE to confirm"
+                      className="form-input w-full border-error/50 focus:border-error mb-3"
+                    />
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                        className="btn-outline"
+                      >
+                        CANCEL
+                      </button>
+                      <button
+                        disabled={deleteConfirmText !== 'DELETE'}
+                        onClick={async () => {
+                          try {
+                            const res = await apiFetch('/api/user/account', { method: 'DELETE' });
+                            if (res.ok) {
+                              toast('Account deleted. You will be signed out.', 'success');
+                              setTimeout(() => window.location.href = '/', 2000);
+                            } else {
+                              toast('Account deletion request submitted. An administrator will process your request.', 'info');
+                            }
+                          } catch {
                             toast('Account deletion request submitted. An administrator will process your request.', 'info');
                           }
-                        } catch {
-                          toast('Account deletion request submitted. An administrator will process your request.', 'info');
-                        }
-                        setShowDeleteConfirm(false);
-                        setDeleteConfirmText('');
-                      }}
-                      className="px-4 py-2 text-sm font-semibold uppercase tracking-[0.05em] rounded-full bg-red-600 text-white border-2 border-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Confirm Delete
-                    </button>
+                          setShowDeleteConfirm(false);
+                          setDeleteConfirmText('');
+                        }}
+                        className="px-6 py-2.5 rounded-full text-[0.8125rem] font-bold uppercase tracking-[0.05em] bg-error text-white border-2 border-error hover:brightness-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        DELETE ACCOUNT
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -513,34 +651,36 @@ export default function SettingsPage() {
   };
 
   return (
-    <PageWrapper title="Settings" subtitle="Manage your preferences and account settings" actions={
+    <PageWrapper title="Settings" subtitle="Manage your account preferences, notifications, and security" actions={
       savedIndicator ? (
-        <span className="text-sm text-green-600 font-medium animate-fade-in">Saved</span>
+        <span className="text-sm text-success font-medium animate-fade-in">Saved</span>
       ) : undefined
     }>
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar tabs */}
-        <nav className="lg:w-56 shrink-0">
-          <div className="enterprise-card p-2 flex lg:flex-col gap-1">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-control text-left transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-primary text-white'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                }`}
-              >
-                {tab.icon}
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </nav>
+      {/* Centered single-column layout matching mock's max-width: 960px */}
+      <div className="max-w-[960px] mx-auto">
+        {/* Horizontal tabs — matches mock's .tabs with border-bottom underline */}
+        <div className="flex gap-0 border-b-2 border-border mb-7">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-5 py-3 text-sm font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
+                activeTab === tab.id
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-primary'
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+              {activeTab === tab.id && (
+                <span className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-primary rounded-t" />
+              )}
+            </button>
+          ))}
+        </div>
 
         {/* Tab content */}
-        <div className="flex-1 min-w-0">{renderContent()}</div>
+        <div>{renderContent()}</div>
       </div>
     </PageWrapper>
   );

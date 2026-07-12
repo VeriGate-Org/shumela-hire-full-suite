@@ -724,33 +724,19 @@ export default function PipelinePage() {
 
   const actions = (
     <div className="flex items-center gap-3">
-      <div className="flex rounded-control border border-border">
-        {[
-          { id: 'kanban', name: 'Kanban', icon: UserGroupIcon },
-          { id: 'list', name: 'List', icon: ChartBarIcon },
-          { id: 'funnel', name: 'Funnel', icon: FunnelIcon }
-        ].map(mode => (
-          <button
-            key={mode.id}
-            onClick={() => setViewMode(mode.id as any)}
-            aria-pressed={viewMode === mode.id}
-            className={`px-3 py-2 text-sm font-medium transition-colors ${
-              viewMode === mode.id
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-            } ${mode.id === 'kanban' ? 'rounded-l-sm' : mode.id === 'funnel' ? 'rounded-r-sm' : ''}`}
-          >
-            <mode.icon className="w-4 h-4 mr-2 inline" />
-            {mode.name}
-          </button>
-        ))}
-      </div>
       <button
-        onClick={() => toast('Add Application feature coming soon', 'info')}
+        onClick={() => toast('Export feature coming soon', 'info')}
         className="btn-primary inline-flex items-center"
       >
-        <PlusIcon className="w-4 h-4 mr-2" />
-        Add Application
+        <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
+        Export
+      </button>
+      <button
+        onClick={() => toast('Add Application feature coming soon', 'info')}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-button bg-cta border-2 border-cta text-foreground font-semibold text-sm uppercase tracking-wider transition-all hover:bg-cta-hover hover:border-cta-hover"
+      >
+        <PlusIcon className="w-4 h-4" />
+        Add Candidate
       </button>
     </div>
   );
@@ -765,7 +751,7 @@ export default function PipelinePage() {
 
   if (error && applications.length === 0) {
     return (
-      <PageWrapper title="Recruitment Pipeline" subtitle="Track candidates through the hiring process" actions={actions}>
+      <PageWrapper title="Recruitment Pipeline" subtitle="Track and manage candidates across all hiring stages" actions={actions}>
         <ErrorState
           title="Failed to Load Pipeline"
           message={error}
@@ -778,55 +764,42 @@ export default function PipelinePage() {
   return (
     <PageWrapper
       title="Recruitment Pipeline"
-      subtitle="Track candidates through the hiring process"
+      subtitle="Track and manage candidates across all hiring stages"
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Pipeline Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { icon: UserGroupIcon, label: 'Total Applications', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy', borderColor: 'border-l-accent-navy' },
-            { icon: ClockIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal', borderColor: 'border-l-accent-teal' },
-            { icon: ChartBarIcon, label: 'Avg. Time to Hire', value: `${pipelineMetrics.averageTimeToHire} days`, iconColor: 'text-accent-gold', iconBg: 'bg-icon-bg-gold', borderColor: 'border-l-accent-gold' },
-            { icon: CheckCircleIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink', borderColor: 'border-l-accent-pink' },
+            { icon: UserGroupIcon, label: 'Total Candidates', value: pipelineMetrics.totalApplications, iconColor: 'text-accent-navy', iconBg: 'bg-icon-bg-navy' },
+            { icon: ClockIcon, label: 'Avg Time in Pipeline', value: `${pipelineMetrics.averageTimeToHire}d`, iconColor: 'text-accent-teal', iconBg: 'bg-icon-bg-teal' },
+            { icon: ChartBarIcon, label: 'Conversion Rate', value: `${pipelineMetrics.conversionRate}%`, iconColor: 'text-accent-gold', iconBg: 'bg-icon-bg-gold' },
+            { icon: CheckCircleIcon, label: 'Active Applications', value: pipelineMetrics.activeApplications, iconColor: 'text-accent-pink', iconBg: 'bg-icon-bg-pink' },
           ].map((metric) => (
-            <div key={metric.label} className={`enterprise-card border-l-4 ${metric.borderColor} p-4`}>
-              <div className="flex items-center">
-                <div className={`w-10 h-10 rounded-full ${metric.iconBg} flex items-center justify-center shrink-0`}>
-                  <metric.icon className={`w-5 h-5 ${metric.iconColor}`} />
+            <div key={metric.label} className="enterprise-card p-5 hover:-translate-y-px transition-all">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-card ${metric.iconBg} flex items-center justify-center shrink-0`}>
+                  <metric.icon className={`w-6 h-6 ${metric.iconColor}`} />
                 </div>
-                <div className="ml-3 min-w-0">
-                  <p className="text-xs font-medium text-muted-foreground truncate">{metric.label}</p>
-                  <p className="text-2xl font-bold text-foreground">{metric.value}</p>
+                <div className="min-w-0">
+                  <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{metric.value}</div>
+                  <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">{metric.label}</div>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Search and Filters */}
-        <div className="enterprise-card p-4">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search candidates or jobs..."
-                  aria-label="Search candidates or jobs"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-border rounded-control bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
+        {/* Filter / View Bar */}
+        <div className="enterprise-card px-5 py-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+            {/* Left: filter selects */}
+            <div className="flex items-center gap-3 flex-wrap flex-1">
               <select
                 value={selectedStage}
                 onChange={(e) => setSelectedStage(e.target.value)}
                 aria-label="Filter by stage"
-                className="px-3 py-2 border border-border rounded-control bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                className="px-3 py-2 text-sm font-medium border border-border rounded-control bg-card text-foreground appearance-none pr-8 bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,82,126,0.12)] outline-none transition-all"
               >
                 <option value="all">All Stages</option>
                 {STAGE_GROUPS.map(stage => (
@@ -836,9 +809,60 @@ export default function PipelinePage() {
                 ))}
               </select>
 
-              <div className="text-sm text-muted-foreground">
-                {filteredApplications.length} of {applications.length} applications
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                {filteredApplications.length} of {applications.length} candidates
+              </span>
+            </div>
+
+            {/* Center: search */}
+            <div className="flex-[0_1_280px] min-w-[180px]">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search candidates..."
+                  aria-label="Search candidates"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm font-medium border border-border rounded-control bg-card text-foreground focus:border-primary focus:shadow-[0_0_0_3px_rgba(5,82,126,0.12)] outline-none transition-all"
+                />
               </div>
+            </div>
+
+            {/* Right: view toggle buttons */}
+            <div className="flex items-center gap-1">
+              {[
+                { id: 'kanban' as const, label: 'Kanban View', icon: (
+                  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="5" height="18" rx="1" /><rect x="10" y="3" width="5" height="12" rx="1" /><rect x="17" y="3" width="5" height="15" rx="1" />
+                  </svg>
+                )},
+                { id: 'list' as const, label: 'List View', icon: (
+                  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+                  </svg>
+                )},
+                { id: 'funnel' as const, label: 'Funnel View', icon: (
+                  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                  </svg>
+                )},
+              ].map(mode => (
+                <button
+                  key={mode.id}
+                  onClick={() => setViewMode(mode.id)}
+                  aria-pressed={viewMode === mode.id}
+                  title={mode.label}
+                  className={`w-[38px] h-[38px] rounded-control border flex items-center justify-center transition-all ${
+                    viewMode === mode.id
+                      ? 'bg-primary border-primary text-primary-foreground'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary'
+                  }`}
+                >
+                  {mode.icon}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -868,146 +892,141 @@ export default function PipelinePage() {
         )}
 
         {/* Pipeline Views */}
-        {viewMode === 'funnel' && (
-          <div className="enterprise-card p-6">
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-semibold text-foreground">Pipeline Funnel</h3>
-              <p className="text-xs text-muted-foreground">Percentages show stage-to-stage conversion</p>
-            </div>
-            <div className="space-y-4">
-              {STAGE_GROUPS.map((stage) => {
+        {viewMode === 'funnel' && (() => {
+          const funnelColors = ['bg-primary', 'bg-violet-500', 'bg-teal-600', 'bg-sky-500', 'bg-gold-600', 'bg-orange-500', 'bg-green-500'];
+          return (
+          <div className="enterprise-card p-8">
+            <div className="space-y-1">
+              {STAGE_GROUPS.map((stage, idx) => {
                 const metrics = pipelineMetrics.stageMetrics[stage.id] || { count: 0, averageDays: 0, conversionRate: 0 };
                 const maxCount = Math.max(...Object.values(pipelineMetrics.stageMetrics).map(m => m.count), 1);
                 const width = maxCount > 0 ? (metrics.count / maxCount) * 100 : 0;
 
                 return (
-                  <div key={stage.id} className="flex items-center space-x-4">
-                    <div className="w-32 text-sm font-medium text-foreground text-right">
-                      {stage.displayName}
-                    </div>
-                    <div className="flex-1 bg-muted rounded-full h-8 relative">
-                      <div
-                        className="h-8 rounded-full flex items-center justify-between px-4 text-primary-foreground text-sm font-medium transition-all bg-gradient-to-r from-primary to-teal-500"
-                        style={{ width: `${Math.max(width, 10)}%` }}
-                      >
-                        <span>{metrics.count} candidates</span>
-                        <span>{metrics.averageDays}d avg</span>
+                  <div key={stage.id}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-[120px] text-right text-sm font-semibold text-foreground shrink-0">
+                        {stage.displayName}
+                      </div>
+                      <div className="flex-1 flex items-center gap-3">
+                        <div
+                          className={`h-11 rounded-control flex items-center px-4 text-white text-sm font-bold transition-all hover:opacity-90 hover:scale-y-105 min-w-[60px] ${funnelColors[idx] || 'bg-primary'}`}
+                          style={{ width: `${Math.max(width, 8)}%` }}
+                        >
+                          {metrics.count}
+                        </div>
+                        <span className="text-[0.8125rem] font-bold text-foreground min-w-[30px]">{metrics.count}</span>
                       </div>
                     </div>
-                    <div className="w-16 text-sm text-muted-foreground text-center">
-                      {metrics.conversionRate.toFixed(1)}%
-                    </div>
+                    {idx < STAGE_GROUPS.length - 1 && (
+                      <div className="flex items-center justify-center py-0.5 ml-[120px] pl-4">
+                        <span className="inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-button">
+                          <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+                          {metrics.conversionRate.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           </div>
-        )}
+          );
+        })()}
 
-        {viewMode === 'kanban' && (
-          <div className="enterprise-card p-4">
-            <div role="region" aria-label="Pipeline kanban board" className="flex space-x-4 overflow-x-auto pb-4">
-              {STAGE_GROUPS.map((stage, stageIndex) => {
-                const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
-                const nextStage = STAGE_GROUPS[stageIndex + 1];
-                const nextStageCount = nextStage
-                  ? filteredApplications.filter(app => app.currentStage === nextStage.id).length
-                  : 0;
+        {viewMode === 'kanban' && (() => {
+          const columnAccentColors: Record<string, string> = {
+            applied: 'border-t-primary',
+            screening: 'border-t-violet-500',
+            interviews: 'border-t-sky-500',
+            checks: 'border-t-gold-600',
+            offer: 'border-t-orange-500',
+            accepted: 'border-t-green-500',
+            hired: 'border-t-green-500',
+          };
+          const columnBadgeColors: Record<string, string> = {
+            applied: 'bg-icon-bg-navy text-accent-navy',
+            screening: 'bg-violet-100 text-violet-600',
+            interviews: 'bg-sky-100 text-sky-500',
+            checks: 'bg-icon-bg-gold text-accent-gold',
+            offer: 'bg-orange-100 text-orange-500',
+            accepted: 'bg-green-100 text-green-600',
+            hired: 'bg-green-100 text-green-600',
+          };
+          return (
+          <div role="region" aria-label="Pipeline kanban board" className="flex gap-4 overflow-x-auto pb-4">
+            {STAGE_GROUPS.map((stage, stageIndex) => {
+              const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
 
-                return (
-                  <div key={stage.id} role="list" aria-label={`${stage.displayName} stage`} className="flex-shrink-0 w-64">
-                    <div className={`rounded-card border-2 ${stage.color} p-4 mb-4`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
+              return (
+                <div key={stage.id} role="list" aria-label={`${stage.displayName} stage`} className="min-w-[280px] max-w-[280px] bg-muted/40 border border-border rounded-card flex flex-col shrink-0">
+                  {/* Column header with colored top border */}
+                  <div className={`px-4 py-3 border-b border-border border-t-[3px] ${columnAccentColors[stage.id] || 'border-t-primary'} rounded-t-card flex items-center justify-between`}>
+                    <h3 className="text-sm font-bold uppercase tracking-[0.04em] text-foreground">{stage.displayName}</h3>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-button min-w-[24px] text-center ${columnBadgeColors[stage.id] || 'bg-border text-muted-foreground'}`}>
+                      {stageApplications.length}
+                    </span>
+                  </div>
+
+                  {/* Cards container */}
+                  <div className="p-3 flex flex-col gap-2.5 overflow-y-auto max-h-[520px] flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-sm">
+                    {stageApplications.map(application => {
+                      const isSelected = selectedIds.has(application.id);
+                      const progressScore = Math.round(application.progress);
+                      const scoreClass = progressScore >= 80 ? 'bg-surface-teal text-accent-teal' : progressScore >= 60 ? 'bg-surface-gold text-accent-gold' : 'bg-surface-pink text-accent-pink';
+                      return (
+                        <div
+                          key={application.id}
+                          role="listitem"
+                          onClick={() => setSelectedApplication(application)}
+                          className={`bg-card border rounded-card shadow-sm p-3.5 cursor-pointer transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-px relative group ${
+                            isSelected ? 'border-primary shadow-[0_0_0_2px_rgba(5,82,126,0.2)]' : 'border-border'
+                          }`}
+                        >
+                          {/* Checkbox - visible on hover or when selected */}
                           <input
                             type="checkbox"
-                            checked={stageApplications.length > 0 && stageApplications.every(a => selectedIds.has(a.id))}
+                            checked={isSelected}
+                            onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                               const next = new Set(selectedIds);
-                              if (e.target.checked) {
-                                stageApplications.forEach(a => next.add(a.id));
-                              } else {
-                                stageApplications.forEach(a => next.delete(a.id));
-                              }
+                              if (e.target.checked) next.add(application.id);
+                              else next.delete(application.id);
                               setSelectedIds(next);
                             }}
-                            className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
+                            className={`absolute top-2.5 right-2.5 w-4 h-4 rounded border-2 border-border accent-primary transition-opacity ${
+                              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            }`}
                           />
-                          <stage.icon className="w-5 h-5" />
-                          <h3 className="font-semibold">{stage.displayName}</h3>
-                        </div>
-                        <span className="text-sm font-medium">
-                          {stageApplications.length}
-                          {stageIndex < STAGE_GROUPS.length - 1 && stageApplications.length > 0 && (
-                            <span className="text-[10px] text-muted-foreground font-normal ml-2">
-                              &rarr; {Math.round((nextStageCount / stageApplications.length) * 100)}%
+
+                          {/* Candidate name */}
+                          <div className="font-bold text-sm text-foreground mb-0.5 pr-6">
+                            {application.candidate.firstName} {application.candidate.lastName}
+                          </div>
+
+                          {/* Position */}
+                          <div className="text-xs text-muted-foreground font-medium leading-snug mb-2.5">
+                            {application.job.title}
+                            {application.job.department && <> &middot; {application.job.department}</>}
+                          </div>
+
+                          {/* Sub-stage badge */}
+                          {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
+                            <span className="inline-block mb-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
+                              {BACKEND_STAGE_DISPLAY[application.backendStage]}
                             </span>
                           )}
-                        </span>
-                      </div>
-                      <p className="text-xs mt-1 opacity-75">{stage.description}</p>
-                    </div>
 
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {stageApplications.map(application => (
-                        <div key={application.id} role="listitem" className="bg-card rounded-card p-4 border border-border hover:shadow-md hover:-translate-y-0.5 transition-all">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-start gap-2 flex-1">
-                              <input
-                                type="checkbox"
-                                checked={selectedIds.has(application.id)}
-                                onChange={(e) => {
-                                  const next = new Set(selectedIds);
-                                  if (e.target.checked) next.add(application.id);
-                                  else next.delete(application.id);
-                                  setSelectedIds(next);
-                                }}
-                                className="mt-1 rounded border-gray-300 text-gold-600 focus:ring-gold-500"
-                              />
-                              <div>
-                              <h4 className="font-medium text-foreground">
-                                {application.candidate.firstName} {application.candidate.lastName}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">{application.job.title}</p>
-                              <p className="text-xs text-muted-foreground">{application.job.department}</p>
-                              {application.rating > 0 && (
-                                <div className="flex items-center gap-0.5 mt-0.5">
-                                  {[1, 2, 3, 4, 5].map(s => (
-                                    s <= application.rating
-                                      ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
-                                      : <StarIcon key={s} className="w-3 h-3 text-muted-foreground/40" />
-                                  ))}
-                                </div>
-                              )}
-                              {stage.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                                <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-muted text-muted-foreground rounded">
-                                  {BACKEND_STAGE_DISPLAY[application.backendStage]}
-                                </span>
-                              )}
-                              </div>
+                          {/* Rating stars */}
+                          {application.rating > 0 && (
+                            <div className="flex items-center gap-0.5 mb-2">
+                              {[1, 2, 3, 4, 5].map(s => (
+                                s <= application.rating
+                                  ? <StarIconSolid key={s} className="w-3 h-3 text-yellow-400" />
+                                  : <StarIcon key={s} className="w-3 h-3 text-muted-foreground/40" />
+                              ))}
                             </div>
-                            <div className="flex flex-col items-end space-y-1">
-                              <span className={`px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(application.priority)}`}>
-                                {application.priority}
-                              </span>
-                              <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${getStatusColor(application.status)}`}>
-                                {getStatusIcon(application.status)}
-                                {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                            <span className={`inline-flex items-center gap-1 ${
-                              application.daysInStage <= 3 ? 'text-green-600' :
-                              application.daysInStage <= 7 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
-                              <ClockIcon className="w-3 h-3" />
-                              {application.daysInStage}d
-                            </span>
-                            <span>{new Date(application.lastActivity).toLocaleDateString()}</span>
-                          </div>
+                          )}
 
                           {/* Interview preview on interview cards */}
                           {stage.id === 'interviews' && interviewPreviews[application.id] && (() => {
@@ -1057,199 +1076,129 @@ export default function PipelinePage() {
                             />
                           )}
 
-                          <div className="bg-muted rounded-full h-2.5 mb-3">
-                            <div
-                              className="bg-gradient-to-r from-primary to-teal-500 h-2.5 rounded-full transition-all"
-                              style={{ width: `${Math.min(application.progress, 100)}%` }}
-                            />
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <button
-                              onClick={() => setSelectedApplication(application)}
-                              className="text-primary hover:text-primary/80 text-xs font-medium"
-                            >
-                              <EyeIcon className="w-4 h-4 inline mr-1" />
-                              View Details
-                            </button>
-
-                            {application.status === 'active' && stage.order < STAGE_GROUPS.length && (() => {
-                              const nextGroupStage = getNextGroupFirstStage(application.backendStage);
-                              const nextGroup = nextGroupStage ? STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage)) : null;
-                              const summary = verificationSummaries[application.id];
-                              const checksBlocked = stage.id === 'checks' && summary?.enforceCheckCompletion && !summary?.allClear;
-                              return nextGroupStage && (
-                                <button
-                                  onClick={() => !checksBlocked && handleStageTransition(application.id, nextGroupStage)}
-                                  disabled={checksBlocked}
-                                  className={`text-xs font-medium ${
-                                    checksBlocked
-                                      ? 'text-muted-foreground cursor-not-allowed'
-                                      : 'text-green-600 hover:text-green-800'
-                                  }`}
-                                  title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${nextGroup?.displayName || 'Next'}`}
-                                >
-                                  <ArrowRightIcon className="w-4 h-4 inline mr-1" />
-                                  Move to {nextGroup?.displayName || 'Next'}
-                                </button>
-                              );
-                            })()}
+                          {/* Footer: days in stage + score */}
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium">
+                              <ClockIcon className="w-3 h-3" />
+                              {application.daysInStage === 0 ? 'Today' : `${application.daysInStage}d in stage`}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-bold ${scoreClass}`}>
+                              {progressScore}%
+                            </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        )}
+          );
+        })()}
 
-        {viewMode === 'list' && (
+        {viewMode === 'list' && (() => {
+          const avatarColors = ['bg-primary', 'bg-accent-pink', 'bg-accent-teal', 'bg-accent-gold'];
+          const stageTagColors: Record<string, string> = {
+            applied: 'bg-surface-navy text-primary',
+            screening: 'bg-violet-100 text-violet-600',
+            interviews: 'bg-sky-100 text-sky-500',
+            checks: 'bg-surface-gold text-accent-gold',
+            offer: 'bg-orange-100 text-orange-500',
+            accepted: 'bg-green-100 text-green-600',
+            hired: 'bg-green-100 text-green-600',
+          };
+          return (
           <div className="enterprise-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-muted border-b border-border">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Candidate
+                    <th className="py-3 px-4 w-10">
+                      <input
+                        type="checkbox"
+                        checked={filteredApplications.length > 0 && filteredApplications.every(a => selectedIds.has(a.id))}
+                        onChange={(e) => {
+                          const next = new Set(selectedIds);
+                          if (e.target.checked) {
+                            filteredApplications.forEach(a => next.add(a.id));
+                          } else {
+                            filteredApplications.forEach(a => next.delete(a.id));
+                          }
+                          setSelectedIds(next);
+                        }}
+                        className="w-[18px] h-[18px] rounded border-2 border-border accent-primary"
+                      />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Position
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Stage
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Progress
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Days in Stage
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Priority
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Candidate</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Position</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Stage</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Days in Stage</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] cursor-pointer hover:text-primary whitespace-nowrap">Score</th>
+                    <th className="py-3 px-4 w-[50px] text-left text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredApplications.map((application) => {
+                <tbody>
+                  {filteredApplications.map((application, rowIdx) => {
                     const currentStageGroup = STAGE_GROUPS.find(s => s.id === application.currentStage);
+                    const avatarBg = avatarColors[rowIdx % avatarColors.length];
+                    const progressScore = Math.round(application.progress);
+                    const scoreClass = progressScore >= 80 ? 'bg-surface-teal text-accent-teal' : progressScore >= 60 ? 'bg-surface-gold text-accent-gold' : 'bg-surface-pink text-accent-pink';
 
                     return (
-                      <tr key={application.id} className="hover:bg-accent/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 w-10 h-10">
-                              <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-semibold">
-                                {application.candidate.firstName?.[0]}{application.candidate.lastName?.[0]}
-                              </div>
+                      <tr
+                        key={application.id}
+                        className={`border-b border-border transition-colors hover:bg-surface-navy/30 ${rowIdx % 2 === 1 ? 'bg-muted/30' : ''}`}
+                      >
+                        <td className="py-3 px-4 align-middle">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(application.id)}
+                            onChange={(e) => {
+                              const next = new Set(selectedIds);
+                              if (e.target.checked) next.add(application.id);
+                              else next.delete(application.id);
+                              setSelectedIds(next);
+                            }}
+                            className="w-[18px] h-[18px] rounded border-2 border-border accent-primary"
+                          />
+                        </td>
+                        <td className="py-3 px-4 align-middle">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-full ${avatarBg} text-white flex items-center justify-center text-[0.6875rem] font-bold shrink-0`}>
+                              {application.candidate.firstName?.[0]}{application.candidate.lastName?.[0]}
                             </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-foreground">
-                                {application.candidate.firstName} {application.candidate.lastName}
-                              </div>
-                              <div className="text-sm text-muted-foreground">{application.candidate.email}</div>
-                            </div>
+                            <span className="font-semibold text-foreground">
+                              {application.candidate.firstName} {application.candidate.lastName}
+                            </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-foreground">{application.job.title}</div>
-                          <div className="text-sm text-muted-foreground">{application.job.department}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4 align-middle text-foreground">{application.job.title}</td>
+                        <td className="py-3 px-4 align-middle">
                           {currentStageGroup && (
-                            <div>
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${currentStageGroup.color}`}>
-                                <currentStageGroup.icon className="w-4 h-4 mr-1" />
-                                {currentStageGroup.displayName}
-                              </span>
-                              {currentStageGroup.backendStages.length > 1 && BACKEND_STAGE_DISPLAY[application.backendStage] && (
-                                <div className="text-[10px] text-muted-foreground mt-0.5">{BACKEND_STAGE_DISPLAY[application.backendStage]}</div>
-                              )}
-                            </div>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-button text-xs font-semibold tracking-wide ${stageTagColors[currentStageGroup.id] || 'bg-muted text-muted-foreground'}`}>
+                              {currentStageGroup.displayName}
+                            </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div
-                              className="bg-primary h-2 rounded-full transition-all"
-                              style={{ width: `${Math.min(application.progress, 100)}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">{application.progress.toFixed(0)}%</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                        <td className="py-3 px-4 align-middle text-foreground">
                           <span className={application.daysInStage > 7 ? 'text-destructive font-medium' : application.daysInStage > 3 ? 'text-yellow-600' : ''}>
-                            {application.daysInStage}d
+                            {application.daysInStage === 0 ? 'Today' : `${application.daysInStage}d`}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(application.priority)}`}>
-                            {application.priority}
+                        <td className="py-3 px-4 align-middle">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-button text-[0.6875rem] font-bold ${scoreClass}`}>
+                            {progressScore}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                            {getStatusIcon(application.status)}
-                            {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => setSelectedApplication(application)}
-                              className="text-gold-600 hover:text-violet-900"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                            </button>
-                            {application.status === 'active' && ['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(application.backendStage) && (
-                              <button
-                                onClick={() => setSelectedApplication(application)}
-                                className="text-yellow-600 hover:text-yellow-800"
-                                title="Background Screening"
-                              >
-                                <ShieldCheckIcon className="w-4 h-4" />
-                              </button>
-                            )}
-                            {application.status === 'active' && ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION'].includes(application.backendStage) && (
-                              <a
-                                href="/reports/offer-letter-sample.pdf"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#05527E] hover:text-[#033d5e]"
-                                title="Generate Offer Letter"
-                              >
-                                <DocumentTextIcon className="w-4 h-4" />
-                              </a>
-                            )}
-                            {['OFFER_ACCEPTED', 'HIRED'].includes(application.backendStage) && (
-                              <a
-                                href="/offers"
-                                className="text-[#05527E] hover:text-[#033d5e]"
-                                title="Send to Payroll"
-                              >
-                                <BanknotesIcon className="w-4 h-4" />
-                              </a>
-                            )}
-                            {application.status === 'active' && (() => {
-                              const nextGroupStage = getNextGroupFirstStage(application.backendStage);
-                              return nextGroupStage && (
-                                <button
-                                  onClick={() => handleStageTransition(application.id, nextGroupStage)}
-                                  className="text-green-600 hover:text-green-900"
-                                  title={`Move to ${STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage))?.displayName || 'next stage'}`}
-                                >
-                                  <ArrowRightIcon className="w-4 h-4" />
-                                </button>
-                              );
-                            })()}
-                          </div>
+                        <td className="py-3 px-4 align-middle">
+                          <button
+                            onClick={() => setSelectedApplication(application)}
+                            className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-primary transition-all"
+                            title="View details"
+                          >
+                            <EyeIcon className="w-[18px] h-[18px]" />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -1258,15 +1207,14 @@ export default function PipelinePage() {
               </table>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* Bulk Action Bar */}
         {selectedIds.size > 0 && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-card border border-border rounded-control shadow-lg px-6 py-3 flex items-center gap-4 z-50">
-            <span className="text-sm font-medium text-foreground">
-              {selectedIds.size} selected
-            </span>
-            <div className="h-4 w-px bg-border" />
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground rounded-card shadow-lg px-6 py-3 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
+            <span className="text-sm font-bold">{selectedIds.size} selected</span>
+            <div className="w-px h-6 bg-primary-foreground/30" />
             <select
               onChange={(e) => {
                 if (e.target.value) {
@@ -1275,25 +1223,28 @@ export default function PipelinePage() {
                 }
               }}
               aria-label="Move selected candidates to stage"
-              className="text-sm border border-border rounded-control px-2 py-1 bg-card text-foreground"
+              className="text-xs font-semibold uppercase tracking-[0.05em] border border-primary-foreground/30 rounded-button px-3 py-1.5 bg-transparent text-primary-foreground cursor-pointer"
               defaultValue=""
             >
               <option value="" disabled>Move to...</option>
               {STAGE_GROUPS.map(s => (
-                <option key={s.id} value={s.id}>{s.displayName}</option>
+                <option key={s.id} value={s.id} className="text-foreground bg-card">{s.displayName}</option>
               ))}
             </select>
             <button
               onClick={handleBulkReject}
-              className="text-sm text-destructive hover:text-destructive/80 font-medium"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.05em] border border-primary-foreground/30 rounded-button px-3 py-1.5 text-primary-foreground hover:bg-primary-foreground/15 transition-all"
             >
-              Reject Selected
+              <XCircleIcon className="w-3.5 h-3.5" />
+              Reject
             </button>
+            <div className="w-px h-6 bg-primary-foreground/30" />
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="w-7 h-7 rounded-full bg-primary-foreground/15 text-primary-foreground flex items-center justify-center hover:bg-primary-foreground/30 transition-all"
+              title="Clear selection"
             >
-              Clear
+              <XCircleIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
@@ -1565,10 +1516,10 @@ export default function PipelinePage() {
                   </div>
                 )}
 
-                <div className="flex justify-end pt-6 border-t">
+                <div className="flex justify-end pt-6 border-t border-border">
                   <button
                     onClick={() => setSelectedApplication(null)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                    className="inline-flex items-center px-5 py-2 rounded-button border-2 border-border text-muted-foreground font-semibold text-sm uppercase tracking-wider hover:border-primary hover:text-primary transition-all"
                   >
                     Close
                   </button>
