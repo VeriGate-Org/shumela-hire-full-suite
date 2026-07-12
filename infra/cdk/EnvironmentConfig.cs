@@ -31,7 +31,7 @@ public sealed class EnvironmentConfig
     public string[] ApiCorsOrigins => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}", $"https://www.{DomainName}" },
-        "dev" => new[] { $"https://dev.{DomainName}", $"https://uthukela.{DomainName}", "http://localhost:3000" },
+        "dev" => new[] { $"https://dev.{DomainName}", "http://localhost:3000" },
         _ => new[] { "http://localhost:3000", "http://localhost:3001" }
     };
 
@@ -54,14 +54,14 @@ public sealed class EnvironmentConfig
     public string[] OAuthCallbackUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://uthukela.{DomainName}/login", "http://localhost:3000/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 
     public string[] OAuthSignOutUrls => EnvironmentName switch
     {
         "prod" => new[] { $"https://{DomainName}/login" },
-        "dev" => new[] { $"https://dev.{DomainName}/login", $"https://uthukela.{DomainName}/login", "http://localhost:3000/login" },
+        "dev" => new[] { $"https://dev.{DomainName}/login", "http://localhost:3000/login" },
         _ => new[] { $"https://{EnvironmentName}.{DomainName}/login" }
     };
 

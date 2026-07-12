@@ -1,0 +1,82 @@
+{
+  "Comment": "Replicate Xneelo email and marketing records before NS migration",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "shumelahire.co.za.",
+        "Type": "MX",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "10 mail.shumelahire.co.za" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "mail.shumelahire.co.za.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "41.203.18.12" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "smtp.shumelahire.co.za.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "41.203.18.12" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "imap.shumelahire.co.za.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "41.203.18.12" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "pop.shumelahire.co.za.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "41.203.18.12" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "shumelahire.co.za.",
+        "Type": "TXT",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "\"v=spf1 mx a include:spf.host-h.net ?all\"" }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "www.shumelahire.co.za.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "41.203.18.12" }
+        ]
+      }
+    }
+  ]
+}
