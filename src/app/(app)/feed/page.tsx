@@ -524,7 +524,7 @@ export default function FeedPage() {
             <div className="enterprise-card p-5">
               <div className="flex gap-3.5 mb-4">
                 <div className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center text-[0.8125rem] font-bold flex-shrink-0">
-                  {user?.fullName ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'U'}
+                  {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'U'}
                 </div>
                 <Link
                   href="/feed/compose"
