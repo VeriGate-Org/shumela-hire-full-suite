@@ -11,11 +11,11 @@ export function RecruiterDashboardFilters() {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
 
   return (
-    <div className="flex gap-4">
+    <div className="flex items-center gap-3 flex-wrap">
       <select
         value={dateRange}
         onChange={(e) => setDateRange(e.target.value)}
-        className="border border-gray-300 rounded-control px-3 py-2 text-sm"
+        className="border border-border bg-card text-foreground rounded-control px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
@@ -25,7 +25,7 @@ export function RecruiterDashboardFilters() {
       <select
         value={selectedDepartment}
         onChange={(e) => setSelectedDepartment(e.target.value)}
-        className="border border-gray-300 rounded-control px-3 py-2 text-sm"
+        className="border border-border bg-card text-foreground rounded-control px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <option value="">All Departments</option>
         {departments.map((dept) => (
@@ -36,6 +36,14 @@ export function RecruiterDashboardFilters() {
   );
 }
 
+
+const FUNNEL_STYLE_COLORS = [
+  'var(--accent-navy)',
+  'var(--accent-teal)',
+  'var(--accent-gold)',
+  'var(--accent-pink)',
+  'var(--primary)',
+];
 
 const RecruiterDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<any>({
@@ -110,202 +118,274 @@ const RecruiterDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Applications</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.totalApplications}</p>
-                <p className="text-xs text-gray-500">{metrics.newApplicants} new applicants</p>
-              </div>
-              <div className="p-3 bg-gold-100 rounded-full">
-                <svg className="w-6 h-6 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Job Postings</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.activeJobPostings}</p>
-                <p className="text-xs text-gray-500">Open positions</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m8 0v1.5a2.5 2.5 0 002.5 2.5v0a2.5 2.5 0 002.5-2.5V6z" />
-                </svg>
-              </div>
-            </div>
+      {/* ===== KPI Stats Bar ===== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Applications */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <polyline points="17 11 19 13 23 9" />
+            </svg>
           </div>
-
-          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Interview Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{(metrics.conversionRates?.interviewRate ?? 0).toFixed(1)}%</p>
-                <p className="text-xs text-gray-500">Screening to interview</p>
-              </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
+              {metrics.totalApplications}
             </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Hire Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{(metrics.conversionRates?.hireRate ?? 0).toFixed(1)}%</p>
-                <p className="text-xs text-gray-500">Application to hire</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+            <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
+              Total Applications
             </div>
           </div>
         </div>
 
+        {/* Active Job Postings */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
+              {metrics.activeJobPostings}
+            </div>
+            <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
+              Active Job Postings
+            </div>
+          </div>
+        </div>
+
+        {/* Interview Rate */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
+              {(metrics.conversionRates?.interviewRate ?? 0).toFixed(1)}%
+            </div>
+            <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
+              Interview Rate
+            </div>
+          </div>
+        </div>
+
+        {/* Hire Rate */}
+        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
+          <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">
+              {(metrics.conversionRates?.hireRate ?? 0).toFixed(1)}%
+            </div>
+            <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">
+              Hire Rate
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Content Grid: Pipeline + Applications per Vacancy ===== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pipeline Funnel */}
-        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
-          <p className="text-sm text-gray-600 mb-6">{pipelineFunnel.department} - {pipelineFunnel.period}</p>
-            <div className="space-y-4">
-              {(Object.entries(pipelineFunnel.funnel) as [string, number][]).map(([stage, count]) => {
+
+        {/* Recruitment Pipeline (Conversion Funnel style) */}
+        <div className="enterprise-card overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-base font-bold text-foreground">Recruitment Pipeline</h2>
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {pipelineFunnel.department} &middot; {pipelineFunnel.period}
+            </span>
+          </div>
+          <div className="p-5">
+            <div className="flex flex-col gap-0">
+              {(Object.entries(pipelineFunnel.funnel) as [string, number][]).map(([stage, count], idx) => {
                 const firstVal = (Object.values(pipelineFunnel.funnel) as number[])[0] ?? 0;
-                const percentage = firstVal > 0
-                  ? (count / firstVal) * 100
-                  : 0;
+                const percentage = firstVal > 0 ? (count / firstVal) * 100 : 0;
+                const barColor = FUNNEL_STYLE_COLORS[idx % FUNNEL_STYLE_COLORS.length];
                 return (
-                  <div key={stage} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-700">{stage}</span>
-                        <span className="text-sm text-gray-600">{count} ({percentage.toFixed(1)}%)</span>
+                  <div key={stage} className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
+                    <div className="w-[90px] text-[0.8125rem] font-semibold text-foreground flex-shrink-0 truncate">
+                      {stage}
+                    </div>
+                    <div className="flex-1 h-6 bg-background rounded-control overflow-hidden">
+                      <div
+                        className="h-full rounded-control transition-all duration-500 flex items-center justify-end pr-2 text-[0.6875rem] font-bold text-white min-w-[30px]"
+                        style={{ width: `${Math.max(percentage, 5)}%`, backgroundColor: barColor }}
+                      >
+                        {percentage > 15 ? count : ''}
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gold-500 h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
+                    </div>
+                    <div className="w-10 text-right text-base font-extrabold text-foreground flex-shrink-0">
+                      {count}
+                    </div>
+                    <div className="w-[50px] text-right flex-shrink-0">
+                      {idx > 0 && (
+                        <span className="text-xs font-bold text-accent-teal">
+                          {percentage.toFixed(0)}%
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
 
-        {/* Applications per Vacancy */}
-        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Applications per Vacancy</h3>
-            <p className="text-sm text-gray-600 mb-6">Job postings with highest application volume</p>
-            <div className="space-y-3">
+        {/* Applications per Vacancy (Stacked bar chart style) */}
+        <div className="enterprise-card overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-base font-bold text-foreground">Applications per Vacancy</h2>
+            <button className="btn-secondary text-xs px-3 py-1.5 inline-flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              Details
+            </button>
+          </div>
+          <div className="p-5">
+            <div className="space-y-4">
               {applicationsPerVacancy.slice(0, 6).map((vacancy) => {
-                const maxApplications = Math.max(...applicationsPerVacancy.map(v => v.applications));
+                const maxApplications = Math.max(...applicationsPerVacancy.map(v => v.applications), 1);
                 const percentage = maxApplications > 0 ? (vacancy.applications / maxApplications) * 100 : 0;
                 return (
-                  <div key={vacancy.jobId} className="flex items-center justify-between">
-                    <div className="flex-1 mr-4">
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-700 truncate">{vacancy.vacancy}</span>
-                        <span className="text-sm text-gray-600 ml-2">{vacancy.applications}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
+                  <div key={vacancy.jobId} className="flex items-center gap-3">
+                    <div className="w-[160px] text-[0.8125rem] font-semibold text-foreground flex-shrink-0 truncate">
+                      {vacancy.vacancy}
+                    </div>
+                    <div className="flex-1 h-7 bg-background rounded-control overflow-hidden">
+                      <div
+                        className="h-full rounded-control transition-all duration-300"
+                        style={{
+                          width: `${percentage}%`,
+                          backgroundColor: 'var(--accent-teal)',
+                        }}
+                      />
+                    </div>
+                    <div className="w-10 text-right text-[0.8125rem] font-bold text-foreground flex-shrink-0">
+                      {vacancy.applications}
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
 
         {/* Time to Fill */}
-        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Time to Fill</h3>
-          <p className="text-sm text-gray-600 mb-6">
-            Average: {timeToFill.averageDays.toFixed(1)} days ({timeToFill.department})
-            </p>
-            <div className="space-y-4">
+        <div className="enterprise-card overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-base font-bold text-foreground">Time to Fill</h2>
+            <span className="text-xs font-medium text-muted-foreground">
+              Avg: {timeToFill.averageDays.toFixed(1)} days
+            </span>
+          </div>
+          <div className="p-5">
+            <div className="space-y-0">
               {timeToFill.positions.slice(0, 5).map((position: any, index: number) => (
-                <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-3">
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{position.jobTitle}</p>
-                    <p className="text-sm text-gray-600">{position.department}</p>
+                <div key={index} className="flex justify-between items-center py-3 border-b border-border last:border-b-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-foreground truncate">{position.jobTitle}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{position.department}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">{position.daysToFill} days</p>
-                    <p className="text-xs text-gray-500">{new Date(position.hiredDate).toLocaleDateString()}</p>
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <p className="font-extrabold text-sm text-foreground">{position.daysToFill} days</p>
+                    <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+                      {new Date(position.hiredDate).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-          <p className="text-sm text-gray-600 mb-6">Latest recruitment activities</p>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex justify-between items-center border-b border-gray-200 pb-3">
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{activity.applicantName}</p>
-                  <p className="text-sm text-gray-600">{activity.jobTitle}</p>
+        <div className="enterprise-card overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-base font-bold text-foreground">Recent Activity</h2>
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Latest
+            </span>
+          </div>
+          <div className="p-5">
+            <div className="space-y-0">
+              {recentActivity.map((activity) => (
+                <div key={activity.id} className="flex justify-between items-center py-3 border-b border-border last:border-b-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-foreground truncate">{activity.applicantName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{activity.jobTitle}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <StatusPill value={activity.status} domain="applicationStatus" size="sm" />
+                    <p className="text-[0.6875rem] text-muted-foreground mt-1">
+                      {new Date(activity.timestamp).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <StatusPill value={activity.status} domain="applicationStatus" size="sm" />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(activity.timestamp).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Department Statistics */}
-      <div className="bg-white p-6 rounded-control shadow border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Performance</h3>
-        <p className="text-sm text-gray-600 mb-6">Statistics by department for {departmentStats.period}</p>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Department</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-900">Applications</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-900">Applicants</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-900">Hired</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-900">Avg. Time to Fill</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(Object.entries(departmentStats.departments) as [string, any][]).map(([dept, stats]) => (
-                  <tr key={dept} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-900">{dept}</td>
-                    <td className="text-right py-3 px-4 text-gray-900">{stats.totalApplications}</td>
-                    <td className="text-right py-3 px-4 text-gray-900">{stats.uniqueApplicants}</td>
-                    <td className="text-right py-3 px-4 text-gray-900">{stats.hired}</td>
-                    <td className="text-right py-3 px-4 text-gray-900">{stats.averageTimeToFill.toFixed(1)} days</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* ===== Department Performance Table ===== */}
+      <div className="enterprise-card overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-base font-bold text-foreground">Department Performance</h2>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {departmentStats.period}
+          </span>
         </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted border-b border-border">
+              <tr>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Department
+                </th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Applications
+                </th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Applicants
+                </th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Hired
+                </th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Avg. Time to Fill
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {(Object.entries(departmentStats.departments) as [string, any][]).map(([dept, stats], idx) => (
+                <tr
+                  key={dept}
+                  className={`border-b border-border last:border-b-0 transition-colors hover:bg-surface-navy ${
+                    idx % 2 === 1 ? 'bg-muted/50' : ''
+                  }`}
+                >
+                  <td className="py-3 px-4 font-bold text-foreground">{dept}</td>
+                  <td className="text-right py-3 px-4 text-foreground">{stats.totalApplications}</td>
+                  <td className="text-right py-3 px-4 text-foreground">{stats.uniqueApplicants}</td>
+                  <td className="text-right py-3 px-4 font-bold text-foreground">{stats.hired}</td>
+                  <td className="text-right py-3 px-4 text-foreground">{stats.averageTimeToFill.toFixed(1)} days</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

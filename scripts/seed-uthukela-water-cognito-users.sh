@@ -18,6 +18,7 @@
 #   ./scripts/seed-uthukela-water-cognito-users.sh
 #
 set -euo pipefail
+set +H 2>/dev/null || true   # disable history expansion so '!' in passwords is literal
 
 # ============================================================
 # Configuration
@@ -25,7 +26,7 @@ set -euo pipefail
 AWS_REGION="${AWS_REGION:-af-south-1}"
 COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:?Set COGNITO_USER_POOL_ID}"
 TENANT_ID="${TENANT_ID:-97282820-uthukela}"
-DEMO_PASSWORD="${DEMO_PASSWORD:-Demo@2026!}"
+DEMO_PASSWORD=${DEMO_PASSWORD:-'Demo@2026!'}
 
 # Colours
 RED='\033[0;31m'

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   DocumentTemplate,
   DocumentTemplateType,
@@ -10,7 +10,6 @@ import { documentTemplateService } from '../../services/documentTemplateService'
 import { useToast } from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import ErrorState from '@/components/ErrorState';
-import { CardSkeleton } from '@/components/LoadingComponents';
 import {
   MagnifyingGlassIcon,
   PencilIcon,
@@ -19,15 +18,20 @@ import {
   ArchiveBoxIcon,
   TrashIcon,
   ArchiveBoxXMarkIcon,
+  DocumentTextIcon,
+  Squares2X2Icon,
+  ClockIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 
 interface DocumentTemplateListProps {
   onEdit: (template: DocumentTemplate) => void;
+  onCreateNew?: () => void;
   refreshKey?: number;
 }
 
-const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, refreshKey }) => {
+const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, onCreateNew, refreshKey }) => {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,152 +107,287 @@ const DocumentTemplateList: React.FC<DocumentTemplateListProps> = ({ onEdit, ref
     setDeleteTarget(null);
   };
 
-  const TYPE_BADGE_COLORS: Record<string, string> = {
-    OFFER_LETTER: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    CONTRACT: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    REJECTION_EMAIL: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    WELCOME_EMAIL: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    NDA: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    PROBATION_LETTER: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-    CONFIRMATION_LETTER: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  /* Compute stats from the loaded data */
+  const stats = useMemo(() => {
+    const uniqueTypes = new Set(templates.map(t => t.type));
+    const now = Date.now();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const recentlyUpdated = templates.filter(t => new Date(t.updatedAt).getTime() > sevenDaysAgo).length;
+    return {
+      total: templates.length,
+      categories: uniqueTypes.size,
+      recentlyUpdated,
+    };
+  }, [templates]);
+
+  const CATEGORY_BADGE_COLORS: Record<string, string> = {
+    OFFER_LETTER: 'bg-surface-navy text-accent-navy',
+    CONTRACT: 'bg-surface-teal text-accent-teal',
+    REJECTION_EMAIL: 'bg-surface-pink text-accent-pink',
+    WELCOME_EMAIL: 'bg-surface-teal text-accent-teal',
+    NDA: 'bg-surface-gold text-accent-gold',
+    PROBATION_LETTER: 'bg-surface-gold text-accent-gold',
+    CONFIRMATION_LETTER: 'bg-surface-navy text-accent-navy',
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search templates..."
-            aria-label="Search document templates"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-[2px] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
-          />
-        </div>
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as DocumentTemplateType | '')}
-          aria-label="Filter by template type"
-          className="px-2.5 py-1.5 text-xs border border-border rounded-[2px] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
-        >
-          <option value="">All Types</option>
-          {Object.entries(DOCUMENT_TEMPLATE_TYPES).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showArchived}
-            onChange={(e) => setShowArchived(e.target.checked)}
-            className="w-3.5 h-3.5"
-          />
-          Show archived
-        </label>
+  /* Skeleton for stat cards */
+  const StatCardSkeleton = () => (
+    <div className="enterprise-card flex items-center gap-4 p-5 animate-pulse">
+      <div className="w-12 h-12 rounded-xl loading-shimmer" />
+      <div>
+        <div className="h-5 w-10 loading-shimmer rounded mb-2" />
+        <div className="h-3.5 w-24 loading-shimmer rounded" />
       </div>
+    </div>
+  );
 
-      {/* Template cards */}
+  /* Skeleton for table */
+  const TableSkeleton = () => (
+    <div className="enterprise-card p-6 animate-pulse">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <div className="h-5 w-36 loading-shimmer rounded mb-2" />
+          <div className="h-3.5 w-52 loading-shimmer rounded" />
+        </div>
+        <div className="h-9 w-36 loading-shimmer rounded-full" />
+      </div>
+      <div className="h-11 w-full loading-shimmer rounded-t-control mb-px" />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="h-14 w-full loading-shimmer mb-px" />
+      ))}
+      <div className="h-14 w-full loading-shimmer rounded-b-control" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Stat Cards */}
       {loading ? (
-        <CardSkeleton count={6} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="enterprise-card flex items-center gap-4 p-5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy text-accent-navy flex items-center justify-center shrink-0">
+              <DocumentTextIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.total}</div>
+              <div className="text-[0.8125rem] font-medium text-muted-foreground">Total Templates</div>
+            </div>
+          </div>
+          <div className="enterprise-card flex items-center gap-4 p-5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal text-accent-teal flex items-center justify-center shrink-0">
+              <Squares2X2Icon className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.categories}</div>
+              <div className="text-[0.8125rem] font-medium text-muted-foreground">Categories</div>
+            </div>
+          </div>
+          <div className="enterprise-card flex items-center gap-4 p-5">
+            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold text-accent-gold flex items-center justify-center shrink-0">
+              <ClockIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-2xl font-extrabold text-foreground leading-tight">{stats.recentlyUpdated}</div>
+              <div className="text-[0.8125rem] font-medium text-muted-foreground">Recently Updated</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Template Table Card */}
+      {loading ? (
+        <TableSkeleton />
       ) : error && templates.length === 0 ? (
         <ErrorState
           title="Failed to load templates"
           message={error}
           onRetry={fetchTemplates}
         />
-      ) : templates.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-sm text-muted-foreground">No templates found</p>
-          <p className="text-xs text-muted-foreground mt-1">Create your first document template to get started</p>
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {templates.map(t => (
-            <div
-              key={t.id}
-              className={`bg-card border rounded-[2px] p-4 hover:shadow-sm transition-shadow ${
-                t.isArchived
-                  ? 'border-border opacity-60'
-                  : 'border-border'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-xs font-semibold text-foreground truncate">{t.name}</h4>
-                    {t.isDefault && (
-                      <StarIconSolid className="h-3.5 w-3.5 text-yellow-500 flex-shrink-0" title="Default template" />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded-[2px] ${TYPE_BADGE_COLORS[t.type] || 'bg-muted text-muted-foreground'}`}>
-                      {DOCUMENT_TEMPLATE_TYPES[t.type] || t.type}
-                    </span>
-                    {t.isArchived && (
-                      <span className="text-[10px] text-muted-foreground">Archived</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-[10px] text-muted-foreground mb-3">
-                Created {new Date(t.createdAt).toLocaleDateString()} by {t.createdBy}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1 pt-2 border-t border-border">
-                <button
-                  onClick={() => onEdit(t)}
-                  className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={`Edit template ${t.name}`}
-                  title="Edit"
-                >
-                  <PencilIcon className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDuplicate(t)}
-                  className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={`Duplicate template ${t.name}`}
-                  title="Duplicate"
-                >
-                  <DocumentDuplicateIcon className="h-3.5 w-3.5" />
-                </button>
-                {!t.isDefault && (
-                  <button
-                    onClick={() => handleSetDefault(t)}
-                    className="p-1.5 text-muted-foreground hover:text-yellow-500 transition-colors"
-                    aria-label={`Set template ${t.name} as default`}
-                    title="Set as default"
-                  >
-                    <StarIcon className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                <button
-                  onClick={() => handleArchiveToggle(t)}
-                  className="p-1.5 text-muted-foreground hover:text-orange-500 transition-colors"
-                  aria-label={t.isArchived ? `Unarchive template ${t.name}` : `Archive template ${t.name}`}
-                  title={t.isArchived ? 'Unarchive' : 'Archive'}
-                >
-                  {t.isArchived ? (
-                    <ArchiveBoxXMarkIcon className="h-3.5 w-3.5" />
-                  ) : (
-                    <ArchiveBoxIcon className="h-3.5 w-3.5" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(t)}
-                  className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors ml-auto"
-                  aria-label={`Delete template ${t.name}`}
-                  title="Delete"
-                >
-                  <TrashIcon className="h-3.5 w-3.5" />
-                </button>
-              </div>
+        <div className="enterprise-card p-6">
+          {/* Card Header */}
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-[1.0625rem] font-bold text-foreground">All Templates</h3>
+              <p className="text-[0.8125rem] text-muted-foreground mt-0.5">Manage your document templates</p>
             </div>
-          ))}
+            {onCreateNew && (
+              <button
+                onClick={onCreateNew}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-primary text-white border-2 border-primary rounded-full hover:bg-primary/90 transition-all"
+              >
+                <PlusIcon className="h-3.5 w-3.5" />
+                New Template
+              </button>
+            )}
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <div className="relative flex-1 min-w-[200px]">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search templates..."
+                aria-label="Search document templates"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-control bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+              />
+            </div>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as DocumentTemplateType | '')}
+              aria-label="Filter by template type"
+              className="px-3 py-2 text-sm border border-border rounded-control bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+            >
+              <option value="">All Types</option>
+              {Object.entries(DOCUMENT_TEMPLATE_TYPES).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={(e) => setShowArchived(e.target.checked)}
+                className="w-4 h-4 rounded"
+              />
+              Show archived
+            </label>
+          </div>
+
+          {/* Table */}
+          {templates.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-sm text-muted-foreground">No templates found</p>
+              <p className="text-xs text-muted-foreground mt-1">Create your first document template to get started</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto -mx-6">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="text-left px-6 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider border-b border-border bg-background">
+                      Name
+                    </th>
+                    <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider border-b border-border bg-background">
+                      Category
+                    </th>
+                    <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider border-b border-border bg-background">
+                      Last Modified
+                    </th>
+                    <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider border-b border-border bg-background">
+                      Status
+                    </th>
+                    <th className="text-left px-4 py-3 text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider border-b border-border bg-background">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {templates.map((t, idx) => (
+                    <tr
+                      key={t.id}
+                      className={`group hover:bg-surface-navy transition-colors ${
+                        t.isArchived ? 'opacity-60' : ''
+                      } ${idx === templates.length - 1 ? '' : ''}`}
+                    >
+                      <td className="px-6 py-3.5 text-sm font-semibold text-foreground border-b border-border last:border-b-0">
+                        <div className="flex items-center gap-2">
+                          {t.name}
+                          {t.isDefault && (
+                            <StarIconSolid className="h-4 w-4 text-gold-500 shrink-0" title="Default template" />
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 border-b border-border last:border-b-0">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${CATEGORY_BADGE_COLORS[t.type] || 'bg-muted text-muted-foreground'}`}>
+                          {DOCUMENT_TEMPLATE_TYPES[t.type] || t.type}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-foreground border-b border-border last:border-b-0">
+                        {new Date(t.updatedAt).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
+                      <td className="px-4 py-3.5 border-b border-border last:border-b-0">
+                        {t.isArchived ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-navy text-muted-foreground">
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            Archived
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            Active
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 border-b border-border last:border-b-0">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => onEdit(t)}
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy transition-all"
+                            aria-label={`Edit template ${t.name}`}
+                            title="Edit"
+                          >
+                            <PencilIcon className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDuplicate(t)}
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy transition-all"
+                            aria-label={`Duplicate template ${t.name}`}
+                            title="Duplicate"
+                          >
+                            <DocumentDuplicateIcon className="h-3.5 w-3.5" />
+                          </button>
+                          {!t.isDefault && (
+                            <button
+                              onClick={() => handleSetDefault(t)}
+                              className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-gold-500 hover:text-gold-500 hover:bg-surface-gold transition-all"
+                              aria-label={`Set template ${t.name} as default`}
+                              title="Set as default"
+                            >
+                              <StarIcon className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleArchiveToggle(t)}
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-gold-600 hover:text-gold-600 hover:bg-surface-gold transition-all"
+                            aria-label={t.isArchived ? `Unarchive template ${t.name}` : `Archive template ${t.name}`}
+                            title={t.isArchived ? 'Unarchive' : 'Archive'}
+                          >
+                            {t.isArchived ? (
+                              <ArchiveBoxXMarkIcon className="h-3.5 w-3.5" />
+                            ) : (
+                              <ArchiveBoxIcon className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(t)}
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-control border border-border bg-card text-muted-foreground hover:border-error hover:text-error hover:bg-error-bg transition-all"
+                            aria-label={`Delete template ${t.name}`}
+                            title="Delete"
+                          >
+                            <TrashIcon className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

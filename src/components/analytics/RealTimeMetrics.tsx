@@ -179,13 +179,13 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-control border border-gray-200 ${className}`}>
+    <div className={`enterprise-card border border-border rounded-card shadow-sm ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Real-Time Metrics</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-[1.0625rem] font-bold text-foreground">Real-Time Metrics</h3>
+            <p className="text-[0.8125rem] text-muted-foreground mt-0.5">
               Live recruitment activity {isMounted ? `\u00B7 Last updated: ${lastUpdateTime.toLocaleTimeString()}` : ''}
               {fetchError && (
                 <span className="ml-2 text-orange-500">
@@ -197,15 +197,15 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
           </div>
           <button
             onClick={toggleLiveUpdates}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-button text-sm font-semibold transition-colors ${
               isLive
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-success-bg text-success hover:opacity-80'
+                : 'bg-background text-muted-foreground hover:opacity-80'
             }`}
           >
             <div
               className={`w-2 h-2 rounded-full ${
-                isLive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                isLive ? 'bg-success animate-pulse' : 'bg-muted-foreground'
               }`}
             />
             {isLive ? 'Live' : 'Paused'}
@@ -215,52 +215,54 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 
       {/* Metrics Grid */}
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {metrics.map((metric) => {
             const change = getChangeIndicator(metric.value, metric.previousValue);
 
             return (
               <div key={metric.id} className="relative group">
-                <div className="bg-gray-50 rounded-control p-4 transition-all duration-300 group-hover:shadow-md">
+                <div className="bg-background rounded-card p-5 transition-all duration-300 group-hover:shadow-md border border-border/50">
                   {/* Icon and trend indicator */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`p-2 rounded-control ${metric.color}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center ${metric.color}`}>
                       <metric.icon className="w-5 h-5" />
                     </div>
                     {change.direction !== 'neutral' && (
-                      <div className={`flex items-center gap-1 ${
-                        change.direction === 'up' ? 'text-green-600' : 'text-red-600'
+                      <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-button text-xs font-bold ${
+                        change.direction === 'up'
+                          ? 'text-success bg-success-bg'
+                          : 'text-error bg-error-bg'
                       }`}>
                         {change.direction === 'up' ? (
-                          <ArrowTrendingUpIcon className="w-4 h-4" />
+                          <ArrowTrendingUpIcon className="w-3 h-3" />
                         ) : (
-                          <ArrowTrendingDownIcon className="w-4 h-4" />
+                          <ArrowTrendingDownIcon className="w-3 h-3" />
                         )}
-                        <span className="text-xs font-medium">
-                          {change.percentage.toFixed(1)}%
-                        </span>
+                        {change.percentage.toFixed(1)}%
                       </div>
                     )}
                   </div>
 
+                  {/* Label */}
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    {metric.label}
+                  </div>
+
                   {/* Value */}
-                  <div className="space-y-1">
-                    <div className="text-2xl font-bold text-gray-900 transition-all duration-300">
-                      {formatValue(metric.value, metric.format)}
-                    </div>
-                    <div className="text-sm text-gray-500">{metric.label}</div>
+                  <div className="text-[1.75rem] font-extrabold text-foreground leading-none transition-all duration-300">
+                    {formatValue(metric.value, metric.format)}
                   </div>
 
                   {/* Previous value for comparison */}
                   {metric.previousValue !== metric.value && metric.previousValue > 0 && (
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-muted-foreground mt-2">
                       Previous: {formatValue(metric.previousValue, metric.format)}
                     </div>
                   )}
 
                   {/* Live indicator */}
                   {isLive && (
-                    <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse opacity-60" />
+                    <div className="absolute top-3 right-3 w-2 h-2 bg-success rounded-full animate-pulse opacity-60" />
                   )}
                 </div>
               </div>

@@ -129,6 +129,13 @@ const config: Config = {
       'accent-teal': 'var(--accent-teal)',
       'accent-gold': 'var(--accent-gold)',
       'accent-pink': 'var(--accent-pink)',
+      // Status colors
+      error: 'var(--error)',
+      'error-bg': 'var(--error-bg)',
+      success: 'var(--success)',
+      'success-bg': 'var(--success-bg)',
+      warning: 'var(--warning)',
+      'warning-bg': 'var(--warning-bg)',
       // Gray/slate via CSS variables for dark mode auto-flip
       gray: {
         50:  'var(--tw-gray-50)',

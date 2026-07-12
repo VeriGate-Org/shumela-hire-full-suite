@@ -84,18 +84,18 @@ export default function TrainingAnalyticsPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Total Courses', value: summary.totalCourses, color: '#8b5cf6' },
-                { label: 'Active Courses', value: summary.activeCourses, color: '#10b981' },
-                { label: 'Total Enrollments', value: summary.totalEnrollments?.toLocaleString(), color: '#06b6d4' },
-                { label: 'Completion Rate', value: `${summary.completionRate}%`, color: '#f59e0b' },
-                { label: 'Average Score', value: `${summary.averageScore}%`, color: '#6366f1' },
-                { label: 'Training Hours', value: summary.totalTrainingHours?.toLocaleString(), color: '#a78bfa' },
-                { label: 'Spend YTD', value: `R${summary.trainingSpendYTD?.toLocaleString()}`, color: '#ec4899' },
-                { label: 'Cost / Employee', value: `R${summary.costPerEmployee?.toLocaleString()}`, color: '#14b8a6' },
+                { label: 'Total Courses', value: summary.totalCourses, colorClass: 'text-accent-navy' },
+                { label: 'Active Courses', value: summary.activeCourses, colorClass: 'text-accent-teal' },
+                { label: 'Total Enrollments', value: summary.totalEnrollments?.toLocaleString(), colorClass: 'text-primary' },
+                { label: 'Completion Rate', value: `${summary.completionRate}%`, colorClass: 'text-accent-gold' },
+                { label: 'Average Score', value: `${summary.averageScore}%`, colorClass: 'text-accent-navy' },
+                { label: 'Training Hours', value: summary.totalTrainingHours?.toLocaleString(), colorClass: 'text-primary' },
+                { label: 'Spend YTD', value: `R${summary.trainingSpendYTD?.toLocaleString()}`, colorClass: 'text-accent-pink' },
+                { label: 'Cost / Employee', value: `R${summary.costPerEmployee?.toLocaleString()}`, colorClass: 'text-accent-teal' },
               ].map((card) => (
-                <div key={card.label} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">{card.label}</p>
-                  <p className="text-2xl font-bold mt-1" style={{ color: card.color }}>
+                <div key={card.label} className="enterprise-card p-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{card.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${card.colorClass}`}>
                     {card.value ?? '-'}
                   </p>
                 </div>
@@ -104,44 +104,43 @@ export default function TrainingAnalyticsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Monthly Completions Chart */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Monthly Enrollments vs Completions</h3>
+              <div className="enterprise-card p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Monthly Enrollments vs Completions</h3>
                 <div className="flex items-end gap-1 h-44">
                   {monthlyCompletions.map((item) => (
                     <div key={item.month} className="flex-1 flex flex-col items-center gap-0.5">
-                      <span className="text-[9px] text-gray-500">{item.completed}/{item.enrolled}</span>
+                      <span className="text-[9px] text-muted-foreground">{item.completed}/{item.enrolled}</span>
                       <div className="w-full flex gap-0.5" style={{ height: `${(item.enrolled / maxEnrolled) * 100}%`, minHeight: '8px' }}>
-                        <div className="flex-1 rounded-t" style={{ backgroundColor: '#6366f1' }} />
+                        <div className="flex-1 rounded-t bg-accent-navy" />
                         <div
-                          className="flex-1 rounded-t"
+                          className="flex-1 rounded-t bg-accent-teal"
                           style={{
-                            backgroundColor: '#10b981',
                             height: `${(item.completed / item.enrolled) * 100}%`,
                             alignSelf: 'flex-end',
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-gray-500 mt-1">{item.month}</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">{item.month}</span>
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-4 mt-3 text-xs text-gray-400">
+                <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded" style={{ backgroundColor: '#6366f1' }} /> Enrolled
+                    <span className="w-3 h-3 rounded bg-accent-navy" /> Enrolled
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded" style={{ backgroundColor: '#10b981' }} /> Completed
+                    <span className="w-3 h-3 rounded bg-accent-teal" /> Completed
                   </span>
                 </div>
               </div>
 
               {/* Popular Courses */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Popular Courses</h3>
+              <div className="enterprise-card p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Popular Courses</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="text-gray-400 border-b border-gray-700">
+                      <tr className="text-muted-foreground border-b border-border">
                         <th className="text-left py-2 font-medium">Course</th>
                         <th className="text-right py-2 font-medium">Enrolled</th>
                         <th className="text-right py-2 font-medium">Completion</th>
@@ -150,15 +149,15 @@ export default function TrainingAnalyticsPage() {
                     </thead>
                     <tbody>
                       {popularCourses.map((course) => (
-                        <tr key={course.courseName} className="border-b border-gray-700/50">
-                          <td className="py-2 text-gray-300 max-w-[160px] truncate">{course.courseName}</td>
-                          <td className="py-2 text-right text-violet-400">{course.enrollments}</td>
+                        <tr key={course.courseName} className="border-b border-border/50">
+                          <td className="py-2 text-foreground max-w-[160px] truncate">{course.courseName}</td>
+                          <td className="py-2 text-right text-accent-navy">{course.enrollments}</td>
                           <td className="py-2 text-right">
-                            <span className={course.completionRate >= 80 ? 'text-green-400' : 'text-amber-400'}>
+                            <span className={course.completionRate >= 80 ? 'text-accent-teal' : 'text-accent-gold'}>
                               {course.completionRate}%
                             </span>
                           </td>
-                          <td className="py-2 text-right text-cyan-400">{course.avgScore}%</td>
+                          <td className="py-2 text-right text-primary">{course.avgScore}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -167,22 +166,19 @@ export default function TrainingAnalyticsPage() {
               </div>
 
               {/* Department Participation */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Department Participation</h3>
+              <div className="enterprise-card p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Department Participation</h3>
                 <div className="space-y-3">
                   {deptParticipation.map((dept) => (
                     <div key={dept.department}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-300">{dept.department}</span>
-                        <span className="text-gray-400">{dept.enrollments} enrolled | {dept.completionRate}%</span>
+                        <span className="text-foreground">{dept.department}</span>
+                        <span className="text-muted-foreground">{dept.enrollments} enrolled | {dept.completionRate}%</span>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
-                          className="h-2 rounded-full"
-                          style={{
-                            width: `${dept.completionRate}%`,
-                            backgroundColor: dept.completionRate >= 80 ? '#10b981' : '#f59e0b',
-                          }}
+                          className={`h-2 rounded-full ${dept.completionRate >= 80 ? 'bg-accent-teal' : 'bg-accent-gold'}`}
+                          style={{ width: `${dept.completionRate}%` }}
                         />
                       </div>
                     </div>
@@ -191,25 +187,21 @@ export default function TrainingAnalyticsPage() {
               </div>
 
               {/* Training Spend Breakdown */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Training Spend Breakdown</h3>
+              <div className="enterprise-card p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Training Spend Breakdown</h3>
                 <div className="space-y-3">
-                  {spendBreakdown.map((item) => {
-                    const colors = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899'];
-                    const idx = spendBreakdown.indexOf(item);
+                  {spendBreakdown.map((item, idx) => {
+                    const barColors = ['bg-accent-navy', 'bg-primary', 'bg-accent-teal', 'bg-accent-gold', 'bg-accent-pink'];
                     return (
                       <div key={item.category}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-300">{item.category}</span>
-                          <span className="text-gray-400">R{item.amount.toLocaleString()} ({item.percentage}%)</span>
+                          <span className="text-foreground">{item.category}</span>
+                          <span className="text-muted-foreground">R{item.amount.toLocaleString()} ({item.percentage}%)</span>
                         </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-2">
                           <div
-                            className="h-2 rounded-full"
-                            style={{
-                              width: `${item.percentage}%`,
-                              backgroundColor: colors[idx % colors.length],
-                            }}
+                            className={`h-2 rounded-full ${barColors[idx % barColors.length]}`}
+                            style={{ width: `${item.percentage}%` }}
                           />
                         </div>
                       </div>

@@ -5,7 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import DocumentTemplateList from '@/components/templates/DocumentTemplateList';
 import DocumentTemplateEditor from '@/components/templates/DocumentTemplateEditor';
 import { DocumentTemplate } from '@/types/documentTemplate';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 type View = 'list' | 'editor';
 
@@ -38,30 +38,35 @@ export default function DocumentTemplatesPage() {
   return (
     <PageWrapper
       title="Document Templates"
-      subtitle="Manage offer letters, contracts, emails, and other document templates"
+      subtitle="Create and manage document templates with dynamic merge tags"
       actions={
         <div className="flex gap-2">
           {view === 'editor' ? (
             <button
               onClick={handleCancel}
-              className="px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-[2px] hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground border-2 border-border rounded-full hover:border-primary hover:text-primary hover:bg-surface-navy transition-all"
             >
+              <ArrowLeftIcon className="h-3.5 w-3.5" />
               Back to List
             </button>
           ) : (
             <button
               onClick={handleCreateNew}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-[2px] hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-primary text-white border-2 border-primary rounded-full hover:bg-primary/90 transition-all"
             >
               <PlusIcon className="h-3.5 w-3.5" />
-              Create Template
+              New Template
             </button>
           )}
         </div>
       }
     >
       {view === 'list' ? (
-        <DocumentTemplateList onEdit={handleEdit} refreshKey={refreshKey} />
+        <DocumentTemplateList
+          onEdit={handleEdit}
+          onCreateNew={handleCreateNew}
+          refreshKey={refreshKey}
+        />
       ) : (
         <DocumentTemplateEditor
           template={editingTemplate}

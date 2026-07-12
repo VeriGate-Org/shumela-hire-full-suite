@@ -20,10 +20,11 @@
 #     ./scripts/reset-uthukela-demo-passwords.sh
 #
 set -euo pipefail
+set +H 2>/dev/null || true   # disable history expansion so '!' in passwords is literal
 
 AWS_REGION="${AWS_REGION:-af-south-1}"
 STACK_PREFIX="${STACK_PREFIX:-shumelahire-dev}"
-DEMO_PASSWORD="${DEMO_PASSWORD:-Demo@2026!}"
+DEMO_PASSWORD=${DEMO_PASSWORD:-'Demo@2026!'}
 
 # email:GROUP pairs covering every uThukela demo account seeded by
 # scripts/seed-uthukela-water-cognito-users.sh. Keep in sync with that script.

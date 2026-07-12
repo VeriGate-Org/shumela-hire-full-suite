@@ -7,11 +7,11 @@ import {
   ListBulletIcon,
   PlusIcon,
   ChatBubbleLeftRightIcon,
-  ExclamationTriangleIcon,
   ClockIcon,
-  ChartBarIcon,
   PencilSquareIcon,
   ArrowLeftIcon,
+  CheckCircleIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch } from '@/lib/api-fetch';
@@ -173,29 +173,87 @@ export default function InterviewsPage() {
       interview.status === 'COMPLETED' && (!interview.feedbackCount || interview.feedbackCount === 0)
     ), [interviews]);
 
+  const completedInterviews = useMemo(() =>
+    interviews.filter((interview) => interview.status === 'COMPLETED'), [interviews]);
+
   const getPageTitle = () => {
     switch (view) {
-      case 'calendar': return 'Interview Calendar';
+      case 'calendar': return 'Interview Scheduling';
       case 'feedback': return 'Interview Feedback';
-      default: return 'Interview Management';
+      default: return 'Interview Scheduling';
     }
   };
 
   const getPageSubtitle = () => {
     switch (view) {
-      case 'calendar': return 'Coordinate interviews, track status, and manage actions from one calendar.';
+      case 'calendar': return 'Schedule interviews, track progress, and submit candidate feedback';
       case 'feedback': return 'Submit structured, auditable feedback for completed interviews.';
-      default: return 'Search, filter, and manage the full interview pipeline.';
+      default: return 'Schedule interviews, track progress, and submit candidate feedback';
     }
   };
 
-  const getStatusPillClass = (status: string) => {
+  const getStatusBadge = (status: string, displayName?: string) => {
+    const label = displayName || getEnumLabel('interviewStatus', status);
     switch (status) {
-      case 'SCHEDULED': return 'bg-gold-100 text-gold-800';
-      case 'COMPLETED': return 'bg-green-100 text-green-800';
-      case 'CANCELLED': return 'bg-red-100 text-red-800';
-      default: return 'bg-muted text-foreground';
+      case 'SCHEDULED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-navy text-accent-navy">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-navy" />
+            {label}
+          </span>
+        );
+      case 'COMPLETED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success-bg text-success">
+            <span className="w-1.5 h-1.5 rounded-full bg-success" />
+            {label}
+          </span>
+        );
+      case 'CANCELLED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-error-bg text-error">
+            <span className="w-1.5 h-1.5 rounded-full bg-error" />
+            {label}
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
+            {label}
+          </span>
+        );
     }
+  };
+
+  const getTypeBadge = (type: string, displayName?: string) => {
+    const label = displayName || getEnumLabel('interviewType', type);
+    const typeMap: Record<string, string> = {
+      'PHONE_SCREEN': 'bg-icon-bg-navy text-accent-navy',
+      'TECHNICAL': 'bg-icon-bg-teal text-accent-teal',
+      'PANEL': 'bg-icon-bg-gold text-accent-gold',
+      'FINAL': 'bg-icon-bg-pink text-accent-pink',
+    };
+    const classes = typeMap[type] || 'bg-muted text-muted-foreground';
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${classes}`}>
+        {label}
+      </span>
+    );
+  };
+
+  const getCandidateInitials = (interview: Interview) => {
+    const name = interview.application?.applicant?.name || '';
+    const surname = interview.application?.applicant?.surname || '';
+    if (name && surname) return `${name[0]}${surname[0]}`.toUpperCase();
+    if (name) return name.substring(0, 2).toUpperCase();
+    return '??';
+  };
+
+  const getCandidateFullName = (interview: Interview) => {
+    const name = interview.application?.applicant?.name ?? '';
+    const surname = interview.application?.applicant?.surname ?? '';
+    return (name + ' ' + surname).trim() || (interview as any).candidateName || 'Unknown Candidate';
   };
 
   const tabs: Array<{ id: InterviewView; label: string; icon: typeof CalendarDaysIcon }> = [
@@ -203,92 +261,107 @@ export default function InterviewsPage() {
     { id: 'list', label: 'List', icon: ListBulletIcon },
   ];
 
+  const scheduleButton = (
+    <button
+      onClick={() => {
+        setEditingInterview(null);
+        setShowSchedulerModal(true);
+      }}
+      className="btn-cta inline-flex items-center gap-2"
+    >
+      <PlusIcon className="w-4 h-4" />
+      Schedule Interview
+    </button>
+  );
+
   return (
-    <PageWrapper title={getPageTitle()} subtitle={getPageSubtitle()}>
+    <PageWrapper title={getPageTitle()} subtitle={getPageSubtitle()} actions={scheduleButton}>
       <div className="space-y-6">
-        <div className="enterprise-card p-2">
-          <nav role="tablist" aria-label="Interview views" className="-mb-px flex flex-wrap gap-2">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                role="tab"
-                aria-selected={view === id}
-                aria-controls={`interviews-panel-${id}`}
-                id={`interviews-tab-${id}`}
-                onClick={() => setView(id)}
-                className={`inline-flex items-center gap-2 px-3 py-2 border rounded-control text-sm font-medium transition-colors ${
-                  view === id
-                    ? 'border-cta bg-cta/10 text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-accent'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            ))}
-          </nav>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <div className="enterprise-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-card bg-gold-100 text-gold-700"><CalendarDaysIcon className="w-5 h-5" /></div>
+        {/* ====== METRIC CARDS ====== */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* Scheduled This Week */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center">
+                <CalendarDaysIcon className="w-[22px] h-[22px]" />
+              </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
-                <p className="text-lg font-bold text-foreground">{upcomingInterviews.length}</p>
+                <p className="text-2xl font-extrabold leading-none text-foreground">{upcomingInterviews.length}</p>
+                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Scheduled This Week</p>
               </div>
             </div>
           </div>
-          <div className="enterprise-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-card bg-red-100 text-red-700"><ExclamationTriangleIcon className="w-5 h-5" /></div>
+
+          {/* Completed */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                <CheckCircleIcon className="w-[22px] h-[22px]" />
+              </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Overdue</p>
-                <p className="text-lg font-bold text-foreground">{overdueInterviews.length}</p>
+                <p className="text-2xl font-extrabold leading-none text-foreground">{completedInterviews.length}</p>
+                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Completed</p>
               </div>
             </div>
           </div>
-          <div className="enterprise-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-card bg-yellow-100 text-yellow-700"><ChatBubbleLeftRightIcon className="w-5 h-5" /></div>
+
+          {/* Pending Feedback */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                <ChatBubbleLeftRightIcon className="w-[22px] h-[22px]" />
+              </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending Feedback</p>
-                <p className="text-lg font-bold text-foreground">{pendingFeedback.length}</p>
+                <p className="text-2xl font-extrabold leading-none text-foreground">{pendingFeedback.length}</p>
+                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Pending Feedback</p>
               </div>
             </div>
           </div>
-          <div className="enterprise-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-card bg-green-100 text-green-700"><ChartBarIcon className="w-5 h-5" /></div>
+
+          {/* Total Interviews */}
+          <div className="enterprise-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                <StarIcon className="w-[22px] h-[22px]" />
+              </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Interviews</p>
-                <p className="text-lg font-bold text-foreground">{interviews.length}</p>
+                <p className="text-2xl font-extrabold leading-none text-foreground">{interviews.length}</p>
+                <p className="text-[0.813rem] font-medium text-muted-foreground mt-1">Total Interviews</p>
               </div>
             </div>
           </div>
         </div>
 
+        {/* ====== VIEW TOGGLE ====== */}
+        <div className="flex items-center gap-2">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              role="tab"
+              aria-selected={view === id}
+              aria-controls={`interviews-panel-${id}`}
+              id={`interviews-tab-${id}`}
+              onClick={() => setView(id)}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[0.813rem] font-semibold uppercase tracking-wider transition-colors ${
+                view === id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-primary'
+              }`}
+            >
+              <Icon className="w-[15px] h-[15px]" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* ====== CALENDAR VIEW ====== */}
         {view === 'calendar' && (
           <section
             role="tabpanel"
             id="interviews-panel-calendar"
             aria-labelledby="interviews-tab-calendar"
-            className="space-y-4"
           >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-foreground">Interview Calendar</h2>
-              <button
-                onClick={() => {
-                  setEditingInterview(null);
-                  setShowSchedulerModal(true);
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
-              >
-                <PlusIcon className="w-4 h-4" />
-                Schedule New Interview
-              </button>
-            </div>
-
             {error ? (
               <ErrorState
                 title="Failed to load interviews"
@@ -298,15 +371,16 @@ export default function InterviewsPage() {
             ) : loading ? (
               <CardSkeleton count={6} />
             ) : (
-            <InterviewCalendar
-              interviews={interviews}
-              onInterviewSelect={handleInterviewSelect}
-              onInterviewUpdate={handleInterviewUpdated}
-            />
+              <InterviewCalendar
+                interviews={interviews}
+                onInterviewSelect={handleInterviewSelect}
+                onInterviewUpdate={handleInterviewUpdated}
+              />
             )}
           </section>
         )}
 
+        {/* ====== FEEDBACK VIEW ====== */}
         {view === 'feedback' && selectedInterview && (
           <section
             role="tabpanel"
@@ -336,50 +410,45 @@ export default function InterviewsPage() {
           </section>
         )}
 
+        {/* ====== LIST VIEW ====== */}
         {view === 'list' && (
           <section
             role="tabpanel"
             id="interviews-panel-list"
             aria-labelledby="interviews-tab-list"
-            className="space-y-6"
           >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-foreground">All Interviews</h2>
-              <button
-                onClick={() => {
-                  setEditingInterview(null);
-                  setShowSchedulerModal(true);
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
-              >
-                <PlusIcon className="w-4 h-4" />
-                Schedule New Interview
-              </button>
-            </div>
-
-            <div className="enterprise-card p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Search Interviews</label>
+            <div className="enterprise-card overflow-hidden">
+              {/* Card Header with Title + Inline Filters */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 py-4 border-b border-border">
+                <h2 className="text-lg font-bold text-foreground">All Interviews</h2>
+                <div className="flex items-center gap-3 flex-wrap">
                   <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search by title, candidate, or job"
+                      placeholder="Search interviews..."
                       aria-label="Search interviews by title, candidate, or job"
-                      className="w-full pl-10 p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                      className="w-full sm:w-auto pl-9 pr-3 py-2 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[180px]"
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Filter by Status</label>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    aria-label="Filter interviews by type"
+                    className="py-2 pl-3 pr-8 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[140px]"
+                  >
+                    <option value="ALL">All Types</option>
+                    {typeOptions.map((type) => (
+                      <option key={type} value={type}>{getEnumLabel('interviewType', type)}</option>
+                    ))}
+                  </select>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     aria-label="Filter interviews by status"
-                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
+                    className="py-2 pl-3 pr-8 border border-border bg-card rounded-control text-[0.813rem] focus:ring-2 focus:ring-ring/40 focus:border-ring min-w-[140px]"
                   >
                     <option value="ALL">All Statuses</option>
                     {statusOptions.map((status) => (
@@ -387,136 +456,175 @@ export default function InterviewsPage() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Filter by Type</label>
-                  <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    aria-label="Filter interviews by type"
-                    className="w-full p-2 border border-border bg-card rounded-control focus:ring-2 focus:ring-ring/40 focus:border-ring"
-                  >
-                    <option value="ALL">All Types</option>
-                    {typeOptions.map((type) => (
-                      <option key={type} value={type}>{getEnumLabel('interviewType', type)}</option>
-                    ))}
-                  </select>
+              </div>
+
+              {/* Table Body */}
+              {error ? (
+                <div className="p-6">
+                  <ErrorState
+                    title="Failed to load interviews"
+                    message={error}
+                    onRetry={loadInterviews}
+                  />
                 </div>
-              </div>
+              ) : loading ? (
+                <div className="p-6">
+                  <CardSkeleton count={4} />
+                </div>
+              ) : filteredInterviews.length === 0 ? (
+                <div className="p-10 text-center">
+                  <p className="text-muted-foreground mb-4">
+                    {interviews.length === 0
+                      ? 'No interviews found. Create your first interview to begin scheduling workflows.'
+                      : 'No interviews match your current search and filter criteria.'}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setEditingInterview(null);
+                      setShowSchedulerModal(true);
+                    }}
+                    className="btn-cta inline-flex items-center gap-2"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    Schedule Interview
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Candidate
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Position
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Interview Type
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Date / Time
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background border-b border-border">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredInterviews.map((interview, idx) => {
+                        const isLast = idx === filteredInterviews.length - 1;
+                        return (
+                          <tr
+                            key={interview.id}
+                            className="hover:bg-surface-navy transition-colors"
+                          >
+                            {/* Candidate */}
+                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-icon-bg-navy text-accent-navy font-bold text-[0.688rem] flex items-center justify-center">
+                                  {getCandidateInitials(interview)}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-foreground truncate">
+                                    {getCandidateFullName(interview)}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Position */}
+                            <td className={`px-4 py-3.5 text-sm text-foreground ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              {interview.application?.jobPosting?.title || 'Unknown Position'}
+                            </td>
+
+                            {/* Interview Type */}
+                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              {getTypeBadge(interview.type, interview.typeDisplayName)}
+                            </td>
+
+                            {/* Date / Time */}
+                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              <div className="font-semibold text-foreground">
+                                {new Date(interview.scheduledAt).toLocaleDateString('en-ZA', {
+                                  weekday: 'short',
+                                  day: 'numeric',
+                                  month: 'short',
+                                })}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(interview.scheduledAt).toLocaleTimeString('en-ZA', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </div>
+                            </td>
+
+                            {/* Status */}
+                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              <div className="flex flex-col gap-1">
+                                {getStatusBadge(interview.status, interview.statusDisplayName)}
+                                {interview.isUpcoming && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-icon-bg-gold text-accent-gold w-fit">
+                                    Upcoming
+                                  </span>
+                                )}
+                                {interview.isOverdue && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-error-bg text-error w-fit">
+                                    Overdue
+                                  </span>
+                                )}
+                                {interview.status === 'COMPLETED' && !interview.feedbackCount && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.688rem] font-semibold bg-warning-bg text-warning w-fit">
+                                    Feedback Needed
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Actions */}
+                            <td className={`px-4 py-3.5 text-sm ${isLast ? '' : 'border-b border-border'} align-middle`}>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingInterview(interview);
+                                    setShowSchedulerModal(true);
+                                  }}
+                                  className="btn-secondary inline-flex items-center gap-1 !px-3 !py-1.5 !text-xs"
+                                >
+                                  <PencilSquareIcon className="w-3.5 h-3.5" />
+                                  Edit
+                                </button>
+
+                                {interview.status === 'COMPLETED' && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedInterview(interview);
+                                      setView('feedback');
+                                    }}
+                                    className={`inline-flex items-center gap-1 !px-3 !py-1.5 !text-xs rounded-full font-semibold uppercase tracking-wider transition-colors ${
+                                      !interview.feedbackCount
+                                        ? 'btn-cta'
+                                        : 'btn-secondary'
+                                    }`}
+                                  >
+                                    <ClockIcon className="w-3.5 h-3.5" />
+                                    {!interview.feedbackCount ? 'Give Feedback' : 'Feedback'}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-
-            {error ? (
-              <ErrorState
-                title="Failed to load interviews"
-                message={error}
-                onRetry={loadInterviews}
-              />
-            ) : loading ? (
-              <CardSkeleton count={4} />
-            ) : (
-              <div className="space-y-4">
-                {filteredInterviews.length === 0 ? (
-                  <div className="enterprise-card p-8 text-center">
-                    <p className="text-muted-foreground mb-4">
-                      {interviews.length === 0
-                        ? 'No interviews found. Create your first interview to begin scheduling workflows.'
-                        : 'No interviews match your current search and filter criteria.'}
-                    </p>
-                    <button
-                      onClick={() => {
-                        setEditingInterview(null);
-                        setShowSchedulerModal(true);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-cta text-primary hover:bg-cta hover:text-cta-foreground uppercase tracking-wider rounded-full text-sm font-medium"
-                    >
-                      <PlusIcon className="w-4 h-4" />
-                      Schedule Interview
-                    </button>
-                  </div>
-                ) : (
-                  filteredInterviews.map((interview) => (
-                    <article key={interview.id} className="enterprise-card p-6">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1 min-w-0 space-y-3">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-lg font-medium text-foreground truncate">{interview.title}</h3>
-                            {interview.isUpcoming && (
-                              <span className="bg-gold-100 text-gold-800 text-xs font-medium px-2 py-1 rounded-control">
-                                Upcoming
-                              </span>
-                            )}
-                            {interview.isOverdue && (
-                              <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-control">
-                                Overdue
-                              </span>
-                            )}
-                            {interview.status === 'COMPLETED' && (
-                              <span className={`text-xs font-medium px-2 py-1 rounded-control ${
-                                interview.feedbackCount ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {interview.feedbackCount
-                                  ? `${interview.feedbackCount} Feedback${interview.feedbackCount > 1 ? 's' : ''}`
-                                  : 'Feedback Needed'}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-                            <div>
-                              <p><span className="font-medium text-foreground">Candidate:</span> {((interview.application?.applicant?.name ?? '') + ' ' + (interview.application?.applicant?.surname ?? '')).trim() || (interview as any).candidateName || 'Unknown Candidate'}</p>
-                              <p><span className="font-medium text-foreground">Position:</span> {interview.application?.jobPosting?.title || 'Unknown Position'}</p>
-                              <p><span className="font-medium text-foreground">Type:</span> {interview.typeDisplayName}</p>
-                            </div>
-                            <div>
-                              <p><span className="font-medium text-foreground">Round:</span> {interview.roundDisplayName}</p>
-                              <p><span className="font-medium text-foreground">Date:</span> {new Date(interview.scheduledAt).toLocaleDateString()}</p>
-                              <p><span className="font-medium text-foreground">Time:</span> {new Date(interview.scheduledAt).toLocaleTimeString()}</p>
-                            </div>
-                          </div>
-
-                          {interview.location && (
-                            <p className="text-sm text-muted-foreground">
-                              Location: {interview.location}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusPillClass(interview.status)}`}>
-                            {interview.statusDisplayName}
-                          </span>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                setEditingInterview(interview);
-                                setShowSchedulerModal(true);
-                              }}
-                              className="inline-flex items-center gap-1 text-link hover:text-link-hover text-sm font-medium"
-                            >
-                              <PencilSquareIcon className="w-4 h-4" />
-                              Edit
-                            </button>
-
-                            {interview.status === 'COMPLETED' && (
-                              <button
-                                onClick={() => {
-                                  setSelectedInterview(interview);
-                                  setView('feedback');
-                                }}
-                                className="inline-flex items-center gap-1 text-link hover:text-link-hover text-sm font-medium"
-                              >
-                                <ClockIcon className="w-4 h-4" />
-                                Add Feedback
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
-            )}
           </section>
         )}
       </div>

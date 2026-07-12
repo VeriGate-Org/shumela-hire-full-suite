@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Administration | ShumelaHire - uThukela Water</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: #F1F5F9;
+            color: #0F172A;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #05527E;
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #047469;
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            transition: color 200ms ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--border);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 200ms ease;
+            color: var(--text-muted);
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .nav-icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--pink);
+            color: #FFFFFF;
+            font-size: 0.625rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--card-bg);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+        }
+
+        /* ===== PAGE CONTAINER ===== */
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-header-text h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .page-header-text p {
+            font-size: 0.9375rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 200ms ease;
+            white-space: nowrap;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-cta {
+            background: var(--cta);
+            color: var(--text-primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .btn-cta:hover {
+            background: var(--cta-hover);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--surface-navy);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px 16px;
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #FFFFFF;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #FFFFFF;
+        }
+
+        .btn-warning:hover {
+            background: #D97706;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 0.6875rem;
+        }
+
+        /* ===== DEMO STATE TOGGLE BAR ===== */
+        .demo-toggle-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 8px 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .demo-toggle-bar label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        .demo-btn {
+            padding: 6px 16px;
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .demo-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .demo-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        /* ===== STATS BAR ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stat-icon.navy { background: var(--icon-navy); color: var(--primary); }
+        .stat-icon.teal { background: var(--icon-teal); color: var(--teal); }
+        .stat-icon.gold { background: var(--icon-gold); color: var(--gold); }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .stat-info p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 4px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            width: fit-content;
+        }
+
+        .tab-btn {
+            padding: 10px 28px;
+            border-radius: var(--radius-control);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .tab-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            padding: 0 6px;
+        }
+
+        .tab-btn.active .tab-count {
+            background: rgba(255,255,255,0.25);
+            color: #FFFFFF;
+        }
+
+        .tab-btn:not(.active) .tab-count {
+            background: var(--border);
+            color: var(--text-muted);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ===== TABLE ===== */
+        .data-table-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            background: var(--surface-navy);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 150ms ease;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #FAFBFC;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--surface-navy);
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .data-table tbody td {
+            padding: 12px 16px;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: var(--radius-button);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-technical { background: var(--icon-navy); color: var(--primary); }
+        .badge-safety { background: var(--icon-pink); color: var(--pink); }
+        .badge-leadership { background: #EDE9FE; color: #7C3AED; }
+        .badge-compliance { background: var(--icon-gold); color: var(--gold); }
+        .badge-operations { background: var(--icon-teal); color: var(--teal); }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--radius-button);
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+
+        .status-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-badge.active { background: var(--success-bg); color: var(--success); }
+        .status-badge.active .dot { background: var(--success); }
+
+        .status-badge.draft { background: var(--warning-bg); color: var(--warning); }
+        .status-badge.draft .dot { background: var(--warning); }
+
+        .status-badge.archived { background: #F1F5F9; color: var(--text-muted); }
+        .status-badge.archived .dot { background: var(--text-muted); }
+
+        .status-badge.scheduled { background: var(--icon-navy); color: var(--primary); }
+        .status-badge.scheduled .dot { background: var(--primary); }
+
+        .status-badge.in-progress { background: var(--icon-teal); color: var(--teal); }
+        .status-badge.in-progress .dot { background: var(--teal); }
+
+        .status-badge.completed { background: var(--success-bg); color: var(--success); }
+        .status-badge.completed .dot { background: var(--success); }
+
+        .status-badge.cancelled { background: var(--error-bg); color: var(--error); }
+        .status-badge.cancelled .dot { background: var(--error); }
+
+        /* ===== ENROLLED INDICATOR ===== */
+        .enrolled-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .enrolled-bar .bar-track {
+            width: 60px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .enrolled-bar .bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 300ms ease;
+        }
+
+        .enrolled-bar .bar-fill.low { background: var(--success); }
+        .enrolled-bar .bar-fill.medium { background: var(--warning); }
+        .enrolled-bar .bar-fill.high { background: var(--error); }
+
+        .enrolled-bar .count {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ===== TABLE ACTIONS ===== */
+        .table-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .table-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 200ms ease;
+        }
+
+        .table-action-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .table-action-btn.danger:hover {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .table-action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ===== SESSION ACTION BUTTONS ===== */
+        .session-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ===== MODAL OVERLAY ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 300ms ease;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 300ms ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-md { max-width: 600px; }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 24px 0;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 200ms ease;
+        }
+
+        .modal-close:hover {
+            background: var(--surface-navy);
+            color: var(--text-primary);
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .form-group label .required {
+            color: var(--error);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            transition: border-color 200ms ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 37%, #E2E8F0 63%);
+            background-size: 800px 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        .skeleton-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .skeleton-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .skeleton-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 4px;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+
+        .skeleton-tab {
+            width: 120px;
+            height: 40px;
+            border-radius: var(--radius-control);
+        }
+
+        .skeleton-table {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            overflow: hidden;
+        }
+
+        .skeleton-table-header {
+            display: flex;
+            gap: 24px;
+            padding: 14px 16px;
+            background: var(--surface-navy);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .skeleton-table-row {
+            display: flex;
+            gap: 24px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .skeleton-table-row:nth-child(even) {
+            background: #FAFBFC;
+        }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            box-shadow: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 360px;
+            max-width: 420px;
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--error); }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .toast.success .toast-icon { background: var(--success-bg); color: var(--success); }
+        .toast.error .toast-icon { background: var(--error-bg); color: var(--error); }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-content p {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            transform-origin: left;
+            animation: toastProgress 4s linear forwards;
+        }
+
+        .toast.success .toast-progress { background: var(--success); }
+        .toast.error .toast-progress { background: var(--error); }
+
+        @keyframes toastProgress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .data-table-wrap {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .stats-bar,
+            .skeleton-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                margin: 12px;
+            }
+
+            .toast {
+                min-width: 280px;
+                max-width: 340px;
+            }
+
+            .toast-container {
+                right: 12px;
+                left: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 16px;
+            }
+
+            .demo-toggle-bar {
+                flex-wrap: wrap;
+            }
+
+            .tabs {
+                width: 100%;
+            }
+
+            .tab-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ===== TOP NAVIGATION BAR ===== -->
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+            <div class="logo">Shumela<span>Hire</span></div>
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+                </span>
+                <a href="#">Talent</a>
+                <span class="separator">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+                </span>
+                <span class="current">Training Administration</span>
+            </div>
+        </div>
+        <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+            <button class="nav-icon-btn" title="Notifications">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span class="notification-badge">3</span>
+            </button>
+            <div class="avatar">SN</div>
+        </div>
+    </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link active">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ===== PAGE CONTAINER ===== -->
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1>Training Administration</h1>
+            <p>Manage training courses, sessions, and employee development at uThukela Water</p>
+        </div>
+        <button class="btn btn-cta" id="createCourseBtn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+            Create Course
+        </button>
+    </div>
+
+    <!-- Demo State Toggle Bar -->
+    <div class="demo-toggle-bar">
+        <label>Demo State:</label>
+        <button class="demo-btn active" data-state="normal">Normal</button>
+        <button class="demo-btn" data-state="skeleton">Skeleton Loading</button>
+    </div>
+
+    <!-- ===== NORMAL STATE CONTENT ===== -->
+    <div id="normalContent">
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon navy">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>32</h3>
+                    <p>Total Courses</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>8</h3>
+                    <p>Active Sessions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon gold">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>156</h3>
+                    <p>Total Enrolled</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="courses">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Courses
+                <span class="tab-count">32</span>
+            </button>
+            <button class="tab-btn" data-tab="sessions">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Sessions
+                <span class="tab-count">8</span>
+            </button>
+        </div>
+
+        <!-- Courses Tab Panel -->
+        <div class="tab-panel active" id="panel-courses">
+            <div class="data-table-wrap">
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="coursesTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Enrolled</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Tab Panel -->
+        <div class="tab-panel" id="panel-sessions">
+            <div class="data-table-wrap">
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="sessionsTable">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Facilitator</th>
+                                <th>Enrolled / Capacity</th>
+                                <th>Date & Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== SKELETON STATE ===== -->
+    <div id="skeletonContent" style="display: none;">
+        <div class="skeleton-stats">
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:60px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:100px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:40px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:110px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:50px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:90px; height:12px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="skeleton-tabs">
+            <div class="skeleton skeleton-tab"></div>
+            <div class="skeleton skeleton-tab"></div>
+        </div>
+
+        <div class="skeleton-table">
+            <div class="skeleton-table-header">
+                <div class="skeleton" style="width:180px; height:12px;"></div>
+                <div class="skeleton" style="width:80px; height:12px;"></div>
+                <div class="skeleton" style="width:70px; height:12px;"></div>
+                <div class="skeleton" style="width:60px; height:12px;"></div>
+                <div class="skeleton" style="width:80px; height:12px;"></div>
+                <div class="skeleton" style="width:60px; height:12px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:200px; height:14px;"></div>
+                <div class="skeleton" style="width:90px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+                <div class="skeleton" style="width:70px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:40px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:170px; height:14px;"></div>
+                <div class="skeleton" style="width:70px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:50px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:35px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:220px; height:14px;"></div>
+                <div class="skeleton" style="width:100px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:55px; height:14px;"></div>
+                <div class="skeleton" style="width:80px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:45px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:190px; height:14px;"></div>
+                <div class="skeleton" style="width:85px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:65px; height:14px;"></div>
+                <div class="skeleton" style="width:55px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:50px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:160px; height:14px;"></div>
+                <div class="skeleton" style="width:75px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:45px; height:14px;"></div>
+                <div class="skeleton" style="width:65px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:30px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:210px; height:14px;"></div>
+                <div class="skeleton" style="width:95px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:70px; height:14px;"></div>
+                <div class="skeleton" style="width:75px; height:20px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:40px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:14px;"></div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- end page-container -->
+
+<!-- ===== CREATE COURSE MODAL ===== -->
+<div class="modal-overlay" id="createCourseModal">
+    <div class="modal modal-md">
+        <div class="modal-header">
+            <h2>Create New Course</h2>
+            <button class="modal-close" id="closeModalBtn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Course Title <span class="required">*</span></label>
+                <input type="text" class="form-input" id="courseTitleInput" placeholder="e.g. Advanced Water Treatment">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <select class="form-select" id="courseCategoryInput">
+                        <option value="">Select category</option>
+                        <option value="technical">Technical</option>
+                        <option value="safety">Health & Safety</option>
+                        <option value="leadership">Leadership</option>
+                        <option value="compliance">Compliance</option>
+                        <option value="operations">Operations</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Duration <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="courseDurationInput" placeholder="e.g. 3 days">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description <span class="required">*</span></label>
+                <textarea class="form-textarea" id="courseDescInput" placeholder="Describe the course objectives and content..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prerequisites <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+                <input type="text" class="form-input" id="coursePrereqInput" placeholder="e.g. Basic Water Chemistry, 2+ years experience">
+            </div>
+            <div class="form-group">
+                <label>Maximum Capacity <span class="required">*</span></label>
+                <input type="number" class="form-input" id="courseCapacityInput" placeholder="e.g. 25" min="1">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" id="cancelModalBtn">Cancel</button>
+            <button class="btn btn-cta" id="saveCourseBtn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Create Course
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+(function() {
+    'use strict';
+
+    // ========== MOCK DATA ==========
+    var courses = [
+        { id: 1, title: 'Water Quality Management', category: 'technical', categoryLabel: 'Technical', duration: '5 days', status: 'active', enrolled: 24, capacity: 30, description: 'Comprehensive water quality testing and management procedures.' },
+        { id: 2, title: 'SCADA Operations & Maintenance', category: 'operations', categoryLabel: 'Operations', duration: '3 days', status: 'active', enrolled: 18, capacity: 20, description: 'SCADA system operations for water treatment plants.' },
+        { id: 3, title: 'Health & Safety Compliance', category: 'safety', categoryLabel: 'Health & Safety', duration: '2 days', status: 'active', enrolled: 32, capacity: 40, description: 'Workplace health and safety regulations for water utilities.' },
+        { id: 4, title: 'Leadership Development Programme', category: 'leadership', categoryLabel: 'Leadership', duration: '10 days', status: 'active', enrolled: 12, capacity: 15, description: 'Developing leadership skills for middle management.' },
+        { id: 5, title: 'Financial Compliance & MFMA', category: 'compliance', categoryLabel: 'Compliance', duration: '3 days', status: 'active', enrolled: 22, capacity: 25, description: 'Municipal Finance Management Act compliance training.' },
+        { id: 6, title: 'Pump Station Operations', category: 'operations', categoryLabel: 'Operations', duration: '4 days', status: 'active', enrolled: 15, capacity: 20, description: 'Operating and maintaining pump stations in the district.' },
+        { id: 7, title: 'Environmental Impact Assessment', category: 'compliance', categoryLabel: 'Compliance', duration: '2 days', status: 'draft', enrolled: 0, capacity: 30, description: 'Understanding EIA requirements for water projects.' },
+        { id: 8, title: 'Emergency Response Planning', category: 'safety', categoryLabel: 'Health & Safety', duration: '1 day', status: 'active', enrolled: 28, capacity: 35, description: 'Emergency procedures for water infrastructure incidents.' },
+        { id: 9, title: 'Advanced Pipe Network Design', category: 'technical', categoryLabel: 'Technical', duration: '5 days', status: 'draft', enrolled: 0, capacity: 20, description: 'Design principles for municipal pipe networks.' },
+        { id: 10, title: 'Project Management Fundamentals', category: 'leadership', categoryLabel: 'Leadership', duration: '3 days', status: 'archived', enrolled: 5, capacity: 25, description: 'Basic project management for infrastructure projects.' },
+        { id: 11, title: 'Water Treatment Chemistry', category: 'technical', categoryLabel: 'Technical', duration: '4 days', status: 'active', enrolled: 0, capacity: 20, description: 'Chemical processes in water purification.' },
+        { id: 12, title: 'Supply Chain Management', category: 'compliance', categoryLabel: 'Compliance', duration: '2 days', status: 'archived', enrolled: 0, capacity: 30, description: 'Procurement and supply chain in municipal entities.' }
+    ];
+
+    var sessions = [
+        { id: 1, courseId: 1, courseTitle: 'Water Quality Management', facilitator: 'Dr. Thabo Mokoena', enrolled: 18, capacity: 25, date: '14 Jul 2026', time: '08:00 - 16:00', location: 'Ladysmith Training Centre', status: 'scheduled' },
+        { id: 2, courseId: 3, courseTitle: 'Health & Safety Compliance', facilitator: 'Nomvula Dlamini', enrolled: 22, capacity: 25, date: '15 Jul 2026', time: '09:00 - 15:00', location: 'Estcourt Municipal Hall', status: 'scheduled' },
+        { id: 3, courseId: 2, courseTitle: 'SCADA Operations & Maintenance', facilitator: 'Sipho Ndlovu', enrolled: 12, capacity: 15, date: '10 Jul 2026', time: '08:30 - 16:30', location: 'Bergville Water Works', status: 'in-progress' },
+        { id: 4, courseId: 5, courseTitle: 'Financial Compliance & MFMA', facilitator: 'Zanele Khumalo', enrolled: 20, capacity: 20, date: '16 Jul 2026', time: '09:00 - 16:00', location: 'uThukela District Offices', status: 'scheduled' },
+        { id: 5, courseId: 4, courseTitle: 'Leadership Development Programme', facilitator: 'Prof. Mandla Sithole', enrolled: 10, capacity: 12, date: '7 Jul 2026', time: '08:00 - 17:00', location: 'Ladysmith Conference Centre', status: 'completed' },
+        { id: 6, courseId: 8, courseTitle: 'Emergency Response Planning', facilitator: 'Bongani Mthembu', enrolled: 25, capacity: 30, date: '21 Jul 2026', time: '07:30 - 14:00', location: 'Winterton Community Centre', status: 'scheduled' },
+        { id: 7, courseId: 6, courseTitle: 'Pump Station Operations', facilitator: 'Lindiwe Zulu', enrolled: 14, capacity: 18, date: '8 Jul 2026', time: '08:00 - 16:00', location: 'Colenso Pump Station', status: 'in-progress' },
+        { id: 8, courseId: 1, courseTitle: 'Water Quality Management', facilitator: 'Dr. Thabo Mokoena', enrolled: 8, capacity: 25, date: '28 Jul 2026', time: '08:00 - 16:00', location: 'Estcourt Lab Facility', status: 'scheduled' },
+        { id: 9, courseId: 3, courseTitle: 'Health & Safety Compliance', facilitator: 'Nomvula Dlamini', enrolled: 30, capacity: 30, date: '1 Jul 2026', time: '09:00 - 15:00', location: 'Ladysmith Training Centre', status: 'completed' },
+        { id: 10, courseId: 5, courseTitle: 'Financial Compliance & MFMA', facilitator: 'Zanele Khumalo', enrolled: 15, capacity: 20, date: '5 Jul 2026', time: '09:00 - 16:00', location: 'uThukela District Offices', status: 'cancelled' }
+    ];
+
+    // ========== DOM REFERENCES ==========
+    var createCourseBtn = document.getElementById('createCourseBtn');
+    var createCourseModal = document.getElementById('createCourseModal');
+    var closeModalBtn = document.getElementById('closeModalBtn');
+    var cancelModalBtn = document.getElementById('cancelModalBtn');
+    var saveCourseBtn = document.getElementById('saveCourseBtn');
+    var toastContainer = document.getElementById('toastContainer');
+
+    // ========== RENDER COURSES TABLE ==========
+    function renderCourses() {
+        var tbody = document.getElementById('coursesTableBody');
+        tbody.innerHTML = courses.map(function(course) {
+            var pct = course.capacity > 0 ? Math.round((course.enrolled / course.capacity) * 100) : 0;
+            var fillClass = pct < 50 ? 'low' : pct < 80 ? 'medium' : 'high';
+            return '<tr>' +
+                '<td style="font-weight:600;">' + course.title + '</td>' +
+                '<td><span class="badge badge-' + course.category + '">' + course.categoryLabel + '</span></td>' +
+                '<td>' + course.duration + '</td>' +
+                '<td><span class="status-badge ' + course.status + '"><span class="dot"></span>' + capitalise(course.status) + '</span></td>' +
+                '<td>' +
+                    '<div class="enrolled-bar">' +
+                        '<div class="bar-track"><div class="bar-fill ' + fillClass + '" style="width:' + pct + '%;"></div></div>' +
+                        '<span class="count">' + course.enrolled + '/' + course.capacity + '</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div class="table-actions">' +
+                        '<button class="table-action-btn" title="Edit" onclick="window._app.editCourse(' + course.id + ')">' +
+                            '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>' +
+                        '</button>' +
+                        '<button class="table-action-btn" title="View" onclick="window._app.showToast(\'success\', \'Opening course: ' + course.title + '\')">' +
+                            '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>' +
+                        '</button>' +
+                        '<button class="table-action-btn danger" title="Archive" onclick="window._app.showToast(\'success\', \'Course archived: ' + course.title + '\')">' +
+                            '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>' +
+                        '</button>' +
+                    '</div>' +
+                '</td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    // ========== RENDER SESSIONS TABLE ==========
+    function renderSessions() {
+        var tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = sessions.map(function(session) {
+            var pct = session.capacity > 0 ? Math.round((session.enrolled / session.capacity) * 100) : 0;
+            var fillClass = pct < 50 ? 'low' : pct < 80 ? 'medium' : 'high';
+
+            var actionButtons = '';
+            if (session.status === 'scheduled') {
+                actionButtons =
+                    '<button class="btn btn-sm btn-success" onclick="window._app.sessionAction(\'start\', ' + session.id + ')">' +
+                        '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+                        'Start' +
+                    '</button>' +
+                    '<button class="btn btn-sm btn-danger" onclick="window._app.sessionAction(\'cancel\', ' + session.id + ')">' +
+                        '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
+                        'Cancel' +
+                    '</button>';
+            } else if (session.status === 'in-progress') {
+                actionButtons =
+                    '<button class="btn btn-sm btn-warning" onclick="window._app.sessionAction(\'complete\', ' + session.id + ')">' +
+                        '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M5 13l4 4L19 7"/></svg>' +
+                        'Complete' +
+                    '</button>' +
+                    '<button class="btn btn-sm btn-danger" onclick="window._app.sessionAction(\'cancel\', ' + session.id + ')">' +
+                        '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
+                        'Cancel' +
+                    '</button>';
+            } else {
+                actionButtons =
+                    '<span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">No actions</span>';
+            }
+
+            return '<tr>' +
+                '<td style="font-weight:600;">' + session.courseTitle + '</td>' +
+                '<td>' + session.facilitator + '</td>' +
+                '<td>' +
+                    '<div class="enrolled-bar">' +
+                        '<div class="bar-track"><div class="bar-fill ' + fillClass + '" style="width:' + pct + '%;"></div></div>' +
+                        '<span class="count">' + session.enrolled + '/' + session.capacity + '</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div style="line-height:1.3;">' +
+                        '<div style="font-weight:600;">' + session.date + '</div>' +
+                        '<div style="font-size:0.75rem;color:var(--text-muted);">' + session.time + '</div>' +
+                    '</div>' +
+                '</td>' +
+                '<td style="font-size:0.8125rem;">' + session.location + '</td>' +
+                '<td><span class="status-badge ' + session.status + '"><span class="dot"></span>' + formatSessionStatus(session.status) + '</span></td>' +
+                '<td>' +
+                    '<div class="session-actions">' + actionButtons + '</div>' +
+                '</td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    // ========== HELPERS ==========
+    function capitalise(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function formatSessionStatus(status) {
+        switch (status) {
+            case 'scheduled': return 'Scheduled';
+            case 'in-progress': return 'In Progress';
+            case 'completed': return 'Completed';
+            case 'cancelled': return 'Cancelled';
+            default: return capitalise(status);
+        }
+    }
+
+    // ========== TAB SWITCHING ==========
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var tab = btn.getAttribute('data-tab');
+            tabBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-panel').forEach(function(panel) {
+                panel.classList.remove('active');
+            });
+            document.getElementById('panel-' + tab).classList.add('active');
+        });
+    });
+
+    // ========== MODAL OPEN/CLOSE ==========
+    function openModal() {
+        createCourseModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Reset form
+        document.getElementById('courseTitleInput').value = '';
+        document.getElementById('courseCategoryInput').value = '';
+        document.getElementById('courseDurationInput').value = '';
+        document.getElementById('courseDescInput').value = '';
+        document.getElementById('coursePrereqInput').value = '';
+        document.getElementById('courseCapacityInput').value = '';
+    }
+
+    function closeModal() {
+        createCourseModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    createCourseBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelModalBtn.addEventListener('click', closeModal);
+
+    // Close modal on overlay click
+    createCourseModal.addEventListener('click', function(e) {
+        if (e.target === createCourseModal) {
+            closeModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && createCourseModal.classList.contains('open')) {
+            closeModal();
+        }
+    });
+
+    // Save course handler
+    saveCourseBtn.addEventListener('click', function() {
+        var title = document.getElementById('courseTitleInput').value.trim();
+        var category = document.getElementById('courseCategoryInput').value;
+        var duration = document.getElementById('courseDurationInput').value.trim();
+        var desc = document.getElementById('courseDescInput').value.trim();
+        var capacity = document.getElementById('courseCapacityInput').value;
+
+        if (!title || !category || !duration || !desc || !capacity) {
+            showToast('error', 'Please fill in all required fields.');
+            return;
+        }
+
+        var categoryLabels = {
+            'technical': 'Technical',
+            'safety': 'Health & Safety',
+            'leadership': 'Leadership',
+            'compliance': 'Compliance',
+            'operations': 'Operations'
+        };
+
+        var newCourse = {
+            id: courses.length + 1,
+            title: title,
+            category: category,
+            categoryLabel: categoryLabels[category] || category,
+            duration: duration,
+            status: 'draft',
+            enrolled: 0,
+            capacity: parseInt(capacity, 10),
+            description: desc
+        };
+
+        courses.unshift(newCourse);
+        renderCourses();
+        closeModal();
+        showToast('success', 'Course "' + title + '" created successfully.');
+    });
+
+    // ========== DEMO STATE TOGGLE ==========
+    var demoBtns = document.querySelectorAll('.demo-btn');
+    demoBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var state = btn.getAttribute('data-state');
+            demoBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            var normalContent = document.getElementById('normalContent');
+            var skeletonContent = document.getElementById('skeletonContent');
+
+            if (state === 'normal') {
+                normalContent.style.display = '';
+                skeletonContent.style.display = 'none';
+            } else if (state === 'skeleton') {
+                normalContent.style.display = 'none';
+                skeletonContent.style.display = '';
+            }
+        });
+    });
+
+    // ========== TOAST NOTIFICATIONS ==========
+    function showToast(type, message) {
+        var iconSvg = type === 'success'
+            ? '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>'
+            : '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+
+        var toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        toast.innerHTML =
+            '<div class="toast-icon">' + iconSvg + '</div>' +
+            '<div class="toast-content"><p>' + message + '</p></div>' +
+            '<div class="toast-progress"></div>';
+
+        toastContainer.appendChild(toast);
+
+        // Trigger animation
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                toast.classList.add('show');
+            });
+        });
+
+        // Remove after 4 seconds
+        setTimeout(function() {
+            toast.classList.remove('show');
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 400);
+        }, 4000);
+    }
+
+    // ========== SESSION ACTIONS ==========
+    function sessionAction(action, sessionId) {
+        var session = sessions.find(function(s) { return s.id === sessionId; });
+        if (!session) return;
+
+        switch (action) {
+            case 'start':
+                session.status = 'in-progress';
+                showToast('success', 'Session "' + session.courseTitle + '" has been started.');
+                break;
+            case 'complete':
+                session.status = 'completed';
+                showToast('success', 'Session "' + session.courseTitle + '" marked as completed.');
+                break;
+            case 'cancel':
+                session.status = 'cancelled';
+                showToast('error', 'Session "' + session.courseTitle + '" has been cancelled.');
+                break;
+        }
+        renderSessions();
+    }
+
+    // ========== EDIT COURSE ==========
+    function editCourse(courseId) {
+        var course = courses.find(function(c) { return c.id === courseId; });
+        if (!course) return;
+        showToast('success', 'Editing course: ' + course.title);
+    }
+
+    // ========== EXPOSE TO WINDOW ==========
+    window._app = {
+        showToast: showToast,
+        sessionAction: sessionAction,
+        editCourse: editCourse
+    };
+
+    // ========== INITIAL RENDER ==========
+    renderCourses();
+    renderSessions();
+
+})();
+</script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

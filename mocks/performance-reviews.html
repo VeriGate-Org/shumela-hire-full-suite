@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Reviews | ShumelaHire — uThukela Water</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: #F1F5F9;
+            color: #0F172A;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #05527E;
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #047469;
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--muted);
+            transition: color 200ms ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--border);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb .current {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: all 200ms ease;
+            position: relative;
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .nav-icon-btn .badge-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error);
+            border: 2px solid var(--card);
+        }
+
+        .avatar-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--teal));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ===== PAGE CONTAINER ===== */
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-header-left h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .page-header-left p {
+            color: var(--muted);
+            font-size: 0.9375rem;
+            margin-top: 4px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border: none;
+            transition: all 200ms ease;
+            white-space: nowrap;
+        }
+
+        .btn-gold {
+            background: var(--cta);
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-gold:hover {
+            background: var(--cta-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: #064a6e;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== DEMO STATE TOGGLE ===== */
+        .demo-toggle-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-button);
+            padding: 4px;
+            box-shadow: var(--shadow-sm);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .demo-toggle-btn {
+            padding: 8px 20px;
+            border-radius: var(--radius-button);
+            border: none;
+            background: transparent;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .demo-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .demo-toggle-btn:hover:not(.active) {
+            color: var(--text);
+            background: var(--surface-navy);
+        }
+
+        /* ===== CARD BASE ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* ===== HERO REVIEW CARD ===== */
+        .hero-card {
+            margin-bottom: 24px;
+        }
+
+        .hero-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--teal) 100%);
+            padding: 24px 32px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .hero-card-header h2 {
+            font-size: 1.375rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-card-header .period-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: var(--radius-button);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-card-body {
+            padding: 32px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .rating-block {
+            text-align: center;
+        }
+
+        .rating-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .rating-number small {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .stars-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        .star {
+            width: 24px;
+            height: 24px;
+            color: #E2E8F0;
+        }
+
+        .star.filled {
+            color: var(--cta);
+        }
+
+        .star.partial {
+            position: relative;
+        }
+
+        .star.partial .star-bg {
+            color: #E2E8F0;
+        }
+
+        .star.partial .star-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            color: var(--cta);
+        }
+
+        .hero-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .hero-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hero-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-detail-item .label {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .hero-detail-item .value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-button);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-amber {
+            background: var(--warning-bg);
+            color: #B45309;
+        }
+
+        .badge-green {
+            background: var(--success-bg);
+            color: #047857;
+        }
+
+        .badge-teal {
+            background: var(--surface-teal);
+            color: var(--teal);
+        }
+
+        .badge-red {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .badge-navy {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .progress-section {
+            margin-top: 4px;
+        }
+
+        .progress-section .progress-label {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(90deg, var(--primary), var(--teal));
+        }
+
+        /* ===== STAGES ===== */
+        .stages-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .stage {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            padding: 6px 0;
+        }
+
+        .stage.completed {
+            color: var(--success);
+        }
+
+        .stage.current {
+            color: var(--primary);
+        }
+
+        .stage-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .stage.completed .stage-icon {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .stage.current .stage-icon {
+            background: var(--icon-navy);
+            color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.15);
+        }
+
+        .stage.pending .stage-icon {
+            background: #F1F5F9;
+            color: var(--muted);
+        }
+
+        .stage-connector {
+            width: 32px;
+            height: 2px;
+            background: var(--border);
+            flex-shrink: 0;
+            margin: 0 4px;
+        }
+
+        .stage.completed + .stage-connector,
+        .stage-connector.done {
+            background: var(--success);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--surface-navy);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 300ms ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CURRENT REVIEW: TWO COLUMN ===== */
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* ===== COMPETENCY BARS ===== */
+        .competency-card .card-header {
+            padding: 20px 24px 0;
+        }
+
+        .competency-card .card-header h3 {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .competency-card .card-header p {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .competency-list {
+            padding: 20px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .competency-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .competency-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .competency-item-header .name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .competency-item-header .score {
+            font-size: 0.8125rem;
+            font-weight: 700;
+        }
+
+        .competency-bar-track {
+            width: 100%;
+            height: 10px;
+            background: #E2E8F0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .competency-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1000ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 0;
+        }
+
+        .competency-bar-fill.navy { background: var(--primary); }
+        .competency-bar-fill.teal { background: var(--teal); }
+        .competency-bar-fill.gold { background: var(--gold); }
+
+        /* ===== SELF-ASSESSMENT FORM ===== */
+        .form-card .card-header {
+            padding: 20px 24px 0;
+        }
+
+        .form-card .card-header h3 {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .form-card .card-header p {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .form-body {
+            padding: 20px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group label .required {
+            color: var(--error);
+            margin-left: 2px;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.875rem;
+            color: var(--text);
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 200ms ease;
+            background: white;
+        }
+
+        .form-group textarea::placeholder {
+            color: #94A3B8;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+        }
+
+        .form-group textarea.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+        }
+
+        .form-group .error-msg {
+            font-size: 0.75rem;
+            color: var(--error);
+            font-weight: 500;
+            display: none;
+        }
+
+        .form-group .error-msg.visible {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* ===== REVIEW HISTORY TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            background: var(--surface-navy);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 16px;
+            font-size: 0.875rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: var(--surface-navy);
+        }
+
+        .table-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-rating .score {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .table-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .table-star {
+            width: 14px;
+            height: 14px;
+            color: var(--cta);
+        }
+
+        .table-star.empty {
+            color: #E2E8F0;
+        }
+
+        /* ===== GOALS TAB ===== */
+        .goals-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .goal-card {
+            padding: 24px;
+        }
+
+        .goal-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .goal-card-header h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .goal-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .goal-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .goal-meta-item svg {
+            width: 16px;
+            height: 16px;
+            color: var(--muted);
+        }
+
+        .goal-description {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .goal-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .goal-progress-row .progress-bar-track {
+            flex: 1;
+        }
+
+        .goal-progress-row .progress-pct {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .goal-progress-row .progress-bar-fill.teal {
+            background: var(--teal);
+        }
+
+        .goal-progress-row .progress-bar-fill.green {
+            background: var(--success);
+        }
+
+        .goal-progress-row .progress-bar-fill.amber {
+            background: var(--warning);
+        }
+
+        .goals-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ===== DEVELOPMENT PLAN ===== */
+        .dev-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 24px;
+            bottom: 24px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            position: relative;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-icon.completed {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .timeline-icon.in-progress {
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .timeline-icon.upcoming {
+            background: #F1F5F9;
+            color: var(--muted);
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-content h4 {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .timeline-content .timeline-date {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .timeline-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .timeline-progress .progress-bar-track {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .timeline-progress .pct {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ===== SKILLS GAP ANALYSIS ===== */
+        .skills-gap-card .card-header {
+            padding: 20px 24px 0;
+        }
+
+        .skills-gap-card .card-header h3 {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .skills-gap-card .card-header p {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .skills-gap-list {
+            padding: 20px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .skill-gap-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .skill-gap-item .skill-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .skill-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .skill-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-bar-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--muted);
+            width: 56px;
+            flex-shrink: 0;
+        }
+
+        .skill-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .skill-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1000ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 0;
+        }
+
+        .skill-bar-fill.current {
+            background: var(--primary);
+        }
+
+        .skill-bar-fill.target {
+            background: var(--teal);
+            opacity: 0.45;
+        }
+
+        .skill-bar-value {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: var(--text);
+            width: 24px;
+            text-align: right;
+        }
+
+        .skill-legend {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 24px 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .legend-dot.current {
+            background: var(--primary);
+        }
+
+        .legend-dot.target {
+            background: var(--teal);
+            opacity: 0.45;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 250ms ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-xl);
+            max-width: 720px;
+            width: 100%;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 250ms ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--surface-navy);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: all 200ms ease;
+        }
+
+        .modal-close:hover {
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .modal-rating-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .modal-rating-row .big-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .modal-rating-row .big-score small {
+            font-size: 1rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .modal-competency-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-competency-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--surface-navy);
+            border-radius: var(--radius-control);
+        }
+
+        .modal-competency-item .name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .modal-competency-item .score {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .modal-comment-block {
+            background: var(--surface-navy);
+            border-radius: var(--radius-control);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .modal-comment-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-comment-block .author {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+
+        .modal-comment-block p {
+            font-size: 0.875rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: var(--radius-control);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.875rem;
+            font-weight: 600;
+            min-width: 320px;
+            max-width: 420px;
+            transform: translateX(120%);
+            transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: none;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.hiding {
+            transform: translateX(120%);
+            transition: transform 250ms ease-in;
+        }
+
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        .toast.info {
+            background: var(--surface-navy);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.success {
+            background: var(--success-bg);
+            color: #047857;
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            background: var(--error-bg);
+            color: #B91C1C;
+            border-left: 4px solid var(--error);
+        }
+
+        .toast.warning {
+            background: var(--warning-bg);
+            color: #B45309;
+            border-left: 4px solid var(--warning);
+        }
+
+        /* ===== ERROR STATE ===== */
+        .error-state-card {
+            padding: 64px 32px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-state-card.visible {
+            display: block;
+        }
+
+        .error-state-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--error-bg);
+            color: var(--error);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .error-state-card h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .error-state-card p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== SKELETON ===== */
+        @keyframes shimmer {
+            0% { background-position: -600px 0; }
+            100% { background-position: 600px 0; }
+        }
+
+        .skeleton-block {
+            background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 37%, #E2E8F0 63%);
+            background-size: 600px 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 6px;
+        }
+
+        .skeleton-content {
+            display: none;
+        }
+
+        .skeleton-content.visible {
+            display: block;
+        }
+
+        /* ===== SKELETON HERO ===== */
+        .skeleton-hero {
+            display: none;
+        }
+
+        .skeleton-hero.visible {
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-hero .skel-header {
+            height: 72px;
+            border-radius: var(--radius-card) var(--radius-card) 0 0;
+        }
+
+        .skeleton-hero .skel-body {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-card) var(--radius-card);
+            padding: 32px;
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .skeleton-hero .skel-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .skeleton-hero .skel-lines {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .skeleton-hero .skel-line {
+            height: 14px;
+        }
+
+        .skeleton-hero .skel-line.w60 { width: 60%; }
+        .skeleton-hero .skel-line.w80 { width: 80%; }
+        .skeleton-hero .skel-line.w40 { width: 40%; }
+
+        /* ===== SKELETON TABS ===== */
+        .skeleton-tabs {
+            display: none;
+        }
+
+        .skeleton-tabs.visible {
+            display: block;
+        }
+
+        .skeleton-tabs .skel-tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .skeleton-tabs .skel-tab {
+            height: 16px;
+            width: 120px;
+            border-radius: 4px;
+        }
+
+        .skeleton-tabs .skel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .skeleton-tabs .skel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 24px;
+        }
+
+        .skeleton-tabs .skel-card .skel-line {
+            height: 12px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-tabs .skel-card .skel-bar {
+            height: 10px;
+            margin-bottom: 20px;
+            border-radius: 9999px;
+        }
+
+        .skeleton-tabs .skel-card .skel-bar.w90 { width: 90%; }
+        .skeleton-tabs .skel-card .skel-bar.w80 { width: 80%; }
+        .skeleton-tabs .skel-card .skel-bar.w70 { width: 70%; }
+        .skeleton-tabs .skel-card .skel-bar.w85 { width: 85%; }
+        .skeleton-tabs .skel-card .skel-bar.w60 { width: 60%; }
+        .skeleton-tabs .skel-card .skel-bar.w50 { width: 50%; }
+
+        .skeleton-tabs .skel-textarea {
+            height: 80px;
+            margin-bottom: 16px;
+            border-radius: var(--radius-control);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dev-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-actions {
+                align-items: center;
+            }
+
+            .stages-row {
+                justify-content: center;
+            }
+
+            .skeleton-tabs .skel-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+            }
+
+            .top-nav-inner {
+                padding: 0 16px;
+            }
+
+            .page-container {
+                padding: 24px 16px 48px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .hero-card-header {
+                padding: 20px 24px;
+            }
+
+            .hero-card-body {
+                padding: 24px;
+            }
+
+            .stages-row {
+                flex-direction: column;
+                gap: 4px;
+                align-items: flex-start;
+            }
+
+            .stage-connector {
+                width: 2px;
+                height: 16px;
+                margin: 0 0 0 13px;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: calc(100vw - 48px);
+            }
+
+            .modal {
+                max-height: calc(100vh - 24px);
+                margin: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header-left h1 {
+                font-size: 1.375rem;
+            }
+
+            .hero-detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+    <!-- ===== TOP NAVIGATION ===== -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+                <div class="logo">Shumela<span>Hire</span></div>
+                <div class="breadcrumb">
+                    <a href="#">Dashboard</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <a href="#">Employee Profile</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span class="current">Performance</span>
+                </div>
+            </div>
+            <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+                <button class="nav-icon-btn" title="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <button class="nav-icon-btn" title="Notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="badge-dot"></span>
+                </button>
+                <div class="avatar-sm" title="Sipho Ndlovu">SN</div>
+            </div>
+        </div>
+    </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="performance-reviews.html" class="sidebar-link active">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="page-container">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Performance Reviews</h1>
+                <p>Track performance, goals, and development plans</p>
+            </div>
+            <button class="btn btn-gold" onclick="showToast('info', 'Self-assessment form is available under the Current Review tab.')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Start Self-Assessment
+            </button>
+        </div>
+
+        <!-- Demo State Toggle -->
+        <div class="demo-toggle-bar">
+            <button class="demo-toggle-btn active" onclick="setDemoState('normal')">Normal</button>
+            <button class="demo-toggle-btn" onclick="setDemoState('skeleton')">Skeleton</button>
+            <button class="demo-toggle-btn" onclick="setDemoState('error')">Error State</button>
+        </div>
+
+        <!-- ===== ERROR STATE ===== -->
+        <div class="card error-state-card" id="errorState">
+            <div class="error-state-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3>Unable to Load Performance Data</h3>
+            <p>Something went wrong while fetching your performance reviews. Please check your connection and try again.</p>
+            <button class="btn btn-primary" onclick="setDemoState('normal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Retry
+            </button>
+        </div>
+
+        <!-- ===== SKELETON: HERO ===== -->
+        <div class="skeleton-hero" id="skeletonHero">
+            <div class="card" style="overflow:hidden;">
+                <div class="skel-header skeleton-block"></div>
+                <div class="skel-body">
+                    <div class="skel-circle skeleton-block"></div>
+                    <div class="skel-lines">
+                        <div class="skel-line w60 skeleton-block"></div>
+                        <div class="skel-line w80 skeleton-block"></div>
+                        <div class="skel-line w40 skeleton-block"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SKELETON: TABS AREA ===== -->
+        <div class="skeleton-tabs" id="skeletonTabs">
+            <div class="skel-tab-bar">
+                <div class="skel-tab skeleton-block"></div>
+                <div class="skel-tab skeleton-block" style="width:100px;"></div>
+                <div class="skel-tab skeleton-block" style="width:80px;"></div>
+                <div class="skel-tab skeleton-block" style="width:130px;"></div>
+            </div>
+            <div class="skel-grid">
+                <div class="skel-card">
+                    <div class="skel-line skeleton-block" style="width:50%;"></div>
+                    <div class="skel-bar w90 skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:65%;"></div>
+                    <div class="skel-bar w80 skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:55%;"></div>
+                    <div class="skel-bar w85 skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:70%;"></div>
+                    <div class="skel-bar w70 skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:45%;"></div>
+                    <div class="skel-bar w60 skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:60%;"></div>
+                    <div class="skel-bar w80 skeleton-block"></div>
+                </div>
+                <div class="skel-card">
+                    <div class="skel-line skeleton-block" style="width:40%;"></div>
+                    <div class="skel-textarea skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:45%;"></div>
+                    <div class="skel-textarea skeleton-block"></div>
+                    <div class="skel-line skeleton-block" style="width:50%;"></div>
+                    <div class="skel-textarea skeleton-block"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== NORMAL CONTENT ===== -->
+        <div class="skeleton-content visible" id="normalContent">
+
+            <!-- ===== HERO: CURRENT REVIEW PERIOD ===== -->
+            <div class="card hero-card" id="heroCard">
+                <div class="hero-card-header">
+                    <h2>Q2 2026 &mdash; Performance Review</h2>
+                    <span class="period-badge">Current Period</span>
+                </div>
+                <div class="hero-card-body">
+                    <!-- Overall Rating -->
+                    <div class="rating-block">
+                        <div class="rating-number">4.2<small>/5.0</small></div>
+                        <div class="stars-row" id="heroStars">
+                            <!-- Stars rendered by JS -->
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--muted);margin-top:6px;font-weight:500;">Overall Rating</div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="hero-details">
+                        <div class="hero-detail-row">
+                            <div class="hero-detail-item">
+                                <span class="label">Status:</span>
+                                <span class="badge badge-amber">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    Self-Assessment Pending
+                                </span>
+                            </div>
+                            <div class="hero-detail-item">
+                                <span class="label">Due Date:</span>
+                                <span class="value">15 July 2026</span>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label">2 of 4 stages complete</div>
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" id="heroProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="stages-row">
+                            <div class="stage completed">
+                                <div class="stage-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                Goal Setting
+                            </div>
+                            <div class="stage-connector done"></div>
+                            <div class="stage current">
+                                <div class="stage-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </div>
+                                Self-Assessment
+                            </div>
+                            <div class="stage-connector"></div>
+                            <div class="stage pending">
+                                <div class="stage-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                                Manager Review
+                            </div>
+                            <div class="stage-connector"></div>
+                            <div class="stage pending">
+                                <div class="stage-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                </div>
+                                Calibration
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="hero-actions">
+                        <button class="btn btn-gold" onclick="switchTab('current'); document.getElementById('achievementsField').focus();">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Complete Self-Assessment
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TABS ===== -->
+            <div class="tabs" id="tabBar">
+                <button class="tab-btn active" data-tab="current" onclick="switchTab('current')">Current Review</button>
+                <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Review History</button>
+                <button class="tab-btn" data-tab="goals" onclick="switchTab('goals')">Goals</button>
+                <button class="tab-btn" data-tab="development" onclick="switchTab('development')">Development Plan</button>
+            </div>
+
+            <!-- ===== TAB 1: CURRENT REVIEW ===== -->
+            <div class="tab-panel active" id="panel-current">
+                <div class="review-grid">
+                    <!-- Competency Ratings -->
+                    <div class="card competency-card">
+                        <div class="card-header">
+                            <h3>Competency Ratings</h3>
+                            <p>Performance across key competency areas</p>
+                        </div>
+                        <div class="competency-list" id="competencyList">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Self-Assessment Form -->
+                    <div class="card form-card">
+                        <div class="card-header">
+                            <h3>Self-Assessment</h3>
+                            <p>Complete your self-assessment for this review period</p>
+                        </div>
+                        <div class="form-body">
+                            <div class="form-group">
+                                <label>Key Achievements <span class="required">*</span></label>
+                                <textarea id="achievementsField" placeholder="Describe your key achievements this period...">Successfully led the implementation of the new billing system integration, reducing water loss reporting time by 40%. Coordinated with three municipal departments to establish standardised data collection protocols. Mentored two junior engineers who have since been promoted to senior positions.</textarea>
+                                <span class="error-msg" id="achievementsError">This field is required to submit your self-assessment.</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Areas for Improvement <span class="required">*</span></label>
+                                <textarea id="improvementField" placeholder="Identify areas where you can improve..."></textarea>
+                                <span class="error-msg" id="improvementError">This field is required to submit your self-assessment.</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Additional Comments</label>
+                                <textarea id="commentsField" placeholder="Any additional comments or context..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn-outline" onclick="saveDraft()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    Save Draft
+                                </button>
+                                <button class="btn btn-gold" onclick="submitAssessment()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB 2: REVIEW HISTORY ===== -->
+            <div class="tab-panel" id="panel-history">
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Overall Rating</th>
+                                    <th>Manager</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB 3: GOALS ===== -->
+            <div class="tab-panel" id="panel-goals">
+                <div class="goals-grid" id="goalsContainer">
+                    <!-- Rendered by JS -->
+                </div>
+                <div class="goals-actions">
+                    <button class="btn btn-outline" onclick="showToast('info', 'Goal creation form will open here. This is a mock.')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Goal
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== TAB 4: DEVELOPMENT PLAN ===== -->
+            <div class="tab-panel" id="panel-development">
+                <div class="dev-grid">
+                    <!-- Timeline -->
+                    <div class="card">
+                        <div class="card-header" style="padding:20px 24px 0;">
+                            <h3 style="font-size:1.0625rem;font-weight:700;color:var(--text);">Development Activities</h3>
+                            <p style="font-size:0.8125rem;color:var(--muted);margin-top:4px;">Planned and completed development actions</p>
+                        </div>
+                        <div style="padding:20px 24px 24px;">
+                            <div class="timeline" id="devTimeline">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Gap Analysis -->
+                    <div class="card skills-gap-card">
+                        <div class="card-header">
+                            <h3>Skills Gap Analysis</h3>
+                            <p>Current proficiency vs. target levels</p>
+                        </div>
+                        <div class="skills-gap-list" id="skillsGapList">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <div class="skill-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot current"></div>
+                                Current Level
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot target"></div>
+                                Target Level
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /normalContent -->
+    </div><!-- /page-container -->
+
+    <!-- ===== REVIEW DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="reviewModal">
+        <div class="modal" onclick="event.stopPropagation();">
+            <div class="modal-header">
+                <h2 id="modalTitle">Q1 2026 &mdash; Performance Review</h2>
+                <button class="modal-close" onclick="closeModal()" title="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Populated by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info', 'PDF download will start. This is a mock.')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download PDF
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+/* ================================================================
+   PERFORMANCE REVIEWS — JAVASCRIPT
+   ================================================================ */
+
+/* ---------- DATA ---------- */
+const competencies = [
+    { name: 'Leadership & People Management', score: 4.5, color: 'navy' },
+    { name: 'Technical Expertise', score: 4.0, color: 'teal' },
+    { name: 'Communication', score: 4.2, color: 'navy' },
+    { name: 'Problem Solving', score: 4.3, color: 'teal' },
+    { name: 'Innovation', score: 3.8, color: 'gold' },
+    { name: 'Stakeholder Management', score: 4.0, color: 'navy' }
+];
+
+const reviewHistory = [
+    {
+        period: 'Q1 2026',
+        rating: 4.0,
+        manager: 'Dr. Mbongeni Nkosi',
+        status: 'Completed',
+        date: '15 Apr 2026',
+        competencies: [
+            { name: 'Leadership & People Management', score: 4.3 },
+            { name: 'Technical Expertise', score: 3.8 },
+            { name: 'Communication', score: 4.0 },
+            { name: 'Problem Solving', score: 4.2 },
+            { name: 'Innovation', score: 3.7 },
+            { name: 'Stakeholder Management', score: 4.0 }
+        ],
+        managerComments: 'Sipho continues to demonstrate strong leadership within the water infrastructure team. His ability to coordinate cross-departmental initiatives has been instrumental in our Q1 targets. I recommend focusing on innovation metrics in the coming quarter.',
+        employeeComments: 'I am pleased with the progress we made on the billing system integration. Moving forward, I plan to allocate more time to mentoring junior team members and exploring innovative solutions for water loss reduction.'
+    },
+    {
+        period: 'Q4 2025',
+        rating: 4.1,
+        manager: 'Dr. Mbongeni Nkosi',
+        status: 'Completed',
+        date: '15 Jan 2026',
+        competencies: [
+            { name: 'Leadership & People Management', score: 4.2 },
+            { name: 'Technical Expertise', score: 4.0 },
+            { name: 'Communication', score: 4.1 },
+            { name: 'Problem Solving', score: 4.1 },
+            { name: 'Innovation', score: 3.9 },
+            { name: 'Stakeholder Management', score: 4.3 }
+        ],
+        managerComments: 'Excellent performance this quarter. Sipho led the successful completion of the pipeline maintenance project ahead of schedule and under budget. His stakeholder management has notably improved.',
+        employeeComments: 'The pipeline maintenance project was a key achievement this quarter. I focused heavily on stakeholder engagement which paid off with smoother approvals. I would like to pursue the advanced water treatment certification next quarter.'
+    },
+    {
+        period: 'Q3 2025',
+        rating: 3.9,
+        manager: 'Dr. Mbongeni Nkosi',
+        status: 'Completed',
+        date: '15 Oct 2025',
+        competencies: [
+            { name: 'Leadership & People Management', score: 3.8 },
+            { name: 'Technical Expertise', score: 4.0 },
+            { name: 'Communication', score: 3.9 },
+            { name: 'Problem Solving', score: 4.0 },
+            { name: 'Innovation', score: 3.6 },
+            { name: 'Stakeholder Management', score: 4.1 }
+        ],
+        managerComments: 'Solid quarter with good technical output. Sipho should work on delegation and empowering team members to take more ownership of sub-projects. Innovation metrics need attention.',
+        employeeComments: 'I acknowledge the feedback on delegation. I have begun implementing weekly check-ins with team leads to better distribute workload. The SCADA monitoring research is progressing well.'
+    },
+    {
+        period: 'Q2 2025',
+        rating: 4.2,
+        manager: 'Dr. Mbongeni Nkosi',
+        status: 'Completed',
+        date: '15 Jul 2025',
+        competencies: [
+            { name: 'Leadership & People Management', score: 4.4 },
+            { name: 'Technical Expertise', score: 4.1 },
+            { name: 'Communication', score: 4.3 },
+            { name: 'Problem Solving', score: 4.2 },
+            { name: 'Innovation', score: 4.0 },
+            { name: 'Stakeholder Management', score: 4.2 }
+        ],
+        managerComments: 'Outstanding quarter. Sipho exceeded expectations across nearly all competencies. His leadership during the emergency water supply restoration was exemplary. Highly recommend for the leadership development program.',
+        employeeComments: 'The emergency response scenario tested our team and I am proud of how we handled it. I have enrolled in the Leadership Excellence Program as recommended. Looking forward to continued growth.'
+    }
+];
+
+const goals = [
+    {
+        title: 'Reduce water loss below 25% target',
+        progress: 80,
+        due: 'Dec 2026',
+        status: 'On Track',
+        statusClass: 'teal',
+        barClass: 'teal',
+        description: 'Implement infrastructure improvements and monitoring solutions to reduce non-revenue water losses from the current 32% to below 25% by year end.'
+    },
+    {
+        title: 'Implement SCADA monitoring system',
+        progress: 45,
+        due: 'Sep 2026',
+        status: 'On Track',
+        statusClass: 'teal',
+        barClass: 'teal',
+        description: 'Deploy SCADA (Supervisory Control and Data Acquisition) system across all 12 treatment plants for real-time monitoring and automated reporting.'
+    },
+    {
+        title: 'Complete team skills audit',
+        progress: 100,
+        due: 'Jun 2026',
+        status: 'Completed',
+        statusClass: 'green',
+        barClass: 'green',
+        description: 'Conduct comprehensive skills assessment of all 45 team members to identify gaps and inform the 2026/27 training budget allocation.'
+    },
+    {
+        title: 'Develop succession plan for key roles',
+        progress: 20,
+        due: 'Nov 2026',
+        status: 'At Risk',
+        statusClass: 'amber',
+        barClass: 'amber',
+        description: 'Identify and develop successors for 8 critical roles within the water services division, including formal development plans for each identified successor.'
+    },
+    {
+        title: 'Achieve zero safety incidents',
+        progress: 90,
+        due: 'Dec 2026',
+        status: 'On Track',
+        statusClass: 'teal',
+        barClass: 'teal',
+        description: 'Maintain zero Lost Time Injury (LTI) record for the full calendar year through enhanced safety protocols, regular training, and proactive hazard identification.'
+    }
+];
+
+const devActivities = [
+    {
+        name: 'Advanced Water Treatment Course',
+        status: 'completed',
+        dateRange: 'Jan 2026 — Mar 2026',
+        progress: 100
+    },
+    {
+        name: 'Leadership Excellence Program',
+        status: 'in-progress',
+        dateRange: 'Apr 2026 — Aug 2026',
+        progress: 30
+    },
+    {
+        name: 'Project Management Certification',
+        status: 'upcoming',
+        dateRange: 'Oct 2026 — Dec 2026',
+        progress: 0
+    },
+    {
+        name: 'Executive Leadership Workshop',
+        status: 'upcoming',
+        dateRange: 'Dec 2026',
+        progress: 0
+    }
+];
+
+const skillsGap = [
+    { name: 'Water Treatment Engineering', current: 4.2, target: 4.5 },
+    { name: 'Leadership & Strategy', current: 3.8, target: 4.5 },
+    { name: 'Project Management', current: 3.5, target: 4.0 },
+    { name: 'Data Analytics', current: 3.0, target: 4.0 },
+    { name: 'Stakeholder Engagement', current: 4.0, target: 4.5 }
+];
+
+/* ---------- STAR RENDERING ---------- */
+function renderStars(container, rating, size) {
+    size = size || 24;
+    container.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(rating)) {
+            container.innerHTML += starSVG(size, true);
+        } else if (i === Math.ceil(rating) && rating % 1 > 0) {
+            const pct = Math.round((rating % 1) * 100);
+            container.innerHTML += partialStarSVG(size, pct);
+        } else {
+            container.innerHTML += starSVG(size, false);
+        }
+    }
+}
+
+function starSVG(size, filled) {
+    const color = filled ? 'var(--cta)' : '#E2E8F0';
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" stroke="' + color + '" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+}
+
+function partialStarSVG(size, pct) {
+    const id = 'partial-' + Math.random().toString(36).substr(2, 6);
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" stroke="none" stroke-width="0">' +
+        '<defs><linearGradient id="' + id + '"><stop offset="' + pct + '%" stop-color="var(--cta)"/><stop offset="' + pct + '%" stop-color="#E2E8F0"/></linearGradient></defs>' +
+        '<polygon fill="url(#' + id + ')" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+}
+
+function miniStars(rating, size) {
+    size = size || 14;
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        const filled = i <= Math.round(rating);
+        html += '<svg class="table-star' + (filled ? '' : ' empty') + '" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    }
+    return html;
+}
+
+/* ---------- RENDER COMPETENCY BARS ---------- */
+function renderCompetencies() {
+    const container = document.getElementById('competencyList');
+    container.innerHTML = competencies.map(function(c) {
+        const pct = (c.score / 5) * 100;
+        const colorVar = c.color === 'navy' ? 'var(--primary)' : c.color === 'teal' ? 'var(--teal)' : 'var(--gold)';
+        return '<div class="competency-item">' +
+            '<div class="competency-item-header">' +
+                '<span class="name">' + c.name + '</span>' +
+                '<span class="score" style="color:' + colorVar + ';">' + c.score.toFixed(1) + '/5.0</span>' +
+            '</div>' +
+            '<div class="competency-bar-track">' +
+                '<div class="competency-bar-fill ' + c.color + '" data-width="' + pct + '"></div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+/* ---------- RENDER REVIEW HISTORY TABLE ---------- */
+function renderHistoryTable() {
+    const tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = reviewHistory.map(function(r, idx) {
+        return '<tr>' +
+            '<td style="font-weight:600;">' + r.period + '</td>' +
+            '<td><div class="table-rating"><span class="score">' + r.rating.toFixed(1) + '/5.0</span><div class="table-stars">' + miniStars(r.rating) + '</div></div></td>' +
+            '<td>' + r.manager + '</td>' +
+            '<td><span class="badge badge-green">Completed</span></td>' +
+            '<td style="color:var(--muted);">' + r.date + '</td>' +
+            '<td><button class="btn btn-outline btn-sm" onclick="openReviewModal(' + idx + ')">View</button></td>' +
+        '</tr>';
+    }).join('');
+}
+
+/* ---------- RENDER GOALS ---------- */
+function renderGoals() {
+    const container = document.getElementById('goalsContainer');
+    container.innerHTML = goals.map(function(g) {
+        const badgeClass = g.statusClass === 'teal' ? 'badge-teal' :
+                           g.statusClass === 'green' ? 'badge-green' : 'badge-amber';
+        return '<div class="card goal-card">' +
+            '<div class="goal-card-header">' +
+                '<h4>' + g.title + '</h4>' +
+                '<span class="badge ' + badgeClass + '">' + g.status + '</span>' +
+            '</div>' +
+            '<div class="goal-meta">' +
+                '<div class="goal-meta-item">' +
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+                    'Due: ' + g.due +
+                '</div>' +
+                '<div class="goal-meta-item">' +
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>' +
+                    g.progress + '% complete' +
+                '</div>' +
+            '</div>' +
+            '<p class="goal-description">' + g.description + '</p>' +
+            '<div class="goal-progress-row">' +
+                '<div class="progress-bar-track">' +
+                    '<div class="progress-bar-fill ' + g.barClass + '" data-width="' + g.progress + '" style="width:0%;"></div>' +
+                '</div>' +
+                '<span class="progress-pct">' + g.progress + '%</span>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+/* ---------- RENDER DEVELOPMENT TIMELINE ---------- */
+function renderDevTimeline() {
+    const container = document.getElementById('devTimeline');
+    container.innerHTML = devActivities.map(function(d) {
+        const iconClass = d.status;
+        let iconSVG;
+        if (d.status === 'completed') {
+            iconSVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        } else if (d.status === 'in-progress') {
+            iconSVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+        } else {
+            iconSVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+        }
+
+        let statusLabel;
+        if (d.status === 'completed') statusLabel = '<span class="badge badge-green" style="font-size:0.6875rem;">Completed</span>';
+        else if (d.status === 'in-progress') statusLabel = '<span class="badge badge-navy" style="font-size:0.6875rem;">In Progress</span>';
+        else statusLabel = '<span class="badge" style="font-size:0.6875rem;background:#F1F5F9;color:var(--muted);">Upcoming</span>';
+
+        let progressHTML = '';
+        if (d.status === 'in-progress') {
+            progressHTML = '<div class="timeline-progress">' +
+                '<div class="progress-bar-track"><div class="progress-bar-fill" data-width="' + d.progress + '" style="width:0%;background:var(--primary);"></div></div>' +
+                '<span class="pct">' + d.progress + '%</span>' +
+            '</div>';
+        }
+
+        return '<div class="timeline-item">' +
+            '<div class="timeline-icon ' + iconClass + '">' + iconSVG + '</div>' +
+            '<div class="timeline-content">' +
+                '<h4>' + d.name + '</h4>' +
+                '<div class="timeline-date">' + d.dateRange + '</div>' +
+                statusLabel +
+                progressHTML +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+/* ---------- RENDER SKILLS GAP ---------- */
+function renderSkillsGap() {
+    const container = document.getElementById('skillsGapList');
+    container.innerHTML = skillsGap.map(function(s) {
+        const currentPct = (s.current / 5) * 100;
+        const targetPct = (s.target / 5) * 100;
+        return '<div class="skill-gap-item">' +
+            '<span class="skill-name">' + s.name + '</span>' +
+            '<div class="skill-bars">' +
+                '<div class="skill-bar-row">' +
+                    '<span class="skill-bar-label">Current</span>' +
+                    '<div class="skill-bar-track"><div class="skill-bar-fill current" data-width="' + currentPct + '"></div></div>' +
+                    '<span class="skill-bar-value">' + s.current.toFixed(1) + '</span>' +
+                '</div>' +
+                '<div class="skill-bar-row">' +
+                    '<span class="skill-bar-label">Target</span>' +
+                    '<div class="skill-bar-track"><div class="skill-bar-fill target" data-width="' + targetPct + '"></div></div>' +
+                    '<span class="skill-bar-value">' + s.target.toFixed(1) + '</span>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+/* ---------- ANIMATE BARS ---------- */
+function animateBars() {
+    requestAnimationFrame(function() {
+        setTimeout(function() {
+            document.querySelectorAll('[data-width]').forEach(function(el) {
+                el.style.width = el.getAttribute('data-width') + '%';
+            });
+        }, 100);
+    });
+}
+
+/* ---------- TAB SWITCHING ---------- */
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.toggle('active', panel.id === 'panel-' + tabId);
+    });
+    // Re-animate bars when switching tabs
+    setTimeout(animateBars, 50);
+}
+
+/* ---------- MODAL ---------- */
+function openReviewModal(idx) {
+    const review = reviewHistory[idx];
+    if (!review) return;
+
+    document.getElementById('modalTitle').textContent = review.period + ' \u2014 Performance Review';
+
+    const starsHTML = '<div class="stars-row" style="justify-content:flex-start;">' + '</div>';
+    let body = '';
+
+    // Rating section
+    body += '<div class="modal-section">' +
+        '<h4>Overall Rating</h4>' +
+        '<div class="modal-rating-row">' +
+            '<span class="big-score">' + review.rating.toFixed(1) + '<small>/5.0</small></span>' +
+            '<div class="stars-row" id="modalStars" style="justify-content:flex-start;"></div>' +
+        '</div>' +
+    '</div>';
+
+    // Competencies
+    body += '<div class="modal-section"><h4>Competency Breakdown</h4><div class="modal-competency-list">';
+    review.competencies.forEach(function(c) {
+        body += '<div class="modal-competency-item"><span class="name">' + c.name + '</span><span class="score">' + c.score.toFixed(1) + '/5.0</span></div>';
+    });
+    body += '</div></div>';
+
+    // Manager comments
+    body += '<div class="modal-section"><h4>Manager Comments</h4>' +
+        '<div class="modal-comment-block"><div class="author">' + review.manager + '</div><p>' + review.managerComments + '</p></div></div>';
+
+    // Employee comments
+    body += '<div class="modal-section"><h4>Employee Comments</h4>' +
+        '<div class="modal-comment-block"><div class="author">Sipho Ndlovu</div><p>' + review.employeeComments + '</p></div></div>';
+
+    // Details
+    body += '<div class="modal-section"><h4>Details</h4>' +
+        '<div style="display:flex;gap:24px;flex-wrap:wrap;">' +
+            '<div class="hero-detail-item"><span class="label">Manager:</span><span class="value">' + review.manager + '</span></div>' +
+            '<div class="hero-detail-item"><span class="label">Completed:</span><span class="value">' + review.date + '</span></div>' +
+            '<div class="hero-detail-item"><span class="label">Status:</span><span class="badge badge-green">Completed</span></div>' +
+        '</div></div>';
+
+    document.getElementById('modalBody').innerHTML = body;
+
+    // Render modal stars
+    const modalOverlay = document.getElementById('reviewModal');
+    modalOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    setTimeout(function() {
+        const modalStars = document.getElementById('modalStars');
+        if (modalStars) renderStars(modalStars, review.rating, 22);
+    }, 10);
+}
+
+function closeModal() {
+    document.getElementById('reviewModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+/* Close on overlay click */
+document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+/* Close on Escape */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+
+/* ---------- TOAST SYSTEM ---------- */
+let toastCounter = 0;
+
+function showToast(type, message) {
+    const container = document.getElementById('toastContainer');
+    const id = 'toast-' + (++toastCounter);
+
+    let iconSVG;
+    switch (type) {
+        case 'success':
+            iconSVG = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            break;
+        case 'error':
+            iconSVG = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            break;
+        case 'warning':
+            iconSVG = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            break;
+        default: // info
+            iconSVG = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            type = 'info';
+    }
+
+    const toast = document.createElement('div');
+    toast.id = id;
+    toast.className = 'toast ' + type;
+    toast.innerHTML = iconSVG +
+        '<span>' + message + '</span>' +
+        '<button class="toast-close" onclick="dismissToast(\'' + id + '\')" title="Dismiss">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>';
+
+    container.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            toast.classList.add('show');
+        });
+    });
+
+    // Auto-dismiss after 4 seconds
+    setTimeout(function() {
+        dismissToast(id);
+    }, 4000);
+}
+
+function dismissToast(id) {
+    const toast = document.getElementById(id);
+    if (!toast) return;
+    toast.classList.remove('show');
+    toast.classList.add('hiding');
+    setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+}
+
+/* ---------- FORM ACTIONS ---------- */
+function saveDraft() {
+    showToast('info', 'Self-assessment saved as draft.');
+}
+
+function submitAssessment() {
+    let valid = true;
+    const achievements = document.getElementById('achievementsField');
+    const improvement = document.getElementById('improvementField');
+    const achievementsError = document.getElementById('achievementsError');
+    const improvementError = document.getElementById('improvementError');
+
+    // Reset
+    achievements.classList.remove('error');
+    improvement.classList.remove('error');
+    achievementsError.classList.remove('visible');
+    improvementError.classList.remove('visible');
+
+    if (!achievements.value.trim()) {
+        achievements.classList.add('error');
+        achievementsError.classList.add('visible');
+        valid = false;
+    }
+
+    if (!improvement.value.trim()) {
+        improvement.classList.add('error');
+        improvementError.classList.add('visible');
+        valid = false;
+    }
+
+    if (!valid) {
+        showToast('error', 'Please fill in all required fields before submitting.');
+        return;
+    }
+
+    showToast('success', 'Self-assessment submitted successfully!');
+}
+
+/* ---------- DEMO STATE TOGGLE ---------- */
+function setDemoState(state) {
+    // Update toggle buttons
+    document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.textContent.trim().toLowerCase().replace(' ', '') === state.replace(' ', ''));
+    });
+
+    const normalContent = document.getElementById('normalContent');
+    const skeletonHero = document.getElementById('skeletonHero');
+    const skeletonTabs = document.getElementById('skeletonTabs');
+    const errorState = document.getElementById('errorState');
+
+    switch (state) {
+        case 'skeleton':
+            normalContent.classList.remove('visible');
+            errorState.classList.remove('visible');
+            skeletonHero.classList.add('visible');
+            skeletonTabs.classList.add('visible');
+            break;
+        case 'error':
+            normalContent.classList.remove('visible');
+            skeletonHero.classList.remove('visible');
+            skeletonTabs.classList.remove('visible');
+            errorState.classList.add('visible');
+            break;
+        default: // normal
+            skeletonHero.classList.remove('visible');
+            skeletonTabs.classList.remove('visible');
+            errorState.classList.remove('visible');
+            normalContent.classList.add('visible');
+            setTimeout(animateBars, 100);
+            break;
+    }
+}
+
+/* ---------- FIX TOGGLE BUTTON MATCHING ---------- */
+document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+    const originalOnclick = btn.getAttribute('onclick');
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click', function() {
+        const stateMap = { 'Normal': 'normal', 'Skeleton': 'skeleton', 'Error State': 'error' };
+        const state = stateMap[this.textContent.trim()];
+        if (state) setDemoState(state);
+    });
+});
+
+/* ---------- INITIALIZE ---------- */
+document.addEventListener('DOMContentLoaded', function() {
+    // Render hero stars
+    renderStars(document.getElementById('heroStars'), 4.2, 24);
+
+    // Render all sections
+    renderCompetencies();
+    renderHistoryTable();
+    renderGoals();
+    renderDevTimeline();
+    renderSkillsGap();
+
+    // Animate hero progress bar
+    setTimeout(function() {
+        document.getElementById('heroProgress').style.width = '50%';
+    }, 300);
+
+    // Animate all data-width bars
+    setTimeout(animateBars, 500);
+});
+
+/* ---------- CLEAR VALIDATION ON INPUT ---------- */
+document.getElementById('achievementsField').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('achievementsError').classList.remove('visible');
+});
+
+document.getElementById('improvementField').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('improvementError').classList.remove('visible');
+});
+</script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

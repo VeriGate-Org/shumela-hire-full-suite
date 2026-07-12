@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roles & Permissions | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 2px solid var(--pink);
+      color: var(--pink);
+    }
+    .btn-danger:hover {
+      background: var(--pink);
+      color: #FFFFFF;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      background: var(--pink);
+      border-radius: 9999px;
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== DEMO TOGGLE BAR ========== */
+    .demo-toggle-bar {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-card);
+      padding: 0.625rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--card-bg);
+    }
+
+    .demo-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .demo-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: var(--radius-button);
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .demo-btn:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .stat-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== VIEW TABS ========== */
+    .view-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .view-tab {
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      border: 2px solid var(--border);
+      background: var(--card-bg);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1;
+    }
+
+    .view-tab:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .view-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .view-tab svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== ROLES GRID VIEW ========== */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      transition: all 200ms ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .role-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(5, 82, 126, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .role-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .role-color-indicator {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .role-color-indicator svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .role-color-navy { background: var(--navy-bg); color: var(--primary); }
+    .role-color-teal { background: var(--teal-bg); color: var(--teal); }
+    .role-color-gold { background: var(--gold-bg); color: var(--gold); }
+    .role-color-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .role-card-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .role-card-users {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .role-card-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .role-card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.875rem 0;
+    }
+
+    .role-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .role-badge-system {
+      background: var(--navy-tint);
+      color: var(--primary);
+    }
+
+    .role-badge-custom {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    .card-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 200ms ease;
+      cursor: pointer;
+    }
+
+    .card-link:hover {
+      color: var(--cta-hover);
+    }
+
+    .card-menu-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .card-menu-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .card-menu-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ========== PERMISSIONS MATRIX VIEW ========== */
+    .matrix-view {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .matrix-view.active {
+      display: block;
+    }
+
+    .list-table-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .matrix-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .list-table thead {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .list-table th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .list-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .list-table tbody tr:nth-child(even) {
+      background: #F8FAFC;
+    }
+
+    .list-table tbody tr {
+      transition: background 200ms ease;
+    }
+
+    .list-table tbody tr:hover {
+      background: var(--primary-tint);
+    }
+
+    .list-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .list-table th.text-center,
+    .list-table td.text-center {
+      text-align: center;
+    }
+
+    .matrix-category {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.8125rem;
+    }
+
+    .matrix-permission {
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      padding-left: 2rem !important;
+    }
+
+    /* ========== TOGGLE SWITCH ========== */
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--border);
+      border-radius: 20px;
+      transition: all 200ms ease;
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      bottom: 2px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      transition: all 200ms ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--teal);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+    }
+
+    /* ========== USERS VIEW ========== */
+    .users-view {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .users-view.active {
+      display: block;
+    }
+
+    .list-employee-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .list-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.6875rem;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .avatar-navy { background: var(--primary); }
+    .avatar-pink { background: var(--pink); }
+    .avatar-teal { background: var(--teal); }
+    .avatar-gold { background: var(--gold); }
+
+    .list-employee-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list-employee-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    .list-employee-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.1875rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-navy { background: var(--navy-tint); color: var(--primary); }
+    .badge-teal { background: var(--teal-tint); color: var(--teal); }
+    .badge-gold { background: var(--gold-tint); color: var(--gold); }
+    .badge-pink { background: var(--pink-tint); color: var(--pink); }
+
+    .list-actions-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .list-actions-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .list-actions-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .last-active-text {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== MODAL ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15,23,42,0.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeOverlay 200ms ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 300ms ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      color: var(--text-muted);
+    }
+
+    .modal-close:hover {
+      background: var(--pink-bg);
+      color: var(--pink);
+    }
+
+    .modal-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .modal-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-section-title {
+      font-weight: 700;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-desc {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .permission-checklist {
+      list-style: none;
+    }
+
+    .permission-checklist li {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .permission-checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .check-icon-on {
+      background: var(--teal-bg);
+      color: var(--teal);
+    }
+
+    .check-icon-off {
+      background: var(--bg);
+      color: var(--border);
+    }
+
+    .check-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .assigned-users-list {
+      list-style: none;
+    }
+
+    .assigned-users-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .assigned-users-list li:last-child {
+      border-bottom: none;
+    }
+
+    .assigned-user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.625rem;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .assigned-user-info {
+      flex: 1;
+    }
+
+    .assigned-user-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .assigned-user-dept {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-content {
+      display: none;
+    }
+
+    .skeleton-content.active {
+      display: block;
+    }
+
+    .normal-content.hidden {
+      display: none;
+    }
+
+    .skel-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+    }
+
+    .skel-role-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+    }
+
+    .skel-role-header {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 0.875rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .roles-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .roles-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .view-tabs {
+        flex-wrap: wrap;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .matrix-table-wrapper {
+        overflow-x: auto;
+      }
+
+      .list-table {
+        min-width: 700px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .view-tab {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Administration</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Roles & Permissions</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="role-permissions.html" class="sidebar-link active">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Demo Toggle -->
+    <div class="demo-toggle-bar">
+      <span class="demo-label">Demo:</span>
+      <button class="demo-btn active" id="demoBtnNormal" onclick="setDemoState('normal')">Normal</button>
+      <button class="demo-btn" id="demoBtnSkeleton" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Roles & Permissions</h1>
+        <p>Manage access roles and permissions for uThukela Water</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn btn-cta" onclick="openModal('createRoleModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Role
+        </button>
+      </div>
+    </div>
+
+    <!-- Normal Content -->
+    <div class="normal-content" id="normalContent">
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-navy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Total Roles</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Custom Roles</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">171</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-pink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Pending Invites</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Tabs -->
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="roles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Roles
+        </button>
+        <button class="view-tab" data-view="matrix">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Permissions Matrix
+        </button>
+        <button class="view-tab" data-view="users">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Users
+        </button>
+      </div>
+
+      <!-- Roles Grid View (Default) -->
+      <div class="roles-grid" id="rolesView"></div>
+
+      <!-- Permissions Matrix View -->
+      <div class="matrix-view" id="matrixView">
+        <div class="list-table-wrapper">
+          <div class="matrix-table-wrapper">
+            <table class="list-table" id="matrixTable">
+              <thead>
+                <tr>
+                  <th style="min-width:200px">Permission</th>
+                  <th class="text-center">Super Admin</th>
+                  <th class="text-center">HR Manager</th>
+                  <th class="text-center">Recruiter</th>
+                  <th class="text-center">Hiring Manager</th>
+                  <th class="text-center">Employee</th>
+                  <th class="text-center">Auditor</th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users View -->
+      <div class="users-view" id="usersView">
+        <div class="list-table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Last Active</th>
+                <th style="width:50px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Skeleton Content -->
+    <div class="skeleton-content" id="skeletonContent">
+      <!-- Skeleton Stats -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="skeleton skel-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton" style="width:40%;height:24px;"></div>
+            <div class="skeleton" style="width:70%;height:14px;margin-top:6px;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton skel-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton" style="width:35%;height:24px;"></div>
+            <div class="skeleton" style="width:75%;height:14px;margin-top:6px;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton skel-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton" style="width:50%;height:24px;"></div>
+            <div class="skeleton" style="width:60%;height:14px;margin-top:6px;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton skel-stat-icon"></div>
+          <div class="stat-content">
+            <div class="skeleton" style="width:30%;height:24px;"></div>
+            <div class="skeleton" style="width:80%;height:14px;margin-top:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton View Tabs -->
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
+        <div class="skeleton" style="width:100px;height:38px;border-radius:9999px;"></div>
+        <div class="skeleton" style="width:170px;height:38px;border-radius:9999px;"></div>
+        <div class="skeleton" style="width:90px;height:38px;border-radius:9999px;"></div>
+      </div>
+
+      <!-- Skeleton Role Cards -->
+      <div class="roles-grid">
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:70%;height:16px;"></div>
+              <div class="skeleton" style="width:40%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:100%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:80%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:60px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:60%;height:16px;"></div>
+              <div class="skeleton" style="width:35%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:90%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:70%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:70px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:75%;height:16px;"></div>
+              <div class="skeleton" style="width:45%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:85%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:65%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:55px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:55%;height:16px;"></div>
+              <div class="skeleton" style="width:50%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:95%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:75%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:65px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:50%;height:16px;"></div>
+              <div class="skeleton" style="width:42%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:88%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:60%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:60px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skel-role-card">
+          <div class="skel-role-header">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:12px;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:65%;height:16px;"></div>
+              <div class="skeleton" style="width:38%;height:12px;margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="skeleton" style="width:80%;height:12px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:68%;height:12px;margin-bottom:12px;"></div>
+          <div style="height:1px;background:var(--border);margin:0.875rem 0;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skeleton" style="width:55px;height:20px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:80px;height:14px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== ROLE DETAIL MODAL ========== -->
+  <div class="modal-overlay" id="roleDetailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalRoleName">Role Details</h2>
+        <button class="modal-close" onclick="closeModal('roleDetailModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <div class="modal-section-title">Description</div>
+          <p class="modal-desc" id="modalRoleDesc"></p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Permissions</div>
+          <ul class="permission-checklist" id="modalPermissions"></ul>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Assigned Users</div>
+          <ul class="assigned-users-list" id="modalAssignedUsers"></ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('roleDetailModal')">Close</button>
+        <button class="btn btn-primary btn-sm">Edit Role</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CREATE ROLE MODAL ========== -->
+  <div class="modal-overlay" id="createRoleModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Create New Role</h2>
+        <button class="modal-close" onclick="closeModal('createRoleModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <div class="modal-section-title">Role Name</div>
+          <input type="text" class="form-input" placeholder="Enter role name..." style="width:100%;padding:0.625rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius-control);font-family:inherit;font-size:0.875rem;outline:none;">
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Description</div>
+          <textarea placeholder="Describe the role's purpose..." style="width:100%;padding:0.625rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius-control);font-family:inherit;font-size:0.875rem;outline:none;resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Permissions</div>
+          <p style="font-size:0.8125rem;color:var(--text-muted);">Permissions can be configured after creation.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('createRoleModal')">Cancel</button>
+        <button class="btn btn-cta btn-sm" onclick="closeModal('createRoleModal')">Create Role</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== THREE-DOT MENU SVG =====
+      var threeDotSVG = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>';
+
+      // ===== MOCK DATA: ROLES =====
+      var roles = [
+        {
+          id: 1,
+          name: 'Super Admin',
+          userCount: 2,
+          description: 'Full system access with unrestricted permissions across all modules. Can manage users, roles, and system configuration.',
+          colorClass: 'role-color-navy',
+          badgeClass: 'role-badge-system',
+          badgeText: 'System',
+          avatarClass: 'avatar-navy',
+          permissions: [
+            'Manage all job postings',
+            'View and manage all applications',
+            'Access employee records',
+            'Manage talent pools',
+            'View all analytics and reports',
+            'Manage roles and permissions',
+            'System configuration',
+            'Audit logs access'
+          ],
+          users: [
+            { name: 'Sipho Ndlovu', initials: 'SN', dept: 'ICT', avatarClass: 'avatar-navy' },
+            { name: 'Bongani Zulu', initials: 'BZ', dept: 'ICT', avatarClass: 'avatar-navy' }
+          ]
+        },
+        {
+          id: 2,
+          name: 'HR Manager',
+          userCount: 4,
+          description: 'Full access to HR, recruitment, and talent management modules. Can approve leave, manage employee records, and generate reports.',
+          colorClass: 'role-color-pink',
+          badgeClass: 'role-badge-system',
+          badgeText: 'System',
+          avatarClass: 'avatar-pink',
+          permissions: [
+            'Manage all job postings',
+            'View and manage all applications',
+            'Access employee records',
+            'Manage talent pools',
+            'View all analytics and reports',
+            'Approve leave requests'
+          ],
+          users: [
+            { name: 'Nomvula Dlamini', initials: 'ND', dept: 'Human Resources', avatarClass: 'avatar-pink' },
+            { name: 'Zanele Mthembu', initials: 'ZM', dept: 'Human Resources', avatarClass: 'avatar-pink' },
+            { name: 'Lindiwe Ngcobo', initials: 'LN', dept: 'Human Resources', avatarClass: 'avatar-teal' },
+            { name: 'Nokukhanya Cele', initials: 'NC', dept: 'Human Resources', avatarClass: 'avatar-gold' }
+          ]
+        },
+        {
+          id: 3,
+          name: 'Recruiter',
+          userCount: 6,
+          description: 'Manages job postings, screens applications, schedules interviews, and communicates with candidates throughout the recruitment pipeline.',
+          colorClass: 'role-color-teal',
+          badgeClass: 'role-badge-system',
+          badgeText: 'System',
+          avatarClass: 'avatar-teal',
+          permissions: [
+            'Manage all job postings',
+            'View and manage all applications',
+            'Manage talent pools',
+            'Schedule interviews',
+            'Send candidate communications'
+          ],
+          users: [
+            { name: 'Ayanda Mkhize', initials: 'AM', dept: 'Human Resources', avatarClass: 'avatar-teal' },
+            { name: 'Thulisile Nkosi', initials: 'TN', dept: 'Human Resources', avatarClass: 'avatar-teal' },
+            { name: 'Sbusiso Mabaso', initials: 'SM', dept: 'Human Resources', avatarClass: 'avatar-navy' },
+            { name: 'Nosipho Buthelezi', initials: 'NB', dept: 'Human Resources', avatarClass: 'avatar-pink' },
+            { name: 'Mandla Shabalala', initials: 'MS', dept: 'Human Resources', avatarClass: 'avatar-gold' },
+            { name: 'Zodwa Ntuli', initials: 'ZN', dept: 'Human Resources', avatarClass: 'avatar-teal' }
+          ]
+        },
+        {
+          id: 4,
+          name: 'Hiring Manager',
+          userCount: 12,
+          description: 'Reviews applications for their department, participates in interviews, and provides hiring recommendations. Limited to own department postings.',
+          colorClass: 'role-color-gold',
+          badgeClass: 'role-badge-custom',
+          badgeText: 'Custom',
+          avatarClass: 'avatar-gold',
+          permissions: [
+            'View department job postings',
+            'Review department applications',
+            'Provide hiring recommendations',
+            'Schedule interviews',
+            'View department analytics'
+          ],
+          users: [
+            { name: 'Thabo Khumalo', initials: 'TK', dept: 'Engineering', avatarClass: 'avatar-teal' },
+            { name: 'Pieter van der Merwe', initials: 'PV', dept: 'Finance', avatarClass: 'avatar-gold' },
+            { name: 'Johan Pretorius', initials: 'JP', dept: 'Maintenance', avatarClass: 'avatar-gold' },
+            { name: 'Nthabiseng Mokoena', initials: 'NM', dept: 'Operations', avatarClass: 'avatar-navy' },
+            { name: 'Dumisani Zungu', initials: 'DZ', dept: 'Water Quality', avatarClass: 'avatar-teal' },
+            { name: 'Sizwe Dladla', initials: 'SD', dept: 'Supply Chain', avatarClass: 'avatar-pink' }
+          ]
+        },
+        {
+          id: 5,
+          name: 'Employee',
+          userCount: 145,
+          description: 'Standard employee access. Can view own profile, submit leave requests, access company announcements, and apply for internal vacancies.',
+          colorClass: 'role-color-teal',
+          badgeClass: 'role-badge-system',
+          badgeText: 'System',
+          avatarClass: 'avatar-teal',
+          permissions: [
+            'View own profile',
+            'Submit leave requests',
+            'View company announcements',
+            'Apply for internal vacancies',
+            'View own payslips'
+          ],
+          users: [
+            { name: 'Khanyisile Mhlongo', initials: 'KM', dept: 'Operations', avatarClass: 'avatar-navy' },
+            { name: 'Siyabonga Nxumalo', initials: 'SX', dept: 'Maintenance', avatarClass: 'avatar-gold' },
+            { name: 'Nokuthula Zwane', initials: 'NZ', dept: 'Finance', avatarClass: 'avatar-pink' },
+            { name: 'Mthokozisi Hadebe', initials: 'MH', dept: 'Engineering', avatarClass: 'avatar-teal' }
+          ]
+        },
+        {
+          id: 6,
+          name: 'Auditor',
+          userCount: 2,
+          description: 'Read-only access to compliance reports, audit trails, and system logs. Cannot modify any data or configurations.',
+          colorClass: 'role-color-pink',
+          badgeClass: 'role-badge-custom',
+          badgeText: 'Custom',
+          avatarClass: 'avatar-pink',
+          permissions: [
+            'View all analytics and reports',
+            'Audit logs access',
+            'View compliance reports',
+            'Export reports'
+          ],
+          users: [
+            { name: 'Francois du Plessis', initials: 'FP', dept: 'Finance', avatarClass: 'avatar-gold' },
+            { name: 'Nompumelelo Khumalo', initials: 'NK', dept: 'Finance', avatarClass: 'avatar-pink' }
+          ]
+        }
+      ];
+
+      // ===== MOCK DATA: USERS FOR USERS TABLE =====
+      var usersData = [
+        { name: 'Sipho Ndlovu', initials: 'SN', email: 'sipho.ndlovu@uthukela.gov.za', role: 'Super Admin', roleBadge: 'badge-navy', dept: 'ICT', lastActive: '2 minutes ago', avatarClass: 'avatar-navy' },
+        { name: 'Bongani Zulu', initials: 'BZ', email: 'bongani.zulu@uthukela.gov.za', role: 'Super Admin', roleBadge: 'badge-navy', dept: 'ICT', lastActive: '15 minutes ago', avatarClass: 'avatar-navy' },
+        { name: 'Nomvula Dlamini', initials: 'ND', email: 'nomvula.dlamini@uthukela.gov.za', role: 'HR Manager', roleBadge: 'badge-pink', dept: 'Human Resources', lastActive: '5 minutes ago', avatarClass: 'avatar-pink' },
+        { name: 'Zanele Mthembu', initials: 'ZM', email: 'zanele.mthembu@uthukela.gov.za', role: 'HR Manager', roleBadge: 'badge-pink', dept: 'Human Resources', lastActive: '1 hour ago', avatarClass: 'avatar-pink' },
+        { name: 'Lindiwe Ngcobo', initials: 'LN', email: 'lindiwe.ngcobo@uthukela.gov.za', role: 'HR Manager', roleBadge: 'badge-pink', dept: 'Human Resources', lastActive: '3 hours ago', avatarClass: 'avatar-teal' },
+        { name: 'Nokukhanya Cele', initials: 'NC', email: 'nokukhanya.cele@uthukela.gov.za', role: 'HR Manager', roleBadge: 'badge-pink', dept: 'Human Resources', lastActive: '30 minutes ago', avatarClass: 'avatar-gold' },
+        { name: 'Ayanda Mkhize', initials: 'AM', email: 'ayanda.mkhize@uthukela.gov.za', role: 'Recruiter', roleBadge: 'badge-teal', dept: 'Human Resources', lastActive: '10 minutes ago', avatarClass: 'avatar-teal' },
+        { name: 'Thulisile Nkosi', initials: 'TN', email: 'thulisile.nkosi@uthukela.gov.za', role: 'Recruiter', roleBadge: 'badge-teal', dept: 'Human Resources', lastActive: '45 minutes ago', avatarClass: 'avatar-teal' },
+        { name: 'Thabo Khumalo', initials: 'TK', email: 'thabo.khumalo@uthukela.gov.za', role: 'Hiring Manager', roleBadge: 'badge-gold', dept: 'Engineering', lastActive: '20 minutes ago', avatarClass: 'avatar-teal' },
+        { name: 'Pieter van der Merwe', initials: 'PV', email: 'pieter.vdmerwe@uthukela.gov.za', role: 'Hiring Manager', roleBadge: 'badge-gold', dept: 'Finance', lastActive: '1 hour ago', avatarClass: 'avatar-gold' },
+        { name: 'Johan Pretorius', initials: 'JP', email: 'johan.pretorius@uthukela.gov.za', role: 'Hiring Manager', roleBadge: 'badge-gold', dept: 'Maintenance', lastActive: '2 hours ago', avatarClass: 'avatar-gold' },
+        { name: 'Khanyisile Mhlongo', initials: 'KM', email: 'khanyisile.mhlongo@uthukela.gov.za', role: 'Employee', roleBadge: 'badge-teal', dept: 'Operations', lastActive: '4 hours ago', avatarClass: 'avatar-navy' },
+        { name: 'Francois du Plessis', initials: 'FP', email: 'francois.duplessis@uthukela.gov.za', role: 'Auditor', roleBadge: 'badge-pink', dept: 'Finance', lastActive: '1 day ago', avatarClass: 'avatar-gold' },
+        { name: 'Nompumelelo Khumalo', initials: 'NK', email: 'nompumelelo.khumalo@uthukela.gov.za', role: 'Auditor', roleBadge: 'badge-pink', dept: 'Finance', lastActive: '2 days ago', avatarClass: 'avatar-pink' }
+      ];
+
+      // ===== MOCK DATA: PERMISSIONS MATRIX =====
+      var permissionsMatrix = [
+        {
+          category: 'Recruitment',
+          permissions: [
+            { name: 'Create job postings', superAdmin: true, hrManager: true, recruiter: true, hiringManager: false, employee: false, auditor: false },
+            { name: 'Edit job postings', superAdmin: true, hrManager: true, recruiter: true, hiringManager: false, employee: false, auditor: false },
+            { name: 'Delete job postings', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'View all applications', superAdmin: true, hrManager: true, recruiter: true, hiringManager: false, employee: false, auditor: true },
+            { name: 'Review department applications', superAdmin: true, hrManager: true, recruiter: true, hiringManager: true, employee: false, auditor: false },
+            { name: 'Schedule interviews', superAdmin: true, hrManager: true, recruiter: true, hiringManager: true, employee: false, auditor: false },
+            { name: 'Make hiring decisions', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: false }
+          ]
+        },
+        {
+          category: 'HR',
+          permissions: [
+            { name: 'View employee records', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: true },
+            { name: 'Edit employee records', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'Approve leave requests', superAdmin: true, hrManager: true, recruiter: false, hiringManager: true, employee: false, auditor: false },
+            { name: 'Manage payroll', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: true },
+            { name: 'View own profile', superAdmin: true, hrManager: true, recruiter: true, hiringManager: true, employee: true, auditor: true }
+          ]
+        },
+        {
+          category: 'Talent',
+          permissions: [
+            { name: 'Manage talent pools', superAdmin: true, hrManager: true, recruiter: true, hiringManager: false, employee: false, auditor: false },
+            { name: 'Manage training programs', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'Conduct performance reviews', superAdmin: true, hrManager: true, recruiter: false, hiringManager: true, employee: false, auditor: false },
+            { name: 'Apply for internal vacancies', superAdmin: true, hrManager: true, recruiter: true, hiringManager: true, employee: true, auditor: false }
+          ]
+        },
+        {
+          category: 'Analytics',
+          permissions: [
+            { name: 'View all reports', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: true },
+            { name: 'View department reports', superAdmin: true, hrManager: true, recruiter: true, hiringManager: true, employee: false, auditor: true },
+            { name: 'Export reports', superAdmin: true, hrManager: true, recruiter: false, hiringManager: false, employee: false, auditor: true },
+            { name: 'View audit trails', superAdmin: true, hrManager: false, recruiter: false, hiringManager: false, employee: false, auditor: true }
+          ]
+        },
+        {
+          category: 'Admin',
+          permissions: [
+            { name: 'Manage roles', superAdmin: true, hrManager: false, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'Manage permissions', superAdmin: true, hrManager: false, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'System configuration', superAdmin: true, hrManager: false, recruiter: false, hiringManager: false, employee: false, auditor: false },
+            { name: 'Manage integrations', superAdmin: true, hrManager: false, recruiter: false, hiringManager: false, employee: false, auditor: false }
+          ]
+        }
+      ];
+
+      // ===== RENDER: ROLE CARDS =====
+      function renderRoleCards() {
+        var grid = document.getElementById('rolesView');
+        grid.innerHTML = roles.map(function(role) {
+          return '<div class="role-card" data-role-id="' + role.id + '" onclick="openRoleDetail(' + role.id + ')">' +
+            '<button class="card-menu-btn" title="Actions" onclick="event.stopPropagation()">' + threeDotSVG + '</button>' +
+            '<div class="role-card-header">' +
+              '<div class="role-color-indicator ' + role.colorClass + '">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>' +
+              '</div>' +
+              '<div>' +
+                '<div class="role-card-title">' + role.name + '</div>' +
+                '<div class="role-card-users">' + role.userCount + ' user' + (role.userCount !== 1 ? 's' : '') + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="role-card-desc">' + role.description + '</div>' +
+            '<div class="role-card-divider"></div>' +
+            '<div class="role-card-meta">' +
+              '<span class="role-badge ' + role.badgeClass + '">' + role.badgeText + '</span>' +
+              '<a class="card-link" href="#" onclick="event.stopPropagation(); openRoleDetail(' + role.id + ')">View Details</a>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // ===== RENDER: PERMISSIONS MATRIX =====
+      function renderMatrix() {
+        var tbody = document.getElementById('matrixTableBody');
+        var html = '';
+
+        permissionsMatrix.forEach(function(cat) {
+          // Category row
+          html += '<tr style="background:var(--bg);">' +
+            '<td class="matrix-category" colspan="7">' + cat.category + '</td>' +
+          '</tr>';
+
+          cat.permissions.forEach(function(perm) {
+            html += '<tr>' +
+              '<td class="matrix-permission">' + perm.name + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.superAdmin) + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.hrManager) + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.recruiter) + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.hiringManager) + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.employee) + '</td>' +
+              '<td class="text-center">' + renderToggle(perm.auditor) + '</td>' +
+            '</tr>';
+          });
+        });
+
+        tbody.innerHTML = html;
+      }
+
+      function renderToggle(isOn) {
+        return '<label class="toggle-switch">' +
+          '<input type="checkbox"' + (isOn ? ' checked' : '') + '>' +
+          '<span class="toggle-slider"></span>' +
+        '</label>';
+      }
+
+      // ===== RENDER: USERS TABLE =====
+      function renderUsersTable() {
+        var tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = usersData.map(function(user) {
+          return '<tr>' +
+            '<td>' +
+              '<div class="list-employee-cell">' +
+                '<div class="list-avatar ' + user.avatarClass + '">' + user.initials + '</div>' +
+                '<div class="list-employee-info">' +
+                  '<span class="list-employee-name">' + user.name + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</td>' +
+            '<td><span class="list-employee-email">' + user.email + '</span></td>' +
+            '<td><span class="status-badge ' + user.roleBadge + '">' + user.role + '</span></td>' +
+            '<td>' + user.dept + '</td>' +
+            '<td><span class="last-active-text">' + user.lastActive + '</span></td>' +
+            '<td><button class="list-actions-btn" title="Actions">' + threeDotSVG + '</button></td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      // ===== VIEW TOGGLE =====
+      function setActiveView(viewName) {
+        document.querySelectorAll('.view-tab').forEach(function(tab) {
+          tab.classList.toggle('active', tab.getAttribute('data-view') === viewName);
+        });
+
+        var rolesEl = document.getElementById('rolesView');
+        var matrixEl = document.getElementById('matrixView');
+        var usersEl = document.getElementById('usersView');
+
+        rolesEl.style.display = viewName === 'roles' ? 'grid' : 'none';
+        matrixEl.style.display = viewName === 'matrix' ? 'block' : 'none';
+        matrixEl.classList.toggle('active', viewName === 'matrix');
+        usersEl.style.display = viewName === 'users' ? 'block' : 'none';
+        usersEl.classList.toggle('active', viewName === 'users');
+      }
+
+      // ===== MODAL: OPEN / CLOSE =====
+      window.openModal = function(id) {
+        var m = document.getElementById(id);
+        m.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      };
+
+      window.closeModal = function(id) {
+        var m = document.getElementById(id);
+        m.classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      // ===== MODAL: ROLE DETAIL =====
+      window.openRoleDetail = function(roleId) {
+        var role = roles.find(function(r) { return r.id === roleId; });
+        if (!role) return;
+
+        document.getElementById('modalRoleName').textContent = role.name;
+        document.getElementById('modalRoleDesc').textContent = role.description;
+
+        // Render permissions checklist
+        var allPermissions = [
+          'Manage all job postings', 'View and manage all applications', 'Access employee records',
+          'Manage talent pools', 'View all analytics and reports', 'Manage roles and permissions',
+          'System configuration', 'Audit logs access', 'Approve leave requests',
+          'Schedule interviews', 'Send candidate communications', 'View department job postings',
+          'Review department applications', 'Provide hiring recommendations', 'View department analytics',
+          'View own profile', 'Submit leave requests', 'View company announcements',
+          'Apply for internal vacancies', 'View own payslips', 'View compliance reports', 'Export reports'
+        ];
+
+        var permHtml = allPermissions.map(function(perm) {
+          var hasIt = role.permissions.indexOf(perm) !== -1;
+          var iconClass = hasIt ? 'check-icon-on' : 'check-icon-off';
+          var checkSvg = hasIt
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          return '<li' + (hasIt ? '' : ' style="opacity:0.45"') + '>' +
+            '<span class="check-icon ' + iconClass + '">' + checkSvg + '</span>' +
+            perm +
+          '</li>';
+        }).join('');
+        document.getElementById('modalPermissions').innerHTML = permHtml;
+
+        // Render assigned users (show first 6, indicate more)
+        var displayUsers = role.users.slice(0, 6);
+        var usersHtml = displayUsers.map(function(u) {
+          return '<li>' +
+            '<div class="assigned-user-avatar ' + u.avatarClass + '">' + u.initials + '</div>' +
+            '<div class="assigned-user-info">' +
+              '<div class="assigned-user-name">' + u.name + '</div>' +
+              '<div class="assigned-user-dept">' + u.dept + '</div>' +
+            '</div>' +
+          '</li>';
+        }).join('');
+
+        if (role.userCount > 6) {
+          usersHtml += '<li style="color:var(--text-muted);font-size:0.8125rem;font-weight:500;padding:0.5rem 0;justify-content:center;">+ ' + (role.userCount - 6) + ' more users</li>';
+        }
+
+        document.getElementById('modalAssignedUsers').innerHTML = usersHtml;
+
+        openModal('roleDetailModal');
+      };
+
+      // ===== DEMO STATE TOGGLE =====
+      window.setDemoState = function(state) {
+        var normalContent = document.getElementById('normalContent');
+        var skeletonContent = document.getElementById('skeletonContent');
+        var demoBtnNormal = document.getElementById('demoBtnNormal');
+        var demoBtnSkeleton = document.getElementById('demoBtnSkeleton');
+
+        if (state === 'skeleton') {
+          normalContent.classList.add('hidden');
+          skeletonContent.classList.add('active');
+          demoBtnNormal.classList.remove('active');
+          demoBtnSkeleton.classList.add('active');
+        } else {
+          normalContent.classList.remove('hidden');
+          skeletonContent.classList.remove('active');
+          demoBtnNormal.classList.add('active');
+          demoBtnSkeleton.classList.remove('active');
+        }
+      };
+
+      // ===== CLOSE MODALS: OVERLAY CLICK =====
+      document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+          }
+        });
+      });
+
+      // ===== CLOSE MODALS: ESCAPE KEY =====
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+            m.classList.remove('open');
+          });
+          document.body.style.overflow = '';
+        }
+      });
+
+      // ===== INIT =====
+      document.addEventListener('DOMContentLoaded', function() {
+        renderRoleCards();
+        renderMatrix();
+        renderUsersTable();
+
+        // View tab switching
+        document.querySelectorAll('.view-tab').forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            setActiveView(this.getAttribute('data-view'));
+          });
+        });
+      });
+
+    })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

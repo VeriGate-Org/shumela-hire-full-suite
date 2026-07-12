@@ -1,0 +1,3282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Payslips | ShumelaHire — uThukela Water</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: #F1F5F9;
+            color: #0F172A;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #05527E;
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #047469;
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--muted);
+            transition: color 200ms ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--border);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb .current {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: background 200ms ease, color 200ms ease;
+            position: relative;
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .nav-icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error);
+            border: 2px solid var(--card);
+        }
+
+        .avatar-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 200ms ease;
+        }
+
+        .avatar-btn:hover {
+            border-color: var(--primary);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-header-left h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .page-header-left p {
+            font-size: 0.9375rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 200ms ease;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            background: var(--cta);
+            color: var(--text);
+        }
+
+        .btn-primary:hover {
+            background: var(--cta-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .btn-navy {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-navy:hover {
+            background: #044168;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--muted);
+            padding: 10px 16px;
+        }
+
+        .btn-ghost:hover {
+            color: var(--text);
+            background: var(--surface-navy);
+        }
+
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 0.75rem;
+        }
+
+        /* ===== DEMO STATE TOGGLE BAR ===== */
+        .demo-toggle-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-button);
+            padding: 4px;
+            margin-bottom: 24px;
+            width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .demo-toggle-btn {
+            padding: 8px 18px;
+            border-radius: var(--radius-button);
+            border: none;
+            background: transparent;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .demo-toggle-btn:hover {
+            color: var(--text);
+        }
+
+        .demo-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ===== CARD BASE ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== HERO PAYSLIP CARD ===== */
+        .hero-card {
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .hero-card-header {
+            background: linear-gradient(135deg, #05527E 0%, #06698a 40%, #047469 100%);
+            padding: 28px 32px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .hero-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: 30%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .hero-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.75;
+            margin-bottom: 4px;
+        }
+
+        .hero-title {
+            font-size: 1.375rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-card-body {
+            padding: 28px 32px;
+        }
+
+        .hero-figures {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .hero-figure {
+            text-align: center;
+        }
+
+        .hero-figure-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .hero-figure-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        .hero-figure-value.net {
+            color: var(--gold);
+            font-size: 1.75rem;
+        }
+
+        .hero-figure-value.deductions {
+            color: var(--pink);
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* ===== YEAR FILTER ===== */
+        .year-filter {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 20px;
+            padding: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-button);
+            width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .year-pill {
+            padding: 8px 22px;
+            border-radius: var(--radius-button);
+            border: none;
+            background: transparent;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .year-pill:hover {
+            color: var(--text);
+        }
+
+        .year-pill.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ===== PAYSLIP LIST ===== */
+        .payslip-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .payslip-card {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            gap: 24px;
+            transition: box-shadow 200ms ease, border-color 200ms ease;
+        }
+
+        .payslip-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: #CBD5E1;
+        }
+
+        .payslip-left {
+            min-width: 180px;
+        }
+
+        .payslip-month {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .payslip-period {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .payslip-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .status-dot.processed {
+            background: var(--success);
+        }
+
+        .status-dot.pending {
+            background: var(--warning);
+        }
+
+        .payslip-status.processed {
+            color: var(--success);
+        }
+
+        .payslip-status.pending {
+            color: var(--warning);
+        }
+
+        .payslip-center {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .payslip-col {
+            text-align: center;
+        }
+
+        .payslip-col-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .payslip-col-value {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .payslip-col-value.net {
+            color: var(--gold);
+        }
+
+        .payslip-col-value.deductions {
+            color: var(--pink);
+        }
+
+        .payslip-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: all 200ms ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ===== BAR CHART ===== */
+        .chart-section {
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            padding: 24px 28px;
+        }
+
+        .chart-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .chart-card-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .chart-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            height: 220px;
+            padding: 0 8px;
+        }
+
+        .chart-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar-value {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 64px;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(180deg, #05527E 0%, #06698a 100%);
+            transition: height 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            min-height: 4px;
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(180deg, #047469 0%, #05527E 100%);
+        }
+
+        .chart-bar-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 250ms ease, visibility 250ms ease;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 250ms ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #05527E 0%, #06698a 40%, #047469 100%);
+            padding: 28px 32px 24px;
+            color: white;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 200ms ease;
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .modal-header-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .modal-header-title {
+            font-size: 1.375rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .modal-header-org {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .modal-body {
+            padding: 28px 32px;
+        }
+
+        /* Employee info row */
+        .employee-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+            padding: 16px 20px;
+            background: var(--surface-navy);
+            border-radius: var(--radius-control);
+            margin-bottom: 24px;
+        }
+
+        .employee-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .employee-info-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+
+        .employee-info-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Payslip table sections */
+        .payslip-section {
+            margin-bottom: 20px;
+        }
+
+        .payslip-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .payslip-section-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payslip-section-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .payslip-section-icon.earnings {
+            background: var(--icon-teal);
+            color: var(--teal);
+        }
+
+        .payslip-section-icon.deductions {
+            background: var(--icon-pink);
+            color: var(--pink);
+        }
+
+        .payslip-section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .payslip-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .payslip-table tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .payslip-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .payslip-table td {
+            padding: 10px 0;
+            font-size: 0.875rem;
+        }
+
+        .payslip-table td:first-child {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .payslip-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .payslip-table tr.total-row {
+            border-top: 2px solid var(--border);
+            border-bottom: none;
+        }
+
+        .payslip-table tr.total-row td {
+            font-weight: 800;
+            color: var(--text);
+            padding-top: 14px;
+            font-size: 0.9375rem;
+        }
+
+        .payslip-table tr.total-row td:first-child {
+            color: var(--text);
+        }
+
+        /* Summary box */
+        .payslip-summary-box {
+            background: linear-gradient(135deg, var(--surface-gold) 0%, #FFF8E1 100%);
+            border: 1px solid #F1C54B44;
+            border-radius: var(--radius-control);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payslip-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+
+        .payslip-summary-row:first-child {
+            padding-bottom: 12px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #F1C54B66;
+        }
+
+        .payslip-summary-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .payslip-summary-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .payslip-summary-label.net {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .payslip-summary-value.net {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        /* Modal footer */
+        .modal-footer {
+            padding: 20px 32px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-lg);
+            padding: 14px 18px 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 350ms cubic-bezier(0.21, 1.02, 0.73, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.hide {
+            transform: translateX(120%);
+            transition: transform 300ms ease-in;
+        }
+
+        .toast-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .toast-icon.success {
+            background: #D1FAE5;
+            color: var(--success);
+        }
+
+        .toast-icon.info {
+            background: var(--icon-navy);
+            color: var(--primary);
+        }
+
+        .toast-icon.error {
+            background: var(--icon-pink);
+            color: var(--error);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .toast-close {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 200ms ease;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            background: var(--bg);
+        }
+
+        .toast-close svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            border-radius: 0 0 0 var(--radius-card);
+            transition: width linear;
+        }
+
+        .toast-progress.success {
+            background: var(--success);
+        }
+
+        .toast-progress.info {
+            background: var(--primary);
+        }
+
+        .toast-progress.error {
+            background: var(--error);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 64px 32px;
+            text-align: center;
+        }
+
+        .empty-state.visible {
+            display: flex;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--surface-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-icon svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary);
+        }
+
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-state-desc {
+            font-size: 0.875rem;
+            color: var(--muted);
+            max-width: 340px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-link {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            transition: color 200ms ease;
+        }
+
+        .empty-state-link:hover {
+            color: var(--teal);
+        }
+
+        /* ===== ERROR STATE ===== */
+        .error-state {
+            display: none;
+        }
+
+        .error-state.visible {
+            display: block;
+        }
+
+        .error-card {
+            background: var(--error-bg);
+            border: 1px solid #FECACA;
+            border-radius: var(--radius-card);
+            padding: 48px 32px;
+            text-align: center;
+        }
+
+        .error-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #FEE2E2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .error-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--error);
+        }
+
+        .error-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .error-desc {
+            font-size: 0.875rem;
+            color: var(--muted);
+            max-width: 380px;
+            margin: 0 auto 24px;
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        .skeleton-state {
+            display: none;
+        }
+
+        .skeleton-state.visible {
+            display: block;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -800px 0; }
+            100% { background-position: 800px 0; }
+        }
+
+        .skeleton-line {
+            background: linear-gradient(90deg, #E2E8F0 0%, #F1F5F9 40%, #E2E8F0 80%);
+            background-size: 800px 100%;
+            animation: shimmer 1.6s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        .skeleton-hero {
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            margin-bottom: 24px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .skeleton-hero-top {
+            height: 80px;
+            background: linear-gradient(90deg, #E2E8F0 0%, #CBD5E1 40%, #E2E8F0 80%);
+            background-size: 800px 100%;
+            animation: shimmer 1.6s ease-in-out infinite;
+        }
+
+        .skeleton-hero-body {
+            padding: 28px 32px;
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+        }
+
+        .skeleton-figure {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skeleton-hero-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 0 32px 24px;
+        }
+
+        .skeleton-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .skeleton-card-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .skeleton-payslip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .skeleton-payslip-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 150px;
+        }
+
+        .skeleton-payslip-center {
+            flex: 1;
+            display: flex;
+            justify-content: space-around;
+            gap: 16px;
+        }
+
+        .skeleton-payslip-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .skeleton-chart {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-md);
+            padding: 24px 28px;
+        }
+
+        .skeleton-chart-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 180px;
+            gap: 16px;
+        }
+
+        .skeleton-chart-bar {
+            flex: 1;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(90deg, #E2E8F0 0%, #F1F5F9 40%, #E2E8F0 80%);
+            background-size: 800px 100%;
+            animation: shimmer 1.6s ease-in-out infinite;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .hero-figures {
+                gap: 16px;
+            }
+
+            .hero-figure-value {
+                font-size: 1.25rem;
+            }
+
+            .hero-figure-value.net {
+                font-size: 1.5rem;
+            }
+
+            .payslip-left {
+                min-width: 140px;
+            }
+
+            .payslip-col-label {
+                font-size: 0.625rem;
+            }
+
+            .payslip-col-value {
+                font-size: 0.8125rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 16px 48px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .hero-card-header {
+                padding: 20px 20px 18px;
+            }
+
+            .hero-card-body {
+                padding: 20px;
+            }
+
+            .hero-figures {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .hero-figure {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .payslip-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 16px 20px;
+                gap: 14px;
+            }
+
+            .payslip-left {
+                min-width: auto;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .payslip-status {
+                margin-top: 0;
+                margin-left: auto;
+            }
+
+            .payslip-center {
+                width: 100%;
+                grid-template-columns: 1fr 1fr 1fr;
+                background: var(--bg);
+                border-radius: var(--radius-control);
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .payslip-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .chart-container {
+                height: 180px;
+                gap: 8px;
+            }
+
+            .chart-bar-value {
+                font-size: 0.5625rem;
+            }
+
+            .modal {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 12px;
+            }
+
+            .modal-header {
+                padding: 20px;
+                border-radius: 12px 12px 0 0;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-footer {
+                padding: 16px 20px;
+                flex-wrap: wrap;
+            }
+
+            .employee-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-toggle-bar {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .skeleton-payslip {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .skeleton-payslip-center {
+                width: 100%;
+            }
+
+            .skeleton-hero-body {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .year-filter {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .year-pill {
+                flex: 1;
+                text-align: center;
+                padding: 8px 12px;
+            }
+
+            .demo-toggle-bar {
+                flex-wrap: wrap;
+            }
+
+            .demo-toggle-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 10px;
+                font-size: 0.75rem;
+            }
+
+            .chart-bar-value {
+                display: none;
+            }
+
+            .toast-container {
+                right: 12px;
+                left: 12px;
+                max-width: none;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+    <!-- ===== TOP NAV ===== -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+                <div class="logo">Shumela<span>Hire</span></div>
+                <div class="breadcrumb">
+                    <a href="#">Dashboard</a>
+                    <span class="separator">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span class="current">My Payslips</span>
+                </div>
+            </div>
+            <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+                <button class="nav-icon-btn" title="Notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-dot"></span>
+                </button>
+                <div class="avatar-btn" title="Sipho Ndlovu">SN</div>
+            </div>
+        </div>
+    </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link active">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>My Payslips</h1>
+                <p>View and download your monthly payslips</p>
+            </div>
+            <button class="btn btn-outline" onclick="handleDownloadAll()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download All (2026)
+            </button>
+        </div>
+
+        <!-- Demo State Toggle Bar -->
+        <div class="demo-toggle-bar">
+            <button class="demo-toggle-btn active" onclick="setDemoState('normal')">Normal</button>
+            <button class="demo-toggle-btn" onclick="setDemoState('skeleton')">Skeleton</button>
+            <button class="demo-toggle-btn" onclick="setDemoState('empty')">Empty State</button>
+            <button class="demo-toggle-btn" onclick="setDemoState('error')">Error State</button>
+        </div>
+
+        <!-- ========== NORMAL STATE ========== -->
+        <div id="state-normal">
+
+            <!-- Hero Card: Current Month -->
+            <div class="hero-card card">
+                <div class="hero-card-header">
+                    <div class="hero-label">Current Payslip</div>
+                    <div class="hero-title">June 2026</div>
+                </div>
+                <div class="hero-card-body">
+                    <div class="hero-figures">
+                        <div class="hero-figure">
+                            <div class="hero-figure-label">Gross Pay</div>
+                            <div class="hero-figure-value">R 45,833.33</div>
+                        </div>
+                        <div class="hero-figure">
+                            <div class="hero-figure-label">Deductions</div>
+                            <div class="hero-figure-value deductions">R 12,450.00</div>
+                        </div>
+                        <div class="hero-figure">
+                            <div class="hero-figure-label">Net Pay</div>
+                            <div class="hero-figure-value net">R 33,383.33</div>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn btn-navy" onclick="openPayslipModal(0)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            View Details
+                        </button>
+                        <button class="btn btn-primary" onclick="handleDownload('June 2026')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year Filter -->
+            <div class="year-filter" id="year-filter">
+                <button class="year-pill active" data-year="2026" onclick="setYear(2026)">2026</button>
+                <button class="year-pill" data-year="2025" onclick="setYear(2025)">2025</button>
+                <button class="year-pill" data-year="2024" onclick="setYear(2024)">2024</button>
+            </div>
+
+            <!-- Payslip List -->
+            <div class="payslip-list" id="payslip-list">
+                <!-- Dynamically rendered by JS -->
+            </div>
+
+            <!-- Year-over-Year Bar Chart -->
+            <div class="chart-section" id="chart-section">
+                <div class="chart-card card">
+                    <div class="chart-card-header">
+                        <div class="chart-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <div class="chart-card-title">Net Pay Trend — 2026</div>
+                    </div>
+                    <div class="chart-container" id="chart-container">
+                        <!-- Dynamically rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========== SKELETON STATE ========== -->
+        <div class="skeleton-state" id="state-skeleton">
+            <div class="skeleton-hero">
+                <div class="skeleton-hero-top"></div>
+                <div class="skeleton-hero-body">
+                    <div class="skeleton-figure">
+                        <div class="skeleton-line" style="width:80px;height:12px;"></div>
+                        <div class="skeleton-line" style="width:120px;height:28px;"></div>
+                    </div>
+                    <div class="skeleton-figure">
+                        <div class="skeleton-line" style="width:80px;height:12px;"></div>
+                        <div class="skeleton-line" style="width:120px;height:28px;"></div>
+                    </div>
+                    <div class="skeleton-figure">
+                        <div class="skeleton-line" style="width:80px;height:12px;"></div>
+                        <div class="skeleton-line" style="width:140px;height:32px;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-hero-actions">
+                    <div class="skeleton-line" style="width:140px;height:40px;border-radius:9999px;"></div>
+                    <div class="skeleton-line" style="width:140px;height:40px;border-radius:9999px;"></div>
+                </div>
+            </div>
+
+            <div class="skeleton-pills">
+                <div class="skeleton-line" style="width:72px;height:36px;border-radius:9999px;"></div>
+                <div class="skeleton-line" style="width:72px;height:36px;border-radius:9999px;"></div>
+                <div class="skeleton-line" style="width:72px;height:36px;border-radius:9999px;"></div>
+            </div>
+
+            <div class="skeleton-card-row">
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:120px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:160px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:110px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:150px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:100px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:145px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:115px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:155px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:125px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:148px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-payslip">
+                    <div class="skeleton-payslip-left">
+                        <div class="skeleton-line" style="width:108px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:152px;height:12px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-center">
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                        <div class="skeleton-line" style="width:90px;height:16px;"></div>
+                    </div>
+                    <div class="skeleton-payslip-right">
+                        <div class="skeleton-line" style="width:60px;height:32px;border-radius:9999px;"></div>
+                        <div class="skeleton-line" style="width:32px;height:32px;border-radius:50%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skeleton-chart">
+                <div class="skeleton-chart-header">
+                    <div class="skeleton-line" style="width:36px;height:36px;border-radius:10px;"></div>
+                    <div class="skeleton-line" style="width:200px;height:18px;"></div>
+                </div>
+                <div class="skeleton-chart-bars">
+                    <div class="skeleton-chart-bar" style="height:60%;"></div>
+                    <div class="skeleton-chart-bar" style="height:75%;"></div>
+                    <div class="skeleton-chart-bar" style="height:65%;"></div>
+                    <div class="skeleton-chart-bar" style="height:80%;"></div>
+                    <div class="skeleton-chart-bar" style="height:70%;"></div>
+                    <div class="skeleton-chart-bar" style="height:85%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== EMPTY STATE ========== -->
+        <div class="empty-state" id="state-empty">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+            </div>
+            <div class="empty-state-title">No Payslips Available</div>
+            <div class="empty-state-desc">There are no payslips for the selected year. Payslips will appear here once they have been processed.</div>
+            <span class="empty-state-link" onclick="setYear(2026)">Select Another Year</span>
+        </div>
+
+        <!-- ========== ERROR STATE ========== -->
+        <div class="error-state" id="state-error">
+            <div class="error-card">
+                <div class="error-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <div class="error-title">Unable to Load Payslips</div>
+                <div class="error-desc">Something went wrong while loading your payslip data. Please check your connection and try again.</div>
+                <button class="btn btn-navy" onclick="setDemoState('normal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Retry
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== PAYSLIP DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="payslip-modal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closePayslipModal()" title="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div class="modal-header-label">uThukela Water</div>
+                <div class="modal-header-title" id="modal-title">Payslip &mdash; June 2026</div>
+                <div class="modal-header-org">Employee Payslip Document</div>
+            </div>
+            <div class="modal-body">
+                <!-- Employee Info -->
+                <div class="employee-info-grid">
+                    <div class="employee-info-item">
+                        <span class="employee-info-label">Employee Name</span>
+                        <span class="employee-info-value">Sipho Ndlovu</span>
+                    </div>
+                    <div class="employee-info-item">
+                        <span class="employee-info-label">Employee ID</span>
+                        <span class="employee-info-value">UTH-2020-001</span>
+                    </div>
+                    <div class="employee-info-item">
+                        <span class="employee-info-label">Position</span>
+                        <span class="employee-info-value">Operations Manager</span>
+                    </div>
+                    <div class="employee-info-item">
+                        <span class="employee-info-label">Tax Number</span>
+                        <span class="employee-info-value">1234567890</span>
+                    </div>
+                </div>
+
+                <!-- Earnings -->
+                <div class="payslip-section">
+                    <div class="payslip-section-header">
+                        <div class="payslip-section-icon earnings">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        </div>
+                        <div class="payslip-section-title">Earnings</div>
+                    </div>
+                    <table class="payslip-table" id="modal-earnings-table">
+                        <tr><td>Basic Salary</td><td>R 38,194.44</td></tr>
+                        <tr><td>Housing Allowance</td><td>R 4,500.00</td></tr>
+                        <tr><td>Transport Allowance</td><td>R 2,138.89</td></tr>
+                        <tr><td>Performance Bonus</td><td>R 1,000.00</td></tr>
+                        <tr class="total-row"><td>Total Earnings</td><td id="modal-total-earnings">R 45,833.33</td></tr>
+                    </table>
+                </div>
+
+                <!-- Deductions -->
+                <div class="payslip-section">
+                    <div class="payslip-section-header">
+                        <div class="payslip-section-icon deductions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                        </div>
+                        <div class="payslip-section-title">Deductions</div>
+                    </div>
+                    <table class="payslip-table" id="modal-deductions-table">
+                        <tr><td>PAYE Tax</td><td>R 8,750.00</td></tr>
+                        <tr><td>UIF</td><td>R 177.12</td></tr>
+                        <tr><td>Medical Aid (Discovery)</td><td>R 2,350.00</td></tr>
+                        <tr><td>Pension Fund (7.5%)</td><td>R 1,172.88</td></tr>
+                        <tr class="total-row"><td>Total Deductions</td><td id="modal-total-deductions">R 12,450.00</td></tr>
+                    </table>
+                </div>
+
+                <!-- Summary Box -->
+                <div class="payslip-summary-box">
+                    <div class="payslip-summary-row">
+                        <span class="payslip-summary-label net">Net Pay</span>
+                        <span class="payslip-summary-value net" id="modal-net-pay">R 33,383.33</span>
+                    </div>
+                    <div class="payslip-summary-row">
+                        <span class="payslip-summary-label">Payment Method</span>
+                        <span class="payslip-summary-value" id="modal-payment-method">Bank Transfer &mdash; FNB ****4523</span>
+                    </div>
+                    <div class="payslip-summary-row">
+                        <span class="payslip-summary-label">Payment Date</span>
+                        <span class="payslip-summary-value" id="modal-payment-date">25 June 2026</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closePayslipModal()">Close</button>
+                <button class="btn btn-outline btn-sm" onclick="handlePrint()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Print
+                </button>
+                <button class="btn btn-primary btn-sm" id="modal-download-btn" onclick="handleDownload('June 2026')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        /* ========== MOCK DATA ========== */
+        var payslipData = {
+            2026: [
+                {
+                    month: 'June', year: 2026, period: '1 Jun - 30 Jun 2026', payDate: '25 June 2026',
+                    gross: 45833.33, deductions: 12450.00, net: 33383.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8750.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2350.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                },
+                {
+                    month: 'May', year: 2026, period: '1 May - 31 May 2026', payDate: '25 May 2026',
+                    gross: 45833.33, deductions: 12450.00, net: 33383.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8750.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2350.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                },
+                {
+                    month: 'April', year: 2026, period: '1 Apr - 30 Apr 2026', payDate: '25 April 2026',
+                    gross: 45833.33, deductions: 12450.00, net: 33383.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8750.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2350.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                },
+                {
+                    month: 'March', year: 2026, period: '1 Mar - 31 Mar 2026', payDate: '25 March 2026',
+                    gross: 45833.33, deductions: 11980.00, net: 33853.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8450.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2180.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                },
+                {
+                    month: 'February', year: 2026, period: '1 Feb - 28 Feb 2026', payDate: '25 February 2026',
+                    gross: 45833.33, deductions: 11980.00, net: 33853.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8450.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2180.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                },
+                {
+                    month: 'January', year: 2026, period: '1 Jan - 31 Jan 2026', payDate: '25 January 2026',
+                    gross: 45833.33, deductions: 11980.00, net: 33853.33, status: 'Processed',
+                    earnings: [
+                        { desc: 'Basic Salary', amount: 38194.44 },
+                        { desc: 'Housing Allowance', amount: 4500.00 },
+                        { desc: 'Transport Allowance', amount: 2138.89 },
+                        { desc: 'Performance Bonus', amount: 1000.00 }
+                    ],
+                    deductionItems: [
+                        { desc: 'PAYE Tax', amount: 8450.00 },
+                        { desc: 'UIF', amount: 177.12 },
+                        { desc: 'Medical Aid (Discovery)', amount: 2180.00 },
+                        { desc: 'Pension Fund (7.5%)', amount: 1172.88 }
+                    ]
+                }
+            ],
+            2025: [],
+            2024: []
+        };
+
+        var currentYear = 2026;
+        var currentDemoState = 'normal';
+
+        /* ========== FORMAT CURRENCY ========== */
+        function formatRand(amount) {
+            return 'R ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        /* ========== RENDER PAYSLIP LIST ========== */
+        function renderPayslipList() {
+            var container = document.getElementById('payslip-list');
+            var data = payslipData[currentYear] || [];
+
+            if (data.length === 0 && currentDemoState === 'normal') {
+                container.innerHTML = '';
+                document.getElementById('state-normal').querySelector('.hero-card').style.display = 'none';
+                document.getElementById('chart-section').style.display = 'none';
+                document.getElementById('state-empty').classList.add('visible');
+                return;
+            }
+
+            document.getElementById('state-empty').classList.remove('visible');
+            document.getElementById('state-normal').querySelector('.hero-card').style.display = '';
+            document.getElementById('chart-section').style.display = '';
+
+            var html = '';
+            data.forEach(function(slip, index) {
+                var statusClass = slip.status === 'Processed' ? 'processed' : 'pending';
+                html += '<div class="payslip-card card">';
+                html += '  <div class="payslip-left">';
+                html += '    <div class="payslip-month">' + slip.month + ' ' + slip.year + '</div>';
+                html += '    <div class="payslip-period">' + slip.period + '</div>';
+                html += '    <div class="payslip-status ' + statusClass + '">';
+                html += '      <span class="status-dot ' + statusClass + '"></span>';
+                html += '      ' + slip.status;
+                html += '    </div>';
+                html += '  </div>';
+                html += '  <div class="payslip-center">';
+                html += '    <div class="payslip-col">';
+                html += '      <div class="payslip-col-label">Gross Pay</div>';
+                html += '      <div class="payslip-col-value">' + formatRand(slip.gross) + '</div>';
+                html += '    </div>';
+                html += '    <div class="payslip-col">';
+                html += '      <div class="payslip-col-label">Deductions</div>';
+                html += '      <div class="payslip-col-value deductions">' + formatRand(slip.deductions) + '</div>';
+                html += '    </div>';
+                html += '    <div class="payslip-col">';
+                html += '      <div class="payslip-col-label">Net Pay</div>';
+                html += '      <div class="payslip-col-value net">' + formatRand(slip.net) + '</div>';
+                html += '    </div>';
+                html += '  </div>';
+                html += '  <div class="payslip-right">';
+                html += '    <button class="btn btn-outline btn-sm" onclick="openPayslipModal(' + index + ')">View</button>';
+                html += '    <button class="icon-btn" onclick="handleDownload(\'' + slip.month + ' ' + slip.year + '\')" title="Download PDF">';
+                html += '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>';
+                html += '    </button>';
+                html += '  </div>';
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        /* ========== RENDER BAR CHART ========== */
+        function renderChart() {
+            var container = document.getElementById('chart-container');
+            var data = payslipData[currentYear] || [];
+
+            if (data.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.875rem;width:100%;padding:40px 0;">No data for ' + currentYear + '</div>';
+                return;
+            }
+
+            // Reverse so Jan is first
+            var reversed = data.slice().reverse();
+            var maxNet = Math.max.apply(null, reversed.map(function(d) { return d.net; }));
+
+            var html = '';
+            reversed.forEach(function(slip) {
+                var heightPercent = (slip.net / maxNet) * 85;
+                html += '<div class="chart-bar-group">';
+                html += '  <div class="chart-bar-value">' + formatRand(slip.net) + '</div>';
+                html += '  <div class="chart-bar" style="height: ' + heightPercent + '%;"></div>';
+                html += '  <div class="chart-bar-label">' + slip.month.substring(0, 3) + '</div>';
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+
+            // Animate bars in
+            setTimeout(function() {
+                var bars = container.querySelectorAll('.chart-bar');
+                bars.forEach(function(bar, i) {
+                    var targetHeight = bar.style.height;
+                    bar.style.height = '4px';
+                    setTimeout(function() {
+                        bar.style.height = targetHeight;
+                    }, i * 80);
+                });
+            }, 50);
+        }
+
+        /* ========== YEAR FILTER ========== */
+        function setYear(year) {
+            currentYear = year;
+
+            // Update pill states
+            document.querySelectorAll('.year-pill').forEach(function(pill) {
+                pill.classList.toggle('active', parseInt(pill.getAttribute('data-year')) === year);
+            });
+
+            // Re-render
+            renderPayslipList();
+            renderChart();
+        }
+
+        /* ========== DEMO STATE TOGGLE ========== */
+        function setDemoState(state) {
+            currentDemoState = state;
+
+            // Update toggle button states
+            document.querySelectorAll('.demo-toggle-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Hide all states
+            document.getElementById('state-normal').style.display = 'none';
+            document.getElementById('state-skeleton').classList.remove('visible');
+            document.getElementById('state-empty').classList.remove('visible');
+            document.getElementById('state-error').classList.remove('visible');
+
+            switch (state) {
+                case 'normal':
+                    document.getElementById('state-normal').style.display = '';
+                    currentYear = 2026;
+                    document.querySelectorAll('.year-pill').forEach(function(pill) {
+                        pill.classList.toggle('active', pill.getAttribute('data-year') === '2026');
+                    });
+                    renderPayslipList();
+                    renderChart();
+                    break;
+                case 'skeleton':
+                    document.getElementById('state-skeleton').classList.add('visible');
+                    break;
+                case 'empty':
+                    document.getElementById('state-empty').classList.add('visible');
+                    break;
+                case 'error':
+                    document.getElementById('state-error').classList.add('visible');
+                    break;
+            }
+        }
+
+        /* ========== MODAL ========== */
+        function openPayslipModal(index) {
+            var data = payslipData[currentYear];
+            if (!data || !data[index]) return;
+
+            var slip = data[index];
+
+            // Update modal header
+            document.getElementById('modal-title').innerHTML = 'Payslip &mdash; ' + slip.month + ' ' + slip.year;
+
+            // Update earnings table
+            var earningsHtml = '';
+            slip.earnings.forEach(function(item) {
+                earningsHtml += '<tr><td>' + item.desc + '</td><td>' + formatRand(item.amount) + '</td></tr>';
+            });
+            earningsHtml += '<tr class="total-row"><td>Total Earnings</td><td>' + formatRand(slip.gross) + '</td></tr>';
+            document.getElementById('modal-earnings-table').innerHTML = earningsHtml;
+
+            // Update deductions table
+            var deductionsHtml = '';
+            slip.deductionItems.forEach(function(item) {
+                deductionsHtml += '<tr><td>' + item.desc + '</td><td>' + formatRand(item.amount) + '</td></tr>';
+            });
+            deductionsHtml += '<tr class="total-row"><td>Total Deductions</td><td>' + formatRand(slip.deductions) + '</td></tr>';
+            document.getElementById('modal-deductions-table').innerHTML = deductionsHtml;
+
+            // Update summary
+            document.getElementById('modal-net-pay').textContent = formatRand(slip.net);
+            document.getElementById('modal-payment-date').textContent = slip.payDate;
+
+            // Update download button
+            document.getElementById('modal-download-btn').setAttribute('onclick', "handleDownload('" + slip.month + ' ' + slip.year + "')");
+
+            // Open modal
+            var overlay = document.getElementById('payslip-modal');
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePayslipModal() {
+            var overlay = document.getElementById('payslip-modal');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.getElementById('payslip-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePayslipModal();
+            }
+        });
+
+        // Close modal on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePayslipModal();
+            }
+        });
+
+        /* ========== TOAST SYSTEM ========== */
+        var toastQueue = [];
+        var toastIdCounter = 0;
+
+        function showToast(type, title, message, duration) {
+            duration = duration || 4000;
+            var id = 'toast-' + (++toastIdCounter);
+            var container = document.getElementById('toast-container');
+
+            var iconSvg = '';
+            if (type === 'success') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            } else if (type === 'info') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            } else if (type === 'error') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            }
+
+            var toastEl = document.createElement('div');
+            toastEl.className = 'toast';
+            toastEl.id = id;
+            toastEl.innerHTML =
+                '<div class="toast-icon ' + type + '">' + iconSvg + '</div>' +
+                '<div class="toast-content">' +
+                '  <div class="toast-title">' + title + '</div>' +
+                '  <div class="toast-message">' + message + '</div>' +
+                '</div>' +
+                '<button class="toast-close" onclick="dismissToast(\'' + id + '\')">' +
+                '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+                '</button>' +
+                '<div class="toast-progress ' + type + '" style="width:100%;transition-duration:' + duration + 'ms;"></div>';
+
+            container.appendChild(toastEl);
+
+            // Trigger slide-in
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    toastEl.classList.add('show');
+                    // Start progress bar
+                    var progress = toastEl.querySelector('.toast-progress');
+                    progress.style.width = '0%';
+                });
+            });
+
+            // Auto-dismiss
+            var timeout = setTimeout(function() {
+                dismissToast(id);
+            }, duration);
+
+            toastQueue.push({ id: id, timeout: timeout });
+        }
+
+        function dismissToast(id) {
+            var toastEl = document.getElementById(id);
+            if (!toastEl) return;
+
+            toastEl.classList.remove('show');
+            toastEl.classList.add('hide');
+
+            // Clear timeout
+            toastQueue = toastQueue.filter(function(t) {
+                if (t.id === id) {
+                    clearTimeout(t.timeout);
+                    return false;
+                }
+                return true;
+            });
+
+            setTimeout(function() {
+                if (toastEl.parentNode) {
+                    toastEl.parentNode.removeChild(toastEl);
+                }
+            }, 350);
+        }
+
+        /* ========== DOWNLOAD HANDLER ========== */
+        function handleDownload(label) {
+            showToast('info', 'Preparing Download', 'Preparing PDF for ' + label + '...', 2000);
+
+            setTimeout(function() {
+                showToast('success', 'Download Complete', 'Payslip for ' + label + ' downloaded successfully.', 4000);
+            }, 1500);
+        }
+
+        function handleDownloadAll() {
+            showToast('info', 'Preparing Download', 'Preparing all payslips for ' + currentYear + '...', 2500);
+
+            setTimeout(function() {
+                var data = payslipData[currentYear] || [];
+                if (data.length === 0) {
+                    showToast('error', 'Download Failed', 'No payslips available for ' + currentYear + '.', 4000);
+                } else {
+                    showToast('success', 'Download Complete', 'All ' + data.length + ' payslips for ' + currentYear + ' downloaded successfully.', 4000);
+                }
+            }, 2000);
+        }
+
+        function handlePrint() {
+            showToast('info', 'Preparing Print', 'Opening print dialog...', 2500);
+        }
+
+        /* ========== INIT ========== */
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPayslipList();
+            renderChart();
+        });
+    </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

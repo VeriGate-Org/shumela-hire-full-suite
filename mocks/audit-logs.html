@@ -1,0 +1,3380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs | ShumelaHire - uThukela Water</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: var(--teal);
+        }
+
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #05527E;
+            --cta: #F1C54B;
+            --cta-hover: #D4A832;
+            --bg: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-muted: #64748B;
+            --teal: #047469;
+            --gold: #D4A832;
+            --pink: #D63050;
+            --navy-bg: #DCEEF7;
+            --error: #EF4444;
+            --error-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --surface-navy: #F0F7FB;
+            --surface-teal: #EFFEFB;
+            --surface-gold: #FFFCF0;
+            --surface-pink: #FFF1F2;
+            --icon-navy: #DCEEF7;
+            --icon-teal: #C8FFF5;
+            --icon-gold: #FEF6D8;
+            --icon-pink: #FFE0E3;
+            --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(50,50,93,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 8px 24px rgba(50,50,93,0.18), 0 4px 12px rgba(0,0,0,0.12);
+            --radius-card: 12px;
+            --radius-control: 8px;
+            --radius-button: 9999px;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--cta-hover);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            transition: color 200ms ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--border);
+            font-size: 0.75rem;
+        }
+
+        .breadcrumb .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 200ms ease;
+            color: var(--text-muted);
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        .nav-icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--pink);
+            color: #FFFFFF;
+            font-size: 0.625rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--card-bg);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+        }
+
+        /* ===== PAGE CONTAINER ===== */
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-header-text h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .page-header-text p {
+            font-size: 0.9375rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .page-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 200ms ease;
+            white-space: nowrap;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-cta {
+            background: var(--cta);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-cta:hover {
+            background: var(--cta-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--surface-navy);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px 16px;
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface-navy);
+            color: var(--primary);
+        }
+
+        /* ===== LIVE TOGGLE SWITCH ===== */
+        .live-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .live-toggle.active {
+            color: var(--teal);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 12px;
+            transition: background 200ms ease;
+        }
+
+        .toggle-switch input:checked + .toggle-track {
+            background: var(--teal);
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 200ms ease;
+        }
+
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(20px);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            display: inline-block;
+        }
+
+        .live-toggle.active .live-dot {
+            background: var(--teal);
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ===== DEMO STATE TOGGLE BAR ===== */
+        .demo-toggle-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 8px 12px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .demo-toggle-bar label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        .demo-btn {
+            padding: 6px 16px;
+            border-radius: var(--radius-button);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .demo-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .demo-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        /* ===== STATS BAR ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stat-icon.navy { background: var(--icon-navy); color: var(--primary); }
+        .stat-icon.teal { background: var(--icon-teal); color: var(--teal); }
+        .stat-icon.gold { background: var(--icon-gold); color: var(--gold); }
+        .stat-icon.pink { background: var(--icon-pink); color: var(--pink); }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .stat-info p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-bar-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            transition: border-color 200ms ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.1);
+        }
+
+        .advanced-filters-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-control);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+
+        .advanced-filters-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .advanced-filters-toggle.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .advanced-filters-toggle svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 200ms ease;
+        }
+
+        .advanced-filters-toggle.active svg {
+            transform: rotate(180deg);
+        }
+
+        .advanced-filters {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .advanced-filters.open {
+            display: grid;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .filter-select,
+        .filter-input {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border-color 200ms ease;
+        }
+
+        .filter-input {
+            background-image: none;
+            padding-right: 12px;
+            cursor: text;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.1);
+        }
+
+        /* ===== AUDIT TABLE ===== */
+        .audit-table-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .audit-table thead th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            background: var(--surface-navy);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .audit-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 150ms ease;
+            cursor: pointer;
+        }
+
+        .audit-table tbody tr:nth-child(even) {
+            background: #FAFBFC;
+        }
+
+        .audit-table tbody tr:hover {
+            background: var(--surface-navy);
+        }
+
+        .audit-table tbody td {
+            padding: 12px 16px;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        .audit-table .timestamp {
+            font-family: 'Manrope', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-cell .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+        }
+
+        .user-cell .user-avatar.navy { background: var(--icon-navy); color: var(--primary); }
+        .user-cell .user-avatar.teal { background: var(--icon-teal); color: var(--teal); }
+        .user-cell .user-avatar.gold { background: var(--icon-gold); color: var(--gold); }
+        .user-cell .user-avatar.pink { background: var(--icon-pink); color: var(--pink); }
+
+        .user-cell .user-name {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: var(--radius-button);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .severity-badge.info { background: var(--icon-navy); color: var(--primary); }
+        .severity-badge.warning { background: var(--icon-gold); color: var(--gold); }
+        .severity-badge.critical { background: var(--icon-pink); color: var(--pink); }
+
+        .severity-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .severity-badge.info .dot { background: var(--primary); }
+        .severity-badge.warning .dot { background: var(--gold); }
+        .severity-badge.critical .dot { background: var(--pink); }
+
+        .ip-cell {
+            font-family: 'Manrope', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .resource-cell {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0;
+        }
+
+        .pagination-info {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 200ms ease;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--surface-navy);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-btn:disabled:hover {
+            border-color: var(--border);
+            color: var(--text-muted);
+            background: var(--card-bg);
+        }
+
+        .page-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .page-btn.nav-btn {
+            padding: 0 12px;
+            width: auto;
+            gap: 4px;
+        }
+
+        /* ===== MODAL OVERLAY ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 300ms ease;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 300ms ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-lg { max-width: 720px; }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 24px 0;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 200ms ease;
+        }
+
+        .modal-close:hover {
+            background: var(--surface-navy);
+            color: var(--text-primary);
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* ===== DETAIL MODAL CONTENT ===== */
+        .detail-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            width: 140px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .json-block {
+            background: #1E293B;
+            color: #E2E8F0;
+            border-radius: var(--radius-control);
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+            margin-top: 16px;
+        }
+
+        .json-block .json-key { color: #7DD3FC; }
+        .json-block .json-string { color: #86EFAC; }
+        .json-block .json-number { color: #FDE68A; }
+        .json-block .json-bool { color: #C4B5FD; }
+
+        .json-block-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 37%, #E2E8F0 63%);
+            background-size: 800px 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        .skeleton-stats {
+            display: none;
+        }
+
+        .skeleton-stats.active {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .skeleton-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .skeleton-filter-bar {
+            display: none;
+        }
+
+        .skeleton-filter-bar.active {
+            display: flex;
+            gap: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-table {
+            display: none;
+        }
+
+        .skeleton-table.active {
+            display: block;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-table-header {
+            display: flex;
+            gap: 16px;
+            padding: 14px 16px;
+            background: var(--surface-navy);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .skeleton-table-row {
+            display: flex;
+            gap: 16px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .skeleton-table-row:nth-child(even) {
+            background: #FAFBFC;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .stats-bar {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .skeleton-stats.active {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .advanced-filters.open {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .skeleton-stats.active {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-bar-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input-wrap {
+                max-width: 100%;
+            }
+
+            .advanced-filters.open {
+                grid-template-columns: 1fr;
+            }
+
+            .audit-table-wrap {
+                overflow-x: auto;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .skeleton-stats.active {
+                grid-template-columns: 1fr;
+            }
+
+            .page-container {
+                padding: 16px;
+            }
+
+            .demo-toggle-bar {
+                flex-wrap: wrap;
+            }
+
+            .page-header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .page-header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ===== TOP NAVIGATION BAR ===== -->
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+            <div class="logo">Shumela<span>Hire</span></div>
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+                </span>
+                <a href="#">Administration</a>
+                <span class="separator">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+                </span>
+                <span class="current">Audit Logs</span>
+            </div>
+        </div>
+        <div class="nav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+            <button class="nav-icon-btn" title="Notifications">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span class="notification-badge">3</span>
+            </button>
+            <div class="avatar">SN</div>
+        </div>
+    </div>
+</nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link active">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ===== PAGE CONTAINER ===== -->
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1>Audit Logs</h1>
+            <p>Monitor and review all system activity across uThukela Water</p>
+        </div>
+        <div class="page-header-actions">
+            <div class="live-toggle" id="liveToggle">
+                <span class="live-dot"></span>
+                <span>Live Updates</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="liveToggleInput">
+                    <span class="toggle-track"></span>
+                </label>
+            </div>
+            <button class="btn btn-outline" onclick="exportCSV()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Demo State Toggle Bar -->
+    <div class="demo-toggle-bar">
+        <label>Demo State:</label>
+        <button class="demo-btn active" onclick="setDemoState('normal')">Normal</button>
+        <button class="demo-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+    </div>
+
+    <!-- ===== NORMAL STATE CONTENT ===== -->
+    <div id="normalContent">
+
+        <!-- Stats Bar (3x2 grid = 6 cards) -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-icon navy">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>12,847</h3>
+                    <p>Total Events</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>156</h3>
+                    <p>Today</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon gold">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>28</h3>
+                    <p>Warnings</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pink">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016zM12 9v2m0 4h.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>3</h3>
+                    <p>Critical</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon navy">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>11,234</h3>
+                    <p>User Actions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3>1,613</h3>
+                    <p>System Events</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="filterBar">
+            <div class="filter-bar-top">
+                <div class="search-input-wrap">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search audit logs..." oninput="applyFilters()">
+                </div>
+                <button class="advanced-filters-toggle" id="advancedToggle" onclick="toggleAdvancedFilters()">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Advanced Filters
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+                </button>
+            </div>
+            <div class="advanced-filters" id="advancedFilters">
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" class="filter-input" id="dateFrom" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" class="filter-input" id="dateTo" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>User</label>
+                    <select class="filter-select" id="userFilter" onchange="applyFilters()">
+                        <option value="">All Users</option>
+                        <option value="Sipho Nkosi">Sipho Nkosi</option>
+                        <option value="Thandiwe Dlamini">Thandiwe Dlamini</option>
+                        <option value="Bongani Mthembu">Bongani Mthembu</option>
+                        <option value="Nomusa Zulu">Nomusa Zulu</option>
+                        <option value="Lungelo Khumalo">Lungelo Khumalo</option>
+                        <option value="System">System</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Action Type</label>
+                    <select class="filter-select" id="actionFilter" onchange="applyFilters()">
+                        <option value="">All Actions</option>
+                        <option value="Login">Login</option>
+                        <option value="Create">Create</option>
+                        <option value="Update">Update</option>
+                        <option value="Delete">Delete</option>
+                        <option value="Export">Export</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Severity</label>
+                    <select class="filter-select" id="severityFilter" onchange="applyFilters()">
+                        <option value="">All Severities</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Table -->
+        <div class="audit-table-wrap">
+            <div style="overflow-x: auto;">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Resource</th>
+                            <th>Severity</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <div class="pagination-info" id="paginationInfo">Showing 1-10 of 30 events</div>
+            <div class="pagination-controls" id="paginationControls"></div>
+        </div>
+
+    </div>
+
+    <!-- ===== SKELETON STATE ===== -->
+    <div id="skeletonContent" style="display: none;">
+        <div class="skeleton-stats active">
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:60px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:100px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:40px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:60px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:40px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:80px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:30px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:70px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:60px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:90px; height:12px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-stat-card">
+                <div class="skeleton skeleton-stat-icon"></div>
+                <div>
+                    <div class="skeleton" style="width:50px; height:24px; margin-bottom:8px;"></div>
+                    <div class="skeleton" style="width:100px; height:12px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="skeleton-filter-bar active">
+            <div class="skeleton" style="flex:1; max-width:400px; height:36px; border-radius:8px;"></div>
+            <div class="skeleton" style="width:160px; height:36px; border-radius:8px;"></div>
+        </div>
+
+        <div class="skeleton-table active">
+            <div class="skeleton-table-header">
+                <div class="skeleton" style="width:120px; height:12px;"></div>
+                <div class="skeleton" style="width:100px; height:12px;"></div>
+                <div class="skeleton" style="width:180px; height:12px;"></div>
+                <div class="skeleton" style="width:120px; height:12px;"></div>
+                <div class="skeleton" style="width:70px; height:12px;"></div>
+                <div class="skeleton" style="width:100px; height:12px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:100px; height:14px;"></div></div>
+                <div class="skeleton" style="width:200px; height:14px;"></div>
+                <div class="skeleton" style="width:110px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:120px; height:14px;"></div></div>
+                <div class="skeleton" style="width:180px; height:14px;"></div>
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div class="skeleton" style="width:70px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:90px; height:14px;"></div></div>
+                <div class="skeleton" style="width:160px; height:14px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+                <div class="skeleton" style="width:50px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:110px; height:14px;"></div></div>
+                <div class="skeleton" style="width:190px; height:14px;"></div>
+                <div class="skeleton" style="width:120px; height:14px;"></div>
+                <div class="skeleton" style="width:65px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:80px; height:14px;"></div></div>
+                <div class="skeleton" style="width:170px; height:14px;"></div>
+                <div class="skeleton" style="width:140px; height:14px;"></div>
+                <div class="skeleton" style="width:55px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+            <div class="skeleton-table-row">
+                <div class="skeleton" style="width:130px; height:14px;"></div>
+                <div style="display:flex; align-items:center; gap:8px;"><div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div><div class="skeleton" style="width:95px; height:14px;"></div></div>
+                <div class="skeleton" style="width:150px; height:14px;"></div>
+                <div class="skeleton" style="width:115px; height:14px;"></div>
+                <div class="skeleton" style="width:60px; height:22px; border-radius:9999px;"></div>
+                <div class="skeleton" style="width:100px; height:14px;"></div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- end page-container -->
+
+<!-- ===== EVENT DETAIL MODAL ===== -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h2>Event Details</h2>
+            <button class="modal-close" onclick="closeDetailModal()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" id="detailModalBody">
+            <!-- Filled dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+(function() {
+    'use strict';
+
+    // ========== AUDIT LOG DATA ==========
+    var avatarColors = ['navy', 'teal', 'gold', 'pink'];
+
+    var auditLogs = [
+        {
+            id: 1,
+            timestamp: '2026-07-09 08:14:32',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Login',
+            description: 'User logged in successfully',
+            resource: 'Authentication',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/auth/login',
+                body: { email: 'sipho.nkosi@uthukela.gov.za', mfa_verified: true }
+            },
+            responseData: {
+                status: 200,
+                message: 'Authentication successful',
+                session_id: 'sess_a8f3k29d1m',
+                token_expires: '2026-07-09T10:14:32Z'
+            }
+        },
+        {
+            id: 2,
+            timestamp: '2026-07-09 08:22:10',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Create',
+            description: 'Created new job posting: Senior Water Engineer',
+            resource: 'Job Postings',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/jobs',
+                body: { title: 'Senior Water Engineer', department: 'Engineering', location: 'Ladysmith', type: 'permanent' }
+            },
+            responseData: {
+                status: 201,
+                job_id: 'JOB-2026-0089',
+                message: 'Job posting created successfully'
+            }
+        },
+        {
+            id: 3,
+            timestamp: '2026-07-09 08:35:47',
+            user: 'Thandiwe Dlamini',
+            initials: 'TD',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'Updated applicant status to Shortlisted',
+            resource: 'Applications',
+            severity: 'info',
+            ip: '10.0.0.112',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/applications/APP-4521',
+                body: { status: 'shortlisted', notes: 'Strong technical background in water treatment' }
+            },
+            responseData: {
+                status: 200,
+                application_id: 'APP-4521',
+                previous_status: 'under_review',
+                new_status: 'shortlisted'
+            }
+        },
+        {
+            id: 4,
+            timestamp: '2026-07-09 09:01:15',
+            user: 'Bongani Mthembu',
+            initials: 'BM',
+            avatarColor: 'gold',
+            action: 'Delete',
+            description: 'Deleted expired compliance document',
+            resource: 'Documents',
+            severity: 'warning',
+            ip: '172.16.0.88',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/127.0',
+            requestData: {
+                method: 'DELETE',
+                endpoint: '/api/documents/DOC-0312',
+                body: { reason: 'Document expired and replaced', document_name: 'Safety Certificate 2024' }
+            },
+            responseData: {
+                status: 200,
+                document_id: 'DOC-0312',
+                message: 'Document permanently deleted',
+                backup_created: true
+            }
+        },
+        {
+            id: 5,
+            timestamp: '2026-07-09 09:12:33',
+            user: 'System',
+            initials: 'SY',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'Automated backup completed successfully',
+            resource: 'System Backup',
+            severity: 'info',
+            ip: '10.0.0.1',
+            userAgent: 'ShumelaHire/BackupService v2.4',
+            requestData: {
+                method: 'POST',
+                endpoint: '/internal/backup/trigger',
+                body: { type: 'incremental', scope: 'full_database' }
+            },
+            responseData: {
+                status: 200,
+                backup_id: 'BKP-20260709-0912',
+                size_mb: 342,
+                duration_seconds: 47,
+                tables_backed_up: 28
+            }
+        },
+        {
+            id: 6,
+            timestamp: '2026-07-09 09:28:51',
+            user: 'Nomusa Zulu',
+            initials: 'NZ',
+            avatarColor: 'pink',
+            action: 'Export',
+            description: 'Exported applicant data report to CSV',
+            resource: 'Reports',
+            severity: 'warning',
+            ip: '192.168.2.67',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/reports/export',
+                body: { report_type: 'applicant_data', format: 'csv', date_range: '2026-06-01 to 2026-07-09', include_pii: true }
+            },
+            responseData: {
+                status: 200,
+                file_name: 'applicant_report_20260709.csv',
+                records_exported: 1247,
+                file_size_kb: 892
+            }
+        },
+        {
+            id: 7,
+            timestamp: '2026-07-09 09:45:02',
+            user: 'Lungelo Khumalo',
+            initials: 'LK',
+            avatarColor: 'navy',
+            action: 'Update',
+            description: 'Changed user role permissions for HR team',
+            resource: 'User Management',
+            severity: 'critical',
+            ip: '10.0.0.200',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/126.0',
+            requestData: {
+                method: 'PUT',
+                endpoint: '/api/roles/HR_MANAGER',
+                body: { permissions_added: ['manage_payroll', 'view_salary_bands'], permissions_removed: [], affected_users: 5 }
+            },
+            responseData: {
+                status: 200,
+                role: 'HR_MANAGER',
+                total_permissions: 24,
+                users_affected: 5,
+                requires_reauth: true
+            }
+        },
+        {
+            id: 8,
+            timestamp: '2026-07-09 10:03:44',
+            user: 'Thandiwe Dlamini',
+            initials: 'TD',
+            avatarColor: 'teal',
+            action: 'Create',
+            description: 'Created interview schedule for 3 candidates',
+            resource: 'Interviews',
+            severity: 'info',
+            ip: '10.0.0.112',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/interviews/bulk',
+                body: { job_id: 'JOB-2026-0085', candidates: ['APP-4510', 'APP-4515', 'APP-4521'], date: '2026-07-15', panel: ['Sipho Nkosi', 'Bongani Mthembu'] }
+            },
+            responseData: {
+                status: 201,
+                interviews_created: 3,
+                calendar_invites_sent: true,
+                notification_emails: 5
+            }
+        },
+        {
+            id: 9,
+            timestamp: '2026-07-09 10:18:29',
+            user: 'System',
+            initials: 'SY',
+            avatarColor: 'teal',
+            action: 'Login',
+            description: 'Failed login attempt detected from unknown IP',
+            resource: 'Authentication',
+            severity: 'critical',
+            ip: '203.0.113.42',
+            userAgent: 'python-requests/2.31.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/auth/login',
+                body: { email: 'admin@uthukela.gov.za', attempt_count: 5 }
+            },
+            responseData: {
+                status: 401,
+                message: 'Account temporarily locked after 5 failed attempts',
+                lockout_duration_minutes: 30,
+                ip_flagged: true
+            }
+        },
+        {
+            id: 10,
+            timestamp: '2026-07-09 10:34:16',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Update',
+            description: 'Published job posting to external boards',
+            resource: 'Job Postings',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/jobs/JOB-2026-0089/publish',
+                body: { boards: ['careers24', 'pnet', 'linkedin'], visibility: 'public' }
+            },
+            responseData: {
+                status: 200,
+                job_id: 'JOB-2026-0089',
+                published_to: ['careers24', 'pnet', 'linkedin'],
+                go_live_date: '2026-07-09'
+            }
+        },
+        {
+            id: 11,
+            timestamp: '2026-07-09 10:52:08',
+            user: 'Nomusa Zulu',
+            initials: 'NZ',
+            avatarColor: 'pink',
+            action: 'Update',
+            description: 'Updated job ad template: Engineering Roles',
+            resource: 'Templates',
+            severity: 'info',
+            ip: '192.168.2.67',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'PUT',
+                endpoint: '/api/templates/TMPL-ENG-001',
+                body: { name: 'Engineering Roles', sections_modified: ['requirements', 'benefits'], version: 3 }
+            },
+            responseData: {
+                status: 200,
+                template_id: 'TMPL-ENG-001',
+                version: 3,
+                previous_version_archived: true
+            }
+        },
+        {
+            id: 12,
+            timestamp: '2026-07-09 11:05:33',
+            user: 'Bongani Mthembu',
+            initials: 'BM',
+            avatarColor: 'gold',
+            action: 'Create',
+            description: 'Uploaded compliance certificate for Water Treatment Operator',
+            resource: 'Documents',
+            severity: 'info',
+            ip: '172.16.0.88',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/127.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/documents',
+                body: { name: 'Water Treatment Certificate', category: 'certificates', employee_id: 'EMP-0234', file_type: 'pdf', size_kb: 1840 }
+            },
+            responseData: {
+                status: 201,
+                document_id: 'DOC-0445',
+                virus_scan: 'clean',
+                stored_location: 's3://uthukela-docs/certificates/'
+            }
+        },
+        {
+            id: 13,
+            timestamp: '2026-07-09 11:22:17',
+            user: 'Lungelo Khumalo',
+            initials: 'LK',
+            avatarColor: 'navy',
+            action: 'Delete',
+            description: 'Removed inactive user account: J. van der Merwe',
+            resource: 'User Management',
+            severity: 'warning',
+            ip: '10.0.0.200',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/126.0',
+            requestData: {
+                method: 'DELETE',
+                endpoint: '/api/users/USR-0078',
+                body: { reason: 'Employee resigned', last_active: '2026-03-15', data_retention: 'archive' }
+            },
+            responseData: {
+                status: 200,
+                user_id: 'USR-0078',
+                status_changed_to: 'archived',
+                data_archived: true,
+                access_revoked: true
+            }
+        },
+        {
+            id: 14,
+            timestamp: '2026-07-09 11:40:55',
+            user: 'Thandiwe Dlamini',
+            initials: 'TD',
+            avatarColor: 'teal',
+            action: 'Export',
+            description: 'Exported shortlist report for Senior Water Engineer',
+            resource: 'Reports',
+            severity: 'info',
+            ip: '10.0.0.112',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/reports/export',
+                body: { report_type: 'shortlist_summary', job_id: 'JOB-2026-0085', format: 'pdf' }
+            },
+            responseData: {
+                status: 200,
+                file_name: 'shortlist_JOB-2026-0085.pdf',
+                candidates_included: 8,
+                file_size_kb: 456
+            }
+        },
+        {
+            id: 15,
+            timestamp: '2026-07-09 12:01:39',
+            user: 'System',
+            initials: 'SY',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'SSL certificate renewed for portal.uthukela.gov.za',
+            resource: 'System Security',
+            severity: 'critical',
+            ip: '10.0.0.1',
+            userAgent: 'ShumelaHire/CertManager v1.2',
+            requestData: {
+                method: 'POST',
+                endpoint: '/internal/ssl/renew',
+                body: { domain: 'portal.uthukela.gov.za', provider: 'LetsEncrypt', validity_days: 90 }
+            },
+            responseData: {
+                status: 200,
+                certificate_id: 'CERT-2026-Q3',
+                valid_from: '2026-07-09',
+                valid_until: '2026-10-07',
+                auto_renew: true
+            }
+        },
+        {
+            id: 16,
+            timestamp: '2026-07-09 12:18:44',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Login',
+            description: 'User session refreshed via SSO',
+            resource: 'Authentication',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/auth/refresh',
+                body: { session_id: 'sess_a8f3k29d1m', sso_provider: 'Azure AD' }
+            },
+            responseData: {
+                status: 200,
+                new_session_id: 'sess_b9g4l30e2n',
+                token_expires: '2026-07-09T14:18:44Z'
+            }
+        },
+        {
+            id: 17,
+            timestamp: '2026-07-09 12:35:21',
+            user: 'Nomusa Zulu',
+            initials: 'NZ',
+            avatarColor: 'pink',
+            action: 'Create',
+            description: 'Created new evaluation criteria for Technical roles',
+            resource: 'Evaluation',
+            severity: 'info',
+            ip: '192.168.2.67',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/evaluation/criteria',
+                body: { name: 'Technical Assessment v2', category: 'engineering', max_score: 100, sections: 5 }
+            },
+            responseData: {
+                status: 201,
+                criteria_id: 'EVAL-CRIT-019',
+                linked_jobs: 3
+            }
+        },
+        {
+            id: 18,
+            timestamp: '2026-07-09 13:02:58',
+            user: 'Bongani Mthembu',
+            initials: 'BM',
+            avatarColor: 'gold',
+            action: 'Update',
+            description: 'Updated employee contact details for 12 records',
+            resource: 'Employee Records',
+            severity: 'warning',
+            ip: '172.16.0.88',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/127.0',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/employees/bulk-update',
+                body: { fields_updated: ['phone', 'address'], records_affected: 12, source: 'HR verification drive' }
+            },
+            responseData: {
+                status: 200,
+                updated_count: 12,
+                failed_count: 0,
+                audit_trail_created: true
+            }
+        },
+        {
+            id: 19,
+            timestamp: '2026-07-09 13:25:14',
+            user: 'Lungelo Khumalo',
+            initials: 'LK',
+            avatarColor: 'navy',
+            action: 'Login',
+            description: 'User logged in from new device',
+            resource: 'Authentication',
+            severity: 'warning',
+            ip: '41.150.22.103',
+            userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/605.1.15',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/auth/login',
+                body: { email: 'lungelo.khumalo@uthukela.gov.za', mfa_verified: true, new_device: true }
+            },
+            responseData: {
+                status: 200,
+                message: 'Login successful - new device registered',
+                device_fingerprint: 'dev_iphone_x3f9',
+                verification_email_sent: true
+            }
+        },
+        {
+            id: 20,
+            timestamp: '2026-07-09 13:48:37',
+            user: 'Thandiwe Dlamini',
+            initials: 'TD',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'Moved 5 applicants to interview stage',
+            resource: 'Applications',
+            severity: 'info',
+            ip: '10.0.0.112',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/applications/bulk-status',
+                body: { application_ids: ['APP-4530', 'APP-4531', 'APP-4532', 'APP-4535', 'APP-4538'], new_status: 'interview_scheduled' }
+            },
+            responseData: {
+                status: 200,
+                updated_count: 5,
+                notifications_sent: 5,
+                calendar_events_created: 5
+            }
+        },
+        {
+            id: 21,
+            timestamp: '2026-07-09 14:05:22',
+            user: 'System',
+            initials: 'SY',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'Database maintenance - index optimization completed',
+            resource: 'System Maintenance',
+            severity: 'info',
+            ip: '10.0.0.1',
+            userAgent: 'ShumelaHire/DBMaintenance v3.1',
+            requestData: {
+                method: 'POST',
+                endpoint: '/internal/db/optimize',
+                body: { type: 'index_rebuild', tables: ['applications', 'jobs', 'users'], scheduled: true }
+            },
+            responseData: {
+                status: 200,
+                tables_optimized: 3,
+                indexes_rebuilt: 14,
+                duration_seconds: 23,
+                space_reclaimed_mb: 128
+            }
+        },
+        {
+            id: 22,
+            timestamp: '2026-07-09 14:22:09',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Delete',
+            description: 'Archived closed job posting: Water Quality Analyst',
+            resource: 'Job Postings',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'DELETE',
+                endpoint: '/api/jobs/JOB-2026-0072/archive',
+                body: { reason: 'Position filled', hired_candidate: 'APP-4389' }
+            },
+            responseData: {
+                status: 200,
+                job_id: 'JOB-2026-0072',
+                status: 'archived',
+                applications_closed: 34,
+                rejection_emails_queued: 33
+            }
+        },
+        {
+            id: 23,
+            timestamp: '2026-07-09 14:40:55',
+            user: 'Nomusa Zulu',
+            initials: 'NZ',
+            avatarColor: 'pink',
+            action: 'Export',
+            description: 'Exported compliance audit report Q2 2026',
+            resource: 'Reports',
+            severity: 'warning',
+            ip: '192.168.2.67',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/reports/export',
+                body: { report_type: 'compliance_audit', quarter: 'Q2-2026', format: 'xlsx', include_attachments: true }
+            },
+            responseData: {
+                status: 200,
+                file_name: 'compliance_audit_Q2_2026.xlsx',
+                sheets: 4,
+                file_size_kb: 2340
+            }
+        },
+        {
+            id: 24,
+            timestamp: '2026-07-09 15:01:18',
+            user: 'Bongani Mthembu',
+            initials: 'BM',
+            avatarColor: 'gold',
+            action: 'Create',
+            description: 'Added new employee onboarding checklist',
+            resource: 'Onboarding',
+            severity: 'info',
+            ip: '172.16.0.88',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/127.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/onboarding/checklists',
+                body: { name: 'Engineering Department Onboarding', items: 18, department: 'Engineering', estimated_days: 14 }
+            },
+            responseData: {
+                status: 201,
+                checklist_id: 'CHK-ENG-005',
+                assigned_to_role: 'HR_COORDINATOR'
+            }
+        },
+        {
+            id: 25,
+            timestamp: '2026-07-09 15:18:44',
+            user: 'Lungelo Khumalo',
+            initials: 'LK',
+            avatarColor: 'navy',
+            action: 'Update',
+            description: 'Updated system-wide password policy',
+            resource: 'Security Settings',
+            severity: 'critical',
+            ip: '10.0.0.200',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/126.0',
+            requestData: {
+                method: 'PUT',
+                endpoint: '/api/settings/security/password-policy',
+                body: { min_length: 12, require_uppercase: true, require_number: true, require_special: true, max_age_days: 90, history_count: 5 }
+            },
+            responseData: {
+                status: 200,
+                policy_version: 4,
+                users_requiring_update: 23,
+                grace_period_days: 14
+            }
+        },
+        {
+            id: 26,
+            timestamp: '2026-07-09 15:35:07',
+            user: 'Thandiwe Dlamini',
+            initials: 'TD',
+            avatarColor: 'teal',
+            action: 'Create',
+            description: 'Generated offer letter for Water Treatment Specialist',
+            resource: 'Offers',
+            severity: 'info',
+            ip: '10.0.0.112',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/offers',
+                body: { application_id: 'APP-4510', position: 'Water Treatment Specialist', salary_band: 'T8', start_date: '2026-08-01' }
+            },
+            responseData: {
+                status: 201,
+                offer_id: 'OFR-2026-0034',
+                document_generated: true,
+                pending_approval: true,
+                approver: 'Sipho Nkosi'
+            }
+        },
+        {
+            id: 27,
+            timestamp: '2026-07-09 15:52:31',
+            user: 'System',
+            initials: 'SY',
+            avatarColor: 'teal',
+            action: 'Update',
+            description: 'Email notification queue processed - 48 emails sent',
+            resource: 'Notifications',
+            severity: 'info',
+            ip: '10.0.0.1',
+            userAgent: 'ShumelaHire/NotificationService v2.1',
+            requestData: {
+                method: 'POST',
+                endpoint: '/internal/notifications/process',
+                body: { queue_size: 48, types: ['interview_invite', 'status_update', 'system_alert'] }
+            },
+            responseData: {
+                status: 200,
+                sent: 48,
+                failed: 0,
+                bounced: 1,
+                processing_time_ms: 3200
+            }
+        },
+        {
+            id: 28,
+            timestamp: '2026-07-09 16:10:45',
+            user: 'Sipho Nkosi',
+            initials: 'SN',
+            avatarColor: 'navy',
+            action: 'Update',
+            description: 'Approved offer letter for Water Treatment Specialist',
+            resource: 'Offers',
+            severity: 'info',
+            ip: '192.168.1.45',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/offers/OFR-2026-0034/approve',
+                body: { approved_by: 'Sipho Nkosi', comments: 'Approved - excellent candidate' }
+            },
+            responseData: {
+                status: 200,
+                offer_id: 'OFR-2026-0034',
+                status: 'approved',
+                email_sent_to_candidate: true
+            }
+        },
+        {
+            id: 29,
+            timestamp: '2026-07-09 16:28:19',
+            user: 'Nomusa Zulu',
+            initials: 'NZ',
+            avatarColor: 'pink',
+            action: 'Login',
+            description: 'User logged out',
+            resource: 'Authentication',
+            severity: 'info',
+            ip: '192.168.2.67',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0',
+            requestData: {
+                method: 'POST',
+                endpoint: '/api/auth/logout',
+                body: { session_id: 'sess_c2h7m41f5p' }
+            },
+            responseData: {
+                status: 200,
+                message: 'Session terminated successfully',
+                session_duration_minutes: 487
+            }
+        },
+        {
+            id: 30,
+            timestamp: '2026-07-09 16:45:02',
+            user: 'Bongani Mthembu',
+            initials: 'BM',
+            avatarColor: 'gold',
+            action: 'Update',
+            description: 'Bulk updated leave balances for Q3 allocation',
+            resource: 'Employee Records',
+            severity: 'warning',
+            ip: '172.16.0.88',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/127.0',
+            requestData: {
+                method: 'PATCH',
+                endpoint: '/api/employees/leave-balances/bulk',
+                body: { quarter: 'Q3-2026', employees_affected: 156, annual_leave_days: 5, sick_leave_days: 3 }
+            },
+            responseData: {
+                status: 200,
+                updated_count: 156,
+                failed_count: 0,
+                effective_date: '2026-07-01'
+            }
+        }
+    ];
+
+    var currentPage = 1;
+    var pageSize = 10;
+    var filteredLogs = auditLogs.slice();
+
+    // ========== SEVERITY HELPERS ==========
+    function severityLabel(severity) {
+        switch(severity) {
+            case 'info': return 'Info';
+            case 'warning': return 'Warning';
+            case 'critical': return 'Critical';
+            default: return severity;
+        }
+    }
+
+    // ========== RENDER TABLE ==========
+    function renderTable() {
+        var tbody = document.getElementById('auditTableBody');
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(start + pageSize, filteredLogs.length);
+        var pageLogs = filteredLogs.slice(start, end);
+
+        if (pageLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:48px 16px; color:var(--text-muted);">No audit events match your filters.</td></tr>';
+            document.getElementById('paginationInfo').textContent = 'No results found';
+            document.getElementById('paginationControls').innerHTML = '';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < pageLogs.length; i++) {
+            var log = pageLogs[i];
+            html += '<tr onclick="openDetailModal(' + log.id + ')">';
+            html += '<td class="timestamp">' + log.timestamp + '</td>';
+            html += '<td><div class="user-cell"><div class="user-avatar ' + log.avatarColor + '">' + log.initials + '</div><span class="user-name">' + log.user + '</span></div></td>';
+            html += '<td>' + log.description + '</td>';
+            html += '<td class="resource-cell">' + log.resource + '</td>';
+            html += '<td><span class="severity-badge ' + log.severity + '"><span class="dot"></span>' + severityLabel(log.severity) + '</span></td>';
+            html += '<td class="ip-cell">' + log.ip + '</td>';
+            html += '</tr>';
+        }
+        tbody.innerHTML = html;
+
+        // Update pagination info
+        document.getElementById('paginationInfo').textContent = 'Showing ' + (start + 1) + '-' + end + ' of ' + filteredLogs.length + ' events';
+
+        renderPagination();
+    }
+
+    // ========== RENDER PAGINATION ==========
+    function renderPagination() {
+        var totalPages = Math.ceil(filteredLogs.length / pageSize);
+        var controls = document.getElementById('paginationControls');
+
+        if (totalPages <= 1) {
+            controls.innerHTML = '';
+            return;
+        }
+
+        var html = '';
+
+        // Prev button
+        html += '<button class="page-btn nav-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goToPage(' + (currentPage - 1) + ')">';
+        html += '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>';
+        html += 'Prev</button>';
+
+        // Page numbers
+        for (var p = 1; p <= totalPages; p++) {
+            html += '<button class="page-btn ' + (p === currentPage ? 'active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
+        }
+
+        // Next button
+        html += '<button class="page-btn nav-btn" ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="goToPage(' + (currentPage + 1) + ')">';
+        html += 'Next<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>';
+        html += '</button>';
+
+        controls.innerHTML = html;
+    }
+
+    // ========== PAGINATION NAVIGATION ==========
+    window.goToPage = function(page) {
+        var totalPages = Math.ceil(filteredLogs.length / pageSize);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderTable();
+        // Scroll to top of table
+        document.querySelector('.audit-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // ========== FILTERS ==========
+    window.applyFilters = function() {
+        var search = document.getElementById('searchInput').value.toLowerCase();
+        var userFilter = document.getElementById('userFilter').value;
+        var actionFilter = document.getElementById('actionFilter').value;
+        var severityFilter = document.getElementById('severityFilter').value;
+
+        filteredLogs = auditLogs.filter(function(log) {
+            // Search filter
+            if (search) {
+                var searchTarget = (log.description + ' ' + log.user + ' ' + log.resource + ' ' + log.action + ' ' + log.ip).toLowerCase();
+                if (searchTarget.indexOf(search) === -1) return false;
+            }
+
+            // User filter
+            if (userFilter && log.user !== userFilter) return false;
+
+            // Action filter
+            if (actionFilter && log.action !== actionFilter) return false;
+
+            // Severity filter
+            if (severityFilter && log.severity !== severityFilter) return false;
+
+            return true;
+        });
+
+        currentPage = 1;
+        renderTable();
+    };
+
+    // ========== ADVANCED FILTERS TOGGLE ==========
+    window.toggleAdvancedFilters = function() {
+        var panel = document.getElementById('advancedFilters');
+        var toggle = document.getElementById('advancedToggle');
+
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            toggle.classList.remove('active');
+        } else {
+            panel.classList.add('open');
+            toggle.classList.add('active');
+        }
+    };
+
+    // ========== DETAIL MODAL ==========
+    window.openDetailModal = function(id) {
+        var log = null;
+        for (var i = 0; i < auditLogs.length; i++) {
+            if (auditLogs[i].id === id) {
+                log = auditLogs[i];
+                break;
+            }
+        }
+        if (!log) return;
+
+        var body = document.getElementById('detailModalBody');
+
+        var html = '';
+        html += '<div class="detail-row"><div class="detail-label">Event ID</div><div class="detail-value">#EVT-' + String(log.id).padStart(5, '0') + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">Timestamp</div><div class="detail-value">' + log.timestamp + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">User</div><div class="detail-value"><div class="user-cell"><div class="user-avatar ' + log.avatarColor + '">' + log.initials + '</div><span class="user-name">' + log.user + '</span></div></div></div>';
+        html += '<div class="detail-row"><div class="detail-label">Action</div><div class="detail-value">' + log.action + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">Description</div><div class="detail-value">' + log.description + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">Resource</div><div class="detail-value">' + log.resource + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">Severity</div><div class="detail-value"><span class="severity-badge ' + log.severity + '"><span class="dot"></span>' + severityLabel(log.severity) + '</span></div></div>';
+        html += '<div class="detail-row"><div class="detail-label">IP Address</div><div class="detail-value" style="font-family:monospace;">' + log.ip + '</div></div>';
+        html += '<div class="detail-row"><div class="detail-label">User Agent</div><div class="detail-value" style="font-size:0.75rem; word-break:break-all;">' + log.userAgent + '</div></div>';
+
+        // Request data JSON
+        html += '<div class="json-block-header">Request Data</div>';
+        html += '<div class="json-block">' + syntaxHighlight(JSON.stringify(log.requestData, null, 2)) + '</div>';
+
+        // Response data JSON
+        html += '<div class="json-block-header">Response Data</div>';
+        html += '<div class="json-block">' + syntaxHighlight(JSON.stringify(log.responseData, null, 2)) + '</div>';
+
+        body.innerHTML = html;
+
+        document.getElementById('detailModal').classList.add('open');
+    };
+
+    window.closeDetailModal = function() {
+        document.getElementById('detailModal').classList.remove('open');
+    };
+
+    // ========== JSON SYNTAX HIGHLIGHTING ==========
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+            var cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-bool';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    // ========== DEMO STATE TOGGLE ==========
+    window.setDemoState = function(state) {
+        // Update buttons
+        var btns = document.querySelectorAll('.demo-btn');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].classList.remove('active');
+        }
+        event.target.classList.add('active');
+
+        var normalContent = document.getElementById('normalContent');
+        var skeletonContent = document.getElementById('skeletonContent');
+
+        if (state === 'normal') {
+            normalContent.style.display = '';
+            skeletonContent.style.display = 'none';
+        } else if (state === 'skeleton') {
+            normalContent.style.display = 'none';
+            skeletonContent.style.display = '';
+        }
+    };
+
+    // ========== LIVE TOGGLE ==========
+    var liveToggleInput = document.getElementById('liveToggleInput');
+    liveToggleInput.addEventListener('change', function() {
+        var container = document.getElementById('liveToggle');
+        if (this.checked) {
+            container.classList.add('active');
+        } else {
+            container.classList.remove('active');
+        }
+    });
+
+    // ========== EXPORT CSV ==========
+    window.exportCSV = function() {
+        // Simulate CSV export
+        var csvContent = 'Timestamp,User,Action,Description,Resource,Severity,IP Address\n';
+        for (var i = 0; i < filteredLogs.length; i++) {
+            var log = filteredLogs[i];
+            csvContent += '"' + log.timestamp + '","' + log.user + '","' + log.action + '","' + log.description + '","' + log.resource + '","' + log.severity + '","' + log.ip + '"\n';
+        }
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'audit_logs_' + new Date().toISOString().slice(0,10) + '.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+
+    // ========== MODAL ESCAPE + OVERLAY CLOSE ==========
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDetailModal();
+        }
+    });
+
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDetailModal();
+        }
+    });
+
+    // ========== INITIAL RENDER ==========
+    renderTable();
+
+})();
+</script>
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

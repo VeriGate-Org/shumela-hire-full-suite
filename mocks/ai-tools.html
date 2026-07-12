@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tools | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      border: 2px solid var(--teal);
+      color: #FFFFFF;
+    }
+    .btn-teal:hover {
+      background: #035E55;
+      border-color: #035E55;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      border: 2px solid var(--gold);
+      color: var(--text-primary);
+    }
+    .btn-gold:hover {
+      background: #B8911E;
+      border-color: #B8911E;
+    }
+
+    .btn-pink {
+      background: var(--pink);
+      border: 2px solid var(--pink);
+      color: #FFFFFF;
+    }
+    .btn-pink:hover {
+      background: #B82744;
+      border-color: #B82744;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--card-bg);
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0;
+    }
+
+    .page-header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-card);
+      background: linear-gradient(135deg, var(--cta), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .page-header-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-primary);
+    }
+
+    .page-header-info h1 {
+      margin-bottom: 0.125rem;
+    }
+
+    .page-header-info p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    /* ========== STATE TOGGLE ========== */
+    .state-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--navy-bg);
+      border-radius: var(--radius-button);
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .state-toggle button {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .state-toggle button.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* ========== AI TOOL GRID ========== */
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    /* ========== AI TOOL CARD ========== */
+    .ai-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: all 200ms ease;
+    }
+
+    .ai-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .ai-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 200ms ease;
+    }
+
+    .ai-card-header:hover {
+      background: #FAFBFC;
+    }
+
+    .ai-card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .ai-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ai-card-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .ai-card-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .ai-card-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .ai-card-icon-gold { background: var(--gold-bg); color: var(--gold); }
+    .ai-card-icon-pink { background: var(--pink-bg); color: var(--pink); }
+
+    .ai-card-title {
+      font-weight: 700;
+      font-size: 1.0625rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .ai-card-subtitle {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .ai-card-chevron {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform 300ms ease;
+      flex-shrink: 0;
+    }
+
+    .ai-card.expanded .ai-card-chevron {
+      transform: rotate(180deg);
+    }
+
+    .ai-card-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 400ms ease;
+    }
+
+    .ai-card.expanded .ai-card-body {
+      max-height: 1200px;
+    }
+
+    .ai-card-content {
+      padding: 0 1.25rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .ai-card-content-inner {
+      padding-top: 1.25rem;
+    }
+
+    /* ========== ACCENT BORDERS ========== */
+    .ai-card-navy { border-top: 3px solid var(--primary); }
+    .ai-card-teal { border-top: 3px solid var(--teal); }
+    .ai-card-gold { border-top: 3px solid var(--gold); }
+    .ai-card-pink { border-top: 3px solid var(--pink); }
+
+    /* ========== FORM ELEMENTS ========== */
+    .form-select, .form-input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 200ms ease;
+      appearance: none;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-select {
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    .form-select:focus, .form-input:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    .form-textarea {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      transition: all 200ms ease;
+      outline: none;
+      width: 100%;
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    /* ========== NLP SEARCH INPUT ========== */
+    .nlp-search-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .nlp-search-wrapper svg {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+      pointer-events: none;
+    }
+
+    .nlp-search-input {
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      padding: 0.875rem 1rem 0.875rem 2.75rem;
+      border: 2px solid var(--navy-bg);
+      border-radius: var(--radius-card);
+      background: var(--navy-tint);
+      color: var(--text-primary);
+      transition: all 200ms ease;
+      outline: none;
+      width: 100%;
+    }
+
+    .nlp-search-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nlp-search-input:focus {
+      border-color: var(--primary);
+      background: var(--card-bg);
+      box-shadow: 0 0 0 3px rgba(5, 82, 126, 0.12);
+    }
+
+    /* ========== CANDIDATE RESULT CARD ========== */
+    .candidate-results {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .candidate-card {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      transition: all 200ms ease;
+    }
+
+    .candidate-card:hover {
+      border-color: rgba(5, 82, 126, 0.3);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .candidate-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .candidate-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .candidate-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .candidate-quals {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .match-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .match-high {
+      background: var(--teal-tint);
+      color: var(--teal);
+    }
+
+    .match-medium {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    /* ========== EMAIL PREVIEW ========== */
+    .email-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 140px;
+    }
+
+    .email-preview .email-subject {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .email-preview .email-body {
+      white-space: pre-line;
+    }
+
+    .email-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== JD PREVIEW ========== */
+    .jd-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 120px;
+    }
+
+    .jd-preview h4 {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .jd-section-title {
+      font-weight: 700;
+      font-size: 0.8125rem;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      color: var(--primary);
+    }
+
+    /* ========== BIAS CHECKER ========== */
+    .bias-panel {
+      background: var(--pink-tint);
+      border: 1px solid var(--pink-bg);
+      border-radius: var(--radius-control);
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .bias-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--pink);
+      margin-bottom: 0.625rem;
+    }
+
+    .bias-panel-title svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .bias-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      padding: 0.375rem 0;
+    }
+
+    .bias-item + .bias-item {
+      border-top: 1px solid var(--pink-bg);
+    }
+
+    .bias-flagged {
+      background: var(--pink-bg);
+      color: var(--pink);
+      font-weight: 700;
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-decoration: line-through;
+    }
+
+    .bias-arrow {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .bias-suggestion {
+      background: var(--teal-tint);
+      color: var(--teal);
+      font-weight: 600;
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    /* ========== SALARY BARS ========== */
+    .salary-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .salary-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .salary-bar-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      width: 36px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .salary-bar-track {
+      flex: 1;
+      height: 28px;
+      background: var(--bg);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .salary-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      transition: width 800ms ease;
+    }
+
+    .salary-bar-fill-pink { background: linear-gradient(90deg, var(--pink-bg), var(--pink)); }
+    .salary-bar-fill-gold { background: linear-gradient(90deg, var(--gold-bg), var(--gold)); }
+    .salary-bar-fill-teal { background: linear-gradient(90deg, var(--teal-bg), var(--teal)); }
+    .salary-bar-fill-navy { background: linear-gradient(90deg, var(--navy-bg), var(--primary)); }
+
+    .salary-bar-value {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      width: 72px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .market-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--teal-tint);
+      border: 1px solid var(--teal-bg);
+      border-radius: var(--radius-control);
+      font-size: 0.8125rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .market-indicator svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ========== LOADING STATE ========== */
+    .ai-loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .ai-loading.visible {
+      display: flex;
+    }
+
+    .ai-spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== SKELETON ========== */
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #E2E8F0;
+      border-radius: 6px;
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .skeleton-text { height: 14px; margin-bottom: 8px; }
+    .skeleton-text.lg { height: 20px; }
+    .skeleton-text.sm { height: 10px; }
+    .skeleton-block { height: 40px; margin-bottom: 10px; }
+
+    .hidden { display: none !important; }
+
+    /* ========== AI RESULT PLACEHOLDER ========== */
+    .ai-result-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      text-align: center;
+      min-height: 120px;
+    }
+
+    .ai-result-placeholder svg {
+      width: 36px;
+      height: 36px;
+      margin-bottom: 0.75rem;
+      opacity: 0.4;
+    }
+
+    .ai-result-placeholder p {
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    /* ========== TOAST ========== */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-control);
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 300ms ease;
+    }
+
+    .toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .ai-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-row, .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .ai-card-header {
+        padding: 1rem;
+      }
+
+      .ai-card-content {
+        padding: 0 1rem 1rem;
+      }
+
+      .salary-bar-row {
+        flex-wrap: wrap;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">AI Tools</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="nav-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Sipho Ndlovu">SN</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <!-- Sparkle / AI Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="page-header-info">
+          <h1>AI Tools</h1>
+          <p>AI-powered features to streamline your recruitment workflow</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- State Toggle -->
+    <div class="state-toggle" id="stateToggle">
+      <button class="active" data-state="normal">Normal</button>
+      <button data-state="skeleton">Skeleton Loading</button>
+    </div>
+
+    <!-- ========== NORMAL STATE ========== -->
+    <div id="normalState">
+      <div class="ai-grid">
+
+        <!-- ===== 1. SMART SEARCH (navy) ===== -->
+        <div class="ai-card ai-card-navy expanded" id="cardSmartSearch">
+          <div class="ai-card-header" onclick="toggleCard('cardSmartSearch')">
+            <div class="ai-card-header-left">
+              <div class="ai-card-icon ai-card-icon-navy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <path d="M11 8a3 3 0 0 1 3 3"></path>
+                </svg>
+              </div>
+              <div>
+                <div class="ai-card-title">Smart Search</div>
+                <div class="ai-card-subtitle">Natural language candidate discovery</div>
+              </div>
+            </div>
+            <svg class="ai-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ai-card-body">
+            <div class="ai-card-content">
+              <div class="ai-card-content-inner">
+                <div class="nlp-search-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  <input type="text" class="nlp-search-input" id="nlpSearchInput" placeholder="Find candidates with 5+ years water treatment experience in KZN" value="Find candidates with 5+ years water treatment experience in KZN">
+                </div>
+                <div style="margin-bottom:1rem;text-align:right">
+                  <button class="btn btn-cta btn-sm" id="btnSmartSearch">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    SEARCH
+                  </button>
+                </div>
+                <div class="ai-loading" id="loadingSearch">
+                  <div class="ai-spinner"></div>
+                  <span>Searching candidate database...</span>
+                </div>
+                <div class="candidate-results" id="searchResults">
+                  <!-- Candidate 1 -->
+                  <div class="candidate-card">
+                    <div class="candidate-avatar" style="background:var(--primary)">TM</div>
+                    <div class="candidate-info">
+                      <div class="candidate-name">Thulani Mthethwa</div>
+                      <div class="candidate-quals">8 years water treatment, Grade 12 + NQF 6, Class IV Process Controller cert. Previously at Umgeni Water, Pietermaritzburg.</div>
+                    </div>
+                    <div class="match-score match-high">96%</div>
+                  </div>
+                  <!-- Candidate 2 -->
+                  <div class="candidate-card">
+                    <div class="candidate-avatar" style="background:var(--teal)">NZ</div>
+                    <div class="candidate-info">
+                      <div class="candidate-name">Nokukhanya Zondi</div>
+                      <div class="candidate-quals">6 years water purification, BSc Chemistry (UKZN), certified in SANS 241 compliance. Based in Ladysmith.</div>
+                    </div>
+                    <div class="match-score match-high">91%</div>
+                  </div>
+                  <!-- Candidate 3 -->
+                  <div class="candidate-card">
+                    <div class="candidate-avatar" style="background:var(--gold)">SM</div>
+                    <div class="candidate-info">
+                      <div class="candidate-name">Sibusiso Mkhize</div>
+                      <div class="candidate-quals">5 years wastewater management, N.Dip Water Care (DUT), experience with SCADA systems. Relocated to Newcastle, KZN.</div>
+                    </div>
+                    <div class="match-score match-medium">84%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 2. EMAIL DRAFTER (teal) ===== -->
+        <div class="ai-card ai-card-teal" id="cardEmailDrafter">
+          <div class="ai-card-header" onclick="toggleCard('cardEmailDrafter')">
+            <div class="ai-card-header-left">
+              <div class="ai-card-icon ai-card-icon-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="ai-card-title">Email Drafter</div>
+                <div class="ai-card-subtitle">AI-generated recruitment communications</div>
+              </div>
+            </div>
+            <svg class="ai-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ai-card-body">
+            <div class="ai-card-content">
+              <div class="ai-card-content-inner">
+                <div class="form-group">
+                  <label class="form-label">Template Type</label>
+                  <select class="form-select" id="emailTemplate">
+                    <option value="interview">Interview Invite</option>
+                    <option value="offer">Offer Letter</option>
+                    <option value="rejection">Rejection</option>
+                    <option value="followup">Follow-up</option>
+                  </select>
+                </div>
+                <div style="margin-bottom:1rem;text-align:right">
+                  <button class="btn btn-teal btn-sm" id="btnGenerateEmail">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    GENERATE
+                  </button>
+                </div>
+                <div class="ai-loading" id="loadingEmail">
+                  <div class="ai-spinner" style="border-top-color:var(--teal)"></div>
+                  <span>Drafting email...</span>
+                </div>
+                <div id="emailPreviewArea">
+                  <div class="ai-result-placeholder" id="emailPlaceholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <p>Select a template and click Generate to draft an email</p>
+                  </div>
+                  <div class="email-preview hidden" id="emailPreview">
+                    <div class="email-subject" id="emailSubject"></div>
+                    <div class="email-body" id="emailBody"></div>
+                  </div>
+                </div>
+                <div class="email-actions hidden" id="emailActions">
+                  <button class="btn btn-primary btn-sm" id="btnCopyEmail">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    COPY TO CLIPBOARD
+                  </button>
+                  <button class="btn btn-teal btn-sm" id="btnSendEmail">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    SEND
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 3. JOB DESCRIPTION WRITER (gold) ===== -->
+        <div class="ai-card ai-card-gold" id="cardJDWriter">
+          <div class="ai-card-header" onclick="toggleCard('cardJDWriter')">
+            <div class="ai-card-header-left">
+              <div class="ai-card-icon ai-card-icon-gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="ai-card-title">Job Description Writer</div>
+                <div class="ai-card-subtitle">Auto-generate inclusive, compliant JDs</div>
+              </div>
+            </div>
+            <svg class="ai-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ai-card-body">
+            <div class="ai-card-content">
+              <div class="ai-card-content-inner">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" class="form-input" id="jdTitle" placeholder="e.g. Water Process Controller" value="Water Process Controller">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" class="form-input" id="jdDepartment" placeholder="e.g. Operations" value="Operations">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Key Responsibilities</label>
+                  <textarea class="form-textarea" id="jdResponsibilities" placeholder="List key responsibilities...">Operate and monitor water treatment plant, ensure SANS 241 compliance, conduct daily water quality tests, manage chemical dosing systems, maintain equipment logs.</textarea>
+                </div>
+                <div style="margin-bottom:1rem;text-align:right">
+                  <button class="btn btn-gold btn-sm" id="btnGenerateJD">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    GENERATE
+                  </button>
+                </div>
+                <div class="ai-loading" id="loadingJD">
+                  <div class="ai-spinner" style="border-top-color:var(--gold)"></div>
+                  <span>Generating job description...</span>
+                </div>
+                <div id="jdPreviewArea">
+                  <div class="ai-result-placeholder" id="jdPlaceholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <p>Enter details and click Generate to create a job description</p>
+                  </div>
+                  <div class="jd-preview hidden" id="jdPreview"></div>
+                </div>
+                <div class="hidden" id="biasPanel">
+                  <div class="bias-panel">
+                    <div class="bias-panel-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                      </svg>
+                      Bias Checker - 3 items flagged
+                    </div>
+                    <div class="bias-item">
+                      <span class="bias-flagged">young</span>
+                      <span class="bias-arrow">&rarr;</span>
+                      <span class="bias-suggestion">energetic</span>
+                    </div>
+                    <div class="bias-item">
+                      <span class="bias-flagged">manpower</span>
+                      <span class="bias-arrow">&rarr;</span>
+                      <span class="bias-suggestion">workforce</span>
+                    </div>
+                    <div class="bias-item">
+                      <span class="bias-flagged">chairman</span>
+                      <span class="bias-arrow">&rarr;</span>
+                      <span class="bias-suggestion">chairperson</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 4. SALARY BENCHMARK (pink) ===== -->
+        <div class="ai-card ai-card-pink" id="cardSalary">
+          <div class="ai-card-header" onclick="toggleCard('cardSalary')">
+            <div class="ai-card-header-left">
+              <div class="ai-card-icon ai-card-icon-pink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div>
+                <div class="ai-card-title">Salary Benchmark</div>
+                <div class="ai-card-subtitle">Market-aligned compensation insights</div>
+              </div>
+            </div>
+            <svg class="ai-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="ai-card-body">
+            <div class="ai-card-content">
+              <div class="ai-card-content-inner">
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <input type="text" class="form-input" id="salaryRole" placeholder="e.g. Process Controller" value="Water Process Controller">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <select class="form-select" id="salaryLocation">
+                      <option value="Ladysmith">Ladysmith</option>
+                      <option value="Durban">Durban</option>
+                      <option value="Johannesburg">Johannesburg</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Experience</label>
+                    <select class="form-select" id="salaryExperience">
+                      <option value="0-2">0-2 years</option>
+                      <option value="3-5" selected>3-5 years</option>
+                      <option value="6-10">6-10 years</option>
+                      <option value="10+">10+ years</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="margin-bottom:1rem;text-align:right">
+                  <button class="btn btn-pink btn-sm" id="btnBenchmark">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    BENCHMARK
+                  </button>
+                </div>
+                <div class="ai-loading" id="loadingSalary">
+                  <div class="ai-spinner" style="border-top-color:var(--pink)"></div>
+                  <span>Fetching market data...</span>
+                </div>
+                <div id="salaryResultsArea">
+                  <div class="ai-result-placeholder" id="salaryPlaceholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <p>Configure the role details and click Benchmark to view salary data</p>
+                  </div>
+                  <div class="hidden" id="salaryResults">
+                    <div class="salary-bars" id="salaryBars">
+                      <div class="salary-bar-row">
+                        <div class="salary-bar-label">25th</div>
+                        <div class="salary-bar-track">
+                          <div class="salary-bar-fill salary-bar-fill-pink" style="width:0%" data-target="54%">R280K</div>
+                        </div>
+                        <div class="salary-bar-value">R280,000</div>
+                      </div>
+                      <div class="salary-bar-row">
+                        <div class="salary-bar-label">50th</div>
+                        <div class="salary-bar-track">
+                          <div class="salary-bar-fill salary-bar-fill-gold" style="width:0%" data-target="67%">R350K</div>
+                        </div>
+                        <div class="salary-bar-value">R350,000</div>
+                      </div>
+                      <div class="salary-bar-row">
+                        <div class="salary-bar-label">75th</div>
+                        <div class="salary-bar-track">
+                          <div class="salary-bar-fill salary-bar-fill-teal" style="width:0%" data-target="81%">R420K</div>
+                        </div>
+                        <div class="salary-bar-value">R420,000</div>
+                      </div>
+                      <div class="salary-bar-row">
+                        <div class="salary-bar-label">90th</div>
+                        <div class="salary-bar-track">
+                          <div class="salary-bar-fill salary-bar-fill-navy" style="width:0%" data-target="100%">R520K</div>
+                        </div>
+                        <div class="salary-bar-value">R520,000</div>
+                      </div>
+                    </div>
+                    <div class="market-indicator" id="marketIndicator">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                        <polyline points="17 6 23 6 23 12"></polyline>
+                      </svg>
+                      <span>uThukela Water's current offer (R340,000) sits at the 47th percentile for Ladysmith -- slightly below median. Consider adjusting to R350K+ to remain competitive.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========== SKELETON STATE ========== -->
+    <div id="skeletonState" class="hidden">
+      <div class="ai-grid">
+
+        <!-- Skeleton Card 1 -->
+        <div class="ai-card" style="border-top:3px solid var(--border)">
+          <div style="padding:1.25rem;display:flex;align-items:center;gap:0.875rem">
+            <div class="skeleton" style="width:44px;height:44px;border-radius:var(--radius-card)"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-text lg" style="width:60%;margin-bottom:6px"></div>
+              <div class="skeleton skeleton-text sm" style="width:80%;margin-bottom:0"></div>
+            </div>
+            <div class="skeleton" style="width:20px;height:20px;border-radius:4px"></div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)">
+            <div style="padding-top:1.25rem">
+              <div class="skeleton" style="width:100%;height:48px;border-radius:var(--radius-card);margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:80px;height:32px;border-radius:var(--radius-button);margin-left:auto;margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:100%;height:64px;border-radius:var(--radius-control);margin-bottom:0.75rem"></div>
+              <div class="skeleton" style="width:100%;height:64px;border-radius:var(--radius-control);margin-bottom:0.75rem"></div>
+              <div class="skeleton" style="width:100%;height:64px;border-radius:var(--radius-control)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Card 2 -->
+        <div class="ai-card" style="border-top:3px solid var(--border)">
+          <div style="padding:1.25rem;display:flex;align-items:center;gap:0.875rem">
+            <div class="skeleton" style="width:44px;height:44px;border-radius:var(--radius-card)"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-text lg" style="width:55%;margin-bottom:6px"></div>
+              <div class="skeleton skeleton-text sm" style="width:75%;margin-bottom:0"></div>
+            </div>
+            <div class="skeleton" style="width:20px;height:20px;border-radius:4px"></div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)">
+            <div style="padding-top:1.25rem">
+              <div class="skeleton skeleton-text" style="width:30%;margin-bottom:0.375rem"></div>
+              <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control);margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:80px;height:32px;border-radius:var(--radius-button);margin-left:auto;margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:100%;height:140px;border-radius:var(--radius-control)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Card 3 -->
+        <div class="ai-card" style="border-top:3px solid var(--border)">
+          <div style="padding:1.25rem;display:flex;align-items:center;gap:0.875rem">
+            <div class="skeleton" style="width:44px;height:44px;border-radius:var(--radius-card)"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-text lg" style="width:65%;margin-bottom:6px"></div>
+              <div class="skeleton skeleton-text sm" style="width:70%;margin-bottom:0"></div>
+            </div>
+            <div class="skeleton" style="width:20px;height:20px;border-radius:4px"></div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)">
+            <div style="padding-top:1.25rem">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+                <div>
+                  <div class="skeleton skeleton-text" style="width:40%;margin-bottom:0.375rem"></div>
+                  <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control)"></div>
+                </div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width:45%;margin-bottom:0.375rem"></div>
+                  <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control)"></div>
+                </div>
+              </div>
+              <div class="skeleton skeleton-text" style="width:50%;margin-bottom:0.375rem"></div>
+              <div class="skeleton" style="width:100%;height:80px;border-radius:var(--radius-control);margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:80px;height:32px;border-radius:var(--radius-button);margin-left:auto;margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:100%;height:120px;border-radius:var(--radius-control)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Card 4 -->
+        <div class="ai-card" style="border-top:3px solid var(--border)">
+          <div style="padding:1.25rem;display:flex;align-items:center;gap:0.875rem">
+            <div class="skeleton" style="width:44px;height:44px;border-radius:var(--radius-card)"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-text lg" style="width:50%;margin-bottom:6px"></div>
+              <div class="skeleton skeleton-text sm" style="width:72%;margin-bottom:0"></div>
+            </div>
+            <div class="skeleton" style="width:20px;height:20px;border-radius:4px"></div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)">
+            <div style="padding-top:1.25rem">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+                <div>
+                  <div class="skeleton skeleton-text" style="width:30%;margin-bottom:0.375rem"></div>
+                  <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control)"></div>
+                </div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width:40%;margin-bottom:0.375rem"></div>
+                  <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control)"></div>
+                </div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width:45%;margin-bottom:0.375rem"></div>
+                  <div class="skeleton" style="width:100%;height:38px;border-radius:var(--radius-control)"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:80px;height:32px;border-radius:var(--radius-button);margin-left:auto;margin-bottom:1rem"></div>
+              <div class="skeleton" style="width:100%;height:28px;border-radius:6px;margin-bottom:0.875rem"></div>
+              <div class="skeleton" style="width:100%;height:28px;border-radius:6px;margin-bottom:0.875rem"></div>
+              <div class="skeleton" style="width:100%;height:28px;border-radius:6px;margin-bottom:0.875rem"></div>
+              <div class="skeleton" style="width:100%;height:28px;border-radius:6px"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+  (function() {
+    'use strict';
+
+    /* ===== STATE TOGGLE ===== */
+    var stateToggle = document.getElementById('stateToggle');
+    var normalState = document.getElementById('normalState');
+    var skeletonState = document.getElementById('skeletonState');
+
+    stateToggle.addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var state = btn.getAttribute('data-state');
+
+      var buttons = stateToggle.querySelectorAll('button');
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      normalState.classList.add('hidden');
+      skeletonState.classList.add('hidden');
+
+      if (state === 'normal') {
+        normalState.classList.remove('hidden');
+      } else if (state === 'skeleton') {
+        skeletonState.classList.remove('hidden');
+      }
+    });
+
+    /* ===== CARD EXPAND / COLLAPSE ===== */
+    window.toggleCard = function(cardId) {
+      var card = document.getElementById(cardId);
+      if (card) {
+        card.classList.toggle('expanded');
+      }
+    };
+
+    /* ===== TOAST ===== */
+    function showToast(msg) {
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      setTimeout(function() {
+        toast.classList.remove('visible');
+      }, 2500);
+    }
+
+    /* ===== SIMULATE AI GENERATION ===== */
+    function simulateAI(loadingId, delay, callback) {
+      var loader = document.getElementById(loadingId);
+      loader.classList.add('visible');
+      setTimeout(function() {
+        loader.classList.remove('visible');
+        callback();
+      }, delay);
+    }
+
+    /* ===== 1. SMART SEARCH ===== */
+    document.getElementById('btnSmartSearch').addEventListener('click', function() {
+      var results = document.getElementById('searchResults');
+      results.style.display = 'none';
+
+      simulateAI('loadingSearch', 1500, function() {
+        results.style.display = 'flex';
+      });
+    });
+
+    /* ===== 2. EMAIL DRAFTER ===== */
+    var emailTemplates = {
+      interview: {
+        subject: 'Interview Invitation -- Water Process Controller, uThukela Water',
+        body: 'Dear [Candidate Name],\n\nThank you for your application for the Water Process Controller position at uThukela Water.\n\nWe are pleased to invite you for an interview at our offices in Ladysmith, KwaZulu-Natal. Below are the proposed details:\n\nDate: [Insert Date]\nTime: [Insert Time]\nVenue: uThukela Water Head Office, 67 Murchison Street, Ladysmith, 3370\n\nPlease bring the following:\n- Certified copy of your ID\n- Relevant qualifications (NQF 6 / Process Controller certificate)\n- Two professional references\n\nKindly confirm your attendance by replying to this email.\n\nWarm regards,\nSipho Ndlovu\nHR Recruitment, uThukela Water'
+      },
+      offer: {
+        subject: 'Offer of Employment -- uThukela Water',
+        body: 'Dear [Candidate Name],\n\nWe are delighted to extend a formal offer of employment for the position of Water Process Controller at uThukela Water.\n\nKey terms of the offer:\n- Start Date: [Insert Date]\n- Salary: R[Amount] per annum (cost to company)\n- Location: Ladysmith, KwaZulu-Natal\n- Benefits: Medical aid contribution, pension fund, annual leave (21 days)\n\nPlease review the attached employment contract and return a signed copy within 5 business days.\n\nWe look forward to welcoming you to the uThukela Water team.\n\nKind regards,\nNomvula Dlamini\nHR Manager, uThukela Water'
+      },
+      rejection: {
+        subject: 'Application Update -- uThukela Water',
+        body: 'Dear [Candidate Name],\n\nThank you for your interest in the Water Process Controller position at uThukela Water and for taking the time to attend the interview.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another candidate whose qualifications more closely align with the current requirements.\n\nWe were impressed by your experience and encourage you to apply for future vacancies at uThukela Water. Your details will remain on our database for 12 months.\n\nWe wish you every success in your career.\n\nKind regards,\nSipho Ndlovu\nHR Recruitment, uThukela Water'
+      },
+      followup: {
+        subject: 'Following Up -- Your Application at uThukela Water',
+        body: 'Dear [Candidate Name],\n\nI hope this message finds you well.\n\nI am writing to follow up on your recent interview for the Water Process Controller position at uThukela Water on [Interview Date].\n\nOur selection committee is currently finalising their evaluation, and we expect to have a decision within the next [X] business days.\n\nIn the meantime, please do not hesitate to reach out if you have any questions.\n\nThank you for your patience.\n\nKind regards,\nSipho Ndlovu\nHR Recruitment, uThukela Water'
+      }
+    };
+
+    document.getElementById('btnGenerateEmail').addEventListener('click', function() {
+      var template = document.getElementById('emailTemplate').value;
+      var placeholder = document.getElementById('emailPlaceholder');
+      var preview = document.getElementById('emailPreview');
+      var actions = document.getElementById('emailActions');
+
+      placeholder.classList.add('hidden');
+      preview.classList.add('hidden');
+      actions.classList.add('hidden');
+
+      simulateAI('loadingEmail', 1200, function() {
+        var data = emailTemplates[template];
+        document.getElementById('emailSubject').textContent = 'Subject: ' + data.subject;
+        document.getElementById('emailBody').textContent = data.body;
+        preview.classList.remove('hidden');
+        actions.classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('btnCopyEmail').addEventListener('click', function() {
+      var subject = document.getElementById('emailSubject').textContent;
+      var body = document.getElementById('emailBody').textContent;
+      var text = subject + '\n\n' + body;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast('Email copied to clipboard');
+        });
+      } else {
+        showToast('Email copied to clipboard');
+      }
+    });
+
+    document.getElementById('btnSendEmail').addEventListener('click', function() {
+      showToast('Email sent successfully');
+    });
+
+    /* ===== 3. JOB DESCRIPTION WRITER ===== */
+    document.getElementById('btnGenerateJD').addEventListener('click', function() {
+      var title = document.getElementById('jdTitle').value || 'Water Process Controller';
+      var dept = document.getElementById('jdDepartment').value || 'Operations';
+      var responsibilities = document.getElementById('jdResponsibilities').value || '';
+
+      var placeholder = document.getElementById('jdPlaceholder');
+      var preview = document.getElementById('jdPreview');
+      var biasPanel = document.getElementById('biasPanel');
+
+      placeholder.classList.add('hidden');
+      preview.classList.add('hidden');
+      biasPanel.classList.add('hidden');
+
+      simulateAI('loadingJD', 1800, function() {
+        var respList = responsibilities.split(',').map(function(r) {
+          return '<li>' + r.trim().charAt(0).toUpperCase() + r.trim().slice(1) + '</li>';
+        }).join('');
+
+        preview.innerHTML =
+          '<h4>' + title + ' -- ' + dept + ', uThukela Water</h4>' +
+          '<div class="jd-section-title">About uThukela Water</div>' +
+          '<p>uThukela Water is a municipal entity responsible for providing bulk potable water and wastewater services to the uThukela District Municipality in KwaZulu-Natal. We serve over 700,000 residents across Ladysmith, Bergville, Estcourt, and surrounding areas.</p>' +
+          '<div class="jd-section-title">Purpose of the Role</div>' +
+          '<p>The ' + title + ' will be responsible for the efficient operation and monitoring of water treatment processes, ensuring compliance with SANS 241 drinking water quality standards and all relevant environmental regulations.</p>' +
+          '<div class="jd-section-title">Key Responsibilities</div>' +
+          '<ul style="padding-left:1.25rem;margin:0.25rem 0">' + respList + '</ul>' +
+          '<div class="jd-section-title">Minimum Requirements</div>' +
+          '<ul style="padding-left:1.25rem;margin:0.25rem 0">' +
+            '<li>Grade 12 / Matric certificate</li>' +
+            '<li>NQF Level 5 or higher in Water/Wastewater Treatment</li>' +
+            '<li>Valid Class IV Process Controller certificate (DWS)</li>' +
+            '<li>Minimum 3 years experience in a water treatment facility</li>' +
+            '<li>Knowledge of SANS 241, NWA (Act 36 of 1998), and OHSA</li>' +
+          '</ul>' +
+          '<div class="jd-section-title">Remuneration</div>' +
+          '<p>A competitive, market-related salary (Task Grade T10) plus benefits including medical aid, pension fund, and housing allowance.</p>' +
+          '<p style="margin-top:0.75rem;font-style:italic;color:var(--text-muted)">uThukela Water is an equal opportunity employer. Preference will be given to candidates from designated groups in accordance with the Employment Equity Act.</p>';
+
+        preview.classList.remove('hidden');
+        biasPanel.classList.remove('hidden');
+      });
+    });
+
+    /* ===== 4. SALARY BENCHMARK ===== */
+    document.getElementById('btnBenchmark').addEventListener('click', function() {
+      var placeholder = document.getElementById('salaryPlaceholder');
+      var results = document.getElementById('salaryResults');
+
+      placeholder.classList.add('hidden');
+      results.classList.add('hidden');
+
+      // Reset bar widths
+      var fills = results.querySelectorAll('.salary-bar-fill');
+      fills.forEach(function(fill) {
+        fill.style.width = '0%';
+      });
+
+      simulateAI('loadingSalary', 1400, function() {
+        results.classList.remove('hidden');
+
+        // Animate bars
+        setTimeout(function() {
+          fills.forEach(function(fill) {
+            fill.style.width = fill.getAttribute('data-target');
+          });
+        }, 50);
+      });
+    });
+
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

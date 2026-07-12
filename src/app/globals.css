@@ -24,6 +24,14 @@
   --input: #E2E8F0;
   --ring: #05527E;
 
+  /* Status */
+  --error: #EF4444;
+  --error-bg: #FEE2E2;
+  --success: #22C55E;
+  --success-bg: #DCFCE7;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+
   /* Brand Radius — contemporary */
   --radius: 10px;
   --radius-control: 8px;
@@ -100,59 +108,67 @@
 
 /* Dark mode */
 .dark {
-  --background: #0B1120;
+  --background: #0F172A;
   --foreground: #E2E8F0;
-  --card: #152035;
+  --card: #1E293B;
   --card-foreground: #E2E8F0;
-  --popover: #152035;
+  --popover: #1E293B;
   --popover-foreground: #E2E8F0;
-  --primary: #4CA6D0;
-  --primary-foreground: #0B1120;
-  --secondary: #1A2744;
+  --primary: #60A5FA;
+  --primary-foreground: #0F172A;
+  --secondary: #1E293B;
   --secondary-foreground: #E2E8F0;
-  --muted: #1A2744;
+  --muted: #1E293B;
   --muted-foreground: #94A3B8;
-  --accent: #1A2744;
+  --accent: #1E293B;
   --accent-foreground: #E2E8F0;
   --destructive: #F87171;
-  --destructive-foreground: #0B1120;
-  --border: #1E3A5F;
-  --input: #1E3A5F;
-  --ring: #4CA6D0;
+  --destructive-foreground: #0F172A;
+  --border: #334155;
+  --input: #334155;
+  --ring: #60A5FA;
 
-  --cta: #F6CE5E;
-  --cta-foreground: #032E49;
-  --cta-hover: #F1C54B;
-  --cta-border: #F6CE5E;
-  --link: #38BDF8;
-  --link-hover: #7DD3FC;
-  --divider-accent: #F6CE5E;
-  --divider-secondary: #21D4C4;
+  --cta: #F1C54B;
+  --cta-foreground: #0F172A;
+  --cta-hover: #D4A832;
+  --cta-border: #F1C54B;
+  --link: #60A5FA;
+  --link-hover: #93C5FD;
+  --divider-accent: #F1C54B;
+  --divider-secondary: #2DD4BF;
 
-  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.18);
-  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.25), 0 2px 5px rgba(0, 0, 0, 0.18);
-  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.25), 0 5px 10px rgba(0, 0, 0, 0.18);
-  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.18);
+  /* Status */
+  --error: #F87171;
+  --error-bg: #3D1515;
+  --success: #34D399;
+  --success-bg: #0D3D2A;
+  --warning: #FBBF24;
+  --warning-bg: #3D2E0A;
+
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
 
   /* Semantic surface tints — dark */
-  --surface-navy: #0D1B2A;
-  --surface-teal: #0A1F1D;
-  --surface-gold: #1A1608;
-  --surface-pink: #1F0A10;
-  --icon-bg-navy: #0F2A3E;
-  --icon-bg-teal: #0B2D28;
-  --icon-bg-gold: #2A2210;
-  --icon-bg-pink: #2E1018;
-  --accent-navy: #4CA6D0;
-  --accent-teal: #21D4C4;
-  --accent-gold: #F6CE5E;
-  --accent-pink: #FF6B7D;
+  --surface-navy: #162032;
+  --surface-teal: #0A2926;
+  --surface-gold: #2A200A;
+  --surface-pink: #2A0F1A;
+  --icon-bg-navy: #1E3A5F;
+  --icon-bg-teal: #0D3B35;
+  --icon-bg-gold: #3D2E0A;
+  --icon-bg-pink: #3D1525;
+  --accent-navy: #60A5FA;
+  --accent-teal: #2DD4BF;
+  --accent-gold: #FBBF24;
+  --accent-pink: #FB7185;
 
   /* Gray scale inverted */
-  --tw-gray-50: #0B1120;
-  --tw-gray-100: #152035;
-  --tw-gray-200: #1E3A5F;
-  --tw-gray-300: #2D4A6F;
+  --tw-gray-50: #0F172A;
+  --tw-gray-100: #1E293B;
+  --tw-gray-200: #334155;
+  --tw-gray-300: #475569;
   --tw-gray-400: #64748B;
   --tw-gray-500: #94A3B8;
   --tw-gray-600: #CBD5E1;
@@ -162,10 +178,10 @@
   --tw-gray-950: #FFFFFF;
 
   /* Slate scale inverted */
-  --tw-slate-50: #0B1120;
-  --tw-slate-100: #152035;
-  --tw-slate-200: #1E3A5F;
-  --tw-slate-300: #2D4A6F;
+  --tw-slate-50: #0F172A;
+  --tw-slate-100: #1E293B;
+  --tw-slate-200: #334155;
+  --tw-slate-300: #475569;
   --tw-slate-400: #64748B;
   --tw-slate-500: #94A3B8;
   --tw-slate-600: #CBD5E1;
@@ -580,7 +596,7 @@
 
 /* Dark scrollbar */
 .dark {
-  scrollbar-color: #1E3A5F #0B1120;
+  scrollbar-color: #334155 #0F172A;
 }
 
 .dark ::-webkit-scrollbar {
@@ -589,16 +605,16 @@
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0B1120;
+  background: #0F172A;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #1E3A5F;
+  background: #334155;
   border-radius: 4px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #2D4A6F;
+  background: #475569;
 }
 
 /* Dark mode: flip bg-white containers to card background.

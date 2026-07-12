@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Interviews & Offers | ShumelaHire - uThukela Water</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --primary: #05527E;
+      --primary-light: #DCEEF7;
+      --primary-tint: #F0F7FB;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-muted: #64748B;
+      --teal: #047469;
+      --teal-bg: #C8FFF5;
+      --teal-tint: #EFFEFB;
+      --gold: #D4A832;
+      --gold-bg: #FEF6D8;
+      --gold-tint: #FFFCF0;
+      --pink: #D63050;
+      --pink-bg: #FFE0E3;
+      --pink-tint: #FFF1F2;
+      --navy-bg: #DCEEF7;
+      --navy-tint: #F0F7FB;
+      --shadow-sm: 0 2px 5px rgba(50,50,93,0.12), 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 10px rgba(50,50,93,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(50,50,93,0.12), 0 5px 10px rgba(0,0,0,0.08);
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-button: 9999px;
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1 { font-weight: 800; font-size: 1.75rem; color: var(--text-primary); }
+    h2 { font-weight: 700; font-size: 1.25rem; color: var(--text-primary); }
+    h3 { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-decoration: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 2px solid var(--cta);
+      color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--cta);
+      color: var(--text-primary);
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      border: 2px solid var(--cta);
+      color: var(--text-primary);
+    }
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      border: 2px solid var(--teal);
+      color: #FFFFFF;
+    }
+    .btn-teal:hover {
+      background: #035D54;
+      border-color: #035D54;
+    }
+
+    .btn-gold-outline {
+      background: transparent;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+    }
+    .btn-gold-outline:hover {
+      background: var(--gold);
+      color: #FFFFFF;
+    }
+
+    .btn-pink-outline {
+      background: transparent;
+      border: 2px solid var(--pink);
+      color: var(--pink);
+    }
+    .btn-pink-outline:hover {
+      background: var(--pink);
+      color: #FFFFFF;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.75rem;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
+    .topnav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .topnav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topnav-logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .topnav-logo span {
+      color: var(--cta-hover);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--primary);
+    }
+
+    .breadcrumb-sep {
+      color: var(--border);
+    }
+
+    .breadcrumb-current {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topnav-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .topnav-icon-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .topnav-icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--pink);
+      border-radius: 9px;
+      border: 2px solid #FFFFFF;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .topnav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pink-bg);
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: box-shadow 200ms ease;
+      border: 2px solid transparent;
+    }
+
+    .topnav-avatar:hover {
+      border-color: var(--cta);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header-left h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .page-header-left p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========== DEMO STATE TOGGLE BAR ========== */
+    .demo-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 8px 12px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-toggle-bar label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-right: 8px;
+    }
+
+    .demo-btn {
+      padding: 6px 16px;
+      border-radius: var(--radius-button);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .demo-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--navy-tint);
+    }
+
+    .demo-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* ========== SECTION HEADER ========== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .section-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-header h2 svg {
+      width: 22px;
+      height: 22px;
+      color: var(--primary);
+    }
+
+    /* ========== STATS BAR ========== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 200ms ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-icon-navy { background: var(--navy-bg); color: var(--primary); }
+    .stat-icon-teal { background: var(--teal-bg); color: var(--teal); }
+    .stat-icon-gold { background: var(--gold-bg); color: var(--gold); }
+
+    .stat-content { flex: 1; }
+
+    .stat-number {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ========== MINI CALENDAR ========== */
+    .calendar-interviews-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mini-calendar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+    }
+
+    .calendar-month-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-month-header h3 {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .calendar-nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .calendar-nav-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .calendar-nav-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .calendar-weekday {
+      text-align: center;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 0;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .calendar-day {
+      text-align: center;
+      padding: 6px 0;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      border-radius: 6px;
+      cursor: default;
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .calendar-day.other-month {
+      color: var(--border);
+    }
+
+    .calendar-day.today {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    .calendar-day.has-interview {
+      background: var(--teal-bg);
+      color: var(--teal);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .calendar-day.has-interview:hover {
+      background: var(--teal);
+      color: #FFFFFF;
+    }
+
+    .calendar-day.has-interview::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    .calendar-day.has-interview:hover::after {
+      background: #FFFFFF;
+    }
+
+    .calendar-day.today.has-interview {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .calendar-day.today.has-interview::after {
+      background: var(--cta);
+    }
+
+    .calendar-legend {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-dot-today { background: var(--primary); }
+    .legend-dot-interview { background: var(--teal); }
+
+    /* ========== INTERVIEW LIST ========== */
+    .interviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .interview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      transition: all 200ms ease;
+    }
+
+    .interview-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(5, 82, 126, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .interview-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      gap: 0.75rem;
+    }
+
+    .interview-position {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .interview-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .badge-phone {
+      background: var(--navy-bg);
+      color: var(--primary);
+    }
+
+    .badge-technical {
+      background: var(--teal-bg);
+      color: var(--teal);
+    }
+
+    .badge-panel {
+      background: var(--gold-bg);
+      color: var(--gold);
+    }
+
+    .interview-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .interview-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .interview-detail-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .interview-detail-item strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .interview-interviewers {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .interviewer-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .interviewer-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.5625rem;
+      color: #FFFFFF;
+      border: 2px solid #FFFFFF;
+      margin-left: -4px;
+    }
+
+    .interviewer-avatar:first-of-type {
+      margin-left: 0;
+    }
+
+    .interviewer-name-list {
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .prep-tips {
+      background: var(--navy-tint);
+      border: 1px solid var(--primary-light);
+      border-radius: var(--radius-control);
+      padding: 0.75rem 1rem;
+    }
+
+    .prep-tips-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      margin-bottom: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .prep-tips-label svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .prep-tips p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ========== PAST INTERVIEWS ========== */
+    .past-interviews-section {
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .past-interview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: all 200ms ease;
+      flex-wrap: wrap;
+    }
+
+    .past-interview-card + .past-interview-card {
+      margin-top: 0.75rem;
+    }
+
+    .past-interview-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .past-interview-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .past-interview-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-control);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .past-interview-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .past-interview-info h3 {
+      font-size: 0.9375rem;
+      margin-bottom: 0.125rem;
+    }
+
+    .past-interview-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .past-interview-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .feedback-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .feedback-received {
+      background: var(--teal-tint);
+      color: var(--teal);
+    }
+
+    .feedback-pending {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    .feedback-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .feedback-received .feedback-dot { background: var(--teal); }
+    .feedback-pending .feedback-dot { background: var(--gold); }
+
+    /* ========== SECTION DIVIDER ========== */
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    /* ========== OFFERS SECTION ========== */
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .offer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      transition: all 200ms ease;
+      overflow: hidden;
+    }
+
+    .offer-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(5, 82, 126, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .offer-card-body {
+      padding: 1.25rem;
+    }
+
+    .offer-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      gap: 0.5rem;
+    }
+
+    .offer-position {
+      font-weight: 700;
+      font-size: 1.0625rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .offer-department {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    .offer-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-button);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .status-pending {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    .status-accepted {
+      background: var(--teal-tint);
+      color: var(--teal);
+    }
+
+    .status-declined {
+      background: var(--pink-tint);
+      color: var(--pink);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-pending .status-dot { background: var(--gold); }
+    .status-accepted .status-dot { background: var(--teal); }
+    .status-declined .status-dot { background: var(--pink); }
+
+    .offer-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .offer-detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .offer-detail-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .offer-detail-value {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .offer-detail-value.salary {
+      color: var(--teal);
+    }
+
+    .offer-detail-value.expiry-warning {
+      color: var(--pink);
+    }
+
+    .offer-benefits {
+      margin-bottom: 1rem;
+    }
+
+    .offer-benefits-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.375rem;
+    }
+
+    .benefits-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .benefit-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.5rem;
+      border-radius: var(--radius-button);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      background: var(--navy-tint);
+      color: var(--primary);
+      border: 1px solid var(--primary-light);
+    }
+
+    .benefit-tag svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .offer-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .offer-card-actions .btn {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .offer-expand-btn {
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 200ms ease;
+      border-top: 1px solid var(--border);
+    }
+
+    .offer-expand-btn:hover {
+      background: var(--navy-tint);
+    }
+
+    .offer-expand-btn svg {
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+    }
+
+    .offer-expand-btn.expanded svg {
+      transform: rotate(180deg);
+    }
+
+    .offer-detail-panel {
+      display: none;
+      padding: 1.25rem;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .offer-detail-panel.expanded {
+      display: block;
+    }
+
+    .detail-section {
+      margin-bottom: 1rem;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .detail-section-title svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.375rem 0;
+      font-size: 0.8125rem;
+    }
+
+    .detail-row + .detail-row {
+      border-top: 1px solid var(--border);
+    }
+
+    .detail-row-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .detail-row-value {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .reporting-chain {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .reporting-person {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .reporting-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.625rem;
+      color: #FFFFFF;
+    }
+
+    .reporting-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .reporting-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .reporting-title {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+    }
+
+    .reporting-arrow {
+      color: var(--border);
+      font-size: 1.25rem;
+    }
+
+    /* ========== SKELETON LOADING ========== */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 37%, #E2E8F0 63%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 6px;
+    }
+
+    .skel-line {
+      height: 14px;
+    }
+
+    .skel-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+
+    .skeleton-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .skeleton-stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .skeleton-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+    }
+
+    .skeleton-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .skeleton-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+    }
+
+    .skeleton-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* ========== TOAST NOTIFICATIONS ========== */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      min-width: 300px;
+      max-width: 420px;
+      animation: toastIn 300ms ease;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.success { border-left: 4px solid var(--teal); }
+    .toast.warning { border-left: 4px solid var(--gold); }
+    .toast.error { border-left: 4px solid var(--pink); }
+
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toast-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .toast.success .toast-icon { color: var(--teal); }
+    .toast.warning .toast-icon { color: var(--gold); }
+    .toast.error .toast-icon { color: var(--pink); }
+
+    .toast-content p {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .toast-close {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 200ms ease;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: var(--bg);
+      color: var(--text-primary);
+    }
+
+    .toast-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .calendar-interviews-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .offers-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .skeleton-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .skeleton-cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-header-right {
+        width: 100%;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .topnav {
+        padding: 0 1rem;
+      }
+
+      .interview-details {
+        grid-template-columns: 1fr;
+      }
+
+      .offer-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .offer-card-actions {
+        flex-direction: column;
+      }
+
+      .offer-card-actions .btn {
+        width: 100%;
+      }
+
+      .past-interview-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.375rem;
+      }
+
+      .page-header-right .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .calendar-interviews-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    /* ========== SIDEBAR NAVIGATION ========== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--primary, #05527E);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar-hidden .sidebar {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 0 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-brand span {
+      color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-close {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
+    }
+
+    .sidebar-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0.375rem 1.25rem;
+    }
+
+    .sidebar-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+      text-align: left;
+    }
+
+    .sidebar-group-header:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-group-header svg:first-child {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-group-header .chevron {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      transition: transform 200ms ease;
+      opacity: 0.5;
+    }
+
+    .sidebar-group-header.expanded .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-body {
+      overflow: hidden;
+      max-height: 600px;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-group-body.collapsed {
+      max-height: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.375rem 1.25rem 0.375rem 3rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+      font-weight: 600;
+    }
+
+    .sidebar-single-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 200ms ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-single-link:hover {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-single-link.active {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--cta, #F1C54B);
+    }
+
+    .sidebar-single-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+
+    .sidebar-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-control, 8px);
+      border: none;
+      background: transparent;
+      color: var(--text-muted, #64748B);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar body layout shift */
+    body {
+      padding-left: 260px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.sidebar-hidden {
+      padding-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      body, body.sidebar-hidden {
+        padding-left: 0 !important;
+      }
+
+      body:not(.sidebar-hidden) .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar {
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+
+      .sidebar-close {
+        display: flex;
+      }
+    }
+
+  
+    /* ========== DARK MODE ========== */
+    [data-theme="dark"] {
+      --primary: #60A5FA;
+      --primary-light: #1E3A5F;
+      --primary-tint: #162032;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --card: #1E293B;
+      --border: #334155;
+      --text-primary: #E2E8F0;
+      --text: #E2E8F0;
+      --text-muted: #94A3B8;
+      --muted: #94A3B8;
+      --teal: #2DD4BF;
+      --teal-bg: #0D3B35;
+      --teal-tint: #0A2926;
+      --gold: #FBBF24;
+      --gold-bg: #3D2E0A;
+      --gold-tint: #2A200A;
+      --pink: #FB7185;
+      --pink-bg: #3D1525;
+      --pink-tint: #2A0F1A;
+      --navy-bg: #1E3A5F;
+      --navy-tint: #162032;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+      --error: #F87171;
+      --error-bg: #3D1515;
+      --success: #34D399;
+      --success-bg: #0D3D2A;
+      --warning: #FBBF24;
+      --warning-bg: #3D2E0A;
+      --cta: #F1C54B;
+      --cta-hover: #D4A832;
+    }
+
+    [data-theme="dark"] body {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] a {
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #93C5FD;
+    }
+
+    /* Topnav / Navbar */
+    [data-theme="dark"] .topnav,
+    [data-theme="dark"] .top-nav,
+    [data-theme="dark"] .top-nav-inner,
+    [data-theme="dark"] .navbar,
+    [data-theme="dark"] nav[class*="topnav"],
+    [data-theme="dark"] nav[class*="top-nav"],
+    [data-theme="dark"] nav[class*="navbar"] {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    /* Broad card/panel/white-bg overrides */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .panel,
+    [data-theme="dark"] .modal-content,
+    [data-theme="dark"] .modal-body,
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer,
+    [data-theme="dark"] .dropdown-menu,
+    [data-theme="dark"] .dropdown-content,
+    [data-theme="dark"] .popover,
+    [data-theme="dark"] .tooltip-inner,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .stats-card,
+    [data-theme="dark"] .metric-card,
+    [data-theme="dark"] .info-card,
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .detail-card,
+    [data-theme="dark"] .action-card,
+    [data-theme="dark"] .feature-card,
+    [data-theme="dark"] .profile-card,
+    [data-theme="dark"] .review-card,
+    [data-theme="dark"] .activity-card,
+    [data-theme="dark"] .kpi-card,
+    [data-theme="dark"] .widget,
+    [data-theme="dark"] .content-card,
+    [data-theme="dark"] .list-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .chart-card,
+    [data-theme="dark"] .table-card,
+    [data-theme="dark"] .data-card,
+    [data-theme="dark"] .notification-card,
+    [data-theme="dark"] .alert-card,
+    [data-theme="dark"] .timeline-card,
+    [data-theme="dark"] .empty-state,
+    [data-theme="dark"] .page-header,
+    [data-theme="dark"] .section-header,
+    [data-theme="dark"] .filter-bar,
+    [data-theme="dark"] .search-bar,
+    [data-theme="dark"] .toolbar,
+    [data-theme="dark"] .tab-content,
+    [data-theme="dark"] .tab-pane {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    /* Catch-all: any element with hardcoded white bg */
+    [data-theme="dark"] [style*="background: #fff"],
+    [data-theme="dark"] [style*="background:#fff"],
+    [data-theme="dark"] [style*="background: #FFF"],
+    [data-theme="dark"] [style*="background:#FFF"],
+    [data-theme="dark"] [style*="background: white"],
+    [data-theme="dark"] [style*="background:white"],
+    [data-theme="dark"] [style*="background-color: #fff"],
+    [data-theme="dark"] [style*="background-color:#fff"],
+    [data-theme="dark"] [style*="background-color: #FFF"],
+    [data-theme="dark"] [style*="background-color:#FFF"],
+    [data-theme="dark"] [style*="background-color: white"],
+    [data-theme="dark"] [style*="background-color:white"] {
+      background: #1E293B !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Forms */
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .input,
+    [data-theme="dark"] .search-input {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] select::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #64748B;
+    }
+
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus,
+    [data-theme="dark"] textarea:focus {
+      border-color: #60A5FA;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    /* Tables */
+    [data-theme="dark"] table {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] th {
+      background: #162032;
+      color: #94A3B8;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] td {
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(96,165,250,0.05);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) td {
+      background: rgba(15,23,42,0.3);
+    }
+
+    /* Sidebar */
+    [data-theme="dark"] .sidebar {
+      background: #0B1929;
+    }
+
+    /* Buttons */
+    [data-theme="dark"] .btn-cta {
+      color: #0F172A;
+    }
+
+    [data-theme="dark"] .btn-ghost {
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: #60A5FA;
+      color: #60A5FA;
+    }
+
+    [data-theme="dark"] .btn-primary {
+      color: #60A5FA;
+      border-color: var(--cta);
+    }
+
+    /* Notification badge */
+    [data-theme="dark"] .notification-badge,
+    [data-theme="dark"] .nav-badge,
+    [data-theme="dark"] .badge {
+      border-color: transparent;
+    }
+
+    /* Modal overlay */
+    [data-theme="dark"] .modal-overlay,
+    [data-theme="dark"] .overlay {
+      background: rgba(0,0,0,0.7);
+    }
+
+    /* Demo bar */
+    [data-theme="dark"] .demo-bar,
+    [data-theme="dark"] .demo-toggle-bar {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .demo-btn:hover,
+    [data-theme="dark"] .demo-btn.active {
+      background: #60A5FA;
+      color: #0F172A;
+      border-color: #60A5FA;
+    }
+
+    /* Skeleton loading */
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%) !important;
+      background-size: 200% 100% !important;
+    }
+
+    /* Scrollbar */
+    [data-theme="dark"] ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Breadcrumb */
+    [data-theme="dark"] .breadcrumb a {
+      color: #94A3B8;
+    }
+
+    [data-theme="dark"] .breadcrumb-current {
+      color: #60A5FA;
+    }
+
+    /* Tags, pills, status badges */
+    [data-theme="dark"] .tag,
+    [data-theme="dark"] .pill,
+    [data-theme="dark"] .chip,
+    [data-theme="dark"] .status-badge,
+    [data-theme="dark"] .label {
+      border-color: #334155;
+    }
+
+    /* Tabs */
+    [data-theme="dark"] .tab,
+    [data-theme="dark"] .nav-tab,
+    [data-theme="dark"] .tabs {
+      border-color: #334155;
+    }
+
+    [data-theme="dark"] .tab.active,
+    [data-theme="dark"] .nav-tab.active {
+      color: #60A5FA;
+      border-color: #60A5FA;
+    }
+
+    /* Dividers / HRs */
+    [data-theme="dark"] hr {
+      border-color: #334155;
+    }
+
+    /* Avatar fallback */
+    [data-theme="dark"] .topnav-avatar,
+    [data-theme="dark"] .nav-avatar,
+    [data-theme="dark"] .user-avatar {
+      background: #334155;
+      color: #E2E8F0;
+    }
+
+    /* Progress bars */
+    [data-theme="dark"] .progress-bg,
+    [data-theme="dark"] .progress-track {
+      background: #334155;
+    }
+
+    /* Topnav icon buttons in dark */
+    [data-theme="dark"] .topnav-icon-btn:hover,
+    [data-theme="dark"] .nav-icon-btn:hover {
+      background: #334155;
+    }
+
+    /* Toggle button styling */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted, #64748B);
+      transition: all 200ms ease;
+      position: relative;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg, #F1F5F9);
+      color: var(--primary, #05527E);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #334155;
+      color: #FBBF24;
+    }
+
+    /* Misc containers that use white/light backgrounds */
+    [data-theme="dark"] .content,
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .page-content,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .wrapper {
+      color: #E2E8F0;
+    }
+
+    /* Section titles and labels */
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .card-title,
+    [data-theme="dark"] .card-header,
+    [data-theme="dark"] .panel-header,
+    [data-theme="dark"] .panel-title {
+      color: #E2E8F0;
+    }
+
+    /* Muted/secondary text */
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    [data-theme="dark"] .subtitle,
+    [data-theme="dark"] .description,
+    [data-theme="dark"] .help-text,
+    [data-theme="dark"] .hint,
+    [data-theme="dark"] small {
+      color: #94A3B8;
+    }
+
+    /* Code blocks */
+    [data-theme="dark"] code,
+    [data-theme="dark"] pre {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-color: #334155;
+    }
+
+    /* Lists */
+    [data-theme="dark"] .list-item,
+    [data-theme="dark"] .list-group-item {
+      background: #1E293B;
+      border-color: #334155;
+      color: #E2E8F0;
+    }
+
+    [data-theme="dark"] .list-item:hover,
+    [data-theme="dark"] .list-group-item:hover {
+      background: #263449;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOP NAVIGATION ========== -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="#" class="topnav-logo">Shumela<span>Hire</span></a>
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="#">Candidate Portal</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Interviews & Offers</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+      <button class="topnav-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <div class="topnav-avatar" title="Nomsa Mthembu">NM</div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR NAVIGATION ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">Shumela<span>Hire</span></a>
+      <button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Recruitment</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="job-postings.html" class="sidebar-link">Job Postings</a>
+          <a href="job-templates.html" class="sidebar-link">Job Templates</a>
+          <a href="requisitions.html" class="sidebar-link">Requisitions</a>
+          <a href="applications.html" class="sidebar-link">Applications</a>
+          <a href="applicants.html" class="sidebar-link">Applicants</a>
+          <a href="recruitment-pipeline.html" class="sidebar-link">Pipeline</a>
+          <a href="interviews.html" class="sidebar-link">Interviews</a>
+          <a href="offers.html" class="sidebar-link">Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>HR</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="employee-directory.html" class="sidebar-link">Employee Directory</a>
+          <a href="employee-profile.html" class="sidebar-link">Employee Profile</a>
+          <a href="employee-portal.html" class="sidebar-link">Employee Portal</a>
+          <a href="add-employee.html" class="sidebar-link">Add Employee</a>
+          <a href="leave-management.html" class="sidebar-link">Leave Management</a>
+          <a href="payslips.html" class="sidebar-link">Payslips</a>
+          <a href="overtime-log.html" class="sidebar-link">Overtime Log</a>
+          <a href="expense-submission.html" class="sidebar-link">Expense Submission</a>
+          <a href="time-attendance.html" class="sidebar-link">Time & Attendance</a>
+          <a href="shift-scheduling.html" class="sidebar-link">Shift Scheduling</a>
+          <a href="onboarding.html" class="sidebar-link">Onboarding</a>
+          <a href="company-documents.html" class="sidebar-link">Company Documents</a>
+          <a href="documents-management.html" class="sidebar-link">Document Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          <span>Talent</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="performance-reviews.html" class="sidebar-link">Performance Reviews</a>
+          <a href="training-catalog.html" class="sidebar-link">Training Catalog</a>
+          <a href="training-admin.html" class="sidebar-link">Training Admin</a>
+          <a href="development-plans.html" class="sidebar-link">Development Plans</a>
+          <a href="competency-framework.html" class="sidebar-link">Competency Framework</a>
+          <a href="performance-improvement.html" class="sidebar-link">Performance Improvement</a>
+          <a href="360-reviews.html" class="sidebar-link">360 Reviews</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Engagement</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="engagement-hub.html" class="sidebar-link">Engagement Hub</a>
+          <a href="pulse-surveys.html" class="sidebar-link">Pulse Surveys</a>
+          <a href="recognition.html" class="sidebar-link">Recognition</a>
+          <a href="social-feed.html" class="sidebar-link">Social Feed</a>
+          <a href="wellness.html" class="sidebar-link">Wellness</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Analytics</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="analytics-dashboard.html" class="sidebar-link">Analytics Dashboard</a>
+          <a href="recruiter-dashboard.html" class="sidebar-link">Recruiter Dashboard</a>
+          <a href="reports.html" class="sidebar-link">Reports</a>
+          <a href="employee-report.html" class="sidebar-link">Employee Reports</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Administration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="role-permissions.html" class="sidebar-link">Roles & Permissions</a>
+          <a href="audit-logs.html" class="sidebar-link">Audit Logs</a>
+          <a href="departments.html" class="sidebar-link">Departments</a>
+          <a href="compliance.html" class="sidebar-link">Compliance</a>
+          <a href="labour-relations.html" class="sidebar-link">Labour Relations</a>
+          <a href="branding.html" class="sidebar-link">Branding</a>
+          <a href="document-templates.html" class="sidebar-link">Document Templates</a>
+          <a href="document-retention.html" class="sidebar-link">Document Retention</a>
+          <a href="custom-fields.html" class="sidebar-link">Custom Fields</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Integrations</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="integrations-hub.html" class="sidebar-link">Integrations Hub</a>
+          <a href="sage-integration.html" class="sidebar-link">Sage Integration</a>
+          <a href="sso-configuration.html" class="sidebar-link">SSO Configuration</a>
+          <a href="workflow-management.html" class="sidebar-link">Workflow Management</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header expanded">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          <span>Candidate Portal</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body">
+          <a href="candidate-portal.html" class="sidebar-link">Candidate Portal</a>
+          <a href="candidate-interviews-offers.html" class="sidebar-link active">Interviews & Offers</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <button class="sidebar-group-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Communication</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="sidebar-group-body collapsed">
+          <a href="announcements.html" class="sidebar-link">Announcements</a>
+          <a href="messaging.html" class="sidebar-link">Messaging</a>
+          <a href="notifications-and-search.html" class="sidebar-link">Notifications & Search</a>
+          <a href="it-support.html" class="sidebar-link">IT Support</a>
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <a href="ai-tools.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span>AI Tools</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-single-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>My Interviews & Offers</h1>
+        <p>Track your interview schedule and review employment offers</p>
+      </div>
+    </div>
+
+    <!-- Demo Toggle -->
+    <div class="demo-toggle-bar">
+      <label>Demo State</label>
+      <button class="demo-btn active" onclick="setDemoState('normal')">Normal</button>
+      <button class="demo-btn" onclick="setDemoState('skeleton')">Skeleton Loading</button>
+    </div>
+
+    <!-- ===== NORMAL CONTENT ===== -->
+    <div id="normalContent">
+
+      <!-- ========== SECTION 1: MY INTERVIEWS ========== -->
+      <div class="section-header">
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          My Interviews
+        </h2>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-navy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Upcoming</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Total</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar + Upcoming Interviews Layout -->
+      <div class="calendar-interviews-layout">
+
+        <!-- Mini Calendar -->
+        <div class="mini-calendar">
+          <div class="calendar-month-header">
+            <button class="calendar-nav-btn" title="Previous month">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <h3>July 2026</h3>
+            <button class="calendar-nav-btn" title="Next month">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <div class="calendar-weekdays">
+            <div class="calendar-weekday">Mon</div>
+            <div class="calendar-weekday">Tue</div>
+            <div class="calendar-weekday">Wed</div>
+            <div class="calendar-weekday">Thu</div>
+            <div class="calendar-weekday">Fri</div>
+            <div class="calendar-weekday">Sat</div>
+            <div class="calendar-weekday">Sun</div>
+          </div>
+
+          <div class="calendar-days">
+            <!-- Week 1 (Jun 29 - Jul 5) -->
+            <div class="calendar-day other-month">29</div>
+            <div class="calendar-day other-month">30</div>
+            <div class="calendar-day">1</div>
+            <div class="calendar-day">2</div>
+            <div class="calendar-day">3</div>
+            <div class="calendar-day">4</div>
+            <div class="calendar-day">5</div>
+            <!-- Week 2 (Jul 6-12) -->
+            <div class="calendar-day">6</div>
+            <div class="calendar-day">7</div>
+            <div class="calendar-day">8</div>
+            <div class="calendar-day today">9</div>
+            <div class="calendar-day has-interview" title="Technical Interview - 10:00">10</div>
+            <div class="calendar-day">11</div>
+            <div class="calendar-day">12</div>
+            <!-- Week 3 (Jul 13-19) -->
+            <div class="calendar-day">13</div>
+            <div class="calendar-day">14</div>
+            <div class="calendar-day has-interview" title="Panel Interview - 14:00">15</div>
+            <div class="calendar-day">16</div>
+            <div class="calendar-day">17</div>
+            <div class="calendar-day">18</div>
+            <div class="calendar-day">19</div>
+            <!-- Week 4 (Jul 20-26) -->
+            <div class="calendar-day">20</div>
+            <div class="calendar-day">21</div>
+            <div class="calendar-day">22</div>
+            <div class="calendar-day">23</div>
+            <div class="calendar-day">24</div>
+            <div class="calendar-day">25</div>
+            <div class="calendar-day">26</div>
+            <!-- Week 5 (Jul 27-31 + Aug 1-2) -->
+            <div class="calendar-day">27</div>
+            <div class="calendar-day">28</div>
+            <div class="calendar-day">29</div>
+            <div class="calendar-day">30</div>
+            <div class="calendar-day">31</div>
+            <div class="calendar-day other-month">1</div>
+            <div class="calendar-day other-month">2</div>
+          </div>
+
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <span class="legend-dot legend-dot-today"></span>
+              Today
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-dot-interview"></span>
+              Interview
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Interviews List -->
+        <div class="interviews-list">
+
+          <!-- Interview 1: Technical -->
+          <div class="interview-card">
+            <div class="interview-card-header">
+              <div>
+                <div class="interview-position">Senior Water Quality Analyst</div>
+              </div>
+              <span class="interview-type-badge badge-technical">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                Technical
+              </span>
+            </div>
+
+            <div class="interview-details">
+              <div class="interview-detail-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <strong>10 July 2026, 10:00 - 11:30</strong>
+              </div>
+              <div class="interview-detail-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>uThukela Water Lab, Block C, Ladysmith</span>
+              </div>
+            </div>
+
+            <div class="interview-interviewers">
+              <span class="interviewer-label">Interviewers:</span>
+              <div class="interviewer-avatar" style="background: var(--primary);">TN</div>
+              <div class="interviewer-avatar" style="background: var(--teal);">SM</div>
+              <span class="interviewer-name-list">Dr. Thabo Nkosi, Sizwe Mabaso</span>
+            </div>
+
+            <div class="prep-tips">
+              <div class="prep-tips-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Preparation Tips
+              </div>
+              <p>Review SANS 241 drinking water quality standards and be prepared to discuss water treatment processes. Bring any relevant certifications. A practical lab assessment may be included.</p>
+            </div>
+          </div>
+
+          <!-- Interview 2: Panel -->
+          <div class="interview-card">
+            <div class="interview-card-header">
+              <div>
+                <div class="interview-position">Infrastructure Project Manager</div>
+              </div>
+              <span class="interview-type-badge badge-panel">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Panel
+              </span>
+            </div>
+
+            <div class="interview-details">
+              <div class="interview-detail-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <strong>15 July 2026, 14:00 - 15:30</strong>
+              </div>
+              <div class="interview-detail-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>Board Room, Head Office, Ladysmith</span>
+              </div>
+            </div>
+
+            <div class="interview-interviewers">
+              <span class="interviewer-label">Panel:</span>
+              <div class="interviewer-avatar" style="background: var(--gold);">LZ</div>
+              <div class="interviewer-avatar" style="background: var(--pink);">PD</div>
+              <div class="interviewer-avatar" style="background: var(--primary);">KM</div>
+              <span class="interviewer-name-list">Lindiwe Zulu (CE), Phila Dladla (CFO), Khaya Mkhize (Head of Infra.)</span>
+            </div>
+
+            <div class="prep-tips">
+              <div class="prep-tips-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Preparation Tips
+              </div>
+              <p>Prepare a 10-minute presentation on a past infrastructure project you managed. Know the uThukela District water infrastructure challenges. Panel will assess leadership, stakeholder management, and budget oversight skills.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Past Interviews -->
+      <div class="past-interviews-section">
+        <div class="section-header">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Past Interviews
+          </h2>
+        </div>
+
+        <!-- Past Interview 1 -->
+        <div class="past-interview-card">
+          <div class="past-interview-left">
+            <div class="past-interview-icon" style="background: var(--navy-bg); color: var(--primary);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </div>
+            <div class="past-interview-info">
+              <h3>Senior Water Quality Analyst</h3>
+              <p>Phone Screening - 25 June 2026</p>
+            </div>
+          </div>
+          <div class="past-interview-right">
+            <span class="feedback-badge feedback-received">
+              <span class="feedback-dot"></span>
+              Feedback Received
+            </span>
+          </div>
+        </div>
+
+        <!-- Past Interview 2 -->
+        <div class="past-interview-card">
+          <div class="past-interview-left">
+            <div class="past-interview-icon" style="background: var(--navy-bg); color: var(--primary);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </div>
+            <div class="past-interview-info">
+              <h3>Infrastructure Project Manager</h3>
+              <p>Phone Screening - 20 June 2026</p>
+            </div>
+          </div>
+          <div class="past-interview-right">
+            <span class="feedback-badge feedback-received">
+              <span class="feedback-dot"></span>
+              Feedback Received
+            </span>
+          </div>
+        </div>
+
+        <!-- Past Interview 3 -->
+        <div class="past-interview-card">
+          <div class="past-interview-left">
+            <div class="past-interview-icon" style="background: var(--teal-bg); color: var(--teal);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+            </div>
+            <div class="past-interview-info">
+              <h3>Maintenance Coordinator</h3>
+              <p>Technical Assessment - 10 June 2026</p>
+            </div>
+          </div>
+          <div class="past-interview-right">
+            <span class="feedback-badge feedback-pending">
+              <span class="feedback-dot"></span>
+              Feedback Pending
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Divider -->
+      <div class="section-divider"></div>
+
+      <!-- ========== SECTION 2: MY OFFERS ========== -->
+      <div class="section-header">
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          My Offers
+        </h2>
+      </div>
+
+      <!-- Offers Grid -->
+      <div class="offers-grid">
+
+        <!-- Offer 1: Pending -->
+        <div class="offer-card" id="offer-1">
+          <div class="offer-card-body">
+            <div class="offer-card-header">
+              <div>
+                <div class="offer-position">Senior Water Quality Analyst</div>
+                <div class="offer-department">Water Quality & Compliance</div>
+              </div>
+              <span class="offer-status-badge status-pending">
+                <span class="status-dot"></span>
+                Pending
+              </span>
+            </div>
+
+            <div class="offer-details-grid">
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Annual Salary</span>
+                <span class="offer-detail-value salary">R 685 000</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Start Date</span>
+                <span class="offer-detail-value">1 September 2026</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Contract Type</span>
+                <span class="offer-detail-value">Permanent</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Offer Expires</span>
+                <span class="offer-detail-value expiry-warning">18 July 2026</span>
+              </div>
+            </div>
+
+            <div class="offer-benefits">
+              <div class="offer-benefits-label">Benefits</div>
+              <div class="benefits-list">
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Medical Aid
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Pension Fund
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  20 Leave Days
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Travel Allowance
+                </span>
+              </div>
+            </div>
+
+            <div class="offer-card-actions">
+              <button class="btn btn-sm btn-teal" onclick="handleOfferAction('offer-1', 'accept')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Accept
+              </button>
+              <button class="btn btn-sm btn-gold-outline" onclick="handleOfferAction('offer-1', 'negotiate')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                Negotiate
+              </button>
+              <button class="btn btn-sm btn-pink-outline" onclick="handleOfferAction('offer-1', 'decline')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                Decline
+              </button>
+            </div>
+          </div>
+
+          <button class="offer-expand-btn" onclick="toggleOfferDetail('offer-1')">
+            View Full Details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="offer-detail-panel" id="offer-1-details">
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Compensation Breakdown
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Basic Salary (Monthly)</span>
+                <span class="detail-row-value">R 57 083</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Medical Aid Contribution</span>
+                <span class="detail-row-value">R 4 200 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Pension Fund (Employer 7.5%)</span>
+                <span class="detail-row-value">R 4 281 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Travel Allowance</span>
+                <span class="detail-row-value">R 3 500 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Total Cost to Company (Annual)</span>
+                <span class="detail-row-value" style="color: var(--teal); font-weight: 800;">R 828 768</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Leave Entitlement
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Annual Leave</span>
+                <span class="detail-row-value">20 days</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Sick Leave</span>
+                <span class="detail-row-value">30 days (3-year cycle)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Family Responsibility Leave</span>
+                <span class="detail-row-value">5 days</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Reporting Structure
+              </div>
+              <div class="reporting-chain">
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--primary);">TN</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Dr. Thabo Nkosi</span>
+                    <span class="reporting-title">Head of Water Quality</span>
+                  </div>
+                </div>
+                <span class="reporting-arrow">&rarr;</span>
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--teal);">LZ</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Lindiwe Zulu</span>
+                    <span class="reporting-title">Chief Executive</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offer 2: Accepted -->
+        <div class="offer-card" id="offer-2">
+          <div class="offer-card-body">
+            <div class="offer-card-header">
+              <div>
+                <div class="offer-position">Maintenance Coordinator</div>
+                <div class="offer-department">Operations & Maintenance</div>
+              </div>
+              <span class="offer-status-badge status-accepted">
+                <span class="status-dot"></span>
+                Accepted
+              </span>
+            </div>
+
+            <div class="offer-details-grid">
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Annual Salary</span>
+                <span class="offer-detail-value salary">R 520 000</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Start Date</span>
+                <span class="offer-detail-value">1 August 2026</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Contract Type</span>
+                <span class="offer-detail-value">Permanent</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Accepted On</span>
+                <span class="offer-detail-value">28 June 2026</span>
+              </div>
+            </div>
+
+            <div class="offer-benefits">
+              <div class="offer-benefits-label">Benefits</div>
+              <div class="benefits-list">
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Medical Aid
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Pension Fund
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  18 Leave Days
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Tool Allowance
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  PPE Provided
+                </span>
+              </div>
+            </div>
+
+            <div class="offer-card-actions" style="opacity: 0.5; pointer-events: none;">
+              <button class="btn btn-sm btn-teal" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Accepted
+              </button>
+            </div>
+          </div>
+
+          <button class="offer-expand-btn" onclick="toggleOfferDetail('offer-2')">
+            View Full Details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="offer-detail-panel" id="offer-2-details">
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Compensation Breakdown
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Basic Salary (Monthly)</span>
+                <span class="detail-row-value">R 43 333</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Medical Aid Contribution</span>
+                <span class="detail-row-value">R 3 800 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Pension Fund (Employer 7.5%)</span>
+                <span class="detail-row-value">R 3 250 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Tool Allowance</span>
+                <span class="detail-row-value">R 1 500 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Total Cost to Company (Annual)</span>
+                <span class="detail-row-value" style="color: var(--teal); font-weight: 800;">R 622 596</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Leave Entitlement
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Annual Leave</span>
+                <span class="detail-row-value">18 days</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Sick Leave</span>
+                <span class="detail-row-value">30 days (3-year cycle)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Family Responsibility Leave</span>
+                <span class="detail-row-value">5 days</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Reporting Structure
+              </div>
+              <div class="reporting-chain">
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--gold);">BN</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Bongani Ndaba</span>
+                    <span class="reporting-title">Operations Manager</span>
+                  </div>
+                </div>
+                <span class="reporting-arrow">&rarr;</span>
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--primary);">KM</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Khaya Mkhize</span>
+                    <span class="reporting-title">Head of Infrastructure</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offer 3: Declined -->
+        <div class="offer-card" id="offer-3">
+          <div class="offer-card-body">
+            <div class="offer-card-header">
+              <div>
+                <div class="offer-position">Community Liaison Officer</div>
+                <div class="offer-department">Community Services</div>
+              </div>
+              <span class="offer-status-badge status-declined">
+                <span class="status-dot"></span>
+                Declined
+              </span>
+            </div>
+
+            <div class="offer-details-grid">
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Annual Salary</span>
+                <span class="offer-detail-value salary">R 380 000</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Start Date</span>
+                <span class="offer-detail-value">1 July 2026</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Contract Type</span>
+                <span class="offer-detail-value">Fixed-Term (24 months)</span>
+              </div>
+              <div class="offer-detail-item">
+                <span class="offer-detail-label">Declined On</span>
+                <span class="offer-detail-value">15 June 2026</span>
+              </div>
+            </div>
+
+            <div class="offer-benefits">
+              <div class="offer-benefits-label">Benefits</div>
+              <div class="benefits-list">
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Medical Aid
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  15 Leave Days
+                </span>
+                <span class="benefit-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Cellphone Allowance
+                </span>
+              </div>
+            </div>
+
+            <div class="offer-card-actions" style="opacity: 0.5; pointer-events: none;">
+              <button class="btn btn-sm btn-pink-outline" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                Declined
+              </button>
+            </div>
+          </div>
+
+          <button class="offer-expand-btn" onclick="toggleOfferDetail('offer-3')">
+            View Full Details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="offer-detail-panel" id="offer-3-details">
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Compensation Breakdown
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Basic Salary (Monthly)</span>
+                <span class="detail-row-value">R 31 667</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Medical Aid Contribution</span>
+                <span class="detail-row-value">R 3 200 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Cellphone Allowance</span>
+                <span class="detail-row-value">R 800 / month</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Total Cost to Company (Annual)</span>
+                <span class="detail-row-value" style="color: var(--teal); font-weight: 800;">R 428 004</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Leave Entitlement
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Annual Leave</span>
+                <span class="detail-row-value">15 days</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Sick Leave</span>
+                <span class="detail-row-value">30 days (3-year cycle)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-row-label">Family Responsibility Leave</span>
+                <span class="detail-row-value">3 days</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Reporting Structure
+              </div>
+              <div class="reporting-chain">
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--pink);">ZM</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Zanele Mhlongo</span>
+                    <span class="reporting-title">Community Services Manager</span>
+                  </div>
+                </div>
+                <span class="reporting-arrow">&rarr;</span>
+                <div class="reporting-person">
+                  <div class="reporting-avatar" style="background: var(--teal);">LZ</div>
+                  <div class="reporting-info">
+                    <span class="reporting-name">Lindiwe Zulu</span>
+                    <span class="reporting-title">Chief Executive</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /normalContent -->
+
+    <!-- ===== SKELETON CONTENT ===== -->
+    <div id="skeletonContent" style="display: none;">
+
+      <!-- Skeleton Stats -->
+      <div class="skeleton-stats">
+        <div class="skeleton-stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div>
+            <div class="skeleton skel-line" style="width:50px; height:24px; margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="width:80px; height:12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div>
+            <div class="skeleton skel-line" style="width:40px; height:24px; margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="width:90px; height:12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-stat-card">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div>
+            <div class="skeleton skel-line" style="width:40px; height:24px; margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="width:60px; height:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Interview Section -->
+      <div class="skeleton-section" style="margin-bottom: 16px;">
+        <div class="skeleton skel-line" style="width: 160px; height: 20px; margin-bottom: 16px;"></div>
+        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="skeleton skel-line" style="width: 200px; height: 16px;"></div>
+          <div class="skeleton skel-line" style="width: 80px; height: 24px; border-radius: 9999px;"></div>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px;">
+          <div class="skeleton skel-line" style="width: 180px; height: 14px;"></div>
+          <div class="skeleton skel-line" style="width: 220px; height: 14px;"></div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <div class="skeleton skel-avatar"></div>
+          <div class="skeleton skel-avatar"></div>
+          <div class="skeleton skel-line" style="width: 180px; height: 14px;"></div>
+        </div>
+        <div class="skeleton skel-line" style="width: 100%; height: 60px; border-radius: 8px;"></div>
+      </div>
+
+      <div class="skeleton-section" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="skeleton skel-line" style="width: 220px; height: 16px;"></div>
+          <div class="skeleton skel-line" style="width: 60px; height: 24px; border-radius: 9999px;"></div>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px;">
+          <div class="skeleton skel-line" style="width: 190px; height: 14px;"></div>
+          <div class="skeleton skel-line" style="width: 200px; height: 14px;"></div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <div class="skeleton skel-avatar"></div>
+          <div class="skeleton skel-avatar"></div>
+          <div class="skeleton skel-avatar"></div>
+          <div class="skeleton skel-line" style="width: 240px; height: 14px;"></div>
+        </div>
+        <div class="skeleton skel-line" style="width: 100%; height: 60px; border-radius: 8px;"></div>
+      </div>
+
+      <!-- Skeleton Past Interviews -->
+      <div class="skeleton-section" style="margin-bottom: 8px;">
+        <div class="skeleton skel-line" style="width: 140px; height: 18px; margin-bottom: 16px;"></div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+          <div class="skeleton" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+          <div>
+            <div class="skeleton skel-line" style="width: 200px; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton skel-line" style="width: 160px; height: 12px;"></div>
+          </div>
+          <div class="skeleton skel-line" style="width: 120px; height: 24px; border-radius: 9999px; margin-left: auto;"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+          <div class="skeleton" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+          <div>
+            <div class="skeleton skel-line" style="width: 180px; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton skel-line" style="width: 140px; height: 12px;"></div>
+          </div>
+          <div class="skeleton skel-line" style="width: 120px; height: 24px; border-radius: 9999px; margin-left: auto;"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="skeleton" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+          <div>
+            <div class="skeleton skel-line" style="width: 170px; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton skel-line" style="width: 150px; height: 12px;"></div>
+          </div>
+          <div class="skeleton skel-line" style="width: 110px; height: 24px; border-radius: 9999px; margin-left: auto;"></div>
+        </div>
+      </div>
+
+      <!-- Skeleton Divider -->
+      <div style="height: 1px; background: var(--border); margin: 24px 0;"></div>
+
+      <!-- Skeleton Offer Cards -->
+      <div class="skeleton skel-line" style="width: 120px; height: 20px; margin-bottom: 16px;"></div>
+      <div class="skeleton-cards-grid">
+        <div class="skeleton-card">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <div>
+              <div class="skeleton skel-line" style="width: 200px; height: 16px; margin-bottom: 6px;"></div>
+              <div class="skeleton skel-line" style="width: 140px; height: 12px;"></div>
+            </div>
+            <div class="skeleton skel-line" style="width: 80px; height: 24px; border-radius: 9999px;"></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <div class="skeleton skel-line" style="width: 80px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 100px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 60px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 120px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 90px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 80px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 75px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 100px; height: 16px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+            <div class="skeleton skel-line" style="width: 80px; height: 22px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="width: 90px; height: 22px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="width: 75px; height: 22px; border-radius: 9999px;"></div>
+          </div>
+          <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div class="skeleton skel-line" style="flex: 1; height: 32px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="flex: 1; height: 32px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="flex: 1; height: 32px; border-radius: 9999px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <div>
+              <div class="skeleton skel-line" style="width: 180px; height: 16px; margin-bottom: 6px;"></div>
+              <div class="skeleton skel-line" style="width: 160px; height: 12px;"></div>
+            </div>
+            <div class="skeleton skel-line" style="width: 80px; height: 24px; border-radius: 9999px;"></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <div class="skeleton skel-line" style="width: 80px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 90px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 60px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 110px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 90px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 80px; height: 16px;"></div>
+            </div>
+            <div>
+              <div class="skeleton skel-line" style="width: 75px; height: 10px; margin-bottom: 4px;"></div>
+              <div class="skeleton skel-line" style="width: 100px; height: 16px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+            <div class="skeleton skel-line" style="width: 80px; height: 22px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="width: 90px; height: 22px; border-radius: 9999px;"></div>
+            <div class="skeleton skel-line" style="width: 70px; height: 22px; border-radius: 9999px;"></div>
+          </div>
+          <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div class="skeleton skel-line" style="flex: 1; height: 32px; border-radius: 9999px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /skeletonContent -->
+
+  </div><!-- /main-container -->
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ========== OFFER DETAIL EXPAND / COLLAPSE ==========
+    window.toggleOfferDetail = function(offerId) {
+      var panel = document.getElementById(offerId + '-details');
+      var btn = panel.previousElementSibling;
+
+      if (panel.classList.contains('expanded')) {
+        panel.classList.remove('expanded');
+        btn.classList.remove('expanded');
+        btn.innerHTML = 'View Full Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+      } else {
+        panel.classList.add('expanded');
+        btn.classList.add('expanded');
+        btn.innerHTML = 'Hide Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+      }
+    };
+
+    // ========== OFFER ACTION BUTTONS ==========
+    window.handleOfferAction = function(offerId, action) {
+      var card = document.getElementById(offerId);
+      var badge = card.querySelector('.offer-status-badge');
+      var actionsDiv = card.querySelector('.offer-card-actions');
+
+      switch (action) {
+        case 'accept':
+          badge.className = 'offer-status-badge status-accepted';
+          badge.innerHTML = '<span class="status-dot"></span>Accepted';
+          actionsDiv.style.opacity = '0.5';
+          actionsDiv.style.pointerEvents = 'none';
+          actionsDiv.innerHTML = '<button class="btn btn-sm btn-teal" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Accepted</button>';
+          showToast('success', 'Offer accepted successfully! You will receive a confirmation email shortly.');
+          break;
+
+        case 'negotiate':
+          showToast('warning', 'Negotiation request sent. The hiring manager will contact you within 2 business days.');
+          break;
+
+        case 'decline':
+          badge.className = 'offer-status-badge status-declined';
+          badge.innerHTML = '<span class="status-dot"></span>Declined';
+          actionsDiv.style.opacity = '0.5';
+          actionsDiv.style.pointerEvents = 'none';
+          actionsDiv.innerHTML = '<button class="btn btn-sm btn-pink-outline" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>Declined</button>';
+          showToast('error', 'Offer declined. Thank you for your consideration.');
+          break;
+      }
+    };
+
+    // ========== DEMO STATE TOGGLE ==========
+    window.setDemoState = function(state) {
+      document.querySelectorAll('.demo-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelector('.demo-btn[onclick*="' + state + '"]').classList.add('active');
+
+      var normalEl = document.getElementById('normalContent');
+      var skeletonEl = document.getElementById('skeletonContent');
+
+      normalEl.style.display = 'none';
+      skeletonEl.style.display = 'none';
+
+      switch (state) {
+        case 'normal':
+          normalEl.style.display = '';
+          break;
+        case 'skeleton':
+          skeletonEl.style.display = '';
+          break;
+      }
+    };
+
+    // ========== TOAST NOTIFICATIONS ==========
+    var toastCounter = 0;
+
+    window.showToast = function(type, message) {
+      toastCounter++;
+      var id = 'toast-' + toastCounter;
+      var container = document.getElementById('toastContainer');
+
+      var iconSvg = {
+        success: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>',
+        warning: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01M10.29 3.86l-8.1 14a2 2 0 001.71 3h16.2a2 2 0 001.71-3l-8.1-14a2 2 0 00-3.42 0z"/></svg>'
+      };
+
+      var toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.id = id;
+      toast.innerHTML =
+        '<div class="toast-icon">' + iconSvg[type] + '</div>' +
+        '<div class="toast-content"><p>' + message + '</p></div>' +
+        '<button class="toast-close" onclick="dismissToast(\'' + id + '\')">' +
+          '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
+        '</button>';
+
+      container.appendChild(toast);
+
+      // Auto-dismiss after 5 seconds
+      setTimeout(function() {
+        dismissToast(id);
+      }, 5000);
+    };
+
+    window.dismissToast = function(id) {
+      var toast = document.getElementById(id);
+      if (toast) {
+        toast.style.animation = 'toastOut 300ms ease forwards';
+        setTimeout(function() {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }
+    };
+
+    // Add toastOut animation
+    var style = document.createElement('style');
+    style.textContent = '@keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }';
+    document.head.appendChild(style);
+
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    if (window.innerWidth < 768) {
+      document.body.classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+
+    if (closeBtn) closeBtn.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    if (overlay) overlay.addEventListener('click', function() {
+      document.body.classList.add('sidebar-hidden');
+    });
+
+    var headers = document.querySelectorAll('.sidebar-group-header');
+    for (var i = 0; i < headers.length; i++) {
+      headers[i].addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        var body = this.nextElementSibling;
+        if (body) body.classList.toggle('collapsed');
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth < 768 && !document.body.classList.contains('sidebar-hidden')) {
+        document.body.classList.add('sidebar-hidden');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (window.innerWidth >= 768) {
+          document.body.classList.remove('sidebar-hidden');
+        }
+      }, 150);
+    });
+  })();
+  </script>
+
+
+  <script>
+  (function() {
+    'use strict';
+    var toggle = document.getElementById('themeToggle');
+    var moonIcon = document.getElementById('themeIconMoon');
+    var sunIcon = document.getElementById('themeIconSun');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('shumela-theme', theme);
+      if (moonIcon && sunIcon) {
+        if (theme === 'dark') {
+          moonIcon.style.display = 'none';
+          sunIcon.style.display = 'block';
+        } else {
+          moonIcon.style.display = 'block';
+          sunIcon.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize theme
+    var saved = localStorage.getItem('shumela-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>
