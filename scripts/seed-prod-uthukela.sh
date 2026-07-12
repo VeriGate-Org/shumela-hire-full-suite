@@ -403,6 +403,10 @@ create_job() {
   local desc="$6" reqs="$7" resps="$8" quals="$9" benefits="${10}"
   local salMin="${11}" salMax="${12}"
 
+  # Extract user sub from ID token for createdBy param
+  local creator_id
+  creator_id=$(echo "$ID_TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq -r '.sub // empty' 2>/dev/null || echo "")
+
   local body
   body=$(jq -n \
     --arg title "$title" \
@@ -431,12 +435,12 @@ create_job() {
       salaryMin: $salaryMin,
       salaryMax: $salaryMax,
       salaryCurrency: "ZAR",
-      closingDate: "2026-12-31",
-      status: "PUBLISHED"
+      applicationDeadline: "2026-12-31T23:59:59",
+      positionsAvailable: 1
     }')
 
   local result
-  result=$(api_post "/api/job-postings" -d "$body" 2>&1) && \
+  result=$(api_post "/api/job-postings?createdBy=${creator_id}" -d "$body" 2>&1) && \
     ok "Job: $title" || warn "Job '$title': $result"
 }
 

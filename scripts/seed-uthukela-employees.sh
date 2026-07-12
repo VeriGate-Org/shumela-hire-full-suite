@@ -65,7 +65,7 @@ AUTH_INPUT=$(jq -n \
 AUTH_RESULT=$(aws cognito-idp initiate-auth \
   --cli-input-json "$AUTH_INPUT" \
   --region "$AWS_REGION" \
-  --output json 2>&1) || fail "Cognito auth failed: $AUTH_RESULT"
+  --output json) || fail "Cognito auth failed"
 
 TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.AccessToken')
 ID_TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.IdToken')
