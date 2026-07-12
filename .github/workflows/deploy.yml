@@ -403,7 +403,6 @@ jobs:
 
       # Demo data seeding removed — run seed scripts manually via:
       #   scripts/seed-uthukela-water-cognito-users.sh  (Cognito users)
-      #   scripts/seed-uthukela-demo.sh                 (tenant + full data)
 
       # ── Patch uThukela line-manager reporting (dev only) ──────────────
       # Idempotent: backfills reportingManagerId / GSI5PK on the 5 demo
@@ -428,16 +427,4 @@ jobs:
       # demo password (Demo@2026!) so role-based demo logins work without
       # manual Cognito intervention. Safe to run on every deploy —
       # admin-set-user-password is unconditional.
-      - name: Reset uThukela demo passwords
-        if: inputs.environment == 'dev'
-        env:
-          AWS_REGION: ${{ inputs.aws-region }}
-          STACK_PREFIX: shumelahire-${{ inputs.environment }}
-        run: |
-          if [ ! -f scripts/reset-uthukela-demo-passwords.sh ]; then
-            echo "Reset script not found — skipping (older branch)."
-            exit 0
-          fi
-          bash scripts/reset-uthukela-demo-passwords.sh || \
-            echo "WARN: demo password reset failed — non-fatal"
 
