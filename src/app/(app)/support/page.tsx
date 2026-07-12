@@ -471,7 +471,7 @@ export default function SupportPage() {
 
   const handleAddComment = useCallback(() => {
     if (!commentText.trim()) {
-      toast('Please enter a comment before submitting.', 'warning');
+      toast('Please enter a comment before submitting.', 'info');
       return;
     }
     if (!detailTicket) return;
