@@ -6,10 +6,12 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondarySortKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import com.arthmatic.shumelahire.repository.dynamo.converter.LenientAttributeConverterProvider;
+import software.amazon.awssdk.enhanced.dynamodb.DefaultAttributeConverterProvider;
 
 import java.time.Instant;
 
-@DynamoDbBean
+@DynamoDbBean(converterProviders = {LenientAttributeConverterProvider.class, DefaultAttributeConverterProvider.class})
 public class TrainingSessionItem {
     private String pk;
     private String sk;

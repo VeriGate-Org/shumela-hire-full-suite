@@ -3,11 +3,13 @@ package com.arthmatic.shumelahire.repository.dynamo.items;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import com.arthmatic.shumelahire.repository.dynamo.converter.LenientAttributeConverterProvider;
+import software.amazon.awssdk.enhanced.dynamodb.DefaultAttributeConverterProvider;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@DynamoDbBean
+@DynamoDbBean(converterProviders = {LenientAttributeConverterProvider.class, DefaultAttributeConverterProvider.class})
 public class WellnessProgramItem {
     private String pk;
     private String sk;
