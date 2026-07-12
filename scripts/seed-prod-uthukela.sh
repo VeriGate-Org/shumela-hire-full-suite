@@ -166,9 +166,15 @@ log "Checking API readiness..."
 
 MAX_ATTEMPTS=12
 for i in $(seq 1 $MAX_ATTEMPTS); do
+  HEALTH_RESPONSE=$(curl -s --max-time 60 "${API_BASE_URL}/api/actuator/health" 2>/dev/null || echo "")
   HEALTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 "${API_BASE_URL}/api/actuator/health" 2>/dev/null || echo "000")
+  # 200 = healthy; 400 with "Unable to resolve tenant" also means the API is
+  # running — it just can't resolve a tenant from the apex/CloudFront domain.
   if [[ "$HEALTH_CODE" -ge 200 && "$HEALTH_CODE" -lt 300 ]]; then
     ok "API is healthy (HTTP $HEALTH_CODE)"
+    break
+  elif [[ "$HEALTH_CODE" == "400" ]] && echo "$HEALTH_RESPONSE" | grep -q "Unable to resolve tenant"; then
+    ok "API is running (HTTP 400 — tenant resolution expected to fail on apex domain)"
     break
   fi
   if [ "$i" -eq "$MAX_ATTEMPTS" ]; then
@@ -193,12 +199,12 @@ AUTH_INPUT=$(jq -n \
 
 AUTH_RESULT=$(aws_cmd cognito-idp initiate-auth \
   --cli-input-json "$AUTH_INPUT" \
-  --output json 2>&1) || fail "Cognito auth failed: $AUTH_RESULT"
+  --output json) || fail "Cognito auth failed"
 
 TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.AccessToken')
 ID_TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.IdToken')
 
-[ "$TOKEN" = "null" ] && fail "No access token returned"
+[ -z "$TOKEN" ] || [ "$TOKEN" = "null" ] && fail "No access token returned"
 ok "Authenticated"
 
 # ============================================================
@@ -278,7 +284,7 @@ CREATE_TENANT_BODY=$(jq -n \
   }')
 
 CURRENT_TENANT_ID="platform"
-TENANT_RESULT=$(api_post "/api/admin/tenants" -d "$CREATE_TENANT_BODY" 2>&1) || {
+TENANT_RESULT=$(api_post "/api/admin/tenants" -d "$CREATE_TENANT_BODY" 2>/dev/null) || {
   warn "Tenant creation returned an error — will try to resolve existing tenant..."
 }
 CURRENT_TENANT_ID=""
@@ -288,12 +294,12 @@ if [ -n "$UTHUKELA_TENANT_ID" ]; then
   ok "Tenant created with ID: $UTHUKELA_TENANT_ID"
 else
   log "Attempting to resolve existing tenant '${TENANT_SUBDOMAIN}'..."
-  RESOLVE_RESULT=$(api_get "/api/public/tenants/resolve/${TENANT_SUBDOMAIN}" 2>&1) || true
+  RESOLVE_RESULT=$(api_get "/api/public/tenants/resolve/${TENANT_SUBDOMAIN}" 2>/dev/null) || true
   UTHUKELA_TENANT_ID=$(echo "$RESOLVE_RESULT" | jq -r '.id // empty' 2>/dev/null)
 
   if [ -z "$UTHUKELA_TENANT_ID" ]; then
     CURRENT_TENANT_ID="platform"
-    TENANTS_RESULT=$(api_get "/api/admin/tenants" 2>&1) || true
+    TENANTS_RESULT=$(api_get "/api/admin/tenants" 2>/dev/null) || true
     CURRENT_TENANT_ID=""
     UTHUKELA_TENANT_ID=$(echo "$TENANTS_RESULT" | jq -r --arg sub "$TENANT_SUBDOMAIN" \
       '.[] | select(.subdomain == $sub) | .id // empty' 2>/dev/null | head -1)
@@ -360,7 +366,7 @@ AUTH_INPUT=$(jq -n \
 
 AUTH_RESULT=$(aws_cmd cognito-idp initiate-auth \
   --cli-input-json "$AUTH_INPUT" \
-  --output json 2>&1) || fail "Cognito auth as tenant admin failed: $AUTH_RESULT"
+  --output json) || fail "Cognito auth as tenant admin failed"
 
 TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.AccessToken')
 ID_TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.IdToken')
@@ -416,7 +422,7 @@ create_job() {
       department: $department,
       location: $location,
       employmentType: $employmentType,
-      experienceLevel: $expLevel,
+      experienceLevel: $experienceLevel,
       description: $description,
       requirements: $requirements,
       responsibilities: $responsibilities,
@@ -439,7 +445,7 @@ create_job \
   "Water Services" \
   "Newcastle, KZN" \
   "FULL_TIME" \
-  "MID" \
+  "MID_LEVEL" \
   "uThukela Water seeks a qualified Water Process Controller to manage daily operations at our water treatment facilities, ensuring compliance with SANS 241 drinking water standards." \
   "National Diploma in Water & Wastewater Treatment or equivalent;Valid Process Controller certificate (Class III minimum);3+ years experience in water treatment operations;Knowledge of SANS 241 standards;Experience with SCADA systems" \
   "Monitor and control water treatment processes;Conduct routine water quality testing and sampling;Operate and maintain treatment plant equipment;Ensure compliance with Blue Drop and Green Drop standards;Maintain accurate operational records and reports" \
@@ -478,7 +484,7 @@ create_job \
   "Community Services" \
   "Ladysmith, KZN" \
   "FULL_TIME" \
-  "ENTRY" \
+  "ENTRY_LEVEL" \
   "Engage with communities across the uThukela District to promote water conservation, manage service delivery queries, and facilitate public participation in water services planning." \
   "Diploma in Public Administration, Communication, or Social Sciences;1-2 years community engagement experience;Fluency in isiZulu and English;Valid driver's licence;Knowledge of Batho Pele principles" \
   "Conduct community meetings and awareness campaigns;Handle service delivery complaints and queries;Coordinate with ward councillors on water service issues;Promote water conservation and responsible usage;Compile community feedback reports for management" \
@@ -491,7 +497,7 @@ create_job \
   "Corporate Services" \
   "Newcastle, KZN" \
   "FULL_TIME" \
-  "MID" \
+  "MID_LEVEL" \
   "Maintain and support uThukela Water's ICT infrastructure including network management, server administration, and end-user support across all offices and treatment facilities." \
   "National Diploma in IT or Computer Science;3+ years systems administration experience;Microsoft/Linux server administration;Network infrastructure management (Cisco/Fortinet);ITIL Foundation certification preferred" \
   "Manage and maintain server infrastructure and network systems;Provide technical support to all departments;Implement cybersecurity measures and backup procedures;Manage ICT procurement and asset register;Support SCADA and telemetry system connectivity" \
