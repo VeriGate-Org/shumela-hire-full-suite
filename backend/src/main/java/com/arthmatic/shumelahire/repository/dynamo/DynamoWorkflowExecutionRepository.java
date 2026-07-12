@@ -79,10 +79,10 @@ public class DynamoWorkflowExecutionRepository extends DynamoRepository<Workflow
         }
         entity.setStatus(item.getStatus());
         if (item.getStartedAt() != null) {
-            entity.setStartedAt(LocalDateTime.parse(item.getStartedAt(), ISO_FMT));
+            entity.setStartedAt(TimestampUtils.parseTimestamp(item.getStartedAt()));
         }
         if (item.getCompletedAt() != null) {
-            entity.setCompletedAt(LocalDateTime.parse(item.getCompletedAt(), ISO_FMT));
+            entity.setCompletedAt(TimestampUtils.parseTimestamp(item.getCompletedAt()));
         }
         entity.setTriggeredBy(item.getTriggeredBy());
         if (item.getCurrentStep() != null) {

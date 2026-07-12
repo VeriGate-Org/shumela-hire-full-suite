@@ -91,8 +91,8 @@ public class DynamoSuccessionPlanRepository extends DynamoRepository<SuccessionP
         if (item.getReadinessLevel() != null) e.setReadinessLevel(ReadinessLevel.valueOf(item.getReadinessLevel()));
         e.setDevelopmentActions(item.getDevelopmentActions());
         if (item.getStatus() != null) e.setStatus(SuccessionPlanStatus.valueOf(item.getStatus()));
-        if (item.getCreatedAt() != null) e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         return e;
     }
 

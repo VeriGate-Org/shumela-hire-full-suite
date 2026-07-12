@@ -84,15 +84,15 @@ public class DynamoReportTemplateRepository extends DynamoRepository<ReportTempl
         if (item.getShared() != null) entity.setShared(item.getShared());
         if (item.getSystem() != null) entity.setSystem(item.getSystem());
         if (item.getRunCount() != null) entity.setRunCount(item.getRunCount());
-        if (item.getLastRun() != null) entity.setLastRun(LocalDateTime.parse(item.getLastRun(), ISO_FMT));
+        if (item.getLastRun() != null) entity.setLastRun(TimestampUtils.parseTimestamp(item.getLastRun()));
         entity.setFieldsJson(item.getFieldsJson());
         entity.setFiltersJson(item.getFiltersJson());
         entity.setVisualizationJson(item.getVisualizationJson());
         entity.setScheduleJson(item.getScheduleJson());
         entity.setDateRangeJson(item.getDateRangeJson());
         entity.setTagsJson(item.getTagsJson());
-        if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         return entity;
     }
 

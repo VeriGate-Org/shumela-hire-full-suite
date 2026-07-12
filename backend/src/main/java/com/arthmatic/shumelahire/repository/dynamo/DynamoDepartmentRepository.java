@@ -108,10 +108,10 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
         dept.setDescription(item.getDescription());
         dept.setIsActive(item.getIsActive());
         if (item.getCreatedAt() != null) {
-            dept.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            dept.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            dept.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            dept.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return dept;
     }

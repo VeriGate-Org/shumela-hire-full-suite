@@ -102,8 +102,8 @@ public class DynamoShiftScheduleRepository extends DynamoRepository<ShiftSchedul
         entity.setScheduleDate(item.getScheduleDate() != null ? LocalDate.parse(item.getScheduleDate(), DATE_FMT) : null);
         entity.setStatus(item.getStatus() != null ? ShiftScheduleStatus.valueOf(item.getStatus()) : null);
         entity.setNotes(item.getNotes());
-        entity.setCreatedAt(item.getCreatedAt() != null ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
-        entity.setUpdatedAt(item.getUpdatedAt() != null ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null ? TimestampUtils.parseTimestamp(item.getCreatedAt()) : null);
+        entity.setUpdatedAt(item.getUpdatedAt() != null ? TimestampUtils.parseTimestamp(item.getUpdatedAt()) : null);
 
         return entity;
     }

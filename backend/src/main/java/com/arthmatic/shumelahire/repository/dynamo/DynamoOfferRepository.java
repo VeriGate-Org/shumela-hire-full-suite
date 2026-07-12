@@ -390,25 +390,25 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
             offer.setLatestStartDate(LocalDate.parse(item.getLatestStartDate()));
         }
         if (item.getOfferExpiryDate() != null) {
-            offer.setOfferExpiryDate(LocalDateTime.parse(item.getOfferExpiryDate(), ISO_FMT));
+            offer.setOfferExpiryDate(TimestampUtils.parseTimestamp(item.getOfferExpiryDate()));
         }
         if (item.getOfferSentAt() != null) {
-            offer.setOfferSentAt(LocalDateTime.parse(item.getOfferSentAt(), ISO_FMT));
+            offer.setOfferSentAt(TimestampUtils.parseTimestamp(item.getOfferSentAt()));
         }
         if (item.getCandidateViewedAt() != null) {
-            offer.setCandidateViewedAt(LocalDateTime.parse(item.getCandidateViewedAt(), ISO_FMT));
+            offer.setCandidateViewedAt(TimestampUtils.parseTimestamp(item.getCandidateViewedAt()));
         }
         if (item.getCandidateResponseAt() != null) {
-            offer.setCandidateResponseAt(LocalDateTime.parse(item.getCandidateResponseAt(), ISO_FMT));
+            offer.setCandidateResponseAt(TimestampUtils.parseTimestamp(item.getCandidateResponseAt()));
         }
         if (item.getAcceptedAt() != null) {
-            offer.setAcceptedAt(LocalDateTime.parse(item.getAcceptedAt(), ISO_FMT));
+            offer.setAcceptedAt(TimestampUtils.parseTimestamp(item.getAcceptedAt()));
         }
         if (item.getDeclinedAt() != null) {
-            offer.setDeclinedAt(LocalDateTime.parse(item.getDeclinedAt(), ISO_FMT));
+            offer.setDeclinedAt(TimestampUtils.parseTimestamp(item.getDeclinedAt()));
         }
         if (item.getWithdrawnAt() != null) {
-            offer.setWithdrawnAt(LocalDateTime.parse(item.getWithdrawnAt(), ISO_FMT));
+            offer.setWithdrawnAt(TimestampUtils.parseTimestamp(item.getWithdrawnAt()));
         }
         offer.setRequiresApproval(item.getRequiresApproval());
         offer.setApprovalLevelRequired(item.getApprovalLevelRequired());
@@ -416,19 +416,19 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
             offer.setApprovedBy(item.getApprovedBy());
         }
         if (item.getApprovedAt() != null) {
-            offer.setApprovedAt(LocalDateTime.parse(item.getApprovedAt(), ISO_FMT));
+            offer.setApprovedAt(TimestampUtils.parseTimestamp(item.getApprovedAt()));
         }
         offer.setApprovalNotes(item.getApprovalNotes());
         if (item.getRejectedBy() != null) {
             offer.setRejectedBy(item.getRejectedBy());
         }
         if (item.getRejectedAt() != null) {
-            offer.setRejectedAt(LocalDateTime.parse(item.getRejectedAt(), ISO_FMT));
+            offer.setRejectedAt(TimestampUtils.parseTimestamp(item.getRejectedAt()));
         }
         offer.setRejectionReason(item.getRejectionReason());
         offer.setNegotiationRounds(item.getNegotiationRounds());
         if (item.getLastNegotiationAt() != null) {
-            offer.setLastNegotiationAt(LocalDateTime.parse(item.getLastNegotiationAt(), ISO_FMT));
+            offer.setLastNegotiationAt(TimestampUtils.parseTimestamp(item.getLastNegotiationAt()));
         }
         offer.setNegotiationNotes(item.getNegotiationNotes());
         offer.setCandidateCounterOffer(item.getCandidateCounterOffer());
@@ -449,10 +449,10 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         offer.setESignatureEnvelopeId(item.getESignatureEnvelopeId());
         offer.setESignatureStatus(item.getESignatureStatus());
         if (item.getESignatureSentAt() != null) {
-            offer.setESignatureSentAt(LocalDateTime.parse(item.getESignatureSentAt(), ISO_FMT));
+            offer.setESignatureSentAt(TimestampUtils.parseTimestamp(item.getESignatureSentAt()));
         }
         if (item.getESignatureCompletedAt() != null) {
-            offer.setESignatureCompletedAt(LocalDateTime.parse(item.getESignatureCompletedAt(), ISO_FMT));
+            offer.setESignatureCompletedAt(TimestampUtils.parseTimestamp(item.getESignatureCompletedAt()));
         }
         offer.setESignatureProvider(item.getESignatureProvider());
         offer.setESignatureSignerEmail(item.getESignatureSignerEmail());
@@ -460,13 +460,13 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
             offer.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
-            offer.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            offer.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedBy() != null) {
             offer.setUpdatedBy(item.getUpdatedBy());
         }
         if (item.getUpdatedAt() != null) {
-            offer.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            offer.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getSupersededByOfferId() != null) {
             offer.setSupersededByOfferId(item.getSupersededByOfferId());

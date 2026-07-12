@@ -91,10 +91,10 @@ public class DynamoJobBoardPostingRepository extends DynamoRepository<JobBoardPo
         entity.setExternalPostId(item.getExternalPostId());
         entity.setExternalUrl(item.getExternalUrl());
         if (item.getPostedAt() != null) {
-            entity.setPostedAt(LocalDateTime.parse(item.getPostedAt(), ISO_FMT));
+            entity.setPostedAt(TimestampUtils.parseTimestamp(item.getPostedAt()));
         }
         if (item.getExpiresAt() != null) {
-            entity.setExpiresAt(LocalDateTime.parse(item.getExpiresAt(), ISO_FMT));
+            entity.setExpiresAt(TimestampUtils.parseTimestamp(item.getExpiresAt()));
         }
         entity.setViewCount(item.getViewCount());
         entity.setClickCount(item.getClickCount());
@@ -102,10 +102,10 @@ public class DynamoJobBoardPostingRepository extends DynamoRepository<JobBoardPo
         entity.setErrorMessage(item.getErrorMessage());
         entity.setBoardConfig(item.getBoardConfig());
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return entity;
     }

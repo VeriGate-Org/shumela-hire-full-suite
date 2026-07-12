@@ -96,10 +96,10 @@ public class DynamoReportExportJobRepository extends DynamoRepository<ReportExpo
         }
         entity.setErrorMessage(item.getErrorMessage());
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getCompletedAt() != null) {
-            entity.setCompletedAt(LocalDateTime.parse(item.getCompletedAt(), ISO_FMT));
+            entity.setCompletedAt(TimestampUtils.parseTimestamp(item.getCompletedAt()));
         }
         return entity;
     }

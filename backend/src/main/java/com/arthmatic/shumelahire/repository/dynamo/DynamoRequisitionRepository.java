@@ -124,10 +124,10 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
             entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return entity;
     }

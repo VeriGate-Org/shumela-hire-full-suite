@@ -151,13 +151,13 @@ public class DynamoApplicantRepository extends DynamoRepository<ApplicantItem, A
         applicant.setCitizenshipStatus(item.getCitizenshipStatus());
         applicant.setDemographicsConsent(item.getDemographicsConsent());
         if (item.getDemographicsConsentDate() != null) {
-            applicant.setDemographicsConsentDate(LocalDateTime.parse(item.getDemographicsConsentDate(), ISO_FMT));
+            applicant.setDemographicsConsentDate(TimestampUtils.parseTimestamp(item.getDemographicsConsentDate()));
         }
         if (item.getCreatedAt() != null) {
-            applicant.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            applicant.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            applicant.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            applicant.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return applicant;
     }

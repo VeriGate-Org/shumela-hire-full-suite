@@ -110,13 +110,13 @@ public class DynamoTenantFeatureEntitlementRepository
         entitlement.setReason(item.getReason());
         entitlement.setGrantedBy(item.getGrantedBy());
         if (item.getExpiresAt() != null) {
-            entitlement.setExpiresAt(LocalDateTime.parse(item.getExpiresAt(), ISO_FMT));
+            entitlement.setExpiresAt(TimestampUtils.parseTimestamp(item.getExpiresAt()));
         }
         if (item.getCreatedAt() != null) {
-            entitlement.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entitlement.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entitlement.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entitlement.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return entitlement;
     }

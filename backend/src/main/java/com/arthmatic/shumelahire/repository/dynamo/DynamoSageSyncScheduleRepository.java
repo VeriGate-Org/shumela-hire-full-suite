@@ -77,16 +77,16 @@ public class DynamoSageSyncScheduleRepository extends DynamoRepository<SageSyncS
         e.setCronExpression(item.getCronExpression());
         e.setIsActive(item.getIsActive());
         if (item.getLastRunAt() != null) {
-            e.setLastRunAt(LocalDateTime.parse(item.getLastRunAt(), ISO_FMT));
+            e.setLastRunAt(TimestampUtils.parseTimestamp(item.getLastRunAt()));
         }
         if (item.getNextRunAt() != null) {
-            e.setNextRunAt(LocalDateTime.parse(item.getNextRunAt(), ISO_FMT));
+            e.setNextRunAt(TimestampUtils.parseTimestamp(item.getNextRunAt()));
         }
         if (item.getCreatedAt() != null) {
-            e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return e;
     }

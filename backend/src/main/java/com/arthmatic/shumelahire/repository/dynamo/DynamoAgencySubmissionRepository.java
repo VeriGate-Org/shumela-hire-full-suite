@@ -127,10 +127,10 @@ public class DynamoAgencySubmissionRepository extends DynamoRepository<AgencySub
         }
 
         if (item.getSubmittedAt() != null) {
-            entity.setSubmittedAt(LocalDateTime.parse(item.getSubmittedAt(), ISO_FMT));
+            entity.setSubmittedAt(TimestampUtils.parseTimestamp(item.getSubmittedAt()));
         }
         if (item.getReviewedAt() != null) {
-            entity.setReviewedAt(LocalDateTime.parse(item.getReviewedAt(), ISO_FMT));
+            entity.setReviewedAt(TimestampUtils.parseTimestamp(item.getReviewedAt()));
         }
         if (item.getReviewedBy() != null) {
             entity.setReviewedBy(item.getReviewedBy());

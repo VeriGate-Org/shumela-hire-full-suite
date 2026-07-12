@@ -89,10 +89,10 @@ public class DynamoSageSyncLogRepository extends DynamoRepository<SageSyncLogIte
         e.setRecordsFailed(item.getRecordsFailed());
         e.setErrorMessage(item.getErrorMessage());
         if (item.getStartedAt() != null) {
-            e.setStartedAt(LocalDateTime.parse(item.getStartedAt(), ISO_FMT));
+            e.setStartedAt(TimestampUtils.parseTimestamp(item.getStartedAt()));
         }
         if (item.getCompletedAt() != null) {
-            e.setCompletedAt(LocalDateTime.parse(item.getCompletedAt(), ISO_FMT));
+            e.setCompletedAt(TimestampUtils.parseTimestamp(item.getCompletedAt()));
         }
         return e;
     }

@@ -58,7 +58,7 @@ public class DynamoCompanyDocumentAcknowledgementRepository
         ack.setDocumentId(item.getDocumentId());
         ack.setEmployeeId(item.getEmployeeId());
         if (item.getAcknowledgedAt() != null) {
-            ack.setAcknowledgedAt(LocalDateTime.parse(item.getAcknowledgedAt(), ISO_FMT));
+            ack.setAcknowledgedAt(TimestampUtils.parseTimestamp(item.getAcknowledgedAt()));
         }
         return ack;
     }

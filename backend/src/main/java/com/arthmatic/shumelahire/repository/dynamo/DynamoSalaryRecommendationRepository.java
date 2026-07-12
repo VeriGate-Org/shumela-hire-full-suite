@@ -139,7 +139,7 @@ public class DynamoSalaryRecommendationRepository
         }
         entity.setRecommendedBy(item.getRecommendedBy());
         if (item.getRecommendedAt() != null) {
-            entity.setRecommendedAt(LocalDateTime.parse(item.getRecommendedAt(), ISO_FMT));
+            entity.setRecommendedAt(TimestampUtils.parseTimestamp(item.getRecommendedAt()));
         }
         entity.setRecommendationJustification(item.getRecommendationJustification());
         entity.setBonusRecommendation(item.getBonusRecommendation());
@@ -149,7 +149,7 @@ public class DynamoSalaryRecommendationRepository
         entity.setApprovalLevelRequired(item.getApprovalLevelRequired());
         entity.setApprovedBy(item.getApprovedBy());
         if (item.getApprovedAt() != null) {
-            entity.setApprovedAt(LocalDateTime.parse(item.getApprovedAt(), ISO_FMT));
+            entity.setApprovedAt(TimestampUtils.parseTimestamp(item.getApprovedAt()));
         }
         entity.setApprovalNotes(item.getApprovalNotes());
         entity.setRejectedBy(item.getRejectedBy());
@@ -159,10 +159,10 @@ public class DynamoSalaryRecommendationRepository
             entity.setOfferId(item.getOfferId());
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return entity;
     }

@@ -278,7 +278,7 @@ public class DynamoInterviewRepository extends DynamoRepository<InterviewItem, I
             entity.setStatus(InterviewStatus.valueOf(item.getStatus()));
         }
         if (item.getScheduledAt() != null) {
-            entity.setScheduledAt(LocalDateTime.parse(item.getScheduledAt(), ISO_FMT));
+            entity.setScheduledAt(TimestampUtils.parseTimestamp(item.getScheduledAt()));
         }
         entity.setDurationMinutes(item.getDurationMinutes());
         entity.setLocation(item.getLocation());
@@ -317,38 +317,38 @@ public class DynamoInterviewRepository extends DynamoRepository<InterviewItem, I
         entity.setNotes(item.getNotes());
         entity.setPreparationNotes(item.getPreparationNotes());
         if (item.getRescheduledFrom() != null) {
-            entity.setRescheduledFrom(LocalDateTime.parse(item.getRescheduledFrom(), ISO_FMT));
+            entity.setRescheduledFrom(TimestampUtils.parseTimestamp(item.getRescheduledFrom()));
         }
         entity.setRescheduleReason(item.getRescheduleReason());
         entity.setRescheduleCount(item.getRescheduleCount());
         entity.setReminderSent(item.getReminderSent());
         entity.setConfirmationReceived(item.getConfirmationReceived());
         if (item.getReminderSentAt() != null) {
-            entity.setReminderSentAt(LocalDateTime.parse(item.getReminderSentAt(), ISO_FMT));
+            entity.setReminderSentAt(TimestampUtils.parseTimestamp(item.getReminderSentAt()));
         }
         if (item.getFeedbackRequestedAt() != null) {
-            entity.setFeedbackRequestedAt(LocalDateTime.parse(item.getFeedbackRequestedAt(), ISO_FMT));
+            entity.setFeedbackRequestedAt(TimestampUtils.parseTimestamp(item.getFeedbackRequestedAt()));
         }
         if (item.getFeedbackSubmittedAt() != null) {
-            entity.setFeedbackSubmittedAt(LocalDateTime.parse(item.getFeedbackSubmittedAt(), ISO_FMT));
+            entity.setFeedbackSubmittedAt(TimestampUtils.parseTimestamp(item.getFeedbackSubmittedAt()));
         }
         if (item.getCreatedBy() != null) {
             entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getStartedAt() != null) {
-            entity.setStartedAt(LocalDateTime.parse(item.getStartedAt(), ISO_FMT));
+            entity.setStartedAt(TimestampUtils.parseTimestamp(item.getStartedAt()));
         }
         if (item.getCompletedAt() != null) {
-            entity.setCompletedAt(LocalDateTime.parse(item.getCompletedAt(), ISO_FMT));
+            entity.setCompletedAt(TimestampUtils.parseTimestamp(item.getCompletedAt()));
         }
         if (item.getCancelledAt() != null) {
-            entity.setCancelledAt(LocalDateTime.parse(item.getCancelledAt(), ISO_FMT));
+            entity.setCancelledAt(TimestampUtils.parseTimestamp(item.getCancelledAt()));
         }
         entity.setCancellationReason(item.getCancellationReason());
         return entity;

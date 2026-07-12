@@ -348,11 +348,11 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
             entity.setOfferId(item.getOfferId());
         }
         entity.setIsRead(item.getIsRead());
-        if (item.getReadAt() != null) entity.setReadAt(LocalDateTime.parse(item.getReadAt(), ISO_FMT));
+        if (item.getReadAt() != null) entity.setReadAt(TimestampUtils.parseTimestamp(item.getReadAt()));
         entity.setIsDelivered(item.getIsDelivered());
-        if (item.getDeliveredAt() != null) entity.setDeliveredAt(LocalDateTime.parse(item.getDeliveredAt(), ISO_FMT));
+        if (item.getDeliveredAt() != null) entity.setDeliveredAt(TimestampUtils.parseTimestamp(item.getDeliveredAt()));
         entity.setDeliveryAttempts(item.getDeliveryAttempts());
-        if (item.getLastDeliveryAttempt() != null) entity.setLastDeliveryAttempt(LocalDateTime.parse(item.getLastDeliveryAttempt(), ISO_FMT));
+        if (item.getLastDeliveryAttempt() != null) entity.setLastDeliveryAttempt(TimestampUtils.parseTimestamp(item.getLastDeliveryAttempt()));
         entity.setDeliveryError(item.getDeliveryError());
         entity.setEmailTo(item.getEmailTo());
         entity.setEmailSubject(item.getEmailSubject());
@@ -361,14 +361,14 @@ public class DynamoNotificationRepository extends DynamoRepository<NotificationI
         entity.setSmsTemplate(item.getSmsTemplate());
         entity.setPushDeviceToken(item.getPushDeviceToken());
         entity.setPushPayload(item.getPushPayload());
-        if (item.getScheduledFor() != null) entity.setScheduledFor(LocalDateTime.parse(item.getScheduledFor(), ISO_FMT));
+        if (item.getScheduledFor() != null) entity.setScheduledFor(TimestampUtils.parseTimestamp(item.getScheduledFor()));
         entity.setIsScheduled(item.getIsScheduled());
-        if (item.getExpiresAt() != null) entity.setExpiresAt(LocalDateTime.parse(item.getExpiresAt(), ISO_FMT));
+        if (item.getExpiresAt() != null) entity.setExpiresAt(TimestampUtils.parseTimestamp(item.getExpiresAt()));
         entity.setNotificationGroup(item.getNotificationGroup());
         entity.setBatchId(item.getBatchId());
         entity.setIsBatchDigest(item.getIsBatchDigest());
-        if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         if (item.getCreatedBy() != null) {
             entity.setCreatedBy(item.getCreatedBy());
         }

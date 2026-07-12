@@ -559,8 +559,8 @@ public class DynamoRecruitmentMetricsRepository extends DynamoRepository<Recruit
         entity.setDataSource(item.getDataSource());
         entity.setCalculationMethod(item.getCalculationMethod());
         entity.setIsActive(item.getIsActive());
-        if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         if (item.getCreatedBy() != null) entity.setCreatedBy(item.getCreatedBy());
         return entity;
     }

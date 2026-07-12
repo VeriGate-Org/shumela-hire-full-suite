@@ -64,14 +64,14 @@ public class DynamoSageConnectorConfigRepository extends DynamoRepository<SageCo
         e.setCredentials(item.getCredentials());
         e.setIsActive(item.getIsActive());
         if (item.getLastTestedAt() != null) {
-            e.setLastTestedAt(LocalDateTime.parse(item.getLastTestedAt(), ISO_FMT));
+            e.setLastTestedAt(TimestampUtils.parseTimestamp(item.getLastTestedAt()));
         }
         e.setLastTestSuccess(item.getLastTestSuccess());
         if (item.getCreatedAt() != null) {
-            e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return e;
     }

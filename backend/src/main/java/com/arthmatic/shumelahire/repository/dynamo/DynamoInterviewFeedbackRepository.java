@@ -115,10 +115,10 @@ public class DynamoInterviewFeedbackRepository extends DynamoRepository<Intervie
         entity.setCandidateQuestions(item.getCandidateQuestions());
         entity.setInterviewerNotes(item.getInterviewerNotes());
         if (item.getSubmittedAt() != null) {
-            entity.setSubmittedAt(LocalDateTime.parse(item.getSubmittedAt(), ISO_FMT));
+            entity.setSubmittedAt(TimestampUtils.parseTimestamp(item.getSubmittedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return entity;
     }

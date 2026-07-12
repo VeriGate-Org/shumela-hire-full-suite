@@ -84,8 +84,8 @@ public class DynamoAttritionRiskScoreRepository extends DynamoRepository<Attriti
         if (item.getRiskScore() != null) e.setRiskScore(new BigDecimal(item.getRiskScore()));
         if (item.getRiskLevel() != null) e.setRiskLevel(RiskLevel.valueOf(item.getRiskLevel()));
         e.setFactors(item.getFactors());
-        if (item.getCalculatedAt() != null) e.setCalculatedAt(LocalDateTime.parse(item.getCalculatedAt(), ISO_FMT));
-        if (item.getCreatedAt() != null) e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+        if (item.getCalculatedAt() != null) e.setCalculatedAt(TimestampUtils.parseTimestamp(item.getCalculatedAt()));
+        if (item.getCreatedAt() != null) e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         return e;
     }
 

@@ -158,7 +158,7 @@ public class DynamoSapPayrollTransmissionRepository extends DynamoRepository<Sap
         entity.setRetryCount(item.getRetryCount());
         entity.setMaxRetries(item.getMaxRetries());
         if (item.getNextRetryAt() != null) {
-            entity.setNextRetryAt(LocalDateTime.parse(item.getNextRetryAt(), ISO_FMT));
+            entity.setNextRetryAt(TimestampUtils.parseTimestamp(item.getNextRetryAt()));
         }
         if (item.getInitiatedBy() != null) {
             entity.setInitiatedBy(item.getInitiatedBy());
@@ -167,19 +167,19 @@ public class DynamoSapPayrollTransmissionRepository extends DynamoRepository<Sap
         entity.setSapPayrollArea(item.getSapPayrollArea());
         entity.setValidationErrors(item.getValidationErrors());
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getTransmittedAt() != null) {
-            entity.setTransmittedAt(LocalDateTime.parse(item.getTransmittedAt(), ISO_FMT));
+            entity.setTransmittedAt(TimestampUtils.parseTimestamp(item.getTransmittedAt()));
         }
         if (item.getConfirmedAt() != null) {
-            entity.setConfirmedAt(LocalDateTime.parse(item.getConfirmedAt(), ISO_FMT));
+            entity.setConfirmedAt(TimestampUtils.parseTimestamp(item.getConfirmedAt()));
         }
         if (item.getCancelledAt() != null) {
-            entity.setCancelledAt(LocalDateTime.parse(item.getCancelledAt(), ISO_FMT));
+            entity.setCancelledAt(TimestampUtils.parseTimestamp(item.getCancelledAt()));
         }
         if (item.getCancelledBy() != null) {
             entity.setCancelledBy(item.getCancelledBy());

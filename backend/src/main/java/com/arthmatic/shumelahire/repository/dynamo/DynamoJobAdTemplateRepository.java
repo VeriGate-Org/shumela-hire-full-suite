@@ -144,10 +144,10 @@ public class DynamoJobAdTemplateRepository extends DynamoRepository<JobAdTemplat
         template.setUsageCount(item.getUsageCount());
         template.setCreatedBy(item.getCreatedBy());
         if (item.getCreatedAt() != null) {
-            template.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            template.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            template.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            template.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return template;
     }

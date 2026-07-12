@@ -70,9 +70,9 @@ public class DynamoDataSubjectRequestRepository extends DynamoRepository<DataSub
         entity.setStatus(item.getStatus() != null ? DsarStatus.valueOf(item.getStatus()) : null);
         entity.setResponse(item.getResponse());
         entity.setDueDate(item.getDueDate() != null ? LocalDate.parse(item.getDueDate(), DATE_FMT) : null);
-        entity.setCompletedAt(item.getCompletedAt() != null ? LocalDateTime.parse(item.getCompletedAt(), ISO_FMT) : null);
-        entity.setCreatedAt(item.getCreatedAt() != null ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
-        entity.setUpdatedAt(item.getUpdatedAt() != null ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
+        entity.setCompletedAt(item.getCompletedAt() != null ? TimestampUtils.parseTimestamp(item.getCompletedAt()) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null ? TimestampUtils.parseTimestamp(item.getCreatedAt()) : null);
+        entity.setUpdatedAt(item.getUpdatedAt() != null ? TimestampUtils.parseTimestamp(item.getUpdatedAt()) : null);
 
         return entity;
     }

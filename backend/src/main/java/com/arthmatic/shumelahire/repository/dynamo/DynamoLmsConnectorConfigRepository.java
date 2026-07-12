@@ -63,13 +63,13 @@ public class DynamoLmsConnectorConfigRepository extends DynamoRepository<LmsConn
         e.setApiKey(item.getApiKey());
         e.setIsActive(item.getIsActive());
         if (item.getLastSyncedAt() != null) {
-            e.setLastSyncedAt(LocalDateTime.parse(item.getLastSyncedAt(), ISO_FMT));
+            e.setLastSyncedAt(TimestampUtils.parseTimestamp(item.getLastSyncedAt()));
         }
         if (item.getCreatedAt() != null) {
-            e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return e;
     }

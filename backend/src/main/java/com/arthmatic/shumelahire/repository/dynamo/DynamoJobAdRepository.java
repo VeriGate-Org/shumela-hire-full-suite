@@ -208,10 +208,10 @@ public class DynamoJobAdRepository extends DynamoRepository<JobAdItem, JobAd>
         ad.setSlug(item.getSlug());
         ad.setCreatedBy(item.getCreatedBy());
         if (item.getCreatedAt() != null) {
-            ad.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            ad.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            ad.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            ad.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         ad.setDepartment(item.getDepartment());
         ad.setLocation(item.getLocation());

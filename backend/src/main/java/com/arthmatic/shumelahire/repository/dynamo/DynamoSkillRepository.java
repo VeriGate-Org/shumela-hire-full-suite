@@ -114,10 +114,10 @@ public class DynamoSkillRepository extends DynamoRepository<SkillItem, Skill>
         skill.setDescription(item.getDescription());
         skill.setIsActive(item.getIsActive());
         if (item.getCreatedAt() != null) {
-            skill.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            skill.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            skill.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            skill.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return skill;
     }

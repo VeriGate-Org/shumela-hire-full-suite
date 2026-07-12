@@ -577,15 +577,15 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
             }
         }
         if (item.getPipelineStageEnteredAt() != null) {
-            app.setPipelineStageEnteredAt(LocalDateTime.parse(item.getPipelineStageEnteredAt(), ISO_FMT));
+            app.setPipelineStageEnteredAt(TimestampUtils.parseTimestamp(item.getPipelineStageEnteredAt()));
         }
         app.setCoverLetter(item.getCoverLetter());
         app.setApplicationSource(item.getApplicationSource());
         if (item.getSubmittedAt() != null) {
-            app.setSubmittedAt(LocalDateTime.parse(item.getSubmittedAt(), ISO_FMT));
+            app.setSubmittedAt(TimestampUtils.parseTimestamp(item.getSubmittedAt()));
         }
         if (item.getWithdrawnAt() != null) {
-            app.setWithdrawnAt(LocalDateTime.parse(item.getWithdrawnAt(), ISO_FMT));
+            app.setWithdrawnAt(TimestampUtils.parseTimestamp(item.getWithdrawnAt()));
         }
         app.setWithdrawalReason(item.getWithdrawalReason());
         app.setScreeningNotes(item.getScreeningNotes());
@@ -596,28 +596,28 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         app.setRejectionReason(item.getRejectionReason());
         app.setOfferDetails(item.getOfferDetails());
         if (item.getStartDate() != null) {
-            app.setStartDate(LocalDateTime.parse(item.getStartDate(), ISO_FMT));
+            app.setStartDate(TimestampUtils.parseTimestamp(item.getStartDate()));
         }
         if (item.getSalaryExpectation() != null) {
             app.setSalaryExpectation(Double.parseDouble(item.getSalaryExpectation()));
         }
         if (item.getAvailabilityDate() != null) {
-            app.setAvailabilityDate(LocalDateTime.parse(item.getAvailabilityDate(), ISO_FMT));
+            app.setAvailabilityDate(TimestampUtils.parseTimestamp(item.getAvailabilityDate()));
         }
         if (item.getInterviewedAt() != null) {
-            app.setInterviewedAt(LocalDateTime.parse(item.getInterviewedAt(), ISO_FMT));
+            app.setInterviewedAt(TimestampUtils.parseTimestamp(item.getInterviewedAt()));
         }
         if (item.getOfferExtendedAt() != null) {
-            app.setOfferExtendedAt(LocalDateTime.parse(item.getOfferExtendedAt(), ISO_FMT));
+            app.setOfferExtendedAt(TimestampUtils.parseTimestamp(item.getOfferExtendedAt()));
         }
         if (item.getResponseDeadline() != null) {
-            app.setResponseDeadline(LocalDateTime.parse(item.getResponseDeadline(), ISO_FMT));
+            app.setResponseDeadline(TimestampUtils.parseTimestamp(item.getResponseDeadline()));
         }
         if (item.getCreatedAt() != null) {
-            app.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            app.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            app.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            app.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return app;
     }

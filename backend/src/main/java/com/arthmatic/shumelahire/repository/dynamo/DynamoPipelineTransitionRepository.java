@@ -219,10 +219,10 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
             entity.setCreatedBy(item.getCreatedBy());
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getEffectiveAt() != null) {
-            entity.setEffectiveAt(LocalDateTime.parse(item.getEffectiveAt(), ISO_FMT));
+            entity.setEffectiveAt(TimestampUtils.parseTimestamp(item.getEffectiveAt()));
         }
         entity.setDurationInPreviousStageHours(item.getDurationInPreviousStageHours());
         entity.setTenantId(item.getTenantId());

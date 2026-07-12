@@ -75,8 +75,8 @@ public class DynamoDisciplinaryCaseRepository extends DynamoRepository<Disciplin
         if (item.getOutcomeDate() != null) e.setOutcomeDate(LocalDate.parse(item.getOutcomeDate(), ISO_DATE_FMT));
         e.setNotes(item.getNotes());
         if (item.getCreatedBy() != null) e.setCreatedBy(item.getCreatedBy());
-        if (item.getCreatedAt() != null) e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         return e;
     }
 

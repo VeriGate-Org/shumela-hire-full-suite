@@ -81,7 +81,7 @@ public class DynamoEmployeeDocumentTypeConfigRepository
         config.setRequiresExpiry(item.getRequiresExpiry());
         config.setIsActive(item.getIsActive());
         if (item.getCreatedAt() != null) {
-            config.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            config.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         return config;
     }

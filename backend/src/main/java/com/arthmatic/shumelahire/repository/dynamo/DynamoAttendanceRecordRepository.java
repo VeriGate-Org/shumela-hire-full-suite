@@ -87,8 +87,8 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
             entity.setEmployee(employee);
         }
 
-        entity.setClockIn(item.getClockIn() != null ? LocalDateTime.parse(item.getClockIn(), ISO_FMT) : null);
-        entity.setClockOut(item.getClockOut() != null ? LocalDateTime.parse(item.getClockOut(), ISO_FMT) : null);
+        entity.setClockIn(item.getClockIn() != null ? TimestampUtils.parseTimestamp(item.getClockIn()) : null);
+        entity.setClockOut(item.getClockOut() != null ? TimestampUtils.parseTimestamp(item.getClockOut()) : null);
         entity.setClockMethod(item.getClockMethod() != null ? ClockMethod.valueOf(item.getClockMethod()) : null);
         entity.setClockInLatitude(item.getClockInLatitude() != null ? Double.parseDouble(item.getClockInLatitude()) : null);
         entity.setClockInLongitude(item.getClockInLongitude() != null ? Double.parseDouble(item.getClockInLongitude()) : null);
@@ -97,8 +97,8 @@ public class DynamoAttendanceRecordRepository extends DynamoRepository<Attendanc
         entity.setStatus(item.getStatus() != null ? AttendanceStatus.valueOf(item.getStatus()) : null);
         entity.setTotalHours(item.getTotalHours() != null ? new BigDecimal(item.getTotalHours()) : null);
         entity.setNotes(item.getNotes());
-        entity.setCreatedAt(item.getCreatedAt() != null ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
-        entity.setUpdatedAt(item.getUpdatedAt() != null ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null ? TimestampUtils.parseTimestamp(item.getCreatedAt()) : null);
+        entity.setUpdatedAt(item.getUpdatedAt() != null ? TimestampUtils.parseTimestamp(item.getUpdatedAt()) : null);
 
         return entity;
     }

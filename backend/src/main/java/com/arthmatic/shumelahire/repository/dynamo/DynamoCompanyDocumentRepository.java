@@ -74,13 +74,13 @@ public class DynamoCompanyDocumentRepository extends DynamoRepository<CompanyDoc
         doc.setRequiresAcknowledgement(item.getRequiresAcknowledgement());
         doc.setUploadedBy(item.getUploadedBy());
         if (item.getCreatedAt() != null) {
-            doc.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            doc.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            doc.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            doc.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getPublishedAt() != null) {
-            doc.setPublishedAt(LocalDateTime.parse(item.getPublishedAt(), ISO_FMT));
+            doc.setPublishedAt(TimestampUtils.parseTimestamp(item.getPublishedAt()));
         }
         return doc;
     }

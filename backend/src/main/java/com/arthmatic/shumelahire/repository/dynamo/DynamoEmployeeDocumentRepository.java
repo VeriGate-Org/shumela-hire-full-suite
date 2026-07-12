@@ -123,24 +123,24 @@ public class DynamoEmployeeDocumentRepository extends DynamoRepository<EmployeeD
         doc.setIsActive(item.getIsActive());
         doc.setUploadedBy(item.getUploadedBy());
         if (item.getCreatedAt() != null) {
-            doc.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            doc.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            doc.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            doc.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         doc.setIsVerified(item.getIsVerified());
         doc.setVerifiedBy(item.getVerifiedBy());
         if (item.getVerifiedAt() != null) {
-            doc.setVerifiedAt(LocalDateTime.parse(item.getVerifiedAt(), ISO_FMT));
+            doc.setVerifiedAt(TimestampUtils.parseTimestamp(item.getVerifiedAt()));
         }
         // E-Signature fields
         doc.setESignatureEnvelopeId(item.getESignatureEnvelopeId());
         doc.setESignatureStatus(item.getESignatureStatus());
         if (item.getESignatureSentAt() != null) {
-            doc.setESignatureSentAt(LocalDateTime.parse(item.getESignatureSentAt(), ISO_FMT));
+            doc.setESignatureSentAt(TimestampUtils.parseTimestamp(item.getESignatureSentAt()));
         }
         if (item.getESignatureCompletedAt() != null) {
-            doc.setESignatureCompletedAt(LocalDateTime.parse(item.getESignatureCompletedAt(), ISO_FMT));
+            doc.setESignatureCompletedAt(TimestampUtils.parseTimestamp(item.getESignatureCompletedAt()));
         }
         doc.setESignatureSignerEmail(item.getESignatureSignerEmail());
         return doc;

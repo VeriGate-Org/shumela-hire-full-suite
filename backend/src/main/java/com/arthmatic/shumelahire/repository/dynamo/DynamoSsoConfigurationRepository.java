@@ -66,10 +66,10 @@ public class DynamoSsoConfigurationRepository extends DynamoRepository<SsoConfig
         e.setDefaultRole(item.getDefaultRole());
         e.setGroupMappings(item.getGroupMappings());
         if (item.getCreatedAt() != null) {
-            e.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            e.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            e.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            e.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return e;
     }

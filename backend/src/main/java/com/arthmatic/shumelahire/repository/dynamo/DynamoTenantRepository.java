@@ -94,13 +94,14 @@ public class DynamoTenantRepository extends DynamoRepository<TenantItem, Tenant>
         tenant.setSettings(item.getSettings());
         tenant.setModules(item.getModules());
         if (item.getCreatedAt() != null) {
-            tenant.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            tenant.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            tenant.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            tenant.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return tenant;
     }
+
 
     @Override
     protected TenantItem toItem(Tenant entity) {

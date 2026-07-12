@@ -403,7 +403,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         jp.setTravelRequired(item.getTravelRequired());
         if (item.getApplicationDeadline() != null) {
             try {
-                jp.setApplicationDeadline(LocalDateTime.parse(item.getApplicationDeadline(), ISO_FMT));
+                jp.setApplicationDeadline(TimestampUtils.parseTimestamp(item.getApplicationDeadline()));
             } catch (java.time.format.DateTimeParseException e) {
                 // Seed data may store date-only strings (e.g. "2026-06-19")
                 jp.setApplicationDeadline(LocalDate.parse(item.getApplicationDeadline()).atStartOfDay());
@@ -437,25 +437,25 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         jp.setViewsCount(item.getViewsCount());
         jp.setApplicationsCount(item.getApplicationsCount());
         if (item.getCreatedAt() != null) {
-            jp.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            jp.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            jp.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            jp.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getSubmittedForApprovalAt() != null) {
-            jp.setSubmittedForApprovalAt(LocalDateTime.parse(item.getSubmittedForApprovalAt(), ISO_FMT));
+            jp.setSubmittedForApprovalAt(TimestampUtils.parseTimestamp(item.getSubmittedForApprovalAt()));
         }
         if (item.getApprovedAt() != null) {
-            jp.setApprovedAt(LocalDateTime.parse(item.getApprovedAt(), ISO_FMT));
+            jp.setApprovedAt(TimestampUtils.parseTimestamp(item.getApprovedAt()));
         }
         if (item.getPublishedAt() != null) {
-            jp.setPublishedAt(LocalDateTime.parse(item.getPublishedAt(), ISO_FMT));
+            jp.setPublishedAt(TimestampUtils.parseTimestamp(item.getPublishedAt()));
         }
         if (item.getUnpublishedAt() != null) {
-            jp.setUnpublishedAt(LocalDateTime.parse(item.getUnpublishedAt(), ISO_FMT));
+            jp.setUnpublishedAt(TimestampUtils.parseTimestamp(item.getUnpublishedAt()));
         }
         if (item.getClosedAt() != null) {
-            jp.setClosedAt(LocalDateTime.parse(item.getClosedAt(), ISO_FMT));
+            jp.setClosedAt(TimestampUtils.parseTimestamp(item.getClosedAt()));
         }
         return jp;
     }

@@ -316,27 +316,27 @@ public class DynamoMessageRepository extends DynamoRepository<MessageItem, Messa
         entity.setIsRead(item.getIsRead());
         entity.setReadBy(item.getReadBy());
         entity.setIsDelivered(item.getIsDelivered());
-        if (item.getDeliveredAt() != null) entity.setDeliveredAt(LocalDateTime.parse(item.getDeliveredAt(), ISO_FMT));
+        if (item.getDeliveredAt() != null) entity.setDeliveredAt(TimestampUtils.parseTimestamp(item.getDeliveredAt()));
         entity.setIsArchived(item.getIsArchived());
-        if (item.getArchivedAt() != null) entity.setArchivedAt(LocalDateTime.parse(item.getArchivedAt(), ISO_FMT));
+        if (item.getArchivedAt() != null) entity.setArchivedAt(TimestampUtils.parseTimestamp(item.getArchivedAt()));
         entity.setIsDeleted(item.getIsDeleted());
-        if (item.getDeletedAt() != null) entity.setDeletedAt(LocalDateTime.parse(item.getDeletedAt(), ISO_FMT));
+        if (item.getDeletedAt() != null) entity.setDeletedAt(TimestampUtils.parseTimestamp(item.getDeletedAt()));
         if (item.getDeletedBy() != null) entity.setDeletedBy(item.getDeletedBy());
         entity.setHasAttachments(item.getHasAttachments());
         entity.setAttachmentUrls(item.getAttachmentUrls());
         entity.setIsUrgent(item.getIsUrgent());
         entity.setRequiresResponse(item.getRequiresResponse());
-        if (item.getResponseDeadline() != null) entity.setResponseDeadline(LocalDateTime.parse(item.getResponseDeadline(), ISO_FMT));
+        if (item.getResponseDeadline() != null) entity.setResponseDeadline(TimestampUtils.parseTimestamp(item.getResponseDeadline()));
         entity.setIsConfidential(item.getIsConfidential());
-        if (item.getAutoDeleteAt() != null) entity.setAutoDeleteAt(LocalDateTime.parse(item.getAutoDeleteAt(), ISO_FMT));
-        if (item.getScheduledFor() != null) entity.setScheduledFor(LocalDateTime.parse(item.getScheduledFor(), ISO_FMT));
+        if (item.getAutoDeleteAt() != null) entity.setAutoDeleteAt(TimestampUtils.parseTimestamp(item.getAutoDeleteAt()));
+        if (item.getScheduledFor() != null) entity.setScheduledFor(TimestampUtils.parseTimestamp(item.getScheduledFor()));
         entity.setIsScheduled(item.getIsScheduled());
         entity.setTags(item.getTags());
         entity.setCategory(item.getCategory());
         entity.setMetadata(item.getMetadata());
-        if (item.getCreatedAt() != null) entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
-        if (item.getUpdatedAt() != null) entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
-        if (item.getSentAt() != null) entity.setSentAt(LocalDateTime.parse(item.getSentAt(), ISO_FMT));
+        if (item.getCreatedAt() != null) entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
+        if (item.getUpdatedAt() != null) entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
+        if (item.getSentAt() != null) entity.setSentAt(TimestampUtils.parseTimestamp(item.getSentAt()));
         return entity;
     }
 

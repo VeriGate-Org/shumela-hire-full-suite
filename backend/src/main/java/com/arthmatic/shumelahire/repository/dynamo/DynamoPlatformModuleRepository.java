@@ -134,10 +134,10 @@ public class DynamoPlatformModuleRepository extends DynamoRepository<PlatformMod
             module.setActive(item.getIsActive());
         }
         if (item.getCreatedAt() != null) {
-            module.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            module.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            module.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            module.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return module;
     }

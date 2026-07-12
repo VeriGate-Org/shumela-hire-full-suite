@@ -57,7 +57,7 @@ public class DynamoDocumentRetentionPolicyRepository
         pol.setIsActive(item.getIsActive());
         pol.setNotifyDaysBeforeAction(item.getNotifyDaysBeforeAction());
         if (item.getCreatedAt() != null) {
-            pol.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            pol.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         pol.setCreatedBy(item.getCreatedBy());
         return pol;

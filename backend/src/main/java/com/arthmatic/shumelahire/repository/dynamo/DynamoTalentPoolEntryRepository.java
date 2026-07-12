@@ -121,16 +121,16 @@ public class DynamoTalentPoolEntryRepository extends DynamoRepository<TalentPool
         entity.setRating(item.getRating());
         entity.setIsAvailable(item.getIsAvailable());
         if (item.getLastContactedAt() != null) {
-            entity.setLastContactedAt(LocalDateTime.parse(item.getLastContactedAt(), ISO_FMT));
+            entity.setLastContactedAt(TimestampUtils.parseTimestamp(item.getLastContactedAt()));
         }
         if (item.getAddedBy() != null) {
             entity.setAddedBy(item.getAddedBy());
         }
         if (item.getAddedAt() != null) {
-            entity.setAddedAt(LocalDateTime.parse(item.getAddedAt(), ISO_FMT));
+            entity.setAddedAt(TimestampUtils.parseTimestamp(item.getAddedAt()));
         }
         if (item.getRemovedAt() != null) {
-            entity.setRemovedAt(LocalDateTime.parse(item.getRemovedAt(), ISO_FMT));
+            entity.setRemovedAt(TimestampUtils.parseTimestamp(item.getRemovedAt()));
         }
         entity.setRemovalReason(item.getRemovalReason());
         return entity;

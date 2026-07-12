@@ -104,7 +104,7 @@ public class DynamoJobAdHistoryRepository extends DynamoRepository<JobAdHistoryI
         entity.setActorUserId(item.getActorUserId());
         entity.setDetails(item.getDetails());
         if (item.getTimestamp() != null) {
-            entity.setTimestamp(LocalDateTime.parse(item.getTimestamp(), ISO_FMT));
+            entity.setTimestamp(TimestampUtils.parseTimestamp(item.getTimestamp()));
         }
         // FK: JobAd is stored as ID only; set a stub with the ID
         if (item.getJobAdId() != null) {

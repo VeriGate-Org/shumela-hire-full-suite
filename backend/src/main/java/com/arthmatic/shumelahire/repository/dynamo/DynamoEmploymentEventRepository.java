@@ -115,7 +115,7 @@ public class DynamoEmploymentEventRepository extends DynamoRepository<Employment
         evt.setNewLocation(item.getNewLocation());
         evt.setRecordedBy(item.getRecordedBy());
         if (item.getCreatedAt() != null) {
-            evt.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            evt.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         return evt;
     }

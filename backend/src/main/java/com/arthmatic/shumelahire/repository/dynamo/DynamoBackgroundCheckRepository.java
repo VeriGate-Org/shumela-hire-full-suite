@@ -157,7 +157,7 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
         entity.setResultsJson(encryptionService.decryptPII(item.getResultsJson()));
         entity.setConsentObtained(item.getConsentObtained());
         if (item.getConsentObtainedAt() != null) {
-            entity.setConsentObtainedAt(LocalDateTime.parse(item.getConsentObtainedAt(), ISO_FMT));
+            entity.setConsentObtainedAt(TimestampUtils.parseTimestamp(item.getConsentObtainedAt()));
         }
         if (item.getInitiatedBy() != null) {
             entity.setInitiatedBy(item.getInitiatedBy());
@@ -168,19 +168,19 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
         entity.setErrorMessage(item.getErrorMessage());
         entity.setNotes(item.getNotes());
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getSubmittedAt() != null) {
-            entity.setSubmittedAt(LocalDateTime.parse(item.getSubmittedAt(), ISO_FMT));
+            entity.setSubmittedAt(TimestampUtils.parseTimestamp(item.getSubmittedAt()));
         }
         if (item.getCompletedAt() != null) {
-            entity.setCompletedAt(LocalDateTime.parse(item.getCompletedAt(), ISO_FMT));
+            entity.setCompletedAt(TimestampUtils.parseTimestamp(item.getCompletedAt()));
         }
         if (item.getCancelledAt() != null) {
-            entity.setCancelledAt(LocalDateTime.parse(item.getCancelledAt(), ISO_FMT));
+            entity.setCancelledAt(TimestampUtils.parseTimestamp(item.getCancelledAt()));
         }
         return entity;
     }

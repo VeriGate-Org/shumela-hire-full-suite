@@ -135,7 +135,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         entity.setFileSize(item.getFileSize());
         entity.setContentType(item.getContentType());
         if (item.getUploadedAt() != null) {
-            entity.setUploadedAt(LocalDateTime.parse(item.getUploadedAt(), ISO_FMT));
+            entity.setUploadedAt(TimestampUtils.parseTimestamp(item.getUploadedAt()));
         }
         return entity;
     }

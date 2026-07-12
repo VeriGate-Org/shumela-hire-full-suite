@@ -68,19 +68,19 @@ public class DynamoLinkedInOrgConnectionRepository extends DynamoRepository<Link
         entity.setAccessToken(item.getAccessToken());
         entity.setRefreshToken(item.getRefreshToken());
         if (item.getTokenExpiresAt() != null) {
-            entity.setTokenExpiresAt(LocalDateTime.parse(item.getTokenExpiresAt(), ISO_FMT));
+            entity.setTokenExpiresAt(TimestampUtils.parseTimestamp(item.getTokenExpiresAt()));
         }
         entity.setOrganizationId(item.getOrganizationId());
         entity.setOrganizationName(item.getOrganizationName());
         entity.setConnectedByUserId(item.getConnectedByUserId());
         if (item.getConnectedAt() != null) {
-            entity.setConnectedAt(LocalDateTime.parse(item.getConnectedAt(), ISO_FMT));
+            entity.setConnectedAt(TimestampUtils.parseTimestamp(item.getConnectedAt()));
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         entity.setTenantId(item.getTenantId());
         return entity;

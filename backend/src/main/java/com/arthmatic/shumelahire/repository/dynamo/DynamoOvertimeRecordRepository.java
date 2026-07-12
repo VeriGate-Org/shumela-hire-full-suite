@@ -77,9 +77,9 @@ public class DynamoOvertimeRecordRepository extends DynamoRepository<OvertimeRec
             entity.setApprovedBy(approvedBy);
         }
 
-        entity.setApprovedAt(item.getApprovedAt() != null ? LocalDateTime.parse(item.getApprovedAt(), ISO_FMT) : null);
-        entity.setCreatedAt(item.getCreatedAt() != null ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
-        entity.setUpdatedAt(item.getUpdatedAt() != null ? LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT) : null);
+        entity.setApprovedAt(item.getApprovedAt() != null ? TimestampUtils.parseTimestamp(item.getApprovedAt()) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null ? TimestampUtils.parseTimestamp(item.getCreatedAt()) : null);
+        entity.setUpdatedAt(item.getUpdatedAt() != null ? TimestampUtils.parseTimestamp(item.getUpdatedAt()) : null);
 
         return entity;
     }

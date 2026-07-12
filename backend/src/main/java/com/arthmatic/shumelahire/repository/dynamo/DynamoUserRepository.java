@@ -172,23 +172,23 @@ public class DynamoUserRepository extends DynamoRepository<UserItem, User>
             entity.setEmailVerified(item.getEmailVerified());
         }
         if (item.getCreatedAt() != null) {
-            entity.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            entity.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         if (item.getLastLogin() != null) {
-            entity.setLastLogin(LocalDateTime.parse(item.getLastLogin(), ISO_FMT));
+            entity.setLastLogin(TimestampUtils.parseTimestamp(item.getLastLogin()));
         }
         if (item.getFailedLoginAttempts() != null) {
             entity.setFailedLoginAttempts(item.getFailedLoginAttempts());
         }
         if (item.getLockedUntil() != null) {
-            entity.setLockedUntil(LocalDateTime.parse(item.getLockedUntil(), ISO_FMT));
+            entity.setLockedUntil(TimestampUtils.parseTimestamp(item.getLockedUntil()));
         }
         entity.setPasswordResetToken(item.getPasswordResetToken());
         if (item.getPasswordResetExpires() != null) {
-            entity.setPasswordResetExpires(LocalDateTime.parse(item.getPasswordResetExpires(), ISO_FMT));
+            entity.setPasswordResetExpires(TimestampUtils.parseTimestamp(item.getPasswordResetExpires()));
         }
         entity.setEmailVerificationToken(item.getEmailVerificationToken());
         if (item.getTwoFactorEnabled() != null) {

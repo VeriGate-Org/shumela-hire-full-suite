@@ -141,10 +141,10 @@ public class DynamoPlatformFeatureRepository extends DynamoRepository<PlatformFe
             feature.setActive(item.getIsActive());
         }
         if (item.getCreatedAt() != null) {
-            feature.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            feature.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            feature.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            feature.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return feature;
     }

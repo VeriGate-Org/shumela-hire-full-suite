@@ -145,7 +145,7 @@ public class DynamoScreeningAnswerRepository extends DynamoRepository<ScreeningA
         entity.setIsValid(item.getIsValid());
         entity.setValidationMessage(item.getValidationMessage());
         if (item.getAnsweredAt() != null) {
-            entity.setAnsweredAt(LocalDateTime.parse(item.getAnsweredAt(), ISO_FMT));
+            entity.setAnsweredAt(TimestampUtils.parseTimestamp(item.getAnsweredAt()));
         }
         return entity;
     }

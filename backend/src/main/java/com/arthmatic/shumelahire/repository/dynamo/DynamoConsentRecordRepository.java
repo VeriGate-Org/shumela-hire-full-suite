@@ -96,10 +96,10 @@ public class DynamoConsentRecordRepository extends DynamoRepository<ConsentRecor
         entity.setConsentType(item.getConsentType());
         entity.setPurpose(item.getPurpose());
         entity.setIsGranted(item.getIsGranted());
-        entity.setGrantedAt(item.getGrantedAt() != null && !item.getGrantedAt().isEmpty() ? LocalDateTime.parse(item.getGrantedAt(), ISO_FMT) : null);
-        entity.setWithdrawnAt(item.getWithdrawnAt() != null && !item.getWithdrawnAt().isEmpty() ? LocalDateTime.parse(item.getWithdrawnAt(), ISO_FMT) : null);
+        entity.setGrantedAt(item.getGrantedAt() != null && !item.getGrantedAt().isEmpty() ? TimestampUtils.parseTimestamp(item.getGrantedAt()) : null);
+        entity.setWithdrawnAt(item.getWithdrawnAt() != null && !item.getWithdrawnAt().isEmpty() ? TimestampUtils.parseTimestamp(item.getWithdrawnAt()) : null);
         entity.setIpAddress(item.getIpAddress());
-        entity.setCreatedAt(item.getCreatedAt() != null && !item.getCreatedAt().isEmpty() ? LocalDateTime.parse(item.getCreatedAt(), ISO_FMT) : null);
+        entity.setCreatedAt(item.getCreatedAt() != null && !item.getCreatedAt().isEmpty() ? TimestampUtils.parseTimestamp(item.getCreatedAt()) : null);
 
         return entity;
     }

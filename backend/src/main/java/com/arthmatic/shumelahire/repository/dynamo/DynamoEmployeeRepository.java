@@ -273,13 +273,13 @@ public class DynamoEmployeeRepository extends DynamoRepository<EmployeeItem, Emp
         emp.setEmergencyContactRelationship(item.getEmergencyContactRelationship());
         emp.setDemographicsConsent(item.getDemographicsConsent());
         if (item.getDemographicsConsentDate() != null) {
-            emp.setDemographicsConsentDate(LocalDateTime.parse(item.getDemographicsConsentDate(), ISO_FMT));
+            emp.setDemographicsConsentDate(TimestampUtils.parseTimestamp(item.getDemographicsConsentDate()));
         }
         if (item.getCreatedAt() != null) {
-            emp.setCreatedAt(LocalDateTime.parse(item.getCreatedAt(), ISO_FMT));
+            emp.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
         if (item.getUpdatedAt() != null) {
-            emp.setUpdatedAt(LocalDateTime.parse(item.getUpdatedAt(), ISO_FMT));
+            emp.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
         return emp;
     }

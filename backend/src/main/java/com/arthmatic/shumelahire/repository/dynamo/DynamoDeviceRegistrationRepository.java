@@ -107,10 +107,10 @@ public class DynamoDeviceRegistrationRepository extends DynamoRepository<DeviceR
         entity.setDeviceName(item.getDeviceName());
         entity.setIsActive(item.getIsActive());
         if (item.getLastUsedAt() != null) {
-            entity.setLastUsedAt(LocalDateTime.parse(item.getLastUsedAt(), ISO_FMT));
+            entity.setLastUsedAt(TimestampUtils.parseTimestamp(item.getLastUsedAt()));
         }
         if (item.getRegisteredAt() != null) {
-            entity.setRegisteredAt(LocalDateTime.parse(item.getRegisteredAt(), ISO_FMT));
+            entity.setRegisteredAt(TimestampUtils.parseTimestamp(item.getRegisteredAt()));
         }
         entity.setTenantId(item.getTenantId());
         return entity;
