@@ -30,7 +30,7 @@ TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', '')
 STACK_PREFIX = os.environ.get('STACK_PREFIX', 'shumelahire-dev')
 
 NOW = datetime.now(timezone.utc)
-NOW_ISO = NOW.strftime('%Y-%m-%dT%H:%M:%S.000')
+NOW_ISO = NOW.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 # ============================================================
@@ -99,7 +99,7 @@ def date_offset(days):
 
 def iso_offset(days=0, hours=0):
     """Return ISO datetime string offset from now."""
-    return (NOW + timedelta(days=days, hours=hours)).strftime('%Y-%m-%dT%H:%M:%S.000')
+    return (NOW + timedelta(days=days, hours=hours)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 # ============================================================
@@ -948,7 +948,7 @@ def build_performance_items():
         'status':                {'S': 'MID_YEAR'},
         'isDefault':             {'BOOL': True},
         'createdBy':             {'S': deterministic_id(TENANT_ID, 'EMPLOYEE', 'SH-002')},
-        'createdAt':             {'S': '2026-01-05T08:00:00.000'},
+        'createdAt':             {'S': '2026-01-05T08:00:00Z'},
         'updatedAt':             {'S': NOW_ISO},
     }
     items.append(('PERF_CYCLE', '2026 Annual Review', item))
@@ -985,7 +985,7 @@ def build_performance_items():
             'jobLevel':       {'S': grade},
             'status':         {'S': 'ACTIVE'},
             'version':        {'N': '1'},
-            'createdAt':      {'S': '2026-01-10T09:00:00.000'},
+            'createdAt':      {'S': '2026-01-10T09:00:00Z'},
             'updatedAt':      {'S': NOW_ISO},
         }
         items.append(('PERF_CONTRACT', f"Contract: {name}", item))
@@ -1006,7 +1006,7 @@ def build_performance_items():
             'feedbackType': {'S': 'SELF'},
             'status':       {'S': 'PENDING'},
             'dueDate':      {'S': '2026-07-31'},
-            'createdAt':    {'S': '2026-06-15T08:00:00.000'},
+            'createdAt':    {'S': '2026-06-15T08:00:00Z'},
             'updatedAt':    {'S': NOW_ISO},
         }
         items.append(('FEEDBACK_REQ', f"Self-assessment: {name}", item))
@@ -1155,7 +1155,7 @@ def build_engagement_items():
         'startDate':   {'S': '2026-07-01'},
         'endDate':     {'S': '2026-07-31'},
         'createdBy':   {'S': deterministic_id(TENANT_ID, 'EMPLOYEE', 'SH-002')},
-        'createdAt':   {'S': '2026-06-25T09:00:00.000'},
+        'createdAt':   {'S': '2026-06-25T09:00:00Z'},
         'updatedAt':   {'S': NOW_ISO},
     }
     items.append(('SURVEY', 'Q2 Pulse Survey', item))
@@ -1392,7 +1392,7 @@ def build_onboarding_items():
         'status':       {'S': 'IN_PROGRESS'},
         'assignedHrId': {'S': deterministic_id(TENANT_ID, 'EMPLOYEE', 'SH-002')},
         'itemsJson':    {'S': json.dumps(active_items)},
-        'createdAt':    {'S': '2024-02-01T08:00:00.000'},
+        'createdAt':    {'S': '2024-02-01T08:00:00Z'},
         'updatedAt':    {'S': NOW_ISO},
     }
     items.append(('ONBOARD_CHECKLIST', 'Checklist: Thandi Molefe', item))
