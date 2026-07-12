@@ -239,7 +239,7 @@ export default function NotificationsPage() {
     setRecentSearches([]);
   }, []);
 
-  const useRecentSearch = useCallback((term: string) => {
+  const applyRecentSearch = useCallback((term: string) => {
     setSearchQuery(term);
     searchInputRef.current?.focus();
   }, []);
@@ -445,7 +445,7 @@ export default function NotificationsPage() {
                       {recentSearches.map((term) => (
                         <button
                           key={term}
-                          onClick={() => useRecentSearch(term)}
+                          onClick={() => applyRecentSearch(term)}
                           className="flex items-center gap-3 w-full px-5 py-2 text-left hover:bg-muted transition-colors"
                         >
                           <ClockIcon className="h-4 w-4 text-muted-foreground shrink-0" />
