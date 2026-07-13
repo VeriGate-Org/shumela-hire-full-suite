@@ -37,6 +37,11 @@ import {
   RocketLaunchIcon,
   MegaphoneIcon,
   AdjustmentsHorizontalIcon,
+  UserPlusIcon,
+  BanknotesIcon,
+  BellIcon,
+  IdentificationIcon,
+  WrenchIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -48,7 +53,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { ComponentType } from 'react';
 
-export type NavSection = 'overview' | 'recruitment' | 'hr_core' | 'talent' | 'engagement' | 'workflow' | 'analytics' | 'administration' | 'personal' | 'system' | 'platform';
+export type NavSection = 'overview' | 'recruitment' | 'hr_core' | 'talent' | 'engagement' | 'workflow' | 'analytics' | 'administration' | 'personal' | 'system' | 'platform' | 'communication' | 'integrations' | 'candidate_portal';
 
 export interface NavigationEntry {
   id: string;
@@ -86,9 +91,14 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'salary-recommendations', label: 'Salary Recommendations', href: '/salary-recommendations', icon: CurrencyDollarIcon, section: 'recruitment', requiredPermissions: ['view_salary_data'], requiredFeature: 'RECRUITMENT' },
 
   // HR Core — leave, time & attendance, employee self-service
+  { id: 'employee-directory', label: 'Employee Directory', href: '/employee', icon: UsersIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
+  { id: 'add-employee', label: 'Add Employee', href: '/employee/add', icon: UserPlusIcon, section: 'hr_core', requiredPermissions: ['manage_documents'] },
   { id: 'leave', label: 'Leave Management', href: '/leave', icon: CalendarIcon, section: 'hr_core', requiredPermissions: ['manage_leave'], requiredFeature: 'LEAVE_MANAGEMENT' },
+  { id: 'payslips', label: 'Payslips', href: '/payroll/payslips', icon: BanknotesIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
   { id: 'time-attendance', label: 'Time & Attendance', href: '/time-attendance', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
+  { id: 'overtime-log', label: 'Overtime Log', href: '/time-attendance/overtime', icon: ClockIcon, section: 'hr_core', requiredPermissions: ['view_attendance'], requiredFeature: 'TIME_ATTENDANCE' },
   { id: 'shift-scheduling', label: 'Shift Scheduling', href: '/shift-scheduling', icon: ArrowPathIcon, section: 'hr_core', requiredPermissions: ['manage_attendance'], requiredFeature: 'SHIFT_SCHEDULING' },
+  { id: 'expense-submission', label: 'Expense Submission', href: '/expenses', icon: CurrencyDollarIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'] },
   { id: 'employee-self-service', label: 'My HR Portal', href: '/employee/portal', icon: UserIcon, section: 'hr_core', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
   { id: 'employee-documents', label: 'Documents', href: '/employee/documents', icon: FolderIcon, section: 'hr_core', requiredPermissions: ['manage_documents'], requiredFeature: 'EMPLOYEE_DOCUMENTS' },
   { id: 'company-documents', label: 'Company Docs', href: '/employee/company-documents', icon: DocumentDuplicateIcon, section: 'hr_core', requiredPermissions: ['view_company_documents'], requiredFeature: 'COMPANY_DOCUMENTS' },
@@ -102,17 +112,18 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'training-admin', label: 'Training Admin', href: '/training/admin', icon: AcademicCapIcon, section: 'talent', requiredPermissions: ['manage_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'training-idps', label: 'Development Plans', href: '/training/idps', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['view_training'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'performance-reviews', label: 'Reviews', href: '/performance/reviews', icon: ClipboardDocumentListIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
+  { id: '360-reviews', label: '360 Reviews', href: '/performance/360', icon: ArrowPathIcon, section: 'talent', requiredPermissions: ['view_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'performance-pips', label: 'Improvement Plans', href: '/performance/pips', icon: ExclamationTriangleIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'competencies', label: 'Competency Framework', href: '/competencies', icon: LightBulbIcon, section: 'talent', requiredPermissions: ['manage_performance'], requiredFeature: 'COMPETENCY_MAPPING' },
 
-  // Engagement — surveys, recognition, social feed
+  // Engagement — surveys, recognition, social feed, wellness
   { id: 'engagement', label: 'Engagement', href: '/engagement', icon: HeartIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'EMPLOYEE_ENGAGEMENT' },
   { id: 'surveys', label: 'Pulse Surveys', href: '/engagement/surveys', icon: ChatBubbleLeftRightIcon, section: 'engagement', requiredPermissions: ['manage_engagement'], requiredFeature: 'PULSE_SURVEYS' },
   { id: 'recognition', label: 'Recognition', href: '/engagement/recognition', icon: TrophyIcon, section: 'engagement', requiredPermissions: ['view_own_profile'], requiredFeature: 'RECOGNITION_REWARDS' },
   { id: 'social-feed', label: 'Social Feed', href: '/feed', icon: MegaphoneIcon, section: 'engagement', requiredPermissions: ['feed:view'], requiredFeature: 'SOCIAL_FEED' },
+  { id: 'wellness', label: 'Wellness', href: '/engagement/wellness', icon: HeartIcon, section: 'engagement', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_ENGAGEMENT' },
 
-  // Workflow & AI — automation tools
-  { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'workflow', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },
+  // AI Tools (single-link section)
   { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: SparklesIcon, section: 'workflow', requiredPermissions: ['manage_jobs'], requiredFeature: 'AI_ENABLED', badge: 'AI' },
 
   // Analytics
@@ -122,6 +133,7 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'], requiredFeature: 'RECRUITMENT' },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
   { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT' },
+  { id: 'employee-reports', label: 'Employee Reports', href: '/reports/employees', icon: IdentificationIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
 
   // Administration
   { id: 'permissions', label: 'Role Permissions', href: '/admin/permissions', icon: ShieldCheckIcon, section: 'administration', requiredPermissions: ['manage_permissions'] },
@@ -135,6 +147,22 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'document-retention', label: 'Document Retention', href: '/admin/document-retention', icon: ClockIcon, section: 'administration', requiredPermissions: ['manage_company_documents'], requiredFeature: 'DOCUMENT_RETENTION' },
   { id: 'custom-fields', label: 'Custom Fields', href: '/settings/custom-fields', icon: AdjustmentsHorizontalIcon, section: 'administration', requiredPermissions: ['custom_fields:manage'] },
 
+  // Integrations (moved from system + workflow)
+  { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon, section: 'integrations', requiredPermissions: ['manage_integrations'] },
+  { id: 'sage-integration', label: 'Sage Integration', href: '/integrations/sage', icon: ServerStackIcon, section: 'integrations', requiredPermissions: ['manage_integrations'], requiredFeature: 'SAGE_300_PEOPLE' },
+  { id: 'sso-configuration', label: 'SSO Configuration', href: '/integrations/sso', icon: ShieldCheckIcon, section: 'integrations', requiredPermissions: ['manage_integrations'], requiredFeature: 'AD_SSO' },
+  { id: 'workflow', label: 'Workflow Management', href: '/workflow', icon: Squares2X2Icon, section: 'integrations', requiredPermissions: ['manage_workflow'], requiredFeature: 'WORKFLOW_MANAGEMENT' },
+
+  // Candidate Portal
+  { id: 'candidate-portal', label: 'Candidate Portal', href: '/candidate', icon: IdentificationIcon, section: 'candidate_portal', requiredPermissions: ['browse_jobs'] },
+  { id: 'candidate-interviews', label: 'Interviews & Offers', href: '/candidate/interviews', icon: CalendarIcon, section: 'candidate_portal', requiredPermissions: ['view_own_interviews'] },
+
+  // Communication
+  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+  { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+  { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+  { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+
   // Personal (Applicant-facing)
   { id: 'browse-jobs', label: 'Browse Jobs', href: '/candidate/jobs', icon: MagnifyingGlassIcon, section: 'personal', requiredPermissions: ['browse_jobs'] },
   { id: 'my-applications', label: 'My Applications', href: '/candidate/applications', icon: DocumentTextIcon, section: 'personal', requiredPermissions: ['manage_own_applications'] },
@@ -143,9 +171,6 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'my-offers', label: 'My Offers', href: '/candidate/offers', icon: CurrencyDollarIcon, section: 'personal', requiredPermissions: ['view_own_offers'] },
 
   // System
-  { id: 'integrations', label: 'Integrations', href: '/integrations', icon: GlobeAltIcon, section: 'system', requiredPermissions: ['manage_integrations'] },
-  { id: 'sage-integration', label: 'Sage Integration', href: '/integrations/sage', icon: ServerStackIcon, section: 'system', requiredPermissions: ['manage_integrations'], requiredFeature: 'SAGE_300_PEOPLE' },
-  { id: 'sso-configuration', label: 'SSO Configuration', href: '/integrations/sso', icon: ShieldCheckIcon, section: 'system', requiredPermissions: ['manage_integrations'], requiredFeature: 'AD_SSO' },
   { id: 'help', label: 'Help Center', href: '/help', icon: QuestionMarkCircleIcon, section: 'system', requiredPermissions: [] },
 
   // Platform
@@ -153,15 +178,54 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'platform-features', label: 'Feature Registry', href: '/platform/features', icon: Cog6ToothIcon, section: 'platform', requiredPermissions: ['manage_features'] },
 ];
 
+export const SECTION_ORDER: NavSection[] = [
+  'overview',
+  'recruitment',
+  'hr_core',
+  'talent',
+  'engagement',
+  'analytics',
+  'administration',
+  'integrations',
+  'candidate_portal',
+  'communication',
+  'workflow',
+  'personal',
+  'system',
+  'platform',
+];
+
+export const SECTION_ICONS: Record<NavSection, ComponentType<any>> = {
+  overview: HomeIcon,
+  recruitment: BriefcaseIcon,
+  hr_core: UsersIcon,
+  talent: AcademicCapIcon,
+  engagement: HeartIcon,
+  analytics: ChartBarIcon,
+  administration: ShieldCheckIcon,
+  integrations: GlobeAltIcon,
+  candidate_portal: IdentificationIcon,
+  communication: ChatBubbleLeftRightIcon,
+  workflow: SparklesIcon,
+  personal: UserIcon,
+  system: Cog6ToothIcon,
+  platform: ServerStackIcon,
+};
+
+export const SINGLE_LINK_SECTIONS = new Set<NavSection>(['overview', 'workflow']);
+
 export const sectionLabels: Record<NavSection, string> = {
   overview: 'Overview',
   recruitment: 'Recruitment',
-  hr_core: 'HR Management',
-  talent: 'Talent & Performance',
+  hr_core: 'HR',
+  talent: 'Talent',
   engagement: 'Engagement',
-  workflow: 'Workflow & AI',
+  workflow: 'AI Tools',
   analytics: 'Analytics',
   administration: 'Administration',
+  integrations: 'Integrations',
+  candidate_portal: 'Candidate Portal',
+  communication: 'Communication',
   personal: 'Personal',
   system: 'System',
   platform: 'Platform',
