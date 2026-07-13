@@ -4,15 +4,12 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { useTenant } from '@/contexts/TenantContext';
-import { navigationRegistry, sectionLabels, NavSection, NavigationEntry } from '@/config/navigationRegistry';
+import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, SECTION_ORDER, SECTION_ICONS, SINGLE_LINK_SECTIONS } from '@/config/navigationRegistry';
 import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import {
-  MagnifyingGlassIcon,
   ChevronRightIcon,
-  ChevronDownIcon,
-  XMarkIcon,
   LockClosedIcon,
-  Cog6ToothIcon,
+  AdjustmentsHorizontalIcon,
 } from '@heroicons/react/24/outline';
 
 
@@ -20,8 +17,6 @@ interface SidebarNavItem extends NavigationEntry {
   locked: boolean;
   lockedPlanLabel?: string;
 }
-
-const ADMIN_SECTIONS = new Set<NavSection>(['administration', 'system', 'platform']);
 
 interface ModernSidebarProps {
   isCollapsed?: boolean;
@@ -36,14 +31,15 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const { user } = useAuth();
   const { isFeatureEnabled } = useFeatureGate();
   const { tenant, branding } = useTenant();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  // All group sections start collapsed (matching mock default state)
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   const isWhiteLabelled = !!tenant && tenant.subdomain !== 'default' && !!branding?.logoUrl;
   const hasModules = !!tenant?.modules;
   const sidebarRef = useRef<HTMLElement>(null);
 
-  // Persist sidebar scroll position across navigations (sidebar remounts on each page)
+  // Persist sidebar scroll position across navigations
   useEffect(() => {
     const el = sidebarRef.current;
     if (!el) return;
@@ -56,8 +52,23 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Auto-expand the section that contains the active route
+  useEffect(() => {
+    for (const entry of navigationRegistry) {
+      if (pathname.startsWith(entry.href) && entry.href !== '/') {
+        setExpandedSections(prev => {
+          if (prev.has(entry.section)) return prev;
+          const next = new Set(prev);
+          next.add(entry.section);
+          return next;
+        });
+        break;
+      }
+    }
+  }, [pathname]);
+
   const toggleSection = useCallback((section: string) => {
-    setCollapsedSections(prev => {
+    setExpandedSections(prev => {
       const next = new Set(prev);
       if (next.has(section)) {
         next.delete(section);
@@ -68,8 +79,6 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     });
   }, []);
 
-  // Filter navigation entries by user permissions; feature-gated items stay visible but locked
-  // For white-labelled tenants, locked items are hidden entirely
   const navigationItems = useMemo((): SidebarNavItem[] => {
     if (!user) return [];
     const userPermissions = user.permissions || [];
@@ -86,244 +95,201 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       .filter(item => !(isWhiteLabelled || hasModules) || !item.locked);
   }, [user, isFeatureEnabled, isWhiteLabelled, hasModules]);
 
-  // Apply search filtering
-  const filteredItems = useMemo(() => {
-    if (!searchQuery) return navigationItems;
-    return navigationItems.filter(item =>
-      item.label.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery, navigationItems]);
-
-  // Group items by section
-  const groupedNavItems = useMemo(() => {
+  // Group items by section, ordered by SECTION_ORDER
+  const orderedSections = useMemo(() => {
     const groups: Partial<Record<NavSection, SidebarNavItem[]>> = {};
-    for (const item of filteredItems) {
+    for (const item of navigationItems) {
       const section = item.section || 'recruitment';
       if (!groups[section]) groups[section] = [];
       groups[section]!.push(item);
     }
-    return groups;
-  }, [filteredItems]);
+    return SECTION_ORDER
+      .filter(s => groups[s] && groups[s]!.length > 0)
+      .map(s => ({ section: s, items: groups[s]! }));
+  }, [navigationItems]);
 
-  const keyShortcutMap: Record<string, string> = {
-    '/dashboard': 'g d',
-    '/pipeline': 'g p',
-    '/applications': 'g a',
-    '/job-postings': 'g j',
-    '/interviews': 'g i',
-    '/reports': 'g r',
-  };
-
-  const isActiveRoute = (href: string, exact = false) => {
-    if (exact) return pathname === href;
+  const isActiveRoute = (href: string) => {
     return pathname.startsWith(href) && href !== '/';
   };
 
-  const renderNavigationItem = (item: SidebarNavItem) => {
-    const IconComponent = item.icon;
-
-    // Locked items render as non-interactive spans
-    if (item.locked) {
-      return (
-        <div key={item.id} className="relative group">
-          <span
-            className={`
-              flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded border border-transparent
-              opacity-50 cursor-not-allowed
-              ${isCollapsed ? 'justify-center px-2' : ''}
-            `}
-          >
-            <IconComponent className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-colors" />
-
-            {!isCollapsed && (
-              <>
-                <span className="flex-1 text-left truncate text-muted-foreground">{item.label}</span>
-                <LockClosedIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              </>
-            )}
-          </span>
-
-          {/* Tooltip */}
-          {item.lockedPlanLabel && (
-            <div className={`
-              pointer-events-none absolute top-1/2 -translate-y-1/2 z-50
-              opacity-0 group-hover:opacity-100 transition-opacity
-              whitespace-nowrap rounded bg-popover text-popover-foreground border border-border shadow-md px-2 py-1 text-[11px]
-              ${isCollapsed ? 'left-full ml-2' : 'left-full ml-2'}
-            `}>
-              Requires {item.lockedPlanLabel} plan
-            </div>
-          )}
+  const renderLockedItem = (item: SidebarNavItem) => (
+    <div key={item.id} className="relative group">
+      <span className="sidebar-link" style={{ opacity: 0.35, cursor: 'not-allowed' }}>
+        <span className="flex items-center justify-between">
+          <span className="truncate">{item.label}</span>
+          <LockClosedIcon className="h-3 w-3 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
+        </span>
+      </span>
+      {item.lockedPlanLabel && (
+        <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-full ml-2 z-50 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap rounded bg-popover text-popover-foreground border border-border shadow-md px-2 py-1 text-[11px]">
+          Requires {item.lockedPlanLabel} plan
         </div>
-      );
-    }
+      )}
+    </div>
+  );
 
-    // Check for more specific nav match — if a sibling route better matches, don't highlight this one
-    const isActive = isActiveRoute(item.href) && !filteredItems.some(other =>
+  const renderChildItem = (item: SidebarNavItem) => {
+    if (item.locked) return renderLockedItem(item);
+
+    const isActive = isActiveRoute(item.href) && !navigationItems.some(other =>
       other.href !== item.href && other.href.startsWith(item.href) && pathname.startsWith(other.href)
     );
-    const ActiveIcon = isActive && item.iconSolid ? item.iconSolid : item.icon;
 
     return (
       <div key={item.id}>
         <Link
           href={item.href}
-          aria-keyshortcuts={keyShortcutMap[item.href]}
-          className={`
-            group flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium rounded transition-colors border border-transparent
-            ${isActive
-              ? 'bg-white dark:bg-card shadow-sm text-primary border-l-[3px] border-l-cta border-y-transparent border-r-transparent pl-[7px]'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-            }
-            ${isCollapsed ? 'justify-center px-2' : ''}
-          `}
+          className={`sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
         >
-          <ActiveIcon className={`
-            h-4 w-4 flex-shrink-0
-            ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}
-            transition-colors
-          `} />
-
-          {!isCollapsed && (
-            <>
-              <span className="flex-1 text-left truncate">{item.label}</span>
-
-              {item.badge && (
-                <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground">
-                  {item.badge}
-                </span>
-              )}
-
-              {keyShortcutMap[item.href] && (
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-muted-foreground ml-auto">
-                  {keyShortcutMap[item.href]}
-                </span>
-              )}
-            </>
-          )}
+          <span className="flex items-center justify-between">
+            <span className="truncate">{item.label}</span>
+            {item.badge && (
+              <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground">
+                {item.badge}
+              </span>
+            )}
+          </span>
         </Link>
       </div>
     );
   };
 
-  // Track whether we've rendered the admin divider
-  const sectionEntries = Object.entries(groupedNavItems);
-  let adminDividerRendered = false;
+  const renderSingleLinkSection = (section: NavSection, items: SidebarNavItem[]) => {
+    const item = items[0];
+    if (!item) return null;
+    if (item.locked) return renderLockedItem(item);
+
+    const isActive = isActiveRoute(item.href);
+    const SectionIcon = SECTION_ICONS[section];
+
+    return (
+      <Link
+        key={item.id}
+        href={item.href}
+        className={`sidebar-single-link ${isActive ? 'sidebar-single-link-active' : ''}`}
+      >
+        {SectionIcon && <SectionIcon className="h-5 w-5 flex-shrink-0" />}
+        {!isCollapsed && <span className="truncate">{item.label}</span>}
+        {!isCollapsed && item.badge && (
+          <span className="px-1.5 py-0.5 text-[10px] rounded bg-cta text-cta-foreground ml-auto">
+            {item.badge}
+          </span>
+        )}
+      </Link>
+    );
+  };
+
+  const renderGroupSection = (section: NavSection, items: SidebarNavItem[]) => {
+    const isExpanded = expandedSections.has(section);
+    const SectionIcon = SECTION_ICONS[section];
+
+    return (
+      <div key={section}>
+        {!isCollapsed ? (
+          <>
+            <button
+              onClick={() => toggleSection(section)}
+              className="sidebar-group-header w-full"
+            >
+              {SectionIcon && <SectionIcon className="h-5 w-5 flex-shrink-0" />}
+              <span className="flex-1 text-left truncate">
+                {sectionLabels[section] || section}
+              </span>
+              <ChevronRightIcon
+                className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200"
+                style={{
+                  color: 'rgba(255,255,255,0.3)',
+                  transform: isExpanded ? 'rotate(90deg)' : undefined,
+                }}
+              />
+            </button>
+            <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <nav>
+                {items.map(item => renderChildItem(item))}
+              </nav>
+            </div>
+          </>
+        ) : (
+          <nav>
+            {items.slice(0, 1).map(item => (
+              <div key={item.id}>
+                {item.locked ? renderLockedItem(item) : (
+                  <Link
+                    href={item.href}
+                    className="sidebar-single-link justify-center"
+                    title={sectionLabels[section]}
+                  >
+                    {SectionIcon && <SectionIcon className="h-5 w-5" />}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <aside ref={sidebarRef} className={`
-      fixed left-0 top-14 bottom-0 bg-surface-navy border-r border-border overflow-y-auto transition-all duration-200 ease-in-out z-40
-      ${isCollapsed ? 'w-16' : 'w-60'}
-    `}>
-      {/* Search */}
+    <aside
+      ref={sidebarRef}
+      className={`
+        fixed left-0 top-0 bottom-0 flex flex-col overflow-y-auto sidebar-scroll transition-all duration-200 ease-in-out z-50
+        ${isCollapsed ? 'w-16' : 'w-[260px]'}
+      `}
+      style={{ backgroundColor: 'var(--sidebar-bg)' }}
+    >
+      {/* Logo / Branding */}
       {!isCollapsed && (
-        <div className="px-3 py-3">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-control bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-transparent"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                aria-label="Clear navigation search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2"
-              >
-                <XMarkIcon className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-              </button>
-            )}
-          </div>
+        <div className="px-5 pt-6 pb-2">
+          {isWhiteLabelled && branding?.logoUrl ? (
+            <img src={branding.logoUrl} alt="Organization logo" className="h-8 w-auto max-w-[180px] object-contain" />
+          ) : (
+            <span className="font-extrabold text-xl tracking-[-0.03em]">
+              <span style={{ color: '#F1C54B' }}>Shumela</span>
+              <span style={{ color: '#5B9BD5' }}>Hire</span>
+            </span>
+          )}
+        </div>
+      )}
+      {isCollapsed && (
+        <div className="flex justify-center pt-4 pb-2">
+          <img src="/icons/shumelahire-icon.svg" alt="ShumelaHire" className="h-7 w-7" />
         </div>
       )}
 
-      {/* Section-grouped Navigation */}
-      <div className="px-3 py-1">
-        {sectionEntries.map(([section, items]) => {
-          const isSectionCollapsed = collapsedSections.has(section);
-          const isAdminSection = ADMIN_SECTIONS.has(section as NavSection);
-          const hasActiveItem = items?.some(item =>
-            isActiveRoute(item.href) && !filteredItems.some(other =>
-              other.href !== item.href && other.href.startsWith(item.href) && pathname.startsWith(other.href)
-            )
-          );
-
-          // Render admin divider before the first admin section
-          let showAdminDivider = false;
-          if (isAdminSection && !adminDividerRendered && !searchQuery) {
-            adminDividerRendered = true;
-            showAdminDivider = true;
-          }
+      {/* Navigation sections */}
+      <div className="flex-1">
+        {orderedSections.map(({ section, items }, index) => {
+          const isSingleLink = SINGLE_LINK_SECTIONS.has(section);
 
           return (
             <React.Fragment key={section}>
-              {showAdminDivider && (
-                <div className="my-2 mx-2.5 border-t border-border" />
+              {index > 0 && (
+                <div className="sidebar-divider" />
               )}
-              <div className={`mb-1 ${isAdminSection && !isCollapsed && !searchQuery ? 'ml-1 pl-2 border-l border-border/50' : ''}`}>
-                {!isCollapsed && (
-                  <button
-                    onClick={() => toggleSection(section)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded transition-colors hover:bg-accent/50 group/section"
-                  >
-                    <span className={`text-[11px] uppercase tracking-[0.12em] font-semibold ${hasActiveItem && isSectionCollapsed ? 'text-cta' : 'text-muted-foreground'}`}>
-                      {sectionLabels[section as NavSection] || section}
-                    </span>
-                    <ChevronDownIcon className={`h-3 w-3 text-muted-foreground opacity-0 group-hover/section:opacity-100 transition-all duration-200 ${isSectionCollapsed ? '-rotate-90' : ''}`} />
-                  </button>
-                )}
-                <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isSectionCollapsed && !isCollapsed && !searchQuery ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
-                  <nav className="space-y-0.5 mt-0.5">
-                    {items?.map(item => renderNavigationItem(item))}
-                  </nav>
-                </div>
-              </div>
+              {isSingleLink
+                ? renderSingleLinkSection(section, items)
+                : renderGroupSection(section, items)
+              }
             </React.Fragment>
           );
         })}
-
-        {searchQuery && filteredItems.length === 0 && !isCollapsed && (
-          <div className="px-5 py-4 text-center">
-            <p className="text-xs text-muted-foreground">No pages matching &ldquo;{searchQuery}&rdquo;</p>
-            <button onClick={() => setSearchQuery('')} className="text-xs text-cta mt-1 hover:underline">Clear search</button>
-          </div>
-        )}
       </div>
 
-      <div className="sticky bottom-0 border-t border-border bg-surface-navy p-2 space-y-1">
-        {/* Pinned Settings link */}
+      {/* Bottom: Settings */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <Link
           href="/settings"
-          className={`
-            group flex items-center gap-2 py-1.5 rounded-control text-xs transition-colors
-            ${isActiveRoute('/settings')
-              ? 'bg-cta/10 text-primary'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-            }
-            ${isCollapsed ? 'justify-center px-2' : 'px-2.5'}
-          `}
+          className={`sidebar-single-link ${isActiveRoute('/settings') ? 'sidebar-single-link-active' : ''}`}
         >
-          <Cog6ToothIcon className={`h-3.5 w-3.5 flex-shrink-0 ${isActiveRoute('/settings') ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'} transition-colors`} />
+          <AdjustmentsHorizontalIcon className="h-5 w-5 flex-shrink-0" />
           {!isCollapsed && <span>Settings</span>}
         </Link>
 
-
-        {onToggleCollapse && (
-          <button
-            onClick={onToggleCollapse}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="w-full flex items-center justify-center gap-2 py-1.5 rounded-control text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          >
-            <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
-            {!isCollapsed && <span>Collapse</span>}
-          </button>
-        )}
         {!isCollapsed && isWhiteLabelled && (
-          <div className="border-t border-border pt-2 mt-1">
-            <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
+          <div className="px-5 pb-4 pt-1">
+            <p className="flex items-center gap-1.5 text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
               Powered by
               <img src="/icons/shumelahire-icon.svg" alt="" className="h-3.5 w-3.5" />
               <span className="font-semibold">ShumelaHire</span>
