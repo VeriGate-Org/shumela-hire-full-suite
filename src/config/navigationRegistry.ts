@@ -42,6 +42,9 @@ import {
   BellIcon,
   IdentificationIcon,
   WrenchIcon,
+  BoltIcon,
+  CpuChipIcon,
+  ChatBubbleLeftIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -69,7 +72,7 @@ export interface NavigationEntry {
 
 export const navigationRegistry: NavigationEntry[] = [
   // Overview
-  { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: HomeIcon, iconSolid: HomeIconSolid, section: 'overview', requiredPermissions: ['view_dashboard'] },
+  { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, section: 'overview', requiredPermissions: ['view_dashboard'] },
 
   // Recruitment — job lifecycle
   { id: 'job-postings', label: 'Job Postings', href: '/job-postings', icon: BriefcaseIcon, iconSolid: BriefcaseIconSolid, section: 'recruitment', requiredPermissions: ['manage_jobs'], requiredFeature: 'RECRUITMENT' },
@@ -124,7 +127,7 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'wellness', label: 'Wellness', href: '/engagement/wellness', icon: HeartIcon, section: 'engagement', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_ENGAGEMENT' },
 
   // AI Tools (single-link section)
-  { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: SparklesIcon, section: 'workflow', requiredPermissions: ['manage_jobs'], requiredFeature: 'AI_ENABLED', badge: 'AI' },
+  { id: 'ai-tools', label: 'AI Tools', href: '/ai-tools', icon: CpuChipIcon, section: 'workflow', requiredPermissions: ['manage_jobs'], requiredFeature: 'AI_ENABLED' },
 
   // Analytics
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: ChartBarIcon, iconSolid: ChartBarIconSolid, section: 'analytics', requiredPermissions: ['view_analytics'] },
@@ -196,17 +199,17 @@ export const SECTION_ORDER: NavSection[] = [
 ];
 
 export const SECTION_ICONS: Record<NavSection, ComponentType<any>> = {
-  overview: HomeIcon,
+  overview: Squares2X2Icon,
   recruitment: BriefcaseIcon,
   hr_core: UsersIcon,
-  talent: AcademicCapIcon,
+  talent: TrophyIcon,
   engagement: HeartIcon,
   analytics: ChartBarIcon,
   administration: ShieldCheckIcon,
-  integrations: GlobeAltIcon,
-  candidate_portal: IdentificationIcon,
-  communication: ChatBubbleLeftRightIcon,
-  workflow: SparklesIcon,
+  integrations: BoltIcon,
+  candidate_portal: UserPlusIcon,
+  communication: ChatBubbleLeftIcon,
+  workflow: CpuChipIcon,
   personal: UserIcon,
   system: Cog6ToothIcon,
   platform: ServerStackIcon,

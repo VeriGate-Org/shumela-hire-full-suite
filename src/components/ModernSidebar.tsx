@@ -9,7 +9,6 @@ import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import {
   ChevronRightIcon,
   LockClosedIcon,
-  Cog6ToothIcon,
   AdjustmentsHorizontalIcon,
 } from '@heroicons/react/24/outline';
 
