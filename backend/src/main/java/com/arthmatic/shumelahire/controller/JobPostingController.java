@@ -314,9 +314,11 @@ public class JobPostingController {
     @PostMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> publishJobPosting(@PathVariable String id,
-                                               @RequestParam String publishedBy) {
+                                               @RequestParam String publishedBy,
+                                               @RequestParam(required = false) Boolean channelInternal,
+                                               @RequestParam(required = false) Boolean channelExternal) {
         try {
-            JobPostingResponse response = jobPostingService.publishJobPosting(id, publishedBy);
+            JobPostingResponse response = jobPostingService.publishJobPosting(id, publishedBy, channelInternal, channelExternal);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException | IllegalStateException e) {
             logger.warn("Failed to publish job posting {}: {}", id, e.getMessage());

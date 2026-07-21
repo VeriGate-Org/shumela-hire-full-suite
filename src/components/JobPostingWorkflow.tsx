@@ -43,8 +43,10 @@ interface JobPostingWorkflowProps {
 export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId }: JobPostingWorkflowProps) {
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [showRejectionForm, setShowRejectionForm] = useState(false);
+  const [showPublishForm, setShowPublishForm] = useState(false);
   const [approvalNotes, setApprovalNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [publishAudience, setPublishAudience] = useState<'both' | 'internal' | 'external'>('both');
   const [loading, setLoading] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
@@ -133,6 +135,8 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           break;
         case 'publish':
           payload.append('publishedBy', String(currentUserId));
+          payload.append('channelInternal', String(publishAudience === 'both' || publishAudience === 'internal'));
+          payload.append('channelExternal', String(publishAudience === 'both' || publishAudience === 'external'));
           break;
         case 'unpublish':
           payload.append('unpublishedBy', String(currentUserId));
@@ -172,8 +176,10 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         // Reset forms
         setShowApprovalForm(false);
         setShowRejectionForm(false);
+        setShowPublishForm(false);
         setApprovalNotes('');
         setRejectionReason('');
+        setPublishAudience('both');
       } else {
         let message = `Failed to ${action.replace('-', ' ')}`;
         try {
@@ -410,13 +416,66 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         )}
 
         {jobPosting.canBePublished && (
-          <button
-            onClick={() => setPendingAction('publish')}
-            disabled={loading === 'publish'}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-control shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
-          >
-            {loading === 'publish' ? 'Publishing...' : 'Publish Job Posting'}
-          </button>
+          <div className="space-y-2">
+            {!showPublishForm ? (
+              <button
+                onClick={() => setShowPublishForm(true)}
+                disabled={loading === 'publish'}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-control shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+              >
+                Publish Job Posting
+              </button>
+            ) : (
+              <div className="rounded-md border border-gray-200 p-4">
+                <h5 className="font-medium text-gray-900 mb-2">Publish Job Posting</h5>
+                <p className="text-sm text-gray-600 mb-3">Choose who can see and apply to this vacancy.</p>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm text-gray-800">
+                    <input
+                      type="radio"
+                      name="publish-audience"
+                      checked={publishAudience === 'both'}
+                      onChange={() => setPublishAudience('both')}
+                    />
+                    Internal &amp; External applicants
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-800">
+                    <input
+                      type="radio"
+                      name="publish-audience"
+                      checked={publishAudience === 'internal'}
+                      onChange={() => setPublishAudience('internal')}
+                    />
+                    Internal applicants only
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-800">
+                    <input
+                      type="radio"
+                      name="publish-audience"
+                      checked={publishAudience === 'external'}
+                      onChange={() => setPublishAudience('external')}
+                    />
+                    External applicants only
+                  </label>
+                </div>
+                <div className="flex justify-end space-x-2 mt-3">
+                  <button
+                    onClick={() => { setShowPublishForm(false); setPublishAudience('both'); }}
+                    className="px-3 py-1 text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setPendingAction('publish')}
+                    disabled={loading === 'publish'}
+                    className="rounded-md bg-green-600 px-4 py-1 text-white hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {loading === 'publish' ? 'Publishing...' : 'Confirm Publish'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {jobPosting.canBeUnpublished && (
@@ -444,7 +503,11 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           title={`${(pendingAction || '').charAt(0).toUpperCase() + (pendingAction || '').slice(1)} Job Posting`}
           message={
             pendingAction === 'publish'
-              ? 'This will make the job posting visible to applicants. Proceed?'
+              ? publishAudience === 'internal'
+                ? 'This will make the job posting visible to internal applicants only. Proceed?'
+                : publishAudience === 'external'
+                  ? 'This will make the job posting visible to external applicants only. Proceed?'
+                  : 'This will make the job posting visible to internal and external applicants. Proceed?'
               : pendingAction === 'unpublish'
                 ? 'This will remove the job posting from public view. Proceed?'
                 : 'This will close the job posting and stop accepting applications. Proceed?'

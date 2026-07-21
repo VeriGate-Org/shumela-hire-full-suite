@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * Synchronises JobAd records with their source JobPosting.
  *
  * When a JobPosting is published, a corresponding JobAd is auto-created
- * (or updated if one already exists) with both internal and external
+ * (or updated if one already exists) with the chosen internal/external
  * channels enabled. Updates and lifecycle transitions on the posting
  * are reflected on the ad automatically.
  */
@@ -34,9 +34,16 @@ public class JobAdSyncService {
     }
 
     /**
-     * Create or update a JobAd when a JobPosting is published.
+     * Create or update a JobAd when a JobPosting is published, with both channels enabled.
      */
     public void onJobPostingPublished(JobPosting posting) {
+        onJobPostingPublished(posting, true, true);
+    }
+
+    /**
+     * Create or update a JobAd when a JobPosting is published, with the chosen audience channels.
+     */
+    public void onJobPostingPublished(JobPosting posting, boolean channelInternal, boolean channelExternal) {
         JobAd ad = jobAdRepository.findByJobPostingId(posting.getId()).orElse(null);
 
         if (ad == null) {
@@ -48,8 +55,8 @@ public class JobAdSyncService {
 
         syncFields(ad, posting);
         ad.setStatus(JobAdStatus.PUBLISHED);
-        ad.setChannelInternal(true);
-        ad.setChannelExternal(true);
+        ad.setChannelInternal(channelInternal);
+        ad.setChannelExternal(channelExternal);
 
         // Generate slug if not set
         if (ad.getSlug() == null || ad.getSlug().isBlank()) {
