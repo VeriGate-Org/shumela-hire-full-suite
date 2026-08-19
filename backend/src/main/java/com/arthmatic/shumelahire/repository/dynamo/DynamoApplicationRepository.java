@@ -53,6 +53,20 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         return "APPLICATION";
     }
 
+    /**
+     * toItem() generates a fresh UUID for brand-new applications (when entity.getId() is
+     * null) and sets it only on the item that gets persisted. Without this, save() returned
+     * the original entity untouched, so POST /api/applications responded with id: null even
+     * though the application was correctly persisted under a real id.
+     */
+    @Override
+    protected Application afterSave(ApplicationItem item, Application entity) {
+        if (entity.getId() == null) {
+            entity.setId(item.getId());
+        }
+        return entity;
+    }
+
     // ── Pageable queries ─────────────────────────────────────────────────────
 
     @Override

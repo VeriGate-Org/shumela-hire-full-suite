@@ -82,6 +82,18 @@ public abstract class DynamoRepository<T, E> {
     public E save(E entity) {
         T item = toItem(entity);
         table.putItem(item);
+        return afterSave(item, entity);
+    }
+
+    /**
+     * Hook invoked after a successful put, given the item that was actually persisted and
+     * the original entity passed to save(). Default: returns the entity unchanged.
+     * <p>
+     * Override this when toItem() can fill in defaults that only end up on the item — most
+     * notably a server-generated id for a brand-new entity — so callers of save() see those
+     * values on the returned entity instead of getting them back as null.
+     */
+    protected E afterSave(T item, E entity) {
         return entity;
     }
 
