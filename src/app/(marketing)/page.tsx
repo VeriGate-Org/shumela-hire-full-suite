@@ -9,6 +9,7 @@ import StatsRow from '@/components/marketing/StatsRow';
 import CTASection from '@/components/marketing/CTASection';
 import ConstellationGraphic from '@/components/marketing/ConstellationGraphic';
 import GridPattern from '@/components/marketing/GridPattern';
+import IdcAccessNotice from '@/components/marketing/IdcAccessNotice';
 
 export const metadata: Metadata = {
   title: 'ShumelaHire — Structured Talent Acquisition for Institutions',
@@ -202,6 +203,8 @@ const platformCapabilities = [
 export default function MarketingHomePage() {
   return (
     <>
+      <IdcAccessNotice />
+
       {/* ---------------------------------------------------------- */}
       {/* 1. Hero                                                      */}
       {/* ---------------------------------------------------------- */}

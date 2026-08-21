@@ -34,7 +34,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top nav — fixed full width */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-card border-b border-border shadow-sm">
+      <header className={`fixed top-0 right-0 z-40 h-14 bg-card border-b border-border shadow-sm left-0 ${sidebarCollapsed ? 'lg:left-16' : 'lg:left-[260px]'} transition-all duration-200 ease-in-out`}>
         <div className="flex h-full items-center justify-between px-4">
           {/* Left: hamburger + logo + breadcrumb */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -46,7 +46,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
               <Bars3Icon className="h-4 w-4 text-muted-foreground" />
             </button>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 lg:hidden">
               {branding?.logoUrl && !logoError ? (
                 <img
                   src={branding.logoUrl}
@@ -122,7 +122,8 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
         >
           <div className="fixed inset-0 bg-black/30" />
           <div
-            className="fixed left-0 top-14 bottom-0 w-60 bg-card border-r border-border shadow-lg overflow-y-auto"
+            className="fixed left-0 top-0 bottom-0 w-[260px] shadow-lg overflow-y-auto"
+            style={{ backgroundColor: 'var(--sidebar-bg)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <ModernSidebar />
@@ -133,7 +134,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
       {/* Main content */}
       <div className={`
         pt-14 transition-all duration-200 ease-in-out
-        ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60'}
+        ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-[260px]'}
       `}>
         <main className="min-h-[calc(100vh-3.5rem)]" style={{ padding: 'var(--density-padding)' }}>
           {(title || subtitle || actions) && (

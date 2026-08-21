@@ -6,6 +6,7 @@ import { useAuth, ALL_ROLES, ROLE_DISPLAY_NAMES, UserRole } from '@/contexts/Aut
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured } from '@/lib/amplify-config';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
+import IdcLoginCredentials from '@/components/IdcLoginCredentials';
 import { useEffect, useState, Suspense } from 'react';
 
 function LoginContent() {
@@ -205,6 +206,8 @@ function LoginContent() {
               <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
             </p>
           </div>
+
+          <IdcLoginCredentials />
 
           {registeredSuccess && (
             <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-control">
