@@ -103,6 +103,20 @@ public class DynamoAgencyProfileRepository extends DynamoRepository<AgencyProfil
         return entity;
     }
 
+    /**
+     * toItem() generates a fresh id for a brand-new agency but only sets it on the item that
+     * gets persisted, never back on the entity — so POST /agencies/register returned id: null
+     * even though the item was persisted correctly under a real generated id. Same root cause
+     * as #142/#173 (DynamoApplicationRepository); this is the same fix applied here.
+     */
+    @Override
+    protected AgencyProfile afterSave(AgencyProfileItem item, AgencyProfile entity) {
+        if (entity.getId() == null) {
+            entity.setId(item.getId());
+        }
+        return entity;
+    }
+
     @Override
     protected AgencyProfileItem toItem(AgencyProfile entity) {
         var item = new AgencyProfileItem();
