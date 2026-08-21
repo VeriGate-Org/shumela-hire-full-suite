@@ -271,22 +271,32 @@ public class JobPostingService {
      * Publish job posting
      */
     public JobPostingResponse publishJobPosting(String id, String publishedBy) {
+        return publishJobPosting(id, publishedBy, true, true);
+    }
+
+    public JobPostingResponse publishJobPosting(String id, String publishedBy, Boolean channelInternal, Boolean channelExternal) {
         logger.info("Publishing job posting {} by user {}", id, publishedBy);
-        
+
+        boolean internal = channelInternal == null || channelInternal;
+        boolean external = channelExternal == null || channelExternal;
+        if (!internal && !external) {
+            throw new IllegalArgumentException("At least one of internal or external audience must be enabled");
+        }
+
         JobPosting jobPosting = findJobPostingById(id);
-        
+
         if (!jobPosting.canBePublished()) {
             throw new IllegalStateException("Job posting cannot be published in current status: " + jobPosting.getStatus());
         }
-        
+
         jobPosting.setStatus(JobPostingStatus.PUBLISHED);
         jobPosting.setPublishedBy(publishedBy);
         jobPosting.setPublishedAt(LocalDateTime.now());
-        
+
         JobPosting publishedJobPosting = jobPostingRepository.save(jobPosting);
 
-        // Sync: auto-create or update the corresponding JobAd
-        jobAdSyncService.onJobPostingPublished(publishedJobPosting);
+        // Sync: auto-create or update the corresponding JobAd with the chosen audience
+        jobAdSyncService.onJobPostingPublished(publishedJobPosting, internal, external);
 
         // Log to audit
         auditLogService.logUserAction(publishedBy, "JOB_POSTING_PUBLISHED", "JOB_POSTING",

@@ -164,7 +164,22 @@ public class ShumelaHireServerlessStack : Stack
                 ["JWT_SECRET_ARN"] = foundation.JwtSecret.SecretArn,
                 ["ENCRYPTION_KEY_ARN"] = foundation.EncryptionKeySecret.SecretArn,
                 ["AI_KEYS_SECRET_ARN"] = foundation.AiKeysSecret.SecretArn,
-                ["AWS_REGION_OVERRIDE"] = config.Region
+                ["DOCUSIGN_SECRET_ARN"] = foundation.DocusignSecret.SecretArn,
+                ["MICROSOFT_SECRET_ARN"] = foundation.MicrosoftSecret.SecretArn,
+                ["JOB_BOARDS_SECRET_ARN"] = foundation.JobBoardsSecret.SecretArn,
+                ["SAP_PAYROLL_SECRET_ARN"] = foundation.SapPayrollSecret.SecretArn,
+                ["AWS_REGION_OVERRIDE"] = config.Region,
+                // Feature toggles: each integration stays off until its secret is populated
+                // with real credentials AND the corresponding *Enabled context flag is passed
+                // at deploy time, e.g. `cdk deploy --context aiEnabled=true --context aiProvider=openai`.
+                ["AI_ENABLED"] = ContextFlag(this, "aiEnabled", "false"),
+                ["AI_PROVIDER"] = ContextFlag(this, "aiProvider", "mock"),
+                ["SAP_PAYROLL_ENABLED"] = ContextFlag(this, "sapPayrollEnabled", "false"),
+                ["MICROSOFT_ENABLED"] = ContextFlag(this, "microsoftEnabled", "false"),
+                ["LINKEDIN_ENABLED"] = ContextFlag(this, "linkedinJobBoardEnabled", "false"),
+                ["INDEED_ENABLED"] = ContextFlag(this, "indeedEnabled", "false"),
+                ["PNET_ENABLED"] = ContextFlag(this, "pnetEnabled", "false"),
+                ["CAREER_JUNCTION_ENABLED"] = ContextFlag(this, "careerJunctionEnabled", "false")
             },
             CurrentVersionOptions = new VersionOptions
             {
@@ -330,4 +345,11 @@ public class ShumelaHireServerlessStack : Stack
             ExportName = $"{prefix}-HttpApiId"
         });
     }
+
+    /// <summary>
+    /// Reads a deploy-time feature flag from CDK context (e.g. `--context aiEnabled=true`),
+    /// falling back to a safe default when not supplied.
+    /// </summary>
+    private static string ContextFlag(Construct scope, string key, string fallback) =>
+        (string?)scope.Node.TryGetContext(key) ?? fallback;
 }

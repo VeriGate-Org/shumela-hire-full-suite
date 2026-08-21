@@ -196,6 +196,7 @@ export default function OfferManagement() {
   const [payrollOffer, setPayrollOffer] = useState<Offer | null>(null);
   const [payrollSending, setPayrollSending] = useState(false);
   const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
+  const [payrollError, setPayrollError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('draft');
 
   const computeClientSideCounts = useCallback((offersList: Offer[]): DashboardCounts => {
@@ -428,6 +429,57 @@ export default function OfferManagement() {
       toast('Failed to send for e-signature. Please try again.', 'error');
     } finally {
       setESignLoading(false);
+    }
+  };
+
+  const handleSendToPayroll = async () => {
+    if (!payrollOffer || !user?.id) return;
+    setPayrollSending(true);
+    setPayrollError(null);
+    try {
+      const validateResponse = await apiFetch(`/api/sap-payroll/offers/${payrollOffer.id}/validate`);
+      const validation = await validateResponse.json().catch(() => null);
+
+      if (!validateResponse.ok) {
+        setPayrollError(validation?.error || validation?.message || 'SAP Payroll integration is not available.');
+        return;
+      }
+      if (validation && validation.valid === false) {
+        const errors = validation.errors ? Object.values(validation.errors).join(', ') : 'Employee data failed validation.';
+        setPayrollError(errors);
+        return;
+      }
+
+      const transmitResponse = await apiFetch(
+        `/api/sap-payroll/offers/${payrollOffer.id}/transmit?userId=${encodeURIComponent(user.id)}`,
+        { method: 'POST' }
+      );
+      const transmission = await transmitResponse.json().catch(() => null);
+
+      if (!transmitResponse.ok) {
+        setPayrollError(transmission?.error || transmission?.message || 'Failed to transmit employee details to SAP.');
+        return;
+      }
+
+      if (transmission?.status === 'FAILED') {
+        setPayrollError('SAP rejected the transmission. Check the transmission log for details.');
+        return;
+      }
+
+      setPayrollSent(prev => ({ ...prev, [payrollOffer.id]: true }));
+      toast(
+        transmission?.status === 'CONFIRMED'
+          ? 'Employee details sent to SAP Payroll successfully'
+          : 'Employee details submitted to SAP Payroll and are pending confirmation',
+        'success'
+      );
+      setShowPayrollModal(false);
+      setPayrollOffer(null);
+    } catch (error) {
+      console.error('Error sending to payroll:', error);
+      setPayrollError('An unexpected error occurred while contacting the payroll system.');
+    } finally {
+      setPayrollSending(false);
     }
   };
 
@@ -1011,7 +1063,7 @@ export default function OfferManagement() {
                 <p className="text-sm text-muted-foreground mt-1">Register this new employee in the payroll system</p>
               </div>
               <button
-                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); setPayrollError(null); }}
                 className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
               >
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
@@ -1069,11 +1121,17 @@ export default function OfferManagement() {
               <p className="text-xs text-muted-foreground">
                 This action will transmit the candidate&apos;s details to the connected payroll system. Ensure all details are correct before proceeding.
               </p>
+
+              {payrollError && (
+                <div className="rounded-control border border-error bg-error-bg p-3">
+                  <p className="text-sm text-error">{payrollError}</p>
+                </div>
+              )}
             </div>
 
             <div className="px-6 py-4 border-t border-border flex justify-between items-center">
               <button
-                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); setPayrollError(null); }}
                 disabled={payrollSending}
                 className="btn-secondary px-5 py-2 text-sm"
               >
@@ -1081,23 +1139,14 @@ export default function OfferManagement() {
               </button>
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); }}
+                  onClick={() => { setShowPayrollModal(false); setPayrollOffer(null); setPayrollError(null); }}
                   disabled={payrollSending}
                   className="btn-secondary px-4 py-2 text-xs"
                 >
                   Skip for Now
                 </button>
                 <button
-                  onClick={() => {
-                    setPayrollSending(true);
-                    setTimeout(() => {
-                      setPayrollSent(prev => ({ ...prev, [payrollOffer.id]: true }));
-                      toast('Employee details sent to Sage 300 People successfully', 'success');
-                      setShowPayrollModal(false);
-                      setPayrollOffer(null);
-                      setPayrollSending(false);
-                    }, 1500);
-                  }}
+                  onClick={handleSendToPayroll}
                   disabled={payrollSending}
                   className="btn-primary px-5 py-2 text-sm disabled:opacity-50"
                 >

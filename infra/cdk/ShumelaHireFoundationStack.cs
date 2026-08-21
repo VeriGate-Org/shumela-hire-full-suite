@@ -21,6 +21,10 @@ public class ShumelaHireFoundationStack : Stack
     public Secret JwtSecret { get; }
     public Secret EncryptionKeySecret { get; }
     public Secret AiKeysSecret { get; }
+    public Secret DocusignSecret { get; }
+    public Secret MicrosoftSecret { get; }
+    public Secret JobBoardsSecret { get; }
+    public Secret SapPayrollSecret { get; }
 
     public ShumelaHireFoundationStack(Construct scope, string id, EnvironmentConfig config,
         IStackProps? props = null) : base(scope, id, props)
@@ -116,7 +120,7 @@ public class ShumelaHireFoundationStack : Stack
             Description = "AI service API keys (Claude, OpenAI)"
         });
 
-        new Secret(this, "DocusignSecret", new SecretProps
+        DocusignSecret = new Secret(this, "DocusignSecret", new SecretProps
         {
             SecretName = $"shumelahire/{config.EnvironmentName}/docusign",
             Description = "DocuSign API credentials"
@@ -134,16 +138,22 @@ public class ShumelaHireFoundationStack : Stack
             Description = "JWT signing secret"
         });
 
-        new Secret(this, "MicrosoftSecret", new SecretProps
+        MicrosoftSecret = new Secret(this, "MicrosoftSecret", new SecretProps
         {
             SecretName = $"shumelahire/{config.EnvironmentName}/microsoft",
             Description = "Microsoft Graph credentials (Teams, Outlook)"
         });
 
-        new Secret(this, "JobBoardsSecret", new SecretProps
+        JobBoardsSecret = new Secret(this, "JobBoardsSecret", new SecretProps
         {
             SecretName = $"shumelahire/{config.EnvironmentName}/job-boards",
             Description = "Job board API credentials (LinkedIn, Indeed, PNet, CareerJunction)"
+        });
+
+        SapPayrollSecret = new Secret(this, "SapPayrollSecret", new SecretProps
+        {
+            SecretName = $"shumelahire/{config.EnvironmentName}/sap-payroll",
+            Description = "SAP SuccessFactors/HCM payroll integration credentials"
         });
 
         // ── Cognito User Pool ────────────────────────────────────────────────
