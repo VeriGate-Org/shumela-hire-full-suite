@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function PublicApplyPage() {
@@ -13,6 +13,7 @@ export default function PublicApplyPage() {
   // actual browser URL instead (same fix as requisitions/[id], #187).
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
   const requisitionId = useMemo(() => {
     const parts = pathname.split('/').filter(Boolean);
@@ -20,17 +21,35 @@ export default function PublicApplyPage() {
     return parts.length >= 2 ? parts[1] : '';
   }, [pathname]);
 
+  // The advert carries jobId and title in the query string, and the form on the
+  // far side needs both — jobId becomes the jobAdId on the submitted
+  // application. This hop used to rebuild the URL from scratch and drop them,
+  // so a candidate who came from a live advert arrived at a form that no longer
+  // knew which job it was for.
+  const forwardedQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    const jobId = searchParams.get('jobId');
+    const title = searchParams.get('title');
+    if (jobId) params.set('jobId', jobId);
+    if (title) params.set('title', title);
+    return params.toString();
+  }, [searchParams]);
+
   useEffect(() => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      router.replace(`/register?returnTo=${encodeURIComponent(`/apply/${requisitionId}`)}`);
+      const returnTo = forwardedQuery
+        ? `/apply/${requisitionId}?${forwardedQuery}`
+        : `/apply/${requisitionId}`;
+      router.replace(`/register?returnTo=${encodeURIComponent(returnTo)}`);
       return;
     }
 
     // Authenticated — redirect to the internal application flow
-    router.replace(`/internal/apply/${requisitionId}?source=external`);
-  }, [isAuthenticated, isLoading, requisitionId, router]);
+    const query = forwardedQuery ? `${forwardedQuery}&source=external` : 'source=external';
+    router.replace(`/internal/apply/${requisitionId}?${query}`);
+  }, [isAuthenticated, isLoading, requisitionId, forwardedQuery, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
