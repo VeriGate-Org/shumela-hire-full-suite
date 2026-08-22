@@ -121,6 +121,36 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /jobs/<slug> to the static shell ───
+        // Next.js static export only pre-renders one placeholder job detail
+        // page (slug "_"); real slugs don't exist as S3 objects, so without
+        // this every /jobs/<slug> URL 404s/403s straight from S3. The
+        // response-side SpaFallbackFunction can't fix this up: CloudFront
+        // skips viewer-response functions entirely whenever the origin
+        // returns a 400+ status. So instead this runs on viewer-request,
+        // before S3 is ever hit, and unconditionally serves the shell — the
+        // page then reads the real slug from the browser URL and fetches the
+        // job client-side (see IDCJobDetailClient).
+        var jobsDetailRewriteFn = new Function(this, "JobsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-jobs-detail-rewrite",
+            Comment = "Rewrites /jobs/<slug> to the static job-detail shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    // Only rewrite page requests (no extension, or already .html). Leaves
+    // any other asset-like request under /jobs/* (e.g. RSC prefetch
+    // payloads) untouched instead of corrupting it with HTML content.
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/jobs/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -181,6 +211,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = tenantHeaderFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Job detail pages → always serve the static shell; the real
+                // slug is resolved and fetched client-side (see comment above
+                // on JobsDetailRewriteFunction). Does not affect bare /jobs
+                // (the list page), which stays on the default behavior.
+                ["/jobs/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = jobsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }
