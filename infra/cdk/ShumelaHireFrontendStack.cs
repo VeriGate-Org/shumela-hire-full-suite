@@ -151,6 +151,46 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /requisitions/<id> to the static shell
+        // Same issue and same fix as JobsDetailRewriteFunction above, on a
+        // different route: /requisitions/[id] only pre-renders one placeholder
+        // ("_"), so any real requisition id 403s straight from S3 on a direct
+        // load or refresh (in-app client-side navigation never hits this,
+        // since it never issues a real HTTP request for the new path).
+        // Unlike /jobs/*, this behavior's path pattern also covers
+        // /requisitions/new — a real static page, not a dynamic id — so that
+        // one case is special-cased to the normal extensionless->.html
+        // rewrite instead (this behavior doesn't run the default behavior's
+        // UrlRewriteFunction, so it has to handle that itself).
+        var requisitionsDetailRewriteFn = new Function(this, "RequisitionsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-requisitions-detail-rewrite",
+            Comment = "Rewrites /requisitions/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // /requisitions/new is a real static page, not a dynamic [id].
+    if (uri === '/requisitions/new' || uri.indexOf('/requisitions/new/') === 0) {
+        if (uri.indexOf('.') === -1) {
+            if (uri.endsWith('/')) uri = uri.slice(0, -1);
+            request.uri = uri + '.html';
+        }
+        return request;
+    }
+
+    // Everything else under /requisitions/* is the [id] detail page — only
+    // one placeholder (""_"") was ever pre-rendered, so always serve it.
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/requisitions/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -231,6 +271,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = jobsDetailRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Requisition detail pages → same technique, see comment above
+                // on RequisitionsDetailRewriteFunction. Does not affect bare
+                // /requisitions or /requisitions/new, which stay on the
+                // default behavior.
+                ["/requisitions/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = requisitionsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }
