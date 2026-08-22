@@ -10,7 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
  *   SK:  DEPARTMENT#{id}
  *
  * GSI1 (status + name sort):
- *   GSI1PK: DEPT_ACTIVE#{isActive}
+ *   GSI1PK: DEPT_ACTIVE#{tenantId}#{isActive}
  *   GSI1SK: DEPARTMENT#{name}
  *
  * GSI4 (unique constraint — name per tenant):
