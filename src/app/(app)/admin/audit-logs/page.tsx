@@ -59,7 +59,12 @@ export default function AuditLogsPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [filters, setFilters] = useState<AuditLogFilter>({
-    dateRange: 'week',
+    // 'week' hid almost everything on open: audit review is retrospective, and a
+    // tenant whose last seven days were quiet showed a single row above a
+    // "230 total events" counter, which reads as a broken page rather than an
+    // applied filter. A quarter matches how audit is actually reviewed and the
+    // analytics trend window.
+    dateRange: 'quarter',
     entityType: 'all',
     action: 'all',
     userId: 'all',
@@ -136,14 +141,20 @@ export default function AuditLogsPage() {
       filtered = filtered.filter(log => log.userRole === filters.userRole);
     }
 
-    // Search filter
+    // Search filter. Every field here is nullable on entries written by older
+    // code paths, and an unguarded .toLowerCase() on one of them throws inside
+    // the filter callback — which takes the whole console down the moment
+    // somebody types in the search box, not on load.
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
+      const matches = (value: unknown) =>
+        typeof value === 'string' && value.toLowerCase().includes(search);
       filtered = filtered.filter(log =>
-        log.action.toLowerCase().includes(search) ||
-        log.entityType.toLowerCase().includes(search) ||
-        log.userRole.toLowerCase().includes(search) ||
-        JSON.stringify(log.details).toLowerCase().includes(search)
+        matches(log.action) ||
+        matches(log.entityType) ||
+        matches(log.userRole) ||
+        matches(log.userName) ||
+        JSON.stringify(log.details ?? '').toLowerCase().includes(search)
       );
     }
 
@@ -301,6 +312,16 @@ export default function AuditLogsPage() {
     URL.revokeObjectURL(url);
     toast(`Exported ${filteredLogs.length} audit log entries`, 'success');
   };
+
+  // Any narrowing beyond the defaults means the visible set is a subset of the
+  // loaded page, which is what the pagination caveat below the toolbar warns about.
+  const isFilterActive =
+    filters.dateRange !== 'quarter' ||
+    filters.entityType !== 'all' ||
+    filters.action !== 'all' ||
+    filters.userId !== 'all' ||
+    filters.userRole !== 'all' ||
+    filters.severity !== 'all';
 
   const uniqueEntityTypes = [...new Set(auditLogs.map(log => log.entityType))];
   const uniqueActions = [...new Set(auditLogs.map(log => log.action))];
@@ -487,11 +508,21 @@ export default function AuditLogsPage() {
                 <path d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {/* Results count */}
+            {/* Results count. Filtering and search run over the loaded page only,
+                so "N of TOTAL" overstates the reach of a filter whenever there is
+                more than one page — say which set was actually searched rather
+                than letting an empty result read as "no such entry exists". */}
             <span className="ml-auto text-[0.8125rem] text-muted-foreground whitespace-nowrap">
-              Showing {filteredLogs.length.toLocaleString()} of {totalElements.toLocaleString()} events
+              Showing {filteredLogs.length.toLocaleString()} of{' '}
+              {totalPages > 1 ? `${auditLogs.length.toLocaleString()} on this page` : totalElements.toLocaleString()} events
             </span>
           </div>
+          {totalPages > 1 && (isFilterActive || searchTerm) && (
+            <p className="mt-2 text-[0.75rem] text-muted-foreground">
+              Filters apply to the {auditLogs.length.toLocaleString()} entries loaded on page {currentPage + 1} of {totalPages}
+              {' '}({totalElements.toLocaleString()} in total). Widen the date range or change page to search further back.
+            </p>
+          )}
 
           {/* Advanced Filters panel */}
           {showFilters && (

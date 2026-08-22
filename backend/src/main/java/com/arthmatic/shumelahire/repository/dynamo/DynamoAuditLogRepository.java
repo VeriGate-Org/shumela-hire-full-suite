@@ -8,6 +8,7 @@ import com.arthmatic.shumelahire.repository.dynamo.items.AuditLogItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -49,13 +50,48 @@ public class DynamoAuditLogRepository extends DynamoRepository<AuditLogItem, Aud
         return "AUDIT_LOG";
     }
 
+    /**
+     * A page of audit entries, newest first.
+     *
+     * <p>This used to slice {@code findAll()} without applying any ordering, so page 0 was
+     * whatever fifty entries the table scan happened to return — key order, not time order. The
+     * admin console filters the page it is given on the client, which made "most recent activity"
+     * show an arbitrary sample and hid the newest entries entirely once a tenant held more than
+     * one page. The sibling {@code findByEntityTypeOrderByTimestampDesc} always sorted; this did
+     * not.</p>
+     *
+     * <p>{@code findAll()} already materialises every entry, so ordering here costs nothing
+     * beyond the sort itself.</p>
+     */
     @Override
     public Page<AuditLog> findAll(Pageable pageable) {
-        List<AuditLog> all = findAll();
+        List<AuditLog> all = findAll().stream()
+                .sorted(timestampOrder(pageable))
+                .collect(Collectors.toList());
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), all.size());
         List<AuditLog> pageContent = start < all.size() ? all.subList(start, end) : List.of();
         return new PageImpl<>(pageContent, pageable, all.size());
+    }
+
+    /**
+     * Newest first unless the caller explicitly asks for ascending timestamps.
+     *
+     * <p>Null timestamps sort last in either direction rather than throwing — an entry that
+     * somehow lost its timestamp should not take down the audit console.</p>
+     */
+    private Comparator<AuditLog> timestampOrder(Pageable pageable) {
+        boolean ascending = pageable.getSort().stream()
+                .filter(order -> "timestamp".equals(order.getProperty()))
+                .findFirst()
+                .map(Sort.Order::isAscending)
+                .orElse(false);
+
+        // nullsLast wraps the directed comparator rather than the other way round: reversing a
+        // nullsLast comparator would move nulls to the front for descending queries.
+        Comparator<LocalDateTime> direction =
+                ascending ? Comparator.naturalOrder() : Comparator.reverseOrder();
+        return Comparator.comparing(AuditLog::getTimestamp, Comparator.nullsLast(direction));
     }
 
     @Override

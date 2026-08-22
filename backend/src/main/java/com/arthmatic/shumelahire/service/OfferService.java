@@ -79,7 +79,7 @@ public class OfferService {
         "OFFER_CREATED",
         "Offer",
         String.format(
-            "Offer %s created for application %d", savedOffer.getOfferNumber(), applicationId));
+            "Offer %s created for application %s", savedOffer.getOfferNumber(), applicationId));
 
     return savedOffer;
   }
@@ -190,7 +190,7 @@ public class OfferService {
         approvedBy,
         "OFFER_APPROVED",
         "Offer",
-        String.format("Offer %s approved by user %d", offer.getOfferNumber(), approvedBy));
+        String.format("Offer %s approved by user %s", offer.getOfferNumber(), approvedBy));
 
     notificationService.notifyApprovalGranted(
         offer.getCreatedBy(), "Offer", offer.getOfferNumber());
@@ -634,10 +634,22 @@ public class OfferService {
   }
 
   // Helper methods
+
+  /**
+   * Loads an offer for a state change, with its application and applicant resolved.
+   *
+   * <p>{@code findById} returns the association as a bare id-only stub. Every lifecycle method
+   * below ends by notifying someone about the candidate, so without hydration those notifications
+   * dereference a null applicant — after the new state has already been written. Hydrating here
+   * rather than in each caller keeps the guarantee in one place.</p>
+   */
   private Offer getOfferOrThrow(String id) {
-    return offerRepository
-        .findById(id)
-        .orElseThrow(() -> new RuntimeException("Offer not found with id: " + id));
+    Offer offer =
+        offerRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Offer not found with id: " + id));
+    hydrateOffer(offer);
+    return offer;
   }
 
   private boolean canCreateOfferForApplication(Application application) {
