@@ -44,6 +44,11 @@ export default function InternalApplicationPage() {
   }, [pathname]);
   const jobId = searchParams.get('jobId');
   const jobTitle = searchParams.get('title') || 'Position';
+  // /apply/<id> (the public candidate entry point) redirects here with
+  // ?source=external after login/registration. This page is also reached
+  // directly for genuine internal mobility (/internal/jobs -> here, no
+  // source param) — default to internal so that path is unaffected.
+  const isExternal = searchParams.get('source') === 'external';
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -82,7 +87,7 @@ export default function InternalApplicationPage() {
         method: 'POST',
         body: JSON.stringify({
           jobAdId: jobId ? Number(jobId) : undefined,
-          applicationSource: 'INTERNAL',
+          applicationSource: isExternal ? 'EXTERNAL' : 'INTERNAL',
           coverLetter: combinedCoverLetter || undefined,
           availabilityDate: formData.availabilityDate || undefined,
         }),
@@ -109,40 +114,50 @@ export default function InternalApplicationPage() {
     return null; // Will redirect to login
   }
 
+  const jobsHref = isExternal ? '/candidate/jobs' : '/internal/jobs';
+
   const backAction = (
-    <Link href="/internal/jobs">
+    <Link href={jobsHref}>
       <button className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-full px-4 py-2 transition-colors">
         <ArrowLeftIcon className="w-4 h-4 mr-2" />
-        Back to Job Board
+        {isExternal ? 'Back to Jobs' : 'Back to Job Board'}
       </button>
     </Link>
   );
 
   if (submitted) {
     return (
-      <PageWrapper title="Application Submitted" subtitle={`Internal application for ${decodeURIComponent(jobTitle)}`} actions={backAction}>
+      <PageWrapper
+        title="Application Submitted"
+        subtitle={isExternal ? `Application for ${decodeURIComponent(jobTitle)}` : `Internal application for ${decodeURIComponent(jobTitle)}`}
+        actions={backAction}
+      >
         <div className="max-w-lg mx-auto">
           <div className="bg-white rounded-control shadow border border-gray-200 p-8 text-center">
             <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted</h2>
             <p className="text-gray-600 mb-6">
-              Your internal application for <strong>{decodeURIComponent(jobTitle)}</strong> has been submitted successfully.
+              Your {isExternal ? '' : 'internal '}application for <strong>{decodeURIComponent(jobTitle)}</strong> has been submitted successfully.
             </p>
             <div className="bg-gold-50 border border-gold-200 rounded-control p-4 mb-6 text-left">
               <p className="text-sm font-semibold text-gray-900 mb-2">What happens next?</p>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>Your application will be prioritised as an internal candidate</li>
+                {isExternal ? (
+                  <li>Your application will be reviewed by our recruitment team</li>
+                ) : (
+                  <li>Your application will be prioritised as an internal candidate</li>
+                )}
                 <li>HR will review your application within 3-5 business days</li>
-                <li>You will receive updates via email and the internal portal</li>
+                <li>You will receive updates via email{isExternal ? '' : ' and the internal portal'}</li>
               </ul>
             </div>
             <div className="space-y-3">
-              <Link href="/internal/jobs">
+              <Link href={jobsHref}>
                 <button className="w-full border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 px-4 py-2.5 rounded-full text-sm font-medium uppercase tracking-wider transition-colors">
-                  Browse More Internal Jobs
+                  {isExternal ? 'Browse More Jobs' : 'Browse More Internal Jobs'}
                 </button>
               </Link>
-              <Link href="/applicant/applications">
+              <Link href="/candidate/applications">
                 <button className="w-full border border-gray-300 text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors">
                   View My Applications
                 </button>
@@ -156,35 +171,37 @@ export default function InternalApplicationPage() {
 
   return (
     <PageWrapper
-      title="Internal Job Application"
+      title={isExternal ? 'Job Application' : 'Internal Job Application'}
       subtitle={`Applying for: ${decodeURIComponent(jobTitle)} · Requisition ${requisitionId}`}
       actions={backAction}
     >
       <div className="space-y-6">
-        {/* Internal Application Benefits */}
-        <div className="bg-gold-50 border border-gold-200 rounded-control p-6">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Advantages</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gold-500 rounded-full flex items-center justify-center mr-3">
-                <UserIcon className="w-4 h-4 text-violet-950" />
+        {/* Internal Application Benefits — only relevant for genuine internal mobility */}
+        {!isExternal && (
+          <div className="bg-gold-50 border border-gold-200 rounded-control p-6">
+            <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Advantages</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-gold-500 rounded-full flex items-center justify-center mr-3">
+                  <UserIcon className="w-4 h-4 text-violet-950" />
+                </div>
+                <span className="text-sm text-gray-800">Priority Review</span>
               </div>
-              <span className="text-sm text-gray-800">Priority Review</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
-                <BuildingOfficeIcon className="w-4 h-4 text-white" />
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                  <BuildingOfficeIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm text-gray-800">Known Performance</span>
               </div>
-              <span className="text-sm text-gray-800">Known Performance</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
-                <DocumentTextIcon className="w-4 h-4 text-white" />
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
+                  <DocumentTextIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm text-gray-800">Faster Process</span>
               </div>
-              <span className="text-sm text-gray-800">Faster Process</span>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Error Display */}
         {error && (
@@ -248,7 +265,9 @@ export default function InternalApplicationPage() {
                   value={formData.reasonForApplication}
                   onChange={(e) => handleInputChange('reasonForApplication', e.target.value)}
                   className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder="Why are you interested in this position? What motivates you to make this internal move?"
+                  placeholder={isExternal
+                    ? 'Why are you interested in this position? What motivates you to apply?'
+                    : 'Why are you interested in this position? What motivates you to make this internal move?'}
                 />
               </div>
 
