@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import WorkflowStatusBadge from '@/components/WorkflowStatusBadge';
@@ -36,9 +36,19 @@ function formatDate(dateString: string): string {
 }
 
 export default function RequisitionDetailPage() {
-  const params = useParams();
+  // Static export: every /requisitions/<id> URL is served the same
+  // pre-rendered shell (built with the placeholder id "_" — see the
+  // CloudFront "/requisitions/*" rewrite behavior in
+  // ShumelaHireFrontendStack.cs). useParams() would read that build-time
+  // placeholder instead of the real id on a hard page load / refresh, so
+  // the real id is read from the actual browser URL instead.
+  const pathname = usePathname();
   const router = useRouter();
-  const requisitionId = params.id as string;
+  const requisitionId = useMemo(() => {
+    const parts = pathname.split('/').filter(Boolean);
+    // ['requisitions', '<id>']
+    return parts.length >= 2 ? parts[1] : '';
+  }, [pathname]);
   const { user } = useAuth();
   const { toast } = useToast();
 
