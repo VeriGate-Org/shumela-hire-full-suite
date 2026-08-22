@@ -60,6 +60,22 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         return "REQUISITION";
     }
 
+    /**
+     * toItem() generates a fresh id for a brand-new requisition but only sets it on the item
+     * that gets persisted, never back on the entity — so POST /api/requisitions returned
+     * id: null even though the item was persisted correctly under a real generated id. The
+     * frontend then submits for approval against /api/requisitions/null/submit. Same root
+     * cause as #142/#173/#175 (DynamoApplicationRepository / DynamoAgencyProfileRepository);
+     * this is the same fix applied here.
+     */
+    @Override
+    protected Requisition afterSave(RequisitionItem item, Requisition entity) {
+        if (entity.getId() == null) {
+            entity.setId(item.getId());
+        }
+        return entity;
+    }
+
     // ── RequisitionDataRepository implementation ─────────────────────────────
 
     @Override
