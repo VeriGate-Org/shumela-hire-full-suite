@@ -7,6 +7,9 @@ import LoginPage from '../page';
 // Track router.push calls
 const mockPush = jest.fn();
 
+// Mutable so individual tests can drive the query string (returnTo).
+let mockSearchParams = new URLSearchParams();
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -15,7 +18,7 @@ jest.mock('next/navigation', () => ({
     prefetch: jest.fn(),
     back: jest.fn(),
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams,
 }));
 
 // Mock aws-amplify/auth
@@ -55,6 +58,7 @@ describe('LoginPage', () => {
   beforeEach(() => {
     mockPush.mockClear();
     sessionStorage.clear();
+    mockSearchParams = new URLSearchParams();
   });
 
   it('renders the login page heading in dev mode', async () => {
@@ -146,5 +150,53 @@ describe('LoginPage', () => {
     await user.click(signInButton);
 
     expect(mockPush).toHaveBeenCalledWith('/dashboard');
+  });
+
+  describe('returnTo', () => {
+    /**
+     * A candidate who clicks Apply on a live advert is sent to register, then
+     * to login, with returnTo carrying the advert and its jobId. Nothing here
+     * read it — every path pushed /dashboard — so the candidate signed in and
+     * was dropped on a dashboard with no way back to the job. Walking the
+     * journey on the deployed build is what surfaced it.
+     */
+    it('returns the user to where they came from', async () => {
+      const target = '/apply/370f3674-1d07-46cb-a069-f4e5ba290ac6?jobId=370f3674-1d07-46cb-a069-f4e5ba290ac6';
+      mockSearchParams = new URLSearchParams({ returnTo: target });
+      const user = userEvent.setup();
+      renderLoginPage();
+
+      await screen.findByText('Development Mode');
+      await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
+
+      expect(mockPush).toHaveBeenCalledWith(target);
+    });
+
+    it('falls back to the dashboard when returnTo is absent', async () => {
+      const user = userEvent.setup();
+      renderLoginPage();
+
+      await screen.findByText('Development Mode');
+      await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
+
+      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+    });
+
+    // This page is reachable while logged out, so returnTo is attacker-supplied.
+    it.each([
+      ['an absolute URL', 'https://evil.example.com/harvest'],
+      ['a protocol-relative URL', '//evil.example.com/harvest'],
+      ['a scheme-relative path', 'evil.example.com'],
+    ])('refuses to redirect off-site: %s', async (_label, hostile) => {
+      mockSearchParams = new URLSearchParams({ returnTo: hostile });
+      const user = userEvent.setup();
+      renderLoginPage();
+
+      await screen.findByText('Development Mode');
+      await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
+
+      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+      expect(mockPush).not.toHaveBeenCalledWith(hostile);
+    });
   });
 });
