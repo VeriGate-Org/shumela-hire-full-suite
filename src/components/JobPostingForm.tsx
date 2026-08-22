@@ -192,8 +192,18 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
       const response = await apiFetch(`/api/job-postings/${jobPostingId}`);
       if (response.ok) {
         const data = await response.json();
+        // Backend can return null for optional fields (e.g. SEO metadata on
+        // postings created before those fields existed). Fall back to the
+        // form defaults so controlled inputs and .length reads never see
+        // null instead of an empty string.
+        const sanitized = { ...data };
+        (Object.keys(DEFAULT_JOB_POSTING_DATA) as (keyof JobPostingData)[]).forEach((key) => {
+          if (sanitized[key] === null) {
+            sanitized[key] = DEFAULT_JOB_POSTING_DATA[key];
+          }
+        });
         setFormData({
-          ...data,
+          ...sanitized,
           applicationDeadline: data.applicationDeadline
             ? new Date(data.applicationDeadline).toISOString().slice(0, 16) : '',
           salaryMin: data.salaryMin || undefined,
