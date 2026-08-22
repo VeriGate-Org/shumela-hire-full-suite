@@ -1,195 +1,121 @@
 import { ApprovalStep } from '../components/ApprovalTimeline';
-import { ApprovalHistoryEntry, RequisitionStatus, WorkflowAction, ApprovalRole } from '../types/workflow';
-import { requisitionService } from './requisitionService';
-import { auditLogService } from './auditLogService';
+import { apiFetch } from '@/lib/api-fetch';
 
 /**
- * Service to convert requisition approval history into ApprovalTimeline data
+ * A single recorded approval action, as returned by the backend on a requisition.
+ * Mirrors `com.arthmatic.shumelahire.entity.RequisitionApproval`.
+ */
+interface RequisitionApprovalRecord {
+  role?: string;
+  action?: 'SUBMIT' | 'APPROVE' | 'REJECT' | string;
+  actorUserId?: string;
+  actorName?: string;
+  timestamp?: string;
+  comment?: string;
+}
+
+interface RequisitionRecord {
+  id?: string;
+  status?: string;
+  approvalHistory?: RequisitionApprovalRecord[];
+}
+
+/** Human label for an approval stage. Without this the raw enum token reaches the screen. */
+export function formatApprovalRole(role?: string): string {
+  if (!role) return 'Approver';
+  const labels: Record<string, string> = {
+    HR_MANAGER: 'HR Manager',
+    HR: 'HR Manager',
+    EXECUTIVE: 'Executive',
+    HIRING_MANAGER: 'Hiring Manager',
+    ADMIN: 'Administrator',
+    UNKNOWN: 'Approver',
+  };
+  if (labels[role]) return labels[role];
+  return role
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/** The stage a requisition is currently awaiting, derived from its status. */
+function pendingRoleForStatus(status?: string): string | null {
+  switch (status) {
+    case 'PENDING_HR_APPROVAL':
+      return 'HR_MANAGER';
+    case 'PENDING_EXECUTIVE_APPROVAL':
+      return 'EXECUTIVE';
+    default:
+      return null;
+  }
+}
+
+/**
+ * Builds the approval timeline from the requisition's recorded approval history.
+ *
+ * Previously this derived a timeline from a `approvalHistory` field the backend never supplied,
+ * against a hardcoded three-role ladder that did not match the backend's two-stage chain. The
+ * result was that every step rendered as pending — even on an approved requisition — with one
+ * step labelled with a raw enum token. The timeline is now built only from what actually happened,
+ * plus the one stage the requisition is genuinely still awaiting.
  */
 export class ApprovalTimelineService {
-  
-  /**
-   * Convert approval history entries into ApprovalTimeline steps
-   */
   async getApprovalTimelineForRequisition(requisitionId: string): Promise<ApprovalStep[]> {
-    const requisition = await requisitionService.getRequisition(requisitionId);
-    if (!requisition) {
+    const response = await apiFetch(`/api/requisitions/${requisitionId}`);
+    if (!response.ok) {
       return [];
     }
 
-    const steps: ApprovalStep[] = [];
-    const approvalHistory = requisition.approvalHistory || [];
+    const requisition: RequisitionRecord = await response.json();
+    return this.buildTimeline(requisition);
+  }
 
-    // Create a map of completed steps
-    const completedSteps = new Map<string, ApprovalHistoryEntry>();
-    for (const entry of approvalHistory) {
-      if (entry.action === WorkflowAction.APPROVE) {
-        completedSteps.set(entry.approverRole, entry);
-      } else if (entry.action === WorkflowAction.REJECT) {
-        completedSteps.set(entry.approverRole, entry);
+  /** Exposed separately so the mapping can be tested without a network call. */
+  buildTimeline(requisition: RequisitionRecord | null): ApprovalStep[] {
+    if (!requisition) return [];
+
+    const history = requisition.approvalHistory ?? [];
+    const steps: ApprovalStep[] = [];
+
+    for (const entry of history) {
+      if (entry.action === 'SUBMIT') {
+        // The submission records the routing decision; surface it as the chain's first event.
+        steps.push({
+          role: 'Submitted',
+          approverName: entry.actorName || 'Requisition raised',
+          status: 'approved',
+          timestamp: entry.timestamp,
+          comment: entry.comment,
+        });
+        continue;
+      }
+
+      if (entry.action === 'APPROVE' || entry.action === 'REJECT') {
+        steps.push({
+          role: formatApprovalRole(entry.role),
+          approverName: entry.actorName || 'Unnamed approver',
+          status: entry.action === 'APPROVE' ? 'approved' : 'rejected',
+          timestamp: entry.timestamp,
+          comment: entry.comment,
+        });
       }
     }
 
-    // Generate timeline based on workflow definition
-    const workflowSteps = this.getWorkflowSteps();
-
-    for (const workflowStep of workflowSteps) {
-      const historyEntry = completedSteps.get(workflowStep.role);
-      
-      if (historyEntry) {
-        // Step has been completed
-        const status = historyEntry.action === WorkflowAction.APPROVE ? 'approved' : 'rejected';
-        steps.push({
-          role: workflowStep.role,
-          approverName: historyEntry.approverName,
-          status: status as 'approved' | 'rejected',
-          timestamp: historyEntry.timestamp.toISOString(),
-          comment: historyEntry.comment
-        });
-      } else if (workflowStep.role === this.getCurrentPendingRole(requisition.status)) {
-        // This is the current pending step
-        steps.push({
-          role: workflowStep.role,
-          approverName: workflowStep.defaultApprover,
-          status: 'pending',
-          timestamp: undefined,
-          comment: undefined
-        });
-      } else if (this.isStepInFuture(workflowStep.role, requisition.status)) {
-        // Future step - show as pending with reduced opacity
-        steps.push({
-          role: workflowStep.role,
-          approverName: workflowStep.defaultApprover,
-          status: 'pending',
-          timestamp: undefined,
-          comment: undefined
-        });
-      }
+    // Append the stage still outstanding, if any.
+    const pendingRole = pendingRoleForStatus(requisition.status);
+    if (pendingRole) {
+      steps.push({
+        role: formatApprovalRole(pendingRole),
+        approverName: 'Awaiting approval',
+        status: 'pending',
+        timestamp: undefined,
+        comment: undefined,
+      });
     }
 
     return steps;
   }
-
-  /**
-   * Get demo timeline data for display purposes
-   */
-  getDemoApprovalTimeline(): ApprovalStep[] {
-    return [
-      {
-        role: 'HR_MANAGER',
-        approverName: 'Sarah Johnson',
-        status: 'approved',
-        timestamp: '2024-01-15T10:30:00Z',
-        comment: 'Job requirements are well-defined and align with company standards.'
-      },
-      {
-        role: 'HIRING_MANAGER',
-        approverName: 'Michael Chen',
-        status: 'approved',
-        timestamp: '2024-01-16T14:20:00Z',
-        comment: 'Team needs this role urgently. Budget approved.'
-      },
-      {
-        role: 'EXECUTIVE',
-        approverName: 'Jennifer Davis',
-        status: 'pending',
-        timestamp: undefined,
-        comment: undefined
-      }
-    ];
-  }
-
-  /**
-   * Create audit log entries for demo data initialization
-   */
-  async initializeAuditLogsForDemoData(): Promise<void> {
-    const requisitions = await requisitionService.getAllRequisitions();
-    
-    for (const requisition of requisitions) {
-      // Create audit entries based on approval history
-      if (requisition.approvalHistory) {
-        for (const historyEntry of requisition.approvalHistory) {
-          await auditLogService.logWorkflowTransition(
-            requisition.id,
-            historyEntry.fromStatus,
-            historyEntry.toStatus,
-            historyEntry.approverId,
-            historyEntry.approverRole,
-            historyEntry.comment || '',
-            historyEntry.timestamp
-          );
-        }
-      }
-
-      // Log requisition creation
-      await auditLogService.logRequisitionCreated(
-        requisition.id,
-        requisition.createdBy,
-        'Creator', // Default role for creation
-        requisition.createdAt
-      );
-    }
-  }
-
-  /**
-   * Get workflow steps for complete workflow view
-   */
-  private getWorkflowSteps(): Array<{role: string, defaultApprover: string}> {
-    return [
-      { role: ApprovalRole.HR, defaultApprover: 'HR Team' },
-      { role: ApprovalRole.HIRING_MANAGER, defaultApprover: 'HIRING_MANAGER' },
-      { role: ApprovalRole.EXECUTIVE, defaultApprover: 'Executive Team' }
-    ];
-  }
-
-  /**
-   * Get the current pending role based on requisition status
-   */
-  private getCurrentPendingRole(status: RequisitionStatus): string | null {
-    switch (status) {
-      case RequisitionStatus.SUBMITTED:
-        return ApprovalRole.HR;
-      case RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL:
-        return ApprovalRole.HIRING_MANAGER;
-      case RequisitionStatus.PENDING_EXECUTIVE_APPROVAL:
-        return ApprovalRole.EXECUTIVE;
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * Check if a step is in the future (not yet reached)
-   */
-  private isStepInFuture(role: string, status: RequisitionStatus): boolean {
-    const stepOrder = [ApprovalRole.HR, ApprovalRole.HIRING_MANAGER, ApprovalRole.EXECUTIVE];
-    const currentStepIndex = this.getCurrentStepIndex(status);
-    const roleIndex = stepOrder.indexOf(role as ApprovalRole);
-    
-    return roleIndex > currentStepIndex;
-  }
-
-  /**
-   * Get current step index in workflow
-   */
-  private getCurrentStepIndex(status: RequisitionStatus): number {
-    switch (status) {
-      case RequisitionStatus.DRAFT:
-        return -1;
-      case RequisitionStatus.SUBMITTED:
-        return 0; // HR step
-      case RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL:
-        return 1; // Hiring Manager step
-      case RequisitionStatus.PENDING_EXECUTIVE_APPROVAL:
-        return 2; // Executive step
-      case RequisitionStatus.APPROVED:
-      case RequisitionStatus.REJECTED:
-        return 3; // Complete
-      default:
-        return -1;
-    }
-  }
 }
 
-// Export singleton instance
 export const approvalTimelineService = new ApprovalTimelineService();

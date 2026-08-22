@@ -44,15 +44,21 @@ const ApprovalTimeline: React.FC<ApprovalTimelineProps> = ({ steps, className = 
   };
 
   const getRoleIcon = (role: string) => {
+    // Keyed on both the raw enum token and the human label, since steps now arrive pre-formatted.
     const roleIcons: Record<string, string> = {
       'HR_MANAGER': '👥',
+      'HR Manager': '👥',
       'HIRING_MANAGER': '👔',
+      'Hiring Manager': '👔',
       'EXECUTIVE': '👑',
+      'Executive': '👑',
       'ADMIN': '⚙️',
+      'Administrator': '⚙️',
       'RECRUITER': '🔍',
       'INTERVIEWER': '🎤',
       'EMPLOYEE': '👤',
       'APPLICANT': '👤',
+      'Submitted': '📝',
     };
     return roleIcons[role] || '👤';
   };

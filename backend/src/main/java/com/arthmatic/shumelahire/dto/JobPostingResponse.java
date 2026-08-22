@@ -35,6 +35,7 @@ public class JobPostingResponse {
     private String statusDisplayName;
     private String statusCssClass;
     private String statusIcon;
+    private String requisitionId;
     private String createdBy;
     private String approvedBy;
     private String publishedBy;
@@ -101,6 +102,7 @@ public class JobPostingResponse {
         this.statusDisplayName = jobPosting.getStatusDisplayName();
         this.statusCssClass = jobPosting.getStatus().getCssClass();
         this.statusIcon = jobPosting.getStatus().getIcon();
+        this.requisitionId = jobPosting.getRequisitionId();
         this.createdBy = jobPosting.getCreatedBy();
         this.approvedBy = jobPosting.getApprovedBy();
         this.publishedBy = jobPosting.getPublishedBy();
@@ -658,4 +660,7 @@ public class JobPostingResponse {
     public void setDeadlinePassed(boolean deadlinePassed) {
         isDeadlinePassed = deadlinePassed;
     }
+
+    public String getRequisitionId() { return requisitionId; }
+    public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
 }

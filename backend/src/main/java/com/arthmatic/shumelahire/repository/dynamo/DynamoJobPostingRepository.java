@@ -413,6 +413,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         if (item.getStatus() != null) {
             jp.setStatus(JobPostingStatus.valueOf(item.getStatus()));
         }
+        jp.setRequisitionId(item.getRequisitionId());
         if (item.getCreatedBy() != null) {
             jp.setCreatedBy(item.getCreatedBy());
         }
@@ -533,6 +534,7 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         if (entity.getStatus() != null) {
             item.setStatus(entity.getStatus().name());
         }
+        item.setRequisitionId(entity.getRequisitionId());
         if (entity.getCreatedBy() != null) {
             item.setCreatedBy(entity.getCreatedBy());
         }

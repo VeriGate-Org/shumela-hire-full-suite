@@ -119,6 +119,10 @@ public class JobAdSyncService {
      * Copy relevant fields from the JobPosting to the JobAd.
      */
     private void syncFields(JobAd ad, JobPosting posting) {
+        // Carry the authorising requisition through to the advertisement, completing the
+        // requisition -> posting -> ad chain. JobAd.requisitionId existed from the outset but was
+        // never populated, because the posting it syncs from had no requisition to propagate.
+        ad.setRequisitionId(posting.getRequisitionId());
         ad.setTitle(posting.getTitle());
         ad.setHtmlBody(buildHtmlBody(posting));
         ad.setDepartment(posting.getDepartment());

@@ -2,6 +2,8 @@ package com.arthmatic.shumelahire.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Requisition extends TenantAwareEntity {
 
@@ -30,6 +32,12 @@ public class Requisition extends TenantAwareEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    /**
+     * Ordered record of every submit / approve / reject action taken against this requisition.
+     * Drives the approval timeline; empty until the requisition is first submitted.
+     */
+    private List<RequisitionApproval> approvalHistory = new ArrayList<>();
 
     public enum RequisitionStatus {
         DRAFT,
@@ -83,4 +91,17 @@ public class Requisition extends TenantAwareEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<RequisitionApproval> getApprovalHistory() { return approvalHistory; }
+    public void setApprovalHistory(List<RequisitionApproval> approvalHistory) {
+        this.approvalHistory = approvalHistory != null ? approvalHistory : new ArrayList<>();
+    }
+
+    /** Append a step to the approval history, tolerating a null list on legacy records. */
+    public void recordApproval(RequisitionApproval approval) {
+        if (this.approvalHistory == null) {
+            this.approvalHistory = new ArrayList<>();
+        }
+        this.approvalHistory.add(approval);
+    }
 }

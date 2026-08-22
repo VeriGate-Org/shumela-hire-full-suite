@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
+import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,15 +26,44 @@ public class JobPostingService {
     private final AuditLogService auditLogService;
     private final JobAdSyncService jobAdSyncService;
     private final NotificationService notificationService;
+    private final RequisitionDataRepository requisitionRepository;
 
     public JobPostingService(JobPostingDataRepository jobPostingRepository,
                              AuditLogService auditLogService,
                              JobAdSyncService jobAdSyncService,
-                             NotificationService notificationService) {
+                             NotificationService notificationService,
+                             RequisitionDataRepository requisitionRepository) {
         this.jobPostingRepository = jobPostingRepository;
         this.auditLogService = auditLogService;
         this.jobAdSyncService = jobAdSyncService;
         this.notificationService = notificationService;
+        this.requisitionRepository = requisitionRepository;
+    }
+
+    /**
+     * Controlled advertising: a posting raised from a requisition may only be advertised once that
+     * requisition is approved.
+     *
+     * <p>Deliberately lenient where no requisition is linked. Postings created before requisition
+     * linkage existed, or raised outside the requisition process, publish exactly as before — the
+     * control applies to what it can actually verify rather than blocking on absent data.</p>
+     */
+    private void assertRequisitionAuthorises(JobPosting jobPosting) {
+        if (!jobPosting.isRequisitionLinked()) {
+            return;
+        }
+        Requisition requisition = requisitionRepository.findById(jobPosting.getRequisitionId()).orElse(null);
+        if (requisition == null) {
+            logger.warn("Job posting {} references requisition {} which no longer exists; allowing publish",
+                    jobPosting.getId(), jobPosting.getRequisitionId());
+            return;
+        }
+        if (requisition.getStatus() != Requisition.RequisitionStatus.APPROVED) {
+            throw new IllegalStateException(String.format(
+                    "Job posting cannot be advertised: requisition '%s' is %s, not APPROVED.",
+                    requisition.getJobTitle() != null ? requisition.getJobTitle() : requisition.getId(),
+                    requisition.getStatus()));
+        }
     }
     
     /**
@@ -289,6 +319,8 @@ public class JobPostingService {
             throw new IllegalStateException("Job posting cannot be published in current status: " + jobPosting.getStatus());
         }
 
+        assertRequisitionAuthorises(jobPosting);
+
         jobPosting.setStatus(JobPostingStatus.PUBLISHED);
         jobPosting.setPublishedBy(publishedBy);
         jobPosting.setPublishedAt(LocalDateTime.now());
@@ -439,6 +471,7 @@ public class JobPostingService {
     }
     
     private void mapRequestToEntity(JobPostingCreateRequest request, JobPosting jobPosting) {
+        jobPosting.setRequisitionId(request.getRequisitionId());
         jobPosting.setTitle(request.getTitle());
         jobPosting.setDepartment(request.getDepartment());
         jobPosting.setLocation(request.getLocation());

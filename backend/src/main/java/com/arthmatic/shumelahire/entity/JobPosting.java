@@ -56,6 +56,15 @@ public class JobPosting extends TenantAwareEntity {
     private JobPostingStatus status = JobPostingStatus.DRAFT;
     
     @NotNull(message = "Creator is required")
+    /**
+     * The approved requisition that authorises this vacancy.
+     *
+     * <p>Null on postings created before requisition linkage existed, and on postings raised
+     * outside the requisition process. Where it is set, {@code canBePublished()} additionally
+     * requires that requisition to be APPROVED — this is what makes advertising "controlled".</p>
+     */
+    private String requisitionId;
+
     private String createdBy; // User ID who created the posting
     
     private String approvedBy; // User ID who approved the posting
@@ -146,6 +155,14 @@ public class JobPosting extends TenantAwareEntity {
     public boolean canBePublished() {
         return status == JobPostingStatus.APPROVED;
     }
+
+    /** True when this posting was raised from a requisition. */
+    public boolean isRequisitionLinked() {
+        return requisitionId != null && !requisitionId.isBlank();
+    }
+
+    public String getRequisitionId() { return requisitionId; }
+    public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
     
     public boolean canBeUnpublished() {
         return status == JobPostingStatus.PUBLISHED;

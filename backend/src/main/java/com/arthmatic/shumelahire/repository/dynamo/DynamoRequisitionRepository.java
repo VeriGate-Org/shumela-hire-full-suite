@@ -3,8 +3,13 @@ package com.arthmatic.shumelahire.repository.dynamo;
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.Requisition;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
+import com.arthmatic.shumelahire.entity.RequisitionApproval;
 import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
 import com.arthmatic.shumelahire.repository.dynamo.items.RequisitionItem;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +45,9 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         implements RequisitionDataRepository {
 
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
 
     public DynamoRequisitionRepository(DynamoDbClient dynamoDbClient,
                                         DynamoDbEnhancedClient enhancedClient,
@@ -126,6 +134,15 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
+        if (item.getApprovalHistoryJson() != null) {
+            try {
+                entity.setApprovalHistory(MAPPER.readValue(item.getApprovalHistoryJson(),
+                        new TypeReference<List<RequisitionApproval>>() {}));
+            } catch (JsonProcessingException e) {
+                // A malformed history must not make the requisition unreadable.
+                entity.setApprovalHistory(new java.util.ArrayList<>());
+            }
+        }
         if (item.getUpdatedAt() != null) {
             entity.setUpdatedAt(TimestampUtils.parseTimestamp(item.getUpdatedAt()));
         }
@@ -180,6 +197,13 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
         }
         if (entity.getCreatedAt() != null) {
             item.setCreatedAt(entity.getCreatedAt().format(ISO_FMT));
+        }
+        if (entity.getApprovalHistory() != null && !entity.getApprovalHistory().isEmpty()) {
+            try {
+                item.setApprovalHistoryJson(MAPPER.writeValueAsString(entity.getApprovalHistory()));
+            } catch (JsonProcessingException e) {
+                item.setApprovalHistoryJson(null);
+            }
         }
         if (entity.getUpdatedAt() != null) {
             item.setUpdatedAt(entity.getUpdatedAt().format(ISO_FMT));

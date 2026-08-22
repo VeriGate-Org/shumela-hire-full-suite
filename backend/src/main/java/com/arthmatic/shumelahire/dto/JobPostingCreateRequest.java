@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class JobPostingCreateRequest {
     
     @NotBlank(message = "Job title is required")
+    private String requisitionId;
     private String title;
     
     @NotBlank(message = "Department is required")
@@ -282,4 +283,7 @@ public class JobPostingCreateRequest {
     public void setUrgent(Boolean urgent) {
         this.urgent = urgent;
     }
+
+    public String getRequisitionId() { return requisitionId; }
+    public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
 }
