@@ -15,6 +15,7 @@ import {
 import JobDetailClient from '@/components/JobDetailClient';
 import { formatSalaryRange } from '@/utils/currency';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEmploymentTypeLabel } from '@/utils/enumLabels';
 import type { BackendJobAd, BackendApiResponse } from './types';
 
 const isJobExpired = (status: string, closingDate?: string): boolean => {
@@ -248,7 +249,9 @@ export default function IDCJobDetailClient() {
               {job.employmentType && (
                 <div className="flex items-center">
                   <BriefcaseIcon className="w-4 h-4 mr-2" />
-                  {job.employmentType}
+                  {/* The raw enum was rendered straight onto the public advert,
+                      so candidates read "FULL_TIME". */}
+                  {getEmploymentTypeLabel(job.employmentType)}
                 </div>
               )}
 
@@ -289,21 +292,19 @@ export default function IDCJobDetailClient() {
                   <p className="text-[#64748B] mb-4">
                     Take the next step in your career with the IDC.
                   </p>
-                  {job.requisitionId ? (
-                    <Link
-                      href={`/apply/${job.requisitionId}`}
-                      className="inline-flex items-center px-8 py-3 bg-[#F1C54B] text-[#0F172A] text-lg font-medium rounded-full hover:bg-[#F1C54B]/90 transition-colors"
-                    >
-                      Apply Now
-                    </Link>
-                  ) : (
-                    <button
-                      disabled
-                      className="inline-flex items-center px-8 py-3 bg-gray-300 text-gray-500 text-lg font-medium rounded-full cursor-not-allowed"
-                    >
-                      Application Not Available
-                    </button>
-                  )}
+                  {/* Keyed off the advert, not the requisition.
+                      A candidate applies to what is advertised. Gating on
+                      job.requisitionId disabled the button on every advert
+                      whose posting had no linked requisition — which is most of
+                      them — so live vacancies read "Application Not Available"
+                      to the public. jobId is what the form submits as the
+                      application's jobAdId. */}
+                  <Link
+                    href={`/apply/${job.id}?jobId=${encodeURIComponent(job.id)}&title=${encodeURIComponent(job.title)}`}
+                    className="inline-flex items-center px-8 py-3 bg-[#F1C54B] text-[#0F172A] text-lg font-medium rounded-full hover:bg-[#F1C54B]/90 transition-colors"
+                  >
+                    Apply Now
+                  </Link>
                 </div>
               </div>
             )}

@@ -86,7 +86,10 @@ export default function InternalApplicationPage() {
       const response = await apiFetch('/api/applications', {
         method: 'POST',
         body: JSON.stringify({
-          jobAdId: jobId ? Number(jobId) : undefined,
+          // jobAdId is a String on the backend — these are UUIDs, and
+          // Number('87173b20-59d8-…') is NaN, which serialises to null. The
+          // application was accepted with no job attached to it.
+          jobAdId: jobId || undefined,
           applicationSource: isExternal ? 'EXTERNAL' : 'INTERNAL',
           coverLetter: combinedCoverLetter || undefined,
           availabilityDate: formData.availabilityDate || undefined,
