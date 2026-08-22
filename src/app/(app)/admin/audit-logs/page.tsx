@@ -513,8 +513,9 @@ export default function AuditLogsPage() {
                 more than one page — say which set was actually searched rather
                 than letting an empty result read as "no such entry exists". */}
             <span className="ml-auto text-[0.8125rem] text-muted-foreground whitespace-nowrap">
-              Showing {filteredLogs.length.toLocaleString()} of{' '}
-              {totalPages > 1 ? `${auditLogs.length.toLocaleString()} on this page` : totalElements.toLocaleString()} events
+              {totalPages > 1
+                ? `Showing ${filteredLogs.length.toLocaleString()} of ${auditLogs.length.toLocaleString()} events on this page`
+                : `Showing ${filteredLogs.length.toLocaleString()} of ${totalElements.toLocaleString()} events`}
             </span>
           </div>
           {totalPages > 1 && (isFilterActive || searchTerm) && (
