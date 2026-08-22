@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * <pre>
  *   PK:     TENANT#{tenantId}
  *   SK:     DEPARTMENT#{id}
- *   GSI1PK: DEPT_ACTIVE#{isActive}    GSI1SK: DEPARTMENT#{name}
+ *   GSI1PK: DEPT_ACTIVE#{tenantId}#{isActive}    GSI1SK: DEPARTMENT#{name}
  *   GSI4PK: DEPT_NAME#{tenantId}#{name}  GSI4SK: DEPARTMENT#{id}
  * </pre>
  */
@@ -58,7 +58,10 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
 
     @Override
     public List<Department> findActiveOrderByName() {
-        return queryGsiAll("GSI1", "DEPT_ACTIVE#true").stream()
+        // The tenant MUST be in the partition key. Without it this returned every active
+        // department in the table regardless of tenant, so one customer's dropdown listed another
+        // customer's organisational structure. GSI4 alongside was already tenant-scoped.
+        return queryGsiAll("GSI1", "DEPT_ACTIVE#" + currentTenantId() + "#true").stream()
                 .sorted(Comparator.comparing(Department::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
@@ -127,7 +130,7 @@ public class DynamoDepartmentRepository extends DynamoRepository<DepartmentItem,
         item.setSk("DEPARTMENT#" + id);
 
         // GSI1: Active status index
-        item.setGsi1pk("DEPT_ACTIVE#" + entity.getIsActive());
+        item.setGsi1pk("DEPT_ACTIVE#" + tenantId + "#" + entity.getIsActive());
         item.setGsi1sk("DEPARTMENT#" + entity.getName());
 
         // GSI4: Unique constraint on name per tenant
