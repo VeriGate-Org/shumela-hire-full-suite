@@ -225,6 +225,89 @@ FEATURES = [
     ('SOCIAL_FEED', 'Social Feed & Collaboration',
      'Employee social feed for announcements, discussions, kudos, and team collaboration. Supports comments, reactions, and content moderation.',
      'engagement', 'STARTER,STANDARD,ENTERPRISE'),
+
+    # Core (referenced by navigationRegistry/PlatformModule but missing from this list —
+    # this is the one feature that was already present in prod, seeded some other way;
+    # included here so a from-scratch environment gets it too)
+    ('RECRUITMENT', 'Core Recruitment',
+     'Core recruitment and applicant tracking functionality: requisitions, job postings, applications, pipeline, interviews, and offers.',
+     'core', 'STARTER,STANDARD,ENTERPRISE'),
+
+    # AI sub-features referenced by feature="..." props (AiAssistPanel/FeatureGate) and
+    # backend @FeatureGate/requireFeature/isFeatureEnabled calls, but missing from this
+    # list — these were never seeded, so every AiAssistPanel silently rendered nothing
+    # regardless of AI_ENABLED, since AiAssistPanel gates on AI_ENABLED *and* the
+    # specific sub-feature.
+    ('AI_SEARCH', 'AI Smart Search',
+     'Natural-language candidate search across the talent pool and applications (e.g. "CFA charterholders with DFI experience").',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_EMAIL_DRAFTER', 'AI Email Drafter',
+     'AI-generated personalised candidate communications — interview invitations, regret letters, and offer emails.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SALARY_BENCHMARK', 'AI Salary Benchmark',
+     'Market salary data analysis by industry, location, and role level with percentile-based compensation recommendations.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SCREENING_SUMMARY', 'AI Candidate Summary',
+     'At-a-glance AI-generated summary of a candidate\'s profile, experience, and fit for the role.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SCREENING_CV', 'AI CV Screening',
+     'Extracts skills and qualifications from a CV and calculates a confidence-scored match against role requirements.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SCREENING_NOTES', 'AI Screening Notes Drafter',
+     'AI-drafted screening and interview notes from structured or free-text input.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_SCREENING_RANKING', 'AI Candidate Ranking',
+     'Consolidates AI screening scores across a shortlist into ranked, confidence-scored recommendations.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_DUPLICATE_DETECTION', 'AI Duplicate Detection',
+     'Detects duplicate candidate records across the talent pool to preserve pool integrity.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    ('AI_OFFER_PREDICTION', 'AI Offer Prediction',
+     'Predicts the likelihood of offer acceptance based on candidate and offer data.',
+     'automation', 'ENTERPRISE'),
+
+    ('AI_REPORT_NARRATIVE', 'AI Report Narrative',
+     'Generates plain-language narrative summaries of dashboards and reports.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
+    # Talent module features referenced by PlatformModule.featureCodes but missing
+    ('JOB_TEMPLATES', 'Job Posting Templates',
+     'Reusable job posting templates for common roles, reducing time-to-post for recurring vacancies.',
+     'talent_development', 'STANDARD,ENTERPRISE'),
+
+    ('INTERNAL_MOBILITY', 'Internal Mobility',
+     'Internal job board and employee portal for existing staff to apply for internal transfers and promotions.',
+     'talent_development', 'ENTERPRISE'),
+
+    # HR Core features referenced but missing
+    ('DOCUMENT_RETENTION', 'Document Retention Policies',
+     'Configurable, POPIA-aligned retention schedules for candidate and employee documents, with automated disposal.',
+     'hr_core', 'STARTER,STANDARD,ENTERPRISE'),
+
+    ('COMPANY_DOCUMENTS', 'Company Document Library',
+     'Centralised repository for company-wide policies and documents with acknowledgement tracking.',
+     'hr_core', 'STARTER,STANDARD,ENTERPRISE'),
+
+    ('EMPLOYEE_MANAGEMENT', 'Employee Management',
+     'Core employee record management — profiles, employment history, and organisational structure.',
+     'hr_core', 'STARTER,STANDARD,ENTERPRISE'),
+
+    ('PERFORMANCE_MANAGEMENT', 'Performance Management',
+     'Performance cycles, contracts, and review workflows.',
+     'talent_development', 'STANDARD,ENTERPRISE'),
+
+    # Integrations module feature referenced but missing
+    ('AGENCY_MANAGEMENT', 'Recruitment Agency Management',
+     'Manages external recruitment agency access, submissions, and fee tracking with RBAC-controlled recruiter access.',
+     'integrations', 'STANDARD,ENTERPRISE'),
 ]
 
 

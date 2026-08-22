@@ -299,6 +299,23 @@ jobs:
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
             -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
 
+      # ── Seed platform feature catalog (idempotent, every deploy) ────────
+      # FeatureGateService.getEnabledFeatures() can only ever return codes
+      # that exist as PlatformFeature rows — it does not derive them from
+      # PlatformModule.featureCodes. Without this, every requiredFeature-
+      # gated nav entry and every <FeatureGate>-wrapped UI element (all AI
+      # tools, Social Feed, Employee Engagement, etc.) silently renders
+      # nothing for every tenant, regardless of their plan/modules, because
+      # the frontend's tenant-module fallback only engages when the backend
+      # returns an *empty* list, not an incomplete one. Deterministic ids +
+      # a conditional put make re-running this safe on every deploy.
+      - name: Seed platform feature catalog
+        env:
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          PREFIX=$([ "${{ inputs.environment }}" = "prod" ] && echo "shumelahire" || echo "shumelahire-${{ inputs.environment }}")
+          STACK_PREFIX="$PREFIX" python3 scripts/seed-platform-features-dynamodb.py
+
       # ── Deploy frontend to S3 (after CDK creates the bucket) ────────
       - name: Deploy frontend to S3
         run: |
