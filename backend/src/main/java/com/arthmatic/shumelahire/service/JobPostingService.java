@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.dto.JobPostingResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,17 +28,46 @@ public class JobPostingService {
     private final JobAdSyncService jobAdSyncService;
     private final NotificationService notificationService;
     private final RequisitionDataRepository requisitionRepository;
+    private final UserDataRepository userRepository;
 
     public JobPostingService(JobPostingDataRepository jobPostingRepository,
                              AuditLogService auditLogService,
                              JobAdSyncService jobAdSyncService,
                              NotificationService notificationService,
-                             RequisitionDataRepository requisitionRepository) {
+                             RequisitionDataRepository requisitionRepository,
+                             UserDataRepository userRepository) {
         this.jobPostingRepository = jobPostingRepository;
         this.auditLogService = auditLogService;
         this.jobAdSyncService = jobAdSyncService;
         this.notificationService = notificationService;
         this.requisitionRepository = requisitionRepository;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Authority level at or above which a submitter approves their own job posting.
+     *
+     * <p>A Talent Acquisition Manager owns the vacancies they run, so their own submissions do not
+     * queue for someone else. A TA Specialist — {@code RECRUITER}, priority 60 — sits below this
+     * line and still requires a manager or above to approve. This is the same delegated-authority
+     * idea the requisition chain applies by value, applied here by seniority, and it reuses the
+     * priority ordering already declared on {@link User.Role}.</p>
+     */
+    private static final User.Role SELF_APPROVAL_THRESHOLD = User.Role.HIRING_MANAGER;
+
+    /**
+     * True when this user may approve their own submission.
+     *
+     * <p>Unknown users deliberately fall through to requiring approval — the safe direction.</p>
+     */
+    private boolean holdsSelfApprovalAuthority(String userId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return userRepository.findById(userId)
+                .map(User::getRole)
+                .filter(role -> role.hasPermission(SELF_APPROVAL_THRESHOLD))
+                .isPresent();
     }
 
     /**
@@ -223,16 +253,36 @@ public class JobPostingService {
             throw new IllegalStateException("Job posting cannot be submitted for approval in current status: " + jobPosting.getStatus());
         }
         
-        jobPosting.setStatus(JobPostingStatus.PENDING_APPROVAL);
-        jobPosting.setSubmittedForApprovalAt(LocalDateTime.now());
-        
+        LocalDateTime now = LocalDateTime.now();
+        jobPosting.setSubmittedForApprovalAt(now);
+
+        boolean selfApproves = holdsSelfApprovalAuthority(submittedBy);
+
+        if (selfApproves) {
+            // Delegated authority — the submitter is a hiring manager or above, so the posting is
+            // approved on submission rather than queuing for someone more senior. Recorded as a
+            // real approval, with who and why, so the audit trail explains the shortcut.
+            jobPosting.setStatus(JobPostingStatus.APPROVED);
+            jobPosting.setApprovedBy(submittedBy);
+            jobPosting.setApprovedAt(now);
+            jobPosting.setApprovalNotes("Approved under delegated authority: submitter holds "
+                    + SELF_APPROVAL_THRESHOLD.getDisplayName() + " authority or above.");
+        } else {
+            jobPosting.setStatus(JobPostingStatus.PENDING_APPROVAL);
+        }
+
         JobPosting updatedJobPosting = jobPostingRepository.save(jobPosting);
-        
+
         // Log to audit
-        auditLogService.logUserAction(submittedBy, "JOB_POSTING_SUBMITTED_FOR_APPROVAL", "JOB_POSTING", 
-                                     updatedJobPosting.getTitle() + " (ID: " + updatedJobPosting.getId() + ")");
-        
-        notificationService.notifyApprovalRequired(submittedBy, "Job Posting", jobPosting.getTitle());
+        auditLogService.logUserAction(submittedBy,
+                selfApproves ? "JOB_POSTING_APPROVED_UNDER_DELEGATED_AUTHORITY"
+                             : "JOB_POSTING_SUBMITTED_FOR_APPROVAL",
+                "JOB_POSTING",
+                updatedJobPosting.getTitle() + " (ID: " + updatedJobPosting.getId() + ")");
+
+        if (!selfApproves) {
+            notificationService.notifyApprovalRequired(submittedBy, "Job Posting", jobPosting.getTitle());
+        }
 
         logger.info("Job posting {} submitted for approval", id);
 
