@@ -312,7 +312,11 @@ public class JobPostingController {
      * POST /api/job-postings/{id}/publish
      */
     @PostMapping("/{id}/publish")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    // A Talent Acquisition Manager owns advertising for the vacancies they run, so HIRING_MANAGER
+    // may publish. Note this does not weaken the approval controls: publishing still requires the
+    // posting to be APPROVED (JobPosting.canBePublished), approval remains ADMIN/HR_MANAGER only,
+    // and a requisition-linked posting still needs that requisition APPROVED.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> publishJobPosting(@PathVariable String id,
                                                @RequestParam String publishedBy,
                                                @RequestParam(required = false) Boolean channelInternal,
@@ -335,7 +339,8 @@ public class JobPostingController {
      * POST /api/job-postings/{id}/unpublish
      */
     @PostMapping("/{id}/unpublish")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    // Paired with publish above — whoever may advertise a vacancy may also withdraw it.
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> unpublishJobPosting(@PathVariable String id,
                                                  @RequestParam String unpublishedBy) {
         try {
