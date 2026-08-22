@@ -23,11 +23,26 @@ public class TenantResolutionFilter implements Filter {
     private final ConcurrentHashMap<String, String> tenantCache = new ConcurrentHashMap<>();
     private static final String NOT_FOUND = "";
 
+    // NOTE: this must only list paths that are genuinely tenant-agnostic.
+    // "/api/public/" alone was too broad — it silently exempted every public
+    // endpoint from tenant resolution, including ones whose service layer
+    // calls TenantContext.requireCurrentTenant() (candidate registration,
+    // agency registration, the public job-postings listing used by the
+    // authenticated candidate portal). Those threw
+    // "IllegalStateException: No tenant context set for current request"
+    // on every call, for every tenant, always — e.g. POST
+    // /api/public/auth/register 500ing unconditionally. Only exempt the
+    // specific sub-paths that are actually meant to work without a
+    // resolved tenant: the tenant-resolution bootstrap endpoint itself
+    // (chicken-and-egg — it IS how the frontend discovers the tenant) and
+    // tenant-agnostic marketing forms.
     private static final Set<String> EXEMPT_PREFIXES = Set.of(
             "/actuator/health",
             "/swagger-ui",
             "/v3/api-docs",
-            "/api/public/"
+            "/api/public/tenants/",
+            "/api/public/contact",
+            "/api/public/demo"
     );
 
     /** Environment subdomains that are NOT tenant subdomains */
