@@ -98,6 +98,12 @@ public class ShumelaHireServerlessStack : Stack
         foundation.NotificationQueue.GrantSendMessages(lambdaRole);
 
         // Cognito admin permissions
+        // AdminSetUserPassword, AdminDisableUser, AdminEnableUser, GetGroup, and
+        // CreateGroup were missing here despite CognitoAdminService actually
+        // calling all five — found via a live AccessDenied on candidate
+        // registration ("...is not authorized to perform:
+        // cognito-idp:AdminSetUserPassword..."), which meant every applicant
+        // registration failed at the Cognito user-creation step, unconditionally.
         lambdaRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
         {
             Actions = new[]
@@ -109,6 +115,11 @@ public class ShumelaHireServerlessStack : Stack
                 "cognito-idp:AdminAddUserToGroup",
                 "cognito-idp:AdminRemoveUserFromGroup",
                 "cognito-idp:AdminListGroupsForUser",
+                "cognito-idp:AdminSetUserPassword",
+                "cognito-idp:AdminDisableUser",
+                "cognito-idp:AdminEnableUser",
+                "cognito-idp:GetGroup",
+                "cognito-idp:CreateGroup",
                 "cognito-idp:ListUsers",
                 "cognito-idp:ListUsersInGroup"
             },
