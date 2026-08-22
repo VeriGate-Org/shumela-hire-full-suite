@@ -7,6 +7,7 @@ import com.arthmatic.shumelahire.repository.*;
 import com.arthmatic.shumelahire.service.analytics.AthenaQueryService;
 import com.arthmatic.shumelahire.service.analytics.AthenaQueryTemplates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,18 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class AnalyticsService {
+
+    /**
+     * How far back the dashboard's trend series reaches, in days.
+     *
+     * <p>This was hard-coded to 7. Recruitment metrics are recorded per day and a vacancy runs for
+     * weeks, so a seven-day window returned a single point for every series — the Application
+     * Volume and Monthly Hiring Trends charts rendered one bar each, on tenants holding months of
+     * real history. Ninety days covers a full hiring cycle; override per environment where a
+     * different retention applies.</p>
+     */
+    @Value("${shumelahire.analytics.trend-window-days:90}")
+    private int trendWindowDays;
 
     @Autowired
     private RecruitmentMetricsDataRepository metricsRepository;
@@ -436,8 +449,8 @@ public class AnalyticsService {
         dashboard.put("kpis", kpiData);
         
         // Recent trends
-        LocalDate weekAgo = date.minusDays(7);
-        List<RecruitmentMetrics> trendData = metricsRepository.findByMetricDateBetween(weekAgo, date);
+        LocalDate trendStart = date.minusDays(trendWindowDays);
+        List<RecruitmentMetrics> trendData = metricsRepository.findByMetricDateBetween(trendStart, date);
         dashboard.put("trends", processTrendData(trendData));
         
         // Performance alerts

@@ -223,8 +223,43 @@ public class NotificationService {
         sendInternalNotification(interview.getInterviewerId(),
             "Feedback Requested",
             String.format("Please submit your feedback for the interview with %s for the position '%s'.",
-                app.getApplicant().getFullName(), app.getJobTitle()),
+                candidateNameOf(app), app == null ? "the position" : app.getJobTitle()),
             NotificationType.INTERVIEW_FEEDBACK_REQUESTED, NotificationPriority.HIGH);
+    }
+
+    // --- Applicant resolution -------------------------------------------------
+
+    /**
+     * The candidate's name for a notification body, or a neutral placeholder.
+     *
+     * <p>An {@link Offer} loaded for a state change carries only a stub association — the
+     * repository does not hydrate the application or the applicant on {@code findById}. Reaching
+     * straight through {@code app.getApplicant().getFullName()} therefore threw and, because the
+     * notification is the last statement in the lifecycle method, the state change was already
+     * committed by the time it blew up. The caller saw a 400 for an operation that had succeeded.</p>
+     */
+    private String candidateNameOf(Application app) {
+        if (app == null || app.getApplicant() == null) {
+            return "the candidate";
+        }
+        // Composed here rather than via getFullName(), which concatenates without null checks and
+        // returns the literal "null null" for an empty applicant — that string has a habit of
+        // reaching a candidate's inbox as "Dear null null".
+        Applicant applicant = app.getApplicant();
+        String first = applicant.getName() == null ? "" : applicant.getName().trim();
+        String last = applicant.getSurname() == null ? "" : applicant.getSurname().trim();
+        String full = (first + " " + last).trim();
+        return full.isEmpty() ? "the candidate" : full;
+    }
+
+    /**
+     * The applicant's id, or {@code null} when the association was never hydrated.
+     *
+     * <p>Callers must skip the notification on {@code null}: a candidate-facing message with no
+     * recipient has nowhere to go, and inventing one would deliver another candidate's offer.</p>
+     */
+    private String applicantIdOf(Application app) {
+        return (app == null || app.getApplicant() == null) ? null : app.getApplicant().getId();
     }
 
     // --- Offer notifications ---
@@ -232,12 +267,18 @@ public class NotificationService {
     @Async
     public void notifyOfferExtended(Offer offer) {
         Application app = offer.getApplication();
+        String recipientId = applicantIdOf(app);
+        if (recipientId == null) {
+            logger.warn("Offer {} extended but the applicant is not resolvable — candidate notification skipped",
+                offer.getOfferNumber());
+            return;
+        }
         String subject = "Job Offer Extended";
         String message = String.format(
             "Dear %s,\n\nCongratulations! We are pleased to extend an offer for the position '%s' in the %s department.\n\n" +
             "Please review the offer details and let us know your decision.\n\nBest regards,\nHR Team",
-            app.getApplicant().getFullName(), offer.getJobTitle(), offer.getDepartment());
-        sendNotificationDirect(app.getApplicant().getId(), subject, message,
+            candidateNameOf(app), offer.getJobTitle(), offer.getDepartment());
+        sendNotificationDirect(recipientId, subject, message,
             NotificationType.OFFER_EXTENDED, NotificationPriority.HIGH);
     }
 
@@ -247,7 +288,7 @@ public class NotificationService {
         sendInternalNotification(offer.getCreatedBy(),
             "Offer Accepted",
             String.format("Candidate %s has accepted the offer for '%s'.",
-                app.getApplicant().getFullName(), offer.getJobTitle()),
+                candidateNameOf(app), offer.getJobTitle()),
             NotificationType.OFFER_ACCEPTED, NotificationPriority.HIGH);
     }
 
@@ -257,7 +298,7 @@ public class NotificationService {
         sendInternalNotification(offer.getCreatedBy(),
             "Offer Declined",
             String.format("Candidate %s has declined the offer for '%s'. Reason: %s",
-                app.getApplicant().getFullName(), offer.getJobTitle(),
+                candidateNameOf(app), offer.getJobTitle(),
                 offer.getRejectionReason() != null ? offer.getRejectionReason() : "Not specified"),
             NotificationType.OFFER_DECLINED, NotificationPriority.HIGH);
     }
@@ -268,7 +309,7 @@ public class NotificationService {
         sendInternalNotification(offer.getCreatedBy(),
             "Offer Under Negotiation",
             String.format("Candidate %s has initiated negotiation for the offer for '%s'.",
-                app.getApplicant().getFullName(), offer.getJobTitle()),
+                candidateNameOf(app), offer.getJobTitle()),
             NotificationType.OFFER_NEGOTIATION, NotificationPriority.MEDIUM);
     }
 
@@ -278,19 +319,25 @@ public class NotificationService {
         sendInternalNotification(offer.getCreatedBy(),
             "Offer Expired",
             String.format("The offer for %s (%s) has expired without a response.",
-                app.getApplicant().getFullName(), offer.getJobTitle()),
+                candidateNameOf(app), offer.getJobTitle()),
             NotificationType.OFFER_EXPIRED, NotificationPriority.MEDIUM);
     }
 
     @Async
     public void notifyOfferWithdrawn(Offer offer) {
         Application app = offer.getApplication();
+        String recipientId = applicantIdOf(app);
+        if (recipientId == null) {
+            logger.warn("Offer {} withdrawn but the applicant is not resolvable — candidate notification skipped",
+                offer.getOfferNumber());
+            return;
+        }
         String subject = "Offer Update";
         String message = String.format(
             "Dear %s,\n\nWe regret to inform you that the offer for the position '%s' has been withdrawn.\n\n" +
             "We appreciate your interest and wish you the best.\n\nBest regards,\nHR Team",
-            app.getApplicant().getFullName(), offer.getJobTitle());
-        sendNotificationDirect(app.getApplicant().getId(), subject, message,
+            candidateNameOf(app), offer.getJobTitle());
+        sendNotificationDirect(recipientId, subject, message,
             NotificationType.OFFER_WITHDRAWN, NotificationPriority.HIGH);
     }
 
