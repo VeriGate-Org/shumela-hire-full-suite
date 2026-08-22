@@ -6,7 +6,7 @@ import { useAuth, ALL_ROLES, ROLE_DISPLAY_NAMES, UserRole } from '@/contexts/Aut
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured } from '@/lib/amplify-config';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 
 function LoginContent() {
   const router = useRouter();
@@ -20,13 +20,30 @@ function LoginContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
+  // Where to send the user once they are authenticated.
+  //
+  // The register page forwards returnTo so a candidate who arrived from a live
+  // advert lands back on the application form. Nothing here read it: every
+  // path pushed /dashboard unconditionally, so a candidate registered, signed
+  // in, and was dropped on a dashboard with no way back to the job they had
+  // clicked Apply on.
+  //
+  // Only same-origin relative paths are honoured — an absolute URL in a query
+  // parameter is an open redirect, and this one is reachable while logged out.
+  const destination = useMemo(() => {
+    const target = searchParams.get('returnTo');
+    if (!target) return '/dashboard';
+    if (!target.startsWith('/') || target.startsWith('//')) return '/dashboard';
+    return target;
+  }, [searchParams]);
 
   const registeredSuccess = searchParams.get('registered') === 'true';
+
+  useEffect(() => {
+    if (user) {
+      router.push(destination);
+    }
+  }, [user, router, destination]);
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
@@ -42,7 +59,7 @@ function LoginContent() {
 
     try {
       await loginWithCredentials(email, password);
-      router.push('/dashboard');
+      router.push(destination);
     } catch (err: unknown) {
       const errObj = err as { name?: string; message?: string };
       const message = errObj.name
@@ -72,7 +89,7 @@ function LoginContent() {
     setLoading(true);
     try {
       await confirmNewPassword(newPassword);
-      router.push('/dashboard');
+      router.push(destination);
     } catch (err: unknown) {
       const errObj = err as { name?: string; message?: string };
       setError(errObj.message || 'Failed to set new password.');
@@ -103,7 +120,7 @@ function LoginContent() {
     };
 
     login(mockUser);
-    router.push('/dashboard');
+    router.push(destination);
   };
 
   // NEW_PASSWORD_REQUIRED challenge (invited users on first login)
