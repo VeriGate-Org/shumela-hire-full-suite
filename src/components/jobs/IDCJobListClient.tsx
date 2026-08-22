@@ -2,7 +2,8 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import type { BackendJobAd } from './types';
+import type { BackendJobAd, BackendApiResponse, BackendPagedResponse } from './types';
+import { apiFetch } from '@/lib/api-fetch';
 import {
   MapPinIcon,
   BriefcaseIcon,
@@ -13,17 +14,58 @@ import {
 
 const JOBS_PER_PAGE = 20;
 
-interface Props {
-  jobs: BackendJobAd[];
-}
-
-export default function IDCJobListClient({ jobs }: Props) {
+export default function IDCJobListClient() {
+  const [jobs, setJobs] = useState<BackendJobAd[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+
+  // Fetched client-side (not at build time): this is a static export, and the
+  // careers portal is multi-tenant by subdomain. A build-time fetch can only
+  // ever bake in one tenant's jobs for every visitor. apiFetch() resolves the
+  // tenant from the browser's actual hostname (X-Tenant-Id), so each tenant's
+  // subdomain correctly sees only its own published external job ads.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadJobs() {
+      try {
+        const response = await apiFetch(
+          '/api/ads?status=PUBLISHED&channel=external&size=100&sort=createdAt,desc'
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const apiResponse: BackendApiResponse<BackendPagedResponse> = await response.json();
+        if (cancelled) return;
+
+        if (!apiResponse.success || !apiResponse.data) {
+          setJobs([]);
+          return;
+        }
+
+        const now = new Date();
+        setJobs(
+          apiResponse.data.content.filter((job) => {
+            if (job.status !== 'PUBLISHED' || !job.channelExternal) return false;
+            if (job.closingDate && new Date(job.closingDate) < now) return false;
+            return true;
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching active jobs:', error);
+        if (!cancelled) setJobs([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadJobs();
+    return () => { cancelled = true; };
+  }, []);
 
   // Reset page when filters change
   useEffect(() => setCurrentPage(0), [searchTerm, locationFilter, departmentFilter, employmentTypeFilter]);
@@ -115,7 +157,7 @@ export default function IDCJobListClient({ jobs }: Props) {
             economic growth and industrial development of South Africa.
           </p>
           <div className="mt-6 text-sm text-white/60 uppercase tracking-[0.05em]">
-            {jobs.length} open position{jobs.length !== 1 ? 's' : ''}
+            {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''}`}
           </div>
         </div>
       </div>
@@ -226,7 +268,16 @@ export default function IDCJobListClient({ jobs }: Props) {
         </div>
 
         {/* Job cards */}
-        {filteredJobs.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-[2px] shadow border border-gray-200 p-6 animate-pulse">
+                <div className="h-5 w-2/5 bg-gray-200 rounded mb-3" />
+                <div className="h-4 w-3/5 bg-gray-100 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : filteredJobs.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg mb-4">
               {jobs.length === 0

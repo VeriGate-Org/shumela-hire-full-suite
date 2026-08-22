@@ -1,4 +1,4 @@
-import type { BackendJobAd, BackendApiResponse, BackendPagedResponse } from '@/components/jobs/types';
+import type { BackendJobAd, BackendApiResponse } from '@/components/jobs/types';
 
 /**
  * Server-side base URL for the backend API.
@@ -17,43 +17,6 @@ const getBaseUrl = () => {
   }
   return 'http://localhost:8080';
 };
-
-export async function fetchActiveJobs(): Promise<BackendJobAd[]> {
-  try {
-    const baseUrl = getBaseUrl();
-    const url = new URL('/api/ads', baseUrl);
-    url.searchParams.set('status', 'PUBLISHED');
-    url.searchParams.set('channel', 'external');
-    url.searchParams.set('size', '100');
-    url.searchParams.set('sort', 'createdAt,desc');
-
-    const response = await fetch(url.toString(), {
-      // Static export: ISR revalidation not available; data fetched at build time
-      // or client-side. Cache headers are set by CloudFront/API Gateway.
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const apiResponse: BackendApiResponse<BackendPagedResponse> = await response.json();
-
-    if (!apiResponse.success || !apiResponse.data) {
-      return [];
-    }
-
-    const now = new Date();
-    return apiResponse.data.content.filter((job) => {
-      if (job.status !== 'PUBLISHED' || !job.channelExternal) return false;
-      if (job.closingDate && new Date(job.closingDate) < now) return false;
-      return true;
-    });
-  } catch (error) {
-    console.error('Error fetching active jobs:', error);
-    return [];
-  }
-}
 
 export async function fetchJobBySlug(slug: string): Promise<BackendJobAd | null> {
   try {
