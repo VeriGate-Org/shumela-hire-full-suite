@@ -191,6 +191,48 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /apply/<id> to the static shell ────
+        // Same issue and same fix as JobsDetailRewriteFunction above:
+        // /apply/[requisitionId] only pre-renders one placeholder ("_"), so
+        // any real id 403s straight from S3 on a direct load or refresh.
+        // No sibling static pages under /apply/*, so no special-casing needed.
+        var applyRewriteFn = new Function(this, "ApplyRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-apply-rewrite",
+            Comment = "Rewrites /apply/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/apply/_.html';
+    }
+    return request;
+}
+")
+        });
+
+        // ── CloudFront Function: rewrite /internal/apply/<id> to the shell ──
+        // Same fix, for the authenticated internal application flow that
+        // /apply/<id> redirects to after login.
+        var internalApplyRewriteFn = new Function(this, "InternalApplyRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-internal-apply-rewrite",
+            Comment = "Rewrites /internal/apply/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/internal/apply/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -291,6 +333,40 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = requisitionsDetailRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Public apply-redirect page → same technique.
+                ["/apply/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = applyRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Internal (authenticated) application flow → same technique.
+                ["/internal/apply/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = internalApplyRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }

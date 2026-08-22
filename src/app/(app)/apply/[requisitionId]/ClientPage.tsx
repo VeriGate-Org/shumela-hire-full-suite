@@ -1,14 +1,24 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function PublicApplyPage() {
-  const params = useParams();
+  // Static export: every /apply/<requisitionId> URL is served the same
+  // pre-rendered shell (built with the placeholder id "_" — see the
+  // CloudFront "/apply/*" rewrite behavior in ShumelaHireFrontendStack.cs).
+  // useParams() would read that build-time placeholder instead of the real
+  // id on a hard page load / refresh, so the real id is read from the
+  // actual browser URL instead (same fix as requisitions/[id], #187).
+  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const requisitionId = params.requisitionId as string;
+  const requisitionId = useMemo(() => {
+    const parts = pathname.split('/').filter(Boolean);
+    // ['apply', '<requisitionId>']
+    return parts.length >= 2 ? parts[1] : '';
+  }, [pathname]);
 
   useEffect(() => {
     if (isLoading) return;

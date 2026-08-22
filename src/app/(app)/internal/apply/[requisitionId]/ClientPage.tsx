@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useMemo } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
@@ -24,13 +24,24 @@ interface ApplicationFormData {
 }
 
 export default function InternalApplicationPage() {
-  const params = useParams();
+  // Static export: every /internal/apply/<requisitionId> URL is served the
+  // same pre-rendered shell (built with the placeholder id "_" — see the
+  // CloudFront "/internal/apply/*" rewrite behavior in
+  // ShumelaHireFrontendStack.cs). useParams() would read that build-time
+  // placeholder instead of the real id on a hard page load / refresh, so
+  // the real id is read from the actual browser URL instead (same fix as
+  // requisitions/[id], #187).
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
 
-  const requisitionId = params.requisitionId as string;
+  const requisitionId = useMemo(() => {
+    const parts = pathname.split('/').filter(Boolean);
+    // ['internal', 'apply', '<requisitionId>']
+    return parts.length >= 3 ? parts[2] : '';
+  }, [pathname]);
   const jobId = searchParams.get('jobId');
   const jobTitle = searchParams.get('title') || 'Position';
 
