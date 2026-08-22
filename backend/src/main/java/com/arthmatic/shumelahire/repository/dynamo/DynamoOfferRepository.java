@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.repository.dynamo;
 
+import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.NegotiationStatus;
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
@@ -320,6 +321,19 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         var offer = new Offer();
         if (item.getId() != null) {
             offer.setId(item.getId());
+        }
+        // Rebuild the application association from the stored scalar id.
+        //
+        // toItem() writes applicationId, but nothing here read it back, so every Offer loaded from
+        // DynamoDB had a null application. OfferService.hydrateOffers() keys off
+        // getApplication().getId() to batch-fetch the applicant, so it silently did nothing on
+        // every call — and the Offers screen rendered "Unknown Candidate" on every card, for every
+        // tenant, however the offer was fetched. The stub is enough: hydration replaces it with the
+        // full Application, and Interview solves the same problem the same way.
+        if (item.getApplicationId() != null) {
+            var application = new Application();
+            application.setId(item.getApplicationId());
+            offer.setApplication(application);
         }
         offer.setTenantId(item.getTenantId());
         offer.setOfferNumber(item.getOfferNumber());
