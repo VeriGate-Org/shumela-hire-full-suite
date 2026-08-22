@@ -74,20 +74,53 @@ public class RequisitionController {
 
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
-    public ResponseEntity<Requisition> submit(@PathVariable String id) {
-        return ResponseEntity.ok(requisitionService.submit(id));
+    public ResponseEntity<Requisition> submit(Authentication authentication, @PathVariable String id) {
+        return ResponseEntity.ok(requisitionService.submit(
+                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication)));
     }
 
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
-    public ResponseEntity<Requisition> approve(@PathVariable String id) {
-        return ResponseEntity.ok(requisitionService.approve(id));
+    public ResponseEntity<Requisition> approve(Authentication authentication, @PathVariable String id,
+                                               @RequestBody(required = false) ApprovalDecisionRequest body) {
+        return ResponseEntity.ok(requisitionService.approve(
+                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication),
+                body != null ? body.comment() : null));
     }
 
     @PostMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
-    public ResponseEntity<Requisition> reject(@PathVariable String id) {
-        return ResponseEntity.ok(requisitionService.reject(id));
+    public ResponseEntity<Requisition> reject(Authentication authentication, @PathVariable String id,
+                                              @RequestBody(required = false) ApprovalDecisionRequest body) {
+        return ResponseEntity.ok(requisitionService.reject(
+                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication),
+                body != null ? body.comment() : null));
+    }
+
+    /** Optional body carrying an approver's comment. */
+    public record ApprovalDecisionRequest(String comment) {}
+
+    /**
+     * Display name of the acting user, captured onto the approval record so the timeline shows a
+     * person rather than an identifier.
+     */
+    private String resolveUserName(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            String name = jwt.getClaimAsString("name");
+            return name != null ? name : jwt.getClaimAsString("email");
+        }
+        if (authentication.getPrincipal() instanceof User user) {
+            String first = user.getFirstName();
+            String last = user.getLastName();
+            if (first != null || last != null) {
+                return ((first != null ? first : "") + " " + (last != null ? last : "")).trim();
+            }
+            return user.getEmail();
+        }
+        return authentication.getName();
     }
 
     private Optional<String> resolveUserId(Authentication authentication) {

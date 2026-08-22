@@ -66,6 +66,7 @@ public class JobPostingItem {
     private String applicationDeadline;
     private Integer positionsAvailable;
     private String status;
+    private String requisitionId;
     private String createdBy;
     private String approvedBy;
     private String publishedBy;
@@ -296,4 +297,8 @@ public class JobPostingItem {
 
     public String getClosedAt() { return closedAt; }
     public void setClosedAt(String closedAt) { this.closedAt = closedAt; }
+
+    @DynamoDbAttribute("requisitionId")
+    public String getRequisitionId() { return requisitionId; }
+    public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
 }

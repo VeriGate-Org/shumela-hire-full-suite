@@ -48,6 +48,8 @@ public class RequisitionItem {
     private String createdBy;
     private String createdAt;
     private String updatedAt;
+    /** Approval chain history, serialised as JSON. Null on records predating delegation routing. */
+    private String approvalHistoryJson;
 
     // ── Table keys ───────────────────────────────────────────────────────────
 
@@ -140,4 +142,8 @@ public class RequisitionItem {
 
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+
+    @DynamoDbAttribute("approvalHistoryJson")
+    public String getApprovalHistoryJson() { return approvalHistoryJson; }
+    public void setApprovalHistoryJson(String approvalHistoryJson) { this.approvalHistoryJson = approvalHistoryJson; }
 }
