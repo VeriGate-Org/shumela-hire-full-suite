@@ -16,6 +16,17 @@ public class Application extends TenantAwareEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Applicant applicant;
 
+    /**
+     * Candidate's full name, denormalised onto the application.
+     *
+     * <p>The applicant association is loaded as a stub holding only an id, and is hydrated lazily
+     * per page for the response DTO. That makes it useless for searching: a search runs across all
+     * applications, where every applicant is still a hollow stub. Keeping the name on the
+     * application itself lets search match a candidate without an N+1 hydration of the whole
+     * table.</p>
+     */
+    private String candidateName;
+
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private JobPosting jobPosting;
 
@@ -110,6 +121,17 @@ public class Application extends TenantAwareEntity {
 
     public String getJobPostingId() { return jobPostingId; }
     public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }
+
+    public String getCandidateName() { return candidateName; }
+    public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
+
+    /** Candidate name for display or matching, preferring the hydrated applicant when present. */
+    public String resolveCandidateName() {
+        if (applicant != null && applicant.getName() != null) {
+            return applicant.getFullName();
+        }
+        return candidateName;
+    }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

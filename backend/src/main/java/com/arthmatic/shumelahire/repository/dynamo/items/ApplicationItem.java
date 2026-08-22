@@ -50,6 +50,7 @@ public class ApplicationItem {
     private String tenantId;
     private String applicantId;
     private String jobPostingId;
+    private String candidateName;
     private String jobTitle;
     private String jobId;
     private String department;
@@ -160,6 +161,9 @@ public class ApplicationItem {
 
     public String getJobPostingId() { return jobPostingId; }
     public void setJobPostingId(String jobPostingId) { this.jobPostingId = jobPostingId; }
+
+    public String getCandidateName() { return candidateName; }
+    public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }

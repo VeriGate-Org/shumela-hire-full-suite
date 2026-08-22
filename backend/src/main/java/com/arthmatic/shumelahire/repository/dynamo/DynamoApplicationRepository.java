@@ -83,10 +83,15 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         String lower = searchTerm != null ? searchTerm.toLowerCase() : "";
         List<Application> filtered = findAll().stream()
                 .filter(a -> {
+                    // Match the denormalised candidate name first. The applicant association is
+                    // only a stub at this point — hydration happens per page, after filtering — so
+                    // relying on it here meant a search by candidate name never matched anything
+                    // and only job titles were searchable.
+                    if (a.getCandidateName() != null && a.getCandidateName().toLowerCase().contains(lower)) return true;
                     if (a.getApplicant() != null) {
                         String fullName = ((a.getApplicant().getName() != null ? a.getApplicant().getName() : "") + " "
-                                + (a.getApplicant().getSurname() != null ? a.getApplicant().getSurname() : "")).toLowerCase();
-                        if (fullName.contains(lower)) return true;
+                                + (a.getApplicant().getSurname() != null ? a.getApplicant().getSurname() : "")).trim().toLowerCase();
+                        if (!fullName.isEmpty() && fullName.contains(lower)) return true;
                         if (a.getApplicant().getEmail() != null && a.getApplicant().getEmail().toLowerCase().contains(lower)) return true;
                     }
                     return a.getJobTitle() != null && a.getJobTitle().toLowerCase().contains(lower);
@@ -572,6 +577,7 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         if (item.getJobPostingId() != null) {
             app.setJobPostingId(item.getJobPostingId());
         }
+        app.setCandidateName(item.getCandidateName());
         app.setJobTitle(item.getJobTitle());
         app.setJobId(item.getJobId());
         app.setDepartment(item.getDepartment());
@@ -686,6 +692,10 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
         if (entity.getApplicant() != null && entity.getApplicant().getId() != null) {
             item.setApplicantId(entity.getApplicant().getId());
         }
+        // Keep the denormalised name in step. resolveCandidateName() prefers a hydrated applicant
+        // and falls back to the stored value, so saving an application whose applicant is still a
+        // stub does not wipe the name and make that candidate unsearchable.
+        item.setCandidateName(entity.resolveCandidateName());
         if (entity.getJobPostingId() != null) {
             item.setJobPostingId(entity.getJobPostingId());
         } else if (entity.getJobPosting() != null && entity.getJobPosting().getId() != null) {
