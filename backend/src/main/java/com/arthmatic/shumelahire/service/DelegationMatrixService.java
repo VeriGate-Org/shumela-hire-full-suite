@@ -34,13 +34,16 @@ public class DelegationMatrixService {
     /**
      * Band above which executive approval is required in addition to HR.
      *
-     * <p>Default is R750,000. Confirm against the client's actual delegation matrix during
-     * discovery before treating it as correct.</p>
+     * <p>Default is R1,000,000, set against the IDC demo tenant so that routing matches the
+     * delegation behaviour described in Schedule 3: Risk Manager (ceiling R1.1m) escalates to the
+     * executive, while Senior Business Analyst (R800k) and Project Manager (R950k) sit within the
+     * HR delegation. Confirm against the client's actual delegation matrix during discovery before
+     * treating it as correct.</p>
      */
     private final BigDecimal executiveApprovalThreshold;
 
     public DelegationMatrixService(
-            @Value("${shumelahire.requisition.executive-approval-threshold:750000}")
+            @Value("${shumelahire.requisition.executive-approval-threshold:1000000}")
             BigDecimal executiveApprovalThreshold) {
         this.executiveApprovalThreshold = executiveApprovalThreshold;
         logger.info("Delegation matrix active: executive approval required above {}", executiveApprovalThreshold);

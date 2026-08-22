@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class DelegationMatrixServiceTest {
 
-    private static final BigDecimal THRESHOLD = new BigDecimal("750000");
+    private static final BigDecimal THRESHOLD = new BigDecimal("1000000");
 
     private DelegationMatrixService service;
 
@@ -49,7 +49,7 @@ class DelegationMatrixServiceTest {
     @Test
     @DisplayName("A role within the HR delegation requires HR approval only")
     void belowThresholdIsHrOnly() {
-        Requisition analyst = requisition("620000", RequisitionStatus.DRAFT);
+        Requisition analyst = requisition("800000", RequisitionStatus.DRAFT);
 
         assertEquals(java.util.List.of(ApprovalStage.HR_MANAGER), service.requiredChain(analyst));
     }
@@ -57,7 +57,7 @@ class DelegationMatrixServiceTest {
     @Test
     @DisplayName("A role exactly on the threshold stays within the HR delegation")
     void thresholdIsInclusiveOfHrOnly() {
-        Requisition onBoundary = requisition("750000", RequisitionStatus.DRAFT);
+        Requisition onBoundary = requisition("1000000", RequisitionStatus.DRAFT);
 
         assertEquals(java.util.List.of(ApprovalStage.HR_MANAGER), service.requiredChain(onBoundary));
     }
@@ -75,7 +75,7 @@ class DelegationMatrixServiceTest {
     @Test
     @DisplayName("Approving HR on a below-threshold role completes it, without escalating")
     void belowThresholdTerminatesAtHr() {
-        Requisition analyst = requisition("620000", RequisitionStatus.PENDING_HR_APPROVAL);
+        Requisition analyst = requisition("800000", RequisitionStatus.PENDING_HR_APPROVAL);
 
         assertEquals(RequisitionStatus.APPROVED,
                 service.statusAfterApproval(analyst, ApprovalStage.HR_MANAGER));
@@ -115,10 +115,10 @@ class DelegationMatrixServiceTest {
     void rationaleNamesBandAndThreshold() {
         String high = service.routingRationale(requisition("1100000", RequisitionStatus.DRAFT));
         assertTrue(high.contains("1100000"), "should cite the band ceiling: " + high);
-        assertTrue(high.contains("750000"), "should cite the threshold: " + high);
+        assertTrue(high.contains("1000000"), "should cite the threshold: " + high);
         assertTrue(high.toLowerCase().contains("executive"), "should name the outcome: " + high);
 
-        String low = service.routingRationale(requisition("620000", RequisitionStatus.DRAFT));
+        String low = service.routingRationale(requisition("800000", RequisitionStatus.DRAFT));
         assertTrue(low.toLowerCase().contains("hr approval only"), "should name the outcome: " + low);
     }
 }
