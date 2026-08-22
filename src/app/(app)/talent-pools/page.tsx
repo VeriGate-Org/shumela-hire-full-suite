@@ -89,7 +89,11 @@ function StarRating({
 export default function TalentPoolsPage() {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
-  const hasAccess = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER' || user?.role === 'RECRUITER';
+  // Must match TalentPoolController, which permits ADMIN, HR_MANAGER, RECRUITER and
+  // HIRING_MANAGER on all nine endpoints. HIRING_MANAGER was missing here, so the client blocked
+  // a role the API allows — the TA Manager could not open talent pools at all.
+  const hasAccess = user?.role === 'ADMIN' || user?.role === 'HR_MANAGER'
+    || user?.role === 'RECRUITER' || user?.role === 'HIRING_MANAGER';
 
   // Department & Skills data
   const { departments, loading: deptLoading } = useDepartments();
@@ -350,7 +354,7 @@ export default function TalentPoolsPage() {
       <PageWrapper title="Access Denied" subtitle="You do not have permission to manage talent pools.">
         <div className="bg-white rounded-[10px] border border-gray-200 p-8 text-center">
           <p className="text-gray-500 text-sm">
-            Talent pools can be managed by administrators, HR managers, and recruiters.
+            Talent pools can be managed by administrators, HR managers, recruiters and hiring managers.
           </p>
         </div>
       </PageWrapper>

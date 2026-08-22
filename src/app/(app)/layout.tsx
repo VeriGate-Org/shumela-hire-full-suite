@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SecurityProvider } from '@/contexts/SecurityContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { TenantProvider, useTenant } from '@/contexts/TenantContext';
@@ -59,6 +60,12 @@ export default function AppLayout({
         <LookupsProvider>
           <ThemeProvider>
             <AuthProvider>
+              {/* SecurityProvider wraps AuthContext and is required by the /admin layout, which
+                  calls useSecurity(). It was never mounted, so every /admin route threw
+                  "useSecurity must be used within a SecurityProvider" and rendered the global
+                  error page — taking Users, Roles, Permissions, Audit Logs and Departments down
+                  together. It must sit inside AuthProvider because it reads useAuth(). */}
+              <SecurityProvider>
               <FeatureGateProvider>
                 <ToastProvider>
                   <BrandingApplier>
@@ -68,6 +75,7 @@ export default function AppLayout({
                   </BrandingApplier>
                 </ToastProvider>
               </FeatureGateProvider>
+              </SecurityProvider>
             </AuthProvider>
           </ThemeProvider>
         </LookupsProvider>
