@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { fetchActiveJobs } from '@/lib/jobs-api';
 import IDCJobListClient from '@/components/jobs/IDCJobListClient';
 
 export const metadata: Metadata = {
@@ -15,8 +14,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function JobsPage() {
-  const jobs = await fetchActiveJobs();
-
-  return <IDCJobListClient jobs={jobs} />;
+// Jobs are fetched client-side by IDCJobListClient, not at build time — see
+// its component comment for why (this is a multi-tenant static export).
+export default function JobsPage() {
+  return <IDCJobListClient />;
 }

@@ -265,6 +265,19 @@ public class ShumelaHireServerlessStack : Stack
             AuthorizationType = "NONE"
         });
 
+        // Route: GET /api/ads (unauthenticated, public job ad listing/search)
+        // {proxy+} above requires at least one path segment, so the bare
+        // collection endpoint (used by the careers portal to list published
+        // ads) doesn't match it and was falling through to the authenticated
+        // catch-all route below, 401'ing every unauthenticated visitor.
+        new CfnRoute(this, "AdsListRoute", new CfnRouteProps
+        {
+            ApiId = HttpApi.Ref,
+            RouteKey = "GET /api/ads",
+            Target = $"integrations/{integration.Ref}",
+            AuthorizationType = "NONE"
+        });
+
         // Stage
         new CfnStage(this, "ApiStage", new CfnStageProps
         {
