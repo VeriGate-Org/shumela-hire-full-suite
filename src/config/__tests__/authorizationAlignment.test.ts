@@ -16,7 +16,18 @@ function expectNavRoles(navId: string, expected: UserRole[]) {
   const entry = navigationRegistry.find((item) => item.id === navId);
   expect(entry).toBeDefined();
 
-  const actual = rolesWithPermissions(entry!.requiredPermissions).sort();
+  let actual = rolesWithPermissions(entry!.requiredPermissions);
+  // allowedRoles is a UI-only allow-list on top of the permission check —
+  // e.g. talent-pools/agencies share view_applicants with 'applicants' but
+  // are deliberately pinned to a narrower role set so that granting a role
+  // view_applicants for Applicants' sake doesn't silently also unlock
+  // these two. Without this, the test would only ever see the permission
+  // side and miss that narrowing entirely.
+  if (entry!.allowedRoles) {
+    const allowed = new Set(entry!.allowedRoles);
+    actual = actual.filter((role) => allowed.has(role));
+  }
+  actual = actual.sort();
   const sortedExpected = [...expected].sort();
   expect(actual).toEqual(sortedExpected);
 }
@@ -27,7 +38,8 @@ describe('Authorization alignment', () => {
     expectNavRoles('talent-pools', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('offers', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('workflow', ['ADMIN', 'HR_MANAGER']);
-    expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
+    expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
+    expectNavRoles('applicants', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('integrations', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('reports', ['ADMIN', 'EXECUTIVE', 'HR_MANAGER']);
     expectNavRoles('audit-logs', ['ADMIN']);

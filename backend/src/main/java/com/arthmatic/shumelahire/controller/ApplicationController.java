@@ -278,9 +278,17 @@ public class ApplicationController {
     /**
      * Update application status
      * PUT /api/applications/{id}/status
+     *
+     * Includes HIRING_MANAGER alongside the other roles that already have
+     * every read endpoint /applications/manage needs (search, statistics,
+     * attention, filter-options on ApplicationManagementController) — this
+     * is the single-item Reject / Move-to-Screening action on that same
+     * page, so a Hiring Manager who can see an application couldn't act on
+     * it. Bulk operations and CSV export stay ADMIN/HR_MANAGER(/RECRUITER)
+     * only, unchanged — that tier wasn't part of what was asked for.
      */
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> updateApplicationStatus(
             @PathVariable String id,
             @RequestParam ApplicationStatus status,

@@ -57,6 +57,13 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'view_dashboard', 'manage_jobs', 'view_applications',
     'manage_pipeline', 'view_interviews', 'view_internal_jobs',
     'view_analytics', 'manage_requisitions',
+    // Applicants and Application Management were ADMIN/HR_MANAGER/RECRUITER
+    // only — Hiring Managers could already reach every backend endpoint
+    // these pages need to view the pipeline (search/statistics/attention/
+    // filter-options on ApplicationManagementController, and /api/applicants
+    // itself, all already allow HIRING_MANAGER) but had no nav entry or
+    // page-level permission to get there.
+    'view_applicants', 'manage_applications',
   ],
   RECRUITER: [
     'view_dashboard', 'manage_jobs', 'view_applications', 'view_applicants',
