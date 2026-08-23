@@ -23,6 +23,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) 
     const hiddenSections = getHiddenSectionsForRole(user.role);
     return navigationRegistry.filter((entry) =>
       !hiddenSections.includes(entry.section) &&
+      (!entry.allowedRoles || entry.allowedRoles.includes(user.role)) &&
       entry.requiredPermissions.every((permission) => userPermissions.includes(permission))
     );
   }, [user]);

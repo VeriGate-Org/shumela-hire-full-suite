@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
+import com.arthmatic.shumelahire.service.ApplicantService;
 import com.arthmatic.shumelahire.service.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,9 @@ public class OfferController {
     @Autowired
     private ApplicantDataRepository applicantRepository;
 
+    @Autowired
+    private ApplicantService applicantService;
+
     // Create new offer
     @PostMapping("/applications/{applicationId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
@@ -62,9 +66,9 @@ public class OfferController {
 
     // Get offer by ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<Offer> getOffer(@PathVariable String id) {
-        if (isApplicant(authentication())) {
+        if (isSelfServiceCandidate(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
         }
         Optional<Offer> offer = offerService.getOfferById(id);
@@ -82,9 +86,9 @@ public class OfferController {
 
     // Get offers for applicant (O6: single call, eliminates N+1)
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable String applicantId) {
-        if (isApplicant(authentication())) {
+        if (isSelfServiceCandidate(authentication())) {
             String currentApplicantId = resolveApplicantId(authentication());
             if (!currentApplicantId.equals(applicantId)) {
                 throw new AccessDeniedException("Applicants can only view their own offers");
@@ -199,9 +203,9 @@ public class OfferController {
 
     // Record candidate viewed
     @PostMapping("/{id}/viewed")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> recordCandidateViewed(@PathVariable String id) {
-        if (isApplicant(authentication())) {
+        if (isSelfServiceCandidate(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
         }
         try {
@@ -215,11 +219,11 @@ public class OfferController {
 
     // Accept offer
     @PostMapping("/{id}/accept")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> acceptOffer(
             @PathVariable String id,
             Authentication authentication) {
-        if (isApplicant(authentication)) {
+        if (isSelfServiceCandidate(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
@@ -234,12 +238,12 @@ public class OfferController {
 
     // Decline offer
     @PostMapping("/{id}/decline")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> declineOffer(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
-        if (isApplicant(authentication)) {
+        if (isSelfServiceCandidate(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
@@ -255,12 +259,12 @@ public class OfferController {
 
     // Start negotiation
     @PostMapping("/{id}/negotiate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> startNegotiation(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
             Authentication authentication) {
-        if (isApplicant(authentication)) {
+        if (isSelfServiceCandidate(authentication)) {
             assertApplicantCanAccessOffer(authentication, id);
         }
         try {
@@ -413,21 +417,21 @@ public class OfferController {
 
     // Get offer status options
     @GetMapping("/status-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<OfferStatus[]> getOfferStatusOptions() {
         return ResponseEntity.ok(OfferStatus.values());
     }
 
     // Get offer type options
     @GetMapping("/type-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<OfferType[]> getOfferTypeOptions() {
         return ResponseEntity.ok(OfferType.values());
     }
 
     // Get negotiation status options
     @GetMapping("/negotiation-status-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<NegotiationStatus[]> getNegotiationStatusOptions() {
         return ResponseEntity.ok(NegotiationStatus.values());
     }
@@ -469,6 +473,28 @@ public class OfferController {
         return false;
     }
 
+    // Employees get the same self-service offer access as Applicants (view,
+    // accept, decline, negotiate their own offers) — see
+    // ApplicantService.resolveOrCreateApplicantIdForEmployee for how their
+    // Applicant record gets created on first use.
+    private boolean isEmployee(Authentication authentication) {
+        if (authentication == null) return false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if ("ROLE_EMPLOYEE".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // The ownership checks below (assertApplicantCanAccessOffer /
+    // getOffersByApplicant) must run for Employees too, not just Applicants —
+    // otherwise an Employee would skip the "is this actually your offer?"
+    // check entirely and get unrestricted access to any offer by id.
+    private boolean isSelfServiceCandidate(Authentication authentication) {
+        return isApplicant(authentication) || isEmployee(authentication);
+    }
+
     private void assertApplicantCanAccessOffer(Authentication authentication, String offerId) {
         String email = extractAuthenticatedEmail(authentication);
         if (email == null) {
@@ -487,6 +513,9 @@ public class OfferController {
         String email = extractAuthenticatedEmail(authentication);
         if (email == null) {
             throw new AccessDeniedException("Applicant email missing from authentication");
+        }
+        if (isEmployee(authentication)) {
+            return applicantService.resolveOrCreateApplicantIdForEmployee(email);
         }
 
         return applicantRepository.findByEmail(email)

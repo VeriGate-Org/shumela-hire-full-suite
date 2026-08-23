@@ -19,15 +19,8 @@ export default function DashboardPage() {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  // Redirect employees to their dedicated portal
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && user?.role === 'EMPLOYEE') {
-      router.replace('/employee/portal');
-    }
-  }, [isLoading, isAuthenticated, user?.role, router]);
-
-  // Show nothing while auth is loading or redirecting
-  if (isLoading || !isAuthenticated || user?.role === 'EMPLOYEE') {
+  // Show nothing while auth is loading or redirecting to login
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500" />

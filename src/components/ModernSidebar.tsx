@@ -85,6 +85,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     const hiddenSections = getHiddenSectionsForRole(user.role);
     return navigationRegistry
       .filter(entry => !hiddenSections.includes(entry.section))
+      .filter(entry => !entry.allowedRoles || entry.allowedRoles.includes(user.role))
       .filter(entry => entry.requiredPermissions.every(p => userPermissions.includes(p)))
       .map(entry => {
         const featureEnabled = !entry.requiredFeature || isFeatureEnabled(entry.requiredFeature);

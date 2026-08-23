@@ -11,6 +11,7 @@ import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.User;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.DocumentDataRepository;
+import com.arthmatic.shumelahire.service.ApplicantService;
 import com.arthmatic.shumelahire.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -41,13 +42,16 @@ public class ApplicationController {
     private final ApplicationService applicationService;
     private final DocumentDataRepository documentRepository;
     private final ApplicantDataRepository applicantRepository;
+    private final ApplicantService applicantService;
 
     public ApplicationController(ApplicationService applicationService,
                                  DocumentDataRepository documentRepository,
-                                 ApplicantDataRepository applicantRepository) {
+                                 ApplicantDataRepository applicantRepository,
+                                 ApplicantService applicantService) {
         this.applicationService = applicationService;
         this.documentRepository = documentRepository;
         this.applicantRepository = applicantRepository;
+        this.applicantService = applicantService;
     }
 
     /**
@@ -65,7 +69,7 @@ public class ApplicationController {
      */
     private String resolveApplicantForSubmission(ApplicationCreateRequest request,
                                                  Authentication authentication) {
-        if (isApplicant(authentication)) {
+        if (isApplicant(authentication) || isEmployee(authentication)) {
             String ownId = resolveApplicantId(authentication);
             String supplied = request.getApplicantId();
             if (supplied != null && !supplied.equals(ownId)) {
@@ -85,6 +89,9 @@ public class ApplicationController {
         String email = extractAuthenticatedEmail(authentication);
         if (email == null) {
             throw new AccessDeniedException("Applicant email missing from authentication");
+        }
+        if (isEmployee(authentication)) {
+            return applicantService.resolveOrCreateApplicantIdForEmployee(email);
         }
         return applicantRepository.findByEmail(email)
                 .map(Applicant::getId)
@@ -112,12 +119,26 @@ public class ApplicationController {
         return false;
     }
 
+    // Employees get the same self-service application flow as Applicants
+    // (browse jobs, apply, track their own applications) — see
+    // ApplicantService.resolveOrCreateApplicantIdForEmployee for how their
+    // Applicant record gets created on first use.
+    private boolean isEmployee(Authentication authentication) {
+        if (authentication == null) return false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if ("ROLE_EMPLOYEE".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Submit new application
      * POST /api/applications
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> submitApplication(@Valid @RequestBody ApplicationCreateRequest request,
                                                Authentication authentication) {
         try {
@@ -208,7 +229,7 @@ public class ApplicationController {
      * GET /api/applications/applicant/{applicantId}
      */
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> getApplicationsByApplicant(@PathVariable String applicantId) {
         try {
             List<ApplicationResponse> applications = applicationService.getApplicationsByApplicant(applicantId);
@@ -283,7 +304,7 @@ public class ApplicationController {
      * POST /api/applications/{id}/withdraw
      */
     @PostMapping("/{id}/withdraw")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> withdrawApplication(
             @PathVariable String id,
             @Valid @RequestBody ApplicationWithdrawRequest request) {
@@ -350,7 +371,7 @@ public class ApplicationController {
      * GET /api/applications/can-apply?applicantId={id}&jobAdId={id}
      */
     @GetMapping("/can-apply")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> canApplicantApplyForJob(
             @RequestParam String applicantId,
             @RequestParam String jobAdId) {
