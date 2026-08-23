@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
@@ -73,11 +73,21 @@ const isJobClosingSoon = (closingDate?: string): boolean => {
 };
 
 export default function InternalJobDetailPage() {
-  const params = useParams();
+  // This is a static export: the page is pre-rendered once at build time
+  // with a placeholder id ("_" — see generateStaticParams in page.tsx and
+  // the CloudFront "/internal/jobs/*" rewrite behavior in
+  // ShumelaHireFrontendStack.cs). useParams() would read that build-time
+  // placeholder instead of the real id on a hard page load/refresh, so the
+  // real id is read from the actual browser URL instead.
+  const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
-  const jobId = params.id as string;
+  const jobId = useMemo(() => {
+    const parts = pathname.split('/').filter(Boolean);
+    // ['internal', 'jobs', '<id>']
+    return parts.length >= 3 ? parts[2] : '';
+  }, [pathname]);
 
   const [job, setJob] = useState<InternalJobAd | null>(null);
   const [loading, setLoading] = useState(true);
