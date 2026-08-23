@@ -69,6 +69,14 @@ export interface NavigationEntry {
   requiredPermissions: string[];
   requiredFeature?: string;
   badge?: string;
+  /**
+   * Restricts this entry to specific roles, on top of requiredPermissions.
+   * Use sparingly — only when two roles share a permission but the entry
+   * should still appear for just one of them (e.g. an item duplicated into
+   * a section a role keeps visible, while its usual section is hidden for
+   * that role via ROLE_HIDDEN_SECTIONS).
+   */
+  allowedRoles?: UserRole[];
 }
 
 export const navigationRegistry: NavigationEntry[] = [
@@ -167,12 +175,18 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
   { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
 
-  // Personal (Applicant-facing)
+  // Personal (Applicant-facing; Employees share this section too — see
+  // ROLE_HIDDEN_SECTIONS.EMPLOYEE and rolePermissions.EMPLOYEE)
   { id: 'browse-jobs', label: 'Browse Jobs', href: '/candidate/jobs', icon: MagnifyingGlassIcon, section: 'personal', requiredPermissions: ['browse_jobs'] },
   { id: 'my-applications', label: 'My Applications', href: '/candidate/applications', icon: DocumentTextIcon, section: 'personal', requiredPermissions: ['manage_own_applications'] },
   { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'] },
   { id: 'interview-schedule', label: 'Interview Schedule', href: '/candidate/interviews', icon: CalendarIcon, section: 'personal', requiredPermissions: ['view_own_interviews'] },
   { id: 'my-offers', label: 'My Offers', href: '/candidate/offers', icon: CurrencyDollarIcon, section: 'personal', requiredPermissions: ['view_own_offers'] },
+  // Employees also have 'view_internal_jobs' via the (now-hidden) Recruitment
+  // section's 'internal-jobs' entry — this duplicate keeps it reachable under
+  // Personal for Employees specifically, without also surfacing it for
+  // Applicants (who hold the same permission but shouldn't see it here).
+  { id: 'employee-internal-jobs', label: 'Internal Jobs', href: '/internal/jobs', icon: BuildingOfficeIcon, section: 'personal', requiredPermissions: ['view_internal_jobs'], requiredFeature: 'RECRUITMENT', allowedRoles: ['EMPLOYEE'] },
 
   // System
   { id: 'help', label: 'Help Center', href: '/help', icon: QuestionMarkCircleIcon, section: 'system', requiredPermissions: [] },
@@ -218,14 +232,16 @@ export const SECTION_ICONS: Record<NavSection, ComponentType<any>> = {
 
 export const SINGLE_LINK_SECTIONS = new Set<NavSection>(['overview', 'workflow']);
 
-// Applicants get the same "Personal" section as Employees for browsing jobs,
-// tracking applications, and viewing their profile/interviews/offers.
-// Recruitment, HR, Communication, and Candidate Portal are recruiter/employee-
-// facing sections that don't apply to them and would otherwise leak through
-// because some of their items only require broad permissions (e.g.
-// view_own_profile, view_internal_jobs) that Applicants also hold.
+// Applicants and Employees share the same simplified nav: just Personal
+// (browsing jobs, tracking applications, profile/interviews/offers, and for
+// Employees an added Internal Jobs entry — see 'employee-internal-jobs'
+// above) plus System. Recruitment, HR, Communication, and Candidate Portal
+// are recruiter-facing sections that would otherwise leak through because
+// some of their items only require broad permissions (e.g. view_own_profile,
+// view_internal_jobs) that both roles also hold.
 const ROLE_HIDDEN_SECTIONS: Partial<Record<UserRole, NavSection[]>> = {
   APPLICANT: ['recruitment', 'hr_core', 'communication', 'candidate_portal'],
+  EMPLOYEE: ['recruitment', 'hr_core', 'communication', 'candidate_portal'],
 };
 
 export function getHiddenSectionsForRole(role?: UserRole): NavSection[] {

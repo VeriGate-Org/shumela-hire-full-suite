@@ -5,8 +5,10 @@ import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
+import com.arthmatic.shumelahire.entity.User;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.DocumentDataRepository;
+import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -29,15 +31,51 @@ public class ApplicantService {
     private final DocumentDataRepository documentRepository;
     private final AuditLogService auditLogService;
     private final FileStorageService fileStorageService;
+    private final UserDataRepository userRepository;
 
     public ApplicantService(ApplicantDataRepository applicantRepository,
                            DocumentDataRepository documentRepository,
                            AuditLogService auditLogService,
-                           FileStorageService fileStorageService) {
+                           FileStorageService fileStorageService,
+                           UserDataRepository userRepository) {
         this.applicantRepository = applicantRepository;
         this.documentRepository = documentRepository;
         this.auditLogService = auditLogService;
         this.fileStorageService = fileStorageService;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Resolves the Applicant record backing a self-service action (applying,
+     * viewing own applications/offers) taken by an authenticated Employee,
+     * auto-provisioning one on first use.
+     *
+     * <p>Employee and Applicant are distinct entities (Employee.java vs
+     * Applicant.java) — an Employee applying for an internal or external role
+     * for the first time has no Applicant record yet. Rather than blocking
+     * them, create a minimal one from their User profile, keyed by the same
+     * email, so subsequent self-service calls resolve to the same Applicant
+     * consistently. Applicants themselves are never auto-provisioned here —
+     * a genuine Applicant account missing its profile is a real data problem
+     * the caller should still surface as an error, not paper over.</p>
+     */
+    public String resolveOrCreateApplicantIdForEmployee(String email) {
+        return applicantRepository.findByEmail(email)
+                .map(Applicant::getId)
+                .orElseGet(() -> {
+                    User user = userRepository.findByEmail(email).orElse(null);
+                    String firstName = user != null ? user.getFirstName() : "";
+                    String lastName = user != null ? user.getLastName() : "";
+                    Applicant applicant = new Applicant(firstName, lastName, email);
+                    if (user != null) {
+                        applicant.setUserId(user.getId());
+                        applicant.setPhone(user.getPhone());
+                    }
+                    applicant.setSource("EMPLOYEE_SELF_SERVICE");
+                    Applicant saved = applicantRepository.save(applicant);
+                    logger.info("Auto-provisioned applicant profile {} for employee {}", saved.getId(), email);
+                    return saved.getId();
+                });
     }
 
     /**

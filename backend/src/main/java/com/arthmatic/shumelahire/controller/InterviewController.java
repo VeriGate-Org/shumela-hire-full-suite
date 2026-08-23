@@ -146,9 +146,9 @@ public class InterviewController {
         return ResponseEntity.ok(interviews);
     }
 
-    // Get interviews by application (also accessible by applicants for their own applications)
+    // Get interviews by application (also accessible by applicants/employees for their own applications)
     @GetMapping("/application/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<List<Interview>> getInterviewsByApplication(@PathVariable String applicationId) {
         List<Interview> interviews = interviewService.getInterviewsByApplication(applicationId);
         return ResponseEntity.ok(interviews);

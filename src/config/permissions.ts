@@ -72,6 +72,10 @@ export const rolePermissions: Record<UserRole, string[]> = {
     // Self-service access (employees use /employee/* pages, not admin pages)
     'manage_leave', 'view_attendance', 'manage_documents', 'view_company_documents',
     'feed:view', 'feed:post',
+    // Same job-search self-service Applicants get — Browse Jobs, My
+    // Applications, Interview Schedule, My Offers — since an Employee can
+    // apply for internal or external roles just like an Applicant can.
+    'browse_jobs', 'manage_own_applications', 'view_own_interviews', 'view_own_offers',
   ],
   APPLICANT: [
     'browse_jobs', 'manage_own_applications', 'view_own_profile',

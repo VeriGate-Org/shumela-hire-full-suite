@@ -9,6 +9,7 @@ import LineManagerDashboard from './role-dashboards/LineManagerDashboard';
 import RecruiterDashboard from './role-dashboards/RecruiterDashboard';
 import InterviewerDashboard from './role-dashboards/InterviewerDashboard';
 import ApplicantDashboard from './role-dashboards/ApplicantDashboard';
+import EmployeeDashboard from './role-dashboards/EmployeeDashboard';
 import ExecutiveDashboard from './role-dashboards/ExecutiveDashboard';
 import PlatformOwnerDashboard from './role-dashboards/PlatformOwnerDashboard';
 
@@ -39,7 +40,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
     case 'INTERVIEWER':
       return <InterviewerDashboard {...dashboardProps} />;
     case 'EMPLOYEE':
-      return null; // Employees are redirected to /employee/portal
+      return <EmployeeDashboard {...dashboardProps} />;
     case 'APPLICANT':
       return <ApplicantDashboard {...dashboardProps} />;
     case 'EXECUTIVE':
