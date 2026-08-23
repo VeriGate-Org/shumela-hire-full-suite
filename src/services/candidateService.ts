@@ -63,3 +63,32 @@ export async function getOffersForApplicant(applicantId: string) {
   const result = await response.json();
   return result.content || result.data || result || [];
 }
+
+/**
+ * Applicant- and Employee-dashboard summary: the caller's own applications
+ * plus their scheduled interviews across all of them.
+ *
+ * Deliberately does NOT use GET /api/applications or GET /api/interviews —
+ * those are staff-only search endpoints (no self-service role has ever had
+ * access, including Applicant) and 403 for a signed-in candidate. The
+ * correct self-service path is applicant-id -> their applications ->
+ * per-application interviews, via the endpoints actually opened up for
+ * APPLICANT/EMPLOYEE.
+ */
+export async function getMyDashboardData(email: string): Promise<{ applications: any[]; upcomingInterviews: any[] }> {
+  const applicantId = await getApplicantId(email);
+  if (!applicantId) return { applications: [], upcomingInterviews: [] };
+
+  const applications = await getApplications(applicantId).catch(() => []);
+
+  const interviewLists = await Promise.all(
+    applications.map((app: Record<string, unknown>) =>
+      getInterviewsForApplication(String(app.id)).catch(() => [])
+    )
+  );
+  const upcomingInterviews = interviewLists
+    .flat()
+    .filter((interview: Record<string, unknown>) => interview.status === 'SCHEDULED');
+
+  return { applications, upcomingInterviews };
+}
