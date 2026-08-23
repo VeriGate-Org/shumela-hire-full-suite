@@ -17,7 +17,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/salary-recommendations")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
+/*
+ * HIRING_MANAGER is included at class level so a hiring manager can see and raise salary
+ * recommendations for their own vacancies. Approve and reject are deliberately narrower — see the
+ * annotations on those two methods.
+ */
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
 public class SalaryRecommendationController {
 
     private final SalaryRecommendationService service;
@@ -71,6 +76,19 @@ public class SalaryRecommendationController {
         }
     }
 
+    /**
+     * Approving a salary recommendation is not the same authority as raising one.
+     *
+     * <p>The escalation this platform is built around — a proposal above the approved band going
+     * to someone senior — only means anything if the person who raised it cannot wave it through.
+     * HIRING_MANAGER and RECRUITER are therefore excluded here while retaining access to the rest
+     * of the controller.</p>
+     *
+     * <p>EXECUTIVE is <em>added</em>. The role was previously unable to approve a salary
+     * recommendation at all, which contradicted how the delegation is described: an amount above
+     * the band escalates to the executive, and the executive then approves it.</p>
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
     @PostMapping("/{id}/approve")
     public ResponseEntity<?> approve(@PathVariable String id,
                                      @RequestBody(required = false) Map<String, String> body,
@@ -83,6 +101,8 @@ public class SalaryRecommendationController {
         }
     }
 
+    /** Same authority as approving — declining is a decision of equal weight. */
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
     @PostMapping("/{id}/reject")
     public ResponseEntity<?> reject(@PathVariable String id,
                                     @RequestBody Map<String, String> body,

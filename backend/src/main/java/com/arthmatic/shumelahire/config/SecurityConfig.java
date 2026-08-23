@@ -181,7 +181,9 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/job-boards/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
                 // Salary recommendation endpoints
-                .requestMatchers(new AntPathRequestMatcher("/api/salary-recommendations/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                // Method-level annotations narrow approve/reject to ADMIN, HR_MANAGER and EXECUTIVE.
+                // This rule must stay wide enough for them, or it silently overrides the annotation.
+                .requestMatchers(new AntPathRequestMatcher("/api/salary-recommendations/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "EXECUTIVE")
 
                 // Vacancy report endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/vacancy-reports/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
