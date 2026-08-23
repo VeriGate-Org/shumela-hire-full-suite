@@ -285,6 +285,45 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /applications/<id> to the shell ────
+        // Same issue and fix as RequisitionsDetailRewriteFunction above:
+        // /applications/[id] only pre-renders one placeholder ("_"), so any
+        // real application id 403s straight from S3 on a direct load or
+        // refresh. Unlike /apply/* or /candidate/jobs/*, this behavior's
+        // path pattern also covers /applications/manage — a real static
+        // page, not a dynamic id — so that one case is special-cased to the
+        // normal extensionless->.html rewrite instead (this behavior doesn't
+        // run the default behavior's UrlRewriteFunction, so it has to
+        // handle that itself).
+        var applicationsDetailRewriteFn = new Function(this, "ApplicationsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-applications-detail-rewrite",
+            Comment = "Rewrites /applications/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // /applications/manage is a real static page, not a dynamic [id].
+    if (uri === '/applications/manage' || uri.indexOf('/applications/manage/') === 0) {
+        if (uri.indexOf('.') === -1) {
+            if (uri.endsWith('/')) uri = uri.slice(0, -1);
+            request.uri = uri + '.html';
+        }
+        return request;
+    }
+
+    // Everything else under /applications/* is the [id] detail page — only
+    // one placeholder (""_"") was ever pre-rendered, so always serve it.
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/applications/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -459,6 +498,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = candidateJobsDetailRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Application detail pages → same technique, see comment
+                // above on ApplicationsDetailRewriteFunction. Does not
+                // affect bare /applications or /applications/manage, which
+                // stay on the default behavior.
+                ["/applications/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = applicationsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }
