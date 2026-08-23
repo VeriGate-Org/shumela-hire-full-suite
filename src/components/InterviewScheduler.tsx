@@ -293,11 +293,40 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   };
 
   const handleSuggestedTimeSelect = (suggestedTime: string) => {
-    const localTime = new Date(suggestedTime).toISOString().slice(0, 16);
+    // suggestedTime comes back from the backend as a UTC instant.
+    // toISOString() always renders in UTC regardless of the caller's
+    // timezone, but the <input type="datetime-local"> value it's stored
+    // into is interpreted as LOCAL time with no offset. Outside UTC (e.g.
+    // SAST, UTC+2) that silently shifted every suggested slot by the
+    // timezone offset — a 12:00 SAST suggestion turned into "10:00" in the
+    // field, which could easily land outside the 08:00–18:00 weekday
+    // window this same form enforces. Subtract the local offset before
+    // formatting so the wall-clock time is preserved instead of the UTC
+    // instant.
+    const d = new Date(suggestedTime);
+    const localTime = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     handleInputChange('scheduledAt', localTime);
   };
 
   // ── Per-step validation ──────────────────────────────────────────────
+
+  // Returns why the current scheduledAt fails the weekday/business-hours/
+  // lead-time rule, or null if it's fine. The Next button used to just go
+  // disabled with nothing but the static amber hint paragraph to explain
+  // why — indistinguishable from "nothing I pick ever works". This gives
+  // a specific, live reason instead.
+  const getScheduleError = (): string | null => {
+    if (!formData.scheduledAt) return null; // handled separately as "required"
+    const d = new Date(formData.scheduledAt);
+    if (isNaN(d.getTime())) return 'Enter a valid date and time';
+    const day = d.getDay();
+    if (day === 0 || day === 6) return 'Interviews can only be scheduled on a weekday (Monday–Friday)';
+    const hour = d.getHours();
+    if (hour < 8 || hour >= 18) return 'Interview time must be between 08:00 and 18:00';
+    const hoursAhead = (d.getTime() - Date.now()) / (1000 * 60 * 60);
+    if (hoursAhead < 2) return 'Interviews must be scheduled at least 2 hours from now';
+    return null;
+  };
 
   const canProceedFromStep = (step: number): boolean => {
     switch (step) {
@@ -306,13 +335,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
       case 2: {
         if (!formData.scheduledAt) return false;
         if (formData.durationMinutes < 15 || formData.durationMinutes > 480) return false;
-        const d = new Date(formData.scheduledAt);
-        const day = d.getDay();
-        const hour = d.getHours();
-        if (day === 0 || day === 6) return false;
-        if (hour < 8 || hour >= 18) return false;
-        const hoursAhead = (d.getTime() - Date.now()) / (1000 * 60 * 60);
-        if (hoursAhead < 2) return false;
+        if (getScheduleError()) return false;
         return true;
       }
       case 3: {
@@ -493,7 +516,9 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
     </div>
   );
 
-  const renderScheduleStep = () => (
+  const renderScheduleStep = () => {
+    const scheduleError = getScheduleError();
+    return (
     <div>
       <h3 className="text-sm font-bold text-foreground mb-1">Date and Time</h3>
       <p className="text-xs text-muted-foreground mb-5">Choose when the interview will take place. Availability is checked automatically.</p>
@@ -507,8 +532,9 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
             value={formData.scheduledAt}
             onChange={(e) => handleInputChange('scheduledAt', e.target.value)}
             onBlur={checkAvailability}
-            className={inputClass(!!errors.scheduledAt)}
+            className={inputClass(!!errors.scheduledAt || !!scheduleError)}
           />
+          {scheduleError && <p className="text-red-500 text-xs mt-1">{scheduleError}</p>}
           {errors.scheduledAt && <p className="text-red-500 text-xs mt-1">{errors.scheduledAt}</p>}
           {checkingAvailability && <p className="text-primary text-xs mt-1">Checking availability...</p>}
         </div>
@@ -550,7 +576,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   const renderDetailsStep = () => (
     <div>
