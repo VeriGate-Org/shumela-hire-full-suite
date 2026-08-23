@@ -197,7 +197,16 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         setFormData({
           ...data,
           scheduledAt: new Date(data.scheduledAt).toISOString().slice(0, 16),
-          applicationId: data.application.id,
+          applicationId: data.application?.id ?? 0,
+          // The backend has no interviewerIds array — it stores a single
+          // interviewerId plus additionalInterviewers as a comma-separated
+          // string of *names* (see handleSubmit below), which can't be
+          // reliably resolved back to ids. Without this, interviewerIds
+          // stays undefined after loading an existing interview (the
+          // DEFAULT_INTERVIEW_DATA's [] only applies before this spread
+          // overwrites it), and every .length read on it throughout this
+          // component throws. At minimum, preserve the primary interviewer.
+          interviewerIds: data.interviewerId != null ? [String(data.interviewerId)] : [],
         });
       }
     } catch (error) {
