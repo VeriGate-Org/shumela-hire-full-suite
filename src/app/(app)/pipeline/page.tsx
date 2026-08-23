@@ -245,7 +245,7 @@ export default function PipelinePage() {
   const [ratingUpdating, setRatingUpdating] = useState(false);
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
   const [interviewPreviews, setInterviewPreviews] = useState<Record<string, { nextDate?: string; nextType?: string; status?: string; feedbackCount?: number; totalInterviewers?: number; latestRecommendation?: string }>>({});
-  const [schedulerApplicationId, setSchedulerApplicationId] = useState<number | null>(null);
+  const [schedulerApplicationId, setSchedulerApplicationId] = useState<string | null>(null);
 
   // --- Status mapping covering all 12 ApplicationStatus enum values ---
   const statusMap: Record<string, Application['status']> = {
@@ -1450,7 +1450,7 @@ export default function PipelinePage() {
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
                       jobTitle={selectedApplication.job.title}
                       onSchedule={() => {
-                        setSchedulerApplicationId(Number(selectedApplication.id));
+                        setSchedulerApplicationId(String(selectedApplication.id));
                       }}
                     />
                   </div>

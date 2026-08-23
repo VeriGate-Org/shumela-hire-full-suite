@@ -15,18 +15,18 @@ import ErrorState from '@/components/ErrorState';
 
 interface InterviewSchedulerProps {
   interviewId?: number;
-  applicationId?: number;
+  applicationId?: string;
   onSuccess?: (interview: InterviewSaveResponse) => void;
   onCancel?: () => void;
   variant?: 'page' | 'modal';
 }
 
 interface Application {
-  id: number;
-  applicantId: number;
+  id: string;
+  applicantId: string;
   applicantName: string;
   applicantEmail: string;
-  jobAdId: number;
+  jobAdId: string;
   jobTitle: string;
   department: string;
   status: string;
@@ -47,7 +47,12 @@ interface InterviewData {
   agenda: string;
   interviewerId: number;
   interviewerIds: string[];
-  applicationId: number;
+  // Application ids are UUID strings, like every other id in this component.
+  // This was typed `number` and the picker below coerced the selected value
+  // with Number(...), which is always NaN for a UUID — and `NaN > 0` is false,
+  // so canProceedFromStep(0) never became true and the wizard could not be
+  // left. Same defect as the interviewerIds and getActorId comments below.
+  applicationId: string;
 }
 
 interface InterviewSaveResponse {
@@ -112,7 +117,7 @@ const DEFAULT_INTERVIEW_DATA: InterviewData = {
   agenda: '',
   interviewerId: 1,
   interviewerIds: [],
-  applicationId: 0,
+  applicationId: '',
 };
 
 export default function InterviewScheduler({ interviewId, applicationId: prefilledApplicationId, onSuccess, onCancel, variant = 'modal' }: InterviewSchedulerProps) {
@@ -120,18 +125,18 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   const { toast } = useToast();
   const { interviewTypes: INTERVIEW_TYPES } = useInterviewTypes();
   const { interviewRounds: INTERVIEW_ROUNDS } = useInterviewRounds();
-  const skipCandidateStep = !!(prefilledApplicationId && prefilledApplicationId > 0);
+  const skipCandidateStep = !!prefilledApplicationId;
   const [currentStep, setCurrentStep] = useState(interviewId || skipCandidateStep ? 1 : 0);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [formData, setFormData] = useState<InterviewData>({
     ...DEFAULT_INTERVIEW_DATA,
-    applicationId: prefilledApplicationId || 0,
+    applicationId: prefilledApplicationId || '',
   });
 
   const draft = useWizardDraft(formData, {
     wizardType: 'interview',
     entityId: interviewId,
-    initialData: { ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || 0 },
+    initialData: { ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || '' },
     currentStep,
     enabled: !interviewId,
     onDraftRestored: (data, step) => {
@@ -145,7 +150,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
       toast('Draft restored', 'info', {
         label: 'Discard',
         onClick: () => {
-          setFormData({ ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || 0 });
+          setFormData({ ...DEFAULT_INTERVIEW_DATA, applicationId: prefilledApplicationId || '' });
           setCurrentStep(skipCandidateStep ? 1 : 0);
           draft.discardDraft();
         },
@@ -218,7 +223,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         setFormData({
           ...data,
           scheduledAt: toLocalInputValue(data.scheduledAt),
-          applicationId: data.application?.id ?? 0,
+          applicationId: data.application?.id ?? '',
           // The backend has no interviewerIds array — it stores a single
           // interviewerId plus additionalInterviewers as a comma-separated
           // string of *names* (see handleSubmit below), which can't be
@@ -280,7 +285,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   }, [interviewId, loadApplications, loadInterview, loadInterviewers]);
 
   useEffect(() => {
-    if (formData.applicationId > 0 && formData.round) {
+    if (formData.applicationId && formData.round) {
       const application = applications.find((app) => app.id === formData.applicationId);
       if (application) {
         const roundLabel = INTERVIEW_ROUNDS.find((round) => round.value === formData.round)?.label || '';
@@ -371,7 +376,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
 
   const canProceedFromStep = (step: number): boolean => {
     switch (step) {
-      case 0: return formData.applicationId > 0;
+      case 0: return !!formData.applicationId;
       case 1: return !!formData.round && !!formData.type && formData.interviewerIds.length > 0;
       case 2: {
         if (!formData.scheduledAt) return false;
@@ -485,8 +490,8 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         label="Application"
         required
         options={applicationOptions}
-        value={formData.applicationId > 0 ? [String(formData.applicationId)] : []}
-        onChange={(vals) => handleInputChange('applicationId', vals.length > 0 ? Number(vals[0]) : 0)}
+        value={formData.applicationId ? [formData.applicationId] : []}
+        onChange={(vals) => handleInputChange('applicationId', vals.length > 0 ? vals[0] : '')}
         multi={false}
         loading={applicationsLoading}
         placeholder="Search by candidate name or job title..."
