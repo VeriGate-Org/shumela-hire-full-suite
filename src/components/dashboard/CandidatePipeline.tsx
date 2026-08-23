@@ -47,6 +47,15 @@ interface CandidatePipelineProps {
   title?: string;
   subtitle?: string;
   className?: string;
+  /**
+   * How many applications exist in total, when that differs from what was loaded.
+   *
+   * The subtitle used to read `${rendered} active candidates`, which is not a count of anything
+   * the user would recognise — it was min(pageSize, total) minus any status the mapping did not
+   * know. On a tenant with 92 applications it confidently said 48. Pass the real total and the
+   * widget will say when it is showing a subset instead of implying it is showing everything.
+   */
+  totalAvailable?: number;
 }
 
 /**
@@ -73,6 +82,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
   title = "Candidate Pipeline",
   subtitle = "Drag candidates between stages",
   className = '',
+  totalAvailable,
 }) => {
   const PAGE_SIZE = 5;
   const [stages, setStages] = useState<PipelineStage[]>(initialStages);
@@ -173,12 +183,16 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
   };
 
   const totalCandidates = stages.reduce((total, stage) => total + stage.candidates.length, 0);
+  const truncated = typeof totalAvailable === 'number' && totalAvailable > totalCandidates;
+  const countLabel = truncated
+    ? `${totalCandidates} of ${totalAvailable} candidates`
+    : `${totalCandidates} active candidates`;
 
   return (
     <DashboardWidget
       id="candidate-pipeline"
       title={title}
-      subtitle={`${totalCandidates} active candidates • ${subtitle}`}
+      subtitle={`${countLabel} • ${subtitle}`}
       className={className}
       refreshable={true}
       size="large"

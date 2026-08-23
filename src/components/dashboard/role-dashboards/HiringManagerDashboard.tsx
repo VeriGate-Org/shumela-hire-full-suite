@@ -130,6 +130,15 @@ const defaultMetrics: MetricItem[] = [
   },
 ];
 
+/**
+ * How many applications the pipeline widget loads.
+ *
+ * Deliberately a named constant rather than an inline 50: it is a display cap, and the widget now
+ * tells the user when the cap is doing something rather than presenting the truncated figure as a
+ * complete count.
+ */
+const PIPELINE_PAGE_SIZE = 500;
+
 const stageMapping: Record<string, { name: string; color: string; order: number }> = {
   SUBMITTED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
   APPLIED: { name: 'Applied', color: 'bg-gold-100', order: 0 },
@@ -138,11 +147,17 @@ const stageMapping: Record<string, { name: string; color: string; order: number 
   INTERVIEW: { name: 'Interview', color: 'bg-purple-100', order: 2 },
   INTERVIEW_SCHEDULED: { name: 'Interview', color: 'bg-purple-100', order: 2 },
   INTERVIEW_COMPLETED: { name: 'Interview', color: 'bg-purple-100', order: 2 },
-  OFFER: { name: 'Offer', color: 'bg-green-100', order: 3 },
-  OFFERED: { name: 'Offer', color: 'bg-green-100', order: 3 },
-  OFFER_PENDING: { name: 'Offer', color: 'bg-green-100', order: 3 },
-  HIRED: { name: 'Hired', color: 'bg-emerald-100', order: 4 },
-  OFFER_ACCEPTED: { name: 'Hired', color: 'bg-emerald-100', order: 4 },
+  // Verification sits between interview and offer. Its absence here was not a cosmetic gap:
+  // unmapped statuses hit `if (!stageInfo) return` and vanished silently, so every candidate at
+  // Reference Check — Lerato Dlamini among them — was missing from this widget entirely while
+  // the pipeline board showed them.
+  REFERENCE_CHECK: { name: 'Checks', color: 'bg-blue-100', order: 3 },
+  BACKGROUND_CHECK: { name: 'Checks', color: 'bg-blue-100', order: 3 },
+  OFFER: { name: 'Offer', color: 'bg-green-100', order: 4 },
+  OFFERED: { name: 'Offer', color: 'bg-green-100', order: 4 },
+  OFFER_PENDING: { name: 'Offer', color: 'bg-green-100', order: 4 },
+  HIRED: { name: 'Hired', color: 'bg-emerald-100', order: 5 },
+  OFFER_ACCEPTED: { name: 'Hired', color: 'bg-emerald-100', order: 5 },
 };
 
 function getInitials(name: string): string {
@@ -176,13 +191,18 @@ function mapStatusToCandidate(status: string): PipelineCandidate['status'] {
 function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
   const stageMap = new Map<string, PipelineCandidate[]>();
 
-  // Initialize all 5 stages
-  ['applied', 'screening', 'interview', 'offer', 'hired'].forEach((id) => stageMap.set(id, []));
+  // Initialise every stage, including the one that used to be dropped
+  ['applied', 'screening', 'interview', 'checks', 'offer', 'hired'].forEach((id) => stageMap.set(id, []));
 
   applications.forEach((app: any) => {
     const status = (app.status || 'SUBMITTED').toUpperCase();
     const stageInfo = stageMapping[status];
-    if (!stageInfo) return;
+    if (!stageInfo) {
+      // Loud rather than silent. A status nobody mapped is a candidate nobody sees, and the
+      // widget would still report a confident total that quietly excluded them.
+      console.warn(`[CandidatePipeline] unmapped application status "${status}" — candidate hidden`);
+      return;
+    }
 
     const stageId = stageInfo.name.toLowerCase();
 
@@ -203,6 +223,7 @@ function transformApplicationsToPipeline(applications: any[]): PipelineStage[] {
     { id: 'applied', name: 'Applied', color: 'bg-gold-100', candidates: stageMap.get('applied') || [] },
     { id: 'screening', name: 'Screening', color: 'bg-yellow-100', candidates: stageMap.get('screening') || [] },
     { id: 'interview', name: 'Interview', color: 'bg-purple-100', candidates: stageMap.get('interview') || [] },
+    { id: 'checks', name: 'Checks', color: 'bg-blue-100', candidates: stageMap.get('checks') || [] },
     { id: 'offer', name: 'Offer', color: 'bg-green-100', candidates: stageMap.get('offer') || [] },
     { id: 'hired', name: 'Hired', color: 'bg-emerald-100', candidates: stageMap.get('hired') || [] },
   ];
@@ -212,6 +233,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [metrics, setMetrics] = useState<MetricItem[]>(defaultMetrics);
+  const [totalApplications, setTotalApplications] = useState<number | undefined>(undefined);
   const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([]);
   const [applicationVolumeData, setApplicationVolumeData] = useState<VolumeDataPoint[]>([]);
   const [openPositions, setOpenPositions] = useState<any[]>([]);
@@ -227,7 +249,10 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
 
     const [dashboardResult, applicationsResult, positionsResult, interviewsResult] = await Promise.allSettled([
       apiFetch(`/api/analytics/dashboard?role=HIRING_MANAGER&timeframe=${selectedTimeframe}`),
-      apiFetch('/api/applications/manage/search?size=50'),
+      // size=50 against a tenant with 92 applications meant the widget silently showed just over
+      // half of them and labelled the result a total. The endpoint returns totalElements, which
+      // is used below to say so honestly when a cap is still in play.
+      apiFetch(`/api/applications/manage/search?size=${PIPELINE_PAGE_SIZE}`),
       apiFetch('/api/job-postings/published'),
       apiFetch('/api/interviews/upcoming'),
     ]);
@@ -274,6 +299,10 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
         const items = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
         const stages = transformApplicationsToPipeline(items);
         setPipelineStages(stages);
+        // The true figure, so the widget can distinguish "everything" from "the first N".
+        setTotalApplications(
+          typeof data?.totalElements === 'number' ? data.totalElements : items.length,
+        );
       } catch {
         // Keep empty pipeline on parse error
       }
@@ -390,6 +419,7 @@ export default function HiringManagerDashboard({ selectedTimeframe }: HiringMana
         onCandidateClick={handleCandidateClick}
         title="Candidate Pipeline"
         subtitle="Drag to move candidates between stages"
+        totalAvailable={totalApplications}
       />
 
       {/* Hiring Performance Metrics */}
