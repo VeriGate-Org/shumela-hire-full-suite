@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.ShortlistScore;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.repository.DocumentDataRepository;
@@ -57,6 +58,9 @@ public class ShortlistingService {
     @Autowired
     private DocumentDataRepository documentRepository;
 
+    @Autowired
+    private ApplicantDataRepository applicantRepository;
+
     @Autowired(required = false)
     private CvScreeningAiService cvScreeningAiService;
 
@@ -85,7 +89,7 @@ public class ShortlistingService {
         ShortlistScore score = shortlistScoreRepository.findByApplicationId(application.getId())
             .orElse(new ShortlistScore());
 
-        Applicant applicant = application.getApplicant();
+        Applicant applicant = hydrate(application.getApplicant());
         ScoreCard card = score(application, applicant, posting);
 
         score.setApplication(application);
@@ -105,6 +109,34 @@ public class ShortlistingService {
         enrichWithAi(score, application, posting);
 
         return shortlistScoreRepository.save(score);
+    }
+
+    /**
+     * Loads the full applicant behind an association that is only ever an id.
+     *
+     * <p>{@code DynamoApplicationRepository.toEntity} rebuilds {@code application.getApplicant()} as
+     * a <b>stub carrying the id and nothing else</b>. Every other field — skills, experience,
+     * education — comes back null, and null is indistinguishable from "this candidate listed
+     * nothing". Scoring therefore marked skills, experience and education unscorable for every
+     * single applicant, which is three of the five dimensions and 75% of the weight. What survived
+     * was the keyword dimension, because it reads the application's own text rather than the
+     * applicant record.</p>
+     *
+     * <p>The visible symptom was a shortlist that shortlisted nobody: on the Senior Investment
+     * Analyst vacancy, six candidates whose records literally list "Investment analysis" and
+     * "Financial modelling" — both named in the vacancy's required skills — topped out at 3.7 out
+     * of 100. No threshold a recruiter would choose could ever select anyone.</p>
+     *
+     * <p>This is the same defect class as {@code DynamoOfferRepository.toEntity}, which likewise
+     * returned an unhydrated association and produced "Unknown Candidate" on the offers screen. A
+     * stubbed association is the recurring shape of bug in this repository, and the lesson is that
+     * an association loaded from Dynamo must be treated as an id until proven otherwise.</p>
+     */
+    private Applicant hydrate(Applicant stub) {
+        if (stub == null || stub.getId() == null) return stub;
+        // Fall back to the stub rather than null: a missing applicant record should degrade the
+        // score to "could not assess", not throw away the application entirely.
+        return applicantRepository.findById(stub.getId()).orElse(stub);
     }
 
     /** Pure assembly of the five dimensions — no persistence, so it can be reasoned about. */
