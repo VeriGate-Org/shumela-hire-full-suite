@@ -22,6 +22,8 @@ import ErrorState from '@/components/ErrorState';
 import { useToast } from '@/components/Toast';
 import { CardSkeleton } from '@/components/LoadingComponents';
 import { getEnumLabel } from '@/utils/enumLabels';
+import AiAssistPanel from '@/components/ai/AiAssistPanel';
+import AiInterviewQuestionGenerator from '@/components/ai/AiInterviewQuestionGenerator';
 
 interface InterviewFeedbackEntry {
   id: number;
@@ -277,6 +279,16 @@ export default function InterviewsPage() {
   return (
     <PageWrapper title={getPageTitle()} subtitle={getPageSubtitle()} actions={scheduleButton}>
       <div className="space-y-6">
+
+        {/* Interview question generation belongs where interviews are arranged. The component
+            was written, tested and mounted nowhere — reachable only by knowing it existed. */}
+        <AiAssistPanel
+          title="AI Interview Questions"
+          feature="AI_INTERVIEW_QUESTIONS"
+          description="Generate role-specific interview questions from the vacancy's requirements"
+        >
+          <AiInterviewQuestionGenerator />
+        </AiAssistPanel>
 
         {/* ====== METRIC CARDS ====== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

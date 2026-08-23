@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
+import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
 import { eSignatureService } from '@/services/eSignatureService';
 import { getEnumLabel } from '@/utils/enumLabels';
 
@@ -925,6 +926,15 @@ export default function OfferManagement() {
                   Candidate: <span className="font-medium text-foreground">{getApplicantName(selectedOffer.application?.applicant)}</span>
                 </p>
               </div>
+
+              {/* Acceptance likelihood, shown where the decision is actually being taken.
+                  Needs a specific application, which is why it cannot sit at page level.
+                  Marked high-risk by its own disclaimer: it is a prediction about a person. */}
+              {selectedOffer.application?.id && ['approve', 'negotiate', 'escalate'].includes(actionType) && (
+                <div className="mb-4">
+                  <AiOfferPrediction applicationId={String(selectedOffer.application.id)} />
+                </div>
+              )}
 
               {['approve', 'reject', 'withdraw', 'decline', 'negotiate', 'escalate'].includes(actionType) && (
                 <div className="mb-4">
