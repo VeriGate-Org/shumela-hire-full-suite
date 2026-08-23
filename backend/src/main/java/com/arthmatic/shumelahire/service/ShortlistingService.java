@@ -86,6 +86,29 @@ public class ShortlistingService {
     /** Scores one application against its vacancy. Package-visible so callers can batch the load. */
     @Transactional
     public ShortlistScore calculateScore(Application application, JobPosting posting) {
+        return calculateScore(application, posting, true);
+    }
+
+    /**
+     * Scores one application, optionally running the AI screening pass.
+     *
+     * <p>{@code withAi=false} exists because AI enrichment is a per-candidate model call taking
+     * ten to twenty-five seconds, and the bulk path runs it once per applicant. That was invisible
+     * while almost nobody had a CV — {@code enrichWithAi} returns immediately when there is no text
+     * to screen, so scoring a whole vacancy took milliseconds. Once every candidate had a CV
+     * attached, the same call became dozens of serial model invocations and both
+     * {@code /calculate} and {@code /auto-shortlist} began returning 504 from the gateway, on a
+     * vacancy with as few as six applicants.
+     *
+     * <p>Splitting them is also the right shape rather than merely the fast one. The deterministic
+     * score is arithmetic over skills, experience, education, screening and keywords — reproducible
+     * and cheap, and what a shortlist should be defensible on. The AI reading is a deliberate act a
+     * recruiter takes on one candidate, and it already has its own control on the candidate panel.
+     * Firing it implicitly for forty-two people also spends forty-two times the tokens for output
+     * nobody asked to see.</p>
+     */
+    @Transactional
+    public ShortlistScore calculateScore(Application application, JobPosting posting, boolean withAi) {
         ShortlistScore score = shortlistScoreRepository.findByApplicationId(application.getId())
             .orElse(new ShortlistScore());
 
@@ -106,7 +129,9 @@ public class ShortlistingService {
             logger.warn("Failed to serialize score breakdown: {}", e.getMessage());
         }
 
-        enrichWithAi(score, application, posting);
+        if (withAi) {
+            enrichWithAi(score, application, posting);
+        }
 
         return shortlistScoreRepository.save(score);
     }
@@ -256,8 +281,11 @@ public class ShortlistingService {
         List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobPostingId);
         // One posting read for the whole vacancy rather than one per application.
         JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);
+        // Deliberately without the AI pass — see calculateScore(.., withAi). A recruiter screens
+        // an individual candidate from the candidate panel; scoring a vacancy must not silently
+        // become one model call per applicant.
         return applications.stream()
-            .map(app -> calculateScore(app, posting))
+            .map(app -> calculateScore(app, posting, false))
             .toList();
     }
 
