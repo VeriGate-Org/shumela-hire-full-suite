@@ -27,7 +27,8 @@ describe('Authorization alignment', () => {
     expectNavRoles('talent-pools', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('offers', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('workflow', ['ADMIN', 'HR_MANAGER']);
-    expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
+    expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
+    expectNavRoles('applicants', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('integrations', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('reports', ['ADMIN', 'EXECUTIVE', 'HR_MANAGER']);
     expectNavRoles('audit-logs', ['ADMIN']);
