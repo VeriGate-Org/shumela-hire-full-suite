@@ -99,6 +99,55 @@ const OFFER_TYPES = [
   'TEMPORARY', 'PROBATIONARY', 'EXECUTIVE'
 ];
 
+/* Application statuses the backend accepts for offer creation.
+   Mirrors OfferService.canCreateOfferForApplication -- keep in sync. */
+const OFFER_ELIGIBLE_APPLICATION_STATUSES = ['REFERENCE_CHECK', 'OFFER_PENDING', 'OFFERED'];
+
+interface EligibleApplication {
+  id: string;
+  jobTitle?: string;
+  department?: string;
+  status?: string;
+  applicant?: {
+    name?: string;
+    surname?: string;
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+  };
+}
+
+interface CreateOfferForm {
+  applicationId: string;
+  offerType: string;
+  baseSalary: string;
+  currency: string;
+  salaryFrequency: string;
+  startDate: string;
+  offerExpiryDate: string;
+  signingBonus: string;
+  probationaryPeriodDays: string;
+  noticePeriodDays: string;
+  workLocation: string;
+}
+
+const EMPTY_CREATE_FORM: CreateOfferForm = {
+  applicationId: '',
+  offerType: 'FULL_TIME_PERMANENT',
+  baseSalary: '',
+  currency: 'ZAR',
+  salaryFrequency: 'ANNUALLY',
+  startDate: '',
+  offerExpiryDate: '',
+  signingBonus: '',
+  probationaryPeriodDays: '',
+  noticePeriodDays: '30',
+  workLocation: '',
+};
+
+const SALARY_FREQUENCIES = ['ANNUALLY', 'MONTHLY', 'HOURLY'];
+
 const AVATAR_COLORS = [
   { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
   { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
@@ -170,7 +219,7 @@ export default function OfferManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
   const currentRole = user?.role || 'RECRUITER';
-  const canManageOffers = currentRole === 'ADMIN' || currentRole === 'HR_MANAGER';
+  const canManageOffers = ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(currentRole);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
@@ -199,6 +248,12 @@ export default function OfferManagement() {
   const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
   const [payrollError, setPayrollError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('draft');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateOfferForm>(EMPTY_CREATE_FORM);
+  const [createSaving, setCreateSaving] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [eligibleApplications, setEligibleApplications] = useState<EligibleApplication[]>([]);
+  const [eligibleLoading, setEligibleLoading] = useState(false);
 
   const computeClientSideCounts = useCallback((offersList: Offer[]): DashboardCounts => {
     const now = new Date();
@@ -283,6 +338,146 @@ export default function OfferManagement() {
       loadOffers();
     }
   }, [canManageOffers, loadOffers]);
+
+  /* Applications the backend will actually accept an offer for. Anything else
+     is rejected by OfferService with "Cannot create offer for application in
+     current state", so we only offer the eligible ones in the picker. */
+  const loadEligibleApplications = useCallback(async (preselectId?: string) => {
+    setEligibleLoading(true);
+    try {
+      const params = new URLSearchParams({ size: '200' });
+      OFFER_ELIGIBLE_APPLICATION_STATUSES.forEach(s => params.append('statuses', s));
+
+      const response = await apiFetch(`/api/applications/manage/search?${params}`);
+      let list: EligibleApplication[] = [];
+      if (response.ok) {
+        const data = await response.json();
+        list = data.content || data || [];
+      }
+
+      /* A deep link from the pipeline may point at an application that is not in
+         the eligible list. Fetch it anyway so the candidate is named in the form,
+         and let the backend be the one to refuse it. */
+      if (preselectId && !list.some(a => String(a.id) === String(preselectId))) {
+        try {
+          const single = await apiFetch(`/api/applications/${preselectId}`);
+          if (single.ok) {
+            list = [await single.json(), ...list];
+          }
+        } catch {
+          // fall through - the select will simply not resolve a name
+        }
+      }
+
+      setEligibleApplications(list);
+    } catch (error) {
+      console.error('Error loading eligible applications:', error);
+    } finally {
+      setEligibleLoading(false);
+    }
+  }, []);
+
+  const openCreateModal = useCallback((applicationId?: string) => {
+    setCreateForm({ ...EMPTY_CREATE_FORM, applicationId: applicationId || '' });
+    setCreateError(null);
+    setShowCreateModal(true);
+    loadEligibleApplications(applicationId);
+  }, [loadEligibleApplications]);
+
+  /* Deep link from OfferSummaryPanel: /offers?create=true&applicationId=X.
+     Read from window rather than useSearchParams so the static export build
+     does not need a Suspense boundary. */
+  useEffect(() => {
+    if (!canManageOffers || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('create') !== 'true') return;
+
+    openCreateModal(params.get('applicationId') || undefined);
+
+    // Drop the params so a refresh does not reopen the modal
+    params.delete('create');
+    params.delete('applicationId');
+    const query = params.toString();
+    window.history.replaceState({}, '', query ? `?${query}` : window.location.pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canManageOffers]);
+
+  const handleCreateOffer = async () => {
+    if (!createForm.applicationId) {
+      setCreateError('Select the candidate this offer is for.');
+      return;
+    }
+    /* Offer.getTotalCompensation() dereferences baseSalary, so an offer without
+       one fails server-side during approval routing. Require it here. */
+    const baseSalary = Number(createForm.baseSalary);
+    if (!createForm.baseSalary || Number.isNaN(baseSalary) || baseSalary <= 0) {
+      setCreateError('Enter a base salary greater than zero.');
+      return;
+    }
+    if (!createForm.startDate) {
+      setCreateError('Select a start date.');
+      return;
+    }
+
+    setCreateSaving(true);
+    setCreateError(null);
+    try {
+      const payload: Record<string, unknown> = {
+        offerType: createForm.offerType,
+        baseSalary,
+        currency: createForm.currency,
+        salaryFrequency: createForm.salaryFrequency,
+        startDate: createForm.startDate,
+        noticePeriodDays: Number(createForm.noticePeriodDays) || 30,
+      };
+      if (createForm.offerExpiryDate) {
+        payload.offerExpiryDate = `${createForm.offerExpiryDate}T23:59:59`;
+      }
+      if (createForm.signingBonus) {
+        payload.signingBonus = Number(createForm.signingBonus);
+      }
+      if (createForm.probationaryPeriodDays) {
+        payload.probationaryPeriodDays = Number(createForm.probationaryPeriodDays);
+      }
+      if (createForm.workLocation) {
+        payload.workLocation = createForm.workLocation;
+      }
+
+      const response = await apiFetch(`/api/offers/applications/${createForm.applicationId}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        setShowCreateModal(false);
+        setCreateForm(EMPTY_CREATE_FORM);
+        setActiveTab('draft');
+        toast('Offer created as a draft -- submit it for approval when ready', 'success');
+        loadOffers();
+        return;
+      }
+
+      /* Surface the backend reason verbatim: the common one is the application
+         not being in an offer-eligible stage, which the user can act on. */
+      let message = `Could not create the offer (HTTP ${response.status}).`;
+      if (response.status === 403) {
+        message = 'You do not have permission to create offers.';
+      } else {
+        try {
+          const body = await response.json();
+          if (body?.error) message = body.error;
+        } catch {
+          // keep the generic message
+        }
+      }
+      setCreateError(message);
+    } catch (error) {
+      console.error('Error creating offer:', error);
+      setCreateError('Could not create the offer. Please try again.');
+    } finally {
+      setCreateSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (offers.length > 0) {
@@ -377,10 +572,10 @@ export default function OfferManagement() {
     switch (action) {
       case 'approve':
         return offer.status === 'PENDING_APPROVAL' &&
-               ['ADMIN', 'HR_MANAGER'].includes(userRole);
+               ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
       case 'send':
         return offer.status === 'APPROVED' &&
-               ['ADMIN', 'HR_MANAGER'].includes(userRole);
+               ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
       case 'withdraw':
         return ['SENT', 'UNDER_NEGOTIATION'].includes(offer.status) &&
                ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
@@ -407,7 +602,7 @@ export default function OfferManagement() {
         </div>
         <h3 className="text-lg font-semibold text-foreground">Access denied</h3>
         <p className="text-sm text-muted-foreground mt-2">
-          Offer management is available to administrators and HR managers.
+          Offer management is available to administrators, HR managers and hiring managers.
         </p>
       </div>
     );
@@ -516,6 +711,20 @@ export default function OfferManagement() {
 
   return (
     <div className="space-y-6">
+
+      {/* ====== ACTION BAR ====== */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => openCreateModal()}
+          className="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          New Offer
+        </button>
+      </div>
 
       {/* ====== STAT STRIP ====== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -895,6 +1104,217 @@ export default function OfferManagement() {
           </div>
         )}
       </div>
+
+      {/* ====== CREATE OFFER MODAL ====== */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-8">
+          <div className="bg-card rounded-card shadow-lg w-full max-w-[720px] max-h-[90vh] overflow-y-auto animate-in fade-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">New Offer</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Saved as a draft. Job title and department are taken from the application.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-error-bg hover:text-error transition-colors"
+              >
+                <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {createError && (
+                <div className="px-4 py-3 rounded-control bg-error-bg text-red-800 text-sm">
+                  {createError}
+                </div>
+              )}
+
+              {/* Candidate */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  Candidate <span className="text-error">*</span>
+                </label>
+                <select
+                  value={createForm.applicationId}
+                  onChange={(e) => setCreateForm({ ...createForm, applicationId: e.target.value })}
+                  disabled={eligibleLoading}
+                  className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors disabled:opacity-60"
+                >
+                  <option value="">
+                    {eligibleLoading ? 'Loading candidates...' : 'Select a candidate'}
+                  </option>
+                  {eligibleApplications.map(app => (
+                    <option key={app.id} value={app.id}>
+                      {getApplicantName(app.applicant)}
+                      {app.jobTitle ? ` -- ${app.jobTitle}` : ''}
+                    </option>
+                  ))}
+                </select>
+                {!eligibleLoading && eligibleApplications.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    No candidates are at an offer-ready stage. Move a candidate to Reference Check
+                    or Offer in the pipeline first.
+                  </p>
+                )}
+              </div>
+
+              {/* Offer type + salary frequency */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Offer Type</label>
+                  <select
+                    value={createForm.offerType}
+                    onChange={(e) => setCreateForm({ ...createForm, offerType: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  >
+                    {OFFER_TYPES.map(type => (
+                      <option key={type} value={type}>{getEnumLabel('offerType', type)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Salary Frequency</label>
+                  <select
+                    value={createForm.salaryFrequency}
+                    onChange={(e) => setCreateForm({ ...createForm, salaryFrequency: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  >
+                    {SALARY_FREQUENCIES.map(freq => (
+                      <option key={freq} value={freq}>{freq.charAt(0) + freq.slice(1).toLowerCase()}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Salary + currency */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Base Salary <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={createForm.baseSalary}
+                    onChange={(e) => setCreateForm({ ...createForm, baseSalary: e.target.value })}
+                    placeholder="e.g. 750000"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Currency</label>
+                  <input
+                    type="text"
+                    value={createForm.currency}
+                    onChange={(e) => setCreateForm({ ...createForm, currency: e.target.value.toUpperCase() })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Signing bonus + work location */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Signing Bonus</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={createForm.signingBonus}
+                    onChange={(e) => setCreateForm({ ...createForm, signingBonus: e.target.value })}
+                    placeholder="Optional"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Work Location</label>
+                  <input
+                    type="text"
+                    value={createForm.workLocation}
+                    onChange={(e) => setCreateForm({ ...createForm, workLocation: e.target.value })}
+                    placeholder="Optional"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Start Date <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={createForm.startDate}
+                    onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Offer Expiry</label>
+                  <input
+                    type="date"
+                    value={createForm.offerExpiryDate}
+                    onChange={(e) => setCreateForm({ ...createForm, offerExpiryDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">Defaults to the standard window if left blank.</p>
+                </div>
+              </div>
+
+              {/* Periods */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Probation (days)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={createForm.probationaryPeriodDays}
+                    onChange={(e) => setCreateForm({ ...createForm, probationaryPeriodDays: e.target.value })}
+                    placeholder="Default for offer type"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Notice Period (days)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={createForm.noticePeriodDays}
+                    onChange={(e) => setCreateForm({ ...createForm, noticePeriodDays: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                disabled={createSaving}
+                className="btn-secondary px-5 py-2 text-sm disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateOffer}
+                disabled={createSaving}
+                className="btn-primary px-5 py-2 text-sm disabled:opacity-60"
+              >
+                {createSaving ? 'Creating...' : 'Create Draft Offer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ====== ACTION MODAL ====== */}
       {showActionModal && selectedOffer && (

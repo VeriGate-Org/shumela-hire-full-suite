@@ -55,7 +55,7 @@ export const rolePermissions: Record<UserRole, string[]> = {
   ],
   HIRING_MANAGER: [
     'view_dashboard', 'manage_jobs', 'view_applications',
-    'manage_pipeline', 'view_interviews', 'view_internal_jobs',
+    'manage_pipeline', 'view_interviews', 'manage_offers', 'view_internal_jobs',
     'view_analytics', 'manage_requisitions',
     // Applicants and Application Management were ADMIN/HR_MANAGER/RECRUITER
     // only — Hiring Managers could already reach every backend endpoint
