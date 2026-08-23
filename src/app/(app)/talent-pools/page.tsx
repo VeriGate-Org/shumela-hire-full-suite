@@ -382,7 +382,7 @@ export default function TalentPoolsPage() {
       <div className="mb-6">
         <AiAssistPanel
           title="AI Smart Search"
-          feature="AI_SMART_SEARCH"
+          feature="AI_SEARCH"
           description="Find candidates across your pools by describing what you need, in plain language"
         >
           <AiSmartSearch />
