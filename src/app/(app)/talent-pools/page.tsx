@@ -88,6 +88,16 @@ function StarRating({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+/** Only the fields this page needs; the applicants endpoint returns considerably more. */
+interface Applicantish {
+  id?: string;
+  name?: string;
+  surname?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export default function TalentPoolsPage() {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
@@ -140,6 +150,11 @@ export default function TalentPoolsPage() {
   });
 
   // ── Add entry form state
+  // Candidates to choose from. Loaded when the Add Candidate modal opens rather than on page
+  // load — the pool screen is otherwise about pools, and this is a modal-only concern.
+  const [applicantOptions, setApplicantOptions] = useState<DropdownOption[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
+
   const [entryForm, setEntryForm] = useState({
     applicantId: '',
     sourceType: 'MANUAL' as 'MANUAL' | 'AUTO_REJECTED' | 'AGENCY',
@@ -188,6 +203,51 @@ export default function TalentPoolsPage() {
   useEffect(() => {
     loadPools();
   }, [loadPools]);
+
+  // Populate the candidate picker when the Add Candidate modal opens. Previously this modal asked
+  // the recruiter to TYPE an applicant id into a number field — which a UUID cannot even be entered
+  // into — so there was no route to adding anyone.
+  useEffect(() => {
+    if (modal !== 'addEntry') return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setApplicantsLoading(true);
+        const data = await apiFetchJson<{ content?: Applicantish[] } | Applicantish[]>(
+          '/api/applicants?size=200',
+        );
+        const rows = Array.isArray(data) ? data : data.content ?? [];
+        if (cancelled) return;
+        setApplicantOptions(
+          rows
+            .filter((a) => a.id)
+            .map((a) => {
+              const name = [a.name ?? a.firstName, a.surname ?? a.lastName]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+              return {
+                value: String(a.id),
+                label: name || a.email || String(a.id),
+                description: name && a.email ? a.email : undefined,
+              };
+            }),
+        );
+      } catch {
+        if (!cancelled) {
+          setApplicantOptions([]);
+          toast('Could not load candidates', 'error');
+        }
+      } finally {
+        if (!cancelled) setApplicantsLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [modal, toast]);
 
   const handleSelectPool = (pool: TalentPool) => {
     setSelectedPool(pool);
@@ -265,7 +325,9 @@ export default function TalentPoolsPage() {
       await apiFetchJson(`/api/talent-pools/${selectedPool.id}/entries`, {
         method: 'POST',
         body: JSON.stringify({
-          applicantId: Number(entryForm.applicantId),
+          // applicantId is a UUID string. Number() made it NaN, which serialises to null,
+          // so the backend received no applicant at all.
+          applicantId: entryForm.applicantId,
           sourceType: entryForm.sourceType,
           notes: entryForm.notes || undefined,
         }),
@@ -743,15 +805,21 @@ export default function TalentPoolsPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-4">Add Candidate to Pool</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Applicant ID <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  value={entryForm.applicantId}
-                  onChange={(e) => setEntryForm((f) => ({ ...f, applicantId: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-control focus:outline-none focus:ring-2 focus:ring-gold-400"
-                  placeholder="Enter applicant ID"
+                {/* Was a `type="number"` box asking the recruiter to type an applicant id. Ids are
+                    UUIDs, which cannot be entered into a number field at all — so the modal could
+                    not be used even by someone who knew the id. */}
+                <SearchableDropdown
+                  label="Candidate"
+                  required
+                  options={applicantOptions}
+                  value={entryForm.applicantId ? [entryForm.applicantId] : []}
+                  onChange={(vals) =>
+                    setEntryForm((f) => ({ ...f, applicantId: vals.length > 0 ? vals[0] : '' }))
+                  }
+                  multi={false}
+                  loading={applicantsLoading}
+                  placeholder="Search by name or email..."
+                  searchPlaceholder="Search by name or email..."
                 />
               </div>
               <div>

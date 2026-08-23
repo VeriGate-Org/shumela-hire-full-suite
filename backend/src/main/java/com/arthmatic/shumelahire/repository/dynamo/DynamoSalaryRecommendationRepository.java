@@ -167,6 +167,33 @@ public class DynamoSalaryRecommendationRepository
         return entity;
     }
 
+    /**
+     * Carries the generated id back onto the entity after a create.
+     *
+     * <p>{@code toItem} mints the id and it lives only on the item; {@code DynamoRepository.save}
+     * returns the entity unchanged unless a repository overrides this hook. So
+     * {@code SalaryRecommendationService.createRecommendationRequest} — whose last step is
+     * {@code auditLogService.saveLog(..., saved.getId().toString(), ...)} — threw an NPE on a
+     * recommendation that had just been written successfully. The controller caught it and returned
+     * 400, so the caller was told the create had failed while the row sat in the table.</p>
+     *
+     * <p>That ordering matters: {@code save()} puts and <em>then</em> calls this hook, so every
+     * failed create left an orphan row the UI never learned about, and retrying produced duplicates
+     * rather than replacing anything. One such row had to be removed from the IDC tenant by hand.</p>
+     *
+     * <p>This is the same four-line pattern already proven in {@code DynamoApplicationRepository}.
+     * It is deliberately narrow: the underlying hazard affects most repositories in this package
+     * and the real remedy is to change the base class, which is a much larger change than this
+     * one and does not belong in a hotfix.</p>
+     */
+    @Override
+    protected SalaryRecommendation afterSave(SalaryRecommendationItem item, SalaryRecommendation entity) {
+        if (entity.getId() == null) {
+            entity.setId(item.getId());
+        }
+        return entity;
+    }
+
     @Override
     protected SalaryRecommendationItem toItem(SalaryRecommendation entity) {
         var item = new SalaryRecommendationItem();
