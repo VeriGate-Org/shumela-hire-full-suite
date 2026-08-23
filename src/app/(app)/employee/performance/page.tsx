@@ -66,7 +66,7 @@ export default function MyPerformancePage() {
       .catch(() => []);
 
     const fetchSelfAssessments = performanceEnhancementService
-      .getFeedbackRequestsForEmployee(Number(employeeId))
+      .getFeedbackRequestsForEmployee(employeeId)
       .catch(() => ({ content: [] }));
 
     Promise.allSettled([fetchContracts, fetchReviews, fetchSelfAssessments])

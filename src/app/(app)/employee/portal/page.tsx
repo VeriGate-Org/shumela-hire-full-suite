@@ -180,7 +180,7 @@ export default function EmployeePortalPage() {
       .then(res => res.ok ? res.json() : [])
       .catch(() => []);
     const fetchSelfAssessments = performanceEnhancementService
-      .getFeedbackRequestsForEmployee(Number(employeeId))
+      .getFeedbackRequestsForEmployee(employeeId)
       .catch(() => ({ content: [] }));
 
     Promise.allSettled([
