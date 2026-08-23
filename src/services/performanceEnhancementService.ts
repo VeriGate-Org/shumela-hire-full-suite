@@ -138,7 +138,7 @@ export const performanceEnhancementService = {
     return await response.json();
   },
 
-  async getFeedbackRequestsForEmployee(employeeId: number, page = 0, size = 20): Promise<PageResponse<FeedbackRequest>> {
+  async getFeedbackRequestsForEmployee(employeeId: number | string, page = 0, size = 20): Promise<PageResponse<FeedbackRequest>> {
     const response = await apiFetch(`/api/performance/feedback/requests/employee/${employeeId}?page=${page}&size=${size}`);
     if (!response.ok) return { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
     return await response.json();

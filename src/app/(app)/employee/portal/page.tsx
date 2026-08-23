@@ -24,6 +24,7 @@ import {
   PresentationChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { leaveService, LeaveBalance, LeaveRequest } from '@/services/leaveService';
 import { attendanceService, AttendanceRecord } from '@/services/attendanceService';
 import { trainingService, TrainingEnrollment, IndividualDevelopmentPlan } from '@/services/trainingService';
@@ -117,6 +118,7 @@ function getTodayFormatted(): string {
 
 export default function EmployeePortalPage() {
   const { user } = useAuth();
+  const { isFeatureEnabled, isLoading: featuresLoading } = useFeatureGate();
   const rawId = user?.employeeId || user?.id;
   const employeeId = rawId || '';
 
@@ -153,10 +155,34 @@ export default function EmployeePortalPage() {
       }
       return;
     }
+    // Wait for the feature flags to resolve before deciding what's worth
+    // fetching — firing everything up front and sorting it out per-response
+    // means every tenant missing a module (no HR_CORE/ENGAGEMENT/TALENT,
+    // e.g. an ATS-only tenant) gets a guaranteed wall of failed requests on
+    // every page load.
+    if (featuresLoading) return;
+
+    // This whole page is already gated on EMPLOYEE_SELF_SERVICE at the JSX
+    // level below (nothing renders without it) — skip every fetch entirely
+    // rather than firing 11 requests whose results can never be shown.
+    if (!isFeatureEnabled('EMPLOYEE_SELF_SERVICE')) {
+      setError(null);
+      setLoading(false);
+      setBalancesLoading(false);
+      return;
+    }
+
     // Clear any previous error and reset loading when employeeId becomes available
     setError(null);
     setLoading(true);
     setBalancesLoading(true);
+
+    const hasLeave = isFeatureEnabled('LEAVE_MANAGEMENT');
+    const hasAttendance = isFeatureEnabled('TIME_ATTENDANCE');
+    const hasTraining = isFeatureEnabled('TRAINING_MANAGEMENT');
+    const hasRecognition = isFeatureEnabled('RECOGNITION_REWARDS');
+    const hasFeed = isFeatureEnabled('SOCIAL_FEED');
+    const hasSelfAssessment = isFeatureEnabled('PERFORMANCE_360_FEEDBACK');
 
     const fetchProfile = apiFetch(`/api/employee/profile?employeeId=${employeeId}`)
       .then(res => {
@@ -164,24 +190,40 @@ export default function EmployeePortalPage() {
         return res.json();
       });
 
-    const fetchBalances = leaveService.getBalances(employeeId).catch(() => []);
-    const fetchLeave = leaveService.getLeaveRequests({ employeeId, page: 0, size: 5 }).catch(() => ({ content: [] }));
-    const fetchAttendance = attendanceService.getStatus(employeeId).catch(() => null);
-    const fetchEnrollments = trainingService.getEnrollments({ employeeId }).catch(() => []);
-    const fetchRecognitions = engagementService.getRecognitionsReceived(employeeId, 0, 3)
-      .catch(() => ({ content: [], totalElements: 0 }));
+    const fetchBalances = hasLeave
+      ? leaveService.getBalances(employeeId).catch(() => [])
+      : Promise.resolve([]);
+    const fetchLeave = hasLeave
+      ? leaveService.getLeaveRequests({ employeeId, page: 0, size: 5 }).catch(() => ({ content: [] }))
+      : Promise.resolve({ content: [] });
+    const fetchAttendance = hasAttendance
+      ? attendanceService.getStatus(employeeId).catch(() => null)
+      : Promise.resolve(null);
+    const fetchEnrollments = hasTraining
+      ? trainingService.getEnrollments({ employeeId }).catch(() => [])
+      : Promise.resolve([]);
+    const fetchRecognitions = hasRecognition
+      ? engagementService.getRecognitionsReceived(employeeId, 0, 3).catch(() => ({ content: [], totalElements: 0 }))
+      : Promise.resolve({ content: [], totalElements: 0 });
+    // Onboarding has no feature gate on the backend — always available.
     const fetchOnboarding = onboardingService.getChecklistsByEmployee(employeeId).catch(() => []);
-    const fetchAnnouncements = feedService.getFeed(0, 3, 'ANNOUNCEMENT').catch(() => ({ content: [] }));
+    const fetchAnnouncements = hasFeed
+      ? feedService.getFeed(0, 3, 'ANNOUNCEMENT').catch(() => ({ content: [] }))
+      : Promise.resolve({ content: [] });
+    // Internal jobs (RECRUITMENT) is core to every ATS-scoped tenant — always fetch.
     const fetchInternalJobs = apiFetch('/api/ads/internal?size=5')
       .then(res => res.ok ? res.json() : { content: [] })
       .catch(() => ({ content: [] }));
-    const fetchIdps = trainingService.getIDPs({ employeeId }).catch(() => []);
+    const fetchIdps = hasTraining
+      ? trainingService.getIDPs({ employeeId }).catch(() => [])
+      : Promise.resolve([]);
+    // Performance contracts have no feature gate on the backend — always available.
     const fetchPerfContracts = apiFetch(`/api/performance/contracts?employeeId=${employeeId}`)
       .then(res => res.ok ? res.json() : [])
       .catch(() => []);
-    const fetchSelfAssessments = performanceEnhancementService
-      .getFeedbackRequestsForEmployee(Number(employeeId))
-      .catch(() => ({ content: [] }));
+    const fetchSelfAssessments = hasSelfAssessment
+      ? performanceEnhancementService.getFeedbackRequestsForEmployee(employeeId).catch(() => ({ content: [] }))
+      : Promise.resolve({ content: [] });
 
     Promise.allSettled([
       fetchProfile,
@@ -266,7 +308,7 @@ export default function EmployeePortalPage() {
       setLoading(false);
       setBalancesLoading(false);
     });
-  }, [employeeId]);
+  }, [employeeId, featuresLoading, isFeatureEnabled]);
 
   // Clock in handler
   const handleClockIn = async () => {
@@ -592,30 +634,32 @@ export default function EmployeePortalPage() {
               </FeatureGate>
 
               {/* B. Leave Balances */}
-              <div className="enterprise-card p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-teal text-accent-teal flex items-center justify-center">
-                      <CalendarDaysIcon className="w-[18px] h-[18px]" />
+              <FeatureGate feature="LEAVE_MANAGEMENT">
+                <div className="enterprise-card p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-control bg-icon-bg-teal text-accent-teal flex items-center justify-center">
+                        <CalendarDaysIcon className="w-[18px] h-[18px]" />
+                      </div>
+                      <span className="text-base font-bold text-foreground">Leave Balances</span>
                     </div>
-                    <span className="text-base font-bold text-foreground">Leave Balances</span>
+                    <Link href="/leave" className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
+                      View all <ArrowRightIcon className="w-3 h-3" />
+                    </Link>
                   </div>
-                  <Link href="/leave" className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
-                    View all <ArrowRightIcon className="w-3 h-3" />
-                  </Link>
-                </div>
 
-                <LeaveBalanceCards balances={balances} loading={balancesLoading} />
+                  <LeaveBalanceCards balances={balances} loading={balancesLoading} />
 
-                <div className="text-center mt-5">
-                  <Link
-                    href="/leave/request"
-                    className="btn-primary inline-flex items-center justify-center"
-                  >
-                    REQUEST LEAVE
-                  </Link>
+                  <div className="text-center mt-5">
+                    <Link
+                      href="/leave/request"
+                      className="btn-primary inline-flex items-center justify-center"
+                    >
+                      REQUEST LEAVE
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </FeatureGate>
             </div>
 
             {/* ========== ROW 2: Action Items + Quick Actions ========== */}
@@ -737,6 +781,7 @@ export default function EmployeePortalPage() {
                   )}
                 </div>
 
+                <FeatureGate feature="TRAINING_MANAGEMENT">
                 <hr className="border-border my-6" />
 
                 {/* Learning & Development Sub-section */}
@@ -796,54 +841,57 @@ export default function EmployeePortalPage() {
                     </Link>
                   </div>
                 </div>
+                </FeatureGate>
               </div>
 
               {/* F. Announcements */}
-              <div className="enterprise-card p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-pink text-accent-pink flex items-center justify-center">
-                      <DocumentTextIcon className="w-[18px] h-[18px]" />
+              <FeatureGate feature="SOCIAL_FEED">
+                <div className="enterprise-card p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-control bg-icon-bg-pink text-accent-pink flex items-center justify-center">
+                        <DocumentTextIcon className="w-[18px] h-[18px]" />
+                      </div>
+                      <span className="text-base font-bold text-foreground">Announcements</span>
                     </div>
-                    <span className="text-base font-bold text-foreground">Announcements</span>
                   </div>
+
+                  {announcements.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">No announcements</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {announcements.map((post, idx) => (
+                        <Link
+                          key={post.id}
+                          href={`/feed/${post.id}`}
+                          className="block p-4 rounded-control bg-background border-l-4 transition-all hover:shadow-sm"
+                          style={{
+                            borderLeftColor: idx === 0
+                              ? 'var(--accent-pink)'
+                              : idx === 1
+                                ? 'var(--accent-navy)'
+                                : 'var(--accent-teal)',
+                          }}
+                        >
+                          <div className="text-sm font-bold text-foreground mb-1 truncate">
+                            {post.title || 'Announcement'}
+                          </div>
+                          <div className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-1.5">
+                            {post.content}
+                          </div>
+                          <div className="text-[0.7rem] text-muted-foreground/70">
+                            {new Date(post.publishedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <Link href="/feed" className="block text-center mt-4 text-sm font-semibold text-primary hover:underline">
+                    View All Announcements
+                  </Link>
                 </div>
-
-                {announcements.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">No announcements</p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {announcements.map((post, idx) => (
-                      <Link
-                        key={post.id}
-                        href={`/feed/${post.id}`}
-                        className="block p-4 rounded-control bg-background border-l-4 transition-all hover:shadow-sm"
-                        style={{
-                          borderLeftColor: idx === 0
-                            ? 'var(--accent-pink)'
-                            : idx === 1
-                              ? 'var(--accent-navy)'
-                              : 'var(--accent-teal)',
-                        }}
-                      >
-                        <div className="text-sm font-bold text-foreground mb-1 truncate">
-                          {post.title || 'Announcement'}
-                        </div>
-                        <div className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-1.5">
-                          {post.content}
-                        </div>
-                        <div className="text-[0.7rem] text-muted-foreground/70">
-                          {new Date(post.publishedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                <Link href="/feed" className="block text-center mt-4 text-sm font-semibold text-primary hover:underline">
-                  View All Announcements
-                </Link>
-              </div>
+              </FeatureGate>
             </div>
 
             {/* ========== ROW 4: Upcoming Schedule + Recognition ========== */}
@@ -898,65 +946,67 @@ export default function EmployeePortalPage() {
               </div>
 
               {/* H. Recognition & Achievements */}
-              <div className="enterprise-card p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold flex items-center justify-center">
-                      <StarIcon className="w-[18px] h-[18px]" />
+              <FeatureGate feature="RECOGNITION_REWARDS">
+                <div className="enterprise-card p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-control bg-icon-bg-gold text-accent-gold flex items-center justify-center">
+                        <StarIcon className="w-[18px] h-[18px]" />
+                      </div>
+                      <span className="text-base font-bold text-foreground">Recognition</span>
                     </div>
-                    <span className="text-base font-bold text-foreground">Recognition</span>
+                    {totalPoints > 0 && (
+                      <span className="text-xs font-medium text-accent-gold bg-surface-gold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <StarIcon className="w-3 h-3" />
+                        {totalPoints} pts
+                      </span>
+                    )}
                   </div>
-                  {totalPoints > 0 && (
-                    <span className="text-xs font-medium text-accent-gold bg-surface-gold px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <StarIcon className="w-3 h-3" />
-                      {totalPoints} pts
-                    </span>
-                  )}
-                </div>
 
-                {recognitions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">No recognitions yet</p>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {recognitions.map((rec, idx) => {
-                      const iconColorClasses = [
-                        { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
-                        { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
-                        { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
-                      ];
-                      const colors = iconColorClasses[idx % iconColorClasses.length];
-                      return (
-                        <div key={rec.id} className="flex gap-4 p-4 rounded-control bg-background transition-all hover:shadow-sm">
-                          <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${colors.bg} ${colors.text}`}>
-                            <StarIcon className="w-[22px] h-[22px]" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-foreground mb-0.5">
-                              &ldquo;{rec.message || 'No message'}&rdquo;
+                  {recognitions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">No recognitions yet</p>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {recognitions.map((rec, idx) => {
+                        const iconColorClasses = [
+                          { bg: 'bg-icon-bg-gold', text: 'text-accent-gold' },
+                          { bg: 'bg-icon-bg-navy', text: 'text-accent-navy' },
+                          { bg: 'bg-icon-bg-teal', text: 'text-accent-teal' },
+                        ];
+                        const colors = iconColorClasses[idx % iconColorClasses.length];
+                        return (
+                          <div key={rec.id} className="flex gap-4 p-4 rounded-control bg-background transition-all hover:shadow-sm">
+                            <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${colors.bg} ${colors.text}`}>
+                              <StarIcon className="w-[22px] h-[22px]" />
                             </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <span className="text-xs text-muted-foreground">From {rec.fromEmployeeName}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-accent-gold">{rec.points} pts</span>
-                                <span className="text-xs text-muted-foreground">{formatDate(rec.createdAt)}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-bold text-foreground mb-0.5">
+                                &ldquo;{rec.message || 'No message'}&rdquo;
+                              </div>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-xs text-muted-foreground">From {rec.fromEmployeeName}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium text-accent-gold">{rec.points} pts</span>
+                                  <span className="text-xs text-muted-foreground">{formatDate(rec.createdAt)}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
 
-                <div className="text-center mt-4">
-                  <Link
-                    href="/engagement/recognition/give"
-                    className="btn-primary inline-flex items-center justify-center text-xs"
-                  >
-                    GIVE RECOGNITION
-                  </Link>
+                  <div className="text-center mt-4">
+                    <Link
+                      href="/engagement/recognition/give"
+                      className="btn-primary inline-flex items-center justify-center text-xs"
+                    >
+                      GIVE RECOGNITION
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </FeatureGate>
             </div>
 
             {/* ========== ROW 5: Onboarding + Extra Info ========== */}
