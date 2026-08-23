@@ -217,9 +217,14 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
     }
   };
 
-  const getActorId = (): number | null => {
-    const actorId = Number(user?.id);
-    if (!Number.isFinite(actorId) || actorId <= 0) {
+  // user.id is a UUID string (DynamoDB single-table id), not a numeric id —
+  // Number(user?.id) always evaluated to NaN here, so this blocked every
+  // start/complete/reschedule/cancel action with "Unable to identify the
+  // current user". All four actor params are plain Strings on the backend,
+  // so there was never a reason to coerce this.
+  const getActorId = (): string | null => {
+    const actorId = user?.id;
+    if (!actorId) {
       setActionError('Unable to identify the current user. Please sign in again.');
       return null;
     }
