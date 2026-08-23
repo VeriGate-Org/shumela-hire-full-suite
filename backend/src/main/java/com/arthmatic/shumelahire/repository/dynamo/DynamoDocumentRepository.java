@@ -138,6 +138,22 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         if (item.getUploadedAt() != null) {
             entity.setUploadedAt(TimestampUtils.parseTimestamp(item.getUploadedAt()));
         }
+
+        // Rebuild the applicant association. Leaving it null had two consequences, and the second
+        // is the dangerous one:
+        //
+        //   · DocumentResponse's constructor reads document.getApplicant().getId() with no guard,
+        //     so GET /api/applications/{id}/documents returned 500 for every caller — the endpoint
+        //     the pipeline screen uses to list a candidate's CV.
+        //   · toItem() derives applicantId FROM this association, so loading a document and saving
+        //     it back wrote the owner away, exactly as happened to shortlist scores.
+        //
+        // A stub carrying the id is enough; callers needing the full applicant load it themselves.
+        if (item.getApplicantId() != null) {
+            var applicant = new com.arthmatic.shumelahire.entity.Applicant();
+            applicant.setId(item.getApplicantId());
+            entity.setApplicant(applicant);
+        }
         return entity;
     }
 

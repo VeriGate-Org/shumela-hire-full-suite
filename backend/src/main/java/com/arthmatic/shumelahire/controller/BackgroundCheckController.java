@@ -21,6 +21,25 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/background-checks")
 @FeatureGate("BACKGROUND_CHECKS")
+/*
+ * Authorisation note — corrected 23 August 2026.
+ *
+ * Every method here was gated on hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER'). TA_MANAGER is not
+ * a role this system has: the vocabulary is ADMIN, HR_MANAGER, RECRUITER, HIRING_MANAGER,
+ * INTERVIEWER, EMPLOYEE, EXECUTIVE, APPLICANT. So one of the three named roles could never match,
+ * and the gate silently admitted two — excluding HR_MANAGER entirely, and excluding the hiring
+ * manager who owns the vacancy from seeing verification results on her own candidate.
+ *
+ * The split below is deliberate rather than simply widening: reading a result is not the same act
+ * as commissioning one. Each check costs money (R45-R200 through the provider catalogue), so
+ * initiating and cancelling stay with the roles that own the recruitment process, while the hiring
+ * manager can see the outcome. That is also the more defensible story: the recruitment function
+ * commissions the screening, the hiring manager sees what came back.
+ *
+ * Two other controllers still gate on the phantom role — RecruitmentLifecycleController and
+ * SapPayrollController. Left alone here because neither is exercised by the demonstration and a
+ * blind widen is worse than a known gap.
+ */
 public class BackgroundCheckController {
 
     private static final Logger logger = LoggerFactory.getLogger(BackgroundCheckController.class);
@@ -38,7 +57,7 @@ public class BackgroundCheckController {
      * Initiate a background check for an application.
      */
     @PostMapping("/applications/{applicationId}/initiate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<BackgroundCheck> initiateCheck(
             @PathVariable String applicationId,
             @RequestBody Map<String, Object> request) {
@@ -70,7 +89,7 @@ public class BackgroundCheckController {
      * Get the status of a background check.
      */
     @GetMapping("/{referenceId}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<BackgroundCheck> getStatus(@PathVariable String referenceId) {
         BackgroundCheck check = backgroundCheckService.getCheckStatus(referenceId);
         return ResponseEntity.ok(check);
@@ -80,7 +99,7 @@ public class BackgroundCheckController {
      * Get the results of a completed background check.
      */
     @GetMapping("/{referenceId}/results")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<BackgroundCheck> getResults(@PathVariable String referenceId) {
         BackgroundCheck check = backgroundCheckService.getCheckResults(referenceId);
         return ResponseEntity.ok(check);
@@ -90,7 +109,7 @@ public class BackgroundCheckController {
      * Download the verification report PDF.
      */
     @GetMapping("/{referenceId}/report")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<byte[]> downloadReport(@PathVariable String referenceId) {
         byte[] report = backgroundCheckService.downloadReport(referenceId);
 
@@ -117,7 +136,7 @@ public class BackgroundCheckController {
      * Cancel a background check.
      */
     @PostMapping("/{referenceId}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")
     public ResponseEntity<BackgroundCheck> cancelCheck(
             @PathVariable String referenceId,
             @RequestBody(required = false) Map<String, String> request) {
@@ -130,7 +149,7 @@ public class BackgroundCheckController {
      * Get available check types from the verification provider.
      */
     @GetMapping("/check-types")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<List<Map<String, Object>>> getCheckTypes() {
         return ResponseEntity.ok(backgroundCheckService.getAvailableCheckTypes());
     }
@@ -139,7 +158,7 @@ public class BackgroundCheckController {
      * Get required check types for an application's job posting.
      */
     @GetMapping("/applications/{applicationId}/required-check-types")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<Map<String, Object>> getRequiredCheckTypes(@PathVariable String applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
@@ -155,7 +174,7 @@ public class BackgroundCheckController {
      * Get verification summaries for multiple applications (batch).
      */
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<Map<String, VerificationSummaryDTO>> getVerificationSummaries(
             @RequestParam List<String> applicationIds) {
         Map<String, VerificationSummaryDTO> summaries = backgroundCheckService.getVerificationSummaries(applicationIds);
@@ -166,7 +185,7 @@ public class BackgroundCheckController {
      * Get all background checks for an application.
      */
     @GetMapping("/applications/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<List<BackgroundCheck>> getByApplication(@PathVariable String applicationId) {
         List<BackgroundCheck> checks = backgroundCheckRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId);
         return ResponseEntity.ok(checks);
