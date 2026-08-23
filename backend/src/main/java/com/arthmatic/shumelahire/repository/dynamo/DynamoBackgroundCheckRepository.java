@@ -142,6 +142,20 @@ public class DynamoBackgroundCheckRepository extends DynamoRepository<Background
         }
         entity.setTenantId(item.getTenantId());
         entity.setReferenceId(item.getReferenceId());
+
+        // Rebuild the application association. toItem() derives applicationId and GSI2PK from it,
+        // so leaving it null turned every save into a delete of the link — and the webhook path
+        // saves on every provider callback. Reproduced on the IDC tenant: posting a
+        // screening.completed event wiped applicationId to "" and GSI2PK to "BGCHECK_APP#", after
+        // which the check vanished from the candidate's screen while still existing in the table.
+        //
+        // Sixth occurrence of this shape in this package. See DEFECT-REMEDIATION-PLAN.md §5 for
+        // why the durable fix belongs in the base class rather than in each repository.
+        if (item.getApplicationId() != null) {
+            var application = new com.arthmatic.shumelahire.entity.Application();
+            application.setId(item.getApplicationId());
+            entity.setApplication(application);
+        }
         entity.setCandidateIdNumber(item.getCandidateIdNumber());
         entity.setCandidateName(item.getCandidateName());
         entity.setCandidateEmail(item.getCandidateEmail());

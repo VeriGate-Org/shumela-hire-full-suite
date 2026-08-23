@@ -12,7 +12,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/lifecycle")
-@PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'TA_MANAGER', 'HR_MANAGER')")
+// TA_MANAGER removed 23 Aug 2026 — not a role this system has, so it never matched. The three
+// roles beside it already grant the access intended, making this a no-op correction.
+@PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER', 'HR_MANAGER')")
 public class RecruitmentLifecycleController {
 
     @Autowired

@@ -13,7 +13,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sap-payroll")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'TA_MANAGER')")
+// TA_MANAGER removed 23 Aug 2026 — see above. ADMIN and HR_MANAGER already carry this.
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
 @FeatureGate("SAP_PAYROLL")
 public class SapPayrollController {
 

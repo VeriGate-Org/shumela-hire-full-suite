@@ -23,7 +23,11 @@ public class DocumentResponse {
     
     public DocumentResponse(Document document) {
         this.id = document.getId();
-        this.applicantId = document.getApplicant().getId();
+        // Defensive: a repository that does not rebuild this association would otherwise take out
+        // the whole document list with an NPE rather than omitting one field. That is what
+        // GET /api/applications/{id}/documents did — 500 for every caller, on the screen that
+        // lists a candidate's CV.
+        this.applicantId = document.getApplicant() == null ? null : document.getApplicant().getId();
         this.applicationId = document.getApplicationId();
         this.type = document.getType();
         this.filename = document.getFilename();
