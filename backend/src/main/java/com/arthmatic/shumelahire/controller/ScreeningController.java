@@ -30,7 +30,7 @@ public class ScreeningController {
     // --- Question endpoints ---
 
     @GetMapping("/questions/job-posting/{jobPostingId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> getQuestionsByJobPosting(@PathVariable String jobPostingId) {
         try {
             List<ScreeningQuestion> questions = screeningService.getQuestionsByJobPosting(jobPostingId);
@@ -91,7 +91,7 @@ public class ScreeningController {
     // --- Answer endpoints ---
 
     @GetMapping("/answers/application/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> getAnswersByApplication(@PathVariable String applicationId) {
         try {
             List<ScreeningAnswer> answers = screeningService.getAnswersByApplication(applicationId);
@@ -104,7 +104,7 @@ public class ScreeningController {
     }
 
     @PostMapping("/answers")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> saveAnswer(@RequestBody Map<String, Object> request) {
         try {
             String applicationId = request.get("applicationId").toString();
@@ -126,7 +126,7 @@ public class ScreeningController {
 
     @SuppressWarnings("unchecked")
     @PostMapping("/answers/bulk")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> saveBulkAnswers(@RequestBody Map<String, Object> request) {
         try {
             String applicationId = request.get("applicationId").toString();

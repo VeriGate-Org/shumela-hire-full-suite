@@ -233,6 +233,31 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /internal/jobs/<id> to the shell ───
+        // Same issue and same fix as RequisitionsDetailRewriteFunction above:
+        // /internal/jobs/[id] only pre-renders one placeholder ("_"), so any
+        // real job id 403s straight from S3 on a direct load or refresh.
+        // Unlike /requisitions/*, there's no sibling static page under
+        // /internal/jobs/* to special-case — bare /internal/jobs (the list
+        // page) stays on the default behavior since this pattern only
+        // matches paths with something after /internal/jobs/.
+        var internalJobsDetailRewriteFn = new Function(this, "InternalJobsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-internal-jobs-detail-rewrite",
+            Comment = "Rewrites /internal/jobs/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/internal/jobs/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── CloudFront Function: rewrite /candidate/jobs/<id> to the shell ──
         // Same issue and fix as InternalApplyRewriteFunction/JobsDetailRewrite
         // Function above: /candidate/jobs/[id] only pre-renders one
@@ -394,6 +419,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = internalApplyRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Internal job detail pages → same technique, see comment
+                // above on InternalJobsDetailRewriteFunction. Does not affect
+                // bare /internal/jobs (the list page), which stays on the
+                // default behavior.
+                ["/internal/jobs/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = internalJobsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }

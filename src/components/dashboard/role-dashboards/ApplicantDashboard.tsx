@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { DashboardWidget } from '../../dashboard';
-import { apiFetch } from '@/lib/api-fetch';
+import { getMyDashboardData } from '@/services/candidateService';
 import { getEnumLabel } from '@/utils/enumLabels';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ApplicantDashboardProps {
   selectedTimeframe: string;
@@ -87,6 +88,7 @@ function formatRelativeDate(dateString: string): string {
 }
 
 export default function ApplicantDashboard({ selectedTimeframe: _selectedTimeframe, onTimeframeChange: _onTimeframeChange }: ApplicantDashboardProps) {
+  const { user } = useAuth();
   const [statusCounts, setStatusCounts] = useState<StatusCount[]>([
     { status: 'Applied', count: 0, color: 'bg-gold-100 text-gold-800' },
     { status: 'Under Review', count: 0, color: 'bg-yellow-100 text-yellow-800' },
@@ -99,85 +101,83 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
 
   useEffect(() => {
     async function fetchData() {
+      if (!user?.email) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
-        const [allAppsRes, recentAppsRes, interviewsRes] = await Promise.all([
-          apiFetch('/api/applications?size=100'),
-          apiFetch('/api/applications?sortBy=submittedAt&sortDirection=desc&size=5'),
-          apiFetch('/api/interviews?status=SCHEDULED&size=5'),
-        ]);
+        // GET /api/applications and /api/interviews are staff-only search
+        // endpoints Applicants never had access to. getMyDashboardData
+        // resolves the caller's own applicant record and walks their
+        // applications/interviews via the endpoints actually opened up
+        // for self-service roles.
+        const { applications: items, upcomingInterviews: interviewItems } = await getMyDashboardData(user.email);
 
         // Compute status counts from all applications
-        if (allAppsRes.ok) {
-          const allAppsData = await allAppsRes.json();
-          const items = allAppsData.content ?? allAppsData ?? [];
-          const counts: Record<string, number> = {};
-          for (const app of items) {
-            const status = (app.status as string) ?? 'APPLIED';
-            const display = getStatusDisplay(status);
-            counts[display] = (counts[display] ?? 0) + 1;
-          }
-          setStatusCounts([
-            { status: 'Applied', count: counts['Applied'] ?? 0, color: 'bg-gold-100 text-gold-800' },
-            { status: 'Under Review', count: counts['Under Review'] ?? 0, color: 'bg-yellow-100 text-yellow-800' },
-            { status: 'Interview', count: counts['Interview'] ?? 0, color: 'bg-purple-100 text-purple-800' },
-            { status: 'Offer', count: (counts['Offer'] ?? 0) + (counts['Offer Received'] ?? 0), color: 'bg-green-100 text-green-800' },
-          ]);
+        const counts: Record<string, number> = {};
+        for (const app of items) {
+          const status = (app.status as string) ?? 'APPLIED';
+          const display = getStatusDisplay(status);
+          counts[display] = (counts[display] ?? 0) + 1;
         }
+        setStatusCounts([
+          { status: 'Applied', count: counts['Applied'] ?? 0, color: 'bg-gold-100 text-gold-800' },
+          { status: 'Under Review', count: counts['Under Review'] ?? 0, color: 'bg-yellow-100 text-yellow-800' },
+          { status: 'Interview', count: counts['Interview'] ?? 0, color: 'bg-purple-100 text-purple-800' },
+          { status: 'Offer', count: (counts['Offer'] ?? 0) + (counts['Offer Received'] ?? 0), color: 'bg-green-100 text-green-800' },
+        ]);
 
-        // Map recent applications
-        if (recentAppsRes.ok) {
-          const recentData = await recentAppsRes.json();
-          const items = recentData.content ?? recentData ?? [];
-          setRecentApplications(
-            items.map((app: Record<string, unknown>) => ({
-              id: String(app.id ?? ''),
-              position: (app.positionTitle ?? app.position ?? app.jobTitle ?? '') as string,
-              company: (app.companyName ?? app.company ?? '') as string,
-              appliedDate: formatRelativeDate((app.submittedAt ?? app.appliedDate ?? app.createdAt ?? '') as string),
-              status: getStatusDisplay((app.status ?? 'APPLIED') as string),
-              location: (app.location ?? '') as string,
-              statusColor: getStatusColor((app.status ?? 'APPLIED') as string),
-            }))
-          );
-        }
+        // Map recent applications (most recently submitted first)
+        const recent = [...items].sort((a: any, b: any) => {
+          const aDate = new Date(a.submittedAt ?? a.appliedDate ?? a.createdAt ?? 0).getTime();
+          const bDate = new Date(b.submittedAt ?? b.appliedDate ?? b.createdAt ?? 0).getTime();
+          return bDate - aDate;
+        }).slice(0, 5);
+        setRecentApplications(
+          recent.map((app: Record<string, unknown>) => ({
+            id: String(app.id ?? ''),
+            position: (app.positionTitle ?? app.position ?? app.jobTitle ?? '') as string,
+            company: (app.companyName ?? app.company ?? '') as string,
+            appliedDate: formatRelativeDate((app.submittedAt ?? app.appliedDate ?? app.createdAt ?? '') as string),
+            status: getStatusDisplay((app.status ?? 'APPLIED') as string),
+            location: (app.location ?? '') as string,
+            statusColor: getStatusColor((app.status ?? 'APPLIED') as string),
+          }))
+        );
 
         // Map upcoming interviews
-        if (interviewsRes.ok) {
-          const interviewData = await interviewsRes.json();
-          const items = interviewData.content ?? interviewData ?? [];
-          setUpcomingInterviews(
-            items.map((item: Record<string, unknown>) => {
-              const scheduledDate = (item.scheduledDate ?? item.date ?? '') as string;
-              let displayDate = scheduledDate;
-              try {
-                const date = new Date(scheduledDate);
-                const today = new Date();
-                const tomorrow = new Date(today);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                if (date.toDateString() === today.toDateString()) {
-                  displayDate = 'Today';
-                } else if (date.toDateString() === tomorrow.toDateString()) {
-                  displayDate = 'Tomorrow';
-                } else {
-                  displayDate = date.toLocaleDateString('en-ZA', { weekday: 'long' });
-                }
-              } catch {
-                // keep raw date
+        setUpcomingInterviews(
+          interviewItems.slice(0, 5).map((item: Record<string, unknown>) => {
+            const scheduledDate = (item.scheduledDate ?? item.date ?? '') as string;
+            let displayDate = scheduledDate;
+            try {
+              const date = new Date(scheduledDate);
+              const today = new Date();
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              if (date.toDateString() === today.toDateString()) {
+                displayDate = 'Today';
+              } else if (date.toDateString() === tomorrow.toDateString()) {
+                displayDate = 'Tomorrow';
+              } else {
+                displayDate = date.toLocaleDateString('en-ZA', { weekday: 'long' });
               }
+            } catch {
+              // keep raw date
+            }
 
-              return {
-                id: String(item.id ?? ''),
-                company: (item.companyName ?? item.company ?? '') as string,
-                position: (item.positionTitle ?? item.position ?? '') as string,
-                date: displayDate,
-                time: (item.scheduledTime ?? item.time ?? '') as string,
-                type: (item.interviewType ?? item.type ?? 'Interview') as string,
-                color: (item.interviewType ?? item.type ?? '') === 'On-site' ? 'text-purple-600' : 'text-gold-600',
-              };
-            })
-          );
-        }
+            return {
+              id: String(item.id ?? ''),
+              company: (item.companyName ?? item.company ?? '') as string,
+              position: (item.positionTitle ?? item.position ?? '') as string,
+              date: displayDate,
+              time: (item.scheduledTime ?? item.time ?? '') as string,
+              type: (item.interviewType ?? item.type ?? 'Interview') as string,
+              color: (item.interviewType ?? item.type ?? '') === 'On-site' ? 'text-purple-600' : 'text-gold-600',
+            };
+          })
+        );
       } catch {
         // On error, keep empty defaults
       } finally {
@@ -186,7 +186,7 @@ export default function ApplicantDashboard({ selectedTimeframe: _selectedTimefra
     }
 
     fetchData();
-  }, []);
+  }, [user?.email]);
 
   if (loading) {
     return (
