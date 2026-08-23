@@ -6,7 +6,19 @@ import jakarta.validation.constraints.Size;
 
 public class ApplicationCreateRequest {
 
-    @NotNull(message = "Applicant ID is required")
+    /**
+     * Who the application is for.
+     *
+     * <p>Deliberately <em>not</em> {@code @NotNull}. A candidate applying for themselves never sends
+     * it — the public form posts only the job — and requiring it here rejected the request before
+     * the controller could fill it in from the authenticated principal, which ended the entire
+     * public application journey in a 400 with an empty body.</p>
+     *
+     * <p>{@code ApplicationController.resolveApplicantForSubmission} now supplies it: from the
+     * principal for an applicant, from this field for staff capturing an application on someone's
+     * behalf. It still cannot reach the service null — the controller throws if a staff caller
+     * omits it.</p>
+     */
     private String applicantId;
 
     @NotNull(message = "Job ad ID is required")

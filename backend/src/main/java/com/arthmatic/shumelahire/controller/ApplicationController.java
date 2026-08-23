@@ -6,7 +6,10 @@ import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
 import com.arthmatic.shumelahire.dto.CanApplyResponse;
 import com.arthmatic.shumelahire.dto.DocumentResponse;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
+import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
+import com.arthmatic.shumelahire.entity.User;
+import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.DocumentDataRepository;
 import com.arthmatic.shumelahire.service.ApplicationService;
 import jakarta.validation.Valid;
@@ -18,7 +21,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -33,10 +40,76 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
     private final DocumentDataRepository documentRepository;
+    private final ApplicantDataRepository applicantRepository;
 
-    public ApplicationController(ApplicationService applicationService, DocumentDataRepository documentRepository) {
+    public ApplicationController(ApplicationService applicationService,
+                                 DocumentDataRepository documentRepository,
+                                 ApplicantDataRepository applicantRepository) {
         this.applicationService = applicationService;
         this.documentRepository = documentRepository;
+        this.applicantRepository = applicantRepository;
+    }
+
+    /**
+     * The applicant an application should be filed against.
+     *
+     * <p>A candidate applying for themselves never supplies this: the public form posts only the
+     * job, so {@code applicantId} arrived null and bean validation rejected the request before the
+     * controller ran — the whole public application journey ended in a 400 with an empty body.</p>
+     *
+     * <p>It is resolved from the authenticated principal rather than the payload, because a
+     * client-supplied applicant id on an endpoint an applicant can reach is an authorisation hole:
+     * it would let any signed-in candidate file an application in somebody else's name. Staff roles
+     * capture applications on a candidate's behalf — agency submissions, paper forms — so they may
+     * still name the applicant, and for them the field stays required.</p>
+     */
+    private String resolveApplicantForSubmission(ApplicationCreateRequest request,
+                                                 Authentication authentication) {
+        if (isApplicant(authentication)) {
+            String ownId = resolveApplicantId(authentication);
+            String supplied = request.getApplicantId();
+            if (supplied != null && !supplied.equals(ownId)) {
+                throw new AccessDeniedException("Applicants may only apply on their own behalf");
+            }
+            return ownId;
+        }
+
+        // Staff path: unchanged. Somebody has to say who this application is for.
+        if (request.getApplicantId() == null) {
+            throw new IllegalArgumentException("Applicant ID is required");
+        }
+        return request.getApplicantId();
+    }
+
+    private String resolveApplicantId(Authentication authentication) {
+        String email = extractAuthenticatedEmail(authentication);
+        if (email == null) {
+            throw new AccessDeniedException("Applicant email missing from authentication");
+        }
+        return applicantRepository.findByEmail(email)
+                .map(Applicant::getId)
+                .orElseThrow(() -> new AccessDeniedException("Applicant profile not found for authenticated user"));
+    }
+
+    private String extractAuthenticatedEmail(Authentication authentication) {
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getClaimAsString("email");
+        }
+        if (authentication.getPrincipal() instanceof User user) {
+            return user.getEmail();
+        }
+        return null;
+    }
+
+    private boolean isApplicant(Authentication authentication) {
+        if (authentication == null) return false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if ("ROLE_APPLICANT".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -45,12 +118,17 @@ public class ApplicationController {
      */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
-    public ResponseEntity<?> submitApplication(@Valid @RequestBody ApplicationCreateRequest request) {
+    public ResponseEntity<?> submitApplication(@Valid @RequestBody ApplicationCreateRequest request,
+                                               Authentication authentication) {
         try {
+            request.setApplicantId(resolveApplicantForSubmission(request, authentication));
             logger.info("Submitting application for applicant {} to job {}",
                        request.getApplicantId(), request.getJobAdId());
             ApplicationResponse response = applicationService.submitApplication(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (AccessDeniedException e) {
+            logger.warn("Rejected application submission: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to submit application: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
