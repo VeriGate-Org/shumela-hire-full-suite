@@ -269,11 +269,9 @@ export default function BrowseJobsPage() {
         </div>
 
         <div className="flex items-center justify-between">
-          {job.slug ? (
-            <Link href={`/jobs/${job.slug}`} className="text-primary hover:text-primary/80 text-sm font-medium">
-              View Details
-            </Link>
-          ) : <span />}
+          <Link href={`/candidate/jobs/${job.id}`} className="text-primary hover:text-primary/80 text-sm font-medium">
+            View Details
+          </Link>
 
           {daysLeft > 0 && (
             <Link href={applyHref(job)} className="btn-primary">
@@ -307,13 +305,9 @@ export default function BrowseJobsPage() {
                 <tr key={job.id} className="hover:bg-accent/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      {job.slug ? (
-                        <Link href={`/jobs/${job.slug}`} className="font-medium text-foreground hover:text-primary">
-                          {job.title}
-                        </Link>
-                      ) : (
-                        <span className="font-medium text-foreground">{job.title}</span>
-                      )}
+                      <Link href={`/candidate/jobs/${job.id}`} className="font-medium text-foreground hover:text-primary">
+                        {job.title}
+                      </Link>
                       {isJobNew(job.createdAt) && (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800">New</span>
                       )}
