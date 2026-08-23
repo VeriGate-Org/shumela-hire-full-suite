@@ -342,17 +342,16 @@ public class ReportingController {
 
     @GetMapping("/scheduled")
     public ResponseEntity<List<Map<String, Object>>> getScheduledReports() {
-        // Placeholder for scheduled reports list
-        List<Map<String, Object>> scheduledReports = List.of(
-            Map.of(
-                "id", 1,
-                "reportType", "performance",
-                "frequency", "weekly",
-                "nextRun", LocalDateTime.now().plusDays(7).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                "status", "active"
-            )
-        );
-        
-        return ResponseEntity.ok(scheduledReports);
+        // Report scheduling isn't actually implemented yet — the frontend's
+        // "Create Schedule" form (ReportScheduler.tsx) only ever updates its
+        // own local React state; it never calls POST /schedule above, and
+        // nothing here persists anything. This endpoint's one job right now
+        // is to not crash the Scheduler tab: it used to return a single
+        // hardcoded placeholder item shaped nothing like what the frontend
+        // expects (no "recipients", no "reportId"/"reportName", no
+        // "enabled") — every visit to the tab read undefined.recipients.length
+        // and threw. Return an empty list so it renders the real "no
+        // schedules yet" empty state instead of a fake, malformed one.
+        return ResponseEntity.ok(List.of());
     }
 }

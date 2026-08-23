@@ -253,7 +253,15 @@ export default function ReportScheduler({
             </button>
           </div>
         ) : (
-          schedules.map((schedule) => (
+          schedules.map((schedule) => {
+            // schedules is trusted as-is from GET /api/reports/scheduled
+            // with no runtime validation against the ReportSchedule shape —
+            // a malformed or partial record (the endpoint used to return
+            // exactly that) reading recipients.length/.map() below would
+            // crash this whole tab. Normalize once per schedule instead of
+            // trusting the field is always really an array.
+            const recipients = Array.isArray(schedule.recipients) ? schedule.recipients : [];
+            return (
             <div key={schedule.id} className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -286,7 +294,7 @@ export default function ReportScheduler({
                     
                     <div className="flex items-center">
                       <EnvelopeIcon className="h-4 w-4 mr-2" />
-                      <span>{schedule.recipients.length} recipients</span>
+                      <span>{recipients.length} recipients</span>
                     </div>
                   </div>
                   
@@ -305,10 +313,10 @@ export default function ReportScheduler({
                   <div className="mt-3">
                     <details className="group">
                       <summary className="cursor-pointer text-sm text-gold-600 hover:text-gold-700">
-                        View recipients ({schedule.recipients.length})
+                        View recipients ({recipients.length})
                       </summary>
                       <div className="mt-2 pl-4 text-sm text-gray-600">
-                        {schedule.recipients.map((email, index) => (
+                        {recipients.map((email, index) => (
                           <div key={index}>{email}</div>
                         ))}
                       </div>
@@ -356,7 +364,8 @@ export default function ReportScheduler({
                 </div>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
