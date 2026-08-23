@@ -88,6 +88,9 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
         entity.setScreeningScore(item.getScreeningScore());
         entity.setKeywordMatchScore(item.getKeywordMatchScore());
         entity.setScoreBreakdown(item.getScoreBreakdown());
+        entity.setAiSummary(item.getAiSummary());
+        entity.setAiMatchedSkills(item.getAiMatchedSkills());
+        entity.setAiMissingSkills(item.getAiMissingSkills());
         entity.setIsShortlisted(item.getIsShortlisted());
         entity.setManuallyOverridden(item.getManuallyOverridden());
         entity.setOverrideReason(item.getOverrideReason());
@@ -141,6 +144,9 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
         item.setScreeningScore(entity.getScreeningScore());
         item.setKeywordMatchScore(entity.getKeywordMatchScore());
         item.setScoreBreakdown(entity.getScoreBreakdown());
+        item.setAiSummary(entity.getAiSummary());
+        item.setAiMatchedSkills(entity.getAiMatchedSkills());
+        item.setAiMissingSkills(entity.getAiMissingSkills());
         item.setIsShortlisted(entity.getIsShortlisted());
         item.setManuallyOverridden(entity.getManuallyOverridden());
         item.setOverrideReason(entity.getOverrideReason());

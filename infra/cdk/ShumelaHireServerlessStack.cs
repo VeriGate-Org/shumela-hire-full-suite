@@ -146,6 +146,32 @@ public class ShumelaHireServerlessStack : Stack
             Resources = new[] { "*" }
         }));
 
+        // Bedrock: invoke Anthropic models for CV screening and candidate ranking.
+        //
+        // Both ARN forms are required. In af-south-1 an on-demand call against a bare
+        // foundation-model id is rejected, and the request resolves through a cross-region
+        // inference profile instead — so granting only the foundation-model ARN produces an
+        // AccessDenied that reads like a missing permission rather than a wrong model id.
+        // TextGate hit exactly this; the pattern below is the one running in its production stack.
+        lambdaRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
+        {
+            Effect = Effect.ALLOW,
+            Actions = new[] { "bedrock:InvokeModel" },
+            Resources = new[]
+            {
+                "arn:aws:bedrock:*::foundation-model/anthropic.*",
+                $"arn:aws:bedrock:*:{this.Account}:inference-profile/global.anthropic.*"
+            }
+        }));
+
+        // Bedrock checks model subscription status through Marketplace on first invocation.
+        lambdaRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
+        {
+            Effect = Effect.ALLOW,
+            Actions = new[] { "aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe" },
+            Resources = new[] { "*" }
+        }));
+
         // Container image deployment bypasses Lambda's 250 MiB zip size limit
         // (10 GB image limit). CDK builds & pushes the image to ECR automatically.
         ApiFunction = new DockerImageFunction(this, "ApiFunction", new DockerImageFunctionProps
@@ -185,6 +211,9 @@ public class ShumelaHireServerlessStack : Stack
                 // at deploy time, e.g. `cdk deploy --context aiEnabled=true --context aiProvider=openai`.
                 ["AI_ENABLED"] = ContextFlag(this, "aiEnabled", "false"),
                 ["AI_PROVIDER"] = ContextFlag(this, "aiProvider", "mock"),
+                // Cross-region inference profile, not a bare model id — see the Bedrock policy above.
+                ["BEDROCK_MODEL"] = ContextFlag(this, "bedrockModel",
+                    "global.anthropic.claude-sonnet-4-5-20250929-v1:0"),
                 ["SAP_PAYROLL_ENABLED"] = ContextFlag(this, "sapPayrollEnabled", "false"),
                 ["MICROSOFT_ENABLED"] = ContextFlag(this, "microsoftEnabled", "false"),
                 ["LINKEDIN_ENABLED"] = ContextFlag(this, "linkedinJobBoardEnabled", "false"),

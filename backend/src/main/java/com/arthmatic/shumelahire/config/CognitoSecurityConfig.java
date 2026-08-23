@@ -176,6 +176,11 @@ public class CognitoSecurityConfig {
                 // Vacancy report endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/vacancy-reports/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
+                // CV upload. APPLICANT is included so a candidate can attach their own CV;
+                // the controller restricts them to their own record, since a supplied applicantId
+                // would otherwise let anyone attach a document to somebody else's file.
+                .requestMatchers(new AntPathRequestMatcher("/api/cv/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT")
+
                 // Shortlisting endpoints. HIRING_MANAGER is included deliberately: a hiring
                 // manager owns the shortlist for their own vacancy, including running the
                 // threshold. Note this rule runs BEFORE the @PreAuthorize annotations on

@@ -44,23 +44,26 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 function StatusBadge({ score }: { score: ShortlistScore }) {
-  if (score.manuallyOverridden) {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-        Overridden
-      </span>
-    );
-  }
-  if (score.isShortlisted) {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-        Shortlisted
-      </span>
-    );
-  }
+  // An override used to replace the outcome entirely, so the badge read "Overridden" and a
+  // recruiter could not tell whether the person was in or out — the one thing the column is
+  // there to answer. Both facts are shown: what the decision is, and that a human made it.
+  const outcome = score.isShortlisted
+    ? { label: 'Shortlisted', className: 'bg-green-100 text-green-800' }
+    : { label: 'Not Shortlisted', className: 'bg-gray-100 text-gray-600' };
+
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-      Not Shortlisted
+    <span className="inline-flex flex-wrap items-center gap-1">
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${outcome.className}`}>
+        {outcome.label}
+      </span>
+      {score.manuallyOverridden && (
+        <span
+          className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
+          title={score.overrideReason ? `Reason: ${score.overrideReason}` : 'No reason recorded'}
+        >
+          by hand
+        </span>
+      )}
     </span>
   );
 }
@@ -247,6 +250,24 @@ export default function ShortlistingPanel({ jobPostingId, currentUserId }: Short
       <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
         Candidate Shortlisting
       </h4>
+
+      {/* What the VACANCY is missing, as opposed to what the candidates are missing.
+          Without this the panel shows "not assessed" against every candidate's skills and
+          reads as a data problem with the applicants, when the cause is that nobody recorded
+          what the role requires. Requirements are only editable while a posting is a draft, so
+          this cannot be fixed in place once approved — the recruiter needs to know that. */}
+      {summary?.vacancyGaps && summary.vacancyGaps.length > 0 && (
+        <div className="rounded border border-amber-300 bg-amber-50 px-4 py-3">
+          <p className="text-sm font-medium text-amber-900">
+            This vacancy is missing {summary.vacancyGaps.join(', ')}
+          </p>
+          <p className="mt-1 text-xs text-amber-800">
+            Those dimensions cannot be scored, so candidates are ranked on the remainder and each
+            score shows how much of the model ran. Requirements can only be set while a posting is
+            a draft.
+          </p>
+        </div>
+      )}
 
       {/* Summary Stats */}
       {summary && (
@@ -566,36 +587,116 @@ function SortArrow({ direction }: { direction: SortDirection }) {
   );
 }
 
+/** One dimension as recorded in ShortlistScore.scoreBreakdown. */
+interface BreakdownDimension {
+  score: number;
+  weight: number;
+  scorable: boolean;
+  note: string;
+}
+
+interface ParsedBreakdown {
+  dimensions: Record<string, BreakdownDimension>;
+  completeness?: number;
+  confidence?: string;
+}
+
+/**
+ * Reads the stored breakdown, falling back to the flat columns for scores written before the
+ * per-dimension notes existed.
+ */
+function parseBreakdown(score: ShortlistScore): ParsedBreakdown {
+  const fallback: ParsedBreakdown = {
+    dimensions: {
+      skills: { score: score.skillsMatchScore, weight: 0.3, scorable: true, note: '' },
+      experience: { score: score.experienceScore, weight: 0.25, scorable: true, note: '' },
+      education: { score: score.educationScore, weight: 0.2, scorable: true, note: '' },
+      screening: { score: score.screeningScore, weight: 0.15, scorable: true, note: '' },
+      keywords: { score: score.keywordMatchScore, weight: 0.1, scorable: true, note: '' },
+    },
+  };
+  if (!score.scoreBreakdown) return fallback;
+  try {
+    const raw = JSON.parse(score.scoreBreakdown) as Record<string, unknown>;
+    const dims: Record<string, BreakdownDimension> = {};
+    for (const key of ['skills', 'experience', 'education', 'screening', 'keywords']) {
+      const d = raw[key] as BreakdownDimension | undefined;
+      if (d && typeof d.score === 'number') dims[key] = d;
+    }
+    if (Object.keys(dims).length === 0) return fallback;
+    return {
+      dimensions: dims,
+      completeness: typeof raw.completeness === 'number' ? raw.completeness : undefined,
+      confidence: typeof raw.confidence === 'string' ? raw.confidence : undefined,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+const DIMENSION_LABELS: Record<string, string> = {
+  skills: 'Skills Match',
+  experience: 'Experience',
+  education: 'Education',
+  screening: 'Screening',
+  keywords: 'Keyword Match',
+};
+
 function ScoreBreakdown({ score }: { score: ShortlistScore }) {
-  const dimensions = [
-    { label: 'Skills Match', raw: score.skillsMatchScore, weight: 30 },
-    { label: 'Experience', raw: score.experienceScore, weight: 25 },
-    { label: 'Education', raw: score.educationScore, weight: 20 },
-    { label: 'Screening', raw: score.screeningScore, weight: 15 },
-    { label: 'Keyword Match', raw: score.keywordMatchScore, weight: 10 },
-  ];
+  const parsed = parseBreakdown(score);
+  const entries = Object.entries(parsed.dimensions);
+  const unscorable = entries.filter(([, d]) => !d.scorable);
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700">Score Breakdown</p>
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <p className="text-sm font-medium text-gray-700">Score Breakdown</p>
+        {/* The number alone does not say whether to trust it. On this tenant most candidates
+            carry no structured skills, experience or education, so a score can be assembled
+            from one dimension out of five — the recruiter has to be able to see that. */}
+        {parsed.confidence && (
+          <p className={`text-xs ${unscorable.length ? 'text-amber-700' : 'text-gray-500'}`}>
+            {parsed.confidence}
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {dimensions.map((d) => (
-          <div key={d.label} className="rounded border border-gray-200 bg-white px-3 py-2">
-            <p className="text-xs text-gray-500">{d.label}</p>
-            <p className="text-sm font-semibold text-gray-900">{Math.round(d.raw)}%</p>
-            <p className="text-xs text-gray-400">
-              Weight: {d.weight}% | Contribution: {((d.raw * d.weight) / 100).toFixed(1)}
-            </p>
+        {entries.map(([key, d]) => (
+          <div
+            key={key}
+            className={`rounded border px-3 py-2 ${
+              d.scorable ? 'border-gray-200 bg-white' : 'border-dashed border-amber-300 bg-amber-50/40'
+            }`}
+          >
+            <p className="text-xs text-gray-500">{DIMENSION_LABELS[key] ?? key}</p>
+            {d.scorable ? (
+              <>
+                <p className="text-sm font-semibold text-gray-900">{Math.round(d.score)}%</p>
+                <p className="text-xs text-gray-400">
+                  Weight: {Math.round(d.weight * 100)}% · Contribution:{' '}
+                  {(d.score * d.weight).toFixed(1)}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-amber-700">Not assessed</p>
+                <p className="text-xs text-amber-700/80">Weight redistributed</p>
+              </>
+            )}
+            {d.note && <p className="mt-1 text-xs text-gray-600">{d.note}</p>}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-4 text-sm">
-        <span className="font-medium text-gray-700">
-          Total: {Math.round(score.totalScore)}%
-        </span>
-        {score.manuallyOverridden && score.overrideReason && (
-          <span className="text-amber-700 italic">
-            Override reason: {score.overrideReason}
+
+      <div className="flex items-center gap-4 text-sm flex-wrap">
+        <span className="font-medium text-gray-700">Total: {Math.round(score.totalScore)}%</span>
+        {score.manuallyOverridden && (
+          <span className="text-amber-700">
+            Decided by hand —{' '}
+            <span className="italic">
+              {score.overrideReason?.trim() ? score.overrideReason : 'no reason recorded'}
+            </span>
           </span>
         )}
       </div>

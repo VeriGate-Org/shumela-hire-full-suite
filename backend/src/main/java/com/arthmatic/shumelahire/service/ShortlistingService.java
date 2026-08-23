@@ -6,11 +6,16 @@ import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.ShortlistScore;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.entity.Document;
+import com.arthmatic.shumelahire.repository.DocumentDataRepository;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.repository.ShortlistScoreDataRepository;
 import com.arthmatic.shumelahire.service.shortlisting.CandidateScoring;
 import com.arthmatic.shumelahire.service.shortlisting.CandidateScoring.Dimension;
 import com.arthmatic.shumelahire.service.shortlisting.ScoreCard;
+import com.arthmatic.shumelahire.service.ai.AiService;
+import com.arthmatic.shumelahire.service.ai.features.CvScreeningAiService;
+import com.arthmatic.shumelahire.dto.ai.CvScreeningDto.CvScreeningResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +53,15 @@ public class ShortlistingService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private DocumentDataRepository documentRepository;
+
+    @Autowired(required = false)
+    private CvScreeningAiService cvScreeningAiService;
+
+    @Autowired(required = false)
+    private AiService aiService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -87,6 +102,8 @@ public class ShortlistingService {
             logger.warn("Failed to serialize score breakdown: {}", e.getMessage());
         }
 
+        enrichWithAi(score, application, posting);
+
         return shortlistScoreRepository.save(score);
     }
 
@@ -119,16 +136,87 @@ public class ShortlistingService {
         return ScoreCard.of(skills, experience, education, screening, keywords);
     }
 
-    /** Everything the candidate wrote or had recorded, for the keyword sweep. */
+    /**
+     * Adds the model's reading of the CV, where there is a model and a CV.
+     *
+     * <p><b>The deterministic score is never overwritten.</b> The AI contributes a written
+     * assessment and its own view of matched and missing skills, which a recruiter can read and
+     * disagree with; the number that decides the shortlist stays the one computed from the
+     * vacancy's stated requirements. For a public entity a shortlist has to be defensible, and
+     * "the model said so" is not a defence.</p>
+     *
+     * <p>Silently skipped when AI is disabled, no provider is wired, or the candidate has no
+     * readable CV — all of which are the normal state today. A screening failure must never cost
+     * a candidate their deterministic score.</p>
+     */
+    private void enrichWithAi(ShortlistScore score, Application application, JobPosting posting) {
+        if (cvScreeningAiService == null || aiService == null || !aiService.isEnabled()) {
+            return;
+        }
+        Applicant applicant = application.getApplicant();
+        if (applicant == null || posting == null) return;
+
+        String cv = cvText(applicant.getId());
+        if (cv.isBlank()) return;   // nothing to screen — see CvUploadController
+
+        List<String> requirements = new ArrayList<>();
+        if (posting.getRequiredSkills() != null) requirements.addAll(posting.getRequiredSkills());
+        if (posting.getRequirements() != null && !posting.getRequirements().isBlank()) {
+            requirements.add(posting.getRequirements());
+        }
+        if (requirements.isEmpty()) return;
+
+        try {
+            // The AI service records usage against a user id for audit and cost attribution.
+            // A scoring run is the system acting on a vacancy, not a person clicking, so it is
+            // attributed to SYSTEM rather than to whoever happened to trigger the recalculation.
+            CvScreeningResult result = cvScreeningAiService.screenCandidate(
+                "SYSTEM", application.getId(), requirements,
+                application.getCandidateName(), cv);
+
+            score.setAiSummary(result.getSummary());
+            score.setAiMatchedSkills(objectMapper.writeValueAsString(result.getMatchedSkills()));
+            score.setAiMissingSkills(objectMapper.writeValueAsString(result.getMissingSkills()));
+        } catch (Exception e) {
+            logger.warn("AI screening failed for application {} — the deterministic score stands: {}",
+                application.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * Everything the candidate wrote or had recorded, for the keyword sweep.
+     *
+     * <p>Includes the text of any uploaded CV. That is the point of extracting it at upload: a
+     * candidate's actual document usually says far more than the handful of structured fields a
+     * recruiter had time to capture, and before CV storage existed this method had only those
+     * fields to work with.</p>
+     */
     private String candidateText(Application application, Applicant applicant) {
         StringBuilder sb = new StringBuilder();
         if (application.getCoverLetter() != null) sb.append(application.getCoverLetter()).append(' ');
         if (applicant != null) {
             if (applicant.getSkills() != null) sb.append(applicant.getSkills()).append(' ');
             if (applicant.getExperience() != null) sb.append(applicant.getExperience()).append(' ');
-            if (applicant.getEducation() != null) sb.append(applicant.getEducation());
+            if (applicant.getEducation() != null) sb.append(applicant.getEducation()).append(' ');
+            sb.append(cvText(applicant.getId()));
         }
         return sb.toString();
+    }
+
+    /** Extracted text of the candidate's most recent readable CV, or empty. */
+    private String cvText(String applicantId) {
+        if (applicantId == null) return "";
+        try {
+            return documentRepository.findCvDocumentsByApplicant(applicantId).stream()
+                .map(Document::getExtractedText)
+                .filter(t -> t != null && !t.isBlank())
+                .findFirst()
+                .orElse("");
+        } catch (Exception e) {
+            // A CV that cannot be loaded must not stop the candidate being scored on everything else.
+            logger.warn("Could not load CV text for applicant {}: {}", applicantId, e.getMessage());
+            return "";
+        }
     }
 
     @Transactional
@@ -204,6 +292,7 @@ public class ShortlistingService {
 
     public Map<String, Object> getShortlistingSummary(String jobPostingId) {
         List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
+        JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);
 
         long shortlisted = scores.stream().filter(ShortlistScore::getIsShortlisted).count();
         double avgScore = scores.stream().mapToDouble(ShortlistScore::getTotalScore).average().orElse(0);
@@ -215,6 +304,30 @@ public class ShortlistingService {
         summary.put("averageScore", Math.round(avgScore * 100.0) / 100.0);
         summary.put("highestScore", scores.stream().mapToDouble(ShortlistScore::getTotalScore).max().orElse(0));
         summary.put("lowestScore", scores.stream().mapToDouble(ShortlistScore::getTotalScore).min().orElse(0));
+
+        // Which dimensions this vacancy can be scored on at all.
+        //
+        // Requirements are only editable while a posting is DRAFT or REJECTED, and shortlisting
+        // only appears from APPROVED onward — so a vacancy approved without structured
+        // requirements can never acquire them. Without this the panel would show skills as
+        // unscorable for every candidate with no way to tell that the gap is in the VACANCY,
+        // not in the applicants.
+        List<String> notConfigured = new ArrayList<>();
+        if (posting == null) {
+            notConfigured.add("job posting not found");
+        } else {
+            if (posting.getRequiredSkills() == null || posting.getRequiredSkills().isEmpty()) {
+                notConfigured.add("required skills");
+            }
+            if (posting.getMinEducationLevel() == null) {
+                notConfigured.add("minimum qualification");
+            }
+            if (posting.getRequirements() == null || posting.getRequirements().isBlank()) {
+                notConfigured.add("requirements text");
+            }
+        }
+        summary.put("vacancyGaps", notConfigured);
+        summary.put("vacancyFullyConfigured", notConfigured.isEmpty());
 
         return summary;
     }

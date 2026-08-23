@@ -39,6 +39,9 @@ public class ShortlistScoreItem {
     private Double screeningScore;
     private Double keywordMatchScore;
     private String scoreBreakdown;
+    private String aiSummary;
+    private String aiMatchedSkills;
+    private String aiMissingSkills;
     private Boolean isShortlisted;
     private Boolean manuallyOverridden;
     private String overrideReason;
@@ -130,4 +133,13 @@ public class ShortlistScoreItem {
 
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getAiSummary() { return aiSummary; }
+    public void setAiSummary(String aiSummary) { this.aiSummary = aiSummary; }
+
+    public String getAiMatchedSkills() { return aiMatchedSkills; }
+    public void setAiMatchedSkills(String aiMatchedSkills) { this.aiMatchedSkills = aiMatchedSkills; }
+
+    public String getAiMissingSkills() { return aiMissingSkills; }
+    public void setAiMissingSkills(String aiMissingSkills) { this.aiMissingSkills = aiMissingSkills; }
 }

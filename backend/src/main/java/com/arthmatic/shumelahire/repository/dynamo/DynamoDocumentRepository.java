@@ -132,6 +132,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         }
         entity.setFilename(item.getFilename());
         entity.setUrl(item.getUrl());
+        entity.setExtractedText(item.getExtractedText());
         entity.setFileSize(item.getFileSize());
         entity.setContentType(item.getContentType());
         if (item.getUploadedAt() != null) {
@@ -184,6 +185,7 @@ public class DynamoDocumentRepository extends DynamoRepository<DocumentItem, Doc
         item.setType(typeStr.isEmpty() ? null : typeStr);
         item.setFilename(entity.getFilename());
         item.setUrl(entity.getUrl());
+        item.setExtractedText(entity.getExtractedText());
         item.setFileSize(entity.getFileSize());
         item.setContentType(entity.getContentType());
         if (entity.getUploadedAt() != null) {

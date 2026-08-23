@@ -27,6 +27,16 @@ public class Document extends TenantAwareEntity {
     
     @NotBlank(message = "File URL is required")
     private String url;
+
+    /**
+     * Plain text pulled from the file at upload time, or null where none could be read.
+     *
+     * <p>Extracted once and stored rather than re-parsed on demand: shortlisting and AI screening
+     * both read it per candidate per run, and re-downloading a PDF from S3 to re-strip it each
+     * time would be work repeated for an answer that cannot change. Null is meaningful — a scanned
+     * CV is an image, and that is a normal outcome, not a failure.</p>
+     */
+    private String extractedText;
     
     private Long fileSize; // Size in bytes
     
@@ -151,4 +161,7 @@ public class Document extends TenantAwareEntity {
                 ", fileSize=" + fileSize +
                 '}';
     }
+
+    public String getExtractedText() { return extractedText; }
+    public void setExtractedText(String extractedText) { this.extractedText = extractedText; }
 }

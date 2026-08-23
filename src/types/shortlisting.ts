@@ -37,6 +37,9 @@ export interface ShortlistingSummary {
   averageScore: number;
   highestScore: number;
   lowestScore: number;
+  /** Parts of the vacancy that were never filled in, so cannot be scored against. */
+  vacancyGaps?: string[];
+  vacancyFullyConfigured?: boolean;
 }
 
 export interface ShortlistOverrideRequest {
