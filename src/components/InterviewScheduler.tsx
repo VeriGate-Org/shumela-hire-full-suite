@@ -213,6 +213,28 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
           // component throws. At minimum, preserve the primary interviewer.
           interviewerIds: data.interviewerId != null ? [String(data.interviewerId)] : [],
         });
+
+        // loadApplications() only ever loads SCREENING-stage candidates for
+        // the "create new interview" picker. By the time an interview
+        // exists to edit, its application has usually moved past that
+        // stage (e.g. INTERVIEW, OFFER), so it's simply absent from that
+        // list — selectedApplication then never resolves, and the Review
+        // step's Candidate field silently shows "—" even though the
+        // interview genuinely has one. Fetch this specific application
+        // directly so it's always resolvable regardless of its current
+        // status, and merge it in rather than replacing the list.
+        const applicationId = data.application?.id;
+        if (applicationId) {
+          try {
+            const appResponse = await apiFetch(`/api/applications/${applicationId}`);
+            if (appResponse.ok) {
+              const appData = await appResponse.json();
+              setApplications((prev) => (prev.some((a) => a.id === appData.id) ? prev : [...prev, appData]));
+            }
+          } catch (err) {
+            console.error('Error loading interview application:', err);
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading interview:', error);
