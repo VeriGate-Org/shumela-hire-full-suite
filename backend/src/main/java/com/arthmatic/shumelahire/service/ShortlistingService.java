@@ -270,10 +270,31 @@ public class ShortlistingService {
         for (ShortlistScore score : scores) {
             boolean shortlisted = score.getTotalScore() >= threshold;
             score.setIsShortlisted(shortlisted);
-            if (shortlisted && score.getApplication().getStatus() == ApplicationStatus.SUBMITTED) {
-                score.getApplication().setStatus(ApplicationStatus.SCREENING);
-                notificationService.notifyApplicationShortlisted(score.getApplication());
-                advanced++;
+
+            if (shortlisted) {
+                // Load the real application. The one hanging off the score is a stub carrying ids
+                // and nothing else, so reading a status off it yields null — which is neither
+                // SUBMITTED nor an error, so every candidate would silently fail to advance. And
+                // mutating that stub wrote the new status to an object nobody persists: the loop
+                // saved the ShortlistScore and never the Application at all.
+                Application application = score.getApplication() == null ? null
+                    : applicationRepository.findById(score.getApplication().getId()).orElse(null);
+
+                if (application == null) {
+                    logger.warn("Shortlisted score {} has no resolvable application — flag set, "
+                        + "candidate not advanced", score.getId());
+                } else if (application.getStatus() == ApplicationStatus.SUBMITTED) {
+                    application.setStatus(ApplicationStatus.SCREENING);
+                    applicationRepository.save(application);   // the change has to outlive the loop
+                    notificationService.notifyApplicationShortlisted(application);
+                    advanced++;
+                }
+                // Keep the association whole on the way back out — see the note in
+                // DynamoShortlistScoreRepository.toEntity. Saving with a null application is what
+                // erased applicationId on six rows.
+                if (application != null) {
+                    score.setApplication(application);
+                }
             }
             shortlistScoreRepository.save(score);
         }

@@ -94,6 +94,26 @@ public class DynamoShortlistScoreRepository extends DynamoRepository<ShortlistSc
         entity.setIsShortlisted(item.getIsShortlisted());
         entity.setManuallyOverridden(item.getManuallyOverridden());
         entity.setOverrideReason(item.getOverrideReason());
+
+        // Rebuild the association. Leaving it null is not merely incomplete — it is destructive:
+        // toItem() derives applicationId and jobPostingId FROM this object, so loading a score and
+        // saving it back wrote both away. Six rows on the IDC tenant lost their applicationId that
+        // way during a single auto-shortlist run, because autoShortlist saves every score it
+        // examines, not only the ones it selects.
+        //
+        // It also made autoShortlist throw the moment anything actually qualified: it reads
+        // score.getApplication().getStatus() to decide whether to advance a candidate, which is a
+        // straight NPE against null. That stayed hidden for as long as scoring was broken enough
+        // that nobody ever crossed the threshold.
+        //
+        // A stub carrying the ids is enough for round-tripping. Callers that need the full
+        // application load it themselves.
+        if (item.getApplicationId() != null) {
+            var application = new com.arthmatic.shumelahire.entity.Application();
+            application.setId(item.getApplicationId());
+            application.setJobPostingId(item.getJobPostingId());
+            entity.setApplication(application);
+        }
         if (item.getCreatedAt() != null) {
             entity.setCreatedAt(TimestampUtils.parseTimestamp(item.getCreatedAt()));
         }
