@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, ROLE_DISPLAY_NAMES } from '../contexts/AuthContext';
-import { navigationRegistry, sectionLabels, NavSection, NavigationEntry } from '@/config/navigationRegistry';
+import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, getHiddenSectionsForRole } from '@/config/navigationRegistry';
 import { Bars3Icon, XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface MobileNavigationProps {
@@ -20,7 +20,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) 
   const navigationItems = useMemo(() => {
     if (!user) return [];
     const userPermissions = user.permissions || [];
+    const hiddenSections = getHiddenSectionsForRole(user.role);
     return navigationRegistry.filter((entry) =>
+      !hiddenSections.includes(entry.section) &&
       entry.requiredPermissions.every((permission) => userPermissions.includes(permission))
     );
   }, [user]);

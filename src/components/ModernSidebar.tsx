@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureGate } from '@/contexts/FeatureGateContext';
 import { useTenant } from '@/contexts/TenantContext';
-import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, SECTION_ORDER, SECTION_ICONS, SINGLE_LINK_SECTIONS } from '@/config/navigationRegistry';
+import { navigationRegistry, sectionLabels, NavSection, NavigationEntry, SECTION_ORDER, SECTION_ICONS, SINGLE_LINK_SECTIONS, getHiddenSectionsForRole } from '@/config/navigationRegistry';
 import { FEATURE_MINIMUM_PLAN } from '@/config/featurePlanMap';
 import {
   ChevronRightIcon,
@@ -82,7 +82,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const navigationItems = useMemo((): SidebarNavItem[] => {
     if (!user) return [];
     const userPermissions = user.permissions || [];
+    const hiddenSections = getHiddenSectionsForRole(user.role);
     return navigationRegistry
+      .filter(entry => !hiddenSections.includes(entry.section))
       .filter(entry => entry.requiredPermissions.every(p => userPermissions.includes(p)))
       .map(entry => {
         const featureEnabled = !entry.requiredFeature || isFeatureEnabled(entry.requiredFeature);

@@ -55,6 +55,7 @@ import {
   UsersIcon as UsersIconSolid,
 } from '@heroicons/react/24/solid';
 import { ComponentType } from 'react';
+import type { UserRole } from '@/contexts/AuthContext';
 
 export type NavSection = 'overview' | 'recruitment' | 'hr_core' | 'talent' | 'engagement' | 'workflow' | 'analytics' | 'administration' | 'personal' | 'system' | 'platform' | 'communication' | 'integrations' | 'candidate_portal';
 
@@ -216,6 +217,21 @@ export const SECTION_ICONS: Record<NavSection, ComponentType<any>> = {
 };
 
 export const SINGLE_LINK_SECTIONS = new Set<NavSection>(['overview', 'workflow']);
+
+// Applicants get the same "Personal" section as Employees for browsing jobs,
+// tracking applications, and viewing their profile/interviews/offers.
+// Recruitment, HR, Communication, and Candidate Portal are recruiter/employee-
+// facing sections that don't apply to them and would otherwise leak through
+// because some of their items only require broad permissions (e.g.
+// view_own_profile, view_internal_jobs) that Applicants also hold.
+const ROLE_HIDDEN_SECTIONS: Partial<Record<UserRole, NavSection[]>> = {
+  APPLICANT: ['recruitment', 'hr_core', 'communication', 'candidate_portal'],
+};
+
+export function getHiddenSectionsForRole(role?: UserRole): NavSection[] {
+  if (!role) return [];
+  return ROLE_HIDDEN_SECTIONS[role] || [];
+}
 
 export const sectionLabels: Record<NavSection, string> = {
   overview: 'Overview',
