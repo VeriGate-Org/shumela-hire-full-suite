@@ -22,8 +22,13 @@ interface ShortlistingPanelProps {
 type SortField = 'score' | 'name';
 type SortDirection = 'asc' | 'desc';
 
-const MANAGE_ROLES = ['ADMIN', 'HR_MANAGER', 'RECRUITER'];
-const VIEW_ROLES = [...MANAGE_ROLES, 'HIRING_MANAGER'];
+// Must match ShortlistingController's @PreAuthorize, which admits HIRING_MANAGER on all four
+// endpoints — as do the URL rules in SecurityConfig and CognitoSecurityConfig. Omitting the role
+// here did not refuse hiring managers; it hid the entire action bar from them, so the panel
+// rendered a score table with no way to act on it. That reads as a dead button rather than as a
+// permission boundary, which is the worst of both: no affordance and no explanation.
+const MANAGE_ROLES = ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'];
+const VIEW_ROLES = [...MANAGE_ROLES];
 
 function ScoreBar({ score }: { score: number }) {
   const color =

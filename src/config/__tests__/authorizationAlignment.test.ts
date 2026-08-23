@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { navigationRegistry } from '@/config/navigationRegistry';
 import { rolePermissions } from '@/config/permissions';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -57,5 +59,36 @@ describe('Authorization alignment', () => {
     expectNavRoles('report-export', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE']);
     expectNavRoles('sage-integration', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('sso-configuration', ['ADMIN', 'HR_MANAGER']);
+  });
+
+  /**
+   * Component-level role gates drift from the backend silently.
+   *
+   * ShortlistingPanel hides its whole action bar behind a MANAGE_ROLES literal. When
+   * HIRING_MANAGER was missing from it, hiring managers saw the score table with no
+   * Recalculate, no Auto-Shortlist and no Override — while the backend authorised every one
+   * of those calls. Nothing failed; the affordance simply was not rendered, which presents as
+   * a dead button rather than as a permission boundary.
+   *
+   * Read as text rather than imported, because the constant is module-private and the point
+   * is to pin the literal a future edit would change.
+   */
+  it('keeps ShortlistingPanel MANAGE_ROLES aligned with ShortlistingController', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src/components/ShortlistingPanel.tsx'),
+      'utf8',
+    );
+
+    const match = source.match(/const MANAGE_ROLES = \[([^\]]+)\]/);
+    expect(match).not.toBeNull();
+
+    const actual = match![1]
+      .split(',')
+      .map((r) => r.trim().replace(/['"]/g, ''))
+      .filter(Boolean)
+      .sort();
+
+    // ShortlistingController @PreAuthorize on calculate, auto-shortlist, scores and override.
+    expect(actual).toEqual(['ADMIN', 'HIRING_MANAGER', 'HR_MANAGER', 'RECRUITER'].sort());
   });
 });
