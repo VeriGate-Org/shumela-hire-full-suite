@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTenant } from '@/contexts/TenantContext';
+import { readableTextOn } from '@/hooks/useTenantBranding';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
@@ -42,16 +43,28 @@ export default function BrandingPage() {
     }
   }, [currentBranding]);
 
+  // Mirrors useTenantBranding: each of these is the background half of a pair, and the paired
+  // foreground has to move with it. Previewing only the backgrounds would show an administrator a
+  // legible preview of a combination that renders unreadable once saved — which is how a dark
+  // brand colour reached production with near-black text on it.
   useEffect(() => {
     if (!livePreview) return;
     const root = document.documentElement;
-    root.style.setProperty('--primary', colors.primaryColor);
-    root.style.setProperty('--secondary', colors.secondaryColor);
-    root.style.setProperty('--cta', colors.accentColor);
+    const pairs: [string, string, string][] = [
+      ['--primary', '--primary-foreground', colors.primaryColor],
+      ['--secondary', '--secondary-foreground', colors.secondaryColor],
+      ['--cta', '--cta-foreground', colors.accentColor],
+    ];
+    const applied: string[] = [];
+    for (const [prop, foregroundProp, value] of pairs) {
+      const foreground = readableTextOn(value);
+      if (foreground === null) continue;
+      root.style.setProperty(prop, value);
+      root.style.setProperty(foregroundProp, foreground);
+      applied.push(prop, foregroundProp);
+    }
     return () => {
-      root.style.removeProperty('--primary');
-      root.style.removeProperty('--secondary');
-      root.style.removeProperty('--cta');
+      for (const prop of applied) root.style.removeProperty(prop);
     };
   }, [livePreview, colors]);
 
