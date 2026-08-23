@@ -297,7 +297,9 @@ jobs:
             -c apiCertificateArn="${API_CERTIFICATE_ARN}" \
             -c wildcardCertificateArn="${WILDCARD_CERTIFICATE_ARN}" \
             -c linkedInClientId="${LINKEDIN_CLIENT_ID}" \
-            -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}"
+            -c linkedInClientSecret="${LINKEDIN_CLIENT_SECRET}" \
+            -c aiEnabled=true \
+            -c aiProvider=bedrock
 
       # ── Seed platform feature catalog (idempotent, every deploy) ────────
       # FeatureGateService.getEnabledFeatures() can only ever return codes

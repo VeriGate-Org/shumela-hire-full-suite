@@ -29,6 +29,22 @@ public class ShortlistScore extends TenantAwareEntity {
 
     private String overrideReason;
 
+    /**
+     * The model's written assessment, when AI screening ran.
+     *
+     * <p>Stored alongside the deterministic score, never in place of it. The number a recruiter
+     * defends is the one this class computes from the vacancy's stated requirements; the AI
+     * contributes reasoning a person can read and disagree with. Null whenever AI is disabled,
+     * unavailable, or the candidate has no readable CV — which is most of the time today.</p>
+     */
+    private String aiSummary;
+
+    /** Skills the model found evidence for, as JSON. */
+    private String aiMatchedSkills;
+
+    /** Required skills the model could find no evidence for, as JSON. */
+    private String aiMissingSkills;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -83,4 +99,13 @@ public class ShortlistScore extends TenantAwareEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getAiSummary() { return aiSummary; }
+    public void setAiSummary(String aiSummary) { this.aiSummary = aiSummary; }
+
+    public String getAiMatchedSkills() { return aiMatchedSkills; }
+    public void setAiMatchedSkills(String aiMatchedSkills) { this.aiMatchedSkills = aiMatchedSkills; }
+
+    public String getAiMissingSkills() { return aiMissingSkills; }
+    public void setAiMissingSkills(String aiMissingSkills) { this.aiMissingSkills = aiMissingSkills; }
 }

@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.repository.dynamo;
 import com.arthmatic.shumelahire.dto.CursorPage;
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.ExperienceLevel;
+import com.arthmatic.shumelahire.entity.EducationLevel;
 import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.JobPostingStatus;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
@@ -391,6 +392,11 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         jp.setRequirements(item.getRequirements());
         jp.setResponsibilities(item.getResponsibilities());
         jp.setQualifications(item.getQualifications());
+        jp.setRequiredSkills(item.getRequiredSkills());
+        jp.setPreferredSkills(item.getPreferredSkills());
+        if (item.getMinEducationLevel() != null && !item.getMinEducationLevel().isBlank()) {
+            jp.setMinEducationLevel(EducationLevel.valueOf(item.getMinEducationLevel()));
+        }
         jp.setBenefits(item.getBenefits());
         if (item.getSalaryMin() != null) {
             jp.setSalaryMin(new BigDecimal(item.getSalaryMin()));
@@ -517,6 +523,14 @@ public class DynamoJobPostingRepository extends DynamoRepository<JobPostingItem,
         item.setRequirements(entity.getRequirements());
         item.setResponsibilities(entity.getResponsibilities());
         item.setQualifications(entity.getQualifications());
+        // Empty lists are stored as null: DynamoDB rejects an empty list attribute, and an
+        // absent attribute reads back as an empty list via the entity's own defaulting.
+        item.setRequiredSkills(entity.getRequiredSkills() == null || entity.getRequiredSkills().isEmpty()
+                ? null : entity.getRequiredSkills());
+        item.setPreferredSkills(entity.getPreferredSkills() == null || entity.getPreferredSkills().isEmpty()
+                ? null : entity.getPreferredSkills());
+        item.setMinEducationLevel(entity.getMinEducationLevel() == null
+                ? null : entity.getMinEducationLevel().name());
         item.setBenefits(entity.getBenefits());
         if (entity.getSalaryMin() != null) {
             item.setSalaryMin(entity.getSalaryMin().toPlainString());

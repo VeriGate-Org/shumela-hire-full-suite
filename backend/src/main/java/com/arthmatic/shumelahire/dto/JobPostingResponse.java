@@ -1,5 +1,9 @@
 package com.arthmatic.shumelahire.dto;
 
+import com.arthmatic.shumelahire.entity.EducationLevel;
+
+import java.util.List;
+
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.ExperienceLevel;
 import com.arthmatic.shumelahire.entity.JobPosting;
@@ -22,6 +26,11 @@ public class JobPostingResponse {
     private String requirements;
     private String responsibilities;
     private String qualifications;
+    private List<String> requiredSkills;
+    private List<String> preferredSkills;
+    private EducationLevel minEducationLevel;
+    /** Derived from experienceLevel — exposed so the UI need not repeat the mapping. */
+    private int minExperienceYears;
     private String benefits;
     private BigDecimal salaryMin;
     private BigDecimal salaryMax;
@@ -89,6 +98,10 @@ public class JobPostingResponse {
         this.requirements = jobPosting.getRequirements();
         this.responsibilities = jobPosting.getResponsibilities();
         this.qualifications = jobPosting.getQualifications();
+        this.requiredSkills = jobPosting.getRequiredSkills();
+        this.preferredSkills = jobPosting.getPreferredSkills();
+        this.minEducationLevel = jobPosting.getMinEducationLevel();
+        this.minExperienceYears = jobPosting.getMinExperienceYears();
         this.benefits = jobPosting.getBenefits();
         this.salaryMin = jobPosting.getSalaryMin();
         this.salaryMax = jobPosting.getSalaryMax();
@@ -663,4 +676,16 @@ public class JobPostingResponse {
 
     public String getRequisitionId() { return requisitionId; }
     public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
+
+    public List<String> getRequiredSkills() { return requiredSkills; }
+    public void setRequiredSkills(List<String> requiredSkills) { this.requiredSkills = requiredSkills; }
+
+    public List<String> getPreferredSkills() { return preferredSkills; }
+    public void setPreferredSkills(List<String> preferredSkills) { this.preferredSkills = preferredSkills; }
+
+    public EducationLevel getMinEducationLevel() { return minEducationLevel; }
+    public void setMinEducationLevel(EducationLevel minEducationLevel) { this.minEducationLevel = minEducationLevel; }
+
+    public int getMinExperienceYears() { return minExperienceYears; }
+    public void setMinExperienceYears(int minExperienceYears) { this.minExperienceYears = minExperienceYears; }
 }

@@ -170,6 +170,13 @@
             <artifactId>s3</artifactId>
         </dependency>
 
+        <!-- AWS Bedrock Runtime SDK. Bedrock authenticates by IAM, so unlike the direct
+             Anthropic and OpenAI providers there is no API key to store, rotate or leak. -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>bedrockruntime</artifactId>
+        </dependency>
+
         <!-- AWS Cognito Identity Provider SDK -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>

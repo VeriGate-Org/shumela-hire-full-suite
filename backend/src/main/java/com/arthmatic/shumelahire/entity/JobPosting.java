@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -31,10 +32,33 @@ public class JobPosting extends TenantAwareEntity {
     private String description;
     
     private String requirements;
-    
+
     private String responsibilities;
-    
+
     private String qualifications;
+
+    /**
+     * Skills a candidate must have, as discrete terms.
+     *
+     * <p>{@link #requirements} and {@link #qualifications} are prose written for candidates to
+     * read, and prose cannot be matched against anything. Applicant skills are already stored as a
+     * structured list, so this is the missing half of the pair: without it shortlisting has nothing
+     * to compare a candidate to, which is why every scoring dimension returned a constant.</p>
+     *
+     * <p>The prose fields stay. They are what appears on the advert; these drive the score.</p>
+     */
+    private List<String> requiredSkills = new ArrayList<>();
+
+    /** Skills that improve a candidate but are not disqualifying if absent. */
+    private List<String> preferredSkills = new ArrayList<>();
+
+    /**
+     * Minimum formal qualification, or {@code null} where the role names none.
+     *
+     * <p>Null means "no requirement" and must score as satisfied, not as a failure — a vacancy that
+     * does not ask for a degree should not quietly mark down everyone who lacks one.</p>
+     */
+    private EducationLevel minEducationLevel;
     
     private String benefits;
     
@@ -274,6 +298,41 @@ public class JobPosting extends TenantAwareEntity {
     
     public void setRequirements(String requirements) {
         this.requirements = requirements;
+    }
+
+    public List<String> getRequiredSkills() {
+        return requiredSkills;
+    }
+
+    public void setRequiredSkills(List<String> requiredSkills) {
+        this.requiredSkills = requiredSkills == null ? new ArrayList<>() : requiredSkills;
+    }
+
+    public List<String> getPreferredSkills() {
+        return preferredSkills;
+    }
+
+    public void setPreferredSkills(List<String> preferredSkills) {
+        this.preferredSkills = preferredSkills == null ? new ArrayList<>() : preferredSkills;
+    }
+
+    public EducationLevel getMinEducationLevel() {
+        return minEducationLevel;
+    }
+
+    public void setMinEducationLevel(EducationLevel minEducationLevel) {
+        this.minEducationLevel = minEducationLevel;
+    }
+
+    /**
+     * Minimum years of experience the role expects.
+     *
+     * <p>Derived from {@link ExperienceLevel} rather than stored separately: the enum already
+     * carries a year range per level and is populated on every posting, so a parallel field would
+     * be a second source of truth able to disagree with the first.</p>
+     */
+    public int getMinExperienceYears() {
+        return experienceLevel == null ? 0 : experienceLevel.getMinYears();
     }
     
     public String getResponsibilities() {

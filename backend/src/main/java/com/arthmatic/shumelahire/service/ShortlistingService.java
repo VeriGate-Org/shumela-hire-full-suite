@@ -1,10 +1,21 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
+import com.arthmatic.shumelahire.entity.JobPosting;
 import com.arthmatic.shumelahire.entity.ShortlistScore;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
+import com.arthmatic.shumelahire.entity.Document;
+import com.arthmatic.shumelahire.repository.DocumentDataRepository;
+import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.repository.ShortlistScoreDataRepository;
+import com.arthmatic.shumelahire.service.shortlisting.CandidateScoring;
+import com.arthmatic.shumelahire.service.shortlisting.CandidateScoring.Dimension;
+import com.arthmatic.shumelahire.service.shortlisting.ScoreCard;
+import com.arthmatic.shumelahire.service.ai.AiService;
+import com.arthmatic.shumelahire.service.ai.features.CvScreeningAiService;
+import com.arthmatic.shumelahire.dto.ai.CvScreeningDto.CvScreeningResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +46,22 @@ public class ShortlistingService {
     private ApplicationDataRepository applicationRepository;
 
     @Autowired
+    private JobPostingDataRepository jobPostingRepository;
+
+    @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private AuditLogService auditLogService;
+
+    @Autowired
+    private DocumentDataRepository documentRepository;
+
+    @Autowired(required = false)
+    private CvScreeningAiService cvScreeningAiService;
+
+    @Autowired(required = false)
+    private AiService aiService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -43,71 +70,194 @@ public class ShortlistingService {
         Application application = applicationRepository.findById(applicationId)
             .orElseThrow(() -> new RuntimeException("Application not found: " + applicationId));
 
-        ShortlistScore score = shortlistScoreRepository.findByApplicationId(applicationId)
+        // The vacancy is half the comparison. Loading it is the whole point of this rewrite:
+        // previously nothing about the role reached the scoring at all, so every dimension
+        // returned a constant and two candidates for different jobs scored identically.
+        JobPosting posting = application.getJobPostingId() == null ? null
+            : jobPostingRepository.findById(application.getJobPostingId()).orElse(null);
+
+        return calculateScore(application, posting);
+    }
+
+    /** Scores one application against its vacancy. Package-visible so callers can batch the load. */
+    @Transactional
+    public ShortlistScore calculateScore(Application application, JobPosting posting) {
+        ShortlistScore score = shortlistScoreRepository.findByApplicationId(application.getId())
             .orElse(new ShortlistScore());
 
-        double skillsScore = calculateSkillsScore(application);
-        double experienceScore = calculateExperienceScore(application);
-        double educationScore = calculateEducationScore(application);
-        double screeningScore = calculateScreeningScore(application);
-        double keywordScore = calculateKeywordScore(application);
-
-        double totalScore = (skillsScore * SKILLS_WEIGHT) +
-                           (experienceScore * EXPERIENCE_WEIGHT) +
-                           (educationScore * EDUCATION_WEIGHT) +
-                           (screeningScore * SCREENING_WEIGHT) +
-                           (keywordScore * KEYWORD_WEIGHT);
+        Applicant applicant = application.getApplicant();
+        ScoreCard card = score(application, applicant, posting);
 
         score.setApplication(application);
-        score.setTotalScore(Math.round(totalScore * 100.0) / 100.0);
-        score.setSkillsMatchScore(skillsScore);
-        score.setExperienceScore(experienceScore);
-        score.setEducationScore(educationScore);
-        score.setScreeningScore(screeningScore);
-        score.setKeywordMatchScore(keywordScore);
+        score.setTotalScore(card.total());
+        score.setSkillsMatchScore(card.dimensions().get("skills").score());
+        score.setExperienceScore(card.dimensions().get("experience").score());
+        score.setEducationScore(card.dimensions().get("education").score());
+        score.setScreeningScore(card.dimensions().get("screening").score());
+        score.setKeywordMatchScore(card.dimensions().get("keywords").score());
 
         try {
-            Map<String, Object> breakdown = new LinkedHashMap<>();
-            breakdown.put("skills", Map.of("raw", skillsScore, "weight", SKILLS_WEIGHT, "weighted", skillsScore * SKILLS_WEIGHT));
-            breakdown.put("experience", Map.of("raw", experienceScore, "weight", EXPERIENCE_WEIGHT, "weighted", experienceScore * EXPERIENCE_WEIGHT));
-            breakdown.put("education", Map.of("raw", educationScore, "weight", EDUCATION_WEIGHT, "weighted", educationScore * EDUCATION_WEIGHT));
-            breakdown.put("screening", Map.of("raw", screeningScore, "weight", SCREENING_WEIGHT, "weighted", screeningScore * SCREENING_WEIGHT));
-            breakdown.put("keywords", Map.of("raw", keywordScore, "weight", KEYWORD_WEIGHT, "weighted", keywordScore * KEYWORD_WEIGHT));
-            score.setScoreBreakdown(objectMapper.writeValueAsString(breakdown));
+            score.setScoreBreakdown(objectMapper.writeValueAsString(card.toBreakdown()));
         } catch (Exception e) {
             logger.warn("Failed to serialize score breakdown: {}", e.getMessage());
         }
 
+        enrichWithAi(score, application, posting);
+
         return shortlistScoreRepository.save(score);
+    }
+
+    /** Pure assembly of the five dimensions — no persistence, so it can be reasoned about. */
+    private ScoreCard score(Application application, Applicant applicant, JobPosting posting) {
+        if (posting == null) {
+            logger.warn("Application {} has no job posting — only the recruiter rating can be scored",
+                application.getId());
+        }
+
+        Dimension skills = CandidateScoring.skills(
+            applicant == null ? null : CandidateScoring.parseSkills(applicant.getSkills()),
+            posting == null ? null : posting.getRequiredSkills(),
+            posting == null ? null : posting.getPreferredSkills());
+
+        Dimension experience = CandidateScoring.experience(
+            applicant == null ? null : CandidateScoring.parseExperienceYears(applicant.getExperience()),
+            posting == null ? 0 : posting.getMinExperienceYears());
+
+        Dimension education = CandidateScoring.education(
+            applicant == null ? null : CandidateScoring.parseHighestEducation(applicant.getEducation()),
+            posting == null ? null : posting.getMinEducationLevel());
+
+        Dimension screening = CandidateScoring.screening(application.getRating());
+
+        Dimension keywords = CandidateScoring.keywords(
+            candidateText(application, applicant),
+            posting == null ? null : posting.getRequirements());
+
+        return ScoreCard.of(skills, experience, education, screening, keywords);
+    }
+
+    /**
+     * Adds the model's reading of the CV, where there is a model and a CV.
+     *
+     * <p><b>The deterministic score is never overwritten.</b> The AI contributes a written
+     * assessment and its own view of matched and missing skills, which a recruiter can read and
+     * disagree with; the number that decides the shortlist stays the one computed from the
+     * vacancy's stated requirements. For a public entity a shortlist has to be defensible, and
+     * "the model said so" is not a defence.</p>
+     *
+     * <p>Silently skipped when AI is disabled, no provider is wired, or the candidate has no
+     * readable CV — all of which are the normal state today. A screening failure must never cost
+     * a candidate their deterministic score.</p>
+     */
+    private void enrichWithAi(ShortlistScore score, Application application, JobPosting posting) {
+        if (cvScreeningAiService == null || aiService == null || !aiService.isEnabled()) {
+            return;
+        }
+        Applicant applicant = application.getApplicant();
+        if (applicant == null || posting == null) return;
+
+        String cv = cvText(applicant.getId());
+        if (cv.isBlank()) return;   // nothing to screen — see CvUploadController
+
+        List<String> requirements = new ArrayList<>();
+        if (posting.getRequiredSkills() != null) requirements.addAll(posting.getRequiredSkills());
+        if (posting.getRequirements() != null && !posting.getRequirements().isBlank()) {
+            requirements.add(posting.getRequirements());
+        }
+        if (requirements.isEmpty()) return;
+
+        try {
+            // The AI service records usage against a user id for audit and cost attribution.
+            // A scoring run is the system acting on a vacancy, not a person clicking, so it is
+            // attributed to SYSTEM rather than to whoever happened to trigger the recalculation.
+            CvScreeningResult result = cvScreeningAiService.screenCandidate(
+                "SYSTEM", application.getId(), requirements,
+                application.getCandidateName(), cv);
+
+            score.setAiSummary(result.getSummary());
+            score.setAiMatchedSkills(objectMapper.writeValueAsString(result.getMatchedSkills()));
+            score.setAiMissingSkills(objectMapper.writeValueAsString(result.getMissingSkills()));
+        } catch (Exception e) {
+            logger.warn("AI screening failed for application {} — the deterministic score stands: {}",
+                application.getId(), e.getMessage());
+        }
+    }
+
+    /**
+     * Everything the candidate wrote or had recorded, for the keyword sweep.
+     *
+     * <p>Includes the text of any uploaded CV. That is the point of extracting it at upload: a
+     * candidate's actual document usually says far more than the handful of structured fields a
+     * recruiter had time to capture, and before CV storage existed this method had only those
+     * fields to work with.</p>
+     */
+    private String candidateText(Application application, Applicant applicant) {
+        StringBuilder sb = new StringBuilder();
+        if (application.getCoverLetter() != null) sb.append(application.getCoverLetter()).append(' ');
+        if (applicant != null) {
+            if (applicant.getSkills() != null) sb.append(applicant.getSkills()).append(' ');
+            if (applicant.getExperience() != null) sb.append(applicant.getExperience()).append(' ');
+            if (applicant.getEducation() != null) sb.append(applicant.getEducation()).append(' ');
+            sb.append(cvText(applicant.getId()));
+        }
+        return sb.toString();
+    }
+
+    /** Extracted text of the candidate's most recent readable CV, or empty. */
+    private String cvText(String applicantId) {
+        if (applicantId == null) return "";
+        try {
+            return documentRepository.findCvDocumentsByApplicant(applicantId).stream()
+                .map(Document::getExtractedText)
+                .filter(t -> t != null && !t.isBlank())
+                .findFirst()
+                .orElse("");
+        } catch (Exception e) {
+            // A CV that cannot be loaded must not stop the candidate being scored on everything else.
+            logger.warn("Could not load CV text for applicant {}: {}", applicantId, e.getMessage());
+            return "";
+        }
     }
 
     @Transactional
     public List<ShortlistScore> calculateScoresForJobPosting(String jobPostingId) {
         List<Application> applications = applicationRepository.findByJobPostingIdOrderBySubmittedAtDesc(jobPostingId);
+        // One posting read for the whole vacancy rather than one per application.
+        JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);
         return applications.stream()
-            .map(app -> calculateScore(app.getId()))
+            .map(app -> calculateScore(app, posting))
             .toList();
     }
 
     @Transactional
-    public List<ShortlistScore> autoShortlist(String jobPostingId, double threshold) {
+    public List<ShortlistScore> autoShortlist(String jobPostingId, double threshold, String userId) {
         calculateScoresForJobPosting(jobPostingId);
 
         List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
+        int advanced = 0;
         for (ShortlistScore score : scores) {
             boolean shortlisted = score.getTotalScore() >= threshold;
             score.setIsShortlisted(shortlisted);
             if (shortlisted && score.getApplication().getStatus() == ApplicationStatus.SUBMITTED) {
                 score.getApplication().setStatus(ApplicationStatus.SCREENING);
                 notificationService.notifyApplicationShortlisted(score.getApplication());
+                advanced++;
             }
             shortlistScoreRepository.save(score);
         }
 
+        long shortlisted = scores.stream().filter(ShortlistScore::getIsShortlisted).count();
+
+        // Auto-shortlisting moves candidates through the pipeline and emails them. An action with
+        // that reach on a public entity's recruitment must be answerable eighteen months later:
+        // who ran it, against which vacancy, at what threshold, and how many it moved.
+        auditLogService.logUserAction(userId, "SHORTLIST_AUTO_RUN", "JOB_POSTING",
+            String.format("Auto-shortlist on posting %s at threshold %.0f: %d of %d shortlisted, "
+                    + "%d advanced to screening",
+                jobPostingId, threshold, shortlisted, scores.size(), advanced));
+
         logger.info("Auto-shortlisted for job posting {} with threshold {}: {} shortlisted out of {}",
-            jobPostingId, threshold,
-            scores.stream().filter(ShortlistScore::getIsShortlisted).count(),
-            scores.size());
+            jobPostingId, threshold, shortlisted, scores.size());
 
         return scores;
     }
@@ -117,9 +267,24 @@ public class ShortlistingService {
         ShortlistScore score = shortlistScoreRepository.findById(scoreId)
             .orElseThrow(() -> new RuntimeException("Score not found: " + scoreId));
 
+        boolean wasShortlisted = Boolean.TRUE.equals(score.getIsShortlisted());
         score.setIsShortlisted(include);
         score.setManuallyOverridden(true);
         score.setOverrideReason(reason);
+
+        String candidate = score.getApplication() != null && score.getApplication().getCandidateName() != null
+            ? score.getApplication().getCandidateName() : "candidate " + scoreId;
+
+        // The single most consequential action in shortlisting: a person overruling the model
+        // about someone's application. Recording the direction and the stated reason is what
+        // makes the decision defensible rather than merely made.
+        auditLogService.logUserAction(userId, "SHORTLIST_OVERRIDDEN", "SHORTLIST_SCORE",
+            String.format("%s %s the shortlist (was %s, score %.1f). Reason: %s",
+                candidate,
+                include ? "included in" : "excluded from",
+                wasShortlisted ? "included" : "excluded",
+                score.getTotalScore() == null ? 0.0 : score.getTotalScore(),
+                reason == null || reason.isBlank() ? "not stated" : reason));
 
         logger.info("Manual override on score {}: {} by user {}", scoreId, include ? "included" : "excluded", userId);
         return shortlistScoreRepository.save(score);
@@ -127,6 +292,7 @@ public class ShortlistingService {
 
     public Map<String, Object> getShortlistingSummary(String jobPostingId) {
         List<ShortlistScore> scores = shortlistScoreRepository.findByJobPostingIdOrderByScore(jobPostingId);
+        JobPosting posting = jobPostingRepository.findById(jobPostingId).orElse(null);
 
         long shortlisted = scores.stream().filter(ShortlistScore::getIsShortlisted).count();
         double avgScore = scores.stream().mapToDouble(ShortlistScore::getTotalScore).average().orElse(0);
@@ -139,41 +305,31 @@ public class ShortlistingService {
         summary.put("highestScore", scores.stream().mapToDouble(ShortlistScore::getTotalScore).max().orElse(0));
         summary.put("lowestScore", scores.stream().mapToDouble(ShortlistScore::getTotalScore).min().orElse(0));
 
+        // Which dimensions this vacancy can be scored on at all.
+        //
+        // Requirements are only editable while a posting is DRAFT or REJECTED, and shortlisting
+        // only appears from APPROVED onward — so a vacancy approved without structured
+        // requirements can never acquire them. Without this the panel would show skills as
+        // unscorable for every candidate with no way to tell that the gap is in the VACANCY,
+        // not in the applicants.
+        List<String> notConfigured = new ArrayList<>();
+        if (posting == null) {
+            notConfigured.add("job posting not found");
+        } else {
+            if (posting.getRequiredSkills() == null || posting.getRequiredSkills().isEmpty()) {
+                notConfigured.add("required skills");
+            }
+            if (posting.getMinEducationLevel() == null) {
+                notConfigured.add("minimum qualification");
+            }
+            if (posting.getRequirements() == null || posting.getRequirements().isBlank()) {
+                notConfigured.add("requirements text");
+            }
+        }
+        summary.put("vacancyGaps", notConfigured);
+        summary.put("vacancyFullyConfigured", notConfigured.isEmpty());
+
         return summary;
     }
 
-    private double calculateSkillsScore(Application application) {
-        if (application.getApplicant().getExperience() != null &&
-            !application.getApplicant().getExperience().isEmpty()) {
-            return 70.0;
-        }
-        return 40.0;
-    }
-
-    private double calculateExperienceScore(Application application) {
-        if (application.getApplicant().getExperience() != null &&
-            application.getApplicant().getExperience().length() > 100) {
-            return 75.0;
-        }
-        return 50.0;
-    }
-
-    private double calculateEducationScore(Application application) {
-        if (application.getApplicant().getEducation() != null &&
-            !application.getApplicant().getEducation().isEmpty()) {
-            return 65.0;
-        }
-        return 30.0;
-    }
-
-    private double calculateScreeningScore(Application application) {
-        if (application.getRating() != null) {
-            return application.getRating() * 20.0;
-        }
-        return 50.0;
-    }
-
-    private double calculateKeywordScore(Application application) {
-        return 60.0;
-    }
 }

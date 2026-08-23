@@ -38,6 +38,7 @@ public class DocumentItem {
     private String tenantId;
     private String applicantId;
     private String applicationId;
+    private String extractedText;
     private String type;
     private String filename;
     private String url;
@@ -124,4 +125,7 @@ public class DocumentItem {
 
     public String getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(String uploadedAt) { this.uploadedAt = uploadedAt; }
+
+    public String getExtractedText() { return extractedText; }
+    public void setExtractedText(String extractedText) { this.extractedText = extractedText; }
 }

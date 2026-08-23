@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnMissingBean({ClaudeAiProvider.class, OpenAiProvider.class})
+@ConditionalOnMissingBean({ClaudeAiProvider.class, OpenAiProvider.class, BedrockAiProvider.class})
 public class MockAiProvider implements AiProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(MockAiProvider.class);

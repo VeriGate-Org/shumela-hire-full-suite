@@ -61,7 +61,12 @@ app:
 # AI Configuration
 ai:
   enabled: ${AI_ENABLED:false}
+  # mock | bedrock | claude | openai
+  # bedrock authenticates by IAM and needs no key — preferred. Model ids must be
+  # cross-region inference profiles (global.anthropic.*): af-south-1 rejects bare model ids.
   provider: ${AI_PROVIDER:mock}
+  bedrock:
+    model: ${BEDROCK_MODEL:global.anthropic.claude-sonnet-4-5-20250929-v1:0}
   claude:
     api-key: ${CLAUDE_API_KEY:}
     model: ${CLAUDE_MODEL:claude-sonnet-4-20250514}

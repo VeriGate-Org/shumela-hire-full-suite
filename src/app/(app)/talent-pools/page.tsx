@@ -9,6 +9,8 @@ import SearchableDropdown from '@/components/SearchableDropdown';
 import type { DropdownOption } from '@/components/SearchableDropdown';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useSkills } from '@/hooks/useSkills';
+import AiAssistPanel from '@/components/ai/AiAssistPanel';
+import AiSmartSearch from '@/components/ai/AiSmartSearch';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -374,6 +376,19 @@ export default function TalentPoolsPage() {
         </button>
       }
     >
+      {/* Talent pools are where you go hunting for someone who already applied, so
+          natural-language search belongs here more than anywhere. The pool search box
+          below is a literal filter on pool NAMES — a different thing entirely. */}
+      <div className="mb-6">
+        <AiAssistPanel
+          title="AI Smart Search"
+          feature="AI_SMART_SEARCH"
+          description="Find candidates across your pools by describing what you need, in plain language"
+        >
+          <AiSmartSearch />
+        </AiAssistPanel>
+      </div>
+
       <div className="flex gap-6 h-full min-h-0">
         {/* ── Left panel: Pool list ── */}
         <div className="w-1/3 flex flex-col gap-3 min-w-0">
