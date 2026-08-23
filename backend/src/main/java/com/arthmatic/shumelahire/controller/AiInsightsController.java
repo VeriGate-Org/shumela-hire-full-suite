@@ -56,8 +56,12 @@ public class AiInsightsController {
 
     // --- Existing endpoints ---
 
+    // A hiring manager already owns the salary recommendation itself — /api/salary-recommendations
+    // admits HIRING_MANAGER — so refusing them the benchmark that informs it left them raising a
+    // number they had no means to justify. Kept off RECRUITER and INTERVIEWER: this returns
+    // compensation ranges, which is not general recruiting data.
     @PostMapping("/salary-benchmark/analyze")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> analyzeSalaryBenchmark(
             @RequestBody SalaryBenchmarkDto.SalaryBenchmarkRequest request,
             Authentication authentication) {
