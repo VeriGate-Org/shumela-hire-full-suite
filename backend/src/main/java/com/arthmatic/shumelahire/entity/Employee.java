@@ -135,7 +135,12 @@ public class Employee extends TenantAwareEntity {
     private LocalDateTime updatedAt;
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        // Same "null null" risk as Applicant.getFullName() if either half
+        // is ever missing — kept always non-null since callers chain
+        // straight off this (e.g. .toLowerCase()) with no null check.
+        String first = firstName != null ? firstName.trim() : "";
+        String last = lastName != null ? lastName.trim() : "";
+        return (first + " " + last).trim();
     }
 
     public String getDisplayName() {

@@ -74,6 +74,22 @@ const WIZARD_STEPS: WizardStep[] = [
   { id: 'review', label: 'Review', description: 'Confirm & schedule' },
 ];
 
+// The backend's Interview.scheduledAt is a plain LocalDateTime — a naive
+// wall-clock string with no timezone ("2026-06-30T09:12:38", never a "Z" or
+// offset) — and every backend rule (business hours, 2-hour lead time,
+// LocalDateTime.now() comparisons) evaluates it as-is, in whatever local
+// time it represents. Round-tripping these through `new Date(x).toISOString()`
+// re-expresses the value in UTC, silently shifting it by the browser's
+// timezone offset (e.g. SAST, UTC+2, turns an intended 09:12 into a stored
+// 07:12) — which either trips the backend's business-hours check (a
+// legitimate update gets misreported as 404, see updateInterview's
+// catch-all IllegalArgumentException -> notFound() mapping) or, worse,
+// silently schedules the interview 2 hours off from what was entered with
+// no error at all. Treat these values as plain strings instead.
+const toLocalInputValue = (backendDateTime: string): string => backendDateTime.slice(0, 16);
+const toBackendDateTime = (localInputValue: string): string =>
+  localInputValue.length === 16 ? `${localInputValue}:00` : localInputValue;
+
 const inputClass = (hasError?: boolean) =>
   `w-full p-3 border rounded-[2px] bg-card text-foreground focus:ring-2 focus:ring-ring/40 focus:border-ring focus:outline-none ${hasError ? 'border-destructive' : 'border-border'}`;
 
@@ -201,7 +217,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         const data = await response.json();
         setFormData({
           ...data,
-          scheduledAt: new Date(data.scheduledAt).toISOString().slice(0, 16),
+          scheduledAt: toLocalInputValue(data.scheduledAt),
           applicationId: data.application?.id ?? 0,
           // The backend has no interviewerIds array — it stores a single
           // interviewerId plus additionalInterviewers as a comma-separated
@@ -284,12 +300,16 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   };
 
   const checkAvailability = async () => {
-    const primaryInterviewerId = formData.interviewerIds.length > 0 ? Number(formData.interviewerIds[0]) : formData.interviewerId;
+    // interviewerIds holds UUID strings (see interviewerOptions above) —
+    // Number(...) on one of these is always NaN, which sent every
+    // availability/suggestion request to ".../interviewer/NaN". Use the id
+    // as-is; it's a path segment, not a number.
+    const primaryInterviewerId = formData.interviewerIds[0];
     if (!formData.scheduledAt || !primaryInterviewerId) return;
 
     try {
       setCheckingAvailability(true);
-      const startTime = new Date(formData.scheduledAt).toISOString();
+      const startTime = toBackendDateTime(formData.scheduledAt);
 
       const availabilityResponse = await apiFetch(
         `/api/interviews/availability/interviewer/${primaryInterviewerId}?startTime=${startTime}&durationMinutes=${formData.durationMinutes}`,
@@ -320,19 +340,13 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   };
 
   const handleSuggestedTimeSelect = (suggestedTime: string) => {
-    // suggestedTime comes back from the backend as a UTC instant.
-    // toISOString() always renders in UTC regardless of the caller's
-    // timezone, but the <input type="datetime-local"> value it's stored
-    // into is interpreted as LOCAL time with no offset. Outside UTC (e.g.
-    // SAST, UTC+2) that silently shifted every suggested slot by the
-    // timezone offset — a 12:00 SAST suggestion turned into "10:00" in the
-    // field, which could easily land outside the 08:00–18:00 weekday
-    // window this same form enforces. Subtract the local offset before
-    // formatting so the wall-clock time is preserved instead of the UTC
-    // instant.
-    const d = new Date(suggestedTime);
-    const localTime = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    handleInputChange('scheduledAt', localTime);
+    // GET /api/interviews/suggestions/interviewer/{id} returns a plain
+    // List<LocalDateTime> — naive wall-clock strings with no timezone, same
+    // as scheduledAt everywhere else (see toLocalInputValue above). Take it
+    // as-is rather than parsing through Date/toISOString, which would
+    // incorrectly reinterpret it as a UTC instant and shift it by the
+    // browser's offset.
+    handleInputChange('scheduledAt', toLocalInputValue(suggestedTime));
   };
 
   // ── Per-step validation ──────────────────────────────────────────────
@@ -395,9 +409,13 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
     try {
       setLoading(true);
 
-      const primaryInterviewerId = formData.interviewerIds.length > 0
-        ? Number(formData.interviewerIds[0])
-        : formData.interviewerId;
+      // interviewerIds holds UUID strings — Number(...) on one of these is
+      // always NaN, which JSON.stringify then always serializes as null.
+      // That's exactly why every update/create silently saved with no
+      // interviewer attached, and (worse) why validateInterviewScheduling's
+      // isInterviewerAvailable(null, ...) call could itself throw, which the
+      // controller's catch-all reports back as a plain 404.
+      const primaryInterviewerId = formData.interviewerIds[0] ?? null;
 
       const additionalIds = formData.interviewerIds.slice(1);
 
@@ -405,7 +423,7 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
         title: formData.title,
         type: formData.type,
         round: formData.round,
-        scheduledAt: new Date(formData.scheduledAt).toISOString(),
+        scheduledAt: toBackendDateTime(formData.scheduledAt),
         durationMinutes: formData.durationMinutes,
         location: formData.location || null,
         meetingLink: formData.meetingLink || null,

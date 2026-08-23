@@ -412,6 +412,14 @@ public class InterviewService {
 
     // Availability and conflict checking (uses JPQL + Java filtering for DB portability)
     public boolean isInterviewerAvailable(String interviewerId, LocalDateTime startTime, int durationMinutes) {
+        // A null interviewerId means no interviewer is assigned yet, not a
+        // real GSI query — querying the repository with null risks the
+        // DynamoDB SDK itself rejecting the key, which would otherwise
+        // surface as yet another confusing 404 via the same catch-all this
+        // method's caller (validateInterviewScheduling) feeds into.
+        if (interviewerId == null) {
+            return true;
+        }
         LocalDateTime endTime = startTime.plusMinutes(durationMinutes);
         List<Interview> potentialConflicts = interviewRepository.findPotentialInterviewerConflicts(interviewerId, endTime);
         return potentialConflicts.stream()
@@ -571,13 +579,24 @@ public class InterviewService {
         }
         
         // Validate business hours
+        //
+        // IllegalStateException, not IllegalArgumentException, to match the
+        // interviewer/room-conflict checks above: updateInterview's caller
+        // (InterviewController.updateInterview) maps IllegalArgumentException
+        // to 404 Not Found — appropriate for getInterviewById's "no such
+        // interview" case a few lines up this call stack, but not for "this
+        // update is invalid". Using the same exception type here meant a
+        // perfectly legitimate update that merely failed this scheduling
+        // rule (e.g. a client-side timezone bug producing a time outside the
+        // window) came back as a plain "not found", indistinguishable from
+        // the interview genuinely not existing.
         if (!isBusinessHour(interview.getScheduledAt())) {
-            throw new IllegalArgumentException("Interview must be scheduled during business hours");
+            throw new IllegalStateException("Interview must be scheduled during business hours");
         }
-        
+
         // Validate minimum advance notice (2 hours)
         if (interview.getScheduledAt().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new IllegalArgumentException("Interview must be scheduled at least 2 hours in advance");
+            throw new IllegalStateException("Interview must be scheduled at least 2 hours in advance");
         }
     }
 

@@ -109,10 +109,19 @@ class OfferNotificationApplicantResolutionTest {
         Application app = new Application();
         app.setApplicant(applicant);
 
-        assertEquals("null null", applicant.getFullName(),
-                "getFullName concatenates without null checks — this is why the helper does not use it");
+        // getFullName() itself used to concatenate without null checks
+        // ("null null") — this is why candidateNameOf() existed as a
+        // separate, safer helper in the first place. getFullName() has
+        // since been hardened at the source (Applicant.getFullName()) to
+        // never emit literal "null" text, so this no longer needs its own
+        // workaround for THIS failure mode — candidateNameOf() is kept
+        // regardless, since it also degrades a missing Applicant/Application
+        // entirely (see stubApplicationDoesNotThrow), which getFullName()
+        // alone can't do.
+        assertEquals("", applicant.getFullName(),
+                "getFullName() should degrade to an empty string, never the literal text \"null\"");
         assertEquals("the candidate", candidateNameOf(app),
-                "\"Dear null null\" must never reach a candidate's inbox");
+                "\"Dear \" (blank name) must never reach a candidate's inbox either");
     }
 
     @Test
