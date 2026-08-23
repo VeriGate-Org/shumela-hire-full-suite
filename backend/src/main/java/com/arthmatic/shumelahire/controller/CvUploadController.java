@@ -58,7 +58,7 @@ public class CvUploadController {
     @Autowired private AuditLogService auditLogService;
 
     @PostMapping("/upload")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
                                     @RequestParam(required = false) String applicantId,
                                     @RequestParam(required = false) String applicationId,
