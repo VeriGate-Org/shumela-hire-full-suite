@@ -94,8 +94,16 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'applicants', label: 'Applicants', href: '/applicants', icon: UsersIcon, iconSolid: UsersIconSolid, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
   { id: 'pipeline', label: 'Pipeline', href: '/pipeline', icon: Squares2X2Icon, section: 'recruitment', requiredPermissions: ['manage_pipeline'], requiredFeature: 'RECRUITMENT' },
   { id: 'application-management', label: 'Application Management', href: '/applications/manage', icon: WrenchScrewdriverIcon, section: 'recruitment', requiredPermissions: ['manage_applications'], requiredFeature: 'RECRUITMENT' },
-  { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
-  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT' },
+  // talent-pools and agencies share the view_applicants permission with the
+  // 'applicants' entry above (deliberately — a HIRING_MANAGER giving
+  // HIRING_MANAGER that permission so they can see Applicants would
+  // otherwise also silently unlock these two, which weren't asked for and
+  // aren't backed by any HIRING_MANAGER-accessible endpoint the same way
+  // Applicants/Application Management now are). allowedRoles pins them back
+  // to their original role set regardless of who else picks up the
+  // permission in the future.
+  { id: 'talent-pools', label: 'Talent Pools', href: '/talent-pools', icon: UserGroupIcon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT', allowedRoles: ['ADMIN', 'HR_MANAGER', 'RECRUITER'] },
+  { id: 'agencies', label: 'Agencies', href: '/agencies', icon: BuildingOffice2Icon, section: 'recruitment', requiredPermissions: ['view_applicants'], requiredFeature: 'RECRUITMENT', allowedRoles: ['ADMIN', 'HR_MANAGER', 'RECRUITER'] },
 
   // Scheduling — interviews, offers, compensation
   { id: 'interviews', label: 'Interviews', href: '/interviews', icon: CalendarIcon, iconSolid: CalendarIconSolid, section: 'recruitment', requiredPermissions: ['view_interviews'], requiredFeature: 'RECRUITMENT' },
