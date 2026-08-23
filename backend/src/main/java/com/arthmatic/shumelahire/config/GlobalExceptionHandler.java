@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -33,6 +35,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "Bad request",
                 "message", ex.getMessage(),
+                "timestamp", LocalDateTime.now().toString()
+        ));
+    }
+
+    /**
+     * A malformed upload is the caller's mistake, not ours.
+     *
+     * <p>{@link MultipartException} is a {@code RuntimeException}, so without this it fell into the
+     * catch-all below and every bad upload came back as a 500 — telling the client to retry
+     * something that will never succeed, and putting a false error on our own dashboards. Seen on
+     * {@code /api/cv/upload}, which answered {@code 500 "Current request is not a multipart
+     * request"} to a plain JSON POST.</p>
+     *
+     * <p>Also covers the size limit: exceeding it raises {@link MaxUploadSizeExceededException},
+     * a subclass, which deserves the same treatment for the same reason.</p>
+     */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Map<String, Object>> handleMultipart(MultipartException ex) {
+        boolean tooLarge = ex instanceof MaxUploadSizeExceededException;
+        logger.warn("Rejected upload: {}", ex.getMessage());
+        return ResponseEntity.status(tooLarge ? HttpStatus.PAYLOAD_TOO_LARGE : HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", tooLarge ? "File too large" : "Invalid upload",
+                "message", tooLarge
+                        ? "The file exceeds the maximum upload size."
+                        : "This endpoint expects a file upload (multipart/form-data).",
                 "timestamp", LocalDateTime.now().toString()
         ));
     }

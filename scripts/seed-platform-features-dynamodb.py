@@ -246,6 +246,15 @@ FEATURES = [
      'AI-generated personalised candidate communications — interview invitations, regret letters, and offer emails.',
      'automation', 'STANDARD,ENTERPRISE'),
 
+    # Added after the panel was mounted on /interviews and rendered nothing: the
+    # component and its endpoint both existed, but no catalogue row did, and
+    # FeatureGate treats an unknown code as "off" rather than erroring. The gate
+    # was invisible in CI, in the build, and in every unit test — only loading
+    # the page showed it.
+    ('AI_INTERVIEW_QUESTIONS', 'AI Interview Questions',
+     'Role-specific interview questions generated from the vacancy requirements, with follow-up prompts and scoring guidance.',
+     'automation', 'STANDARD,ENTERPRISE'),
+
     ('AI_SALARY_BENCHMARK', 'AI Salary Benchmark',
      'Market salary data analysis by industry, location, and role level with percentile-based compensation recommendations.',
      'automation', 'STANDARD,ENTERPRISE'),
