@@ -18,31 +18,33 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   SparklesIcon,
-  StarIcon,
 } from '@heroicons/react/24/outline';
 import { formatSalaryRange } from '@/utils/currency';
 
 // Mirrors the Internal Job Board (src/app/(app)/internal/jobs/page.tsx) layout
-// so Applicants and Employees see a consistent job-browsing experience —
-// this reads from the public job-postings endpoint instead of internal ads.
-interface PublicJobPosting {
-  id: string;
-  requisitionId?: string;
+// so Applicants and Employees see a consistent job-browsing experience.
+// Unlike Internal Job Board, Applicants must only ever see jobs posted to the
+// EXTERNAL audience — so this reads from the channel-filtered /api/ads
+// endpoint (channel=external), the same one the public unauthenticated
+// careers page (IDCJobListClient) uses, not the unfiltered
+// /api/public/job-postings/published list (which includes internal-only
+// postings with no audience filter at all).
+interface ExternalJobAd {
+  id: number;
+  jobPostingId?: number;
   title: string;
+  htmlBody?: string;
+  channelExternal: boolean;
+  status: 'DRAFT' | 'PUBLISHED' | 'UNPUBLISHED' | 'EXPIRED';
+  closingDate?: string;
+  slug?: string;
+  createdAt: string;
   department?: string;
   location?: string;
-  employmentTypeDisplayName?: string;
-  description?: string;
-  applicationDeadline?: string;
-  salaryMin?: number;
-  salaryMax?: number;
+  employmentType?: string;
+  salaryRangeMin?: number;
+  salaryRangeMax?: number;
   salaryCurrency?: string;
-  slug?: string;
-  featured?: boolean;
-  urgent?: boolean;
-  isDeadlinePassed?: boolean;
-  publishedAt?: string;
-  createdAt?: string;
 }
 
 interface JobFilters {
@@ -83,7 +85,7 @@ const stripHtmlTags = (html: string | null | undefined): string => {
 const PAGE_SIZE = 20;
 
 export default function BrowseJobsPage() {
-  const [allJobs, setAllJobs] = useState<PublicJobPosting[]>([]);
+  const [allJobs, setAllJobs] = useState<ExternalJobAd[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -110,17 +112,28 @@ export default function BrowseJobsPage() {
     setError(null);
 
     try {
-      const response = await apiFetch(`/api/public/job-postings/published?page=${currentPage}&size=${PAGE_SIZE}`);
+      const response = await apiFetch(
+        `/api/ads?status=PUBLISHED&channel=external&page=${currentPage}&size=${PAGE_SIZE}&sort=createdAt,desc`
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const result = await response.json();
-      const content: PublicJobPosting[] = result.content || result.data || result || [];
+      const rawContent: ExternalJobAd[] = result.data?.content || result.content || [];
+      // Defense in depth: the API is already asked to filter to
+      // status=PUBLISHED&channel=external, but never trust that alone —
+      // also drop anything not actually external or already closed.
+      const now = new Date();
+      const content = rawContent.filter((job) => {
+        if (job.status !== 'PUBLISHED' || !job.channelExternal) return false;
+        if (job.closingDate && new Date(job.closingDate) < now) return false;
+        return true;
+      });
 
       setAllJobs(content);
       setFilterOptions({
         departments: [...new Set(content.map((j) => j.department).filter(Boolean))] as string[],
         locations: [...new Set(content.map((j) => j.location).filter(Boolean))] as string[],
-        employmentTypes: [...new Set(content.map((j) => j.employmentTypeDisplayName).filter(Boolean))] as string[],
+        employmentTypes: [...new Set(content.map((j) => j.employmentType).filter(Boolean))] as string[],
       });
     } catch (err) {
       console.error('Error fetching jobs:', err);
@@ -150,13 +163,13 @@ export default function BrowseJobsPage() {
       filtered = filtered.filter((j) => j.location === filters.location);
     }
     if (filters.employmentType) {
-      filtered = filtered.filter((j) => j.employmentTypeDisplayName === filters.employmentType);
+      filtered = filtered.filter((j) => j.employmentType === filters.employmentType);
     }
     if (filters.closingDate) {
       const days = parseInt(filters.closingDate, 10);
       if (!isNaN(days)) {
         filtered = filtered.filter((j) => {
-          const daysLeft = getDaysUntilExpiry(j.applicationDeadline);
+          const daysLeft = getDaysUntilExpiry(j.closingDate);
           return daysLeft >= 0 && daysLeft <= days;
         });
       }
@@ -174,9 +187,16 @@ export default function BrowseJobsPage() {
     setFilters({ department: '', location: '', employmentType: '', closingDate: '', search: '' });
   };
 
-  const JobBadges = ({ job }: { job: PublicJobPosting }) => {
-    const isNew = isJobNew(job.publishedAt || job.createdAt);
-    const isClosingSoon = isJobClosingSoon(job.applicationDeadline);
+  const applyHref = (job: ExternalJobAd) => {
+    const applyId = String(job.jobPostingId ?? job.id);
+    return `/apply/${applyId}?jobId=${encodeURIComponent(applyId)}&title=${encodeURIComponent(job.title)}`;
+  };
+
+  const JobBadges = ({ job }: { job: ExternalJobAd }) => {
+    const isNew = isJobNew(job.createdAt);
+    const isClosingSoon = isJobClosingSoon(job.closingDate);
+
+    if (!isNew && !isClosingSoon) return null;
 
     return (
       <div className="flex flex-wrap gap-2 mb-3">
@@ -192,25 +212,13 @@ export default function BrowseJobsPage() {
             Closing Soon
           </span>
         )}
-        {job.featured && (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            <StarIcon className="w-3 h-3 mr-1" />
-            Featured
-          </span>
-        )}
-        {job.urgent && (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            Urgent
-          </span>
-        )}
       </div>
     );
   };
 
-  const JobCard = ({ job }: { job: PublicJobPosting }) => {
-    const daysLeft = getDaysUntilExpiry(job.applicationDeadline);
-    const canApply = !job.isDeadlinePassed && daysLeft > 0;
-    const description = stripHtmlTags(job.description).substring(0, 120) + '...';
+  const JobCard = ({ job }: { job: ExternalJobAd }) => {
+    const daysLeft = getDaysUntilExpiry(job.closingDate);
+    const description = stripHtmlTags(job.htmlBody).substring(0, 120) + '...';
 
     return (
       <div className="enterprise-card hover:shadow-md transition-shadow p-6">
@@ -233,26 +241,26 @@ export default function BrowseJobsPage() {
                 {job.location}
               </div>
             )}
-            {job.employmentTypeDisplayName && (
+            {job.employmentType && (
               <div className="flex items-center">
                 <BriefcaseIcon className="w-4 h-4 mr-1" />
-                {job.employmentTypeDisplayName}
+                {job.employmentType}
               </div>
             )}
           </div>
 
-          {(job.salaryMin || job.salaryMax) && (
+          {(job.salaryRangeMin || job.salaryRangeMax) && (
             <div className="flex items-center text-green-600 font-medium mb-3">
               <CurrencyDollarIcon className="w-4 h-4 mr-1" />
-              {formatSalaryRange(job.salaryMin, job.salaryMax)}
+              {formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax)}
             </div>
           )}
 
-          {job.applicationDeadline && (
+          {job.closingDate && (
             <div className="flex items-center text-sm text-muted-foreground mb-4">
               <CalendarIcon className="w-4 h-4 mr-1" />
               {daysLeft > 0 ? (
-                <span>Closes in {daysLeft} days ({new Date(job.applicationDeadline).toLocaleDateString()})</span>
+                <span>Closes in {daysLeft} days ({new Date(job.closingDate).toLocaleDateString()})</span>
               ) : (
                 <span className="text-red-600">Closing date passed</span>
               )}
@@ -267,8 +275,8 @@ export default function BrowseJobsPage() {
             </Link>
           ) : <span />}
 
-          {canApply && (
-            <Link href={`/apply/${job.id}`} className="btn-primary">
+          {daysLeft > 0 && (
+            <Link href={applyHref(job)} className="btn-primary">
               Apply Now
             </Link>
           )}
@@ -294,8 +302,7 @@ export default function BrowseJobsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {jobs.map((job) => {
-              const daysLeft = getDaysUntilExpiry(job.applicationDeadline);
-              const canApply = !job.isDeadlinePassed && daysLeft > 0;
+              const daysLeft = getDaysUntilExpiry(job.closingDate);
               return (
                 <tr key={job.id} className="hover:bg-accent/50 transition-colors">
                   <td className="px-4 py-3">
@@ -307,16 +314,16 @@ export default function BrowseJobsPage() {
                       ) : (
                         <span className="font-medium text-foreground">{job.title}</span>
                       )}
-                      {isJobNew(job.publishedAt || job.createdAt) && (
+                      {isJobNew(job.createdAt) && (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800">New</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{job.department || '—'}</td>
                   <td className="px-4 py-3 text-muted-foreground">{job.location || '—'}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{job.employmentTypeDisplayName || '—'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{job.employmentType || '—'}</td>
                   <td className="px-4 py-3">
-                    {job.applicationDeadline ? (
+                    {job.closingDate ? (
                       daysLeft > 0 ? (
                         <span className={daysLeft <= 7 ? 'text-orange-600 font-medium' : 'text-muted-foreground'}>
                           {daysLeft}d left
@@ -329,11 +336,11 @@ export default function BrowseJobsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {(job.salaryMin || job.salaryMax) ? formatSalaryRange(job.salaryMin, job.salaryMax) : '—'}
+                    {(job.salaryRangeMin || job.salaryRangeMax) ? formatSalaryRange(job.salaryRangeMin, job.salaryRangeMax) : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {canApply && (
-                      <Link href={`/apply/${job.id}`} className="btn-primary text-xs px-3 py-1.5 inline-block">
+                    {daysLeft > 0 && (
+                      <Link href={applyHref(job)} className="btn-primary text-xs px-3 py-1.5 inline-block">
                         Apply
                       </Link>
                     )}
