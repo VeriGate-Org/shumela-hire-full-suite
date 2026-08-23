@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.exception.FeatureNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,6 +61,31 @@ public class GlobalExceptionHandler {
                 "message", tooLarge
                         ? "The file exceeds the maximum upload size."
                         : "This endpoint expects a file upload (multipart/form-data).",
+                "timestamp", LocalDateTime.now().toString()
+        ));
+    }
+
+    /**
+     * A refusal is not a fault.
+     *
+     * <p>{@link AccessDeniedException} is a {@code RuntimeException}, so without this every
+     * method-level {@code @PreAuthorize} denial fell into the catch-all below and came back as
+     * {@code 500 "Access Denied"} — a server error for something the server decided on purpose.
+     * Clients cannot distinguish "you may not" from "we broke", retries are pointless, and genuine
+     * faults get buried under authorisation noise on the dashboards.</p>
+     *
+     * <p>Seen on {@code /api/ai/salary-benchmark/analyze}, which is restricted to ADMIN and
+     * HR_MANAGER: a hiring manager calling it received a 500 rather than a 403.</p>
+     *
+     * <p>The body deliberately does not name the roles required. Telling a caller which role would
+     * have worked maps out the authorisation model for anyone probing it.</p>
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        logger.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "error", "Forbidden",
+                "message", "You do not have permission to perform this action.",
                 "timestamp", LocalDateTime.now().toString()
         ));
     }
