@@ -2,10 +2,30 @@ import { getTenantSubdomain } from '@/lib/tenant-utils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
+// Amplify's fetchAuthSession() can hang indefinitely (e.g. a stuck internal
+// token-refresh lock) instead of resolving or rejecting. Since every apiFetch
+// call — including unauthenticated ones like tenant resolution — awaits this
+// first, an unbounded hang here freezes the entire app (isLoading stuck true
+// forever). Bound it so a stuck session lookup degrades to the cached token
+// instead of hanging the whole page.
+const AUTH_SESSION_TIMEOUT_MS = 5000;
+
+/** Races a promise against a timeout so a hung dependency can't stall the caller forever. */
+export function withTimeout<T>(promise: Promise<T>, ms: number, message = 'operation timed out'): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+}
+
 async function getAuthToken(): Promise<string | null> {
   try {
     const { fetchAuthSession } = await import('aws-amplify/auth');
-    const session = await fetchAuthSession({ forceRefresh: false });
+    const session = await withTimeout(
+      fetchAuthSession({ forceRefresh: false }),
+      AUTH_SESSION_TIMEOUT_MS,
+      'auth session timed out',
+    );
     // Prefer ID token because it reliably carries role/group and tenant claims
     // consumed by backend authorization and tenant resolution.
     const token = session.tokens?.idToken?.toString()

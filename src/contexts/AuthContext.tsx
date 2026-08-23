@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { signIn, signOut, signInWithRedirect, confirmSignIn, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, withTimeout } from '@/lib/api-fetch';
 import { Hub } from 'aws-amplify/utils';
 import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured, configureAmplify } from '@/lib/amplify-config';
@@ -195,7 +195,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   async function checkCognitoSession() {
     try {
-      await refreshSessionState();
+      // Amplify's underlying calls (fetchAuthSession/getCurrentUser) can hang
+      // indefinitely on a stuck internal token-refresh lock instead of
+      // resolving or rejecting. Bound the whole check so isLoading can never
+      // get stuck true forever and freeze the entire authenticated app shell.
+      await withTimeout(refreshSessionState(), 5000, 'session check timed out');
     } catch {
       // No active session
     } finally {
@@ -323,7 +327,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const getAccessToken = useCallback(async (): Promise<string | null> => {
     if (isCognitoConfigured) {
       try {
-        const session = await fetchAuthSession({ forceRefresh: false });
+        const session = await withTimeout(
+          fetchAuthSession({ forceRefresh: false }),
+          5000,
+          'auth session timed out',
+        );
         const accessToken = session.tokens?.accessToken?.toString() || null;
         if (accessToken) {
           setToken(accessToken);
