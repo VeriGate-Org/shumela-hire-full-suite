@@ -47,6 +47,32 @@ interface CandidatePipelineProps {
   title?: string;
   subtitle?: string;
   className?: string;
+  /**
+   * How many applications exist in total, when that differs from what was loaded.
+   *
+   * The subtitle used to read `${rendered} active candidates`, which is not a count of anything
+   * the user would recognise — it was min(pageSize, total) minus any status the mapping did not
+   * know. On a tenant with 92 applications it confidently said 48. Pass the real total and the
+   * widget will say when it is showing a subset instead of implying it is showing everything.
+   */
+  totalAvailable?: number;
+}
+
+/**
+ * True only for a value a browser can actually load as an image.
+ *
+ * `avatar` is typed as a string and rendered into <img src>, but the only caller passes
+ * INITIALS — HiringManagerDashboard sets `avatar: getInitials(name)`. "AN" is truthy, so the old
+ * check fell into the <img> branch and every card on the Talent Acquisition dashboard showed a
+ * broken-image glyph beside the candidate's name.
+ *
+ * Rendering the initials is better than falling back to a generic person icon: the rest of the
+ * product already identifies candidates by initials circles, so this matches an existing
+ * convention rather than introducing a second one.
+ */
+function isImageSrc(value?: string): boolean {
+  if (!value) return false;
+  return /^(https?:\/\/|data:|blob:|\/)/.test(value.trim());
 }
 
 const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
@@ -56,6 +82,7 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
   title = "Candidate Pipeline",
   subtitle = "Drag candidates between stages",
   className = '',
+  totalAvailable,
 }) => {
   const PAGE_SIZE = 5;
   const [stages, setStages] = useState<PipelineStage[]>(initialStages);
@@ -156,12 +183,16 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
   };
 
   const totalCandidates = stages.reduce((total, stage) => total + stage.candidates.length, 0);
+  const truncated = typeof totalAvailable === 'number' && totalAvailable > totalCandidates;
+  const countLabel = truncated
+    ? `${totalCandidates} of ${totalAvailable} candidates`
+    : `${totalCandidates} active candidates`;
 
   return (
     <DashboardWidget
       id="candidate-pipeline"
       title={title}
-      subtitle={`${totalCandidates} active candidates • ${subtitle}`}
+      subtitle={`${countLabel} • ${subtitle}`}
       className={className}
       refreshable={true}
       size="large"
@@ -240,12 +271,19 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                       {/* Candidate Header */}
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          {candidate.avatar ? (
+                          {isImageSrc(candidate.avatar) ? (
                             <img
                               src={candidate.avatar}
                               alt={candidate.name}
                               className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                             />
+                          ) : candidate.avatar ? (
+                            <div
+                              className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-700"
+                              aria-label={candidate.name}
+                            >
+                              {candidate.avatar}
+                            </div>
                           ) : (
                             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                               <UserIcon className="w-4 h-4 text-gray-500" />
