@@ -258,6 +258,33 @@ function handler(event) {
 ")
         });
 
+        // ── CloudFront Function: rewrite /candidate/jobs/<id> to the shell ──
+        // Same issue and fix as InternalApplyRewriteFunction/JobsDetailRewrite
+        // Function above: /candidate/jobs/[id] only pre-renders one
+        // placeholder ("_"), so any real job id 403s straight from S3 on a
+        // direct load or refresh. This is the in-app job detail page Browse
+        // Jobs' "View Details" links to (kept inside the authenticated app
+        // shell rather than sending an Applicant out to the public /jobs
+        // marketing site). No sibling static page under /candidate/jobs/* to
+        // special-case — bare /candidate/jobs (the list page) stays on the
+        // default behavior.
+        var candidateJobsDetailRewriteFn = new Function(this, "CandidateJobsDetailRewriteFunction", new FunctionProps
+        {
+            FunctionName = $"{config.Prefix}-candidate-jobs-detail-rewrite",
+            Comment = "Rewrites /candidate/jobs/<id> to the static shell so S3 always has the object",
+            Code = FunctionCode.FromInline(@"
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    var isPage = uri.indexOf('.') === -1 || uri.slice(-5) === '.html';
+    if (isPage) {
+        request.uri = '/candidate/jobs/_.html';
+    }
+    return request;
+}
+")
+        });
+
         // ── API Gateway HTTP API Origin ──────────────────────────────────────
         var apiUrl = $"{serverless.HttpApi.Ref}.execute-api.{config.Region}.amazonaws.com";
         var apiOrigin = new HttpOrigin(apiUrl, new HttpOriginProps
@@ -412,6 +439,26 @@ function handler(event) {
                         new FunctionAssociation
                         {
                             Function = internalJobsDetailRewriteFn,
+                            EventType = FunctionEventType.VIEWER_REQUEST
+                        }
+                    }
+                },
+                // Browse Jobs' in-app detail page → same technique, see
+                // comment above on CandidateJobsDetailRewriteFunction. Does
+                // not affect bare /candidate/jobs (the list page), which
+                // stays on the default behavior.
+                ["/candidate/jobs/*"] = new BehaviorOptions
+                {
+                    Origin = s3Origin,
+                    ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    Compress = true,
+                    CachePolicy = CachePolicy.CACHING_OPTIMIZED,
+                    AllowedMethods = AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                    FunctionAssociations = new[]
+                    {
+                        new FunctionAssociation
+                        {
+                            Function = candidateJobsDetailRewriteFn,
                             EventType = FunctionEventType.VIEWER_REQUEST
                         }
                     }
