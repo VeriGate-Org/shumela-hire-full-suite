@@ -128,6 +128,12 @@ export default function IDCJobDetailClient() {
     );
   }
 
+  // The posting the advert belongs to. Falls back to the advert's own id only
+  // so the CTA still renders on an advert with no posting link — better a
+  // possibly-misfiled application than a dead end, and every advert on the IDC
+  // tenant carries jobPostingId.
+  const applyId = String(job.jobPostingId ?? job.id);
+
   const isExpired = isJobExpired(job.status, job.closingDate);
   const isPublished = job.status === 'PUBLISHED';
   const isActive = isPublished && !isExpired;
@@ -292,15 +298,18 @@ export default function IDCJobDetailClient() {
                   <p className="text-[#64748B] mb-4">
                     Take the next step in your career with the IDC.
                   </p>
-                  {/* Keyed off the advert, not the requisition.
-                      A candidate applies to what is advertised. Gating on
-                      job.requisitionId disabled the button on every advert
-                      whose posting had no linked requisition — which is most of
-                      them — so live vacancies read "Application Not Available"
-                      to the public. jobId is what the form submits as the
-                      application's jobAdId. */}
+                  {/* Keyed off the advert, not the requisition. A candidate
+                      applies to what is advertised; gating on job.requisitionId
+                      disabled the button on every advert whose posting had no
+                      linked requisition, which is most of them.
+
+                      jobId must be the JOB POSTING id, not the advert's own id:
+                      the value is submitted as jobAdId and the service stores it
+                      straight into the application's jobPostingId. Passing the
+                      advert id attaches applications to something that is not a
+                      posting, so they never count toward the vacancy. */}
                   <Link
-                    href={`/apply/${job.id}?jobId=${encodeURIComponent(job.id)}&title=${encodeURIComponent(job.title)}`}
+                    href={`/apply/${applyId}?jobId=${encodeURIComponent(applyId)}&title=${encodeURIComponent(job.title)}`}
                     className="inline-flex items-center px-8 py-3 bg-[#F1C54B] text-[#0F172A] text-lg font-medium rounded-full hover:bg-[#F1C54B]/90 transition-colors"
                   >
                     Apply Now
