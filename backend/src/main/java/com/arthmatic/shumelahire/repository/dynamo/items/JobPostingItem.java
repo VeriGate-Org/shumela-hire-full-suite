@@ -2,6 +2,8 @@ package com.arthmatic.shumelahire.repository.dynamo.items;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
+import java.util.List;
+
 /**
  * DynamoDB item for the JobPosting entity.
  *
@@ -57,6 +59,10 @@ public class JobPostingItem {
     private String requirements;
     private String responsibilities;
     private String qualifications;
+    // Stored as native DynamoDB lists, following TrainingCourseItem — no JSON encoding.
+    private List<String> requiredSkills;
+    private List<String> preferredSkills;
+    private String minEducationLevel;
     private String benefits;
     private String salaryMin;
     private String salaryMax;
@@ -301,4 +307,13 @@ public class JobPostingItem {
     @DynamoDbAttribute("requisitionId")
     public String getRequisitionId() { return requisitionId; }
     public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
+
+    public List<String> getRequiredSkills() { return requiredSkills; }
+    public void setRequiredSkills(List<String> requiredSkills) { this.requiredSkills = requiredSkills; }
+
+    public List<String> getPreferredSkills() { return preferredSkills; }
+    public void setPreferredSkills(List<String> preferredSkills) { this.preferredSkills = preferredSkills; }
+
+    public String getMinEducationLevel() { return minEducationLevel; }
+    public void setMinEducationLevel(String minEducationLevel) { this.minEducationLevel = minEducationLevel; }
 }

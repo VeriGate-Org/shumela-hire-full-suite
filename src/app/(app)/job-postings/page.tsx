@@ -854,7 +854,11 @@ export default function JobPostingsPage() {
               </>
             )}
 
-            {(selectedJobPosting.status === 'PUBLISHED' || selectedJobPosting.status === 'CLOSED') && (
+            {/* Shortlisting is available from APPROVED onward, not only once published.
+                Applications can already exist against an approved vacancy — the Project
+                Manager posting carries 42 — so gating the panel on PUBLISHED hid the
+                shortlist from exactly the person who needs it before advertising closes. */}
+            {['APPROVED', 'PUBLISHED', 'UNPUBLISHED', 'CLOSED'].includes(selectedJobPosting.status) && (
               <div className="mt-6 enterprise-card p-6">
                 <ShortlistingPanel
                   jobPostingId={String(selectedJobPosting.id)}

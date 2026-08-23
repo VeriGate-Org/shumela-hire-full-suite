@@ -176,8 +176,12 @@ public class CognitoSecurityConfig {
                 // Vacancy report endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/vacancy-reports/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
 
-                // Shortlisting endpoints
-                .requestMatchers(new AntPathRequestMatcher("/api/shortlisting/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
+                // Shortlisting endpoints. HIRING_MANAGER is included deliberately: a hiring
+                // manager owns the shortlist for their own vacancy, including running the
+                // threshold. Note this rule runs BEFORE the @PreAuthorize annotations on
+                // ShortlistingController and silently overrides them — omitting a role here
+                // makes the annotation a lie (issue #191). Change both together.
+                .requestMatchers(new AntPathRequestMatcher("/api/shortlisting/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
 
                 // Talent pool endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/talent-pools/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")

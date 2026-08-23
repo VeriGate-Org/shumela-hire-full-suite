@@ -1,5 +1,9 @@
 package com.arthmatic.shumelahire.dto;
 
+import com.arthmatic.shumelahire.entity.EducationLevel;
+
+import java.util.List;
+
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.ExperienceLevel;
 import jakarta.validation.constraints.Min;
@@ -36,6 +40,15 @@ public class JobPostingCreateRequest {
     private String responsibilities;
     
     private String qualifications;
+
+    /** Discrete skills the role requires — what shortlisting actually matches against. */
+    private List<String> requiredSkills;
+
+    /** Skills that improve a candidate without being disqualifying. */
+    private List<String> preferredSkills;
+
+    /** Minimum formal qualification; null means the role names none. */
+    private EducationLevel minEducationLevel;
     
     private String benefits;
     
@@ -286,4 +299,13 @@ public class JobPostingCreateRequest {
 
     public String getRequisitionId() { return requisitionId; }
     public void setRequisitionId(String requisitionId) { this.requisitionId = requisitionId; }
+
+    public List<String> getRequiredSkills() { return requiredSkills; }
+    public void setRequiredSkills(List<String> requiredSkills) { this.requiredSkills = requiredSkills; }
+
+    public List<String> getPreferredSkills() { return preferredSkills; }
+    public void setPreferredSkills(List<String> preferredSkills) { this.preferredSkills = preferredSkills; }
+
+    public EducationLevel getMinEducationLevel() { return minEducationLevel; }
+    public void setMinEducationLevel(EducationLevel minEducationLevel) { this.minEducationLevel = minEducationLevel; }
 }

@@ -531,6 +531,9 @@ public class JobPostingService {
         jobPosting.setRequirements(request.getRequirements());
         jobPosting.setResponsibilities(request.getResponsibilities());
         jobPosting.setQualifications(request.getQualifications());
+        jobPosting.setRequiredSkills(request.getRequiredSkills());
+        jobPosting.setPreferredSkills(request.getPreferredSkills());
+        jobPosting.setMinEducationLevel(request.getMinEducationLevel());
         jobPosting.setBenefits(request.getBenefits());
         jobPosting.setSalaryMin(request.getSalaryMin());
         jobPosting.setSalaryMax(request.getSalaryMax());
