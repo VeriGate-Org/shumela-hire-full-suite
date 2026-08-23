@@ -36,7 +36,7 @@ interface Interview {
 
 interface FeedbackEntry {
   id: number;
-  submittedBy: number;
+  submittedBy: string;
   interviewerName?: string;
   feedback: string;
   rating?: number;
@@ -129,7 +129,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
 
   // Pre-fill form if current user has existing feedback
   useEffect(() => {
-    const userId = Number(user?.id);
+    const userId = user?.id;
     const myFeedback = existingFeedbacks.find((f) => f.submittedBy === userId);
     if (myFeedback) {
       setFormData({
@@ -149,7 +149,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
   }, [existingFeedbacks, user?.id]);
 
   const currentUserHasFeedback = existingFeedbacks.some(
-    (f) => f.submittedBy === Number(user?.id)
+    (f) => f.submittedBy === user?.id
   );
 
   const validateForm = () => {
@@ -179,8 +179,12 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
       newErrors.culturalFit = 'Cultural fit rating is required (1-5)';
     }
 
-    const actorId = Number(user?.id);
-    if (!Number.isFinite(actorId) || actorId <= 0) {
+    // user.id is a UUID string (DynamoDB single-table id), not a numeric id —
+    // Number(user?.id) always evaluated to NaN here, so this blocked every
+    // feedback submission with "Unable to identify current user" regardless
+    // of whether the user was actually signed in. submittedBy is a plain
+    // String on the backend, so there was never a reason to coerce this.
+    if (!user?.id) {
       newErrors.general = 'Unable to identify current user. Please sign in again.';
     }
 
@@ -196,7 +200,11 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
     try {
       setLoading(true);
 
-      const submittedBy = Number(user?.id);
+      const submittedBy = user?.id;
+      if (!submittedBy) {
+        setErrors({ general: 'Unable to identify current user. Please sign in again.' });
+        return;
+      }
       const params = new URLSearchParams({
         feedback: formData.feedback,
         rating: String(formData.rating),
@@ -204,7 +212,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
         technicalSkills: String(formData.technicalSkills),
         culturalFit: String(formData.culturalFit),
         recommendation: formData.recommendation,
-        submittedBy: String(submittedBy),
+        submittedBy,
       });
 
       const displayName = user?.name || user?.email || '';
@@ -312,7 +320,7 @@ export default function InterviewFeedbackForm({ interview, onSuccess, onCancel }
                     <div>
                       <p className="font-medium text-foreground">
                         {fb.interviewerName || `User #${fb.submittedBy}`}
-                        {fb.submittedBy === Number(user?.id) && (
+                        {fb.submittedBy === user?.id && (
                           <span className="ml-2 text-xs bg-gold-100 text-gold-800 px-2 py-0.5 rounded-full">You</span>
                         )}
                       </p>

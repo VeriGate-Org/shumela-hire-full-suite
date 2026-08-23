@@ -58,7 +58,7 @@ interface InterviewData {
 
 interface FeedbackData {
   id: number;
-  submittedBy: number;
+  submittedBy: string;
   interviewerName?: string;
   feedback: string;
   rating?: number;

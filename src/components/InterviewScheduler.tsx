@@ -145,9 +145,14 @@ export default function InterviewScheduler({ interviewId, applicationId: prefill
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [checkingAvailability, setCheckingAvailability] = useState(false);
 
-  const getActorId = useCallback((): number | null => {
-    const actorId = Number(user?.id);
-    if (!Number.isFinite(actorId) || actorId <= 0) {
+  // user.id is a UUID string (DynamoDB single-table id), not a numeric id —
+  // Number(user?.id) always evaluated to NaN here, so this blocked every
+  // interview create/update for every user with "Unable to identify current
+  // user". Both /api/interviews createdBy/updatedBy params are plain
+  // Strings on the backend, so there was never a reason to coerce this.
+  const getActorId = useCallback((): string | null => {
+    const actorId = user?.id;
+    if (!actorId) {
       setErrors((prev) => ({ ...prev, general: 'Unable to identify current user. Please sign in again.' }));
       return null;
     }
