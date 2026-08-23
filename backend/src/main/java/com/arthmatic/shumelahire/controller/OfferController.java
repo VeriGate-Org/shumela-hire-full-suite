@@ -49,7 +49,7 @@ public class OfferController {
 
     // Create new offer
     @PostMapping("/applications/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> createOffer(
             @PathVariable String applicationId,
             @Valid @RequestBody Offer offer,
@@ -66,7 +66,7 @@ public class OfferController {
 
     // Get offer by ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<Offer> getOffer(@PathVariable String id) {
         if (isSelfServiceCandidate(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
@@ -78,7 +78,7 @@ public class OfferController {
 
     // Get offers for application
     @GetMapping("/applications/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<List<Offer>> getOffersByApplication(@PathVariable String applicationId) {
         List<Offer> offers = offerService.getOffersByApplication(applicationId);
         return ResponseEntity.ok(offers);
@@ -86,7 +86,7 @@ public class OfferController {
 
     // Get offers for applicant (O6: single call, eliminates N+1)
     @GetMapping("/applicant/{applicantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<List<Offer>> getOffersByApplicant(@PathVariable String applicantId) {
         if (isSelfServiceCandidate(authentication())) {
             String currentApplicantId = resolveApplicantId(authentication());
@@ -100,7 +100,7 @@ public class OfferController {
 
     // Update offer
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> updateOffer(
             @PathVariable String id,
             @Valid @RequestBody Offer offer,
@@ -117,7 +117,7 @@ public class OfferController {
 
     // Submit for approval
     @PostMapping("/{id}/submit-for-approval")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> submitForApproval(
             @PathVariable String id,
             Authentication authentication) {
@@ -133,7 +133,7 @@ public class OfferController {
 
     // Approve offer
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> approveOffer(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -151,7 +151,7 @@ public class OfferController {
 
     // Reject offer
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> rejectOffer(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -169,7 +169,7 @@ public class OfferController {
 
     // Send offer
     @PostMapping("/{id}/send")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> sendOffer(
             @PathVariable String id,
             Authentication authentication) {
@@ -185,7 +185,7 @@ public class OfferController {
 
     // Withdraw offer
     @PostMapping("/{id}/withdraw")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> withdrawOffer(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -203,7 +203,7 @@ public class OfferController {
 
     // Record candidate viewed
     @PostMapping("/{id}/viewed")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> recordCandidateViewed(@PathVariable String id) {
         if (isSelfServiceCandidate(authentication())) {
             assertApplicantCanAccessOffer(authentication(), id);
@@ -219,7 +219,7 @@ public class OfferController {
 
     // Accept offer
     @PostMapping("/{id}/accept")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> acceptOffer(
             @PathVariable String id,
             Authentication authentication) {
@@ -238,7 +238,7 @@ public class OfferController {
 
     // Decline offer
     @PostMapping("/{id}/decline")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> declineOffer(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -259,7 +259,7 @@ public class OfferController {
 
     // Start negotiation
     @PostMapping("/{id}/negotiate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> startNegotiation(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -280,7 +280,7 @@ public class OfferController {
 
     // Respond to negotiation
     @PostMapping("/{id}/negotiate/respond")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> respondToNegotiation(
             @PathVariable String id,
             @RequestBody Map<String, Object> request,
@@ -301,7 +301,7 @@ public class OfferController {
 
     // Escalate negotiation
     @PostMapping("/{id}/negotiate/escalate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> escalateNegotiation(
             @PathVariable String id,
             @RequestBody Map<String, String> request,
@@ -319,7 +319,7 @@ public class OfferController {
 
     // Create new version
     @PostMapping("/{id}/new-version")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<?> createNewVersion(
             @PathVariable String id,
             @Valid @RequestBody Offer updatedOfferData,
@@ -336,7 +336,7 @@ public class OfferController {
 
     // Search offers with pagination
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<Page<Offer>> searchOffers(
             @RequestParam(required = false) OfferStatus status,
             @RequestParam(required = false) OfferType offerType,
@@ -368,7 +368,7 @@ public class OfferController {
 
     // Get offer analytics
     @GetMapping("/analytics")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<Map<String, Object>> getOfferAnalytics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
@@ -379,7 +379,7 @@ public class OfferController {
 
     // Get dashboard counts
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<Map<String, Long>> getDashboardCounts() {
         Map<String, Long> counts = offerService.getDashboardCounts();
         return ResponseEntity.ok(counts);
@@ -387,7 +387,7 @@ public class OfferController {
 
     // Get expired offers
     @GetMapping("/expired")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<List<Offer>> getExpiredOffers() {
         List<Offer> expiredOffers = offerService.getExpiredOffers();
         return ResponseEntity.ok(expiredOffers);
@@ -395,7 +395,7 @@ public class OfferController {
 
     // Get offers near expiry
     @GetMapping("/near-expiry")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<List<Offer>> getOffersNearExpiry(
             @RequestParam(defaultValue = "24") int hoursAhead) {
         List<Offer> nearExpiryOffers = offerService.getOffersNearExpiry(hoursAhead);
@@ -404,7 +404,7 @@ public class OfferController {
 
     // Process expired offers (admin/system endpoint)
     @PostMapping("/process-expired")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<String> processExpiredOffers() {
         try {
             offerService.processExpiredOffers();
@@ -417,21 +417,21 @@ public class OfferController {
 
     // Get offer status options
     @GetMapping("/status-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<OfferStatus[]> getOfferStatusOptions() {
         return ResponseEntity.ok(OfferStatus.values());
     }
 
     // Get offer type options
     @GetMapping("/type-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<OfferType[]> getOfferTypeOptions() {
         return ResponseEntity.ok(OfferType.values());
     }
 
     // Get negotiation status options
     @GetMapping("/negotiation-status-options")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'APPLICANT', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<NegotiationStatus[]> getNegotiationStatusOptions() {
         return ResponseEntity.ok(NegotiationStatus.values());
     }

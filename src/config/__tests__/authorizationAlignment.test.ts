@@ -25,7 +25,7 @@ describe('Authorization alignment', () => {
   it('keeps high-risk navigation routes aligned with backend role policies', () => {
     expectNavRoles('agencies', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('talent-pools', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
-    expectNavRoles('offers', ['ADMIN', 'HR_MANAGER']);
+    expectNavRoles('offers', ['ADMIN', 'HIRING_MANAGER', 'HR_MANAGER']);
     expectNavRoles('workflow', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
     expectNavRoles('integrations', ['ADMIN', 'HR_MANAGER']);
