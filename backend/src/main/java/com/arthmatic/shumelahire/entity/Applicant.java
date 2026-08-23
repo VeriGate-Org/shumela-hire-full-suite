@@ -160,7 +160,17 @@ public class Applicant extends TenantAwareEntity {
 
     // Helper methods
     public String getFullName() {
-        return name + " " + surname;
+        // Plain `name + " " + surname` concatenation stringifies a missing
+        // half as the literal text "null" (Java's String + null behavior) —
+        // e.g. an applicant with no surname on file displayed as "John
+        // null", or as the bare "null null" the Edit Interview review step
+        // showed for a candidate missing both. Kept always non-null (never
+        // returning null itself) since ~50 call sites across the codebase
+        // chain straight off this return value (e.g. .toLowerCase()) with
+        // no null check of their own.
+        String first = name != null ? name.trim() : "";
+        String last = surname != null ? surname.trim() : "";
+        return (first + " " + last).trim();
     }
 
     public void setFullName(String fullName) {

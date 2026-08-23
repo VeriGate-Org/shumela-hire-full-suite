@@ -208,7 +208,12 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
     setShowActionModal(true);
     setModalMode('overview');
     setActionError('');
-    setRescheduleDateTime(new Date(interview.scheduledAt).toISOString().slice(0, 16));
+    // interview.scheduledAt is a plain LocalDateTime string with no
+    // timezone (e.g. "2026-06-30T09:12:38") — every backend rule (business
+    // hours, 2-hour lead time) evaluates it as-is. Round-tripping through
+    // Date/toISOString re-expresses it in UTC, silently shifting it by the
+    // browser's offset (SAST turns 09:12 into 07:12). Slice the raw string.
+    setRescheduleDateTime(interview.scheduledAt.slice(0, 16));
     setRescheduleReason('');
     setCancelReason('');
 
@@ -309,7 +314,10 @@ export default function InterviewCalendar({ interviews, onInterviewSelect, onInt
     }
 
     await postInterviewAction('reschedule', selectedInterview.id, {
-      newScheduledAt: new Date(rescheduleDateTime).toISOString(),
+      // Same naive-LocalDateTime convention as scheduledAt everywhere else —
+      // send the wall-clock string as-is rather than through Date/toISOString,
+      // which would relabel it as UTC and shift it by the browser's offset.
+      newScheduledAt: rescheduleDateTime.length === 16 ? `${rescheduleDateTime}:00` : rescheduleDateTime,
       reason: rescheduleReason,
       rescheduledBy: actorId,
     });
