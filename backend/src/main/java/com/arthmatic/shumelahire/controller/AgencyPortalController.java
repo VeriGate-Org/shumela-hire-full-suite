@@ -37,6 +37,27 @@ public class AgencyPortalController {
         return ResponseEntity.ok(agencyPortalService.getAgency(id));
     }
 
+    /**
+     * Update an agency in place. Without this the UI's Edit form had nowhere to send its changes
+     * and posted to {@code /register}, creating a duplicate on every edit.
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    public ResponseEntity<?> updateAgency(@PathVariable String id, @RequestBody AgencyProfile agency) {
+        return ResponseEntity.ok(agencyPortalService.updateAgency(id, agency));
+    }
+
+    /**
+     * Remove an agency. ADMIN only — narrower than register/update, because it is the one
+     * irreversible action on this resource.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteAgency(@PathVariable String id) {
+        agencyPortalService.deleteAgency(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> approveAgency(@PathVariable String id) {
