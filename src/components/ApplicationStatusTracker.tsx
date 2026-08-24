@@ -6,7 +6,8 @@ import { useToast } from '@/components/Toast';
 
 interface ApplicationStatusTrackerProps {
   application: {
-    id: number;
+    /** A string UUID, matching the API. Declared `number` here and on the applications page. */
+    id: string;
     jobTitle: string;
     department?: string;
     status: string;
@@ -19,7 +20,7 @@ interface ApplicationStatusTrackerProps {
     canBeWithdrawn: boolean;
     daysFromSubmission: number;
   };
-  onWithdraw?: (applicationId: number, reason: string) => void;
+  onWithdraw?: (applicationId: string, reason: string) => void;
   showWithdrawOption?: boolean;
 }
 
