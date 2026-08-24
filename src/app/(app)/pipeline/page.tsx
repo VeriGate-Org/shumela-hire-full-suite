@@ -256,6 +256,9 @@ export default function PipelinePage() {
   // against. It was never passed, so screening ran against an empty requirement list and could
   // only ever produce a generic reading.
   const [jobRequirements, setJobRequirements] = useState<Record<string, string[]>>({});
+  // Loaded once for the whole board rather than per card — a shortlist control on every candidate
+  // reading its own state would be a request per card on the busiest screen in the product.
+  const [shortlistStates, setShortlistStates] = useState<Record<string, boolean>>({});
 
   // --- Status mapping covering all 12 ApplicationStatus enum values ---
   const statusMap: Record<string, Application['status']> = {
@@ -291,6 +294,20 @@ export default function PipelinePage() {
       }
     } catch {
       // Gracefully ignore — feature may not be enabled
+    }
+  }, []);
+
+  const loadShortlistStates = useCallback(async (apps: Application[]) => {
+    if (apps.length === 0) {
+      setShortlistStates({});
+      return;
+    }
+    try {
+      const ids = apps.map(a => a.id).join(',');
+      const response = await apiFetch(`/api/shortlisting/applications/shortlist-states?applicationIds=${ids}`);
+      if (response.ok) setShortlistStates((await response.json()) || {});
+    } catch {
+      // Shortlisting may not be enabled. The action still works; only the initial label is unknown.
     }
   }, []);
 
@@ -366,6 +383,7 @@ export default function PipelinePage() {
       });
       setApplications(mapped);
       loadVerificationSummaries(mapped);
+      loadShortlistStates(mapped);
       // Preload offers for offer/accepted stage cards (for status badges)
       const offerApps = mapped.filter(a =>
         ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED'].includes(a.backendStage)
@@ -413,7 +431,7 @@ export default function PipelinePage() {
     } finally {
       setLoading(false);
     }
-  }, [loadVerificationSummaries]);
+  }, [loadVerificationSummaries, loadShortlistStates]);
 
   // P5: Fetch backend analytics
   // Note: the backend /api/pipeline/analytics returns { funnel, averageStageDurations, conversions, ... }
@@ -1131,6 +1149,7 @@ export default function PipelinePage() {
                                   <ShortlistButton
                                     applicationId={application.id}
                                     candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                                    shortlisted={shortlistStates[application.id] ?? false}
                                     variant="icon"
                                     className="!w-6 !h-6"
                                   />
@@ -1261,6 +1280,7 @@ export default function PipelinePage() {
                               <ShortlistButton
                                 applicationId={application.id}
                                 candidateName={`${application.candidate.firstName} ${application.candidate.lastName}`}
+                                shortlisted={shortlistStates[application.id] ?? false}
                                 variant="icon"
                               />
                             )}
@@ -1358,6 +1378,8 @@ export default function PipelinePage() {
                     <ShortlistButton
                       applicationId={selectedApplication.id}
                       candidateName={`${selectedApplication.candidate.firstName} ${selectedApplication.candidate.lastName}`}
+                      shortlisted={shortlistStates[selectedApplication.id] ?? false}
+                      onDone={(next) => setShortlistStates(prev => ({ ...prev, [selectedApplication.id]: next }))}
                     />
                   )}
                   {selectedApplication.status === 'active' && nextGroupStage && (

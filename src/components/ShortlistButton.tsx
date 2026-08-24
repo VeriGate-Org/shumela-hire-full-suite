@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
@@ -13,7 +13,10 @@ const SHORTLIST_ROLES = ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER'];
 interface ShortlistButtonProps {
   applicationId: string | number;
   candidateName?: string;
-  /** Reflects current state when known, so the control can read as a toggle rather than a one-way door. */
+  /**
+   * Current state, when the caller already has it. Omit and the button reads it from the API —
+   * which is the usual case, since most surfaces showing a candidate do not load shortlist scores.
+   */
   shortlisted?: boolean;
   variant?: 'primary' | 'secondary' | 'icon';
   onDone?: (shortlisted: boolean) => void;
@@ -45,6 +48,27 @@ export default function ShortlistButton({
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [isShortlisted, setIsShortlisted] = useState(Boolean(shortlisted));
+
+  // Read the stored decision rather than assuming "not shortlisted" until clicked. Without this
+  // an already-shortlisted candidate rendered "Shortlist", and a page refresh after shortlisting
+  // someone reverted the label — which reads as the save having failed.
+  useEffect(() => {
+    if (shortlisted !== undefined) {
+      setIsShortlisted(shortlisted);
+      return;
+    }
+    let cancelled = false;
+    apiFetch(`/api/shortlisting/applications/${applicationId}/shortlist`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!cancelled && data) setIsShortlisted(Boolean(data.shortlisted));
+      })
+      .catch(() => {
+        // Shortlisting may be unavailable on this tenant. The action still works; only the
+        // initial label is unknown, and "Shortlist" is the safe thing to show.
+      });
+    return () => { cancelled = true; };
+  }, [applicationId, shortlisted]);
 
   // Hide rather than refuse: the backend would reject the call anyway, and a button that always
   // errors is the dead-button problem again in a different costume.

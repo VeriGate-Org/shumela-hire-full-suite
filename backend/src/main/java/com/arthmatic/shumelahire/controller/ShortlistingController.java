@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -59,6 +61,35 @@ public class ShortlistingController {
         // record that names the wrong person is worse than no record — it looks authoritative.
         return ResponseEntity.ok(shortlistingService.overrideShortlistDecision(
                 id, include, reason, resolveUserId(authentication)));
+    }
+
+    /**
+     * Stored shortlist state for many applications at once.
+     *
+     * <p>A board or list renders a shortlist control per candidate. Letting each one read its own
+     * state would put a request per card on the page — the pipeline shows every active candidate,
+     * so that is an N+1 on the busiest screen in the product. This mirrors
+     * {@code /api/background-checks/summary?applicationIds=}, which the pipeline already uses for
+     * exactly this reason.
+     */
+    @GetMapping("/applications/shortlist-states")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> getShortlistStates(@RequestParam String applicationIds) {
+        List<String> ids = Arrays.stream(applicationIds.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        return ResponseEntity.ok(shortlistingService.getShortlistStatesForApplications(ids));
+    }
+
+    /**
+     * The stored shortlist state for one application, so a shortlist control can render what is
+     * actually true instead of assuming "not shortlisted" until someone clicks it.
+     */
+    @GetMapping("/applications/{applicationId}/shortlist")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> getShortlistState(@PathVariable String applicationId) {
+        return ResponseEntity.ok(shortlistingService.getShortlistStateForApplication(applicationId));
     }
 
     /**

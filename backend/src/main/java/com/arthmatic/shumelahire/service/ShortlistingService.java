@@ -372,6 +372,52 @@ public class ShortlistingService {
     }
 
     /**
+     * The stored shortlist state for one application, so a control can show what is true rather
+     * than what was last clicked.
+     *
+     * <p>Deliberately does not score on a read. A GET that creates a row would mean merely opening
+     * a candidate's record wrote a scoring decision against them; {@code scored: false} is the
+     * honest answer for a vacancy nobody has scored yet.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getShortlistStateForApplication(String applicationId) {
+        return shortlistScoreRepository.findByApplicationId(applicationId)
+            .map(score -> {
+                Map<String, Object> state = new LinkedHashMap<>();
+                state.put("scored", true);
+                state.put("shortlisted", Boolean.TRUE.equals(score.getIsShortlisted()));
+                state.put("manuallyOverridden", Boolean.TRUE.equals(score.getManuallyOverridden()));
+                state.put("totalScore", score.getTotalScore() == null ? 0.0 : score.getTotalScore());
+                return state;
+            })
+            .orElseGet(() -> {
+                Map<String, Object> state = new LinkedHashMap<>();
+                state.put("scored", false);
+                state.put("shortlisted", false);
+                return state;
+            });
+    }
+
+    /**
+     * Shortlist state for many applications, keyed by application id.
+     *
+     * <p>An application with no score row is simply absent from the result rather than reported as
+     * {@code false}: "nobody has scored this vacancy" and "this candidate was considered and left
+     * off" are different facts, and the caller should be able to tell them apart.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Boolean> getShortlistStatesForApplications(List<String> applicationIds) {
+        Map<String, Boolean> states = new LinkedHashMap<>();
+        if (applicationIds == null) return states;
+
+        for (String applicationId : applicationIds) {
+            shortlistScoreRepository.findByApplicationId(applicationId).ifPresent(score ->
+                states.put(applicationId, Boolean.TRUE.equals(score.getIsShortlisted())));
+        }
+        return states;
+    }
+
+    /**
      * Include or exclude one application from the shortlist, identified by the application itself.
      *
      * <p>{@link #overrideShortlistDecision} keys on a score id, which only exists once someone has
