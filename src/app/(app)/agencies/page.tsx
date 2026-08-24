@@ -136,7 +136,11 @@ export default function AgenciesPage() {
 
   // Modals
   const [modal, setModal] = useState<ModalType>(null);
-  const [, setEditingAgency] = useState<Agency | null>(null);
+  // The getter used to be discarded — `const [, setEditingAgency]`. openEdit() set this and
+  // nothing could read it, so handleSaveAgency had no way to tell an edit from a registration and
+  // posted to /register either way. Every edit created a duplicate. The modal title reads off
+  // `modal === 'edit'`, which is why the form looked right while the save was wrong.
+  const [editingAgency, setEditingAgency] = useState<Agency | null>(null);
   const [reviewingSubmission, setReviewingSubmission] = useState<AgencySubmission | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [statusActionLoading, setStatusActionLoading] = useState<number | null>(null);
@@ -256,15 +260,32 @@ export default function AgenciesPage() {
         contactPhone: agencyForm.contactPhone || undefined,
         specializations: agencyForm.specializations || undefined,
       };
-      await apiFetchJson('/api/agencies/register', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      toast('Agency registered successfully', 'success');
+      // An edit updates the record it was opened from. This used to POST to /register
+      // unconditionally — ignoring editingAgency entirely — so every edit created a duplicate
+      // under a new id and left the original untouched.
+      if (editingAgency) {
+        const updated = await apiFetchJson<Agency>(`/api/agencies/${editingAgency.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        // The detail pane holds its own copy, so it would keep showing the old name until the
+        // agency was re-selected.
+        setSelectedAgency((current) =>
+          current && current.id === editingAgency.id ? { ...current, ...updated } : current,
+        );
+        toast('Agency updated successfully', 'success');
+      } else {
+        await apiFetchJson('/api/agencies/register', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        toast('Agency registered successfully', 'success');
+      }
       setModal(null);
+      setEditingAgency(null);
       await loadAgencies();
     } catch {
-      toast('Failed to register agency', 'error');
+      toast(editingAgency ? 'Failed to update agency' : 'Failed to register agency', 'error');
     } finally {
       setActionLoading(false);
     }
