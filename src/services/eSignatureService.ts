@@ -29,7 +29,29 @@ export interface DocumentSignatureResponse {
   documentId: string;
 }
 
+export interface ESignatureProviderInfo {
+  provider: string;
+  /** True when signatures are produced by the local simulated provider. */
+  simulated: boolean;
+}
+
 export const eSignatureService = {
+  /** Which provider the backend is wired to, so the UI can label signatures honestly. */
+  async getProvider(): Promise<ESignatureProviderInfo> {
+    const response = await apiFetch('/api/esignature/provider');
+    if (!response.ok) throw new Error('Failed to read e-signature provider');
+    return response.json();
+  },
+
+  /**
+   * Stand in for the signer completing the ceremony. Only available on the
+   * simulated provider — with DocuSign the signer acts in DocuSign's own UI.
+   */
+  async simulateSign(envelopeId: string): Promise<void> {
+    const response = await apiFetch(`/api/esignature/simulate/${envelopeId}/sign`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to simulate signature');
+  },
+
   async sendForSignature(offerId: number, request: SendForSignatureRequest): Promise<SendForSignatureResponse> {
     const response = await apiFetch(`/api/esignature/offers/${offerId}/send`, {
       method: 'POST',

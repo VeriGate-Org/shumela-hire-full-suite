@@ -239,6 +239,9 @@ export default function OfferManagement() {
   const [eSignOffer, setESignOffer] = useState<Offer | null>(null);
   const [eSignLoading, setESignLoading] = useState(false);
   const [eSignStatuses, setESignStatuses] = useState<Record<number, string>>({});
+  const [eSignEnvelopes, setESignEnvelopes] = useState<Record<number, string>>({});
+  const [eSignSimulated, setESignSimulated] = useState(false);
+  const [simulatingSign, setSimulatingSign] = useState<number | null>(null);
   const [showLetterModal, setShowLetterModal] = useState(false);
   const [letterOffer, setLetterOffer] = useState<Offer | null>(null);
   const [letterGenerated, setLetterGenerated] = useState<Record<number, boolean>>({});
@@ -316,21 +319,33 @@ export default function OfferManagement() {
   }, [filters, currentPage, loadDashboardCounts]);
 
   const loadESignStatuses = useCallback(async (offersList: Offer[]) => {
+    // AWAITING_SIGNATURE and SIGNED are the states an offer lands in once it has
+    // actually been sent for signature — omitting them hid the badge and the
+    // download button on exactly the offers that had an envelope.
     const relevantOffers = offersList.filter(o =>
-      ['SENT', 'ACCEPTED', 'UNDER_NEGOTIATION'].includes(o.status)
+      ['SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'ACCEPTED', 'UNDER_NEGOTIATION'].includes(o.status)
     );
     const statuses: Record<number, string> = {};
+    const envelopes: Record<number, string> = {};
     await Promise.allSettled(
       relevantOffers.map(async (offer) => {
         try {
           const result = await eSignatureService.getStatus(offer.id);
           statuses[offer.id] = result.status;
+          if (result.envelopeId) envelopes[offer.id] = result.envelopeId;
         } catch {
           // ignore - status will just not show
         }
       })
     );
     setESignStatuses(statuses);
+    setESignEnvelopes(envelopes);
+  }, []);
+
+  useEffect(() => {
+    eSignatureService.getProvider()
+      .then(info => setESignSimulated(info.simulated))
+      .catch(() => setESignSimulated(false));
   }, []);
 
   useEffect(() => {
@@ -616,7 +631,9 @@ export default function OfferManagement() {
         signerEmail: eSignOffer.application?.applicant?.email || '',
         signerName: getApplicantName(eSignOffer.application?.applicant),
       });
-      toast('Offer sent for e-signature via DocuSign', 'success');
+      toast(eSignSimulated
+        ? 'Offer sent for e-signature (simulated provider)'
+        : 'Offer sent for e-signature', 'success');
       setShowESignModal(false);
       setESignOffer(null);
       loadOffers();
@@ -625,6 +642,22 @@ export default function OfferManagement() {
       toast('Failed to send for e-signature. Please try again.', 'error');
     } finally {
       setESignLoading(false);
+    }
+  };
+
+  const handleSimulateSignature = async (offerId: number) => {
+    const envelopeId = eSignEnvelopes[offerId];
+    if (!envelopeId) return;
+    setSimulatingSign(offerId);
+    try {
+      await eSignatureService.simulateSign(envelopeId);
+      toast('Signature simulated — offer is now signed', 'success');
+      loadOffers();
+    } catch (error) {
+      console.error('Error simulating signature:', error);
+      toast('Failed to simulate signature.', 'error');
+    } finally {
+      setSimulatingSign(null);
     }
   };
 
@@ -943,7 +976,7 @@ export default function OfferManagement() {
                     {eSignStatuses[offer.id] && eSignStatuses[offer.id] !== 'not_sent' && (
                       <div className="mb-3.5">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getESignBadgeColor(eSignStatuses[offer.id])}`}>
-                          DocuSign: {eSignStatuses[offer.id]}
+                          E-Signature: {eSignStatuses[offer.id]}{eSignSimulated ? ' (simulated)' : ''}
                         </span>
                       </div>
                     )}
@@ -1044,6 +1077,16 @@ export default function OfferManagement() {
                             className="btn-secondary px-3.5 py-1.5 text-xs"
                           >
                             E-Sign
+                          </button>
+                        )}
+                        {eSignSimulated && eSignEnvelopes[offer.id] && ['sent', 'delivered'].includes(eSignStatuses[offer.id]) && (
+                          <button
+                            onClick={() => handleSimulateSignature(offer.id)}
+                            disabled={simulatingSign === offer.id}
+                            className="btn-secondary px-3.5 py-1.5 text-xs"
+                            title="Stand in for the candidate signing. Simulated provider only."
+                          >
+                            {simulatingSign === offer.id ? 'Signing...' : 'Simulate Sign'}
                           </button>
                         )}
                         {eSignStatuses[offer.id] === 'completed' && (
@@ -1627,13 +1670,15 @@ id="offer-notice"
               </div>
 
               <div className="mb-4 rounded-control border border-border bg-muted p-4">
-                <p className="text-sm font-medium text-foreground mb-2">DocuSign will send to:</p>
+                <p className="text-sm font-medium text-foreground mb-2">Signature request goes to:</p>
                 <p className="text-sm text-foreground">{getApplicantName(eSignOffer.application?.applicant)}</p>
                 <p className="text-sm text-muted-foreground">{eSignOffer.application?.applicant?.email || ''}</p>
               </div>
 
               <p className="text-xs text-muted-foreground">
-                The offer letter will be sent via DocuSign for electronic signature. The candidate will receive an email with a link to review and sign the document.
+                {eSignSimulated
+                  ? 'The simulated signature provider is active: the offer moves to Awaiting Signature and no email is sent. Use “Simulate Sign” on the offer to stand in for the candidate signing.'
+                  : 'The offer letter will be sent for electronic signature. The candidate will receive an email with a link to review and sign the document.'}
               </p>
             </div>
 

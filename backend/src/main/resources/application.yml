@@ -33,10 +33,13 @@ s3:
   secret-key: ${S3_SECRET_KEY:}
 
 # E-Signature
+# 'local'    — simulated provider, no credentials needed, signatures are NOT legally binding
+# 'docusign' — real provider; deployed environments resolve the credentials below from
+#              the DocuSign secret (DOCUSIGN_SECRET_ARN), not from these defaults
 esignature:
-  provider: ${ESIGNATURE_PROVIDER:docusign}
+  provider: ${ESIGNATURE_PROVIDER:local}
 
-# DocuSign Configuration
+# DocuSign Configuration (only read when esignature.provider=docusign)
 docusign:
   base-url: ${DOCUSIGN_BASE_URL:https://demo.docusign.net/restapi}
   account-id: ${DOCUSIGN_ACCOUNT_ID:}

@@ -6,7 +6,9 @@ import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
 import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import com.arthmatic.shumelahire.service.ESignatureService;
 import com.arthmatic.shumelahire.service.FileStorageService;
+import com.arthmatic.shumelahire.service.LocalESignatureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +33,21 @@ public class ESignatureController {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Value("${esignature.provider:local}")
+    private String provider;
+
+    /**
+     * Which provider is wired in, so the UI can label signatures honestly and
+     * offer the simulate action only where it exists.
+     */
+    @GetMapping("/provider")
+    public ResponseEntity<?> getProvider() {
+        return ResponseEntity.ok(Map.of(
+            "provider", provider,
+            "simulated", LocalESignatureService.PROVIDER.equals(provider)
+        ));
+    }
 
     @PostMapping("/offers/{offerId}/send")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER')")

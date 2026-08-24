@@ -214,6 +214,10 @@ public class ShumelaHireServerlessStack : Stack
                 // Cross-region inference profile, not a bare model id — see the Bedrock policy above.
                 ["BEDROCK_MODEL"] = ContextFlag(this, "bedrockModel",
                     "global.anthropic.claude-sonnet-4-5-20250929-v1:0"),
+                // "local" runs simulated, non-binding signatures with no external call.
+                // "docusign" additionally requires the DocuSign secret to be populated —
+                // its credentials arrive via DOCUSIGN_SECRET_ARN, never as plaintext here.
+                ["ESIGNATURE_PROVIDER"] = ContextFlag(this, "esignatureProvider", "local"),
                 ["SAP_PAYROLL_ENABLED"] = ContextFlag(this, "sapPayrollEnabled", "false"),
                 ["MICROSOFT_ENABLED"] = ContextFlag(this, "microsoftEnabled", "false"),
                 ["LINKEDIN_ENABLED"] = ContextFlag(this, "linkedinJobBoardEnabled", "false"),
