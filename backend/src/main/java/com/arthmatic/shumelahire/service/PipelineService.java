@@ -27,6 +27,9 @@ public class PipelineService {
     @Autowired
     private BackgroundCheckDataRepository backgroundCheckRepository;
 
+    @Autowired
+    private ApplicationJobPostingResolver jobPostingResolver;
+
     @Autowired(required = false)
     private BackgroundCheckService backgroundCheckService;
 
@@ -442,7 +445,10 @@ public class PipelineService {
     }
 
     private void enforceBackgroundCheckCompletion(Application application) {
-        JobPosting jobPosting = application.getJobPosting();
+        // Resolve rather than read the relation directly: on DynamoDB (the serverless/production
+        // backend) toEntity() never hydrates jobPosting, so this method used to return early every
+        // time and the gate never fired on any candidate. See ApplicationJobPostingResolver.
+        JobPosting jobPosting = jobPostingResolver.resolve(application).orElse(null);
         if (jobPosting == null || !Boolean.TRUE.equals(jobPosting.getEnforceCheckCompletion())) {
             return;
         }
