@@ -48,6 +48,13 @@ interface JobPostingWorkflowProps {
   };
   onStatusChange?: (updatedPosting: JobPostingWorkflowProps['jobPosting']) => void;
   currentUserId?: string | number;
+  /**
+   * The editable verification panel, supplied by the page. Approving a posting commits the panel
+   * to whatever gate it declares, so it belongs beside the terms rather than below the fold —
+   * but the panel writes through its own endpoint and is the page's to own, so it is passed in
+   * rather than duplicated here. When absent, the read-only summary below stands in.
+   */
+  verificationSlot?: React.ReactNode;
 }
 
 const DAY_MS = 86_400_000;
@@ -98,16 +105,27 @@ const dayCount = (days: number | null): string => {
 };
 
 /**
- * Actors are stored as opaque user ids, not names. Printing a raw UUID in a subtitle wrecks the
- * line, so an id-shaped value is shortened to a reference; anything that already reads as a name
- * is left alone.
+ * Actors are stored as opaque user ids and there is no lookup that turns one into a name:
+ * /api/auth/me is self-only and /api/users/manage/** is closed to everyone but ADMIN and
+ * HR_MANAGER, neither of which this page can rely on.
+ *
+ * So we name the one actor we can: the person reading the page. Anything else that already
+ * reads as a name is shown as-is, and a bare id is dropped rather than printed — "raised by
+ * user ab12cd34" tells the reader nothing they can act on and reads like a fault.
  */
-const actorLabel = (value?: string | number | null): string | null => {
+const actorLabel = (
+  value?: string | number | null,
+  currentUserId?: string | number | null,
+): string | null => {
   if (value === null || value === undefined) return null;
   const text = String(value).trim();
   if (!text) return null;
-  if (text.length > 14 && !text.includes(' ')) return `user ${text.slice(0, 8)}`;
-  return text;
+  if (currentUserId !== null && currentUserId !== undefined && text === String(currentUserId).trim()) {
+    return 'you';
+  }
+  // An id, not a name: a single token that is long or carries no letters worth reading.
+  const looksLikeAnId = !text.includes(' ') && (text.length > 14 || /^[0-9]+$/.test(text));
+  return looksLikeAnId ? null : text;
 };
 
 const parseRequiredChecks = (value?: string | string[] | null): string[] => {
@@ -127,7 +145,7 @@ const humaniseCheck = (code: string): string => {
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId }: JobPostingWorkflowProps) {
+export default function JobPostingWorkflow({ jobPosting, onStatusChange, currentUserId, verificationSlot }: JobPostingWorkflowProps) {
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [showRejectionForm, setShowRejectionForm] = useState(false);
   const [showPublishForm, setShowPublishForm] = useState(false);
@@ -320,7 +338,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
     const state = stageState(index);
     switch (index) {
       case 0:
-        return { actor: actorLabel(jobPosting.createdBy) ?? undefined, detail: formatDay(jobPosting.createdAt) ?? 'Not recorded' };
+        return { actor: actorLabel(jobPosting.createdBy, currentUserId) ?? undefined, detail: formatDay(jobPosting.createdAt) ?? 'Not recorded' };
       case 1:
         if (status === 'REJECTED') return { detail: 'Returned to the raiser' };
         if (submittedMs !== null && state === 'done') return { detail: `Submitted ${formatDay(jobPosting.submittedForApprovalAt)}` };
@@ -329,12 +347,12 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
         }
         return { detail: 'Not submitted yet' };
       case 2:
-        if (approvedMs !== null) return { actor: actorLabel(jobPosting.approvedBy) ?? undefined, detail: formatDay(jobPosting.approvedAt) ?? 'Approved' };
+        if (approvedMs !== null) return { actor: actorLabel(jobPosting.approvedBy, currentUserId) ?? undefined, detail: formatDay(jobPosting.approvedAt) ?? 'Approved' };
         if (state === 'current') return { detail: 'Ready to publish' };
         return { detail: 'Not reached' };
       case 3:
         if (status === 'UNPUBLISHED') return { detail: `Taken down ${formatDay(jobPosting.unpublishedAt) ?? ''}`.trim() };
-        if (publishedMs !== null) return { actor: actorLabel(jobPosting.publishedBy) ?? undefined, detail: formatDay(jobPosting.publishedAt) ?? 'Published' };
+        if (publishedMs !== null) return { actor: actorLabel(jobPosting.publishedBy, currentUserId) ?? undefined, detail: formatDay(jobPosting.publishedAt) ?? 'Published' };
         if (state === 'current') return { detail: 'Live, accepting applications' };
         return { detail: 'Not advertised yet' };
       default:
@@ -466,7 +484,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
     auditTrail.push({
       id: 'published',
       title: 'Published',
-      meta: [actorLabel(jobPosting.publishedBy), formatMoment(jobPosting.publishedAt)].filter(Boolean).join(' · '),
+      meta: [actorLabel(jobPosting.publishedBy, currentUserId), formatMoment(jobPosting.publishedAt)].filter(Boolean).join(' · '),
       tone: status === 'PUBLISHED' ? 'now' : 'ok',
     });
   }
@@ -474,7 +492,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
     auditTrail.push({
       id: 'approved',
       title: 'Approved',
-      meta: [actorLabel(jobPosting.approvedBy), formatMoment(jobPosting.approvedAt)].filter(Boolean).join(' · '),
+      meta: [actorLabel(jobPosting.approvedBy, currentUserId), formatMoment(jobPosting.approvedAt)].filter(Boolean).join(' · '),
       note: jobPosting.approvalNotes,
       tone: 'ok',
     });
@@ -490,17 +508,19 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
   auditTrail.push({
     id: 'created',
     title: 'Drafted',
-    meta: [actorLabel(jobPosting.createdBy), formatMoment(jobPosting.createdAt)].filter(Boolean).join(' · '),
+    meta: [actorLabel(jobPosting.createdBy, currentUserId), formatMoment(jobPosting.createdAt)].filter(Boolean).join(' · '),
     tone: 'ok',
   });
 
   // ---------------------------------------------------------------------------------------------
-  const terms: Array<{ key: string; value?: string }> = [
+  // Only the terms the posting actually carries. A grid of four "Not specified" cells told
+  // the reader nothing and read as though the page had failed to load.
+  const terms: Array<{ key: string; value: string }> = [
     { key: 'Employment type', value: jobPosting.employmentTypeDisplayName },
     { key: 'Experience level', value: jobPosting.experienceLevelDisplayName },
     { key: 'Location', value: jobPosting.location },
     { key: 'Salary range', value: jobPosting.salaryRange },
-  ];
+  ].filter((t): t is { key: string; value: string } => Boolean(t.value && t.value.trim()));
 
   const termsHint =
     status === 'DRAFT' || status === 'REJECTED' ? 'Editable'
@@ -545,8 +565,8 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
           </div>
           <p className="mt-1.5 mb-0 text-sm text-white/60">
             {jobPosting.department}
-            {actorLabel(jobPosting.createdBy) && (
-              <> &middot; raised by <b className="font-bold text-white/90">{actorLabel(jobPosting.createdBy)}</b></>
+            {actorLabel(jobPosting.createdBy, currentUserId) && (
+              <> &middot; raised by <b className="font-bold text-white/90">{actorLabel(jobPosting.createdBy, currentUserId)}</b></>
             )}
           </p>
         </div>
@@ -822,19 +842,25 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
               <h2 className={cardTitle}>What is being advertised</h2>
               <span className={cardHint}>{termsHint}</span>
             </div>
-            <dl className="m-0 grid grid-cols-1 sm:grid-cols-2">
-              {terms.map((term, i) => (
-                <div
-                  key={term.key}
-                  className={`px-5 py-3.5 border-border ${i % 2 === 0 ? 'sm:border-r' : ''} ${i < terms.length - 2 ? 'border-b' : 'border-b sm:border-b-0'}`}
-                >
-                  <dt className={keyLabel}>{term.key}</dt>
-                  <dd className={`m-0 mt-0.5 text-[0.9375rem] tracking-tight ${term.value ? 'font-bold text-foreground' : 'font-semibold text-muted-foreground/80'}`}>
-                    {term.value || 'Not specified'}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            {terms.length > 0 ? (
+              <dl className="m-0 grid grid-cols-1 sm:grid-cols-2">
+                {terms.map((term, i) => (
+                  <div
+                    key={term.key}
+                    className={`px-5 py-3.5 border-border ${i % 2 === 0 ? 'sm:border-r' : ''} ${i < terms.length - 2 ? 'border-b' : 'border-b sm:border-b-0'}`}
+                  >
+                    <dt className={keyLabel}>{term.key}</dt>
+                    <dd className="m-0 mt-0.5 text-[0.9375rem] font-bold tracking-tight text-foreground">
+                      {term.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="m-0 px-5 py-4 text-sm text-muted-foreground">
+                No terms have been set on this posting yet.
+              </p>
+            )}
           </section>
 
           {status === 'REJECTED' && jobPosting.rejectionReason && (
@@ -849,6 +875,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
             </section>
           )}
 
+          {verificationSlot ?? (
           <section aria-label="Verification required before hire" className="rounded-card border border-border bg-card shadow-sm">
             <div className={cardHeader}>
               <h2 className={cardTitle}>Verification required before hire</h2>
@@ -879,6 +906,7 @@ export default function JobPostingWorkflow({ jobPosting, onStatusChange, current
               )}
             </div>
           </section>
+          )}
         </div>
 
         <section aria-label="Audit trail" className="rounded-card border border-border bg-card shadow-sm">
