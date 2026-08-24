@@ -61,14 +61,16 @@ public class RequisitionController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
-    public ResponseEntity<Requisition> update(@PathVariable String id, @RequestBody Requisition requisition) {
-        return ResponseEntity.ok(requisitionService.update(id, requisition));
+    public ResponseEntity<Requisition> update(Authentication authentication, @PathVariable String id,
+                                              @RequestBody Requisition requisition) {
+        return ResponseEntity.ok(requisitionService.update(
+                id, requisition, resolveUserId(authentication).orElse(null)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        requisitionService.delete(id);
+    public ResponseEntity<Void> delete(Authentication authentication, @PathVariable String id) {
+        requisitionService.delete(id, resolveUserId(authentication).orElse(null));
         return ResponseEntity.noContent().build();
     }
 

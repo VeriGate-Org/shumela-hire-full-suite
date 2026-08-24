@@ -155,7 +155,9 @@ export class AuditLogService {
   }
 
   async getRequisitionAuditLogs(requisitionId: string): Promise<AuditLogEntry[]> {
-    return fetchAuditLogs(`/api/audit/entity/${requisitionId}`);
+    // The endpoint is /api/audit/entity/{entityType}/{entityId}; the entityType segment was missing,
+    // so this resolved to a path the backend does not serve.
+    return fetchAuditLogs(`/api/audit/entity/REQUISITION/${requisitionId}`);
   }
 
   async getAllRequisitionAuditLogs(): Promise<AuditLogEntry[]> {
