@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.OfferSummaryResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
@@ -555,6 +556,19 @@ public class OfferService {
         notificationService.notifyOfferExpired(offer);
       }
     }
+  }
+
+  /**
+   * Counts describing the whole offer set.
+   *
+   * <p>Reads every offer once and derives the figures from that single pass, so they are consistent
+   * with each other. {@code getDashboardCounts} stays for its existing callers; this is the shape
+   * the queue needs, and it is organised around expiry because that is the only hard clock in the
+   * product.
+   */
+  @Transactional(readOnly = true)
+  public OfferSummaryResponse summary() {
+    return OfferSummaryResponse.from(offerRepository.findAll(), LocalDateTime.now());
   }
 
   // Dashboard queries

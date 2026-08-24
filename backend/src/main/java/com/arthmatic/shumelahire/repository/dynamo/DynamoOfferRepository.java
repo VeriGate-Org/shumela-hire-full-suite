@@ -2,6 +2,7 @@ package com.arthmatic.shumelahire.repository.dynamo;
 
 import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.NegotiationStatus;
+import com.arthmatic.shumelahire.dto.OfferSummaryResponse;
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
 import com.arthmatic.shumelahire.entity.OfferType;
@@ -163,9 +164,19 @@ public class DynamoOfferRepository extends DynamoRepository<OfferItem, Offer>
         return findByStatus(OfferStatus.PENDING_APPROVAL).size();
     }
 
+    /**
+     * Offers close to lapsing.
+     *
+     * <p>This counted {@code SENT} alone, which omits precisely the offers most likely to lapse:
+     * an offer awaiting a signature or under negotiation is one where a signature or a negotiation
+     * is consuming the clock. The client-side fallback was corrected to span all four states in
+     * #258 and this — the figure the page actually prefers — was left behind, so the fallback was
+     * more correct than the source it fell back from.
+     */
     @Override
     public long countNearExpiry(LocalDateTime nearExpiryTime) {
-        return findByStatus(OfferStatus.SENT).stream()
+        return OfferSummaryResponse.WITH_CANDIDATE.stream()
+                .flatMap(status -> findByStatus(status).stream())
                 .filter(o -> o.getOfferExpiryDate() != null && !o.getOfferExpiryDate().isAfter(nearExpiryTime))
                 .count();
     }

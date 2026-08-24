@@ -82,6 +82,24 @@ function routeOffers(offers = OFFERS, totalElements = offers.length) {
     if (path.startsWith('/api/offers/dashboard')) {
       return ok({ pendingApproval: 2, nearExpiry: 2, activeNegotiations: 0, recentAcceptances: 1 });
     }
+    // Chip counts now describe the whole set rather than the loaded page.
+    if (path.startsWith('/api/offers/summary')) {
+      const countsByStatus: Record<string, number> = {};
+      offers.forEach((o) => { countsByStatus[o.status] = (countsByStatus[o.status] ?? 0) + 1; });
+      return ok({
+        countsByStatus,
+        total: totalElements,
+        withCandidate: offers.filter((o) => ['SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'UNDER_NEGOTIATION'].includes(o.status)).length,
+        expiringSoon: 0,
+        expiringImminently: 0,
+        lapsed: countsByStatus.EXPIRED ?? 0,
+        soonestExpiryDays: null,
+        soonestExpiryId: null,
+        withoutExpiry: 0,
+        committedAnnualValue: 0,
+        committedValueExcluded: 0,
+      });
+    }
     return ok({});
   });
 }
@@ -99,10 +117,10 @@ beforeEach(() => {
 });
 
 describe('which tab opens', () => {
-  it('opens on Draft when the URL says nothing', async () => {
+  it('opens on Expiring when the URL says nothing', async () => {
     routeOffers();
     render(<OfferManagement />);
-    await waitFor(() => expect(tab(/^Draft/)).toHaveClass('text-primary'));
+    await waitFor(() => expect(tab(/^Expiring/)).toHaveAttribute('aria-pressed', 'true'));
   });
 
   it('opens on the tab named in the URL — the refresh case', async () => {
@@ -110,7 +128,7 @@ describe('which tab opens', () => {
     routeOffers();
     render(<OfferManagement />);
 
-    await waitFor(() => expect(tab(/^Accepted/)).toHaveClass('text-primary'));
+    await waitFor(() => expect(tab(/^Accepted/)).toHaveAttribute('aria-pressed', 'true'));
     expect(await screen.findByText('Lerato Dlamini')).toBeInTheDocument();
     // and not the draft rows
     expect(screen.queryByText('Nomsa Mahlangu')).not.toBeInTheDocument();
@@ -121,8 +139,10 @@ describe('which tab opens', () => {
     routeOffers();
     render(<OfferManagement />);
 
-    await waitFor(() => expect(tab(/^Draft/)).toHaveClass('text-primary'));
-    expect(await screen.findByText('Nomsa Mahlangu')).toBeInTheDocument();
+    await waitFor(() => expect(tab(/^Expiring/)).toHaveAttribute('aria-pressed', 'true'));
+    // Falls back to the default rather than blanking the screen: the chips are all still there
+    // and the offers are still reachable.
+    expect(tab(/^Draft/)).toBeInTheDocument();
   });
 });
 
@@ -130,7 +150,7 @@ describe('the URL follows the tab', () => {
   it('records the tab so a refresh returns to it', async () => {
     routeOffers();
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
     await userEvent.click(tab(/^Accepted/));
 
@@ -141,9 +161,9 @@ describe('the URL follows the tab', () => {
     setUrl('?tab=accepted');
     routeOffers();
     render(<OfferManagement />);
-    await screen.findByText('Lerato Dlamini');
+    await screen.findByRole('button', { name: /^Expiring/ });
 
-    await userEvent.click(tab(/^Draft/));
+    await userEvent.click(tab(/^Expiring/));
 
     await waitFor(() => expect(window.location.search).toBe(''));
     expect(window.location.pathname).toBe('/offers');
@@ -153,31 +173,32 @@ describe('the URL follows the tab', () => {
     setUrl('?ref=email');
     routeOffers();
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
-    await userEvent.click(tab(/^Sent/));
+    await userEvent.click(tab(/^Accepted/));
 
     await waitFor(() => expect(window.location.search).toContain('ref=email'));
-    expect(window.location.search).toContain('tab=sent');
+    expect(window.location.search).toContain('tab=accepted');
   });
 });
 
 describe('the counts above the rail', () => {
-  it('each tab badge matches the offers in it', async () => {
+  it('each chip count matches the offers in it', async () => {
     routeOffers();
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
+    // Draft covers DRAFT, PENDING_APPROVAL and APPROVED — everything not yet put to anyone.
     expect(within(tab(/^Draft/)).getByText('4')).toBeInTheDocument();
-    expect(within(tab(/^Sent/)).getByText('2')).toBeInTheDocument();
+    expect(within(tab(/^Out with candidate/)).getByText('2')).toBeInTheDocument();
     expect(within(tab(/^Accepted/)).getByText('3')).toBeInTheDocument();
-    expect(within(tab(/^Declined/)).getByText('1')).toBeInTheDocument();
+    expect(within(tab(/^Closed/)).getByText('1')).toBeInTheDocument();
   });
 
   it('acceptance rate is accepted over decided, not over everything', async () => {
     routeOffers();
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
     // 3 accepted of 4 decided (3 accepted + 1 withdrawn) = 75%.
     // The old computation gave recentAcceptances(1) / offers.length(10) = 10%.
@@ -188,17 +209,18 @@ describe('the counts above the rail', () => {
   it('shows a dash rather than 0% when nothing has been decided yet', async () => {
     routeOffers([offer('1', 'DRAFT', 'Nomsa Mahlangu'), offer('2', 'SENT', 'Michael Botha')], 2);
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
     expect(await screen.findByText('—')).toBeInTheDocument();
     expect(screen.queryByText('0%')).not.toBeInTheDocument();
   });
 
-  it('active offers uses the server total, not the number of rows on this page', async () => {
+  it('the band reports the server total, not the number of rows on this page', async () => {
     routeOffers(OFFERS, 37); // one page of 10, 37 in total
     render(<OfferManagement />);
-    await screen.findByText('Nomsa Mahlangu');
+    await screen.findByRole('button', { name: /^Draft/ });
 
-    expect(await screen.findByText('37')).toBeInTheDocument();
+    // The band reports the server's total, not the ten rows this page happens to hold.
+    expect(await screen.findByText(/37 offers/)).toBeInTheDocument();
   });
 });

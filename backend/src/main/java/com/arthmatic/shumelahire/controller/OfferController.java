@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.OfferSummaryResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
@@ -378,6 +379,15 @@ public class OfferController {
     }
 
     // Get dashboard counts
+    /**
+     * Counts for the whole offer set.
+     * GET /api/offers/summary
+     */
+    @GetMapping("/summary")
+    public ResponseEntity<OfferSummaryResponse> summary() {
+        return ResponseEntity.ok(offerService.summary());
+    }
+
     @GetMapping("/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER')")
     public ResponseEntity<Map<String, Long>> getDashboardCounts() {
