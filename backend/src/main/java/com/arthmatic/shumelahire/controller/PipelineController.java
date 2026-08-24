@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.dto.ErrorResponse;
+import com.arthmatic.shumelahire.dto.PipelineAnalyticsResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.service.PipelineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,7 +138,7 @@ public class PipelineController {
 
     // Analytics endpoints
     @GetMapping("/analytics")
-    public ResponseEntity<Map<String, Object>> getPipelineAnalytics(
+    public ResponseEntity<PipelineAnalyticsResponse> getPipelineAnalytics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         
@@ -149,7 +150,7 @@ public class PipelineController {
             endDate = LocalDateTime.now();
         }
         
-        Map<String, Object> analytics = pipelineService.getPipelineAnalytics(startDate, endDate);
+        PipelineAnalyticsResponse analytics = pipelineService.getPipelineAnalytics(startDate, endDate);
         return ResponseEntity.ok(analytics);
     }
 
@@ -268,7 +269,7 @@ public class PipelineController {
     }
 
     @GetMapping("/analytics/regressions")
-    public ResponseEntity<List<PipelineTransition>> getRegressionAnalysis(
+    public ResponseEntity<List<PipelineAnalyticsResponse.Regression>> getRegressionAnalysis(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         
@@ -279,7 +280,7 @@ public class PipelineController {
             endDate = LocalDateTime.now();
         }
         
-        List<PipelineTransition> regressions = pipelineService.getRegressionAnalysis(startDate, endDate);
+        List<PipelineAnalyticsResponse.Regression> regressions = pipelineService.getRegressionAnalysis(startDate, endDate);
         return ResponseEntity.ok(regressions);
     }
 

@@ -148,9 +148,28 @@ public class DynamoPipelineTransitionRepository extends DynamoRepository<Pipelin
         throw new UnsupportedOperationException("Analytics queries will be migrated to Athena");
     }
 
+    /**
+     * Transitions created in a window, newest-indexed first.
+     *
+     * <p><b>Implemented rather than thrown, because every analytics figure on the pipeline board
+     * and the recruiter dashboard reduces to this one read.</b> GSI6 already indexes transitions by
+     * tenant and creation time — {@link #findRecentActivity} has been using it all along — so this
+     * is the same query with both ends of the range supplied by the caller instead of one end being
+     * "now".
+     *
+     * <p>The aggregates themselves are computed in Java by
+     * {@link com.arthmatic.shumelahire.dto.PipelineAnalyticsResponse}, which keeps them testable
+     * without a DynamoDB client and identical whatever the store underneath turns out to be. The
+     * sibling methods below still throw: they return {@code List<Object[]>}, a shape inherited from
+     * JPA projections that nothing should be built on, and every one of them is expressible through
+     * this call instead.
+     */
     @Override
     public List<PipelineTransition> findTransitionsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int limit) {
-        throw new UnsupportedOperationException("Analytics queries will be migrated to Athena");
+        String gsi6pk = "PTRANS_CREATED#" + currentTenantId();
+        String skStart = "PIPELINE_TRANS#" + startDate.format(ISO_FMT);
+        String skEnd = "PIPELINE_TRANS#" + endDate.format(ISO_FMT);
+        return queryGsiRange("GSI6", gsi6pk, skStart, skEnd, null, limit).content();
     }
 
     @Override
