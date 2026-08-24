@@ -357,6 +357,48 @@ public class ApplicationManagementService {
     }
 
     /**
+     * Append one screening note to one application, stamped with when it was made and by whom.
+     *
+     * <p>Notes accumulate rather than overwrite: this field is the running record of what people
+     * thought about a candidate as they moved through the pipeline, and a later comment replacing
+     * an earlier one would destroy exactly the history that makes a hiring decision defensible.
+     *
+     * <p>The bulk path writes {@code [2026-08-24T09:15:22.481] note} — a raw
+     * {@code LocalDateTime.toString()} with microseconds, and no author. This writes a stamp meant
+     * to be read by a person, and names who wrote it.
+     */
+    @Transactional
+    public Map<String, Object> addScreeningNote(String applicationId, String note, String authorName) {
+        Application application = applicationRepository.findById(applicationId)
+            .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
+
+        String stamp = String.format("[%s · %s]",
+            LocalDateTime.now().format(NOTE_TIMESTAMP),
+            authorName == null || authorName.isBlank() ? "Unknown user" : authorName);
+
+        String existing = application.getScreeningNotes();
+        String entry = stamp + "\n" + note;
+        String updated = existing == null || existing.isBlank() ? entry : existing + "\n\n" + entry;
+
+        if (updated.length() > 10000) {
+            throw new IllegalArgumentException(
+                "This application's notes are full (10 000 characters). Remove earlier notes before adding another.");
+        }
+
+        application.setScreeningNotes(updated);
+        application.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(application);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("applicationId", applicationId);
+        result.put("screeningNotes", updated);
+        return result;
+    }
+
+    private static final java.time.format.DateTimeFormatter NOTE_TIMESTAMP =
+        java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy 'at' HH:mm");
+
+    /**
      * Get applications statistics for management console
      */
     public Map<String, Object> getApplicationStatistics() {

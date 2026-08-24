@@ -9,6 +9,9 @@ import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import StatusPill from '@/components/StatusPill';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import VerificationReportDownload from '@/components/VerificationReportDownload';
+import ShortlistButton from '@/components/ShortlistButton';
+import { getEnumLabel } from '@/utils/enumLabels';
 import { useToast } from '@/components/Toast';
 import {
   ArrowLeftIcon,
@@ -147,12 +150,22 @@ export default function ApplicationDetailPage() {
   }
 
   const headerActions = (
-    <Link href="/applications">
-      <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-        <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
-        Back
-      </button>
-    </Link>
+    <div className="flex items-center gap-2">
+      {/* The candidate's own record is the most natural place to take the decision, and until now
+          the only route to it was the shortlisting panel on the vacancy. */}
+      {application && (
+        <ShortlistButton
+          applicationId={application.id}
+          candidateName={application.applicantName}
+        />
+      )}
+      <Link href="/applications">
+        <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+          <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
+          Back
+        </button>
+      </Link>
+    </div>
   );
 
   if (loading) {
@@ -320,7 +333,7 @@ export default function ApplicationDetailPage() {
                     <DocumentTextIcon className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{doc.filename}</p>
-                      <p className="text-xs text-gray-500">{doc.type}{doc.fileSizeFormatted ? ` · ${doc.fileSizeFormatted}` : ''}</p>
+                      <p className="text-xs text-gray-500">{getEnumLabel('documentType', doc.type)}{doc.fileSizeFormatted ? ` · ${doc.fileSizeFormatted}` : ''}</p>
                     </div>
                   </div>
                   <ArrowDownTrayIcon className="w-4 h-4 text-gray-400 flex-shrink-0 ml-3" />
@@ -328,6 +341,13 @@ export default function ApplicationDetailPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Verification — the candidate's own record is the obvious place to look for their
+            verification report, and until now the only route to one was the pipeline's Checks
+            stage. */}
+        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
+          <VerificationReportDownload applicationId={application.id} />
         </div>
       </div>
 
