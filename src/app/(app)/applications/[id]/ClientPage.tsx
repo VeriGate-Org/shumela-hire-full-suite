@@ -1,37 +1,44 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
-import StatusPill from '@/components/StatusPill';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import VerificationReportDownload from '@/components/VerificationReportDownload';
 import ShortlistButton from '@/components/ShortlistButton';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, {
+  PrimaryAction,
+  SecondaryAction,
+  DestructiveAction,
+} from '@/components/record/DecisionBar';
+import StageRail from '@/components/record/StageRail';
+import TermsGrid from '@/components/record/TermsGrid';
 import { getEnumLabel } from '@/utils/enumLabels';
 import { useToast } from '@/components/Toast';
 import {
+  ApplicationRecord,
+  RecordAction,
+  actionsFor,
+  buildRail,
+  decisionFor,
+  hasEnded,
+  isReversible,
+  narrative,
+  narrativeFilled,
+  stagePosition,
+} from './record';
+import {
   ArrowLeftIcon,
-  UserCircleIcon,
-  EnvelopeIcon,
-  BriefcaseIcon,
-  BuildingOfficeIcon,
-  CalendarIcon,
-  StarIcon,
   ExclamationTriangleIcon,
   DocumentTextIcon,
   ArrowDownTrayIcon,
-  XCircleIcon,
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 
-// Application detail page — reached via the "View" action in
-// ApplicationManagementConsole (and anywhere else linking to
-// /applications/{id}), which pushed to this route even though it never
-// existed: every visit 403'd straight from S3 with no matching object.
 interface DocumentInfo {
   id: string;
   filename: string;
@@ -41,53 +48,52 @@ interface DocumentInfo {
   uploadedAt?: string;
 }
 
-interface ApplicationDetail {
-  id: string;
+interface ApplicationDetail extends ApplicationRecord {
   applicantId?: string;
-  applicantName?: string;
   applicantEmail?: string;
   jobAdId?: string;
-  jobTitle?: string;
-  department?: string;
-  status: string;
   statusDisplayName?: string;
-  coverLetter?: string;
-  applicationSource?: string;
-  submittedAt?: string;
   withdrawnAt?: string;
-  withdrawalReason?: string;
-  screeningNotes?: string;
-  interviewFeedback?: string;
-  rating?: number;
-  rejectionReason?: string;
-  offerDetails?: string;
   applicationDocuments?: DocumentInfo[];
-  daysFromSubmission?: number;
   canBeWithdrawn?: boolean;
 }
 
+function initialsOf(name?: string): string {
+  if (!name) return '—';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function formatDate(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 export default function ApplicationDetailPage() {
-  // Static export: this page is pre-rendered once at build time with a
-  // placeholder id ("_" — see generateStaticParams in page.tsx and the
-  // CloudFront "/applications/*" rewrite behavior in
-  // ShumelaHireFrontendStack.cs). useParams() would read that build-time
-  // placeholder instead of the real id on a hard page load/refresh, so the
-  // real id is read from the actual browser URL instead.
+  // Static export: this page is pre-rendered once at build time with a placeholder id ("_" — see
+  // generateStaticParams in page.tsx and the CloudFront "/applications/*" rewrite). useParams()
+  // would read that build-time placeholder on a hard load, so the real id comes off the URL.
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const applicationId = useMemo(() => {
     const parts = pathname.split('/').filter(Boolean);
-    // ['applications', '<id>']
     return parts.length >= 2 ? parts[1] : '';
   }, [pathname]);
 
   const [application, setApplication] = useState<ApplicationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
-  const [rejecting, setRejecting] = useState(false);
+  const [pendingAction, setPendingAction] = useState<RecordAction | null>(null);
+  const [working, setWorking] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -95,7 +101,7 @@ export default function ApplicationDetailPage() {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  const fetchApplication = async () => {
+  const fetchApplication = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -107,60 +113,55 @@ export default function ApplicationDetailPage() {
         }
         throw new Error(`HTTP ${response.status}`);
       }
-      const data: ApplicationDetail = await response.json();
-      setApplication(data);
+      setApplication(await response.json());
     } catch (err) {
       console.error('Error loading application:', err);
       setError(err instanceof Error ? err.message : 'Failed to load application');
     } finally {
       setLoading(false);
     }
-  };
+  }, [applicationId]);
 
   useEffect(() => {
     if (!isAuthenticated || !applicationId) return;
     fetchApplication();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, applicationId]);
+  }, [isAuthenticated, applicationId, fetchApplication]);
 
-  const handleReject = async () => {
+  /**
+   * Move the application to another status.
+   *
+   * <p>The page could previously only reject. The endpoint has always been generic; nothing but
+   * the buttons was missing, and the transitions offered are the ones the API says are legal.
+   */
+  const runAction = async (action: RecordAction) => {
     if (!application) return;
-    setRejecting(true);
+    setWorking(true);
     try {
-      const response = await apiFetch(`/api/applications/${application.id}/status?status=REJECTED`, {
-        method: 'PUT',
-      });
-      if (response.ok) {
-        toast('Application rejected', 'success');
-        setShowRejectConfirm(false);
-        fetchApplication();
-      } else {
-        toast('Failed to reject application', 'error');
-      }
+      const response = await apiFetch(
+        `/api/applications/${application.id}/status?status=${action.status}`,
+        { method: 'PUT' },
+      );
+      if (!response.ok) throw new Error(await refusalMessage(response));
+      toast(`${action.label} — done`, 'success');
+      setPendingAction(null);
+      fetchApplication();
     } catch (err) {
-      console.error('Error rejecting application:', err);
-      toast('Failed to reject application', 'error');
+      // The API's own words. A refusal here is a rule the user needs to read, not a generic failure.
+      toast(err instanceof Error ? err.message : 'Could not update this application', 'error');
     } finally {
-      setRejecting(false);
+      setWorking(false);
     }
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   const headerActions = (
     <div className="flex items-center gap-2">
-      {/* The candidate's own record is the most natural place to take the decision, and until now
-          the only route to it was the shortlisting panel on the vacancy. */}
       {application && (
-        <ShortlistButton
-          applicationId={application.id}
-          candidateName={application.applicantName}
-        />
+        <ShortlistButton applicationId={application.id} candidateName={application.applicantName} />
       )}
       <Link href="/applications">
-        <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        <button className="inline-flex items-center px-3 py-2 border border-border rounded-full text-sm text-muted-foreground hover:bg-accent transition-colors">
           <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
           Back
         </button>
@@ -172,7 +173,7 @@ export default function ApplicationDetailPage() {
     return (
       <PageWrapper title="Application" subtitle="Loading..." actions={headerActions}>
         <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold" />
         </div>
       </PageWrapper>
     );
@@ -184,14 +185,22 @@ export default function ApplicationDetailPage() {
         <EmptyState
           icon={ExclamationTriangleIcon}
           title="Application Not Found"
-          description={error || "The application you're looking for doesn't exist or you don't have access to it."}
+          description={
+            error || "The application you're looking for doesn't exist or you don't have access to it."
+          }
           action={{ label: 'Back to Applications', onClick: () => router.push('/applications') }}
         />
       </PageWrapper>
     );
   }
 
-  const canReject = !['REJECTED', 'WITHDRAWN', 'HIRED', 'OFFER_ACCEPTED'].includes(application.status);
+  const position = stagePosition(application.status);
+  const decision = decisionFor(application);
+  const actions = actionsFor(application);
+  const entries = narrative(application);
+  const filled = narrativeFilled(entries);
+  const documents = application.applicationDocuments ?? [];
+  const ended = hasEnded(application.status);
 
   return (
     <PageWrapper
@@ -199,166 +208,216 @@ export default function ApplicationDetailPage() {
       subtitle={[application.jobTitle, application.department].filter(Boolean).join(' · ')}
       actions={headerActions}
     >
-      <div className="space-y-6">
-        {/* Header Card */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 bg-violet-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <UserCircleIcon className="w-9 h-9 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">{application.applicantName || 'Unknown Candidate'}</h2>
-                {application.applicantEmail && (
-                  <div className="flex items-center text-sm text-gray-600 mt-1">
-                    <EnvelopeIcon className="w-4 h-4 mr-1.5" />
-                    {application.applicantEmail}
+      <div className="space-y-4">
+        <IdentityBand
+          eyebrow="Application record"
+          title={application.applicantName || 'Unknown candidate'}
+          subtitle={
+            <>
+              {[application.jobTitle, application.department].filter(Boolean).join(' · ')}
+              {application.applicationSource && <> · via {application.applicationSource}</>}
+            </>
+          }
+          figures={[
+            {
+              label: 'Stage',
+              // "Stopped" rather than a position: a rejected candidate is not at stage two of
+              // five, and a progress figure would imply they are still moving.
+              value: position ? `${position.index} of ${position.total}` : 'Stopped',
+              tone: ended ? ('critical' as const) : undefined,
+            },
+            ...(typeof application.daysFromSubmission === 'number'
+              ? [
+                  {
+                    label: 'In process',
+                    value: `${application.daysFromSubmission} ${
+                      application.daysFromSubmission === 1 ? 'day' : 'days'
+                    }`,
+                    tone:
+                      !ended && application.daysFromSubmission >= 14
+                        ? ('warning' as const)
+                        : undefined,
+                  },
+                ]
+              : []),
+          ]}
+        >
+          <div
+            aria-hidden
+            className="w-12 h-12 rounded-full bg-band-accent/20 text-band-accent grid place-items-center text-sm font-extrabold tracking-tight"
+          >
+            {initialsOf(application.applicantName)}
+          </div>
+        </IdentityBand>
+
+        <DecisionBar ask={decision.ask} why={decision.why} tone={decision.tone}>
+          {actions.map((action) =>
+            action.intent === 'primary' ? (
+              <PrimaryAction
+                key={action.status}
+                onClick={() => runAction(action)}
+                disabled={working}
+              >
+                {action.label}
+              </PrimaryAction>
+            ) : action.intent === 'destructive' ? (
+              <DestructiveAction
+                key={action.status}
+                onClick={() => setPendingAction(action)}
+                disabled={working}
+              >
+                {action.label}
+              </DestructiveAction>
+            ) : (
+              <SecondaryAction
+                key={action.status}
+                onClick={() => runAction(action)}
+                disabled={working}
+              >
+                {action.label}
+              </SecondaryAction>
+            ),
+          )}
+        </DecisionBar>
+
+        <StageRail
+          stages={buildRail(application)}
+          footnote={
+            <>
+              Position only. <b className="font-bold text-foreground">Time spent at each stage is
+              not shown</b> — an application records its submission date and nothing per transition,
+              so any per-stage duration would be an estimate presented as a measurement.
+            </>
+          }
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 enterprise-card overflow-hidden">
+            <div className="px-5 py-4 border-b border-border flex items-baseline justify-between gap-3">
+              <h2 className="text-[0.8125rem] font-extrabold tracking-tight">The record so far</h2>
+              <span className="text-xs text-muted-foreground">
+                {filled} of {entries.length} stages have produced notes
+              </span>
+            </div>
+            <div className="divide-y divide-border">
+              {entries.map((entry) => (
+                <div key={entry.stage} className="px-5 py-4">
+                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                    <span className="text-[0.5625rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">
+                      {entry.stage}
+                    </span>
+                    {/* Who wrote it is not recorded — the notes are free text with no author, and
+                        the audit trail that would carry one names the candidate as the actor. */}
+                    <span className="text-xs text-muted-foreground">{entry.kind}</span>
                   </div>
-                )}
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-600">
-                  {application.jobTitle && (
-                    <div className="flex items-center">
-                      <BriefcaseIcon className="w-4 h-4 mr-1.5" />
-                      {application.jobTitle}
-                    </div>
-                  )}
-                  {application.department && (
-                    <div className="flex items-center">
-                      <BuildingOfficeIcon className="w-4 h-4 mr-1.5" />
-                      {application.department}
-                    </div>
-                  )}
-                  {application.submittedAt && (
-                    <div className="flex items-center">
-                      <CalendarIcon className="w-4 h-4 mr-1.5" />
-                      Applied {new Date(application.submittedAt).toLocaleDateString()}
-                      {typeof application.daysFromSubmission === 'number' && (
-                        <span className="ml-1">({application.daysFromSubmission}d ago)</span>
-                      )}
-                    </div>
+                  {entry.body ? (
+                    <p className="text-sm text-foreground whitespace-pre-wrap">{entry.body}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">{entry.absent}</p>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="enterprise-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-border">
+                <h2 className="text-[0.8125rem] font-extrabold tracking-tight">Assessment</h2>
+              </div>
+              <div className="p-5">
+                <TermsGrid
+                  terms={[
+                    {
+                      label: 'Rating',
+                      // A rating out of five, shown as a rating out of five. The list used to
+                      // render this as a percentage with a progress bar.
+                      value:
+                        typeof application.rating === 'number' && application.rating > 0
+                          ? `${Math.min(5, Math.round(application.rating))} of 5`
+                          : undefined,
+                      absent: 'Not rated',
+                    },
+                    {
+                      label: 'Source',
+                      value: application.applicationSource,
+                      absent: 'Not recorded',
+                    },
+                    {
+                      label: 'Applied',
+                      value: formatDate(application.submittedAt),
+                      absent: 'Not recorded',
+                    },
+                  ]}
+                />
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <StatusPill value={application.status} domain="applicationStatus" size="md" />
-              {typeof application.rating === 'number' && application.rating > 0 && (
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((n) =>
-                    n <= application.rating! ? (
-                      <StarIconSolid key={n} className="w-4 h-4 text-yellow-400" />
-                    ) : (
-                      <StarIcon key={n} className="w-4 h-4 text-gray-300" />
-                    )
-                  )}
+            <div className="enterprise-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-baseline justify-between gap-3">
+                <h2 className="text-[0.8125rem] font-extrabold tracking-tight">Documents</h2>
+                <span className="text-xs text-muted-foreground">
+                  {documents.length} attached
+                </span>
+              </div>
+              {documents.length === 0 ? (
+                <p className="px-5 py-4 text-sm text-muted-foreground">
+                  No documents attached to this application.
+                </p>
+              ) : (
+                <div className="divide-y divide-border">
+                  {documents.map((doc) => (
+                    <a
+                      key={doc.id}
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between px-5 py-3 hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex items-center min-w-0">
+                        <DocumentTextIcon className="w-5 h-5 text-muted-foreground mr-3 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {doc.filename}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {getEnumLabel('documentType', doc.type)}
+                            {doc.fileSizeFormatted ? ` · ${doc.fileSizeFormatted}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <ArrowDownTrayIcon className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-3" />
+                    </a>
+                  ))}
                 </div>
               )}
             </div>
-          </div>
 
-          {canReject && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
-              <button
-                onClick={() => setShowRejectConfirm(true)}
-                className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-full text-red-700 bg-white hover:bg-red-50 transition-colors"
-              >
-                <XCircleIcon className="w-4 h-4 mr-1.5" />
-                Reject Application
-              </button>
+            <div className="enterprise-card p-5">
+              <VerificationReportDownload applicationId={application.id} />
             </div>
-          )}
-        </div>
-
-        {/* Withdrawal / Rejection notices */}
-        {application.status === 'WITHDRAWN' && application.withdrawalReason && (
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-control">
-            <p className="text-sm font-medium text-gray-900">Withdrawn</p>
-            <p className="text-sm text-gray-600 mt-1">{application.withdrawalReason}</p>
           </div>
-        )}
-        {application.status === 'REJECTED' && application.rejectionReason && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-control">
-            <p className="text-sm font-medium text-red-800">Rejection Reason</p>
-            <p className="text-sm text-red-700 mt-1">{application.rejectionReason}</p>
-          </div>
-        )}
-        {application.offerDetails && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-control">
-            <p className="text-sm font-medium text-green-800">Offer Details</p>
-            <p className="text-sm text-green-700 mt-1">{application.offerDetails}</p>
-          </div>
-        )}
-
-        {/* Cover Letter */}
-        {application.coverLetter && (
-          <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Cover Letter</h3>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{application.coverLetter}</p>
-          </div>
-        )}
-
-        {/* Screening Notes */}
-        {application.screeningNotes && (
-          <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Screening Notes</h3>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{application.screeningNotes}</p>
-          </div>
-        )}
-
-        {/* Interview Feedback */}
-        {application.interviewFeedback && (
-          <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Interview Feedback</h3>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{application.interviewFeedback}</p>
-          </div>
-        )}
-
-        {/* Documents */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Documents</h3>
-          {!application.applicationDocuments || application.applicationDocuments.length === 0 ? (
-            <p className="text-sm text-gray-500">No documents attached to this application.</p>
-          ) : (
-            <div className="space-y-2">
-              {application.applicationDocuments.map((doc) => (
-                <a
-                  key={doc.id}
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 border border-gray-200 rounded-control hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center min-w-0">
-                    <DocumentTextIcon className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{doc.filename}</p>
-                      <p className="text-xs text-gray-500">{getEnumLabel('documentType', doc.type)}{doc.fileSizeFormatted ? ` · ${doc.fileSizeFormatted}` : ''}</p>
-                    </div>
-                  </div>
-                  <ArrowDownTrayIcon className="w-4 h-4 text-gray-400 flex-shrink-0 ml-3" />
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Verification — the candidate's own record is the obvious place to look for their
-            verification report, and until now the only route to one was the pipeline's Checks
-            stage. */}
-        <div className="bg-white rounded-control shadow border border-gray-200 p-6">
-          <VerificationReportDownload applicationId={application.id} />
         </div>
       </div>
 
       <ConfirmDialog
-        open={showRejectConfirm}
-        title="Reject Application"
-        message={`Are you sure you want to reject ${application.applicantName || 'this candidate'}'s application? This action can be reversed by changing the status again.`}
-        confirmLabel={rejecting ? 'Rejecting...' : 'Reject'}
+        open={pendingAction !== null}
+        title={pendingAction ? pendingAction.label : ''}
+        message={
+          pendingAction
+            ? `${pendingAction.label} — ${application.applicantName || 'this candidate'}'s application. ${
+                // The dialog used to promise this "can be reversed by changing the status again".
+                // canTransitionTo returns false for every target from REJECTED, so it cannot.
+                isReversible(pendingAction.status)
+                  ? 'This can be changed again afterwards.'
+                  : 'This is final — the status cannot be changed again afterwards.'
+              }`
+            : ''
+        }
+        confirmLabel={working ? 'Working…' : pendingAction?.label ?? 'Confirm'}
         variant="danger"
-        onConfirm={handleReject}
-        onCancel={() => setShowRejectConfirm(false)}
+        onConfirm={() => pendingAction && runAction(pendingAction)}
+        onCancel={() => setPendingAction(null)}
       />
     </PageWrapper>
   );

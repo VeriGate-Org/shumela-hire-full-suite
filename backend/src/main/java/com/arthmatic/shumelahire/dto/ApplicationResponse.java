@@ -4,6 +4,7 @@ import com.arthmatic.shumelahire.entity.Application;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,20 @@ public class ApplicationResponse {
     private long daysFromSubmission;
     private boolean canBeWithdrawn;
     private boolean isActive;
+
+    /**
+     * The statuses this application may actually move to, from
+     * {@link ApplicationStatus#canTransitionTo}.
+     *
+     * <p>Sent so a screen can offer only the controls that will work. The alternative — the page
+     * knowing the transition table — means two copies of a rule that will drift, and the copy that
+     * loses is the one the user is looking at.
+     *
+     * <p>Empty for a terminal status, which is not a display quirk but the substantive fact:
+     * <b>rejection, withdrawal, a declined offer and a hire cannot be undone through this API.</b>
+     * The rejection dialog on the detail page has been telling users the opposite.
+     */
+    private List<String> allowedTransitions;
     
     // Constructors
     public ApplicationResponse() {}
@@ -68,6 +83,12 @@ public class ApplicationResponse {
         this.daysFromSubmission = application.getDaysFromSubmission();
         this.canBeWithdrawn = application.canBeWithdrawn();
         this.isActive = application.isActive();
+        // No null guard on the status: it is field-initialised to SUBMITTED and getStatusDisplayName
+        // above already dereferences it, so a null status cannot reach this line.
+        this.allowedTransitions = Arrays.stream(ApplicationStatus.values())
+                .filter(candidate -> application.getStatus().canTransitionTo(candidate))
+                .map(ApplicationStatus::name)
+                .collect(Collectors.toList());
         
         if (application.getApplicationDocuments() != null) {
             this.applicationDocuments = application.getApplicationDocuments().stream()
@@ -282,6 +303,14 @@ public class ApplicationResponse {
         this.daysFromSubmission = daysFromSubmission;
     }
     
+    public List<String> getAllowedTransitions() {
+        return allowedTransitions;
+    }
+
+    public void setAllowedTransitions(List<String> allowedTransitions) {
+        this.allowedTransitions = allowedTransitions;
+    }
+
     public boolean isCanBeWithdrawn() {
         return canBeWithdrawn;
     }
