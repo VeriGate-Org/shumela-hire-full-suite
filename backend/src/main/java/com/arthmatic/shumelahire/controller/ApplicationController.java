@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.ApplicationSummaryResponse;
 import com.arthmatic.shumelahire.dto.ApplicationCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicationResponse;
 import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
@@ -182,13 +183,14 @@ public class ApplicationController {
 
     /**
      * Search applications with pagination
-     * GET /api/applications?search={term}&page={page}&size={size}&sort={field}&status={status}
+     * GET /api/applications?search={term}&status={status}&department={department}&page={page}&size={size}&sort={field}
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> searchApplications(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String department,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "submittedAt") String sort,
@@ -215,7 +217,20 @@ public class ApplicationController {
                 if (statuses.isEmpty()) statuses = null;
             }
 
-            Page<ApplicationResponse> results = applicationService.searchApplications(search, statuses, pageable);
+            // Comma-separated, same shape as status. Unlike status there is no enum to validate
+            // against — departments are free text on the record — so the values are passed through
+            // as given and a department nobody works in simply matches nothing.
+            List<String> departments = null;
+            if (department != null && !department.isBlank()) {
+                departments = Arrays.stream(department.split(","))
+                        .map(String::trim)
+                        .filter(d -> !d.isEmpty())
+                        .collect(Collectors.toList());
+                if (departments.isEmpty()) departments = null;
+            }
+
+            Page<ApplicationResponse> results =
+                    applicationService.searchApplications(search, statuses, departments, pageable);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error searching applications", e);
@@ -446,6 +461,20 @@ public class ApplicationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
         }
+    }
+
+    /**
+     * Counts for the whole application set.
+     * GET /api/applications/summary
+     *
+     * <p>Separate from the list on purpose: it is not paginated, it returns no records, and every
+     * figure on it describes the entire set. The list page's tabs and tiles currently count the
+     * twenty rows in hand and present the result as a total.
+     */
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<ApplicationSummaryResponse> summary() {
+        return ResponseEntity.ok(applicationService.summary());
     }
 
     /**

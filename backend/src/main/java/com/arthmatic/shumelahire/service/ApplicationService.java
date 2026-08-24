@@ -4,7 +4,10 @@ import com.arthmatic.shumelahire.dto.ApplicationCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicationResponse;
 import com.arthmatic.shumelahire.dto.ApplicationWithdrawRequest;
 import com.arthmatic.shumelahire.entity.Applicant;
+import com.arthmatic.shumelahire.dto.ApplicationSummaryResponse;
 import com.arthmatic.shumelahire.entity.Application;
+import com.arthmatic.shumelahire.entity.PipelineStage;
+import com.arthmatic.shumelahire.entity.StatusStageAlignment;
 import com.arthmatic.shumelahire.entity.ApplicationStatus;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
 import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,20 +131,41 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public Page<ApplicationResponse> searchApplications(String searchTerm, List<ApplicationStatus> statuses, Pageable pageable) {
+        return searchApplications(searchTerm, statuses, null, pageable);
+    }
+
+    /**
+     * Search, filter and page the application set.
+     *
+     * <p><b>Department filtering was implemented and unreachable.</b>
+     * {@code searchApplicationsFiltered} takes a {@code departments} argument and every caller
+     * passed {@code null} for it, so the applications list filtered by department in the browser,
+     * across the twenty rows it had loaded — which silently means "of this page". It now filters
+     * the whole set, server-side, like every other filter here.
+     */
+    @Transactional(readOnly = true)
+    public Page<ApplicationResponse> searchApplications(String searchTerm, List<ApplicationStatus> statuses,
+                                                        List<String> departments, Pageable pageable) {
         Page<Application> applications;
 
-        if ((searchTerm == null || searchTerm.trim().isEmpty()) && (statuses == null || statuses.isEmpty())) {
-            applications = applicationRepository.findAll(pageable);
-        } else if (statuses == null || statuses.isEmpty()) {
+        boolean filtered = (statuses != null && !statuses.isEmpty())
+                || (departments != null && !departments.isEmpty());
+        boolean searching = searchTerm != null && !searchTerm.trim().isEmpty();
+
+        if (filtered) {
+            // The only path that honours every filter together. Taken whenever any structured
+            // filter is present, not only when a status is — a department on its own used to fall
+            // through to the unfiltered query and quietly return everything.
+            List<Application> matches = applicationRepository.searchApplicationsFiltered(
+                    searchTerm, statuses, departments, null, null, null, null, null);
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), matches.size());
+            List<Application> pageContent = start < matches.size() ? matches.subList(start, end) : List.of();
+            applications = new PageImpl<>(pageContent, pageable, matches.size());
+        } else if (searching) {
             applications = applicationRepository.searchApplications(searchTerm, pageable);
         } else {
-            // Use searchApplicationsFiltered for combined status + search filtering
-            List<Application> filtered = applicationRepository.searchApplicationsFiltered(
-                    searchTerm, statuses, null, null, null, null, null, null);
-            int start = (int) pageable.getOffset();
-            int end = Math.min(start + pageable.getPageSize(), filtered.size());
-            List<Application> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
-            applications = new PageImpl<>(pageContent, pageable, filtered.size());
+            applications = applicationRepository.findAll(pageable);
         }
 
         hydrateApplicants(applications.getContent());
@@ -176,6 +201,7 @@ public class ApplicationService {
 
         ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(newStatus);
+        alignPipelineStage(application, newStatus);
 
         // Set additional fields based on status
         switch (newStatus) {
@@ -229,6 +255,48 @@ public class ApplicationService {
         logger.info("Application {} status updated to {}", id, newStatus);
 
         return ApplicationResponse.fromEntity(updatedApplication);
+    }
+
+    /**
+     * Keep the pipeline stage from contradicting the status this method just set.
+     *
+     * <p>This method previously moved {@code status} alone. An application also carries
+     * {@code pipelineStage} and {@code pipelineStageEnteredAt}, which {@code PipelineService} and
+     * {@code ApplicationManagementService} maintain — so advancing a candidate here left the
+     * pipeline board showing them at the stage they had already left, with an entry timestamp that
+     * no longer described anything.
+     *
+     * <p>Only a genuine contradiction moves the stage. A candidate a recruiter placed at
+     * {@code PANEL_INTERVIEW} stays there when someone marks {@code INTERVIEW_COMPLETED}, because
+     * the status cannot tell you which round it was and demoting them to {@code FIRST_INTERVIEW}
+     * would lose information the pipeline had. See {@link StatusStageAlignment}.
+     */
+    private void alignPipelineStage(Application application, ApplicationStatus newStatus) {
+        if (!StatusStageAlignment.needsAlignment(application.getPipelineStage(), newStatus)) {
+            return;
+        }
+        PipelineStage aligned = StatusStageAlignment.canonicalStage(newStatus);
+        application.setPipelineStage(aligned);
+        // Restamped only on an actual move: this field means "when this stage was entered", not
+        // "when this record was last written".
+        application.setPipelineStageEnteredAt(LocalDateTime.now());
+        logger.info("Application {} pipeline stage aligned to {} for status {}",
+                application.getId(), aligned, newStatus);
+    }
+
+    /**
+     * Counts describing the whole application set.
+     *
+     * <p>Reads every status once and derives the headline figures from the same result rather than
+     * counting and then reading again — on the DynamoDB backend {@code countByStatus} runs the same
+     * index query as fetching and calls {@code size()}, so counting is not the cheaper operation.
+     */
+    public ApplicationSummaryResponse summary() {
+        Map<ApplicationStatus, List<Application>> byStatus = new EnumMap<>(ApplicationStatus.class);
+        for (ApplicationStatus status : ApplicationStatus.values()) {
+            byStatus.put(status, applicationRepository.findByStatusOrderBySubmittedAtDesc(status));
+        }
+        return ApplicationSummaryResponse.from(byStatus, LocalDateTime.now());
     }
 
     /**

@@ -8,18 +8,30 @@ import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import { TableSkeleton } from '@/components/LoadingComponents';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
+import StatusPill from '@/components/StatusPill';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  ApplicationSummary,
+  FUNNEL,
+  QUEUE_FILTERS,
+  QUEUE_SORT,
+  byLongestWait,
+  concentration,
+  filterCount,
+  isClosed,
+  ratingStars,
+  stageCount,
+} from './queue';
 import { useToast } from '@/components/Toast';
 import ShortlistButton from '@/components/ShortlistButton';
 import {
   MagnifyingGlassIcon,
-  FunnelIcon,
   DocumentTextIcon,
-  ClockIcon,
-  CheckCircleIcon,
   XCircleIcon,
-  EyeIcon,
   ArrowPathIcon,
-  UserIcon,
   StarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -32,7 +44,11 @@ import AiSmartSearch from '@/components/ai/AiSmartSearch';
 import { getEnumLabel } from '@/utils/enumLabels';
 
 interface Application {
-  id: number;
+  /**
+   * A string UUID, as it is everywhere else in the platform. This was declared `number`, which
+   * nothing coerced — so it never broke — but it made `id` compare and key incorrectly by type.
+   */
+  id: string;
   jobTitle: string;
   department: string;
   status: string;
@@ -53,21 +69,6 @@ interface Application {
   interviewFeedback?: string;
 }
 
-const STATUS_OPTIONS = [
-  { value: 'ALL', label: 'All Statuses' },
-  { value: 'SUBMITTED', label: 'Submitted' },
-  { value: 'SCREENING', label: 'Screening' },
-  { value: 'INTERVIEW_SCHEDULED', label: 'Interview Scheduled' },
-  { value: 'INTERVIEW_COMPLETED', label: 'Interview Completed' },
-  { value: 'REFERENCE_CHECK', label: 'Reference Check' },
-  { value: 'OFFER_PENDING', label: 'Offer Pending' },
-  { value: 'OFFERED', label: 'Offered' },
-  { value: 'OFFER_ACCEPTED', label: 'Offer Accepted' },
-  { value: 'HIRED', label: 'Hired' },
-  { value: 'REJECTED', label: 'Rejected' },
-  { value: 'WITHDRAWN', label: 'Withdrawn' },
-];
-
 /*
  * Departments come from the applications themselves.
  *
@@ -85,14 +86,6 @@ const STATUS_OPTIONS = [
  */
 
 // Pipeline stage definitions matching the mock
-const PIPELINE_STAGES = [
-  { key: 'SUBMITTED', label: 'Applied', colorClass: 'bg-surface-navy text-primary' },
-  { key: 'SCREENING', label: 'Screening', colorClass: 'bg-surface-gold text-accent-gold' },
-  { key: 'INTERVIEW_SCHEDULED', label: 'Interview', colorClass: 'bg-surface-teal text-accent-teal' },
-  { key: 'OFFERED', label: 'Offer', colorClass: 'bg-violet-100 text-violet-700' },
-  { key: 'HIRED', label: 'Hired', colorClass: 'bg-success-bg text-success' },
-];
-
 // TODO: Consolidate with backend-provided statusCssClass from ApplicationResponse
 function getStatusColor(status: string): string {
   switch (status) {
@@ -152,27 +145,6 @@ function renderStars(rating: number) {
  * four-star judgement dressed as a measurement to the nearest percent. The scale has five points;
  * presenting it as a hundred implies a precision nobody entered and nobody can act on.
  */
-function getRatingBadge(rating: number | undefined) {
-  if (!rating) {
-    return <span className="text-xs text-muted-foreground">Not rated</span>;
-  }
-  const rounded = Math.max(0, Math.min(5, Math.round(rating)));
-  return (
-    <span
-      className="inline-flex items-center gap-0.5 text-accent-gold"
-      role="img"
-      aria-label={`${rounded} out of 5`}
-    >
-      {[1, 2, 3, 4, 5].map((n) => (
-        <StarIcon
-          key={n}
-          className={`w-3.5 h-3.5 ${n <= rounded ? 'fill-current' : 'text-border'}`}
-        />
-      ))}
-    </span>
-  );
-}
-
 const PAGE_SIZE = 20;
 
 export default function ApplicationsPage() {
@@ -182,19 +154,16 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
   const [departmentFilter, setDepartmentFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState<'submittedAt' | 'status' | 'rating'>('submittedAt');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [summary, setSummary] = useState<ApplicationSummary | null>(null);
+  const [activeFilter, setActiveFilter] = useState('unscreened');
   const [aiSearchMode, setAiSearchMode] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [expandedDetailSections, setExpandedDetailSections] = useState<Record<string, boolean>>({});
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [activeModalTab, setActiveModalTab] = useState<'overview' | 'screening' | 'feedback'>('overview');
-  const [activePipelineStage, setActivePipelineStage] = useState<string | null>(null);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -202,17 +171,22 @@ export default function ApplicationsPage() {
     setExpandedDetailSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const loadApplications = useCallback(async (page: number, search: string, status: string, sort: string, direction: string) => {
+  const loadApplications = useCallback(async (page: number, search: string, statuses: string[], department: string) => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
       params.append('page', String(page));
       params.append('size', String(PAGE_SIZE));
-      params.append('sort', sort);
-      params.append('direction', direction);
+      // The server orders the whole queue by longest wait; the page is a slice of that order
+      // rather than a re-sort of an arbitrary twenty rows.
+      params.append('sort', QUEUE_SORT.field);
+      params.append('direction', QUEUE_SORT.direction);
       if (search) params.append('search', search);
-      if (status !== 'ALL') params.append('status', status);
+      if (statuses.length > 0) params.append('status', statuses.join(','));
+      // Filtered server-side. This was a browser-side filter over the loaded page, against a
+      // hardcoded department list that matched nothing on this tenant.
+      if (department !== 'ALL') params.append('department', department);
 
       const response = await apiFetch(`/api/applications?${params.toString()}`);
       if (response.ok) {
@@ -243,71 +217,61 @@ export default function ApplicationsPage() {
     }
   }, []);
 
+  const loadSummary = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/applications/summary');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      setSummary(await response.json());
+    } catch {
+      // Left null rather than zeroed. Every figure derived from it is then omitted, because a
+      // failed request must not render as "nothing is waiting".
+      setSummary(null);
+    }
+  }, []);
+
+  const statusesFor = (filterKey: string) =>
+    QUEUE_FILTERS.find((filter) => filter.key === filterKey)?.statuses ?? [];
+
   useEffect(() => {
-    loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
-  }, [currentPage, statusFilter, sortBy, sortDir, loadApplications]);
+    loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
+    // searchTerm is deliberately absent: it is debounced and drives its own load, so including it
+    // here would fire a second request on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, activeFilter, departmentFilter, loadApplications]);
+
+  useEffect(() => {
+    loadSummary();
+  }, [loadSummary]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setCurrentPage(0);
-      loadApplications(0, value, statusFilter, sortBy, sortDir);
+      loadApplications(0, value, statusesFor(activeFilter), departmentFilter);
     }, 400);
   };
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
-    setActivePipelineStage(null);
+  const applyFilter = (filterKey: string) => {
+    setActiveFilter(filterKey);
     setCurrentPage(0);
   };
 
   const handleDepartmentFilterChange = (value: string) => {
     setDepartmentFilter(value);
-  };
-
-  const handleSortChange = (value: string) => {
-    const [field, dir] = value.split('-');
-    setSortBy(field as typeof sortBy);
-    setSortDir(dir as typeof sortDir);
     setCurrentPage(0);
   };
 
-  const handlePipelineStageClick = (stageKey: string) => {
-    if (activePipelineStage === stageKey) {
-      setActivePipelineStage(null);
-      setStatusFilter('ALL');
-    } else {
-      setActivePipelineStage(stageKey);
-      setStatusFilter(stageKey);
-    }
-    setCurrentPage(0);
-  };
+  // The server already returns the queue in wait order. This keeps anything closed below anything
+  // live, which submission order alone does not express.
+  const rows = byLongestWait(applications);
 
-  const clearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('ALL');
-    setDepartmentFilter('ALL');
-    setActivePipelineStage(null);
-    setCurrentPage(0);
-    loadApplications(0, '', 'ALL', sortBy, sortDir);
-  };
-
-  // Only offer departments that exist in the data, so the filter can never return an empty table
-  // for a department nobody works in.
-  const departmentOptions = Array.from(
-    new Set(applications.map(app => app.department).filter(Boolean))
-  ).sort();
-
-  const filteredByDepartment = departmentFilter === 'ALL'
-    ? applications
-    : applications.filter(app => app.department === departmentFilter);
-
-  // Compute pipeline counts from current application data
-  const pipelineCounts = applications.reduce<Record<string, number>>((acc, app) => {
-    acc[app.status] = (acc[app.status] || 0) + 1;
-    return acc;
-  }, {});
+  const atOffer = summary
+    ? ['OFFER_PENDING', 'OFFERED', 'OFFER_ACCEPTED'].reduce(
+        (total, status) => total + (summary.countsByStatus[status] ?? 0),
+        0
+      )
+    : null;
 
   /**
    * Advance a candidate one pipeline stage.
@@ -317,7 +281,7 @@ export default function ApplicationsPage() {
    * order and the verification gate, so this defers to it rather than reimplementing either, and
    * surfaces a refusal in the API's own words.
    */
-  const handleAdvanceStage = async (applicationId: number) => {
+  const handleAdvanceStage = async (applicationId: string) => {
     setAdvancing(true);
     try {
       const response = await apiFetch(
@@ -326,7 +290,7 @@ export default function ApplicationsPage() {
       );
       if (!response.ok) throw new Error(await refusalMessage(response));
       toast('Candidate advanced to the next stage', 'success');
-      loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
+      loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
       setSelectedApplication(null);
     } catch (error: unknown) {
       toast(error instanceof Error ? error.message : 'Could not advance this candidate', 'error');
@@ -335,7 +299,7 @@ export default function ApplicationsPage() {
     }
   };
 
-  const handleWithdraw = async (applicationId: number, reason: string) => {
+  const handleWithdraw = async (applicationId: string, reason: string) => {
     try {
       const response = await apiFetch(`/api/applications/${applicationId}/withdraw`, {
         method: 'POST',
@@ -343,7 +307,7 @@ export default function ApplicationsPage() {
         body: JSON.stringify({ reason }),
       });
       if (response.ok) {
-        loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir);
+        loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter);
         setSelectedApplication(null);
       }
     } catch (error) {
@@ -354,7 +318,7 @@ export default function ApplicationsPage() {
   const actions = (
     <div className="flex items-center gap-3">
       <button
-        onClick={() => loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir)}
+        onClick={() => loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter)}
         className="inline-flex items-center px-3 py-2 border border-border text-sm font-medium rounded-full text-foreground hover:bg-accent"
         aria-label="Refresh applications list"
       >
@@ -386,7 +350,7 @@ export default function ApplicationsPage() {
         <ErrorState
           title="Unable to load applications"
           message={error}
-          onRetry={() => loadApplications(currentPage, searchTerm, statusFilter, sortBy, sortDir)}
+          onRetry={() => loadApplications(currentPage, searchTerm, statusesFor(activeFilter), departmentFilter)}
           retryLabel="Retry Loading"
         />
       </PageWrapper>
@@ -399,345 +363,253 @@ export default function ApplicationsPage() {
       subtitle="Review, screen and manage candidate applications"
       actions={actions}
     >
-      <div className="space-y-6">
-        {/* ===== Stats Bar ===== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center shrink-0">
-              <DocumentTextIcon className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-extrabold text-foreground leading-none">{totalElements}</h3>
-              <p className="text-[0.8125rem] text-muted-foreground mt-1">Total Applications</p>
-            </div>
-          </div>
-          <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center shrink-0">
-              <ClockIcon className="w-6 h-6 text-accent-teal" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-extrabold text-foreground leading-none">
-                {applications.filter(a => a.daysFromSubmission <= 1).length}
-              </h3>
-              <p className="text-[0.8125rem] text-muted-foreground mt-1">New Today</p>
-            </div>
-          </div>
-          <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center shrink-0">
-              <StarIcon className="w-6 h-6 text-accent-gold" />
-            </div>
-            <div>
-              {/* Averaged over the applications that carry a rating, and reported on the scale
-                  people entered it on. This previously divided by the rated count, multiplied by
-                  twenty, and passed the result through `|| 0` — so an unrated pipeline produced
-                  NaN and rendered a confident "0", which reads as "everyone scored nothing"
-                  rather than "nobody has rated anyone". */}
-              {(() => {
-                const rated = applications.filter(a => a.rating);
-                if (rated.length === 0) {
-                  return (
-                    <>
-                      <h3 className="text-base font-bold text-muted-foreground leading-none pt-1.5">
-                        Not rated
-                      </h3>
-                      <p className="text-[0.8125rem] text-muted-foreground mt-1">Average rating</p>
-                    </>
-                  );
-                }
-                const average = rated.reduce((sum, a) => sum + (a.rating || 0), 0) / rated.length;
-                return (
-                  <>
-                    <h3 className="text-2xl font-extrabold text-foreground leading-none">
-                      {average.toFixed(1)}
-                      <span className="text-base font-semibold text-muted-foreground"> / 5</span>
-                    </h3>
-                    <p className="text-[0.8125rem] text-muted-foreground mt-1">
-                      Average rating &middot; {rated.length} of {applications.length} rated
-                    </p>
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-          <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-xl bg-icon-bg-pink flex items-center justify-center shrink-0">
-              <CheckCircleIcon className="w-6 h-6 text-accent-pink" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-extrabold text-foreground leading-none">
-                {applications.filter(a => a.status === 'SCREENING' || a.status === 'INTERVIEW_SCHEDULED').length}
-              </h3>
-              <p className="text-[0.8125rem] text-muted-foreground mt-1">Shortlisted</p>
-            </div>
-          </div>
-        </div>
+      <div className="space-y-4">
+        <IdentityBand
+          eyebrow="Application triage"
+          title="Applications"
+          subtitle={
+            summary
+              ? `${summary.live} live of ${summary.total} received`
+              : 'Counts unavailable'
+          }
+          figures={
+            summary
+              ? [
+                  {
+                    label: 'Unscreened',
+                    value: summary.unscreened,
+                    tone: (summary.unscreened > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                  },
+                  ...(typeof summary.oldestUnscreenedDays === 'number'
+                    ? [
+                        {
+                          label: 'Oldest unscreened',
+                          value: `${summary.oldestUnscreenedDays} days`,
+                          tone: (summary.oldestUnscreenedDays >= 14 ? 'critical' : 'warning') as
+                            | 'critical'
+                            | 'warning',
+                        },
+                      ]
+                    : []),
+                  ...(atOffer !== null ? [{ label: 'At offer', value: atOffer }] : []),
+                ]
+              : []
+          }
+        />
 
-        {/* ===== Search & Filter Bar ===== */}
-        <div className="enterprise-card p-4">
-          {/* Top row: search + filter toggle + clear */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="relative flex-1 min-w-[200px] max-w-[400px]">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        {summary && summary.unscreened > 0 && (
+          <DecisionBar
+            ask={`${summary.unscreened} ${
+              summary.unscreened === 1 ? 'application has' : 'applications have'
+            } never been screened.`}
+            why={[
+              typeof summary.oldestUnscreenedDays === 'number'
+                ? `The oldest has been waiting ${summary.oldestUnscreenedDays} ${
+                    summary.oldestUnscreenedDays === 1 ? 'day' : 'days'
+                  }.`
+                : null,
+              // Only written when the backlog really is concentrated — see concentration().
+              concentration(summary),
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <PrimaryAction onClick={() => applyFilter('unscreened')}>Screen oldest first</PrimaryAction>
+            <Link href="/applications/manage">
+              <SecondaryAction>Advanced management</SecondaryAction>
+            </Link>
+          </DecisionBar>
+        )}
+
+        {summary ? (
+          <DistributionStrip
+            buckets={FUNNEL.map((stage) => ({
+              label: stage.label,
+              count: stageCount(summary, stage.key) ?? 0,
+              detail:
+                stage.key === 'interview'
+                  ? `${summary.countsByStatus.INTERVIEW_SCHEDULED ?? 0} scheduled, ${
+                      summary.countsByStatus.INTERVIEW_COMPLETED ?? 0
+                    } done`
+                  : undefined,
+            }))}
+            footnote={
+              <>
+                Bar height is volume at each stage — the shape of the funnel, not a target. Rejected,
+                withdrawn and declined are excluded;{' '}
+                <b className="font-bold text-foreground">{summary.total - summary.live}</b> in total.
+              </>
+            }
+          />
+        ) : (
+          !loading && (
+            <p className="text-sm text-muted-foreground px-1">
+              Stage counts are unavailable — the summary could not be loaded.
+            </p>
+          )
+        )}
+
+        <FilterChips
+          chips={QUEUE_FILTERS.map((filter) => ({
+            key: filter.key,
+            label: filter.label,
+            // null and undefined both mean "no count to show"; the chip component speaks
+            // undefined, and it omits the number rather than printing a zero.
+            count: filterCount(summary, filter) ?? undefined,
+          }))}
+          activeKey={activeFilter}
+          onChange={applyFilter}
+          note={
+            <>
+              Sorted by <b className="font-bold text-foreground">longest waiting</b>
+            </>
+          }
+        />
+
+        <div className="enterprise-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex flex-wrap items-center gap-3 justify-between">
+            <div className="relative flex-1 min-w-[240px]">
+              <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
-                type="text"
-                placeholder="Search applicants, positions..."
+                type="search"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                aria-label="Search applications by name, job title, department, or email"
-                className="pl-9 pr-4 py-2 w-full border border-border rounded-control text-[0.8125rem] text-foreground bg-card placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40 transition-colors"
+                placeholder="Search by candidate or job title"
+                aria-label="Search applications"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-control border text-[0.8125rem] font-semibold transition-colors ${
-                showAdvancedFilters
-                  ? 'border-primary text-primary bg-surface-navy'
-                  : 'border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
-              }`}
-            >
-              <FunnelIcon className="w-4 h-4" />
-              Filters
-              <ChevronDownIcon className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
-            </button>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="inline-flex items-center gap-1 px-4 py-2 rounded-full border border-border bg-card text-[0.8125rem] font-semibold text-foreground hover:bg-surface-navy hover:border-primary hover:text-primary transition-colors"
-            >
-              <XCircleIcon className="w-3.5 h-3.5" />
-              Clear
-            </button>
+
+            {/* Options come from the data. The list this replaces was hardcoded to eight
+                departments, none of which this tenant uses. */}
             <button
               type="button"
               onClick={() => setAiSearchMode(!aiSearchMode)}
-              className={`ml-auto inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-control border transition-colors whitespace-nowrap ${
+              aria-pressed={aiSearchMode}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-full border transition-colors whitespace-nowrap ${
                 aiSearchMode
-                  ? 'bg-teal-50 border-teal-300 text-teal-700'
+                  ? 'bg-surface-teal border-accent-teal text-accent-teal'
                   : 'border-border text-muted-foreground hover:bg-accent'
               }`}
             >
               AI Search
             </button>
+
+            {summary && summary.departments.length > 0 && (
+              <select
+                value={departmentFilter}
+                onChange={(e) => handleDepartmentFilterChange(e.target.value)}
+                aria-label="Filter by department"
+                className="px-3 py-2 text-sm rounded-full border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="ALL">All departments</option>
+                {summary.departments.map((department) => (
+                  <option key={department} value={department}>
+                    {department}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
-          {/* Advanced Filters Panel */}
-          {showAdvancedFilters && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Department
-                  </label>
-                  <select
-                    value={departmentFilter}
-                    onChange={(e) => handleDepartmentFilterChange(e.target.value)}
-                    aria-label="Filter by department"
-                    className="py-2 px-3 border border-border rounded-control text-[0.8125rem] text-foreground bg-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                  >
-                    <option value="ALL">All Departments</option>
-                    {departmentOptions.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => handleStatusFilterChange(e.target.value)}
-                    aria-label="Filter by application status"
-                    className="py-2 px-3 border border-border rounded-control text-[0.8125rem] text-foreground bg-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                  >
-                    {STATUS_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Sort By
-                  </label>
-                  <select
-                    value={`${sortBy}-${sortDir}`}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    aria-label="Sort applications"
-                    className="py-2 px-3 border border-border rounded-control text-[0.8125rem] text-foreground bg-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                  >
-                    <option value="submittedAt-desc">Newest first</option>
-                    <option value="submittedAt-asc">Oldest first</option>
-                    <option value="rating-desc">Highest rated</option>
-                    <option value="rating-asc">Lowest rated</option>
-                    <option value="status-asc">Status A-Z</option>
-                    <option value="status-desc">Status Z-A</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Date From
-                  </label>
-                  <input
-                    type="date"
-                    className="py-2 px-3 border border-border rounded-control text-[0.8125rem] text-foreground bg-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                    aria-label="Filter from date"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="px-4 py-1.5 text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-surface-navy rounded-full transition-colors"
-                >
-                  Reset Filters
-                </button>
-                <button
-                  type="button"
-                  onClick={() => loadApplications(0, searchTerm, statusFilter, sortBy, sortDir)}
-                  className="px-4 py-1.5 text-xs font-semibold border border-border rounded-full text-foreground bg-card hover:bg-surface-navy hover:border-primary hover:text-primary transition-colors"
-                >
-                  Apply Filters
-                </button>
-              </div>
+          {aiSearchMode && (
+            <div className="px-5 py-4 border-b border-border">
+              <AiAssistPanel
+                title="AI Smart Search"
+                feature="AI_SEARCH"
+                defaultExpanded
+                description="Search candidates using natural language queries instead of manual filters"
+              >
+                <AiSmartSearch />
+              </AiAssistPanel>
             </div>
           )}
-        </div>
 
-        {/* ===== AI Smart Search Panel ===== */}
-        {aiSearchMode && (
-          <AiAssistPanel title="AI Smart Search" feature="AI_SEARCH" defaultExpanded description="Search candidates using natural language queries instead of manual filters">
-            <AiSmartSearch />
-          </AiAssistPanel>
-        )}
-
-        {/* ===== Status Pipeline Bar ===== */}
-        <div className="enterprise-card p-4">
-          <p className="text-[0.75rem] font-bold uppercase tracking-[0.06em] text-muted-foreground mb-3">
-            Application Pipeline
-          </p>
-          <div className="flex gap-1 flex-wrap lg:flex-nowrap">
-            {PIPELINE_STAGES.map((stage, idx) => (
-              <button
-                key={stage.key}
-                type="button"
-                onClick={() => handlePipelineStageClick(stage.key)}
-                className={`relative flex-1 min-w-[calc(50%-4px)] lg:min-w-0 flex items-center justify-center gap-2 px-3 py-2.5 rounded-control text-[0.75rem] font-semibold transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-sm ${
-                  stage.colorClass
-                } ${activePipelineStage === stage.key ? 'shadow-md -translate-y-0.5 ring-1 ring-current/20' : ''}`}
-                aria-label={`Filter by ${stage.label} status`}
-              >
-                <span>{stage.label}</span>
-                <span className="font-extrabold text-[0.8125rem]">
-                  {pipelineCounts[stage.key] || 0}
-                </span>
-                {idx < PIPELINE_STAGES.length - 1 && (
-                  <ChevronRightIcon className="absolute -right-2 w-4 h-4 opacity-40 hidden lg:block z-[1]" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ===== Applications Table Card ===== */}
-        <div className="enterprise-card overflow-hidden">
-          {/* Table Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <h2 className="text-base font-bold text-foreground">Applications</h2>
-            <span className="text-[0.8125rem] text-muted-foreground font-medium">
-              {totalElements} application{totalElements !== 1 ? 's' : ''}
-              {loading && <span className="ml-2 text-muted-foreground/60">(loading...)</span>}
-            </span>
-          </div>
-
-          {filteredByDepartment.length === 0 ? (
+          {loading ? (
+            <TableSkeleton rows={8} columns={6} />
+          ) : rows.length === 0 ? (
             <EmptyState
-              icon={FunnelIcon}
-              title="No applications"
-              description="No applications match your filters. Try adjusting your search or filter criteria."
+              icon={DocumentTextIcon}
+              title="No applications here"
+              description={
+                activeFilter === 'unscreened'
+                  ? 'Nothing is waiting to be screened.'
+                  : 'No applications match these filters.'
+              }
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full">
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-muted/50 border-b border-border">
-                    <th className="px-4 py-3 text-left text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none">
-                      Applicant Name
+                  <tr className="border-b border-border">
+                    <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Applicant
                     </th>
-                    <th className="px-4 py-3 text-left text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none">
-                      Position
+                    <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Applied for
                     </th>
-                    <th className="px-4 py-3 text-left text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none">
-                      Date Applied
+                    <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Source
                     </th>
-                    <th className="px-4 py-3 text-left text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none">
-                      Score
+                    <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Stage
                     </th>
-                    <th className="px-4 py-3 text-left text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none">
-                      Status
+                    <th className="text-left px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Rating
                     </th>
-                    <th className="px-4 py-3 text-right text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap select-none">
-                      Actions
+                    <th className="text-right px-5 py-3 text-[0.5625rem] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                      Waiting
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredByDepartment.map((app) => {
-                    const name = app.applicantName || 'Unknown';
-                    const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  {rows.map((app) => {
+                    const stars = ratingStars(app.rating);
+                    const waiting = app.daysFromSubmission;
                     return (
-                      <tr key={app.id} className="border-b border-border last:border-b-0 hover:bg-surface-navy transition-colors">
-                        {/* Applicant Cell */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
-                              <span className="text-[0.6875rem] font-bold text-primary-foreground tracking-wide">{initials}</span>
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-foreground">{name}</p>
-                              <p className="text-xs text-muted-foreground">{app.applicantEmail || ''}</p>
-                            </div>
+                      <tr
+                        key={app.id}
+                        onClick={() => setSelectedApplication(app)}
+                        className="border-b border-border last:border-0 hover:bg-accent/50 cursor-pointer"
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="font-semibold text-foreground text-sm">
+                            {app.applicantName || 'Unknown'}
                           </div>
+                          <div className="text-xs text-muted-foreground">{app.applicantEmail}</div>
                         </td>
-                        {/* Position */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="text-sm text-foreground">{app.jobTitle}</p>
-                          <p className="text-xs text-muted-foreground">{app.department}</p>
+                        <td className="px-5 py-3.5">
+                          <div className="text-sm text-foreground">{app.jobTitle}</div>
+                          <div className="text-xs text-muted-foreground">{app.department}</div>
                         </td>
-                        {/* Date Applied */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="text-sm text-foreground">{formatDate(app.submittedAt)}</p>
-                          <p className="text-xs text-muted-foreground">{app.daysFromSubmission}d ago</p>
+                        <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                          {/* Where candidates come from is the one figure that says whether the
+                              job-board spend is working, and it was on the record and off screen. */}
+                          {app.applicationSource || <span className="text-muted-foreground/60">Not recorded</span>}
                         </td>
-                        {/* Score */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          {getRatingBadge(app.rating)}
+                        <td className="px-5 py-3.5">
+                          <StatusPill value={app.status} domain="applicationStatus" size="sm" />
                         </td>
-                        {/* Status */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wider ${getStatusColor(app.status)}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(app.status)}`} />
-                            {app.statusDisplayName}
+                        <td className="px-5 py-3.5">
+                          {stars === null ? (
+                            // Not "0%", and not a progress bar: an unrated application has no
+                            // measurement, which is different from a measurement of nothing.
+                            <span className="text-xs text-muted-foreground">Not rated</span>
+                          ) : (
+                            <span className="text-sm tracking-tight" aria-label={`${stars} out of 5`}>
+                              <span className="text-accent-gold">{'★'.repeat(stars)}</span>
+                              <span className="text-muted-foreground/40">{'★'.repeat(5 - stars)}</span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <span
+                            className={`text-sm font-semibold tabular-nums ${
+                              !isClosed(app.status) && waiting >= 14 ? 'text-error' : 'text-foreground'
+                            }`}
+                          >
+                            {waiting} {waiting === 1 ? 'day' : 'days'}
                           </span>
-                        </td>
-                        {/* Actions */}
-                        <td className="px-4 py-3.5 whitespace-nowrap text-right">
-                          <div className="flex justify-end gap-1">
-                            <button
-                              onClick={() => {
-                                setSelectedApplication(app);
-                                setActiveModalTab('overview');
-                              }}
-                              className="w-8 h-8 rounded-control flex items-center justify-center text-muted-foreground hover:bg-surface-navy hover:text-primary transition-colors"
-                              aria-label={`View application from ${app.applicantName || 'applicant'}`}
-                              title="View Details"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                            </button>
-                          </div>
                         </td>
                       </tr>
                     );
@@ -747,56 +619,30 @@ export default function ApplicationsPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-5 py-3 border-t border-border text-[0.8125rem] text-muted-foreground">
-              <span>
-                Showing {currentPage * PAGE_SIZE + 1}-{Math.min((currentPage + 1) * PAGE_SIZE, totalElements)} of {totalElements} results
+            <div className="px-5 py-3 border-t border-border flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                {/* Says which slice of what, rather than implying the page is the whole set. */}
+                Showing {rows.length} of {totalElements}
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                  onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
                   disabled={currentPage === 0}
-                  className="w-8 h-8 rounded-control border border-border bg-card flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  aria-label="Go to previous page"
-                  title="Previous"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border border-border disabled:opacity-40 hover:bg-accent"
                 >
                   <ChevronLeftIcon className="w-3.5 h-3.5" />
+                  Previous
                 </button>
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                  let pageNum: number;
-                  if (totalPages <= 7) {
-                    pageNum = i;
-                  } else if (currentPage < 4) {
-                    pageNum = i;
-                  } else if (currentPage > totalPages - 4) {
-                    pageNum = totalPages - 7 + i;
-                  } else {
-                    pageNum = currentPage - 3 + i;
-                  }
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      aria-label={`Go to page ${pageNum + 1}`}
-                      aria-current={currentPage === pageNum ? 'page' : undefined}
-                      className={`w-8 h-8 rounded-control border text-[0.8125rem] font-semibold transition-colors ${
-                        currentPage === pageNum
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy'
-                      }`}
-                    >
-                      {pageNum + 1}
-                    </button>
-                  );
-                })}
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {currentPage + 1} / {totalPages}
+                </span>
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages - 1, page + 1))}
                   disabled={currentPage >= totalPages - 1}
-                  className="w-8 h-8 rounded-control border border-border bg-card flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-surface-navy disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  aria-label="Go to next page"
-                  title="Next"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border border-border disabled:opacity-40 hover:bg-accent"
                 >
+                  Next
                   <ChevronRightIcon className="w-3.5 h-3.5" />
                 </button>
               </div>
