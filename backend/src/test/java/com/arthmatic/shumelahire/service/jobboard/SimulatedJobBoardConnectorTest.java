@@ -61,7 +61,7 @@ class SimulatedJobBoardConnectorTest {
     }
 
     @Test
-    void postsWithABoardShapedReferenceAndUrl() {
+    void postsWithABoardShapedReference() {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         JobBoardPosting posting = connector.post("job-1", null);
@@ -69,8 +69,6 @@ class SimulatedJobBoardConnectorTest {
         assertEquals(PostingStatus.POSTED, posting.getStatus());
         assertTrue(posting.getExternalPostId().startsWith("PNET-"),
                 "reference should be recognisable as a PNet one");
-        assertEquals("https://www.pnet.co.za/jobs/" + posting.getExternalPostId(),
-                posting.getExternalUrl());
         assertNotNull(posting.getPostedAt());
         assertNotNull(posting.getExpiresAt());
     }
@@ -183,14 +181,12 @@ class SimulatedJobBoardConnectorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "PNET,            PNET-, https://www.pnet.co.za/jobs/",
-            "CAREER_JUNCTION, CJ-,   https://www.careerjunction.co.za/jobs/",
-            "LINKEDIN,        LI-,   https://www.linkedin.com/jobs/view/",
-            "INDEED,          IND-,  https://za.indeed.com/viewjob?jk=",
+            "PNET,            PNET-",
+            "CAREER_JUNCTION, CJ-",
+            "LINKEDIN,        LI-",
+            "INDEED,          IND-",
     })
-    void eachBoardMintsItsOwnReferenceShape(JobBoardType boardType,
-                                            String expectedPrefix,
-                                            String expectedUrlPrefix) {
+    void eachBoardMintsItsOwnReferenceShape(JobBoardType boardType, String expectedPrefix) {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         var board = new SimulatedJobBoardConnector(
@@ -203,7 +199,23 @@ class SimulatedJobBoardConnectorTest {
         assertEquals(boardType, posting.getBoardType());
         assertTrue(posting.getExternalPostId().startsWith(expectedPrefix),
                 () -> posting.getExternalPostId() + " should start with " + expectedPrefix);
-        assertEquals(expectedUrlPrefix + posting.getExternalPostId(), posting.getExternalUrl());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PNET", "CAREER_JUNCTION", "LINKEDIN", "INDEED"})
+    void publishesNoLinkToAnAdvertThatDoesNotExist(JobBoardType boardType) {
+        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        var board = new SimulatedJobBoardConnector(
+                boardType, repository, auditLogService, SIMULATED_TENANTS);
+        JobBoardPosting posting = board.post("job-1", null);
+
+        // Any URL built for a sandbox posting resolves to the board's own
+        // not-found page. The UI renders its "View" button only when a URL is
+        // present, so the absence removes the affordance instead of offering a
+        // dead link into a third party's site beside a green Published badge.
+        assertNull(posting.getExternalUrl(),
+                () -> boardType + " must not link to an advert it did not create");
     }
 
     @Test

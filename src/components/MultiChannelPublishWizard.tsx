@@ -5,6 +5,7 @@ import { useToast } from '@/components/Toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { jobBoardService } from '@/services/jobBoardService';
 import { AvailableBoard, JobBoardType, BatchPostResult, getBoardDisplayName } from '@/types/jobBoard';
+import BoardLogo from '@/components/BoardLogo';
 
 interface MultiChannelPublishWizardProps {
   jobId: string;
@@ -147,7 +148,8 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
                       : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950'
                   }`}
                 >
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="flex items-center gap-3 text-sm font-medium text-foreground">
+                    <BoardLogo boardType={result.boardType} size="sm" />
                     {result.boardDisplayName}
                   </span>
                   {result.success ? (
@@ -198,6 +200,7 @@ export default function MultiChannelPublishWizard({ jobId, isOpen, onClose, onCo
                     onChange={() => toggleBoard(board.type)}
                     className="h-4 w-4 text-violet-600 border-border rounded focus:ring-gold-500"
                   />
+                  <BoardLogo boardType={board.type} size="md" className="ml-3" />
                   <div className="ml-3">
                     <span className="text-sm font-medium text-foreground">
                       {board.displayName}

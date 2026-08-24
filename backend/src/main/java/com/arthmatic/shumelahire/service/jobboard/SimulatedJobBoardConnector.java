@@ -95,7 +95,13 @@ public class SimulatedJobBoardConnector implements JobBoardConnector {
 
         String externalId = externalReference(jobPostingId);
         posting.setExternalPostId(externalId);
-        posting.setExternalUrl(postingUrl(externalId));
+        // Deliberately no externalUrl. A sandbox posting has no advert on the
+        // board, so any URL built for it resolves to that board's own
+        // not-found page — a dead link into a third party's site, rendered as
+        // a "View" button next to a green Published badge. The UI only shows
+        // that button when a URL is present, so leaving it null removes the
+        // affordance rather than offering one that cannot work.
+        posting.setExternalUrl(null);
         posting.setStatus(PostingStatus.POSTED);
         posting.setPostedAt(LocalDateTime.now());
         posting.setExpiresAt(LocalDateTime.now().plusDays(POSTING_LIFETIME_DAYS));
@@ -200,13 +206,4 @@ public class SimulatedJobBoardConnector implements JobBoardConnector {
         };
     }
 
-    private String postingUrl(String externalId) {
-        return switch (boardType) {
-            case PNET -> "https://www.pnet.co.za/jobs/" + externalId;
-            case CAREER_JUNCTION -> "https://www.careerjunction.co.za/jobs/" + externalId;
-            case INDEED -> "https://za.indeed.com/viewjob?jk=" + externalId;
-            case LINKEDIN -> "https://www.linkedin.com/jobs/view/" + externalId;
-            default -> null;
-        };
-    }
 }

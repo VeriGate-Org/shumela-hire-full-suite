@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { getEnumLabel } from '@/utils/enumLabels';
+import { JobBoardType } from '@/types/jobBoard';
+import BoardLogo from '@/components/BoardLogo';
 import { RealTimeMetrics } from '../../analytics';
 import { DashboardWidget, PerformanceMetrics, DataExplorer } from '../../dashboard';
 
@@ -49,6 +51,16 @@ interface SourceChannel {
 // Colour is assigned by position, so the largest channel always reads the same
 // way regardless of which channel it happens to be for a given tenant.
 const CHANNEL_COLORS = ['bg-cta', 'bg-primary', 'bg-green-500', 'bg-accent-teal', 'bg-gray-500'];
+
+// Sources that name a board this product publishes to. The value and the board
+// are the same brand seen from two directions — an advert we posted, and the
+// applications it returned — so the same mark identifies both.
+const SOURCE_TO_BOARD: Record<string, JobBoardType | undefined> = {
+  PNET: JobBoardType.PNET,
+  CAREER_JUNCTION: JobBoardType.CAREER_JUNCTION,
+  LINKEDIN: JobBoardType.LINKEDIN,
+  INDEED: JobBoardType.INDEED,
+};
 
 export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashboardProps) {
   const [metrics, setMetrics] = useState<MetricItem[]>([]);
@@ -281,11 +293,17 @@ export default function RecruiterDashboard({ selectedTimeframe }: RecruiterDashb
                       className="flex items-center justify-between p-3 bg-muted rounded-card"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div
-                          className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                            CHANNEL_COLORS[index % CHANNEL_COLORS.length]
-                          }`}
-                        />
+                        {/* A channel that IS a board carries its mark; the rest
+                            keep the colour dot, so the two read as one list. */}
+                        {SOURCE_TO_BOARD[channel.source] ? (
+                          <BoardLogo boardType={SOURCE_TO_BOARD[channel.source]!} size="sm" />
+                        ) : (
+                          <div
+                            className={`w-3 h-3 mx-1 rounded-full flex-shrink-0 ${
+                              CHANNEL_COLORS[index % CHANNEL_COLORS.length]
+                            }`}
+                          />
+                        )}
                         <span className="font-medium text-foreground truncate">{channel.label}</span>
                       </div>
                       <div className="text-sm text-muted-foreground flex-shrink-0 ml-3">

@@ -76,14 +76,14 @@ VACANCIES = [
     ("454071c0-870c-4d16-85af-5b838f353eec", "HR Business Partner", "LINKEDIN", 2),
 ]
 
-# Must match SimulatedJobBoardConnector.externalReference / postingUrl, so a
-# row seeded here and one published live during the demonstration look the same.
+# Must match SimulatedJobBoardConnector.externalReference, so a row seeded here
+# and one published live during the demonstration look the same.
+#
+# No externalUrl is written, for the same reason the connector stopped setting
+# one: a sandbox posting has no advert on the board, so any URL built for it
+# resolves to that board's not-found page — a dead link into a third party's
+# site, rendered as a "View" button beside a green Published badge.
 BOARD_PREFIX = {"PNET": "PNET", "CAREER_JUNCTION": "CJ", "LINKEDIN": "LI"}
-BOARD_URL = {
-    "PNET": "https://www.pnet.co.za/jobs/",
-    "CAREER_JUNCTION": "https://www.careerjunction.co.za/jobs/",
-    "LINKEDIN": "https://www.linkedin.com/jobs/view/",
-}
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 now = datetime.now(timezone.utc)
@@ -313,7 +313,6 @@ def build_postings():
                 "boardType": {"S": board_type},
                 "status": {"S": "POSTED"},
                 "externalPostId": {"S": external_id},
-                "externalUrl": {"S": BOARD_URL[board_type] + external_id},
                 "postedAt": {"S": iso(posted_at)},
                 "expiresAt": {"S": iso(expires_at)},
                 "viewCount": {"N": str(views)},
