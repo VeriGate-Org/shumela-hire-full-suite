@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
@@ -24,10 +24,9 @@ import {
   waitingDays,
   waitingOn,
 } from './queue';
-import { DocumentTextIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const PAGE_SIZE = 20;
-const SEARCH_DEBOUNCE_MS = 400;
 
 function formatDate(value: string | Date): string {
   return new Date(value).toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -40,17 +39,14 @@ export default function RequisitionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [showNewRequisition, setShowNewRequisition] = useState(false);
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const filter = QUEUE_FILTERS.find((f) => f.key === activeFilter) ?? QUEUE_FILTERS[0];
 
-  const loadRequisitions = useCallback(async (page: number, statuses: RequisitionStatus[], search: string) => {
+  const loadRequisitions = useCallback(async (page: number, statuses: RequisitionStatus[]) => {
     setLoading(true);
     setError(null);
     try {
@@ -61,7 +57,6 @@ export default function RequisitionsPage() {
       // Every filter maps to at most one status, so the server does the filtering and the pager
       // reports a total that matches what is on screen.
       if (statuses.length === 1) params.append('status', statuses[0]);
-      if (search.trim()) params.append('search', search.trim());
 
       const response = await apiFetch(`/api/requisitions?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to load requisitions. Please try again.');
@@ -97,21 +92,12 @@ export default function RequisitionsPage() {
   }, []);
 
   useEffect(() => {
-    loadRequisitions(currentPage, filter.statuses, debouncedSearch);
-  }, [currentPage, filter.statuses, debouncedSearch, loadRequisitions]);
+    loadRequisitions(currentPage, filter.statuses);
+  }, [currentPage, filter.statuses, loadRequisitions]);
 
   useEffect(() => {
     loadSummary();
   }, [loadSummary]);
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      setDebouncedSearch(value);
-      setCurrentPage(0);
-    }, SEARCH_DEBOUNCE_MS);
-  };
 
   const rows = useMemo(() => byLongestWait(requisitions), [requisitions]);
 
@@ -229,26 +215,24 @@ export default function RequisitionsPage() {
           }
         />
 
-        <div className="border-b border-border px-4 py-3">
-          <div className="relative max-w-md">
-            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search by job title, department or location…"
-              aria-label="Search requisitions"
-              className="w-full rounded-control border border-border bg-card py-2 pl-9 pr-3 text-[0.8125rem] text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
-            />
-          </div>
-        </div>
+        {/*
+          No search box.
+
+          The old page had one, and it never worked: GET /api/requisitions accepts `status` and a
+          Pageable and nothing else, and RequisitionDataRepository has no search method at all — so
+          the `search` parameter it sent was silently discarded and the results came back
+          unfiltered. Typing a job title appeared to do nothing, which reads as a broken page.
+
+          Re-skinning that control would have shipped the same lie in better clothes. It comes back
+          when the endpoint can answer it.
+        */}
 
         {error ? (
           <div className="p-5">
             <ErrorState
               title="Failed to load requisitions"
               message={error}
-              onRetry={() => loadRequisitions(currentPage, filter.statuses, debouncedSearch)}
+              onRetry={() => loadRequisitions(currentPage, filter.statuses)}
             />
           </div>
         ) : loading && rows.length === 0 ? (
@@ -259,7 +243,7 @@ export default function RequisitionsPage() {
               icon={DocumentTextIcon}
               title="Nothing here"
               description={
-                activeFilter === 'all' && !searchTerm
+                activeFilter === 'all'
                   ? 'No requisitions have been raised yet.'
                   : 'No requisitions match this filter.'
               }
@@ -380,7 +364,7 @@ export default function RequisitionsPage() {
           onCancel={() => setShowNewRequisition(false)}
           onSuccess={() => {
             setShowNewRequisition(false);
-            loadRequisitions(currentPage, filter.statuses, debouncedSearch);
+            loadRequisitions(currentPage, filter.statuses);
             loadSummary();
             toast('Requisition created', 'success');
           }}
