@@ -48,6 +48,9 @@ public class DotsAfricaService implements BackgroundCheckService {
     private ApplicationDataRepository applicationRepository;
 
     @Autowired
+    private ApplicationJobPostingResolver jobPostingResolver;
+
+    @Autowired
     private AuditLogService auditLogService;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -387,8 +390,16 @@ public class DotsAfricaService implements BackgroundCheckService {
         }
 
         Map<String, VerificationSummaryDTO> result = new HashMap<>();
+        // Applications on one vacancy share a posting, so resolve each posting once per batch
+        // rather than once per application — this feeds the pipeline board, which is already the
+        // slowest screen in the product.
+        Map<String, JobPosting> postingCache = new HashMap<>();
         for (Application app : applications) {
             JobPosting jobPosting = app.getJobPosting();
+            if (jobPosting == null && app.getJobPostingId() != null) {
+                jobPosting = postingCache.computeIfAbsent(app.getJobPostingId(),
+                        id -> jobPostingResolver.resolve(app).orElse(null));
+            }
             List<String> requiredTypes = List.of();
             boolean enforce = false;
 
@@ -414,7 +425,9 @@ public class DotsAfricaService implements BackgroundCheckService {
 
     @Override
     public void enforceBackgroundCheckCompletion(Application application) {
-        JobPosting jobPosting = application.getJobPosting();
+        // See ApplicationJobPostingResolver: the relation is never hydrated on DynamoDB, so
+        // reading it directly made this a no-op in production.
+        JobPosting jobPosting = jobPostingResolver.resolve(application).orElse(null);
         if (jobPosting == null || !Boolean.TRUE.equals(jobPosting.getEnforceCheckCompletion())) {
             return;
         }

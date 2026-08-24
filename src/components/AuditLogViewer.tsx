@@ -26,7 +26,14 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
       const response = await apiFetch(`/api/audit/entity/REQUISITION/${requisitionId}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch audit logs');
+        // Carry the status. A 403 means the signed-in role may not read the trail — a different
+        // problem, with a different fix, from the trail being unavailable. Collapsing both into one
+        // opaque sentence is what left this failure undiagnosed for as long as it was.
+        throw new Error(
+          response.status === 403
+            ? 'Your role does not have permission to view this requisition\'s audit trail (HTTP 403).'
+            : `Failed to fetch audit logs (HTTP ${response.status}).`
+        );
       }
 
       const result = await response.json();
@@ -54,11 +61,14 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
     });
   };
 
+  // Actions are stored as constants (REQUISITION_SUBMITTED). Only the first letter was being
+  // cased, so the rest stayed upper and the column read as raw enum text — the complaint made
+  // about several other screens in the 22 August verification pass.
   const formatAction = (action: string) => {
     return action
       .replace(/[_-]/g, ' ')
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
 
@@ -78,14 +88,17 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ requisitionId, classNam
     return JSON.stringify(details);
   };
 
+  // Matched case-insensitively: every action the backend writes is upper case, so these lower-case
+  // tests never matched and every badge rendered grey regardless of what had happened.
   const getActionBadgeColor = (action: string) => {
-    if (action.includes('approve') || action.includes('created')) {
+    const a = action.toLowerCase();
+    if (a.includes('approve') || a.includes('created')) {
       return 'bg-green-100 text-green-800';
     }
-    if (action.includes('reject')) {
+    if (a.includes('reject') || a.includes('delete')) {
       return 'bg-red-100 text-red-800';
     }
-    if (action.includes('updated')) {
+    if (a.includes('updated') || a.includes('submitted')) {
       return 'bg-gold-100 text-gold-800';
     }
     return 'bg-muted text-muted-foreground';

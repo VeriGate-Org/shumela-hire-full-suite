@@ -54,6 +54,55 @@ public class AgencyPortalService {
             .orElseThrow(() -> new RuntimeException("Agency not found: " + id));
     }
 
+    /**
+     * Update an existing agency in place.
+     * <p>
+     * Until this existed the UI's "Edit Agency" form had nowhere to send its changes, so it
+     * posted to {@code /register} instead and every edit minted a duplicate under a new id while
+     * leaving the original untouched. Four agencies on the IDC tenant were three attempts to
+     * rename one of them.
+     * <p>
+     * <strong>Status is deliberately not updatable here.</strong> It is owned by
+     * {@link #approveAgency} and {@link #suspendAgency}, which enforce
+     * {@link AgencyStatus#canTransitionTo}. Accepting it on this path would let an edit approve an
+     * agency silently, bypassing that check — the identity, not the standing, is what this edits.
+     * {@code id}, {@code status} and {@code createdAt} are all preserved from the stored record
+     * regardless of what the request body carries.
+     */
+    @Transactional
+    public AgencyProfile updateAgency(String id, AgencyProfile updates) {
+        AgencyProfile existing = getAgency(id);
+
+        existing.setAgencyName(updates.getAgencyName());
+        existing.setRegistrationNumber(updates.getRegistrationNumber());
+        existing.setContactPerson(updates.getContactPerson());
+        existing.setContactEmail(updates.getContactEmail());
+        existing.setContactPhone(updates.getContactPhone());
+        existing.setSpecializations(updates.getSpecializations());
+        existing.setFeePercentage(updates.getFeePercentage());
+        existing.setContractStartDate(updates.getContractStartDate());
+        existing.setContractEndDate(updates.getContractEndDate());
+        existing.setBeeLevel(updates.getBeeLevel());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        AgencyProfile saved = agencyProfileRepository.save(existing);
+        logger.info("Agency updated: {} ({})", saved.getAgencyName(), id);
+        return saved;
+    }
+
+    /**
+     * Remove an agency profile.
+     * <p>
+     * The repository's {@code deleteById} partitions on the current tenant, so this cannot reach
+     * another tenant's record.
+     */
+    @Transactional
+    public void deleteAgency(String id) {
+        AgencyProfile agency = getAgency(id);
+        agencyProfileRepository.deleteById(id);
+        logger.info("Agency deleted: {} ({})", agency.getAgencyName(), id);
+    }
+
     @Transactional
     public AgencyProfile approveAgency(String agencyId) {
         AgencyProfile agency = getAgency(agencyId);

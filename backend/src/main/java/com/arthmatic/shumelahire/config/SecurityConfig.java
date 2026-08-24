@@ -128,6 +128,13 @@ public class SecurityConfig {
 
                 // Admin endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasRole("ADMIN")
+                // The per-entity audit lookup backs the audit trail shown on a record (e.g. a
+                // requisition), so the roles that work the record must be able to read it. This must
+                // stay ahead of the broad rule below, which otherwise refuses them before the
+                // controller's own @PreAuthorize is ever consulted. The wider audit endpoints —
+                // /all, /user, /action, /range — remain admin-only.
+                .requestMatchers(new AntPathRequestMatcher("/api/audit/entity/**", "GET"))
+                    .hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
                 .requestMatchers(new AntPathRequestMatcher("/api/audit/**")).hasAnyRole("ADMIN", "HR_MANAGER")
                 .requestMatchers(new AntPathRequestMatcher("/api/users/manage/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
@@ -150,7 +157,7 @@ public class SecurityConfig {
 
                 // Application management endpoints
                 .requestMatchers(new AntPathRequestMatcher("/api/applications/manage/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER")
-                .requestMatchers(new AntPathRequestMatcher("/api/applications/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT")
+                .requestMatchers(new AntPathRequestMatcher("/api/applications/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
                 .requestMatchers(new AntPathRequestMatcher("/api/applicants/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER", "HIRING_MANAGER", "APPLICANT")
 
                 // Internal jobs
