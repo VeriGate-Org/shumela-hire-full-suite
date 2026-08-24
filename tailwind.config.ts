@@ -102,6 +102,8 @@ const config: Config = {
       'band-accent': 'var(--band-accent)',
       'band-accent-fill': 'var(--band-accent-fill)',
       'band-accent-line': 'var(--band-accent-line)',
+      'band-critical': 'var(--band-critical)',
+      'band-positive': 'var(--band-positive)',
       // Theme-aware semantic colors using CSS variables
       background: 'var(--background)',
       foreground: 'var(--foreground)',

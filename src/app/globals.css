@@ -84,6 +84,11 @@
   --band-accent: #F1C54B;
   --band-accent-fill: rgba(241, 197, 75, 0.11);
   --band-accent-line: rgba(241, 197, 75, 0.34);
+  /* State on the band needs its own values. The page palette's --critical (#D63050) and --teal
+     (#047469) are chosen against a light surface and are far too dark on this navy — teal in
+     particular is close to invisible on it. These are the same hues lifted to read on the plate. */
+  --band-critical: #FF8B9E;
+  --band-positive: #5FD6C4;
 
   /* Stripe Dual-Layer Shadows — elevated baseline */
   --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
