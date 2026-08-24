@@ -93,6 +93,9 @@ interface PerformanceMetrics {
 
 const PerformanceAnalyticsDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
+  // Real per-stage volumes. The funnel below used to be drawn against a hardcoded 1000
+  // applications, so every count in it was a fraction of a number nobody had measured.
+  const [stageVolumes, setStageVolumes] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState('30d');
@@ -113,7 +116,55 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+
+    try {
+      // The funnel's volumes come from recorded pipeline transitions, not from the conversion
+      // percentages. The two answer different questions and only one of them counts people.
+      const pipelineResponse = await apiFetch('/api/pipeline/analytics');
+      if (pipelineResponse.ok) {
+        const data = await pipelineResponse.json();
+        setStageVolumes(data?.funnel ?? null);
+      }
+    } catch {
+      // Leave the funnel to say it has no data rather than draw one from an assumed volume.
+    }
   };
+
+  /**
+   * The five funnel bands, each summing the pipeline stages that belong to it.
+   *
+   * <p>Keys are PipelineStage display names — the API already humanises them. Every non-terminal
+   * stage belongs to exactly one band, including Reference and Background Check: omitting those
+   * would drop the candidates sitting in verification out of the funnel entirely and make the
+   * offer stage look like a bigger cliff than it is. The terminal stages (Rejected, Withdrawn,
+   * Offer Declined, No Show, Duplicate) are deliberately absent — they are exits, not steps.
+   */
+  const FUNNEL_BANDS: Array<{ label: string; stages: string[] }> = [
+    { label: 'Applications', stages: ['Application Received'] },
+    { label: 'Screening', stages: ['Initial Screening', 'Phone Screening'] },
+    { label: 'Interviews', stages: ['First Interview', 'Technical Assessment', 'Second Interview',
+                                    'Panel Interview', 'Manager Interview', 'Final Interview'] },
+    { label: 'Checks', stages: ['Reference Check', 'Background Check'] },
+    { label: 'Offers', stages: ['Offer Preparation', 'Offer Extended', 'Offer Negotiation',
+                                'Offer Accepted'] },
+    { label: 'Hires', stages: ['Hired'] },
+  ];
+
+  const funnel = (() => {
+    if (!stageVolumes) return null;
+    const bands = FUNNEL_BANDS.map(band => ({
+      stage: band.label,
+      count: band.stages.reduce((sum, s) => sum + (stageVolumes[s] ?? 0), 0),
+    }));
+    const top = bands[0].count;
+    // Width is each band's share of the top of the funnel. Using the stage-to-stage conversion
+    // rate — as this did — draws every band at its own step's percentage, so a pipeline
+    // converting steadily rendered as a rectangle rather than a funnel.
+    return bands.map(band => ({
+      ...band,
+      share: top > 0 ? (band.count / top) * 100 : 0,
+    }));
+  })();
 
   const formatNumber = (num: number, decimals: number = 0) => {
     return new Intl.NumberFormat('en-US', {
@@ -282,33 +333,37 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
           {/* Conversion Funnel */}
           <div className="bg-white p-6 rounded-control shadow">
             <h3 className="text-lg font-semibold mb-4">Conversion Funnel</h3>
-            <div className="space-y-4">
-              {[
-                { stage: 'Applications', rate: 100, count: 1000 },
-                { stage: 'Screening', rate: metrics.recruitmentMetrics.conversionRates.applicationToScreening, count: Math.round(1000 * metrics.recruitmentMetrics.conversionRates.applicationToScreening / 100) },
-                { stage: 'Interviews', rate: metrics.recruitmentMetrics.conversionRates.screeningToInterview, count: Math.round(1000 * metrics.recruitmentMetrics.conversionRates.screeningToInterview / 100) },
-                { stage: 'Offers', rate: metrics.recruitmentMetrics.conversionRates.interviewToOffer, count: Math.round(1000 * metrics.recruitmentMetrics.conversionRates.interviewToOffer / 100) },
-                { stage: 'Hires', rate: metrics.recruitmentMetrics.conversionRates.offerToHire, count: Math.round(1000 * metrics.recruitmentMetrics.conversionRates.offerToHire / 100) }
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-700">{item.stage}</span>
-                      <span className="text-sm text-gray-600">{item.count}</span>
+            {funnel === null ? (
+              <p className="text-sm text-gray-500 py-4">
+                Pipeline volumes are unavailable, so this funnel cannot be shown.
+              </p>
+            ) : funnel[0].count === 0 ? (
+              <p className="text-sm text-gray-500 py-4">
+                No pipeline movement has been recorded for this period yet.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {funnel.map((item) => (
+                  <div key={item.stage} className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium text-gray-700">{item.stage}</span>
+                        <span className="text-sm text-gray-600">{formatNumber(item.count)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gold-500 h-2 rounded-full"
+                          style={{ width: `${item.share}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gold-500 h-2 rounded-full"
-                        style={{ width: `${item.rate}%` }}
-                      ></div>
-                    </div>
+                    <span className="ml-4 text-sm font-medium text-gray-900">
+                      {formatNumber(item.share, 1)}%
+                    </span>
                   </div>
-                  <span className="ml-4 text-sm font-medium text-gray-900">
-                    {formatNumber(item.rate, 1)}%
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Source Effectiveness */}
