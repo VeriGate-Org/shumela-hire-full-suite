@@ -227,6 +227,17 @@ public class RequisitionService {
         return delegationMatrixService.routingRationale(requisition);
     }
 
+    /**
+     * The stage this requisition is awaiting, or null if it is not in an approval state.
+     *
+     * <p>Exposed so a caller can show which link of {@link #requiredChain} is the live one without
+     * mapping status back to stage itself — that mapping belongs to the delegation matrix, and a
+     * second copy of it in the front end is how the two drift apart.
+     */
+    public ApprovalStage pendingStage(Requisition requisition) {
+        return delegationMatrixService.pendingStage(requisition);
+    }
+
     // -- Audit ----------------------------------------------------------------
 
     /**

@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.RequisitionRoutingResponse;
 import com.arthmatic.shumelahire.entity.Requisition;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
 import com.arthmatic.shumelahire.entity.User;
@@ -49,6 +50,26 @@ public class RequisitionController {
     public ResponseEntity<Requisition> getById(@PathVariable String id) {
         return requisitionService.findById(id)
                 .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Why this requisition needs the approvers it needs.
+     * GET /api/requisitions/{id}/routing
+     *
+     * <p>Separate from the requisition itself because this controller returns the entity directly,
+     * and widening that shape affects every caller. The routing is derived on each request rather
+     * than stored, so it stays correct if the band or the configured threshold changes.
+     */
+    @GetMapping("/{id}/routing")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
+    public ResponseEntity<RequisitionRoutingResponse> getRouting(@PathVariable String id) {
+        return requisitionService.findById(id)
+                .map(requisition -> ResponseEntity.ok(RequisitionRoutingResponse.of(
+                        requisition,
+                        requisitionService.requiredChain(requisition),
+                        requisitionService.routingRationale(requisition),
+                        requisitionService.pendingStage(requisition))))
                 .orElse(ResponseEntity.notFound().build());
     }
 
