@@ -102,6 +102,11 @@ test.describe('Marketing home — desktop navigation', () => {
   });
 
   test('every nav destination resolves and renders', async ({ page }) => {
+    // Five routes in one test, each compiled on first request by the dev server. That cold
+    // cost alone can exceed the default budget when workers run in parallel.
+    test.slow();
+    page.setDefaultNavigationTimeout(90_000);
+
     for (const { label, href } of NAV_LINKS) {
       const response = await page.goto(href);
       expect(response?.status(), `${label} (${href}) status`).toBeLessThan(400);

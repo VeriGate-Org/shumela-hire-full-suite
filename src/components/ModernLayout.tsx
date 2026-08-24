@@ -8,6 +8,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import { Bars3Icon, QuestionMarkCircleIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import RoleSwitcher from './RoleSwitcher';
 
 interface ModernLayoutProps {
   children: ReactNode;
@@ -100,6 +101,8 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
             >
               <ThemeIcon className="h-4 w-4 text-muted-foreground" />
             </button>
+
+            <RoleSwitcher />
 
             <UserProfile user={user ? { name: user.name, email: user.email, role: user.role } : undefined} />
           </div>

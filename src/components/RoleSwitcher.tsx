@@ -1,135 +1,151 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth, UserRole, ALL_ROLES, ROLE_DISPLAY_NAMES } from '../contexts/AuthContext';
 import { roleConfigurations } from '../config/roleConfig';
-import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, CheckIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 
-interface RoleSwitcherProps {
-  compact?: boolean;
-}
-
-export default function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
+/**
+ * Lets an administrator view the product as another role without signing out.
+ *
+ * The component and `AuthContext.switchRole` both already existed; nothing ever rendered it, so
+ * the only way to see another role's screens was to log out and back in as somebody else.
+ *
+ * **This changes the view, not the session.** `apiFetch` sends the real Cognito token, which still
+ * says ADMIN, so the backend keeps authorising as an administrator no matter what is selected
+ * here. It is a fast way to reach another role's navigation and screens — it is not impersonation,
+ * and it must not be used to show that a control refuses somebody. That needs a real account.
+ *
+ * Hence the gold "Viewing as" treatment while a switch is active: whoever is driving should never
+ * be in any doubt about which of the two they are looking at.
+ */
+export default function RoleSwitcher() {
   const { user, switchRole } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen]);
 
   if (!user) return null;
-  if (user.role !== 'ADMIN' && !(user as any).originalRole) return null;
 
-  const roles = ALL_ROLES;
-  const currentRoleConfig = roleConfigurations[user.role];
+  // switchRole itself refuses anyone whose original role is not ADMIN; this keeps the control
+  // out of the chrome for everybody else rather than offering a button that does nothing.
+  const originalRole = user.originalRole || user.role;
+  if (originalRole !== 'ADMIN') return null;
 
-  const handleRoleSwitch = (role: UserRole) => {
+  const viewingAs = user.role !== originalRole;
+  const current = roleConfigurations[user.role];
+
+  const select = (role: UserRole) => {
     switchRole(role);
     setIsOpen(false);
   };
 
-  if (compact) {
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-control shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold-500"
-        >
-          <span className="mr-2">{currentRoleConfig.logo}</span>
-          <span className="flex-1 text-left truncate">{ROLE_DISPLAY_NAMES[user.role]}</span>
-          <ChevronDownIcon className="w-4 h-4 ml-1" />
-        </button>
-
-        {isOpen && (
-          <div className="absolute right-0 z-60 w-48 mt-1 bg-white border border-gray-200 rounded-control shadow-lg">
-            <div className="py-1">
-              {roles.map((role) => {
-                const roleConfig = roleConfigurations[role];
-                const isActive = role === user.role;
-                
-                return (
-                  <button
-                    key={role}
-                    onClick={() => handleRoleSwitch(role)}
-                    className={`
-                      flex items-center w-full px-4 py-2 text-sm hover:bg-gray-50
-                      ${isActive ? 'bg-gold-50 text-violet-700' : 'text-gray-700'}
-                    `}
-                  >
-                    <span className="mr-3">{roleConfig.logo}</span>
-                    <span className="flex-1 text-left">{ROLE_DISPLAY_NAMES[role]}</span>
-                    {isActive && <CheckIcon className="w-4 h-4 text-gold-600" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="px-4 py-3 border-t border-gray-200">
-      <div className="mb-2">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Switch Role</p>
-      </div>
-      
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-control shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
-        >
-          <span className="mr-3 text-lg">{currentRoleConfig.logo}</span>
-          <div className="flex-1 text-left">
-            <p className="font-medium text-gray-900">{ROLE_DISPLAY_NAMES[user.role]}</p>
-            <p className="text-xs text-gray-500 truncate">{currentRoleConfig.description.split('.')[0]}</p>
-          </div>
-          <ChevronDownIcon className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        data-testid="role-switcher"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        title={
+          viewingAs
+            ? `Viewing as ${ROLE_DISPLAY_NAMES[user.role]} — the session is still ${ROLE_DISPLAY_NAMES[originalRole]}`
+            : 'View as another role'
+        }
+        className={`flex items-center gap-2 rounded-control border px-2.5 py-1.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+          viewingAs
+            ? 'border-cta bg-cta/15 text-cta-foreground dark:text-[#F1C54B]'
+            : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+        }`}
+      >
+        <span aria-hidden="true">{current.logo}</span>
+        <span className="hidden sm:inline max-w-[14rem] truncate">
+          {viewingAs ? `Viewing as ${ROLE_DISPLAY_NAMES[user.role]}` : ROLE_DISPLAY_NAMES[user.role]}
+        </span>
+        <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
 
-        {isOpen && (
-          <>
-            {/* Overlay to close dropdown when clicking outside */}
-            <div 
-              className="fixed inset-0 z-50" 
-              onClick={() => setIsOpen(false)}
-            />
-            
-            <div className="absolute left-0 right-0 z-60 mt-1 bg-white border border-gray-200 rounded-control shadow-xl max-h-80 overflow-y-auto">
-              <div className="py-2">
-                {roles.map((role) => {
-                  const roleConfig = roleConfigurations[role];
-                  const isActive = role === user.role;
-                  
-                  return (
-                    <button
-                      key={role}
-                      onClick={() => handleRoleSwitch(role)}
-                      className={`
-                        flex items-start w-full px-4 py-3 text-sm transition-colors duration-150
-                        ${isActive 
-                          ? 'bg-gradient-to-r bg-gold-50 text-violet-700 border-l-4 border-gold-500' 
-                          : 'text-gray-700 hover:bg-gray-50'
-                        }
-                      `}
-                    >
-                      <span className="mr-3 text-lg flex-shrink-0">{roleConfig.logo}</span>
-                      <div className="flex-1 text-left min-w-0">
-                        <p className={`font-medium ${isActive ? 'text-violet-900' : 'text-gray-900'}`}>
-                          {ROLE_DISPLAY_NAMES[role]}
-                        </p>
-                        <p className={`text-xs mt-1 ${isActive ? 'text-gold-600' : 'text-gray-500'} line-clamp-2`}>
-                          {roleConfig.description}
-                        </p>
-                      </div>
-                      {isActive && (
-                        <CheckIcon className="w-5 h-5 text-gold-600 flex-shrink-0 ml-2" />
+      {isOpen && (
+        <div
+          role="menu"
+          className="absolute right-0 z-[60] mt-2 w-72 overflow-hidden rounded-card border border-border bg-card shadow-xl"
+        >
+          <div className="border-b border-border px-4 py-3">
+            <p className="text-[0.625rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              View as another role
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Changes the screens you see. Your session stays{' '}
+              <span className="font-semibold text-foreground">{ROLE_DISPLAY_NAMES[originalRole]}</span>,
+              so the API still answers as one.
+            </p>
+          </div>
+
+          {viewingAs && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => select(originalRole)}
+              className="flex w-full items-center gap-2 border-b border-border bg-surface-gold px-4 py-2.5 text-xs font-semibold text-cta-foreground transition-colors hover:brightness-95"
+            >
+              <ArrowUturnLeftIcon className="h-4 w-4" />
+              Return to {ROLE_DISPLAY_NAMES[originalRole]}
+            </button>
+          )}
+
+          <div className="max-h-80 overflow-y-auto py-1">
+            {ALL_ROLES.map((role) => {
+              const config = roleConfigurations[role];
+              const active = role === user.role;
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => select(role)}
+                  className={`flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors ${
+                    active ? 'bg-surface-navy' : 'hover:bg-muted'
+                  }`}
+                >
+                  <span aria-hidden="true" className="mt-0.5 shrink-0 text-base">
+                    {config.logo}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-foreground">
+                      {ROLE_DISPLAY_NAMES[role]}
+                      {role === originalRole && (
+                        <span className="ml-1.5 text-[0.625rem] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                          your role
+                        </span>
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                      {config.description}
+                    </span>
+                  </span>
+                  {active && <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
