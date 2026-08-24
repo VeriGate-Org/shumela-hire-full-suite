@@ -106,11 +106,6 @@ interface DashboardCounts {
 
 /* Mirrors the backend OfferStatus enum. AWAITING_SIGNATURE and SIGNED were missing, which is
    how an offer sent for e-signature fell out of every tab below. */
-const OFFER_STATUSES = [
-  'DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'SENT', 'AWAITING_SIGNATURE', 'SIGNED',
-  'UNDER_NEGOTIATION', 'ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'
-];
-
 const OFFER_TYPES = [
   'FULL_TIME_PERMANENT', 'PART_TIME_PERMANENT', 'CONTRACT_FIXED_TERM',
   'CONTRACT_RENEWABLE', 'CONSULTANT', 'INTERNSHIP', 'APPRENTICESHIP',
@@ -662,18 +657,6 @@ export default function OfferManagement() {
     });
   };
 
-  const getTimeUntilExpiry = (expiryDate: string) => {
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diffMs = expiry.getTime() - now.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 0) return 'Expired';
-    if (diffHours < 24) return `${diffHours}h remaining`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d remaining`;
-  };
 
   const getTimeSince = (dateString: string) => {
     const now = new Date();
@@ -1141,8 +1124,15 @@ export default function OfferManagement() {
                         and UNDER_NEGOTIATION, so an offer out for signature — a candidate sitting
                         on a signing link with a deadline — showed no clock at all. */}
                     {showsClock(offer) && (
-                      <div className="bg-warning-bg rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] text-amber-800">
-                        <strong>Expires:</strong> {formatDate(offer.offerExpiryDate)} ({getTimeUntilExpiry(offer.offerExpiryDate)})
+                      <div
+                        className={`rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] ${
+                          expiryTone(offer) === 'critical'
+                            ? 'bg-error-bg text-error'
+                            : 'bg-warning-bg text-amber-800'
+                        }`}
+                      >
+                        <strong>Expires:</strong> {formatDate(offer.offerExpiryDate)} (
+                        {expiryLabel(offer)})
                       </div>
                     )}
 
