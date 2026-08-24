@@ -227,10 +227,10 @@ public class ApplicationManagementService {
                             pipelineStage.getDisplayName()));
                 }
 
-                // Enforce background check completion when moving past BACKGROUND_CHECK
+                // The same verification rule the single-candidate path applies, asked in the
+                // same place, so the two cannot drift apart.
                 if (backgroundCheckService != null
-                        && application.getPipelineStage() == PipelineStage.BACKGROUND_CHECK
-                        && pipelineStage.getOrder() > PipelineStage.BACKGROUND_CHECK.getOrder()) {
+                        && PipelineStage.requiresCompletedChecks(application.getPipelineStage(), pipelineStage)) {
                     backgroundCheckService.enforceBackgroundCheckCompletion(application);
                 }
 
