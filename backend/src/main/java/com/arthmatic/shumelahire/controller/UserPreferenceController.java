@@ -23,9 +23,12 @@ public class UserPreferenceController {
     @Autowired
     private UserDataRepository userRepository;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.arthmatic.shumelahire.security.ActorResolver actorResolver;
+
     @GetMapping
     public ResponseEntity<?> getPreferences(Authentication authentication) {
-        Optional<String> userIdOpt = resolveUserId(authentication);
+        Optional<String> userIdOpt = actorResolver.userId(authentication);
         if (userIdOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "User not found"));
         }
@@ -39,7 +42,7 @@ public class UserPreferenceController {
 
     @PutMapping
     public ResponseEntity<?> savePreferences(Authentication authentication, @RequestBody String preferences) {
-        Optional<String> userIdOpt = resolveUserId(authentication);
+        Optional<String> userIdOpt = actorResolver.userId(authentication);
         if (userIdOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "User not found"));
         }
@@ -56,15 +59,4 @@ public class UserPreferenceController {
         return ResponseEntity.ok(Map.of("message", "Preferences saved"));
     }
 
-    private Optional<String> resolveUserId(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof Jwt jwt) {
-            String email = jwt.getClaimAsString("email");
-            if (email != null) {
-                return userRepository.findByEmail(email).map(User::getId);
-            }
-        } else if (authentication.getPrincipal() instanceof User user) {
-            return Optional.of(user.getId());
-        }
-        return Optional.empty();
-    }
 }

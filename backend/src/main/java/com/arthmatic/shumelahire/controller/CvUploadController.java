@@ -99,7 +99,7 @@ public class CvUploadController {
             document.setExtractedText(text);
             Document saved = documentRepository.save(document);
 
-            auditLogService.logUserAction(actingUserId(authentication), "CV_UPLOADED", "DOCUMENT",
+            auditLogService.logUserAction(actingUserId(authentication), "CV_UPLOADED", "DOCUMENT", saved.getId(),
                     String.format("CV '%s' uploaded for applicant %s (%d bytes, text %s)",
                             file.getOriginalFilename(), owner, file.getSize(),
                             text == null ? "not extractable" : text.length() + " chars"));

@@ -109,7 +109,7 @@ public class GDPRComplianceService {
         auditLogService.logUserAction(
             userId, 
             "DATA_EXPORT", 
-            "User", 
+            "User", userId, 
             "User data exported for GDPR compliance"
         );
 
@@ -135,7 +135,7 @@ public class GDPRComplianceService {
             auditLogService.logUserAction(
                 userId, 
                 "DATA_DELETION_REQUEST", 
-                "User", 
+                "User", userId, 
                 "Data deletion requested: " + reason
             );
 
@@ -276,7 +276,7 @@ public class GDPRComplianceService {
         auditLogService.logUserAction(
             userId, 
             "DATA_SUBJECT_REQUEST", 
-            "GDPR", 
+            "GDPR", requestId, 
             String.format("Request ID: %s, Type: %s, Details: %s", requestId, requestType, details)
         );
 

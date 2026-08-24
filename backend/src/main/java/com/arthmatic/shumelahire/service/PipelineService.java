@@ -108,7 +108,7 @@ public class PipelineService {
         auditLogService.logUserAction(
             performedBy,
             "PIPELINE_TRANSITION",
-            "Application",
+            "Application", application.getId(),
             String.format("Moved application %s from %s to %s",
                 application.getId(),
                 currentStage != null ? currentStage.getDisplayName() : "Start",

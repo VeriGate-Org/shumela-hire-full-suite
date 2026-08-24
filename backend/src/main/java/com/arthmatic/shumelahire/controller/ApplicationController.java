@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.arthmatic.shumelahire.security.ActorResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -44,14 +45,17 @@ public class ApplicationController {
     private final DocumentDataRepository documentRepository;
     private final ApplicantDataRepository applicantRepository;
     private final ApplicantService applicantService;
+    private final ActorResolver actorResolver;
 
     public ApplicationController(ApplicationService applicationService,
                                  DocumentDataRepository documentRepository,
                                  ApplicantDataRepository applicantRepository,
-                                 ApplicantService applicantService) {
+                                 ApplicantService applicantService,
+                                 ActorResolver actorResolver) {
         this.applicationService = applicationService;
         this.documentRepository = documentRepository;
         this.applicantRepository = applicantRepository;
+        this.actorResolver = actorResolver;
         this.applicantService = applicantService;
     }
 
@@ -305,12 +309,14 @@ public class ApplicationController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> updateApplicationStatus(
+            Authentication authentication,
             @PathVariable String id,
             @RequestParam ApplicationStatus status,
             @RequestParam(required = false) String notes) {
         try {
             logger.info("Updating application {} to status {}", id, status);
-            ApplicationResponse response = applicationService.updateApplicationStatus(id, status, notes);
+            ApplicationResponse response = applicationService.updateApplicationStatus(
+                    id, status, notes, actorResolver.actingUserId(authentication));
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to update application {} status: {}", id, e.getMessage());
@@ -329,11 +335,13 @@ public class ApplicationController {
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> withdrawApplication(
+            Authentication authentication,
             @PathVariable String id,
             @Valid @RequestBody ApplicationWithdrawRequest request) {
         try {
             logger.info("Withdrawing application {}", id);
-            ApplicationResponse response = applicationService.withdrawApplication(id, request);
+            ApplicationResponse response = applicationService.withdrawApplication(
+                    id, request, actorResolver.actingUserId(authentication));
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to withdraw application {}: {}", id, e.getMessage());
@@ -352,12 +360,14 @@ public class ApplicationController {
     @PostMapping("/{id}/rate")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> rateApplication(
+            Authentication authentication,
             @PathVariable String id,
             @RequestParam Integer rating,
             @RequestParam(required = false) String feedback) {
         try {
             logger.info("Rating application {} with {} stars", id, rating);
-            ApplicationResponse response = applicationService.rateApplication(id, rating, feedback);
+            ApplicationResponse response = applicationService.rateApplication(
+                    id, rating, feedback, actorResolver.actingUserId(authentication));
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to rate application {}: {}", id, e.getMessage());
@@ -448,10 +458,10 @@ public class ApplicationController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<?> deleteApplication(@PathVariable String id) {
+    public ResponseEntity<?> deleteApplication(Authentication authentication, @PathVariable String id) {
         try {
             logger.info("Deleting application {}", id);
-            applicationService.deleteApplication(id);
+            applicationService.deleteApplication(id, actorResolver.actingUserId(authentication));
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to delete application {}: {}", id, e.getMessage());

@@ -680,7 +680,7 @@ public class DataSeederService implements CommandLineRunner {
             
             Application saved = applicationRepository.save(application);
             
-            auditLogService.logUserAction(applicant.getId(), "APPLICATION_SEEDED", "APPLICATION", 
+            auditLogService.logUserAction(applicant.getId(), "APPLICATION_SEEDED", "APPLICATION", saved.getId(), 
                                          "Demo data: " + jobTitle);
             
             logger.info("Created demo application: {} for {}", jobTitle, applicant.getFullName());
