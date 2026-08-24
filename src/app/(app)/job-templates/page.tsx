@@ -1,9 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { JobAdTemplate, JobAdDraft, TemplateStats } from '@/types/jobTemplate';
+import { JobAdTemplate, JobAdDraft } from '@/types/jobTemplate';
 import { jobTemplateService } from '@/services/jobTemplateService';
 import TemplateList from '@/components/templates/TemplateList';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import { TEMPLATE_PLACEHOLDERS } from '@/types/jobTemplate';
+import {
+  LibraryCounts,
+  busiest,
+  countLibrary,
+  hasUsageData,
+} from './library';
 import TemplateEditor from '@/components/templates/TemplateEditor';
 import GenerateFromTemplate from '@/components/templates/GenerateFromTemplate';
 import PageWrapper from '@/components/PageWrapper';
@@ -14,16 +24,14 @@ import {
   PlusIcon,
   SparklesIcon,
   ChartBarIcon,
-  StarIcon,
-  ClockIcon,
 } from '@heroicons/react/24/outline';
 
 const JobTemplatesPage: React.FC = () => {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<'list' | 'editor' | 'generate'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<JobAdTemplate | null>(null);
-  const [stats, setStats] = useState<TemplateStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<JobAdTemplate[]>([]);
 
   // Bug 3: Read URL params on mount to restore the view
   useEffect(() => {
@@ -58,8 +66,12 @@ const JobTemplatesPage: React.FC = () => {
     const initializeData = async () => {
       try {
         setStatsError(null);
-        const templateStats = await jobTemplateService.getTemplateStats();
-        setStats(templateStats);
+        // Archived included: the library's shape is part of what this page reports, and the
+        // archived count was computed by getTemplateStats and displayed nowhere.
+        //
+        // Every figure the band shows is derived from these rows, so the separate stats call is
+        // gone — one source rather than two that can disagree.
+        setTemplates(await jobTemplateService.getAllTemplates({ showArchived: true }));
       } catch (error) {
         console.error('Error initializing template data:', error);
         setStatsError('Failed to load template statistics');
@@ -89,13 +101,15 @@ const JobTemplatesPage: React.FC = () => {
     switchView('list');
     setSelectedTemplate(null);
 
-    const templateStats = await jobTemplateService.getTemplateStats();
-    setStats(templateStats);
+    setTemplates(await jobTemplateService.getAllTemplates({ showArchived: true }));
   };
 
   const handleGenerated = (draft: JobAdDraft) => {
     console.log('Job ad generated:', draft);
-    toast('Job ad draft created successfully. In a real app, this would redirect to the draft editor.', 'success');
+    // Was: '... In a real app, this would redirect to the draft editor.' — developer copy, shipped,
+    // on a screen a client uses. The draft is genuinely created; it is the navigation that is
+    // missing, and saying so plainly is better than admitting to being a prototype.
+    toast('Job ad draft created. Open it from Job Postings to publish it.', 'success');
     switchView('list');
     setSelectedTemplate(null);
   };
@@ -108,12 +122,15 @@ const JobTemplatesPage: React.FC = () => {
   const handleRetryStats = async () => {
     try {
       setStatsError(null);
-      const templateStats = await jobTemplateService.getTemplateStats();
-      setStats(templateStats);
+      setTemplates(await jobTemplateService.getAllTemplates({ showArchived: true }));
     } catch {
-      setStatsError('Failed to load template statistics');
+      setStatsError('Failed to load the template library');
     }
   };
+
+  const counts: LibraryCounts | null = templates.length > 0 ? countLibrary(templates) : null;
+  const usageKnown = hasUsageData(templates);
+  const mostUsed = busiest(templates);
 
   const actions = (
     <div className="flex items-center gap-2 flex-wrap">
@@ -174,76 +191,78 @@ const JobTemplatesPage: React.FC = () => {
       {/* Stats error */}
       {statsError && (
         <ErrorState
-          title="Failed to load statistics"
+          title="Failed to load the template library"
           message={statsError}
           onRetry={handleRetryStats}
         />
       )}
 
-      {/* Stats Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Total Templates */}
-        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-          <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-primary flex items-center justify-center flex-shrink-0">
-            <DocumentTextIcon className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            {stats ? (
-              <>
-                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.totalTemplates}</div>
-                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Total Templates</div>
-              </>
-            ) : (
-              <>
-                <div className="h-7 w-14 rounded-control bg-muted animate-pulse mb-1" />
-                <div className="h-3.5 w-24 rounded-control bg-muted animate-pulse" />
-              </>
-            )}
-          </div>
-        </div>
+      <IdentityBand
+        eyebrow="Job ad template library"
+        title="Job Templates"
+        subtitle={
+          counts
+            ? `${counts.total} ${counts.total === 1 ? 'template' : 'templates'} · source copy for every advert`
+            : 'Library unavailable'
+        }
+        figures={
+          counts
+            ? [
+                ...(usageKnown
+                  ? [{ label: 'Adverts generated', value: counts.advertsGenerated }]
+                  : []),
+                { label: 'In use', value: counts.inUse },
+                {
+                  label: 'Never used',
+                  value: counts.neverUsed,
+                  tone: (counts.neverUsed > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                },
+              ]
+            : []
+        }
+      />
 
-        {/* Most Used Template */}
-        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-          <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center flex-shrink-0">
-            <StarIcon className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            {stats ? (
-              <>
-                <div className="text-base font-extrabold leading-snug text-foreground truncate">
-                  {stats.mostUsedTemplate?.name || 'N/A'}
-                </div>
-                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Most Used Template</div>
-              </>
-            ) : (
-              <>
-                <div className="h-5 w-32 rounded-control bg-muted animate-pulse mb-1" />
-                <div className="h-3.5 w-28 rounded-control bg-muted animate-pulse" />
-              </>
-            )}
-          </div>
-        </div>
+      {counts && usageKnown && mostUsed && (
+        <DecisionBar
+          ask={`${mostUsed.name} has produced ${mostUsed.usageCount} of the ${counts.advertsGenerated} adverts on this tenant.`}
+          why="Every advert a template writes carries whatever is wrong with it, so the one doing most of the work is the one worth reviewing first."
+          tone="owed"
+        >
+          <PrimaryAction onClick={() => handleEdit(mostUsed)}>Review {mostUsed.name}</PrimaryAction>
+          <SecondaryAction onClick={handleCreateNew}>New template</SecondaryAction>
+        </DecisionBar>
+      )}
 
-        {/* Active Templates */}
-        <div className="enterprise-card p-5 flex items-center gap-4 transition-transform hover:-translate-y-px">
-          <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center flex-shrink-0">
-            <ClockIcon className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            {stats ? (
+      {counts ? (
+        <DistributionStrip
+          buckets={[
+            { label: 'In use', count: counts.inUse, detail: 'Produced an advert' },
+            { label: 'Never used', count: counts.neverUsed, detail: 'Created, never drawn on' },
+            { label: 'Archived', count: counts.archived, detail: 'Hidden by default' },
+          ]}
+          footnote={
+            usageKnown ? (
               <>
-                <div className="text-[1.75rem] font-extrabold leading-tight text-foreground">{stats.activeTemplates}</div>
-                <div className="text-[0.8125rem] font-medium text-muted-foreground mt-0.5">Active Templates</div>
+                A template is load-bearing when it is generating adverts — those are the ones worth
+                reviewing.
               </>
             ) : (
               <>
-                <div className="h-7 w-10 rounded-control bg-muted animate-pulse mb-1" />
-                <div className="h-3.5 w-28 rounded-control bg-muted animate-pulse" />
+                {/* True and useful: the demo seed sets usageCount to 0 for every template, so a
+                    ranking there would say nothing. Better to say the data is absent than to show
+                    a library that looks entirely unused. */}
+                <b className="font-bold text-foreground">No usage recorded yet</b> — every template
+                reads zero adverts produced, so this library cannot yet be ranked by what it is
+                doing.
               </>
-            )}
-          </div>
-        </div>
-      </div>
+            )
+          }
+        />
+      ) : (
+        !statsError && (
+          <p className="text-sm text-muted-foreground px-1">Library counts are unavailable.</p>
+        )
+      )}
 
       {/* Two-column content layout (list view) */}
       {activeView === 'list' && (
@@ -300,15 +319,21 @@ const JobTemplatesPage: React.FC = () => {
           <ChartBarIcon className="w-4 h-4 mr-2" />
           Available Placeholders
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          {[
-            '{{jobTitle}}', '{{department}}', '{{location}}', '{{employmentType}}',
-            '{{salaryRange}}', '{{companyName}}', '{{contactEmail}}', '{{applicationDeadline}}'
-          ].map((placeholder) => (
-            <div key={placeholder} className="flex items-center">
+        {/* From TEMPLATE_PLACEHOLDERS rather than a second hardcoded list beside it. The page
+            held eight bare strings duplicating a source that already carries a label, a
+            description and an example for each — two lists that must agree, with nothing keeping
+            them in step. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+          {TEMPLATE_PLACEHOLDERS.map((placeholder) => (
+            <div key={placeholder.key} className="min-w-0">
               <code className="bg-muted px-2 py-1 rounded-control text-xs font-mono text-foreground">
-                {placeholder}
+                {placeholder.key}
               </code>
+              {placeholder.example && (
+                <p className="text-xs text-muted-foreground mt-1 truncate" title={placeholder.example}>
+                  e.g. {placeholder.example}
+                </p>
+              )}
             </div>
           ))}
         </div>

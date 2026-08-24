@@ -88,19 +88,19 @@ export const TEMPLATE_PLACEHOLDERS: TemplatePlaceholder[] = [
     key: '{{jobTitle}}',
     label: 'Job Title',
     description: 'The title of the position',
-    example: 'Senior Software Engineer'
+    example: 'Investment Analyst'
   },
   {
     key: '{{department}}',
     label: 'Department',
     description: 'The department or team',
-    example: 'Engineering'
+    example: 'Strategic Business Unit'
   },
   {
     key: '{{location}}',
     label: 'Location',
     description: 'Work location',
-    example: 'San Francisco, CA'
+    example: 'Sandton, Johannesburg'
   },
   {
     key: '{{employmentType}}',
@@ -118,7 +118,7 @@ export const TEMPLATE_PLACEHOLDERS: TemplatePlaceholder[] = [
     key: '{{companyName}}',
     label: 'Company Name',
     description: 'Name of the company',
-    example: 'TechCorp Inc.'
+    example: 'Industrial Development Corporation'
   },
   {
     key: '{{contactEmail}}',
@@ -130,7 +130,7 @@ export const TEMPLATE_PLACEHOLDERS: TemplatePlaceholder[] = [
     key: '{{applicationDeadline}}',
     label: 'Application Deadline',
     description: 'Last date to apply',
-    example: 'March 31, 2024'
+    example: '31 March 2026'
   }
 ];
 
@@ -155,8 +155,8 @@ export const DEFAULT_TEMPLATE_CONTENT = {
   benefits: `<h3>What We Offer:</h3>
 <ul>
 <li>Competitive salary: {{salaryRange}}</li>
-<li>Comprehensive health, dental, and vision insurance</li>
-<li>401(k) with company matching</li>
+<li>Medical aid contribution</li>
+<li>Provident or pension fund contribution</li>
 <li>Flexible work arrangements</li>
 <li>Professional development opportunities</li>
 <li>Collaborative and inclusive work environment</li>
