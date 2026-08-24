@@ -325,7 +325,10 @@ public class DataSeederService implements CommandLineRunner {
             investmentAnalyst.setSalaryRangeMax(new java.math.BigDecimal("850000"));
             investmentAnalyst.setContactEmail("careers@company.co.za");
             investmentAnalyst.setIsArchived(false);
-            investmentAnalyst.setUsageCount(0);
+            // Seeded so the library can be ranked. With every count at zero the screen cannot
+            // show which templates are load-bearing, which is the question it exists to answer.
+            // Project Manager and Legal Advisor stay at 0 so "never used" is visible too.
+            investmentAnalyst.setUsageCount(31);
             investmentAnalyst.setCreatedBy(seeder);
             investmentAnalyst.setCreatedAt(now);
             investmentAnalyst.setUpdatedAt(now);
@@ -379,7 +382,7 @@ public class DataSeederService implements CommandLineRunner {
             ictBa.setSalaryRangeMax(new java.math.BigDecimal("720000"));
             ictBa.setContactEmail("careers@company.co.za");
             ictBa.setIsArchived(false);
-            ictBa.setUsageCount(0);
+            ictBa.setUsageCount(19);
             ictBa.setCreatedBy(seeder);
             ictBa.setCreatedAt(now.minusDays(1));
             ictBa.setUpdatedAt(now.minusDays(1));
@@ -541,7 +544,7 @@ public class DataSeederService implements CommandLineRunner {
             graduateTrainee.setSalaryRangeMax(new java.math.BigDecimal("320000"));
             graduateTrainee.setContactEmail("graduates@company.co.za");
             graduateTrainee.setIsArchived(false);
-            graduateTrainee.setUsageCount(0);
+            graduateTrainee.setUsageCount(13);
             graduateTrainee.setCreatedBy(seeder);
             graduateTrainee.setCreatedAt(now.minusDays(4));
             graduateTrainee.setUpdatedAt(now.minusDays(4));
