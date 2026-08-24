@@ -6,21 +6,53 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import PageWrapper from '@/components/PageWrapper';
+import { formatSalaryRange } from '@/utils/currency';
+import { getEnumLabel } from '@/utils/enumLabels';
+import { shortRef } from '@/utils/identity';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
   PaperAirplaneIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  DocumentTextIcon,
-  UserIcon,
-  BuildingOfficeIcon
+  MapPinIcon,
+  BuildingOfficeIcon,
+  BriefcaseIcon,
+  CalendarDaysIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 
 interface ApplicationFormData {
   coverLetter: string;
   reasonForApplication: string;
   availabilityDate: string;
+}
+
+/** The vacancy being applied to, as far as the ad endpoint can describe it. */
+interface VacancyDetail {
+  title?: string;
+  department?: string;
+  location?: string;
+  employmentType?: string;
+  closingDate?: string;
+  salaryRangeMin?: number;
+  salaryRangeMax?: number;
+}
+
+function daysUntil(closingDate?: string): number | null {
+  if (!closingDate) return null;
+  const closes = new Date(closingDate);
+  if (Number.isNaN(closes.getTime())) return null;
+  const today = new Date();
+  return Math.ceil((closes.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function formatClosingDate(closingDate: string): string {
+  return new Date(closingDate).toLocaleDateString('en-ZA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 export default function InternalApplicationPage() {
@@ -43,7 +75,7 @@ export default function InternalApplicationPage() {
     return parts.length >= 3 ? parts[2] : '';
   }, [pathname]);
   const jobId = searchParams.get('jobId');
-  const jobTitle = searchParams.get('title') || 'Position';
+  const jobTitle = decodeURIComponent(searchParams.get('title') || 'this position');
   // /apply/<id> (the public candidate entry point) redirects here with
   // ?source=external after login/registration. This page is also reached
   // directly for genuine internal mobility (/internal/jobs -> here, no
@@ -53,6 +85,7 @@ export default function InternalApplicationPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [vacancy, setVacancy] = useState<VacancyDetail | null>(null);
 
   const [formData, setFormData] = useState<ApplicationFormData>({
     coverLetter: '',
@@ -68,8 +101,28 @@ export default function InternalApplicationPage() {
     }
   }, [isLoading, isAuthenticated, router]);
 
+  // Enrich the header with the vacancy's own details. Deliberately silent on
+  // failure: the applicant already has everything they need to apply from the
+  // query string, so a failed lookup should degrade the header, never block
+  // the form or raise an error the applicant cannot act on.
+  useEffect(() => {
+    if (!jobId) return;
+    let cancelled = false;
+    apiFetch(`/api/ads/${jobId}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!cancelled && data) setVacancy(data as VacancyDetail);
+      })
+      .catch(() => {
+        /* header stays on the query-string title */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId]);
+
   const handleInputChange = (field: keyof ApplicationFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +155,7 @@ export default function InternalApplicationPage() {
       }
 
       setSubmitted(true);
-      toast('Application submitted successfully', 'success');
+      toast('Application submitted', 'success');
     } catch (err) {
       console.error('Error submitting application:', err);
       const message = err instanceof Error ? err.message : 'Failed to submit application';
@@ -118,12 +171,14 @@ export default function InternalApplicationPage() {
   }
 
   const jobsHref = isExternal ? '/candidate/jobs' : '/internal/jobs';
+  const heading = vacancy?.title || jobTitle;
+  const closesIn = daysUntil(vacancy?.closingDate);
 
   const backAction = (
     <Link href={jobsHref}>
-      <button className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-full px-4 py-2 transition-colors">
-        <ArrowLeftIcon className="w-4 h-4 mr-2" />
-        {isExternal ? 'Back to Jobs' : 'Back to Job Board'}
+      <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-button px-4 py-2 transition-colors">
+        <ArrowLeftIcon className="w-4 h-4" />
+        {isExternal ? 'Back to jobs' : 'Back to internal jobs'}
       </button>
     </Link>
   );
@@ -131,38 +186,58 @@ export default function InternalApplicationPage() {
   if (submitted) {
     return (
       <PageWrapper
-        title="Application Submitted"
-        subtitle={isExternal ? `Application for ${decodeURIComponent(jobTitle)}` : `Internal application for ${decodeURIComponent(jobTitle)}`}
+        title="Application submitted"
+        subtitle={heading}
         actions={backAction}
       >
-        <div className="max-w-lg mx-auto">
-          <div className="bg-white rounded-control shadow border border-gray-200 p-8 text-center">
-            <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted</h2>
-            <p className="text-gray-600 mb-6">
-              Your {isExternal ? '' : 'internal '}application for <strong>{decodeURIComponent(jobTitle)}</strong> has been submitted successfully.
-            </p>
-            <div className="bg-gold-50 border border-gold-200 rounded-control p-4 mb-6 text-left">
-              <p className="text-sm font-semibold text-gray-900 mb-2">What happens next?</p>
-              <ul className="text-sm text-gray-700 space-y-1">
-                {isExternal ? (
-                  <li>Your application will be reviewed by our recruitment team</li>
-                ) : (
-                  <li>Your application will be prioritised as an internal candidate</li>
-                )}
-                <li>HR will review your application within 3-5 business days</li>
-                <li>You will receive updates via email{isExternal ? '' : ' and the internal portal'}</li>
-              </ul>
+        <div className="max-w-xl mx-auto">
+          <div className="enterprise-card p-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-icon-bg-teal flex items-center justify-center mx-auto mb-5">
+              <CheckCircleIcon className="w-7 h-7 text-accent-teal" />
             </div>
-            <div className="space-y-3">
-              <Link href={jobsHref}>
-                <button className="w-full border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-violet-950 px-4 py-2.5 rounded-full text-sm font-medium uppercase tracking-wider transition-colors">
-                  {isExternal ? 'Browse More Jobs' : 'Browse More Internal Jobs'}
-                </button>
+            <h2 className="text-2xl font-bold text-foreground mb-2">You have applied for {heading}</h2>
+            <p className="text-sm text-muted-foreground mb-7">
+              {isExternal
+                ? 'Your application is now with the recruitment team.'
+                : 'Your application is now with the recruitment team, flagged as an internal candidate.'}
+            </p>
+
+            <ol className="text-left border-t border-border">
+              {[
+                {
+                  label: 'Screening',
+                  detail: 'HR reviews your application within 3–5 business days.',
+                },
+                {
+                  label: 'Updates',
+                  detail: isExternal
+                    ? 'Every change of status reaches you by email.'
+                    : 'Every change of status reaches you by email and in the internal portal.',
+                },
+                {
+                  label: 'Tracking',
+                  detail: 'Follow the application from My Applications at any time.',
+                },
+              ].map((step, index) => (
+                <li key={step.label} className="flex gap-4 py-4 border-b border-border">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full border border-border flex items-center justify-center text-xs font-bold text-muted-foreground">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{step.label}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{step.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-7">
+              <Link href="/candidate/applications" className="flex-1">
+                <button className="btn-cta w-full">View my applications</button>
               </Link>
-              <Link href="/candidate/applications">
-                <button className="w-full border border-gray-300 text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors">
-                  View My Applications
+              <Link href={jobsHref} className="flex-1">
+                <button className="btn-secondary w-full">
+                  {isExternal ? 'Browse more jobs' : 'Browse more internal jobs'}
                 </button>
               </Link>
             </div>
@@ -172,93 +247,140 @@ export default function InternalApplicationPage() {
     );
   }
 
+  const vacancyFacts = [
+    {
+      icon: BuildingOfficeIcon,
+      label: 'Department',
+      value: vacancy?.department,
+    },
+    {
+      icon: MapPinIcon,
+      label: 'Location',
+      value: vacancy?.location,
+    },
+    {
+      icon: BriefcaseIcon,
+      label: 'Employment type',
+      value: vacancy?.employmentType
+        ? getEnumLabel('employmentType', vacancy.employmentType)
+        : undefined,
+    },
+    {
+      icon: BanknotesIcon,
+      label: 'Salary range',
+      value:
+        vacancy?.salaryRangeMin || vacancy?.salaryRangeMax
+          ? formatSalaryRange(vacancy.salaryRangeMin, vacancy.salaryRangeMax)
+          : undefined,
+    },
+  ].filter((fact) => !!fact.value);
+
   return (
     <PageWrapper
-      title={isExternal ? 'Job Application' : 'Internal Job Application'}
-      subtitle={`Applying for: ${decodeURIComponent(jobTitle)} · Requisition ${requisitionId}`}
+      title={isExternal ? 'Apply' : 'Apply internally'}
+      subtitle={`${heading} · ${shortRef('REQ', requisitionId)}`}
       actions={backAction}
     >
-      <div className="space-y-6">
-        {/* Internal Application Benefits — only relevant for genuine internal mobility */}
-        {!isExternal && (
-          <div className="bg-gold-50 border border-gold-200 rounded-control p-6">
-            <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Internal Application Advantages</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gold-500 rounded-full flex items-center justify-center mr-3">
-                  <UserIcon className="w-4 h-4 text-violet-950" />
-                </div>
-                <span className="text-sm text-gray-800">Priority Review</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
-                  <BuildingOfficeIcon className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-sm text-gray-800">Known Performance</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
-                  <DocumentTextIcon className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-sm text-gray-800">Faster Process</span>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* The vacancy — the reason the applicant is on this page, stated first. */}
+        <section className="enterprise-card overflow-hidden">
+          <div className="border-l-4 border-cta px-6 py-5">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {isExternal ? 'You are applying for' : 'Internal vacancy'}
+            </p>
+            <h2 className="text-2xl font-bold text-foreground mt-1.5">{heading}</h2>
 
-        {/* Error Display */}
-        {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-control">
-            <div className="flex">
-              <ExclamationTriangleIcon className="w-5 h-5 text-red-400" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Application Error</h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Application Form */}
-        <div className="bg-white rounded-control shadow border border-gray-200">
-          <form onSubmit={handleSubmit}>
-            {/* Applicant Info (read-only) */}
-            {user && (
-              <div className="px-6 py-6 border-b border-gray-200">
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Your Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-control text-sm text-gray-700">{user.name}</p>
+            {/* Two columns, not four: a salary band and a location are long
+                enough that four cells inside this column truncate them, and a
+                truncated salary is worse than no salary. */}
+            {vacancyFacts.length > 0 && (
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mt-5">
+                {vacancyFacts.map((fact) => (
+                  <div key={fact.label} className="flex items-start gap-2.5">
+                    <fact.icon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <dt className="text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground">
+                        {fact.label}
+                      </dt>
+                      <dd className="text-sm text-foreground mt-0.5">{fact.value}</dd>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-control text-sm text-gray-700">{user.email}</p>
-                  </div>
-                </div>
-              </div>
+                ))}
+              </dl>
             )}
+          </div>
 
-            {/* Application Details */}
-            <div className="px-6 py-6 space-y-4">
-              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Application Details</h3>
+          {vacancy?.closingDate && (
+            <div className="flex items-center gap-2.5 px-6 py-3 border-t border-border bg-muted/40">
+              <CalendarDaysIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                Applications close {formatClosingDate(vacancy.closingDate)}
+                {closesIn !== null && closesIn >= 0 && (
+                  <span className={`ml-2 font-semibold ${closesIn <= 3 ? 'text-accent-pink' : 'text-foreground'}`}>
+                    · {closesIn === 0 ? 'today' : closesIn === 1 ? '1 day left' : `${closesIn} days left`}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+        </section>
 
+        {error && (
+          <div className="enterprise-card border-l-4 border-accent-pink p-4">
+            <div className="flex gap-3">
+              <ExclamationTriangleIcon className="w-5 h-5 text-accent-pink flex-shrink-0 mt-0.5" />
               <div>
-                <label htmlFor="availability-date" className="block text-sm font-medium text-gray-700 mb-1">
-                  Available Start Date
-                </label>
-                <input
-                  type="date"
-                  id="availability-date"
-                  value={formData.availabilityDate}
-                  onChange={(e) => handleInputChange('availabilityDate', e.target.value)}
-                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
+                <h3 className="text-sm font-semibold text-foreground">Your application was not submitted</h3>
+                <p className="text-sm text-muted-foreground mt-1">{error}</p>
               </div>
+            </div>
+          </div>
+        )}
 
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Zone 1 — what IDC already holds. An internal application is short
+              precisely because the organisation already has your record; say
+              so, rather than presenting empty fields the applicant must fill. */}
+          {user && (
+            <section className="enterprise-card p-6">
+              <div className="flex items-baseline justify-between gap-4 mb-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  From your record
+                </h3>
+                <p className="text-xs text-muted-foreground">Already on file — nothing to complete</p>
+              </div>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <dt className="text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    Name
+                  </dt>
+                  <dd className="text-sm text-foreground mt-1">{user.name}</dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="text-[0.6875rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    Email
+                  </dt>
+                  <dd className="text-sm text-foreground mt-1 truncate">{user.email}</dd>
+                </div>
+              </dl>
+            </section>
+          )}
+
+          {/* Zone 2 — the only things the organisation cannot answer for you. */}
+          <section className="enterprise-card p-6">
+            <div className="flex items-baseline justify-between gap-4 mb-5">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Only you can answer
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-accent-pink">*</span> Required
+              </p>
+            </div>
+
+            <div className="space-y-5">
               <div>
-                <label htmlFor="reason-for-application" className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason for Application <span className="text-red-500">*</span>
+                <label htmlFor="reason-for-application" className="form-label">
+                  Why this role <span className="text-accent-pink">*</span>
                 </label>
                 <textarea
                   id="reason-for-application"
@@ -267,54 +389,71 @@ export default function InternalApplicationPage() {
                   aria-required="true"
                   value={formData.reasonForApplication}
                   onChange={(e) => handleInputChange('reasonForApplication', e.target.value)}
-                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder={isExternal
-                    ? 'Why are you interested in this position? What motivates you to apply?'
-                    : 'Why are you interested in this position? What motivates you to make this internal move?'}
+                  className="form-input w-full"
+                  placeholder={
+                    isExternal
+                      ? 'What draws you to this position?'
+                      : 'What draws you to this role, and why now?'
+                  }
                 />
               </div>
 
               <div>
-                <label htmlFor="cover-letter" className="block text-sm font-medium text-gray-700 mb-1">
-                  Cover Letter
+                <label htmlFor="cover-letter" className="form-label">
+                  Cover letter
                 </label>
                 <textarea
                   id="cover-letter"
                   rows={6}
                   value={formData.coverLetter}
                   onChange={(e) => handleInputChange('coverLetter', e.target.value)}
-                  className="w-full border border-gray-300 rounded-control px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder="Describe how your current experience and skills make you a great fit for this role..."
+                  className="form-input w-full"
+                  placeholder={
+                    isExternal
+                      ? 'How does your experience match what the role needs?'
+                      : 'How does your work at IDC so far match what this role needs?'
+                  }
+                />
+              </div>
+
+              <div className="max-w-xs">
+                <label htmlFor="availability-date" className="form-label">
+                  Earliest start date
+                </label>
+                <input
+                  type="date"
+                  id="availability-date"
+                  value={formData.availabilityDate}
+                  onChange={(e) => handleInputChange('availabilityDate', e.target.value)}
+                  className="form-input w-full"
                 />
               </div>
             </div>
+          </section>
 
-            {/* Submission */}
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <p className="text-xs text-gray-500">
-                By submitting, you confirm that all information provided is accurate.
-              </p>
-
-              <button
-                type="submit"
-                disabled={loading || !formData.reasonForApplication}
-                className="inline-flex items-center px-6 py-2.5 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-                    Submit Application
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+            <p className="text-xs text-muted-foreground max-w-sm">
+              Submitting confirms the information here is accurate and complete.
+            </p>
+            <button
+              type="submit"
+              disabled={loading || !formData.reasonForApplication}
+              className="btn-cta inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Submitting
+                </>
+              ) : (
+                <>
+                  <PaperAirplaneIcon className="w-4 h-4" />
+                  Submit application
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </PageWrapper>
   );
