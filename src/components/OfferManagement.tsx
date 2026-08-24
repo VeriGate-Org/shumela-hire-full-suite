@@ -7,6 +7,22 @@ import { useToast } from '@/components/Toast';
 import AiOfferPrediction from '@/components/ai/AiOfferPrediction';
 import { eSignatureService } from '@/services/eSignatureService';
 import { getEnumLabel } from '@/utils/enumLabels';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction, SecondaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  OfferSummary,
+  QUEUE_FILTERS,
+  bySoonestExpiry,
+  committedValue,
+  expiryLabel,
+  expiryTone,
+  filterCount,
+  isOfferSummary,
+  isWithCandidate,
+  showsClock,
+} from '@/components/offers/queue';
 
 interface Offer {
   id: number;
@@ -90,11 +106,6 @@ interface DashboardCounts {
 
 /* Mirrors the backend OfferStatus enum. AWAITING_SIGNATURE and SIGNED were missing, which is
    how an offer sent for e-signature fell out of every tab below. */
-const OFFER_STATUSES = [
-  'DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'SENT', 'AWAITING_SIGNATURE', 'SIGNED',
-  'UNDER_NEGOTIATION', 'ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'
-];
-
 const OFFER_TYPES = [
   'FULL_TIME_PERMANENT', 'PART_TIME_PERMANENT', 'CONTRACT_FIXED_TERM',
   'CONTRACT_RENEWABLE', 'CONSULTANT', 'INTERNSHIP', 'APPRENTICESHIP',
@@ -161,19 +172,10 @@ function getAvatarColor(index: number) {
   return AVATAR_COLORS[index % AVATAR_COLORS.length];
 }
 
-/* Tab definitions mapping to backend status groups */
-const TABS = [
-  { key: 'draft', label: 'Draft', statuses: ['DRAFT', 'PENDING_APPROVAL'] },
-  // Every tab filters by status, so a status in no tab is an offer nobody can see. Sending an
-  // offer for signature moves it to AWAITING_SIGNATURE and then SIGNED; both are still in flight
-  // and belong here alongside SENT.
-  { key: 'sent', label: 'Sent', statuses: ['APPROVED', 'SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'UNDER_NEGOTIATION'] },
-  { key: 'accepted', label: 'Accepted', statuses: ['ACCEPTED'] },
-  { key: 'declined', label: 'Declined', statuses: ['DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'] },
-];
-
-const DEFAULT_TAB = 'draft';
-const TAB_KEYS = TABS.map(t => t.key);
+/* The queue opens on what is closest to lapsing, because that is the only thing on this screen
+   with a deadline attached. Deep links keep working: the keys are the chips' keys. */
+const DEFAULT_TAB = 'expiring';
+const TAB_KEYS = QUEUE_FILTERS.map(f => f.key);
 
 /** Statuses an offer reaches only after it has been put to a candidate and settled. */
 const DECIDED_STATUSES = ['ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED'];
@@ -278,7 +280,9 @@ export default function OfferManagement() {
   const [payrollSending, setPayrollSending] = useState(false);
   const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
   const [payrollError, setPayrollError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(DEFAULT_TAB);
+  // Expiry is what this page is organised around, so it is where it opens.
+  const [activeTab, setActiveTab] = useState('expiring');
+  const [summary, setSummary] = useState<OfferSummary | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState<CreateOfferForm>(EMPTY_CREATE_FORM);
   const [createSaving, setCreateSaving] = useState(false);
@@ -300,7 +304,9 @@ export default function OfferManagement() {
         if (!IN_FLIGHT_WITH_CANDIDATE.includes(o.status) || !o.offerExpiryDate) return false;
         return new Date(o.offerExpiryDate) <= sevenDaysFromNow && new Date(o.offerExpiryDate) > now;
       }).length,
-      activeNegotiations: offersList.filter(o => o.status === 'UNDER_NEGOTIATION' || o.status === 'NEGOTIATION').length,
+      // 'NEGOTIATION' is not in OfferStatus — the residue of a rename, and a line that makes the
+      // next reader doubt the enum rather than the code.
+      activeNegotiations: offersList.filter(o => o.status === 'UNDER_NEGOTIATION').length,
       recentAcceptances: offersList.filter(o => o.status === 'ACCEPTED').length,
     };
   }, []);
@@ -388,11 +394,30 @@ export default function OfferManagement() {
       .catch(() => setESignSimulated(false));
   }, []);
 
+  /**
+   * Whole-set counts.
+   *
+   * <p>Left null on failure rather than zeroed: every figure derived from it is then omitted,
+   * because "0 expiring" against a failed request is a lie somebody acts on by doing nothing.
+   */
+  const loadSummary = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/offers/summary');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      // A payload that is not a summary is treated as no summary, not as an empty one.
+      setSummary(isOfferSummary(payload) ? payload : null);
+    } catch {
+      setSummary(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (canManageOffers) {
       loadOffers();
+      void loadSummary();
     }
-  }, [canManageOffers, loadOffers]);
+  }, [canManageOffers, loadOffers, loadSummary]);
 
   /* Applications the backend will actually accept an offer for. Anything else
      is rejected by OfferService with "Cannot create offer for application in
@@ -632,18 +657,6 @@ export default function OfferManagement() {
     });
   };
 
-  const getTimeUntilExpiry = (expiryDate: string) => {
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diffMs = expiry.getTime() - now.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 0) return 'Expired';
-    if (diffHours < 24) return `${diffHours}h remaining`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d remaining`;
-  };
 
   const getTimeSince = (dateString: string) => {
     const now = new Date();
@@ -666,7 +679,9 @@ export default function OfferManagement() {
         return offer.status === 'APPROVED' &&
                ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
       case 'withdraw':
-        return ['SENT', 'UNDER_NEGOTIATION'].includes(offer.status) &&
+        // An offer awaiting signature or already signed can still be withdrawn; the narrower set
+        // hid the control on exactly the offers most likely to need it.
+        return isWithCandidate(offer.status) &&
                ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER'].includes(userRole);
       case 'accept':
         return ['SENT', 'UNDER_NEGOTIATION'].includes(offer.status) &&
@@ -806,18 +821,20 @@ export default function OfferManagement() {
     }
   };
 
-  /* Filter offers for the active tab */
-  const activeTabDef = TABS.find(t => t.key === activeTab) || TABS[0];
-  const filteredOffers = offers.filter(o => activeTabDef.statuses.includes(o.status));
+  /* Filter offers for the active chip, then order so the soonest to lapse leads. */
+  const activeFilterDef = QUEUE_FILTERS.find(f => f.key === activeTab) || QUEUE_FILTERS[0];
+  const matchingOffers = activeTab === 'all'
+    ? offers
+    : activeTab === 'expiring'
+      // Everything actually with a candidate and inside a week — the set the clock applies to.
+      ? offers.filter(o => showsClock(o) && (expiryTone(o) !== null))
+      : offers.filter(o => activeFilterDef.statuses.includes(o.status));
+  const filteredOffers = bySoonestExpiry(matchingOffers);
 
-  /* Tab counts.
-     NOTE these cover the loaded page, like the list itself. With the current page size of 10 that
-     is every offer on a small tenant, but on a larger one the badges undercount. Fixing that needs
-     per-status totals from the server rather than a bigger fetch. */
-  const tabCounts: Record<string, number> = {};
-  TABS.forEach(tab => {
-    tabCounts[tab.key] = offers.filter(o => tab.statuses.includes(o.status)).length;
-  });
+  const committed = committedValue(summary);
+
+  /* Chip counts come from the summary and describe the whole set. They used to be computed from
+     the loaded page, which undercounts on any tenant with more offers than one page holds. */
 
   /* Acceptance rate: accepted offers as a share of those that actually reached a decision.
      It previously read `recentAcceptances / offers.length` — a *recent* count over *every* offer
@@ -834,7 +851,111 @@ export default function OfferManagement() {
   return (
     <div className="space-y-6">
 
-      {/* ====== ACTION BAR ====== */}
+      <IdentityBand
+        eyebrow="Offer pipeline"
+        title="Offers"
+        subtitle={
+          summary ? (
+            <>
+              {summary.total} offers · {summary.withCandidate} out with candidates
+              {committed !== null && (
+                <>
+                  {' · '}
+                  {formatCurrency(committed)} committed
+                  {summary.committedValueExcluded > 0 && (
+                    // Said out loud: an hourly offer cannot be annualised without contracted
+                    // hours, so the total describes most of the set rather than all of it.
+                    <> ({summary.committedValueExcluded} not annualisable)</>
+                  )}
+                </>
+              )}
+            </>
+          ) : (
+            'Counts unavailable'
+          )
+        }
+        figures={
+          summary
+            ? [
+                { label: 'Out with candidates', value: summary.withCandidate },
+                {
+                  label: 'Acceptance rate',
+                  // Accepted over offers that actually reached a decision, not over everything —
+                  // a dash where nothing has been decided, never 0%.
+                  value: acceptanceRate === null ? '—' : `${acceptanceRate}%`,
+                },
+                {
+                  label: 'Expiring in 7 days',
+                  value: summary.expiringSoon,
+                  tone: (summary.expiringImminently > 0 ? 'critical' : 'warning') as
+                    | 'critical'
+                    | 'warning',
+                },
+                {
+                  label: 'Lapsed unanswered',
+                  value: summary.lapsed,
+                  tone: (summary.lapsed > 0 ? 'critical' : undefined) as 'critical' | undefined,
+                },
+              ]
+            : []
+        }
+      />
+
+      {summary && summary.expiringImminently > 0 && (
+        <DecisionBar
+          ask={`${summary.expiringImminently} ${
+            summary.expiringImminently === 1 ? 'offer expires' : 'offers expire'
+          } within 48 hours.`}
+          why="An offer that lapses costs the whole hire — the candidate returns to the pipeline at the interview stage and the advert has usually closed already."
+          tone="owed"
+        >
+          <PrimaryAction onClick={() => selectTab('expiring')}>Review expiring</PrimaryAction>
+          <SecondaryAction onClick={() => openCreateModal()}>New offer</SecondaryAction>
+        </DecisionBar>
+      )}
+
+      {summary ? (
+        <DistributionStrip
+          buckets={[
+            { label: 'Draft', count: filterCount(summary, 'draft') ?? 0, detail: 'Not put to anyone' },
+            {
+              label: 'Out with candidate',
+              count: summary.withCandidate,
+              detail: 'Sent, signing or negotiating',
+            },
+            {
+              label: 'Expiring ≤ 7 days',
+              count: summary.expiringSoon,
+              detail:
+                summary.expiringImminently > 0
+                  ? `${summary.expiringImminently} inside 48 hours`
+                  : undefined,
+            },
+            { label: 'Accepted', count: summary.countsByStatus.ACCEPTED ?? 0 },
+            { label: 'Lapsed', count: summary.lapsed, detail: 'Never answered' },
+          ]}
+          footnote={
+            <>
+              Expiring counts every offer actually with the candidate — sent, awaiting signature,
+              signed and under negotiation alike.
+              {summary.withoutExpiry > 0 && (
+                <>
+                  {' '}
+                  <b className="font-bold text-foreground">{summary.withoutExpiry}</b> carry no
+                  expiry date at all and appear in no expiry figure.
+                </>
+              )}
+            </>
+          }
+        />
+      ) : (
+        !loading && (
+          <p className="text-sm text-muted-foreground px-1">
+            Counts are unavailable — the summary could not be loaded.
+          </p>
+        )
+      )}
+
       <div className="flex justify-end">
         <button
           onClick={() => openCreateModal()}
@@ -848,96 +969,22 @@ export default function OfferManagement() {
         </button>
       </div>
 
-      {/* ====== STAT STRIP ====== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Active Offers */}
-        <div className="enterprise-card p-5 flex items-center gap-4">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-navy flex items-center justify-center">
-            <svg className="w-[22px] h-[22px] text-accent-navy" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-foreground leading-tight">{totalOffers}</div>
-            <div className="text-[0.813rem] font-medium text-muted-foreground">Active Offers</div>
-          </div>
-        </div>
+      <FilterChips
+        chips={QUEUE_FILTERS.map((filter) => ({
+          key: filter.key,
+          label: filter.label,
+          count: filterCount(summary, filter.key) ?? undefined,
+        }))}
+        activeKey={activeTab}
+        onChange={selectTab}
+        note={
+          <>
+            Sorted by <b className="font-bold text-foreground">soonest expiry</b>
+          </>
+        }
+      />
 
-        {/* Acceptance Rate */}
-        <div className="enterprise-card p-5 flex items-center gap-4">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-teal flex items-center justify-center">
-            <svg className="w-[22px] h-[22px] text-accent-teal" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-foreground leading-tight">
-              {acceptanceRate !== null ? `${acceptanceRate}%` : '—'}
-            </div>
-            <div className="text-[0.813rem] font-medium text-muted-foreground">Acceptance Rate</div>
-          </div>
-        </div>
-
-        {/* Active Negotiations */}
-        <div className="enterprise-card p-5 flex items-center gap-4">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-gold flex items-center justify-center">
-            <svg className="w-[22px] h-[22px] text-accent-gold" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-foreground leading-tight">{dashboardCounts.activeNegotiations}</div>
-            <div className="text-[0.813rem] font-medium text-muted-foreground">Active Negotiations</div>
-          </div>
-        </div>
-
-        {/* Pending Approval */}
-        <div className="enterprise-card p-5 flex items-center gap-4">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-icon-bg-pink flex items-center justify-center">
-            <svg className="w-[22px] h-[22px] text-accent-pink" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-foreground leading-tight">{dashboardCounts.pendingApproval}</div>
-            <div className="text-[0.813rem] font-medium text-muted-foreground">Pending Approval</div>
-          </div>
-        </div>
-      </div>
-
-      {/* ====== TABBED CONTENT ====== */}
       <div className="enterprise-card overflow-hidden">
-        {/* Tab Header */}
-        <div className="flex border-b border-border px-6 overflow-x-auto">
-          {TABS.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => selectTab(tab.key)}
-              className={`relative top-[1px] px-5 py-4 font-semibold text-sm border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === tab.key
-                  ? 'text-primary border-primary'
-                  : 'text-muted-foreground border-transparent hover:text-primary'
-              }`}
-            >
-              {tab.label}
-              <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[0.688rem] font-bold ml-1.5 ${
-                activeTab === tab.key
-                  ? 'bg-icon-bg-navy text-primary'
-                  : 'bg-muted text-muted-foreground'
-              }`}>
-                {tabCounts[tab.key] || 0}
-              </span>
-            </button>
-          ))}
-        </div>
-
         {/* Tab Content */}
         <div className="p-6">
           {loading ? (
@@ -985,9 +1032,13 @@ export default function OfferManagement() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">No {activeTabDef.label.toLowerCase()} offers</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                No {activeFilterDef.label.toLowerCase()} offers
+              </h3>
               <p className="text-sm text-muted-foreground mb-5">
-                There are no offers in this category at the moment.
+                {activeTab === 'expiring'
+                  ? 'Nothing is close to lapsing.'
+                  : 'There are no offers in this category at the moment.'}
               </p>
             </div>
           ) : (
@@ -1069,9 +1120,19 @@ export default function OfferManagement() {
                     )}
 
                     {/* Expiry warning for sent offers */}
-                    {offer.offerExpiryDate && ['SENT', 'UNDER_NEGOTIATION'].includes(offer.status) && (
-                      <div className="bg-warning-bg rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] text-amber-800">
-                        <strong>Expires:</strong> {formatDate(offer.offerExpiryDate)} ({getTimeUntilExpiry(offer.offerExpiryDate)})
+                    {/* Every state where the offer is with the candidate. This was gated to SENT
+                        and UNDER_NEGOTIATION, so an offer out for signature — a candidate sitting
+                        on a signing link with a deadline — showed no clock at all. */}
+                    {showsClock(offer) && (
+                      <div
+                        className={`rounded-control px-3.5 py-2.5 mb-3.5 text-[0.813rem] ${
+                          expiryTone(offer) === 'critical'
+                            ? 'bg-error-bg text-error'
+                            : 'bg-warning-bg text-amber-800'
+                        }`}
+                      >
+                        <strong>Expires:</strong> {formatDate(offer.offerExpiryDate)} (
+                        {expiryLabel(offer)})
                       </div>
                     )}
 
