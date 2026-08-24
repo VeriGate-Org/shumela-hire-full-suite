@@ -72,7 +72,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             createdBy,
             "INTERVIEW_CREATED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             String.format("Interview '%s' scheduled for %s", 
                 savedInterview.getTitle(), 
                 savedInterview.getScheduledAt())
@@ -113,7 +113,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             updatedBy,
             "INTERVIEW_UPDATED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             String.format("Interview '%s' updated", savedInterview.getTitle())
         );
 
@@ -137,7 +137,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             deletedBy,
             "INTERVIEW_DELETED",
-            "Interview",
+            "Interview", interview.getId(),
             String.format("Interview '%s' deleted", interview.getTitle())
         );
         
@@ -184,7 +184,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             rescheduledBy,
             "INTERVIEW_RESCHEDULED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             String.format("Interview rescheduled from %s to %s. Reason: %s",
                 originalSchedule, newScheduledAt, reason)
         );
@@ -211,7 +211,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             cancelledBy,
             "INTERVIEW_CANCELLED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             String.format("Interview cancelled. Reason: %s", reason)
         );
 
@@ -235,7 +235,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             postponedBy,
             "INTERVIEW_POSTPONED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             String.format("Interview postponed. Reason: %s", reason)
         );
 
@@ -258,7 +258,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             startedBy,
             "INTERVIEW_STARTED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             "Interview started"
         );
 
@@ -281,7 +281,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             completedBy,
             "INTERVIEW_COMPLETED",
-            "Interview",
+            "Interview", savedInterview.getId(),
             "Interview completed"
         );
 
@@ -339,7 +339,7 @@ public class InterviewService {
         auditLogService.logUserAction(
             submittedBy,
             isUpdate ? "INTERVIEW_FEEDBACK_UPDATED" : "INTERVIEW_FEEDBACK_SUBMITTED",
-            "InterviewFeedback",
+            "InterviewFeedback", feedbackEntity.getId(),
             String.format("Interview feedback %s with recommendation: %s",
                 isUpdate ? "updated" : "submitted", recommendation.getDisplayName())
         );
@@ -368,7 +368,8 @@ public class InterviewService {
         auditLogService.logUserAction(
             deletedBy,
             "INTERVIEW_FEEDBACK_DELETED",
-            "InterviewFeedback",
+            // Read before the row goes; the in-memory entity still carries it.
+            "InterviewFeedback", feedback.getId(),
             String.format("Deleted feedback %d for interview %d", feedbackId, feedback.getInterview().getId())
         );
     }

@@ -128,7 +128,7 @@ public class JobPostingService {
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
         
         // Log to audit
-        auditLogService.logUserAction(createdBy, "JOB_POSTING_CREATED", "JOB_POSTING", 
+        auditLogService.logUserAction(createdBy, "JOB_POSTING_CREATED", "JOB_POSTING", savedJobPosting.getId(), 
                                      savedJobPosting.getTitle() + " (ID: " + savedJobPosting.getId() + ")");
         
         logger.info("Job posting created with ID: {}", savedJobPosting.getId());
@@ -160,7 +160,7 @@ public class JobPostingService {
         JobPosting updatedJobPosting = jobPostingRepository.save(jobPosting);
         
         // Log to audit
-        auditLogService.logUserAction(updatedBy, "JOB_POSTING_UPDATED", "JOB_POSTING", 
+        auditLogService.logUserAction(updatedBy, "JOB_POSTING_UPDATED", "JOB_POSTING", updatedJobPosting.getId(), 
                                      updatedJobPosting.getTitle() + " (ID: " + updatedJobPosting.getId() + ")");
         
         logger.info("Job posting updated: {}", id);
@@ -224,7 +224,7 @@ public class JobPostingService {
         // Who tightened or relaxed a hiring control, and when, is exactly the question an auditor
         // asks. Record the before and after, not just that something changed.
         auditLogService.logUserAction(updatedBy, "JOB_POSTING_VERIFICATION_REQUIREMENTS_UPDATED",
-                "JOB_POSTING",
+                "JOB_POSTING", saved.getId(),
                 String.format("%s (ID: %s): enforcement %s -> %s, required checks %s -> %s",
                         saved.getTitle(), saved.getId(),
                         previousEnforce ? "on" : "off", enforce ? "on" : "off",
@@ -381,7 +381,7 @@ public class JobPostingService {
         auditLogService.logUserAction(submittedBy,
                 selfApproves ? "JOB_POSTING_APPROVED_UNDER_DELEGATED_AUTHORITY"
                              : "JOB_POSTING_SUBMITTED_FOR_APPROVAL",
-                "JOB_POSTING",
+                "JOB_POSTING", updatedJobPosting.getId(),
                 updatedJobPosting.getTitle() + " (ID: " + updatedJobPosting.getId() + ")");
 
         if (!selfApproves) {
@@ -413,7 +413,7 @@ public class JobPostingService {
         JobPosting approvedJobPosting = jobPostingRepository.save(jobPosting);
         
         // Log to audit
-        auditLogService.logUserAction(approvedBy, "JOB_POSTING_APPROVED", "JOB_POSTING", 
+        auditLogService.logUserAction(approvedBy, "JOB_POSTING_APPROVED", "JOB_POSTING", approvedJobPosting.getId(), 
                                      approvedJobPosting.getTitle() + " (ID: " + approvedJobPosting.getId() + ")");
         
         notificationService.notifyApprovalGranted(jobPosting.getCreatedBy(), "Job Posting", jobPosting.getTitle());
@@ -441,7 +441,7 @@ public class JobPostingService {
         JobPosting rejectedJobPosting = jobPostingRepository.save(jobPosting);
         
         // Log to audit
-        auditLogService.logUserAction(rejectedBy, "JOB_POSTING_REJECTED", "JOB_POSTING", 
+        auditLogService.logUserAction(rejectedBy, "JOB_POSTING_REJECTED", "JOB_POSTING", rejectedJobPosting.getId(), 
                                      rejectedJobPosting.getTitle() + " (ID: " + rejectedJobPosting.getId() + ")");
         
         notificationService.notifyApprovalDenied(jobPosting.getCreatedBy(), "Job Posting", jobPosting.getTitle(), rejectionReason);
@@ -485,7 +485,7 @@ public class JobPostingService {
         jobAdSyncService.onJobPostingPublished(publishedJobPosting, internal, external);
 
         // Log to audit
-        auditLogService.logUserAction(publishedBy, "JOB_POSTING_PUBLISHED", "JOB_POSTING",
+        auditLogService.logUserAction(publishedBy, "JOB_POSTING_PUBLISHED", "JOB_POSTING", publishedJobPosting.getId(),
                                      publishedJobPosting.getTitle() + " (ID: " + publishedJobPosting.getId() + ")");
 
         notificationService.notifyJobPublished(publishedJobPosting);
@@ -516,7 +516,7 @@ public class JobPostingService {
         jobAdSyncService.onJobPostingUnpublished(unpublishedJobPosting);
 
         // Log to audit
-        auditLogService.logUserAction(unpublishedBy, "JOB_POSTING_UNPUBLISHED", "JOB_POSTING",
+        auditLogService.logUserAction(unpublishedBy, "JOB_POSTING_UNPUBLISHED", "JOB_POSTING", unpublishedJobPosting.getId(),
                                      unpublishedJobPosting.getTitle() + " (ID: " + unpublishedJobPosting.getId() + ")");
 
         logger.info("Job posting {} unpublished", id);
@@ -545,7 +545,7 @@ public class JobPostingService {
         jobAdSyncService.onJobPostingClosed(closedJobPosting);
 
         // Log to audit
-        auditLogService.logUserAction(closedBy, "JOB_POSTING_CLOSED", "JOB_POSTING",
+        auditLogService.logUserAction(closedBy, "JOB_POSTING_CLOSED", "JOB_POSTING", closedJobPosting.getId(),
                                      closedJobPosting.getTitle() + " (ID: " + closedJobPosting.getId() + ")");
 
         notificationService.notifyJobClosed(closedJobPosting);
@@ -609,7 +609,7 @@ public class JobPostingService {
         }
         
         // Log to audit before deletion
-        auditLogService.logUserAction(deletedBy, "JOB_POSTING_DELETED", "JOB_POSTING", 
+        auditLogService.logUserAction(deletedBy, "JOB_POSTING_DELETED", "JOB_POSTING", jobPosting.getId(), 
                                      jobPosting.getTitle() + " (ID: " + jobPosting.getId() + ")");
         
         jobPostingRepository.delete(jobPosting);

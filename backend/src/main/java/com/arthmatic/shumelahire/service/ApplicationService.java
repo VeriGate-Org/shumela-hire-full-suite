@@ -80,7 +80,7 @@ public class ApplicationService {
         notificationService.notifyApplicationSubmitted(savedApplication);
 
         // Log to audit
-        auditLogService.logUserAction(request.getApplicantId(), "APPLICATION_SUBMITTED", "APPLICATION",
+        auditLogService.logUserAction(request.getApplicantId(), "APPLICATION_SUBMITTED", "APPLICATION", savedApplication.getId(),
                                      "Job: " + request.getJobTitle() + " (ID: " + request.getJobAdId() + ")");
 
         logger.info("Application submitted with ID: {}", savedApplication.getId());
@@ -188,6 +188,22 @@ public class ApplicationService {
      * Update application status
      */
     public ApplicationResponse updateApplicationStatus(String id, ApplicationStatus newStatus, String notes) {
+        return updateApplicationStatus(id, newStatus, notes, null);
+    }
+
+    /**
+     * Move an application to another status, recording who did it.
+     *
+     * <p>The audit entry used to name {@code application.getApplicant().getId()} as the acting
+     * user, because this method took no actor and that was the only id in reach — so the trail
+     * stated that each candidate screened, advanced and rejected themselves. That is worse than
+     * absent attribution: it is present and wrong, and it is why the application record page shows
+     * no names against its stages.
+     *
+     * @param actorUserId the authenticated user taking the action, or null for an internal call
+     */
+    public ApplicationResponse updateApplicationStatus(String id, ApplicationStatus newStatus, String notes,
+                                                       String actorUserId) {
         logger.info("Updating application {} to status {}", id, newStatus);
 
         Application application = findApplicationById(id);
@@ -248,13 +264,24 @@ public class ApplicationService {
         notificationService.notifyStatusChange(updatedApplication, oldStatus);
 
         // Log to audit
-        auditLogService.logUserAction(application.getApplicant().getId(), "STATUS_UPDATED", "APPLICATION",
+        auditLogService.logUserAction(actor(actorUserId), "STATUS_UPDATED", "APPLICATION", id,
                                      String.format("From %s to %s - %s", oldStatus, newStatus,
                                                   notes != null ? notes : "No notes"));
 
         logger.info("Application {} status updated to {}", id, newStatus);
 
         return ApplicationResponse.fromEntity(updatedApplication);
+    }
+
+    /**
+     * The id to record as the actor.
+     *
+     * <p>"SYSTEM" when there is no authenticated user — an internal or scheduled call. Never the
+     * candidate: an unattributable action is honestly unattributed, whereas naming the subject of
+     * the record produces a trail that is confidently wrong.
+     */
+    private static String actor(String actorUserId) {
+        return actorUserId != null && !actorUserId.isBlank() ? actorUserId : "SYSTEM";
     }
 
     /**
@@ -303,6 +330,12 @@ public class ApplicationService {
      * Withdraw application
      */
     public ApplicationResponse withdrawApplication(String id, ApplicationWithdrawRequest request) {
+        return withdrawApplication(id, request, null);
+    }
+
+    /** Withdraw an application. The actor may be the candidate or a recruiter — either is recorded. */
+    public ApplicationResponse withdrawApplication(String id, ApplicationWithdrawRequest request,
+                                                   String actorUserId) {
         logger.info("Withdrawing application {}", id);
 
         Application application = findApplicationById(id);
@@ -323,7 +356,7 @@ public class ApplicationService {
         notificationService.notifyApplicationWithdrawn(withdrawnApplication);
 
         // Log to audit
-        auditLogService.logUserAction(application.getApplicant().getId(), "APPLICATION_WITHDRAWN", "APPLICATION",
+        auditLogService.logUserAction(actor(actorUserId), "APPLICATION_WITHDRAWN", "APPLICATION", id,
                                      "Reason: " + request.getReason());
 
         logger.info("Application {} withdrawn", id);
@@ -335,6 +368,12 @@ public class ApplicationService {
      * Rate application
      */
     public ApplicationResponse rateApplication(String id, Integer rating, String feedback) {
+        return rateApplication(id, rating, feedback, null);
+    }
+
+    /** Rate an application. A candidate cannot rate themselves; the actor is the reviewer. */
+    public ApplicationResponse rateApplication(String id, Integer rating, String feedback,
+                                               String actorUserId) {
         logger.info("Rating application {} with {} stars", id, rating);
 
         if (rating < 1 || rating > 5) {
@@ -351,7 +390,7 @@ public class ApplicationService {
         Application ratedApplication = applicationRepository.save(application);
 
         // Log to audit
-        auditLogService.logUserAction(application.getApplicant().getId(), "APPLICATION_RATED", "APPLICATION",
+        auditLogService.logUserAction(actor(actorUserId), "APPLICATION_RATED", "APPLICATION", id,
                                      rating + " stars - " + (feedback != null ? feedback : "No feedback"));
 
         logger.info("Application {} rated with {} stars", id, rating);
@@ -391,6 +430,11 @@ public class ApplicationService {
      * Delete application completely
      */
     public void deleteApplication(String id) {
+        deleteApplication(id, null);
+    }
+
+    /** Delete an application, recording the administrator who did it rather than its subject. */
+    public void deleteApplication(String id, String actorUserId) {
         logger.info("Deleting application {}", id);
 
         Application application = findApplicationById(id);
@@ -406,7 +450,7 @@ public class ApplicationService {
         applicationRepository.delete(application);
 
         // Log to audit
-        auditLogService.logUserAction(application.getApplicant().getId(), "APPLICATION_DELETED", "APPLICATION",
+        auditLogService.logUserAction(actor(actorUserId), "APPLICATION_DELETED", "APPLICATION", id,
                                      "Job: " + application.getJobTitle() + " (ID: " + application.getJobPostingId() + ")");
 
         logger.info("Application {} deleted", id);

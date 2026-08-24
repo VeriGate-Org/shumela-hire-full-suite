@@ -77,7 +77,7 @@ public class OfferService {
     auditLogService.logUserAction(
         createdBy,
         "OFFER_CREATED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format(
             "Offer %s created for application %s", savedOffer.getOfferNumber(), applicationId));
 
@@ -127,14 +127,14 @@ public class OfferService {
         auditLogService.logUserAction(
             updatedBy,
             "OFFER_RESET_TO_DRAFT",
-            "Offer",
+            "Offer", existingOffer.getId(),
             "Offer reset to draft due to significant changes");
       }
     }
 
     Offer savedOffer = offerRepository.save(existingOffer);
 
-    auditLogService.logUserAction(updatedBy, "OFFER_UPDATED", "Offer", "Offer updated");
+    auditLogService.logUserAction(updatedBy, "OFFER_UPDATED", "Offer", savedOffer.getId(), "Offer updated");
 
     return savedOffer;
   }
@@ -158,7 +158,7 @@ public class OfferService {
     auditLogService.logUserAction(
         submittedBy,
         "OFFER_SUBMITTED_FOR_APPROVAL",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s submitted for approval", offer.getOfferNumber()));
 
     // Notify approvers - for now notify the creator as a placeholder for approval workflow
@@ -189,7 +189,7 @@ public class OfferService {
     auditLogService.logUserAction(
         approvedBy,
         "OFFER_APPROVED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s approved by user %s", offer.getOfferNumber(), approvedBy));
 
     notificationService.notifyApprovalGranted(
@@ -216,7 +216,7 @@ public class OfferService {
     auditLogService.logUserAction(
         rejectedBy,
         "OFFER_REJECTED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s rejected: %s", offer.getOfferNumber(), rejectionReason));
 
     notificationService.notifyApprovalDenied(
@@ -241,7 +241,7 @@ public class OfferService {
     auditLogService.logUserAction(
         sentBy,
         "OFFER_SENT",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s sent to candidate", offer.getOfferNumber()));
 
     notificationService.notifyOfferExtended(savedOffer);
@@ -266,7 +266,7 @@ public class OfferService {
     auditLogService.logUserAction(
         withdrawnBy,
         "OFFER_WITHDRAWN",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s withdrawn: %s", offer.getOfferNumber(), withdrawalReason));
 
     notificationService.notifyOfferWithdrawn(savedOffer);
@@ -311,7 +311,7 @@ public class OfferService {
     auditLogService.logUserAction(
         acceptedBy,
         "OFFER_ACCEPTED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s accepted by candidate", offer.getOfferNumber()));
 
     notificationService.notifyOfferAccepted(savedOffer);
@@ -337,7 +337,7 @@ public class OfferService {
     auditLogService.logUserAction(
         declinedBy,
         "OFFER_DECLINED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format("Offer %s declined: %s", offer.getOfferNumber(), declineReason));
 
     notificationService.notifyOfferDeclined(savedOffer);
@@ -366,7 +366,7 @@ public class OfferService {
     auditLogService.logUserAction(
         initiatedBy,
         "NEGOTIATION_STARTED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format(
             "Negotiation started for offer %s (Round %d)",
             offer.getOfferNumber(), offer.getNegotiationRounds()));
@@ -403,7 +403,7 @@ public class OfferService {
     auditLogService.logUserAction(
         respondedBy,
         "NEGOTIATION_RESPONSE",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format(
             "Company responded to negotiation for offer %s (Status: %s)",
             offer.getOfferNumber(), newStatus.getDisplayName()));
@@ -424,7 +424,7 @@ public class OfferService {
     auditLogService.logUserAction(
         escalatedBy,
         "NEGOTIATION_ESCALATED",
-        "Offer",
+        "Offer", savedOffer.getId(),
         String.format(
             "Negotiation escalated for offer %s: %s", offer.getOfferNumber(), escalationReason));
 
@@ -457,7 +457,7 @@ public class OfferService {
     auditLogService.logUserAction(
         createdBy,
         "OFFER_VERSION_CREATED",
-        "Offer",
+        "Offer", newOffer.getId(),
         String.format(
             "New version %d created for offer %s",
             newOffer.getVersion(), originalOffer.getOfferNumber()));

@@ -45,6 +45,7 @@ public class AuditLogService {
      */
     public AuditLog saveLog(String userId, String action, String entityType, String entityId, String details) {
         try {
+            entityType = normaliseEntityType(entityType);
             AuditLog auditLog = new AuditLog(userId, action, entityType, entityId, details);
             auditLog.setUserName(resolveCurrentUserName());
             AuditLog savedLog = auditLogRepository.save(auditLog);
@@ -61,10 +62,37 @@ public class AuditLogService {
     }
 
     /**
-     * Log user action (with Long userId)
+     * One spelling per entity type.
+     *
+     * <p>Callers wrote both "Offer" and "OFFER" for the same records — twenty times and fifteen
+     * times respectively — and the same split existed for interviews and applications. Lookup is an
+     * exact match, so half of every record's history was invisible to a query for the other
+     * spelling. Normalising here fixes every call site at once, including the hundred and
+     * thirty-odd that pass an entity type without going through {@code logUserAction}.
      */
-    public AuditLog logUserAction(String userId, String action, String entityType, String details) {
-        return saveLog(userId, action, entityType, null, details);
+    static String normaliseEntityType(String entityType) {
+        return entityType == null ? null : entityType.trim().toUpperCase();
+    }
+
+    /**
+     * Log an action a user took against a specific record.
+     *
+     * <p><b>entityId is required.</b> This method used to omit it and pass null, and forty-eight
+     * call sites across offers, interviews, the pipeline, shortlisting, job postings, applications
+     * and GDPR requests took that path — so those events were written to the audit table with no
+     * record attached, and {@code getLogsByEntity} could never return any of them. The trail
+     * existed and was unreadable for the entity it described.
+     *
+     * <p>Two things made it hard to notice. The events are present in the tenant-wide log, so the
+     * audit screens that list everything looked fine; and several callers had already worked around
+     * it by writing the id into the free-text details ("... (ID: 4f2c...)"), which reads correctly
+     * to a human and is invisible to a query.
+     *
+     * <p>Pass the id of the record the action was taken against. Where the subject genuinely is the
+     * user — a data-export request, say — that is the user's own id, not null.
+     */
+    public AuditLog logUserAction(String userId, String action, String entityType, String entityId, String details) {
+        return saveLog(userId, action, entityType, entityId, details);
     }
 
     /**
@@ -106,7 +134,25 @@ public class AuditLogService {
      */
     @Transactional(readOnly = true)
     public List<AuditLog> getLogsByEntity(String entityType, String entityId) {
-        return auditLogRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc(entityType, entityId);
+        String normalised = normaliseEntityType(entityType);
+        List<AuditLog> logs = auditLogRepository
+                .findByEntityTypeAndEntityIdOrderByTimestampDesc(normalised, entityId);
+
+        // Rows written before entity types were normalised keep whatever casing the caller used —
+        // "Offer" appeared in twenty places and "OFFER" in fifteen, for the same records. Look for
+        // the caller's spelling too when it differs, or a record's own history splits in half at
+        // the date this changed.
+        if (entityType != null && !entityType.equals(normalised)) {
+            List<AuditLog> legacy = auditLogRepository
+                    .findByEntityTypeAndEntityIdOrderByTimestampDesc(entityType, entityId);
+            if (!legacy.isEmpty()) {
+                logs = new java.util.ArrayList<>(logs);
+                logs.addAll(legacy);
+                logs.sort(java.util.Comparator.comparing(AuditLog::getTimestamp,
+                        java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
+            }
+        }
+        return logs;
     }
 
     /**

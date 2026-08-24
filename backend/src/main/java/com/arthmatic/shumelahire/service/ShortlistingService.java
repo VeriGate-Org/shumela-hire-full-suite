@@ -383,7 +383,7 @@ public class ShortlistingService {
         // Auto-shortlisting moves candidates through the pipeline and emails them. An action with
         // that reach on a public entity's recruitment must be answerable eighteen months later:
         // who ran it, against which vacancy, at what threshold, and how many it moved.
-        auditLogService.logUserAction(userId, "SHORTLIST_AUTO_RUN", "JOB_POSTING",
+        auditLogService.logUserAction(userId, "SHORTLIST_AUTO_RUN", "JOB_POSTING", jobPostingId,
             String.format("Auto-shortlist on posting %s at threshold %.0f: %d of %d shortlisted, "
                     + "%d advanced to screening",
                 jobPostingId, threshold, shortlisted, scores.size(), advanced));
@@ -414,7 +414,7 @@ public class ShortlistingService {
         // The single most consequential action in shortlisting: a person overruling the model
         // about someone's application. Recording the direction and the stated reason is what
         // makes the decision defensible rather than merely made.
-        auditLogService.logUserAction(userId, "SHORTLIST_OVERRIDDEN", "SHORTLIST_SCORE",
+        auditLogService.logUserAction(userId, "SHORTLIST_OVERRIDDEN", "SHORTLIST_SCORE", scoreId,
             String.format("%s %s the shortlist (was %s, score %.1f). Reason: %s",
                 candidate,
                 include ? "included in" : "excluded from",

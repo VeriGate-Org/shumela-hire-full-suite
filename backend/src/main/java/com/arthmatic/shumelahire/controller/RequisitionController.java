@@ -29,6 +29,9 @@ public class RequisitionController {
     @Autowired
     private UserDataRepository userRepository;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.arthmatic.shumelahire.security.ActorResolver actorResolver;
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
     public ResponseEntity<Page<Requisition>> list(
@@ -94,7 +97,7 @@ public class RequisitionController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
     public ResponseEntity<Requisition> create(Authentication authentication, @RequestBody Requisition requisition) {
-        resolveUserId(authentication).ifPresent(requisition::setCreatedBy);
+        actorResolver.userId(authentication).ifPresent(requisition::setCreatedBy);
         return ResponseEntity.ok(requisitionService.create(requisition));
     }
 
@@ -103,13 +106,13 @@ public class RequisitionController {
     public ResponseEntity<Requisition> update(Authentication authentication, @PathVariable String id,
                                               @RequestBody Requisition requisition) {
         return ResponseEntity.ok(requisitionService.update(
-                id, requisition, resolveUserId(authentication).orElse(null)));
+                id, requisition, actorResolver.userId(authentication).orElse(null)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<Void> delete(Authentication authentication, @PathVariable String id) {
-        requisitionService.delete(id, resolveUserId(authentication).orElse(null));
+        requisitionService.delete(id, actorResolver.userId(authentication).orElse(null));
         return ResponseEntity.noContent().build();
     }
 
@@ -117,7 +120,7 @@ public class RequisitionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
     public ResponseEntity<Requisition> submit(Authentication authentication, @PathVariable String id) {
         return ResponseEntity.ok(requisitionService.submit(
-                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication)));
+                id, actorResolver.userId(authentication).orElse(null), actorResolver.userName(authentication)));
     }
 
     @PostMapping("/{id}/approve")
@@ -125,7 +128,7 @@ public class RequisitionController {
     public ResponseEntity<Requisition> approve(Authentication authentication, @PathVariable String id,
                                                @RequestBody(required = false) ApprovalDecisionRequest body) {
         return ResponseEntity.ok(requisitionService.approve(
-                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication),
+                id, actorResolver.userId(authentication).orElse(null), actorResolver.userName(authentication),
                 body != null ? body.comment() : null));
     }
 
@@ -134,7 +137,7 @@ public class RequisitionController {
     public ResponseEntity<Requisition> reject(Authentication authentication, @PathVariable String id,
                                               @RequestBody(required = false) ApprovalDecisionRequest body) {
         return ResponseEntity.ok(requisitionService.reject(
-                id, resolveUserId(authentication).orElse(null), resolveUserName(authentication),
+                id, actorResolver.userId(authentication).orElse(null), actorResolver.userName(authentication),
                 body != null ? body.comment() : null));
     }
 
@@ -145,34 +148,5 @@ public class RequisitionController {
      * Display name of the acting user, captured onto the approval record so the timeline shows a
      * person rather than an identifier.
      */
-    private String resolveUserName(Authentication authentication) {
-        if (authentication == null) {
-            return null;
-        }
-        if (authentication.getPrincipal() instanceof Jwt jwt) {
-            String name = jwt.getClaimAsString("name");
-            return name != null ? name : jwt.getClaimAsString("email");
-        }
-        if (authentication.getPrincipal() instanceof User user) {
-            String first = user.getFirstName();
-            String last = user.getLastName();
-            if (first != null || last != null) {
-                return ((first != null ? first : "") + " " + (last != null ? last : "")).trim();
-            }
-            return user.getEmail();
-        }
-        return authentication.getName();
-    }
 
-    private Optional<String> resolveUserId(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof Jwt jwt) {
-            String email = jwt.getClaimAsString("email");
-            if (email != null) {
-                return userRepository.findByEmail(email).map(User::getId);
-            }
-        } else if (authentication.getPrincipal() instanceof User user) {
-            return Optional.of(user.getId());
-        }
-        return Optional.empty();
-    }
 }

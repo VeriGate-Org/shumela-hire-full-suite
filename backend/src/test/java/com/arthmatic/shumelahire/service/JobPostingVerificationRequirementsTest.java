@@ -129,8 +129,11 @@ class JobPostingVerificationRequirementsTest {
                 "admin-1");
 
         ArgumentCaptor<String> detail = ArgumentCaptor.forClass(String.class);
+        // The entity id is now part of the call — without it this row could never be retrieved
+        // for the posting it describes.
         verify(auditLogService).logUserAction(eq("admin-1"),
-                eq("JOB_POSTING_VERIFICATION_REQUIREMENTS_UPDATED"), eq("JOB_POSTING"), detail.capture());
+                eq("JOB_POSTING_VERIFICATION_REQUIREMENTS_UPDATED"), eq("JOB_POSTING"), anyString(),
+                detail.capture());
 
         // "Who relaxed the control, and from what" is the auditor's question. "Changed" is not an answer.
         assertTrue(detail.getValue().contains("enforcement on -> off"), detail.getValue());
@@ -182,6 +185,6 @@ class JobPostingVerificationRequirementsTest {
 
         assertEquals("[]", published.getRequiredCheckTypes());
         assertFalse(published.getEnforceCheckCompletion());
-        verify(auditLogService).logUserAction(anyString(), anyString(), anyString(), anyString());
+        verify(auditLogService).logUserAction(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 }
