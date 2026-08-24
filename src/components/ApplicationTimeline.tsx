@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
 import { formatEnumValue } from '@/utils/enumLabels';
+import { isOpaqueId } from '@/utils/identity';
 import { apiFetch } from '@/lib/api-fetch';
 
 interface Application {
@@ -282,7 +283,12 @@ export default function ApplicationTimeline({ application, onClose, onStageTrans
                                 )}
                               </div>
                               
-                              <span>User ID: {transition.createdBy}</span>
+                              {/* createdBy is typed number but carries a String
+                                  user id in practice. Only ever show it when it
+                                  is a name — "User ID: <uuid>" is not a label. */}
+                              {!isOpaqueId(transition.createdBy) && transition.createdBy && (
+                                <span>by {transition.createdBy}</span>
+                              )}
                             </div>
                           </div>
                         </div>

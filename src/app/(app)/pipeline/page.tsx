@@ -30,6 +30,7 @@ import {
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { pipelineApplicationStatusConfig, getStatusConfig } from '@/utils/statusIcons';
 import { formatEnumValue } from '@/utils/enumLabels';
+import { isOpaqueId } from '@/utils/identity';
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiCandidateRanking from '@/components/ai/AiCandidateRanking';
@@ -457,7 +458,9 @@ export default function PipelinePage() {
           createdAt: t.createdAt || t.transitionDate || '',
           reason: t.reason || t.notes || '',
           notes: t.notes || '',
-          performedBy: t.performedBy || t.performedByName || '',
+          // Prefer the name: performedBy holds a user id, performedByName the
+          // person. Taking performedBy first put a UUID on the timeline.
+          performedBy: t.performedByName || t.performedBy || '',
         }));
         setTimelineEntries(entries);
       })
@@ -1439,7 +1442,9 @@ export default function PipelinePage() {
                             <div className="flex-1 min-w-0">
                               <div className="text-sm text-foreground">
                                 <strong>{event.fromStage ? `${BACKEND_STAGE_DISPLAY[event.fromStage] || formatEnumValue(event.fromStage)} → ${BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage)}` : (BACKEND_STAGE_DISPLAY[event.toStage] || formatEnumValue(event.toStage))}</strong>
-                                {event.performedBy && <span className="text-muted-foreground"> by {event.performedBy}</span>}
+                                {!isOpaqueId(event.performedBy) && event.performedBy && (
+                                  <span className="text-muted-foreground"> by {event.performedBy}</span>
+                                )}
                               </div>
                               {event.reason && (
                                 <div className="text-xs text-muted-foreground mt-0.5">{event.reason}</div>

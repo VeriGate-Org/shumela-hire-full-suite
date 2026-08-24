@@ -15,6 +15,7 @@ import { useToast } from '@/components/Toast';
 import { approvalTimelineService } from '@/services/approvalTimelineService';
 import { formatSalaryRange } from '@/utils/currency';
 import { getEnumLabel } from '@/utils/enumLabels';
+import { displayActor, shortRef } from '@/utils/identity';
 import { RequisitionData, ApprovalRole, WorkflowAction } from '@/types/workflow';
 import { apiFetch } from '@/lib/api-fetch';
 import {
@@ -89,6 +90,23 @@ export default function RequisitionDetailPage() {
       fetchRequisitionDetails();
     }
   }, [requisitionId, fetchRequisitionDetails]);
+
+  // The requisition stores createdBy as a user id, but its own approval
+  // history records the same people by name alongside their id. Build the
+  // lookup from what the record already carries rather than fetching a
+  // directory the tenant may not have the module for.
+  const actorNames = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const entry of requisition?.approvalHistory ?? []) {
+      // The frontend type says approverId/approverName; the backend actually
+      // serialises actorUserId/actorName. Read both.
+      const record = entry as unknown as Record<string, unknown>;
+      const id = (record.approverId ?? record.actorUserId) as string | undefined;
+      const name = (record.approverName ?? record.actorName) as string | undefined;
+      if (id && name) names.set(id, name);
+    }
+    return names;
+  }, [requisition]);
 
   const handleWorkflowAction = async (action: WorkflowAction, comment?: string) => {
     if (!user || !requisition) return;
@@ -185,7 +203,7 @@ export default function RequisitionDetailPage() {
   return (
     <PageWrapper
       title={requisition.jobTitle}
-      subtitle={`Requisition #${requisition.id}`}
+      subtitle={`Requisition ${shortRef('REQ', requisition.id)} · ${requisition.department}`}
       actions={actions}
     >
       <div className="space-y-6">
@@ -260,7 +278,9 @@ export default function RequisitionDetailPage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</p>
-                <p className="text-sm text-foreground mt-0.5">{requisition.createdBy}</p>
+                <p className="text-sm text-foreground mt-0.5">
+                  {displayActor(requisition.createdBy, (id) => actorNames.get(id), 'Not recorded')}
+                </p>
               </div>
             </div>
 

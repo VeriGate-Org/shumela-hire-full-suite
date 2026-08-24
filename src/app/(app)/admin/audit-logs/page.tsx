@@ -26,6 +26,16 @@ import { auditLogService } from '@/services/auditLogService';
 import { auditSeverityConfig, getStatusConfig } from '@/utils/statusIcons';
 import { useToast } from '@/components/Toast';
 import { getEnumLabel } from '@/utils/enumLabels';
+import { displayActor } from '@/utils/identity';
+
+/**
+ * An audit row always has an actor id; it does not always have the actor's
+ * name. Falling through to the id put a raw UUID in the User column — the one
+ * column of an audit log a reader is actually scanning.
+ */
+function auditActorLabel(log: { userName?: string; userId: string }): string {
+  return displayActor(log.userName || log.userId, undefined, 'Unknown user');
+}
 
 interface AuditLogFilter {
   dateRange: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
@@ -231,7 +241,11 @@ export default function AuditLogsPage() {
     const mostActiveUserId = Object.keys(userCounts).reduce((a, b) =>
       userCounts[a] > userCounts[b] ? a : b, 'N/A'
     );
-    const mostActiveUser = userNameMap[mostActiveUserId] || mostActiveUserId;
+    const mostActiveUser = displayActor(
+      userNameMap[mostActiveUserId] || mostActiveUserId,
+      undefined,
+      'Unknown user',
+    );
 
     // Most common action
     const actionCounts: Record<string, number> = {};
@@ -723,7 +737,7 @@ export default function AuditLogsPage() {
                         { bg: 'bg-icon-bg-pink', text: 'text-accent-pink' },
                       ];
                       const avatarColor = avatarColors[idx % avatarColors.length];
-                      const initials = (log.userName || log.userId)
+                      const initials = auditActorLabel(log)
                         .split(' ')
                         .map(w => w[0])
                         .join('')
@@ -748,7 +762,7 @@ export default function AuditLogsPage() {
                                 {initials}
                               </div>
                               <span className="text-[0.8125rem] font-semibold text-foreground whitespace-nowrap">
-                                {log.userName || log.userId}
+                                {auditActorLabel(log)}
                               </span>
                             </div>
                           </td>
@@ -877,7 +891,7 @@ export default function AuditLogsPage() {
                   { label: 'Action', value: getEnumLabel('auditAction', selectedLog.action) },
                   { label: 'Entity Type', value: selectedLog.entityType },
                   { label: 'Entity ID', value: selectedLog.entityId },
-                  { label: 'User', value: selectedLog.userName || selectedLog.userId },
+                  { label: 'User', value: auditActorLabel(selectedLog) },
                   { label: 'User Role', value: getEnumLabel('userRole', selectedLog.userRole) },
                   { label: 'Severity', value: getSeverityLevel(selectedLog) },
                 ].map((row, i, arr) => (

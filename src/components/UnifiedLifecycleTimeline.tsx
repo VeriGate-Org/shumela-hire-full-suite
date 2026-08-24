@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import { getEnumLabel } from '@/utils/enumLabels';
+import { isOpaqueId } from '@/utils/identity';
 
 interface LifecycleEvent {
   eventId: string;
@@ -270,9 +271,9 @@ export default function UnifiedLifecycleTimeline({ applicationId, onClose }: Uni
                             <span className="font-medium">To:</span> {event.status ? getEnumLabel('applicationStatus', event.status) : ''}
                           </div>
                         )}
-                        {event.performedBy && (
+                        {event.performedBy && !isOpaqueId(event.performedBy) && (
                           <div className="text-xs text-gray-500 mb-1">
-                            <span className="font-medium">By:</span> User #{event.performedBy}
+                            <span className="font-medium">By:</span> {event.performedBy}
                           </div>
                         )}
                         {event.metadata && Object.keys(event.metadata).length > 0 && (
