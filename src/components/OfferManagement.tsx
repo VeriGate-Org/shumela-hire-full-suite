@@ -167,6 +167,12 @@ const TABS = [
   { key: 'declined', label: 'Declined', statuses: ['DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'] },
 ];
 
+const DEFAULT_TAB = 'draft';
+const TAB_KEYS = TABS.map(t => t.key);
+
+/** Statuses an offer reaches only after it has been put to a candidate and settled. */
+const DECIDED_STATUSES = ['ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED'];
+
 function getStatusBadge(status: string): { className: string; label: string } {
   switch (status) {
     case 'DRAFT':
@@ -235,6 +241,9 @@ export default function OfferManagement() {
   const [actionData, setActionData] = useState<any>({});
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  /* Server-side total. The "Active Offers" tile used to show offers.length — the number of rows on
+     the current page — so on any tenant with more than one page it silently read the page size. */
+  const [totalOffers, setTotalOffers] = useState(0);
   const [showESignModal, setShowESignModal] = useState(false);
   const [eSignOffer, setESignOffer] = useState<Offer | null>(null);
   const [eSignLoading, setESignLoading] = useState(false);
@@ -250,7 +259,7 @@ export default function OfferManagement() {
   const [payrollSending, setPayrollSending] = useState(false);
   const [payrollSent, setPayrollSent] = useState<Record<number, boolean>>({});
   const [payrollError, setPayrollError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('draft');
+  const [activeTab, setActiveTab] = useState(DEFAULT_TAB);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState<CreateOfferForm>(EMPTY_CREATE_FORM);
   const [createSaving, setCreateSaving] = useState(false);
@@ -309,6 +318,7 @@ export default function OfferManagement() {
         const loadedOffers = data.content || [];
         setOffers(loadedOffers);
         setTotalPages(data.totalPages || 0);
+        setTotalOffers(typeof data.totalElements === 'number' ? data.totalElements : loadedOffers.length);
         loadDashboardCounts(loadedOffers);
       }
     } catch (error) {
@@ -398,6 +408,40 @@ export default function OfferManagement() {
     setShowCreateModal(true);
     loadEligibleApplications(applicationId);
   }, [loadEligibleApplications]);
+
+  /* Deep link to a tab: /offers?tab=accepted.
+     Without this the screen always opened on Draft, so a refresh silently threw you back to the
+     first tab and no link could point at a particular state. Same window.location.search approach
+     as the create deep link below, and for the same reason.
+
+     Applied in an effect rather than as the initial state: this component renders in a static
+     export, where a lazy initialiser touching `window` would either break the prerender or
+     mismatch on hydration.
+
+     An unrecognised value is ignored rather than blanking the list. */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (requested && TAB_KEYS.includes(requested)) {
+      setActiveTab(requested);
+    }
+  }, []);
+
+  /* Keep the URL in step so the tab survives a refresh and can be linked to.
+     replaceState, not pushState: pushing an entry per tab click makes Back walk the tabs instead
+     of leaving the page. The default tab drops the param so the canonical URL stays /offers. */
+  const selectTab = useCallback((key: string) => {
+    setActiveTab(key);
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (key === DEFAULT_TAB) {
+      params.delete('tab');
+    } else {
+      params.set('tab', key);
+    }
+    const query = params.toString();
+    window.history.replaceState({}, '', query ? `?${query}` : window.location.pathname);
+  }, []);
 
   /* Deep link from OfferSummaryPanel: /offers?create=true&applicationId=X.
      Read from window rather than useSearchParams so the static export build
@@ -736,11 +780,26 @@ export default function OfferManagement() {
   const activeTabDef = TABS.find(t => t.key === activeTab) || TABS[0];
   const filteredOffers = offers.filter(o => activeTabDef.statuses.includes(o.status));
 
-  /* Tab counts */
+  /* Tab counts.
+     NOTE these cover the loaded page, like the list itself. With the current page size of 10 that
+     is every offer on a small tenant, but on a larger one the badges undercount. Fixing that needs
+     per-status totals from the server rather than a bigger fetch. */
   const tabCounts: Record<string, number> = {};
   TABS.forEach(tab => {
     tabCounts[tab.key] = offers.filter(o => tab.statuses.includes(o.status)).length;
   });
+
+  /* Acceptance rate: accepted offers as a share of those that actually reached a decision.
+     It previously read `recentAcceptances / offers.length` — a *recent* count over *every* offer
+     including drafts, displayed under the label "Acceptance Rate". On a tenant with 3 accepted and
+     1 withdrawn it showed 10% instead of 75%, sitting directly above a tab badge reading
+     "Accepted 3". Drafts and offers still out for signature are excluded: they have not been
+     accepted or refused yet, so counting them as failures understates the rate. */
+  const decidedOffers = offers.filter(o => DECIDED_STATUSES.includes(o.status));
+  const acceptedOffers = offers.filter(o => o.status === 'ACCEPTED');
+  const acceptanceRate = decidedOffers.length > 0
+    ? Math.round((acceptedOffers.length / decidedOffers.length) * 100)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -772,7 +831,7 @@ export default function OfferManagement() {
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-extrabold text-foreground leading-tight">{offers.length}</div>
+            <div className="text-2xl font-extrabold text-foreground leading-tight">{totalOffers}</div>
             <div className="text-[0.813rem] font-medium text-muted-foreground">Active Offers</div>
           </div>
         </div>
@@ -787,9 +846,7 @@ export default function OfferManagement() {
           </div>
           <div>
             <div className="text-2xl font-extrabold text-foreground leading-tight">
-              {offers.length > 0
-                ? `${Math.round((dashboardCounts.recentAcceptances / offers.length) * 100)}%`
-                : '0%'}
+              {acceptanceRate !== null ? `${acceptanceRate}%` : '—'}
             </div>
             <div className="text-[0.813rem] font-medium text-muted-foreground">Acceptance Rate</div>
           </div>
@@ -832,7 +889,7 @@ export default function OfferManagement() {
           {TABS.map(tab => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => selectTab(tab.key)}
               className={`relative top-[1px] px-5 py-4 font-semibold text-sm border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.key
                   ? 'text-primary border-primary'
