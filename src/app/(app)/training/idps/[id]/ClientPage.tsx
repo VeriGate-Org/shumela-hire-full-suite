@@ -15,6 +15,7 @@ import {
   AcademicCapIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-700',
@@ -330,7 +331,7 @@ export default function IDPDetailPage() {
                           {goal.title}
                         </span>
                         <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium ${goalStatusColors[goal.status] || ''}`}>
-                          {goal.status.replace('_', ' ')}
+                          {formatEnumValue(goal.status)}
                         </span>
                       </div>
 

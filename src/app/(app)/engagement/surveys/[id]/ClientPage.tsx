@@ -17,6 +17,7 @@ import {
   ChartBarIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-ZA', {
@@ -512,7 +513,7 @@ export default function SurveyDetailPage() {
                             )}
                           </p>
                           <p className="text-xs text-gray-400 mt-0.5">
-                            Type: {q.questionType.replace('_', ' ')}
+                            Type: {formatEnumValue(q.questionType)}
                           </p>
                         </div>
                       </div>

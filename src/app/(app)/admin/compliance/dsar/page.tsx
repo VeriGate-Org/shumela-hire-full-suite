@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { FeatureGate } from '@/components/FeatureGate';
 import { complianceService, DataSubjectRequest } from '@/services/complianceService';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 export default function DsarPage() {
   const [requests, setRequests] = useState<DataSubjectRequest[]>([]);
@@ -69,7 +70,7 @@ export default function DsarPage() {
             {[undefined, 'RECEIVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED'].map((f) => (
               <button key={f || 'all'} onClick={() => { setFilter(f); setPage(0); }}
                 className={`px-3 py-1.5 text-sm rounded-lg ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
-                {f ? f.replace('_', ' ') : 'All'}
+                {f ? formatEnumValue(f) : 'All'}
               </button>
             ))}
           </div>

@@ -14,6 +14,7 @@ import {
   ChevronRightIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 type ItemCategory = 'DOCUMENTS' | 'IT_SETUP' | 'ORIENTATION' | 'COMPLIANCE' | 'BENEFITS';
 
@@ -323,7 +324,7 @@ export default function OnboardingTemplatesPage() {
                                       categoryColors[item.category] || 'bg-gray-100 text-gray-700'
                                     }`}
                                   >
-                                    {item.category?.replace('_', ' ')}
+                                    {item.category ? formatEnumValue(item.category) : ''}
                                   </span>
                                   {item.isRequired && (
                                     <span className="text-xs text-red-500 font-medium">
@@ -399,7 +400,7 @@ export default function OnboardingTemplatesPage() {
                                 >
                                   {CATEGORIES.map((cat) => (
                                     <option key={cat} value={cat}>
-                                      {cat.replace('_', ' ')}
+                                      {formatEnumValue(cat)}
                                     </option>
                                   ))}
                                 </select>

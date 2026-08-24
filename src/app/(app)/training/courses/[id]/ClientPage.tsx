@@ -21,6 +21,7 @@ import {
   CalendarIcon,
   CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-ZA', {
@@ -225,7 +226,7 @@ export default function CourseDetailPage() {
                     deliveryMethodColors[course.deliveryMethod] || 'bg-gray-100 text-gray-600'
                   }`}
                 >
-                  {course.deliveryMethod?.replace('_', ' ')}
+                  {course.deliveryMethod ? formatEnumValue(course.deliveryMethod) : ''}
                 </span>
                 {course.category && (
                   <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-medium">

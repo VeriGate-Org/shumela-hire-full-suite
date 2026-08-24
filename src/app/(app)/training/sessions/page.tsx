@@ -11,6 +11,7 @@ import {
   UserIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 export default function TrainingSessionsPage() {
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
@@ -111,7 +112,7 @@ export default function TrainingSessionsPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-sm font-semibold text-gray-900">{session.courseTitle}</h3>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[session.status] || ''}`}>
-                          {session.status?.replace('_', ' ')}
+                          {session.status ? formatEnumValue(session.status) : ''}
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mb-2">{session.courseCode}</p>

@@ -6,6 +6,7 @@ import {
   Star, AlertCircle
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api-fetch';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface PerformanceMetrics {
   recruitmentMetrics: {
@@ -386,7 +387,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
                       'text-green-500'
                     }`} />
                     <div>
-                      <div className="font-medium text-gray-900">{bottleneck.stage}</div>
+                      <div className="font-medium text-gray-900">{getEnumLabel('pipelineStage', bottleneck.stage)}</div>
                       <div className="text-sm text-gray-600">{bottleneck.averageDays} days average</div>
                     </div>
                   </div>
@@ -584,7 +585,7 @@ const PerformanceAnalyticsDashboard: React.FC = () => {
               {metrics.efficiencyMetrics.bottlenecks.map((bottleneck, index) => (
                 <div key={index} className="p-4 border rounded">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">{bottleneck.stage}</span>
+                    <span className="font-medium text-gray-900">{getEnumLabel('pipelineStage', bottleneck.stage)}</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       bottleneck.impact === 'High' ? 'bg-red-100 text-red-800' :
                       bottleneck.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :

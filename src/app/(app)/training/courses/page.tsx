@@ -12,6 +12,7 @@ import {
   UserGroupIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
+import { formatEnumValue } from '@/utils/enumLabels';
 
 export default function TrainingCoursesPage() {
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
@@ -127,7 +128,7 @@ export default function TrainingCoursesPage() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${deliveryMethodColors[course.deliveryMethod] || 'bg-gray-100 text-gray-600'}`}>
-                      {course.deliveryMethod?.replace('_', ' ')}
+                      {course.deliveryMethod ? formatEnumValue(course.deliveryMethod) : ''}
                     </span>
                     {course.category && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
