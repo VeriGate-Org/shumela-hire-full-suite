@@ -22,6 +22,19 @@ interface ShortlistingPanelProps {
 type SortField = 'score' | 'name';
 type SortDirection = 'asc' | 'desc';
 
+/**
+ * The candidate's name, from whichever parts of the record actually arrived.
+ *
+ * An applicant association served from the DynamoDB backend can be a stub carrying only an id,
+ * so the object *existing* is not evidence that it has a name. Interpolating it directly is what
+ * put a literal "null null" in every row of this table while the scores beside them were right.
+ * Falling back on each part independently also keeps a half-populated record readable.
+ */
+const displayName = (
+  applicant?: { name?: string | null; surname?: string | null } | null,
+  fallback = 'Unknown',
+): string => [applicant?.name, applicant?.surname].filter(Boolean).join(' ').trim() || fallback;
+
 // Must match ShortlistingController's @PreAuthorize, which admits HIRING_MANAGER on all four
 // endpoints — as do the URL rules in SecurityConfig and CognitoSecurityConfig. Omitting the role
 // here did not refuse hiring managers; it hid the entire action bar from them, so the panel
@@ -170,9 +183,7 @@ export default function ShortlistingPanel({ jobPostingId, currentUserId }: Short
       setScores((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       const summaryData = await shortlistingService.getSummary(jobPostingId);
       setSummary(summaryData);
-      const name = overrideTarget.application?.applicant
-        ? `${overrideTarget.application.applicant.name} ${overrideTarget.application.applicant.surname}`
-        : 'candidate';
+      const name = displayName(overrideTarget.application?.applicant, 'candidate');
       toast(`Override applied for ${name}`, 'success');
       setOverrideTarget(null);
       setOverrideReason('');
@@ -379,9 +390,7 @@ export default function ShortlistingPanel({ jobPostingId, currentUserId }: Short
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedScores.map((score, index) => {
               const applicant = score.application?.applicant;
-              const fullName = applicant
-                ? `${applicant.name} ${applicant.surname}`
-                : 'Unknown';
+              const fullName = displayName(applicant);
               const isExpanded = expandedRow === score.id;
 
               return (
@@ -491,9 +500,7 @@ export default function ShortlistingPanel({ jobPostingId, currentUserId }: Short
               Override Shortlist Decision
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              {overrideTarget.application?.applicant
-                ? `${overrideTarget.application.applicant.name} ${overrideTarget.application.applicant.surname}`
-                : 'Candidate'}{' '}
+              {displayName(overrideTarget.application?.applicant, 'Candidate')}{' '}
               — Current score: {Math.round(overrideTarget.totalScore)}%
             </p>
 
