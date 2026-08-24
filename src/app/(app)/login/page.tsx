@@ -7,6 +7,65 @@ import { rolePermissions } from '@/config/permissions';
 import { isCognitoConfigured, isOAuthConfigured } from '@/lib/amplify-config';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
 import { useEffect, useMemo, useState, Suspense } from 'react';
+import AuthLayout from '@/components/auth/AuthLayout';
+import { Field, AuthButton, AuthAlert, PasswordStrength, AuthSpinner } from '@/components/auth/AuthControls';
+
+/**
+ * The two self-service ways onto the platform.
+ *
+ * One credential form serves everybody — staff, candidates and approved agencies all sign in
+ * above; Cognito group membership decides what they see. Only account *creation* differs, and
+ * the agency route was previously reachable only from the bottom of the candidate register page,
+ * so an agency landing on the sign-in screen had no visible way in.
+ *
+ * Staff accounts are created by an administrator, so there is deliberately no route for them.
+ */
+function RegistrationRoutes() {
+  const routes = [
+    {
+      href: '/register',
+      title: 'Register as a candidate',
+      detail: 'Apply for advertised roles and track your applications.',
+    },
+    {
+      href: '/agencies/register',
+      title: 'Register your agency',
+      detail: 'Submit candidates on open briefs. Activated once approved.',
+    },
+  ];
+
+  return (
+    <div className="border-t border-border pt-6">
+      <p className="mb-3 text-center text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        New to ShumelaHire?
+      </p>
+      <div className="grid gap-2">
+        {routes.map(({ href, title, detail }) => (
+          <Link
+            key={href}
+            href={href}
+            className="group rounded-control border border-border bg-card px-4 py-3 transition-colors hover:border-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          >
+            <span className="flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold text-foreground">{title}</span>
+              <svg
+                className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12l-7.5 7.5M21 12H3" />
+              </svg>
+            </span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{detail}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function LoginContent() {
   const router = useRouter();
@@ -126,258 +185,174 @@ function LoginContent() {
   // NEW_PASSWORD_REQUIRED challenge (invited users on first login)
   if (isCognitoConfigured && pendingNewPasswordChallenge) {
     const strength = getPasswordStrength(newPassword);
-    const strengthColor =
-      strength.label === 'Strong' ? 'bg-green-500' :
-      strength.label === 'Good' ? 'bg-gold-500' :
-      strength.label === 'Fair' ? 'bg-yellow-500' :
-      'bg-red-400';
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full space-y-8">
+      <AuthLayout
+        eyebrow="One more step"
+        title="Set a new password"
+        subtitle="Your account was created for you, so it needs a password of your own before you can continue."
+      >
+        <form onSubmit={handleNewPasswordSubmit} className="space-y-5">
+          {error && <AuthAlert tone="error">{error}</AuthAlert>}
+
           <div>
-            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-              Set a new password
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-500">
-              Your account requires a new password before you can continue.
-            </p>
+            <Field
+              id="new-password"
+              label="New password"
+              type="password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              autoComplete="new-password"
+            />
+            {newPassword && <PasswordStrength score={strength.score} label={strength.label} />}
           </div>
 
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
-              {error}
-            </div>
-          )}
+          <Field
+            id="confirm-new-password"
+            label="Confirm password"
+            type="password"
+            required
+            value={confirmNewPwd}
+            onChange={(e) => setConfirmNewPwd(e.target.value)}
+            placeholder="Confirm new password"
+            autoComplete="new-password"
+          />
 
-          <form onSubmit={handleNewPasswordSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="new-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                New Password
-              </label>
-              <input
-                id="new-password"
-                type="password"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Enter new password"
-                autoComplete="new-password"
-              />
-              {newPassword && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${strengthColor}`}
-                        style={{ width: `${strength.score}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-500 w-12">{strength.label}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="confirm-new-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-new-password"
-                type="password"
-                required
-                value={confirmNewPwd}
-                onChange={(e) => setConfirmNewPwd(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Confirm new password"
-                autoComplete="new-password"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
-            >
-              {loading ? 'Setting password...' : 'Set Password'}
-            </button>
-          </form>
-        </div>
-      </div>
+          <AuthButton type="submit" disabled={loading}>
+            {loading ? 'Setting password…' : 'Set password'}
+          </AuthButton>
+        </form>
+      </AuthLayout>
     );
   }
 
   // Cognito login form
   if (isCognitoConfigured) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-              Sign in to your account
-            </h2>
-            <p className="mt-2 text-center text-sm font-extrabold tracking-[-0.03em]">
-              <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
-            </p>
-          </div>
-
-
+      <AuthLayout
+        eyebrow="Welcome back"
+        title="Sign in to your account"
+        footer={<RegistrationRoutes />}
+      >
+        <form onSubmit={handleCognitoLogin} className="space-y-5">
           {registeredSuccess && (
-            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-control">
-              Account created successfully. Sign in to continue.
-            </div>
+            <AuthAlert tone="success">Account created successfully. Sign in to continue.</AuthAlert>
           )}
+          {error && <AuthAlert tone="error">{error}</AuthAlert>}
 
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
-              {error}
-            </div>
-          )}
+          <Field
+            id="email"
+            label="Email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@company.com"
+            autoComplete="email"
+          />
 
-          <form onSubmit={handleCognitoLogin} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="you@company.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+          <div>
+            <Field
+              id="password"
+              label="Password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+            />
+            <div className="mt-2 flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+          <AuthButton type="submit" disabled={loading}>
+            {loading ? 'Signing in…' : 'Sign in'}
+          </AuthButton>
+        </form>
 
-          {isOAuthConfigured && (
-            <>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-gray-50 px-2 text-gray-400 tracking-wider">or</span>
-                </div>
+        {isOAuthConfigured && (
+          <>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-border" />
               </div>
+              <div className="relative flex justify-center">
+                <span className="bg-background px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  or
+                </span>
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={handleLinkedInLogin}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 text-sm font-medium rounded-full bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A66C2] disabled:opacity-50"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#0A66C2">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-                Sign in with LinkedIn
-              </button>
-            </>
-          )}
-
-          <p className="text-center text-sm text-gray-500">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary font-medium hover:underline">
-              Register
-            </Link>
-          </p>
-        </div>
-      </div>
+            <AuthButton type="button" variant="secondary" onClick={handleLinkedInLogin} disabled={loading}>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              Sign in with LinkedIn
+            </AuthButton>
+          </>
+        )}
+      </AuthLayout>
     );
   }
 
   // Mock login for development
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 relative">
-      <div className="max-w-md w-full space-y-8">
+    <AuthLayout
+      eyebrow="Development mode"
+      title="Sign in to your account"
+      subtitle="Cognito is not configured for this environment. Pick a role to sign in with."
+      footer={<RegistrationRoutes />}
+    >
+      <div className="space-y-5">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm font-extrabold tracking-[-0.03em]">
-            <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+          <p
+            id="role-select-label"
+            className="mb-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted-foreground"
+          >
+            Sign in as
           </p>
-          <p className="mt-1 text-center text-xs text-gray-400 uppercase tracking-wider">
-            Development Mode
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="role-select" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Sign in as
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {ALL_ROLES.map((role) => (
+          <div role="group" aria-labelledby="role-select-label" className="grid grid-cols-2 gap-2">
+            {ALL_ROLES.map((role) => {
+              const active = selectedRole === role;
+              return (
                 <button
                   key={role}
+                  type="button"
                   onClick={() => setSelectedRole(role)}
-                  className={`px-3 py-2 text-sm font-medium rounded-full border transition-colors ${
-                    selectedRole === role
-                      ? 'bg-gold-500 text-violet-950 border-gold-500 ring-1 ring-gold-400/40'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-violet-300 hover:bg-gold-50'
+                  aria-pressed={active}
+                  className={`rounded-full border px-3 py-2 text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                    active
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
                   }`}
                 >
                   {ROLE_DISPLAY_NAMES[role]}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-
-          <button
-            onClick={() => handleMockLogin(selectedRole)}
-            className="group relative w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500"
-          >
-            Sign In as {ROLE_DISPLAY_NAMES[selectedRole]}
-          </button>
         </div>
+
+        <AuthButton type="button" onClick={() => handleMockLogin(selectedRole)}>
+          Sign in as {ROLE_DISPLAY_NAMES[selectedRole]}
+        </AuthButton>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<AuthSpinner message="Loading…" />}>
       <LoginContent />
     </Suspense>
   );

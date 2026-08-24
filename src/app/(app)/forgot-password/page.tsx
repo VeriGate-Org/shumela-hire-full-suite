@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import { isCognitoConfigured, configureAmplify } from '@/lib/amplify-config';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
+import AuthLayout from '@/components/auth/AuthLayout';
+import { Field, AuthButton, AuthAlert, PasswordStrength } from '@/components/auth/AuthControls';
 
 if (isCognitoConfigured) {
   configureAmplify();
@@ -23,17 +25,18 @@ export default function ForgotPasswordPage() {
 
   if (!isCognitoConfigured) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Password Reset Unavailable</h2>
-          <p className="text-sm text-gray-500">
-            Password reset is not available in development mode.
-          </p>
-          <Link href="/login" className="text-sm font-medium text-primary hover:underline">
-            Back to sign in
-          </Link>
-        </div>
-      </div>
+      <AuthLayout
+        eyebrow="Unavailable"
+        title="Password reset is unavailable"
+        subtitle="This environment runs without Cognito, so reset codes cannot be sent."
+      >
+        <Link
+          href="/login"
+          className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+        >
+          Back to sign in
+        </Link>
+      </AuthLayout>
     );
   }
 
@@ -103,180 +106,125 @@ export default function ForgotPasswordPage() {
   };
 
   const strength = getPasswordStrength(newPassword);
-  const strengthColor =
-    strength.label === 'Strong' ? 'bg-green-500' :
-    strength.label === 'Good' ? 'bg-gold-500' :
-    strength.label === 'Fair' ? 'bg-yellow-500' :
-    'bg-red-400';
+
+  const TITLES: Record<Step, string> = {
+    request: 'Reset your password',
+    confirm: 'Enter verification code',
+    success: 'Password reset complete',
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            {step === 'request' && 'Reset your password'}
-            {step === 'confirm' && 'Enter verification code'}
-            {step === 'success' && 'Password reset complete'}
-          </h2>
-          <p className="mt-2 text-center text-sm font-extrabold tracking-[-0.03em]">
-            <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+    <AuthLayout
+      eyebrow="Account recovery"
+      title={TITLES[step]}
+      subtitle={
+        step === 'request'
+          ? 'Enter your email address and we will send you a verification code.'
+          : step === 'confirm'
+            ? <>We sent a code to <strong className="font-semibold text-foreground">{email}</strong>. Enter it below with your new password.</>
+            : undefined
+      }
+      footer={
+        step !== 'success' ? (
+          <p className="text-center text-sm text-muted-foreground">
+            <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+              Back to sign in
+            </Link>
           </p>
-        </div>
+        ) : undefined
+      }
+    >
+      <div className="space-y-5">
+        {error && <AuthAlert tone="error">{error}</AuthAlert>}
 
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
-            {error}
-          </div>
-        )}
-
-        {/* Step 1: Request code */}
         {step === 'request' && (
-          <form onSubmit={handleRequestCode} className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Enter your email address and we will send you a verification code to reset your password.
-            </p>
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="you@company.com"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send Verification Code'}
-            </button>
-
-            <p className="text-center text-sm text-gray-500">
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Back to sign in
-              </Link>
-            </p>
+          <form onSubmit={handleRequestCode} className="space-y-5">
+            <Field
+              id="email"
+              label="Email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@company.com"
+              autoComplete="email"
+            />
+            <AuthButton type="submit" disabled={loading}>
+              {loading ? 'Sending\u2026' : 'Send verification code'}
+            </AuthButton>
           </form>
         )}
 
-        {/* Step 2: Confirm code + new password */}
         {step === 'confirm' && (
-          <form onSubmit={handleConfirmReset} className="space-y-4">
-            <p className="text-sm text-gray-600">
-              We sent a verification code to <strong>{email}</strong>. Enter it below along with your new password.
-            </p>
+          <form onSubmit={handleConfirmReset} className="space-y-5">
+            <Field
+              id="code"
+              label="Verification code"
+              type="text"
+              required
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              className="font-mono tracking-[0.3em]"
+            />
 
             <div>
-              <label htmlFor="code" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Verification Code
-              </label>
-              <input
-                id="code"
-                type="text"
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono tracking-widest"
-                placeholder="123456"
-                autoComplete="one-time-code"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="new-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                New Password
-              </label>
-              <input
+              <Field
                 id="new-password"
+                label="New password"
                 type="password"
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 placeholder="Enter new password"
                 autoComplete="new-password"
               />
-              {newPassword && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${strengthColor}`}
-                        style={{ width: `${strength.score}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-500 w-12">{strength.label}</span>
-                  </div>
-                </div>
-              )}
+              {newPassword && <PasswordStrength score={strength.score} label={strength.label} />}
             </div>
 
-            <div>
-              <label htmlFor="confirm-password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Confirm new password"
-                autoComplete="new-password"
-              />
-            </div>
+            <Field
+              id="confirm-password"
+              label="Confirm password"
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              autoComplete="new-password"
+            />
+
+            <AuthButton type="submit" disabled={loading}>
+              {loading ? 'Resetting\u2026' : 'Reset password'}
+            </AuthButton>
 
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50"
+              type="button"
+              onClick={() => { setStep('request'); setError(null); }}
+              className="w-full text-center text-xs font-semibold text-primary underline-offset-4 hover:underline"
             >
-              {loading ? 'Resetting...' : 'Reset Password'}
+              Resend code
             </button>
-
-            <div className="flex justify-between text-sm text-gray-500">
-              <button
-                type="button"
-                onClick={() => { setStep('request'); setError(null); }}
-                className="font-medium text-primary hover:underline"
-              >
-                Resend code
-              </button>
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Back to sign in
-              </Link>
-            </div>
           </form>
         )}
 
-        {/* Step 3: Success */}
         {step === 'success' && (
-          <div className="text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 rounded-control border-l-[3px] border-l-[#047469] bg-[#EFFEFB] px-4 py-4 dark:bg-[#047469]/10">
+              <svg className="h-5 w-5 shrink-0 text-[#047469] dark:text-[#5EEAD4]" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
+              <p className="text-sm text-[#065F52] dark:text-[#5EEAD4]">
+                Your password has been reset. You can sign in with it now.
+              </p>
             </div>
-            <p className="text-sm text-gray-600">
-              Your password has been reset successfully. You can now sign in with your new password.
-            </p>
-            <Link
-              href="/login"
-              className="inline-flex justify-center py-2.5 px-6 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500"
-            >
-              Sign In
+            <Link href="/login" className="block">
+              <AuthButton type="button" tabIndex={-1}>Sign in</AuthButton>
             </Link>
           </div>
         )}
       </div>
-    </div>
+    </AuthLayout>
   );
 }
