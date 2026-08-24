@@ -10,9 +10,12 @@ import DistributionStrip from '@/components/record/DistributionStrip';
 import { TEMPLATE_PLACEHOLDERS } from '@/types/jobTemplate';
 import {
   LibraryCounts,
+  REVISION_CYCLE_MONTHS,
   busiest,
   countLibrary,
   hasUsageData,
+  monthsSinceRevision,
+  overdueTemplates,
 } from './library';
 import TemplateEditor from '@/components/templates/TemplateEditor';
 import GenerateFromTemplate from '@/components/templates/GenerateFromTemplate';
@@ -131,6 +134,8 @@ const JobTemplatesPage: React.FC = () => {
   const counts: LibraryCounts | null = templates.length > 0 ? countLibrary(templates) : null;
   const usageKnown = hasUsageData(templates);
   const mostUsed = busiest(templates);
+  // Worst first, so the decision bar names the template carrying the most exposure.
+  const overdue = overdueTemplates(templates);
 
   const actions = (
     <div className="flex items-center gap-2 flex-wrap">
@@ -213,6 +218,13 @@ const JobTemplatesPage: React.FC = () => {
                   : []),
                 { label: 'In use', value: counts.inUse },
                 {
+                  label: 'Overdue revision',
+                  value: counts.overdueRevision,
+                  tone: (counts.overdueRevision > 0 ? 'critical' : undefined) as
+                    | 'critical'
+                    | undefined,
+                },
+                {
                   label: 'Never used',
                   value: counts.neverUsed,
                   tone: (counts.neverUsed > 0 ? 'warning' : undefined) as 'warning' | undefined,
@@ -222,13 +234,29 @@ const JobTemplatesPage: React.FC = () => {
         }
       />
 
-      {counts && usageKnown && mostUsed && (
+      {counts && usageKnown && (overdue.length > 0 || mostUsed) && (
         <DecisionBar
-          ask={`${mostUsed.name} has produced ${mostUsed.usageCount} of the ${counts.advertsGenerated} adverts on this tenant.`}
-          why="Every advert a template writes carries whatever is wrong with it, so the one doing most of the work is the one worth reviewing first."
+          ask={
+            overdue.length > 0
+              ? `${overdue.length} ${
+                  overdue.length === 1 ? 'template is' : 'templates are'
+                } writing adverts nobody has revised in over ${REVISION_CYCLE_MONTHS} months.`
+              : `${mostUsed!.name} has produced ${mostUsed!.usageCount} of the ${
+                  counts.advertsGenerated
+                } adverts on this tenant.`
+          }
+          why={
+            overdue.length > 0
+              ? `${overdue[0].name} has produced ${overdue[0].usageCount} adverts and was last revised ${
+                  monthsSinceRevision(overdue[0]) ?? '—'
+                } months ago. Every advert a template writes carries whatever is wrong with it.`
+              : 'Every advert a template writes carries whatever is wrong with it, so the one doing most of the work is the one worth reviewing first.'
+          }
           tone="owed"
         >
-          <PrimaryAction onClick={() => handleEdit(mostUsed)}>Review {mostUsed.name}</PrimaryAction>
+          <PrimaryAction onClick={() => handleEdit(overdue[0] ?? mostUsed!)}>
+            Review {(overdue[0] ?? mostUsed!).name}
+          </PrimaryAction>
           <SecondaryAction onClick={handleCreateNew}>New template</SecondaryAction>
         </DecisionBar>
       )}
@@ -237,6 +265,11 @@ const JobTemplatesPage: React.FC = () => {
         <DistributionStrip
           buckets={[
             { label: 'In use', count: counts.inUse, detail: 'Produced an advert' },
+            {
+              label: 'Overdue revision',
+              count: counts.overdueRevision,
+              detail: `In use, unrevised ${REVISION_CYCLE_MONTHS}+ months`,
+            },
             { label: 'Never used', count: counts.neverUsed, detail: 'Created, never drawn on' },
             { label: 'Archived', count: counts.archived, detail: 'Hidden by default' },
           ]}

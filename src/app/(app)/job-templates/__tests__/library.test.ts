@@ -1,5 +1,9 @@
 import {
   LIBRARY_FILTERS,
+  REVISION_CYCLE_MONTHS,
+  isOverdueRevision,
+  monthsSinceRevision,
+  overdueTemplates,
   TemplateRow,
   advertsProduced,
   busiest,
@@ -9,6 +13,14 @@ import {
   hasUsageData,
   stateOf,
 } from '../library';
+
+const NOW = new Date('2026-08-24T12:00:00');
+
+function monthsAgo(months: number): Date {
+  const d = new Date(NOW);
+  d.setMonth(d.getMonth() - months);
+  return d;
+}
 
 function template(overrides: Partial<TemplateRow> = {}): TemplateRow {
   return { id: 't1', name: 'Investment Analyst', usageCount: 0, ...overrides };
@@ -118,6 +130,7 @@ describe('countLibrary', () => {
     expect(counts).toEqual({
       total: 0,
       inUse: 0,
+      overdueRevision: 0,
       neverUsed: 0,
       archived: 0,
       advertsGenerated: 0,
@@ -159,5 +172,87 @@ describe('hasUsageData', () => {
 
   it('is true as soon as one template has produced something', () => {
     expect(hasUsageData([template({ id: 'a' }), template({ id: 'b', usageCount: 3 })])).toBe(true);
+  });
+});
+
+describe('overdue revision', () => {
+  it('flags a template in use and past the cycle', () => {
+    const row = template({ usageCount: 31, updatedAt: monthsAgo(14) });
+    expect(isOverdueRevision(row, NOW)).toBe(true);
+    expect(stateOf(row, NOW)).toBe('overdue-revision');
+  });
+
+  it('does not flag one revised inside the cycle', () => {
+    const row = template({ usageCount: 31, updatedAt: monthsAgo(REVISION_CYCLE_MONTHS - 1) });
+    expect(isOverdueRevision(row, NOW)).toBe(false);
+    expect(stateOf(row, NOW)).toBe('in-use');
+  });
+
+  it('flags exactly on the cycle boundary', () => {
+    const row = template({ usageCount: 5, updatedAt: monthsAgo(REVISION_CYCLE_MONTHS) });
+    expect(isOverdueRevision(row, NOW)).toBe(true);
+  });
+
+  it('never flags a template that has produced nothing', () => {
+    // Nothing depends on it being right, so calling it overdue would bury the ones that matter.
+    const row = template({ usageCount: 0, updatedAt: monthsAgo(40) });
+    expect(isOverdueRevision(row, NOW)).toBe(false);
+    expect(stateOf(row, NOW)).toBe('never-used');
+  });
+
+  it('never flags an archived template', () => {
+    const row = template({ usageCount: 31, isArchived: true, updatedAt: monthsAgo(40) });
+    expect(isOverdueRevision(row, NOW)).toBe(false);
+    expect(stateOf(row, NOW)).toBe('archived');
+  });
+
+  it('does not flag on a missing or unreadable date', () => {
+    // An unknown date is not evidence of neglect; flagging on it accuses a template of something
+    // nobody can check.
+    expect(isOverdueRevision(template({ usageCount: 31 }), NOW)).toBe(false);
+    expect(isOverdueRevision(template({ usageCount: 31, updatedAt: 'nonsense' }), NOW)).toBe(false);
+  });
+
+  it('does not report a future revision date as overdue', () => {
+    const future = new Date(NOW);
+    future.setMonth(future.getMonth() + 3);
+    expect(monthsSinceRevision(template({ updatedAt: future }), NOW)).toBe(0);
+  });
+
+  it('accepts a Date or a string, because the API sends both', () => {
+    const asDate = template({ usageCount: 9, updatedAt: monthsAgo(20) });
+    const asString = template({ usageCount: 9, updatedAt: monthsAgo(20).toISOString() });
+    expect(isOverdueRevision(asDate, NOW)).toBe(isOverdueRevision(asString, NOW));
+  });
+});
+
+describe('overdueTemplates', () => {
+  it('ranks by adverts produced, not by how overdue', () => {
+    // Thirty-one adverts a month past the line is more exposure than two adverts a year past it.
+    const rows = [
+      template({ id: 'small', usageCount: 2, updatedAt: monthsAgo(30) }),
+      template({ id: 'large', usageCount: 31, updatedAt: monthsAgo(13) }),
+    ];
+    expect(overdueTemplates(rows, NOW).map((r) => r.id)).toEqual(['large', 'small']);
+  });
+
+  it('is empty when nothing is overdue', () => {
+    expect(overdueTemplates([template({ usageCount: 31, updatedAt: monthsAgo(2) })], NOW)).toEqual([]);
+  });
+});
+
+describe('countLibrary with the revision cycle', () => {
+  it('counts overdue templates inside in-use rather than beside it', () => {
+    const counts = countLibrary([
+      template({ id: 'fresh', usageCount: 19, updatedAt: monthsAgo(2) }),
+      template({ id: 'stale', usageCount: 31, updatedAt: monthsAgo(14) }),
+      template({ id: 'unused', usageCount: 0 }),
+    ], NOW);
+
+    // The overdue one is still doing work — the flag is about the copy, not the workload.
+    expect(counts.inUse).toBe(2);
+    expect(counts.overdueRevision).toBe(1);
+    expect(counts.neverUsed).toBe(1);
+    expect(counts.total).toBe(3);
   });
 });

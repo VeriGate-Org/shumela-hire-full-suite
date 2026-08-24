@@ -98,7 +98,7 @@ def resolve_table():
 def make_template_item(template_id, created_at, name, description, title,
                        intro, responsibilities, requirements, benefits,
                        location, employment_type, salary_min, salary_max,
-                       contact_email):
+                       contact_email, usage_count=0):
     """Build a DynamoDB item dict matching the JobAdTemplateItem schema."""
     ts = iso(created_at)
     return {
@@ -125,7 +125,11 @@ def make_template_item(template_id, created_at, name, description, title,
         'salaryRangeMax':   {'S': str(salary_max)},
         'contactEmail':     {'S': contact_email},
         'isArchived':       {'BOOL': False},
-        'usageCount':       {'N': '0'},
+        # Seeded rather than left at zero. The library screen ranks templates by how many
+        # adverts each has produced, and with every count at zero the ranking says nothing and
+        # the screen cannot be demonstrated. Two templates are deliberately left at 0 so the
+        # "never used" state is visible too.
+        'usageCount':       {'N': str(usage_count)},
         'createdBy':        {'S': 'system-seed'},
         'createdAt':        {'S': ts},
         'updatedAt':        {'S': ts},
@@ -140,6 +144,7 @@ TEMPLATES = [
     # 1. Investment Analyst
     {
         'name': 'Investment Analyst',
+        'usage_count': 31,
         'description': 'Template for Investment Analyst roles in development finance and industrial funding divisions.',
         'title': '{{jobTitle}} — {{department}}',
         'intro': (
@@ -190,6 +195,7 @@ TEMPLATES = [
     # 2. ICT Business Analyst
     {
         'name': 'ICT Business Analyst',
+        'usage_count': 19,
         'description': 'Template for Business Analyst roles within IT and digital transformation divisions.',
         'title': '{{jobTitle}} — {{department}}',
         'intro': (
@@ -336,6 +342,7 @@ TEMPLATES = [
     # 5. Graduate Trainee Programme
     {
         'name': 'Graduate Trainee Programme',
+        'usage_count': 13,
         'description': 'Template for structured graduate / internship programmes with rotational placements.',
         'title': '{{jobTitle}} — Graduate Trainee Programme',
         'intro': (
@@ -427,6 +434,7 @@ def main():
             salary_min=t['salary_min'],
             salary_max=t['salary_max'],
             contact_email=t['contact_email'],
+            usage_count=t.get('usage_count', 0),
         )
 
         ok, msg = put_item(item)
