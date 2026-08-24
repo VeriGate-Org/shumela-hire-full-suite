@@ -52,7 +52,11 @@ interface Document {
 }
 
 interface ApplicantProfileProps {
-  applicantId?: number;
+  /**
+   * The API returns a string id. This declared `number`, which typed a lie — it is only ever
+   * interpolated into a URL, so nothing broke, and nothing would have warned if it had.
+   */
+  applicantId?: string | number;
   onSave?: (applicant: ApplicantData) => void;
 }
 
