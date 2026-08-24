@@ -31,7 +31,9 @@ jest.mock('@/contexts/AuthContext', () => ({
 jest.mock('@/services/eSignatureService', () => ({
   eSignatureService: {
     getStatus: jest.fn().mockRejectedValue(new Error('not used')),
+    getProvider: jest.fn().mockResolvedValue({ provider: 'local', simulated: true }),
     sendForSignature: jest.fn(),
+    simulateSign: jest.fn(),
     downloadSignedDocument: jest.fn(),
   },
 }));
