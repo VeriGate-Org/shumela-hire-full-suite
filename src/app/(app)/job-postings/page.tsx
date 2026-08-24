@@ -16,6 +16,23 @@ import { useToast } from '@/components/Toast';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
+import IdentityBand from '@/components/record/IdentityBand';
+import DecisionBar, { PrimaryAction } from '@/components/record/DecisionBar';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  JobPostingSummary,
+  QUEUE_FILTERS,
+  byDeadline,
+  closesLabel,
+  conversionRate,
+  daysLive,
+  filterCount,
+  isPostingSummary,
+  requestStatusFor,
+  stateOf,
+  STATE_LABELS,
+} from './queue';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import LinkedInPostToCompany from '@/components/LinkedInPostToCompany';
 
@@ -53,6 +70,14 @@ interface JobPosting {
   publishedBy?: number;
   daysFromCreation: number;
   daysFromPublication: number;
+  /**
+   * Sent by JobPostingResponse and never declared here, which is the whole reason an advert
+   * that stopped accepting applications a fortnight ago looked identical to a live one.
+   */
+  applicationDeadline?: string | null;
+  /** Published and the deadline has not passed. Derived on the server, per record. */
+  isPublic?: boolean;
+  isDeadlinePassed?: boolean;
   applicationsCount: number;
   viewsCount: number;
   featured: boolean;
@@ -64,19 +89,9 @@ interface JobPosting {
 
 const PAGE_SIZE = 10;
 
-const ALL_STATUSES = [
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'PUBLISHED', label: 'Published' },
-  { value: 'UNPUBLISHED', label: 'Unpublished' },
-  { value: 'REJECTED', label: 'Rejected' },
-  { value: 'CLOSED', label: 'Closed' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-];
-
 export default function JobPostingsPage() {
   const [view, setView] = useState<'list' | 'workflow'>('list');
+  const [summary, setSummary] = useState<JobPostingSummary | null>(null);
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
   const [selectedJobPosting, setSelectedJobPosting] = useState<JobPosting | null>(null);
   const [cloneInitialData, setCloneInitialData] = useState<Record<string, unknown> | null>(null);
@@ -84,7 +99,7 @@ export default function JobPostingsPage() {
   const [editingJobPostingId, setEditingJobPostingId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('attention');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -138,8 +153,9 @@ export default function JobPostingsPage() {
       if (searchTerm.trim()) {
         params.set('search', searchTerm.trim());
       }
-      if (statusFilter !== 'ALL') {
-        params.set('status', statusFilter);
+      const requested = requestStatusFor(statusFilter);
+      if (requested) {
+        params.set('status', requested);
       }
 
       const response = await apiFetch(`/api/job-postings/search?${params.toString()}`);
@@ -175,10 +191,45 @@ export default function JobPostingsPage() {
     debounceRef.current = setTimeout(() => setCurrentPage(0), 300);
   };
 
+  /**
+   * The rows for the grid.
+   *
+   * <p>Filtered by the chip's derived state — which is the only way to express "past deadline",
+   * since the server has no status for it — and ordered so what has already expired leads.
+   */
+  const rows = useMemo(() => {
+    const states = QUEUE_FILTERS.find((filter) => filter.key === statusFilter)?.states ?? [];
+    const matching = states.length === 0
+      ? jobPostings
+      : jobPostings.filter((posting) => states.includes(stateOf(posting)));
+    return byDeadline(matching);
+  }, [jobPostings, statusFilter]);
+
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value);
     setCurrentPage(0);
   };
+
+  /**
+   * Whole-set counts.
+   *
+   * <p>Left null on failure and validated on arrival: every figure derived from it is then omitted
+   * rather than rendered as a zero somebody would act on.
+   */
+  const loadSummary = useCallback(async () => {
+    try {
+      const response = await apiFetch('/api/job-postings/summary');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      setSummary(isPostingSummary(payload) ? payload : null);
+    } catch {
+      setSummary(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSummary();
+  }, [loadSummary]);
 
   // Clean up debounce timer
   useEffect(() => {
@@ -432,12 +483,6 @@ export default function JobPostingsPage() {
     return pages;
   };
 
-  // Compute stats from loaded data
-  const statTotalPostings = totalElements;
-  const statPublished = jobPostings.filter(jp => jp.status === 'PUBLISHED').length;
-  const statPending = jobPostings.filter(jp => jp.status === 'PENDING_APPROVAL').length;
-  const statTotalApplicants = jobPostings.reduce((sum, jp) => sum + jp.applicationsCount, 0);
-
   return (
     <PageWrapper
       title={getPageTitle()}
@@ -453,62 +498,103 @@ export default function JobPostingsPage() {
               </div>
             )}
 
-            {/* Stats Bar */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-              <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-navy text-accent-navy flex items-center justify-center shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-foreground leading-none">{statTotalPostings}</div>
-                  <div className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Total Postings</div>
-                </div>
-              </div>
-              <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-teal text-accent-teal flex items-center justify-center shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-foreground leading-none">{statPublished}</div>
-                  <div className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Published</div>
-                </div>
-              </div>
-              <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-gold text-accent-gold flex items-center justify-center shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-foreground leading-none">{statPending}</div>
-                  <div className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Pending Approval</div>
-                </div>
-              </div>
-              <div className="enterprise-card p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-card bg-icon-bg-pink text-accent-pink flex items-center justify-center shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-foreground leading-none">{statTotalApplicants}</div>
-                  <div className="text-[0.8125rem] text-muted-foreground font-medium mt-0.5">Total Applicants</div>
-                </div>
-              </div>
-            </div>
+            <IdentityBand
+              eyebrow="Advert queue"
+              title="Job Postings"
+              subtitle={
+                summary
+                  ? `${summary.total} ${summary.total === 1 ? 'advert' : 'adverts'} · ${
+                      summary.applicationsReceived
+                    } applications received`
+                  : 'Counts unavailable'
+              }
+              figures={
+                summary
+                  ? [
+                      { label: 'Open to applicants', value: summary.openToApplicants },
+                      { label: 'Awaiting approval', value: summary.awaitingApproval },
+                      {
+                        label: 'Past deadline',
+                        value: summary.pastDeadline,
+                        tone: (summary.pastDeadline > 0 ? 'critical' : undefined) as
+                          | 'critical'
+                          | undefined,
+                      },
+                    ]
+                  : []
+              }
+            />
 
-            {/* Status Tabs */}
-            <div className="enterprise-card p-1.5 flex gap-1 mb-4 flex-wrap">
-              {[{ value: 'ALL', label: 'All' }, ...ALL_STATUSES].map(({ value, label }) => (
-                <button
-                  key={value}
-                  onClick={() => handleStatusFilterChange(value)}
-                  className={`flex-1 min-w-[100px] py-2.5 px-4 rounded-control text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                    statusFilter === value
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-background hover:text-foreground'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {summary && summary.pastDeadline > 0 && (
+              <DecisionBar
+                ask={`${summary.pastDeadline} ${
+                  summary.pastDeadline === 1 ? 'advert is' : 'adverts are'
+                } past their closing date and still listed as Published.`}
+                why={
+                  typeof summary.oldestExpiredDays === 'number'
+                    ? `They stopped accepting applications when the deadline passed, and nothing closed them. The oldest expired ${
+                        summary.oldestExpiredDays
+                      } ${summary.oldestExpiredDays === 1 ? 'day' : 'days'} ago.`
+                    : 'They stopped accepting applications when the deadline passed, and nothing closed them.'
+                }
+              >
+                <PrimaryAction onClick={() => handleStatusFilterChange('attention')}>
+                  Review expired
+                </PrimaryAction>
+              </DecisionBar>
+            )}
+
+            {summary ? (
+              <DistributionStrip
+                buckets={[
+                  { label: 'Draft', count: filterCount(summary, 'draft') ?? 0, detail: 'Not submitted' },
+                  {
+                    label: 'Awaiting approval',
+                    count: summary.awaitingApproval,
+                    detail: 'Decision owed',
+                  },
+                  {
+                    label: 'Open to applicants',
+                    count: summary.openToApplicants,
+                    detail: 'Published, deadline ahead',
+                  },
+                  {
+                    label: 'Past deadline',
+                    count: summary.pastDeadline,
+                    detail: 'Still marked Published',
+                  },
+                  { label: 'Closed', count: filterCount(summary, 'closed') ?? 0, detail: 'Deliberately ended' },
+                ]}
+                footnote={
+                  <>
+                    Open and past deadline are both status{' '}
+                    <b className="font-bold text-foreground">PUBLISHED</b> — the split is the closing
+                    date, which nothing acts on when it passes.
+                  </>
+                }
+              />
+            ) : (
+              !loading && (
+                <p className="text-sm text-muted-foreground px-1 mb-4">
+                  Counts are unavailable — the summary could not be loaded.
+                </p>
+              )
+            )}
+
+            <FilterChips
+              chips={QUEUE_FILTERS.map((filter) => ({
+                key: filter.key,
+                label: filter.label,
+                count: filterCount(summary, filter.key) ?? undefined,
+              }))}
+              activeKey={statusFilter}
+              onChange={handleStatusFilterChange}
+              note={
+                <>
+                  Sorted by <b className="font-bold text-foreground">deadline</b>
+                </>
+              }
+            />
 
             {/* Filter Bar */}
             <div className="enterprise-card p-4 mb-6 flex items-center gap-3 flex-wrap">
@@ -568,7 +654,7 @@ export default function JobPostingsPage() {
                   </div>
                 ))}
               </div>
-            ) : jobPostings.length === 0 ? (
+            ) : rows.length === 0 ? (
               <EmptyState
                 icon={DocumentTextIcon}
                 title="No job postings available"
@@ -586,7 +672,7 @@ export default function JobPostingsPage() {
               <>
                 {/* Job Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                  {jobPostings.map((jobPosting) => (
+                  {rows.map((jobPosting) => (
                     <div
                       key={jobPosting.id}
                       className="enterprise-card p-5 flex flex-col relative group"
@@ -612,8 +698,17 @@ export default function JobPostingsPage() {
 
                       {/* Badges Row */}
                       <div className="flex flex-wrap gap-1.5 mb-3.5">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider ${jobPosting.statusCssClass}`}>
-                          {jobPosting.statusDisplayName}
+                        {/* The derived state, not the raw status. An advert whose deadline passed
+                            is still PUBLISHED, and wearing that pill beside a genuinely live one is
+                            the reason this page could not be read. */}
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider ${
+                            stateOf(jobPosting) === 'past-deadline'
+                              ? 'bg-error-bg text-error'
+                              : jobPosting.statusCssClass
+                          }`}
+                        >
+                          {STATE_LABELS[stateOf(jobPosting)]}
                         </span>
                         {jobPosting.featured && (
                           <span className="inline-flex items-center px-2.5 py-[3px] rounded-full text-[0.6875rem] font-bold uppercase tracking-wider bg-surface-gold text-accent-gold">
@@ -651,8 +746,47 @@ export default function JobPostingsPage() {
                         </div>
                         <div className="flex items-center gap-2 text-foreground">
                           <svg className="w-3.5 h-3.5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                          <span className="text-muted-foreground">Posted:</span> {jobPosting.daysFromCreation} days ago
+                          {/* Days live, not days since creation: daysFromCreation on a draft counts
+                              from when somebody started typing. */}
+                          <span className="text-muted-foreground">Live for:</span>{' '}
+                          {daysLive(jobPosting) === null
+                            ? 'Not advertised'
+                            : `${daysLive(jobPosting)} days`}
                         </div>
+                        <div className="flex items-center gap-2 text-foreground">
+                          <svg className="w-3.5 h-3.5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          {/* viewsCount is on every record and was rendered nowhere. Views against
+                              applications is what distinguishes an advert nobody sees from one
+                              nobody who sees it applies to — opposite remedies. */}
+                          <span className="text-muted-foreground">Reach:</span>{' '}
+                          {typeof jobPosting.viewsCount === 'number' ? (
+                            <>
+                              {jobPosting.viewsCount} views
+                              {conversionRate(jobPosting) !== null && (
+                                <span className="text-muted-foreground">
+                                  {' '}· {conversionRate(jobPosting)!.toFixed(1)}%
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            'Not recorded'
+                          )}
+                        </div>
+                        {closesLabel(jobPosting) && (
+                          <div className="flex items-center gap-2 text-foreground">
+                            <svg className="w-3.5 h-3.5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span className="text-muted-foreground">Closes:</span>{' '}
+                            <span
+                              className={
+                                stateOf(jobPosting) === 'past-deadline'
+                                  ? 'text-error font-semibold'
+                                  : undefined
+                              }
+                            >
+                              {closesLabel(jobPosting)}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Card Footer */}
@@ -670,7 +804,10 @@ export default function JobPostingsPage() {
                       </div>
 
                       {/* Card Action Menu (top-right) */}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Always visible. These were opacity-0 group-hover:opacity-100, so edit,
+                          publish and delete did not exist on a touch device and a keyboard user
+                          tabbed onto invisible controls. */}
+                      <div className="absolute top-3 right-3">
                         <div className="flex items-center gap-1">
                           {jobPosting.canBeEdited && (
                             <button
