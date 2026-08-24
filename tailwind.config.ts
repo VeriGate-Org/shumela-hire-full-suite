@@ -90,6 +90,18 @@ const config: Config = {
       },
       navy: '#0F172A',
       charcoal: '#1E293B',
+      // Identity band — fixed navy plate, same in light and dark (see globals.css)
+      band: 'var(--band)',
+      'band-foreground': 'var(--band-foreground)',
+      'band-strong': 'var(--band-strong)',
+      'band-muted': 'var(--band-muted)',
+      'band-faint': 'var(--band-faint)',
+      'band-dim': 'var(--band-dim)',
+      'band-fill': 'var(--band-fill)',
+      'band-line': 'var(--band-line)',
+      'band-accent': 'var(--band-accent)',
+      'band-accent-fill': 'var(--band-accent-fill)',
+      'band-accent-line': 'var(--band-accent-line)',
       // Theme-aware semantic colors using CSS variables
       background: 'var(--background)',
       foreground: 'var(--foreground)',

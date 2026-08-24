@@ -17,7 +17,10 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
+    /* Base URL to use in actions like `await page.goto('/')`.
+       Deliberately not 3000. With reuseExistingServer below, any `next dev` already on the
+       default port is adopted — including one from a different worktree — and the suite then
+       silently tests another checkout's code while reporting on this one. */
     baseURL: 'http://localhost:3210',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -75,6 +78,6 @@ export default defineConfig({
     command: 'npm run dev -- --port 3210',
     url: 'http://localhost:3210',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // 2 minutes
+    timeout: 180 * 1000, // 3 minutes — a cold Turbopack build of this app exceeds two
   },
 });

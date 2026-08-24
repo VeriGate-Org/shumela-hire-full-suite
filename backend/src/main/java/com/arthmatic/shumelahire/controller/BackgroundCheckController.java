@@ -53,6 +53,9 @@ public class BackgroundCheckController {
     @Autowired
     private ApplicationDataRepository applicationRepository;
 
+    @Autowired
+    private com.arthmatic.shumelahire.service.ApplicationJobPostingResolver jobPostingResolver;
+
     /**
      * Initiate a background check for an application.
      */
@@ -163,10 +166,14 @@ public class BackgroundCheckController {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
 
-        JobPosting jobPosting = application.getJobPosting();
+        // Resolved, not read straight off the relation: on DynamoDB it is never hydrated, so this
+        // endpoint returned HTTP 500 ("because \"jobPosting\" is null") on every application and the
+        // Verification panel showed an error instead of the outstanding checks.
+        JobPosting jobPosting = jobPostingResolver.resolve(application).orElse(null);
         Map<String, Object> result = new java.util.HashMap<>();
-        result.put("requiredCheckTypes", jobPosting.getRequiredCheckTypes());
-        result.put("enforceCheckCompletion", jobPosting.getEnforceCheckCompletion());
+        // An application with no posting is a real state, not an error — answer "nothing required".
+        result.put("requiredCheckTypes", jobPosting != null ? jobPosting.getRequiredCheckTypes() : null);
+        result.put("enforceCheckCompletion", jobPosting != null && Boolean.TRUE.equals(jobPosting.getEnforceCheckCompletion()));
         return ResponseEntity.ok(result);
     }
 
