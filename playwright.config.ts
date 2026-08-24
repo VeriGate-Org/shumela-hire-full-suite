@@ -33,8 +33,19 @@ export default defineConfig({
    * Local runs are unaffected: `retries` is 0 there and a developer can watch the whole suite.
    */
   maxFailures: process.env.CI ? 5 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  /*
+   * `list` alongside `html`, because `html` alone prints nothing until the run ends.
+   *
+   * A job on 24 Aug logged "Running 109 tests using 1 worker" at 21:19:24 and then produced no
+   * further output at all before being cancelled at 22:22:27 — sixty-three minutes of silence. The
+   * tests were running the whole time. There was simply no way to tell that apart from a hung
+   * process, which is why several of these were left to run for the best part of an hour before
+   * anyone concluded anything.
+   *
+   * `list` streams a line per test, so the log answers "is it stuck, or just failing slowly?"
+   * without waiting for the report. `html` is kept for the uploaded artefact.
+   */
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`.
