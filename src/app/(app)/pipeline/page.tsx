@@ -3,6 +3,26 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { apiFetch, refusalMessage } from '@/lib/api-fetch';
+import {
+  BOARD_FILTERS,
+  BoardCard,
+  PipelineAnalytics,
+  actionOwed,
+  biggestDropOff,
+  daysInStage,
+  daysLabel,
+  feedbackBadge,
+  isBoardCard,
+  isPipelineAnalytics,
+  isStuck,
+  legalMoves,
+  matchesFilter as matchesBoardFilter,
+  offerBadge,
+  regressedIds,
+  stageMedianDays,
+  stageSampleSize,
+  stuckCandidates,
+} from './board';
 import { useToast } from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
@@ -50,12 +70,16 @@ import { KanbanSkeleton } from '@/components/LoadingComponents';
 
 // --- Stage grouping: maps 16 backend PipelineStage enum values into 7 display columns ---
 
+// Stage colours come from the palette tokens. These were five hardcoded Tailwind ramps —
+// bg-purple-100, bg-yellow-100, bg-green-100, bg-green-200, bg-green-600 text-white — that sat
+// outside the ShumelaHire palette, did not survive dark mode, and carried no meaning beyond
+// "further right".
 const STAGE_GROUPS = [
   {
     id: 'applied',
     displayName: 'Applied',
     order: 1,
-    color: 'bg-gray-100 text-gray-800 border-gray-300',
+    color: 'bg-muted text-muted-foreground border-border',
     icon: UserIcon,
     description: 'Initial application submitted',
     backendStages: ['APPLICATION_RECEIVED'],
@@ -64,7 +88,7 @@ const STAGE_GROUPS = [
     id: 'screening',
     displayName: 'Screening',
     order: 2,
-    color: 'bg-gold-100 text-gold-800 border-gold-300',
+    color: 'bg-icon-bg-gold text-accent-gold border-border',
     icon: EyeIcon,
     description: 'Resume and initial screening',
     backendStages: ['INITIAL_SCREENING', 'PHONE_SCREENING'],
@@ -73,7 +97,7 @@ const STAGE_GROUPS = [
     id: 'interviews',
     displayName: 'Interviews',
     order: 3,
-    color: 'bg-purple-100 text-purple-800 border-purple-300',
+    color: 'bg-icon-bg-navy text-accent-navy border-border',
     icon: CalendarIcon,
     description: 'Interview rounds',
     backendStages: [
@@ -85,7 +109,7 @@ const STAGE_GROUPS = [
     id: 'checks',
     displayName: 'Checks',
     order: 4,
-    color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    color: 'bg-icon-bg-pink text-accent-pink border-border',
     icon: ShieldCheckIcon,
     description: 'Reference and background checks',
     backendStages: ['REFERENCE_CHECK', 'BACKGROUND_CHECK'],
@@ -94,7 +118,7 @@ const STAGE_GROUPS = [
     id: 'offer',
     displayName: 'Offer',
     order: 5,
-    color: 'bg-green-100 text-green-800 border-green-300',
+    color: 'bg-icon-bg-teal text-accent-teal border-border',
     icon: BriefcaseIcon,
     description: 'Offer extended to candidate',
     backendStages: ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION'],
@@ -103,7 +127,7 @@ const STAGE_GROUPS = [
     id: 'accepted',
     displayName: 'Accepted',
     order: 6,
-    color: 'bg-green-200 text-green-900 border-green-400',
+    color: 'bg-icon-bg-teal text-accent-teal border-accent-teal',
     icon: CheckCircleIcon,
     description: 'Offer accepted by candidate',
     backendStages: ['OFFER_ACCEPTED'],
@@ -112,7 +136,7 @@ const STAGE_GROUPS = [
     id: 'hired',
     displayName: 'Hired',
     order: 7,
-    color: 'bg-green-600 text-white border-green-600',
+    color: 'bg-accent-teal text-white border-accent-teal',
     icon: CheckCircleIcon,
     description: 'Successfully hired',
     backendStages: ['HIRED'],
@@ -189,6 +213,15 @@ interface Application {
   submittedAt: string;
   lastActivity: string;
   daysInStage: number;
+  /**
+   * The raw stage-entry timestamp, unfilled.
+   *
+   * daysInStage above falls back to updatedAt when this is absent, which keeps an existing display
+   * working. The stuck calculation deliberately does not: without a real entry time there is no
+   * honest dwell, and inventing one from the last edit is the bug that made rating a candidate
+   * reset their apparent dwell to zero.
+   */
+  pipelineStageEnteredAt?: string | null;
   progress: number;
   rating: number;
   screeningNotes: string;
@@ -213,7 +246,8 @@ interface PipelineMetrics {
   stageMetrics: Record<string, {
     count: number;
     averageDays: number;
-    conversionRate: number;
+    /** Null when the analytics are unavailable — a conversion rate cannot be guessed from a snapshot. */
+    conversionRate: number | null;
   }>;
 }
 
@@ -236,8 +270,15 @@ export default function PipelinePage() {
     notes?: string;
     performedBy?: string;
   }>>([]);
-  const [backendMetrics, setBackendMetrics] = useState<PipelineMetrics | null>(null);
   const [verificationSummaries, setVerificationSummaries] = useState<Record<string, VerificationSummary>>({});
+  // Per-card decoration from GET /api/pipeline/board-cards. An id absent from this map means the
+  // batch did not answer for it — which is not the same as the card having nothing to show.
+  const [boardCards, setBoardCards] = useState<Record<string, BoardCard>>({});
+  // Whole-pipeline analytics. Guarded, because this endpoint returned a 500 on every call until
+  // the analytics were implemented and the page had no way of noticing.
+  const [analytics, setAnalytics] = useState<PipelineAnalytics | null>(null);
+  const [analyticsFailed, setAnalyticsFailed] = useState(false);
+  const [boardFilter, setBoardFilter] = useState('all');
   const [offers, setOffers] = useState<Record<string, any>>({});
   const [offerLoading, setOfferLoading] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
@@ -248,7 +289,6 @@ export default function PipelinePage() {
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [ratingUpdating, setRatingUpdating] = useState(false);
   const [screeningNotesOpen, setScreeningNotesOpen] = useState(false);
-  const [interviewPreviews, setInterviewPreviews] = useState<Record<string, { nextDate?: string; nextType?: string; status?: string; feedbackCount?: number; totalInterviewers?: number; latestRecommendation?: string }>>({});
   const [schedulerApplicationId, setSchedulerApplicationId] = useState<string | null>(null);
   // Lets the AI notes drafter hand its text to the notes box instead of into the void.
   const notesPanelRef = useRef<ScreeningNotesHandle>(null);
@@ -277,6 +317,39 @@ export default function PipelinePage() {
   };
 
   // Load verification summaries for checks-column applications
+  /**
+   * Legal moves, offer state and interview state for every card on the board, in one call.
+   *
+   * Replaces two per-card fetch loops. Cards the server did not answer for are left absent rather
+   * than filled with an empty object, so the page can tell "nowhere to move" from "not loaded".
+   */
+  const loadBoardCards = useCallback(async (apps: Application[]) => {
+    const ids = apps.map(a => String(a.id)).filter(Boolean);
+    if (ids.length === 0) {
+      setBoardCards({});
+      return;
+    }
+    try {
+      const response = await apiFetch(
+        `/api/pipeline/board-cards?applicationIds=${ids.map(encodeURIComponent).join(',')}`,
+      );
+      if (!response.ok) {
+        setBoardCards({});
+        return;
+      }
+      const payload = await response.json();
+      const valid: Record<string, BoardCard> = {};
+      if (payload && typeof payload === 'object') {
+        for (const [id, entry] of Object.entries(payload)) {
+          if (isBoardCard(entry)) valid[id] = entry;
+        }
+      }
+      setBoardCards(valid);
+    } catch {
+      setBoardCards({});
+    }
+  }, []);
+
   const loadVerificationSummaries = useCallback(async (apps: Application[]) => {
     const checksApps = apps.filter(a =>
       ['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(a.backendStage)
@@ -376,6 +449,7 @@ export default function PipelinePage() {
           submittedAt: a.submittedAt || a.createdAt || new Date().toISOString(),
           lastActivity: updatedAt || a.submittedAt || new Date().toISOString(),
           daysInStage,
+          pipelineStageEnteredAt: a.pipelineStageEnteredAt ?? null,
           progress: stageIndex >= 0 ? (stageIndex / Math.max(STAGE_GROUPS.length - 1, 1)) * 100 : 0,
           rating: a.rating || 0,
           screeningNotes: a.screeningNotes || '',
@@ -389,45 +463,14 @@ export default function PipelinePage() {
       setApplications(mapped);
       loadVerificationSummaries(mapped);
       loadShortlistStates(mapped);
-      // Preload offers for offer/accepted stage cards (for status badges)
-      const offerApps = mapped.filter(a =>
-        ['OFFER_PREPARATION', 'OFFER_EXTENDED', 'OFFER_NEGOTIATION', 'OFFER_ACCEPTED'].includes(a.backendStage)
-      );
-      offerApps.forEach(a => {
-        apiFetch(`/api/offers/applications/${a.id}`)
-          .then(res => res.ok ? res.json() : null)
-          .then(data => {
-            if (data) {
-              const offer = Array.isArray(data) ? data[0] : data;
-              if (offer) setOffers(prev => ({ ...prev, [a.id]: offer }));
-            }
-          })
-          .catch(() => {});
-      });
-      // Preload interview previews for interview-stage cards
-      const interviewStages = ['FIRST_INTERVIEW', 'TECHNICAL_ASSESSMENT', 'SECOND_INTERVIEW', 'PANEL_INTERVIEW', 'MANAGER_INTERVIEW', 'FINAL_INTERVIEW'];
-      const interviewApps = mapped.filter(a => interviewStages.includes(a.backendStage));
-      interviewApps.forEach(a => {
-        apiFetch(`/api/interviews/application/${a.id}`)
-          .then(res => res.ok ? res.json() : [])
-          .then(data => {
-            const items = Array.isArray(data) ? data : data.content || [];
-            if (items.length === 0) return;
-            const scheduled = items.find((iv: any) => ['SCHEDULED', 'RESCHEDULED'].includes(iv.status));
-            const completed = items.filter((iv: any) => iv.status === 'COMPLETED');
-            const latestCompleted = completed[0];
-            setInterviewPreviews(prev => ({
-              ...prev,
-              [a.id]: {
-                nextDate: scheduled?.scheduledAt,
-                nextType: scheduled?.type,
-                status: scheduled ? scheduled.status : latestCompleted?.status,
-                latestRecommendation: latestCompleted?.recommendation || undefined,
-              },
-            }));
-          })
-          .catch(() => {});
-      });
+      // Card decoration in ONE call — legal moves, offer state, interview state.
+      //
+      // What stood here was two loops issuing one HTTP request per card:
+      //   offerApps.forEach(a => apiFetch(`/api/offers/applications/${a.id}`))
+      //   interviewApps.forEach(a => apiFetch(`/api/interviews/application/${a.id}`))
+      // On a hundred-candidate board that is two hundred requests on load. Twelve lines above,
+      // loadVerificationSummaries already did it correctly with a batched applicationIds call.
+      loadBoardCards(mapped);
     } catch (err) {
       console.error('Failed to load pipeline data:', err);
       const msg = err instanceof Error ? err.message : 'Failed to load pipeline data';
@@ -436,31 +479,43 @@ export default function PipelinePage() {
     } finally {
       setLoading(false);
     }
-  }, [loadVerificationSummaries, loadShortlistStates]);
+  }, [loadVerificationSummaries, loadShortlistStates, loadBoardCards]);
 
   // P5: Fetch backend analytics
   // Note: the backend /api/pipeline/analytics returns { funnel, averageStageDurations, conversions, ... }
   // which doesn't match the PipelineMetrics shape. Only use it if it actually has the expected keys;
   // otherwise fall through to client-side computation from loaded applications.
+  /**
+   * Whole-pipeline analytics.
+   *
+   * What stood here tested the response for `totalApplications` and `stageMetrics` and fell through
+   * to client-side arithmetic when it did not find them. It never found them: the endpoint returned
+   * a different shape entirely, and beneath that it threw on every call — its repository methods
+   * had no working implementation at all. So the "fallback" was the only path that ever ran, and
+   * nothing said so.
+   *
+   * A failure is now recorded rather than swallowed, because figures the page cannot compute must
+   * read as unavailable, not as zero.
+   */
   const loadAnalytics = useCallback(async () => {
     try {
       const response = await apiFetch('/api/pipeline/analytics');
-      if (response.ok) {
-        const data = await response.json();
-        // Only use backend metrics if the response matches the expected shape
-        if (typeof data.totalApplications === 'number' && typeof data.stageMetrics === 'object' && data.stageMetrics !== null) {
-          setBackendMetrics({
-            totalApplications: data.totalApplications,
-            activeApplications: data.activeApplications ?? 0,
-            averageTimeToHire: data.averageTimeToHire ?? 0,
-            conversionRate: data.conversionRate ?? 0,
-            stageMetrics: data.stageMetrics,
-          });
-        }
-        // else: response has different shape (funnel, conversions, etc.) — skip and use client-side fallback
+      if (!response.ok) {
+        setAnalytics(null);
+        setAnalyticsFailed(true);
+        return;
+      }
+      const payload = await response.json();
+      if (isPipelineAnalytics(payload)) {
+        setAnalytics(payload);
+        setAnalyticsFailed(false);
+      } else {
+        setAnalytics(null);
+        setAnalyticsFailed(true);
       }
     } catch {
-      // Fall back to client-side computation
+      setAnalytics(null);
+      setAnalyticsFailed(true);
     }
   }, []);
 
@@ -586,6 +641,23 @@ export default function PipelinePage() {
     } catch {}
   };
 
+  const regressed = useMemo(() => regressedIds(analytics), [analytics]);
+
+  /** Board-level triage counts. Every one is derived, and every one is also a filter. */
+  const triage = useMemo(() => {
+    const cards = applications.map(app => ({
+      id: app.id,
+      candidateName: `${app.candidate.firstName} ${app.candidate.lastName}`,
+      stage: app.backendStage,
+      pipelineStageEnteredAt: app.pipelineStageEnteredAt,
+    }));
+    return {
+      stuck: stuckCandidates(cards, analytics).length,
+      regressed: cards.filter(c => regressed.has(String(c.id))).length,
+      actionOwed: applications.filter(app => actionOwed(boardCards[String(app.id)])).length,
+    };
+  }, [applications, analytics, regressed, boardCards]);
+
   const filteredApplications = useMemo(() => {
     return applications.filter(app => {
       // In kanban view, exclude terminal stages
@@ -597,13 +669,27 @@ export default function PipelinePage() {
         app.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.job.department.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesStage && matchesSearch;
+      if (!matchesStage || !matchesSearch) return false;
+
+      // Triage filters. A card whose stuck state is unknown does not count as stuck — see
+      // isStuck, which returns null rather than false when there is no median to compare against.
+      return matchesBoardFilter(
+        boardFilter,
+        {
+          id: app.id,
+          candidateName: `${app.candidate.firstName} ${app.candidate.lastName}`,
+          stage: app.backendStage,
+          pipelineStageEnteredAt: app.pipelineStageEnteredAt,
+        },
+        boardCards[String(app.id)],
+        analytics,
+        regressed,
+      );
     });
-  }, [applications, selectedStage, searchTerm, viewMode]);
+  }, [applications, selectedStage, searchTerm, viewMode, boardFilter, boardCards, analytics, regressed]);
 
   // P5: Use backend metrics with client-side fallback
   const pipelineMetrics = useMemo((): PipelineMetrics => {
-    if (backendMetrics) return backendMetrics;
 
     const totalApplications = applications.length;
     const activeApplications = applications.filter(app =>
@@ -620,7 +706,7 @@ export default function PipelinePage() {
 
     const conversionRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
 
-    const stageMetrics: Record<string, { count: number; averageDays: number; conversionRate: number }> = {};
+    const stageMetrics: Record<string, { count: number; averageDays: number; conversionRate: number | null }> = {};
 
     // Exclude terminal-stage applications from per-stage counts so that
     // the dropdown, funnel, and kanban views all show consistent numbers.
@@ -631,15 +717,35 @@ export default function PipelinePage() {
       const stageApplications = nonTerminalApplications.filter(app => app.currentStage === stage.id);
       const averageDays = stageApplications.reduce((sum, app) => sum + app.daysInStage, 0) / Math.max(stageApplications.length, 1);
 
-      // Stage-to-stage conversion: percentage of previous stage that reached this one.
-      // First stage shows percentage of total applications.
-      const basis = index === 0 ? totalApplications : previousStageCount;
-      const conversionRate = basis > 0 ? (stageApplications.length / basis) * 100 : 0;
+      // Stage-to-stage conversion, from real transitions.
+      //
+      // What stood here was `stageApplications.length / basis * 100` — the share of candidates
+      // SITTING IN a stage, labelled a conversion rate. That is a snapshot of where people are
+      // now, not the share who progressed through, and on any pipeline where candidates move at
+      // different speeds the two diverge completely. `conversions` on the analytics response has
+      // always been a genuine from-stage to-stage transition count; nothing read it.
+      //
+      // Null when the analytics are unavailable, because a distribution wearing a conversion
+      // rate's label is worse than no figure at all.
+      const reachedThis = stage.backendStages
+        .map(bs => analytics?.reachedByStage?.[bs])
+        .filter((n): n is number => typeof n === 'number')
+        .reduce((a, b) => a + b, 0);
+      const previousGroup = index === 0 ? null : STAGE_GROUPS[index - 1];
+      const reachedPrevious = previousGroup
+        ? previousGroup.backendStages
+            .map(bs => analytics?.reachedByStage?.[bs])
+            .filter((n): n is number => typeof n === 'number')
+            .reduce((a, b) => a + b, 0)
+        : totalApplications;
+      const conversionRate = analytics && reachedPrevious > 0
+        ? (reachedThis / reachedPrevious) * 100
+        : null;
 
       stageMetrics[stage.id] = {
         count: stageApplications.length,
         averageDays: Math.round(averageDays),
-        conversionRate: Math.round(conversionRate * 10) / 10,
+        conversionRate: conversionRate === null ? null : Math.round(conversionRate * 10) / 10,
       };
 
       previousStageCount = stageApplications.length;
@@ -652,7 +758,7 @@ export default function PipelinePage() {
       conversionRate: Math.round(conversionRate * 10) / 10,
       stageMetrics
     };
-  }, [applications, backendMetrics]);
+  }, [applications, analytics]);
 
   // P1: Persist stage transitions via backend
   const handleStageTransition = (applicationId: string, targetBackendStage: string, _notes?: string) => {
@@ -982,11 +1088,16 @@ export default function PipelinePage() {
                         <span className="text-[0.8125rem] font-bold text-foreground min-w-[30px]">{metrics.count}</span>
                       </div>
                     </div>
+                    {/* The share who progressed, from transitions. Absent rather than guessed when
+                        the analytics did not answer — a distribution labelled as a conversion rate
+                        is worse than no figure. */}
                     {idx < STAGE_GROUPS.length - 1 && (
                       <div className="flex items-center justify-center py-0.5 ml-[120px] pl-4">
                         <span className="inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-button">
                           <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
-                          {metrics.conversionRate.toFixed(1)}%
+                          {metrics.conversionRate === null
+                            ? 'conversion unavailable'
+                            : `${metrics.conversionRate.toFixed(1)}%`}
                         </span>
                       </div>
                     )}
@@ -1018,18 +1129,142 @@ export default function PipelinePage() {
             hired: 'bg-green-100 text-green-600',
           };
           return (
+          <>
+          {/* Where this pipeline loses time. Every figure comes from the analytics endpoint, which
+              until now threw on every call — so none of this has ever been rendered before. */}
+          {analytics && (() => {
+            const orderedStages = STAGE_GROUPS.flatMap(g => [...g.backendStages]);
+            const drop = biggestDropOff(analytics, orderedStages);
+            const slowest = analytics.slowestStage;
+            if (!drop && !slowest && analytics.regressions.length === 0) return null;
+            return (
+              <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                {slowest && (
+                  <div className="enterprise-card p-4">
+                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
+                      Slowest stage
+                    </p>
+                    <p className="text-sm font-bold text-foreground mt-1">
+                      {BACKEND_STAGE_DISPLAY[slowest] ?? slowest}
+                      <span className="ml-2 font-semibold text-accent-gold">
+                        {daysLabel(analytics.slowestStageDays ?? null)} median
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Median, so one stuck candidate does not move it.
+                    </p>
+                  </div>
+                )}
+                {drop && (
+                  <div className="enterprise-card p-4">
+                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
+                      Biggest drop-off
+                    </p>
+                    <p className="text-sm font-bold text-foreground mt-1">
+                      {BACKEND_STAGE_DISPLAY[drop.fromStage] ?? drop.fromStage} &rarr;{' '}
+                      {BACKEND_STAGE_DISPLAY[drop.toStage] ?? drop.toStage}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <b className="font-semibold text-foreground">{Math.round(drop.lostPercent)}%</b>{' '}
+                      of candidates end here ({drop.lostCount}). Measured from transitions, not from
+                      how many sit in each column.
+                    </p>
+                  </div>
+                )}
+                {analytics.regressions.length > 0 && (
+                  <div className="enterprise-card p-4">
+                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
+                      Moved backwards
+                    </p>
+                    <p className="text-sm font-bold text-foreground mt-1">
+                      {analytics.regressions.length} this period
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {analytics.regressions[0].reason
+                        ? `Most recent: ${analytics.regressions[0].reason}`
+                        : 'A candidate returned to an earlier stage.'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Triage. On a record you state one ask; on a board every card is an ask, so the useful
+              line is what is wrong — and each count is a filter rather than a decoration. */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {BOARD_FILTERS.map(filter => {
+              const count =
+                filter.key === 'stuck' ? triage.stuck
+                : filter.key === 'regressed' ? triage.regressed
+                : filter.key === 'action-owed' ? triage.actionOwed
+                : applications.length;
+              const unavailable = filter.key === 'stuck' && !analytics;
+              return (
+                <button
+                  key={filter.key}
+                  onClick={() => setBoardFilter(filter.key)}
+                  aria-pressed={boardFilter === filter.key}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    boardFilter === filter.key
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                  }`}
+                >
+                  {filter.label}
+                  {/* No number rather than a zero when the figure could not be computed: "none are
+                      stuck" and "we could not tell" are different answers. */}
+                  {!unavailable && <span className="ml-1.5 tabular-nums">{count}</span>}
+                </button>
+              );
+            })}
+            {analyticsFailed && (
+              <span className="text-xs text-error ml-1">
+                Stage medians unavailable — nothing can be called stuck without them.
+              </span>
+            )}
+          </div>
+
           <div role="region" aria-label="Pipeline kanban board" className="flex gap-4 overflow-x-auto pb-4">
             {STAGE_GROUPS.map((stage, stageIndex) => {
               const stageApplications = filteredApplications.filter(app => app.currentStage === stage.id);
 
               return (
                 <div key={stage.id} role="list" aria-label={`${stage.displayName} stage`} className="min-w-[280px] max-w-[280px] bg-muted/40 border border-border rounded-card flex flex-col shrink-0">
-                  {/* Column header with colored top border */}
-                  <div className={`px-4 py-3 border-b border-border border-t-[3px] ${columnAccentColors[stage.id] || 'border-t-primary'} rounded-t-card flex items-center justify-between`}>
-                    <h3 className="text-sm font-bold uppercase tracking-[0.04em] text-foreground">{stage.displayName}</h3>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-button min-w-[24px] text-center ${columnBadgeColors[stage.id] || 'bg-border text-muted-foreground'}`}>
-                      {stageApplications.length}
-                    </span>
+                  {/* Column header carries the stage median, because "23 days here" only means
+                      something next to it — without one, a slow stage and a slow candidate look
+                      identical. Absent when the server measured nothing for this stage. */}
+                  <div className={`px-4 py-3 border-b border-border border-t-[3px] ${columnAccentColors[stage.id] || 'border-t-primary'} rounded-t-card`}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold uppercase tracking-[0.04em] text-foreground">{stage.displayName}</h3>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-button min-w-[24px] text-center ${columnBadgeColors[stage.id] || 'bg-border text-muted-foreground'}`}>
+                        {stageApplications.length}
+                      </span>
+                    </div>
+                    {(() => {
+                      const medians = stage.backendStages
+                        .map(backendStage => stageMedianDays(analytics, backendStage))
+                        .filter((d): d is number => d !== null);
+                      if (medians.length === 0) {
+                        return (
+                          <p className="text-[0.6875rem] text-muted-foreground/60 mt-0.5">
+                            {analyticsFailed ? 'Median unavailable' : 'No median yet'}
+                          </p>
+                        );
+                      }
+                      // A group spans several backend stages; the slowest of them is the one worth
+                      // showing, since that is where the column actually loses time.
+                      const worst = Math.max(...medians);
+                      const sample = stage.backendStages
+                        .map(backendStage => stageSampleSize(analytics, backendStage) ?? 0)
+                        .reduce((a, b) => a + b, 0);
+                      return (
+                        <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+                          median <b className="font-semibold text-foreground">{daysLabel(worst)}</b>
+                          {sample > 0 && <span className="text-muted-foreground/60"> · {sample} measured</span>}
+                        </p>
+                      );
+                    })()}
                   </div>
 
                   {/* Cards container */}
@@ -1093,8 +1328,16 @@ export default function PipelinePage() {
                           )}
 
                           {/* Interview preview on interview cards */}
-                          {stage.id === 'interviews' && interviewPreviews[application.id] && (() => {
-                            const preview = interviewPreviews[application.id];
+                          {/* Interview preview, now from the batch call rather than a per-card
+                              fetch. Same information, one request instead of one per candidate. */}
+                          {stage.id === 'interviews' && boardCards[String(application.id)] && (() => {
+                            const cardState = boardCards[String(application.id)];
+                            const preview = {
+                              nextDate: cardState.nextInterviewAt,
+                              nextType: cardState.nextInterviewType,
+                              latestRecommendation: cardState.latestRecommendation,
+                            };
+                            if (!preview.nextDate && !preview.latestRecommendation) return null;
                             return (
                               <div className="mb-2 space-y-1">
                                 {preview.nextDate && (
@@ -1124,10 +1367,16 @@ export default function PipelinePage() {
                             );
                           })()}
 
-                          {/* Offer status badge on offer/accepted cards */}
-                          {['offer', 'accepted'].includes(stage.id) && offers[application.id] && (
+                          {/* Offer status, from the batch call. Only fires for an offer actually
+                              with the candidate — a draft is not, and used to show here. */}
+                          {['offer', 'accepted'].includes(stage.id)
+                            && boardCards[String(application.id)]?.offerStatus && (
                             <div className="mb-2">
-                              <StatusPill value={offers[application.id].status} domain="offerStatus" size="sm" />
+                              <StatusPill
+                                value={boardCards[String(application.id)]!.offerStatus!}
+                                domain="offerStatus"
+                                size="sm"
+                              />
                             </div>
                           )}
 
@@ -1140,11 +1389,68 @@ export default function PipelinePage() {
                             />
                           )}
 
+                          {/* What is wrong with this card, if anything. Every badge is a stored
+                              fact from the batch call — nothing here is inferred from position. */}
+                          {(() => {
+                            const cardState = boardCards[String(application.id)];
+                            const stuck = isStuck(
+                              {
+                                id: application.id,
+                                candidateName: `${application.candidate.firstName} ${application.candidate.lastName}`,
+                                stage: application.backendStage,
+                                pipelineStageEnteredAt: application.pipelineStageEnteredAt,
+                              },
+                              analytics,
+                            );
+                            const offer = offerBadge(cardState);
+                            const feedback = feedbackBadge(cardState);
+                            const wentBack = regressed.has(String(application.id));
+                            if (!stuck && !offer && !feedback && !wentBack) return null;
+                            return (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {stuck && (
+                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-pink text-accent-pink">
+                                    Past this stage&rsquo;s median
+                                  </span>
+                                )}
+                                {wentBack && (
+                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-gold text-accent-gold">
+                                    Moved back
+                                  </span>
+                                )}
+                                {feedback && (
+                                  <span className="px-1.5 py-0.5 rounded text-[0.625rem] font-bold bg-surface-gold text-accent-gold">
+                                    {feedback}
+                                  </span>
+                                )}
+                                {offer && (
+                                  <span className={`px-1.5 py-0.5 rounded text-[0.625rem] font-bold ${
+                                    cardState?.offerExpiringSoon ? 'bg-surface-pink text-accent-pink' : 'bg-surface-teal text-accent-teal'
+                                  }`}>
+                                    {offer}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
+
                           {/* Footer: days in stage + score */}
                           <div className="flex items-center justify-between gap-2">
                             <span className="inline-flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium">
                               <ClockIcon className="w-3 h-3" />
-                              {application.daysInStage === 0 ? 'Today' : `${application.daysInStage}d in stage`}
+                              {(() => {
+                                // Dwell measured from the real stage-entry time only. Where that is
+                                // absent the card says so rather than reporting "Today", which is
+                                // what falling back to the last edit produced.
+                                const dwell = daysInStage({
+                                  id: application.id,
+                                  candidateName: '',
+                                  stage: application.backendStage,
+                                  pipelineStageEnteredAt: application.pipelineStageEnteredAt,
+                                });
+                                if (dwell === null) return 'Time in stage unknown';
+                                return dwell === 0 ? 'Today' : `${dwell}d in stage`;
+                              })()}
                             </span>
                             <div className="flex items-center gap-1">
                               {/* Revealed on hover so the card stays readable at rest, but the
@@ -1173,6 +1479,7 @@ export default function PipelinePage() {
               );
             })}
           </div>
+          </>
           );
         })()}
 
@@ -1345,7 +1652,18 @@ export default function PipelinePage() {
           const currentGroupId = selectedApplication.currentStage;
           const currentGroup = STAGE_GROUPS.find(g => g.id === currentGroupId);
           const nextGroupStage = getNextGroupFirstStage(selectedApplication.backendStage);
-          const nextGroup = nextGroupStage ? STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(nextGroupStage)) : null;
+          // The moves the server says are legal. legalMoves returns null when the batch did not
+          // answer for this card — distinct from an empty list, which means genuinely nowhere left
+          // to go and correctly offers no button at all.
+          const allowed = legalMoves(boardCards[String(selectedApplication.id)]);
+          const serverMove = allowed === null
+            ? nextGroupStage
+            : allowed.find(stage => !TERMINAL_STAGES.has(stage)) ?? null;
+          const serverMoveGroup = serverMove
+            ? STAGE_GROUPS.find(g => (g.backendStages as readonly string[]).includes(serverMove))
+            : null;
+          const serverMoveLabel = serverMoveGroup?.displayName
+            ?? (serverMove ? (BACKEND_STAGE_DISPLAY[serverMove] ?? 'Next') : 'Next');
           const summary = verificationSummaries[selectedApplication.id];
           const checksBlocked = currentGroupId === 'checks' && summary?.enforceCheckCompletion && !summary?.allClear;
           const isChecksStage = ['REFERENCE_CHECK', 'BACKGROUND_CHECK'].includes(selectedApplication.backendStage);
@@ -1387,19 +1705,23 @@ export default function PipelinePage() {
                       onDone={(next) => setShortlistStates(prev => ({ ...prev, [selectedApplication.id]: next }))}
                     />
                   )}
-                  {selectedApplication.status === 'active' && nextGroupStage && (
+                  {/* The move offered is the server's, not one derived by walking STAGE_GROUPS by
+                      index. Where the batch has not answered, the client-side guess is used and the
+                      button says nothing it cannot back up — but the server remains the authority
+                      the moment its answer arrives. */}
+                  {selectedApplication.status === 'active' && serverMove && (
                     <button
-                      onClick={() => { handleStageTransition(selectedApplication.id, nextGroupStage); setSelectedApplication(null); }}
+                      onClick={() => { handleStageTransition(selectedApplication.id, serverMove); setSelectedApplication(null); }}
                       disabled={checksBlocked}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                         checksBlocked
                           ? 'bg-muted text-muted-foreground cursor-not-allowed'
                           : 'bg-cta text-cta-foreground hover:opacity-90'
                       }`}
-                      title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${nextGroup?.displayName || 'Next'}`}
+                      title={checksBlocked ? 'Complete all verification checks before progressing' : `Move to ${serverMoveLabel}`}
                     >
                       <ArrowRightIcon className="w-3.5 h-3.5" />
-                      Move to {nextGroup?.displayName || 'Next'}
+                      Move to {serverMoveLabel}
                     </button>
                   )}
                   <button

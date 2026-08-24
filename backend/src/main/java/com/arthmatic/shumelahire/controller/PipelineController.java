@@ -117,6 +117,27 @@ public class PipelineController {
         return transition.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Card decoration for a page of the board, keyed by application id.
+     * GET /api/pipeline/board-cards?applicationIds=a,b,c
+     *
+     * <p>Legal moves, offer state and interview state in one round trip. The board previously
+     * issued one request per card for offers and another per card for interviews, so a
+     * hundred-candidate board made two hundred requests on load — while the same file already used
+     * the batch shape correctly for background checks.
+     *
+     * <p>An application id that does not resolve is omitted rather than returned empty, so the
+     * caller can tell "nowhere left to move" from "no such application".
+     */
+    @GetMapping("/board-cards")
+    public ResponseEntity<?> getBoardCards(@RequestParam List<String> applicationIds) {
+        try {
+            return ResponseEntity.ok(pipelineService.getBoardCards(applicationIds));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/applications/{applicationId}/available-transitions")
     public ResponseEntity<List<PipelineStage>> getAvailableTransitions(@PathVariable String applicationId) {
         try {
