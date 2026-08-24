@@ -3,6 +3,8 @@ package com.arthmatic.shumelahire.service;
 import com.arthmatic.shumelahire.dto.ApplicantApplicationSummary;
 import com.arthmatic.shumelahire.dto.ApplicantCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicantResponse;
+import com.arthmatic.shumelahire.security.DemographicsAccess;
+import org.springframework.security.core.Authentication;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
@@ -37,15 +39,18 @@ public class ApplicantService {
     private final FileStorageService fileStorageService;
     private final UserDataRepository userRepository;
     private final ApplicationDataRepository applicationRepository;
+    private final DemographicsAccess demographicsAccess;
 
     public ApplicantService(ApplicantDataRepository applicantRepository,
                            DocumentDataRepository documentRepository,
                            AuditLogService auditLogService,
                            FileStorageService fileStorageService,
                            UserDataRepository userRepository,
-                           ApplicationDataRepository applicationRepository) {
+                           ApplicationDataRepository applicationRepository,
+                           DemographicsAccess demographicsAccess) {
         this.applicantRepository = applicantRepository;
         this.documentRepository = documentRepository;
+        this.demographicsAccess = demographicsAccess;
         this.auditLogService = auditLogService;
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
@@ -107,6 +112,9 @@ public class ApplicantService {
         applicant.setEducation(request.getEducation());
         applicant.setExperience(request.getExperience());
         applicant.setSkills(request.getSkills());
+        // On create the applicant is supplying their own answers and there is nothing stored to
+        // protect, so these are set directly. The guard belongs on update, where a redacted read
+        // could otherwise be written back as nulls.
         applicant.setGender(request.getGender());
         applicant.setRace(request.getRace());
         applicant.setDisabilityStatus(request.getDisabilityStatus());
@@ -128,6 +136,17 @@ public class ApplicantService {
      * Update an existing applicant
      */
     public ApplicantResponse updateApplicant(String id, ApplicantCreateRequest request) {
+        return updateApplicant(id, request, null);
+    }
+
+    /**
+     * Update an applicant, preserving demographic fields this viewer could not see.
+     *
+     * @param viewer who is making the change; null means nobody is authenticated, so the
+     *               demographic fields are left untouched
+     */
+    public ApplicantResponse updateApplicant(String id, ApplicantCreateRequest request,
+                                             Authentication viewer) {
         logger.info("Updating applicant with ID: {}", id);
 
         Applicant applicant = findApplicantById(id);
@@ -148,11 +167,20 @@ public class ApplicantService {
         applicant.setEducation(request.getEducation());
         applicant.setExperience(request.getExperience());
         applicant.setSkills(request.getSkills());
-        applicant.setGender(request.getGender());
-        applicant.setRace(request.getRace());
-        applicant.setDisabilityStatus(request.getDisabilityStatus());
-        applicant.setCitizenshipStatus(request.getCitizenshipStatus());
-        applicant.setDemographicsConsent(request.getDemographicsConsent());
+        // Only a viewer who was shown these may change them.
+        //
+        // Redaction created this hazard: a recruiter opening a profile now receives nulls for the
+        // four demographic fields, and saving the form would previously have written those nulls
+        // over the applicant's real answers. Withholding data and then destroying it is worse than
+        // the exposure being fixed, so an update from someone who could not see them leaves them
+        // exactly as they were.
+        if (demographicsAccess.mayView(viewer, applicant)) {
+            applicant.setGender(request.getGender());
+            applicant.setRace(request.getRace());
+            applicant.setDisabilityStatus(request.getDisabilityStatus());
+            applicant.setCitizenshipStatus(request.getCitizenshipStatus());
+            applicant.setDemographicsConsent(request.getDemographicsConsent());
+        }
 
         Applicant updatedApplicant = applicantRepository.save(applicant);
 
@@ -162,11 +190,41 @@ public class ApplicantService {
 
         logger.info("Applicant updated with ID: {}", updatedApplicant.getId());
 
-        return ApplicantResponse.fromEntity(updatedApplicant);
+        return ApplicantResponse.fromEntity(
+                updatedApplicant, demographicsAccess.mayView(viewer, updatedApplicant));
     }
 
     /**
-     * Get applicant by ID
+     * Fetch an applicant, deciding demographic disclosure for this viewer.
+     *
+     * <p>The no-argument overload below withholds them. Every caller that has an authenticated
+     * viewer should use this one; the other exists for internal paths where there is nobody to
+     * disclose to.
+     */
+    @Transactional(readOnly = true)
+    public ApplicantResponse getApplicant(String id, Authentication viewer) {
+        Applicant applicant = findApplicantById(id);
+        return ApplicantResponse.fromEntity(applicant, demographicsAccess.mayView(viewer, applicant));
+    }
+
+    /**
+     * Search applicants, deciding demographic disclosure per record.
+     *
+     * <p>Consent is per applicant, so disclosure is decided per row rather than once for the page —
+     * an applicant who refused is withheld even from HR, on the same page as one who did not.
+     */
+    @Transactional(readOnly = true)
+    public Page<ApplicantResponse> searchApplicants(String searchTerm, Pageable pageable,
+                                                    Authentication viewer) {
+        return searchApplicantEntities(searchTerm, pageable)
+                .map(applicant -> ApplicantResponse.fromEntity(
+                        applicant, demographicsAccess.mayView(viewer, applicant)));
+    }
+
+    /**
+     * Get applicant by ID, with demographics withheld.
+     *
+     * <p>Prefer the overload taking an {@code Authentication}: this one cannot tell who is asking.
      */
     @Transactional(readOnly = true)
     public ApplicantResponse getApplicant(String id) {
@@ -328,19 +386,21 @@ public class ApplicantService {
     }
 
     /**
-     * Search applicants
+     * Search applicants, with demographics withheld.
+     *
+     * <p>Prefer the overload taking an {@code Authentication}: this one cannot tell who is asking,
+     * so it discloses nothing.
      */
     @Transactional(readOnly = true)
     public Page<ApplicantResponse> searchApplicants(String searchTerm, Pageable pageable) {
-        Page<Applicant> applicants;
+        return searchApplicantEntities(searchTerm, pageable).map(ApplicantResponse::fromEntity);
+    }
 
+    private Page<Applicant> searchApplicantEntities(String searchTerm, Pageable pageable) {
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            applicants = applicantRepository.findBySearchTerm(searchTerm, pageable);
-        } else {
-            applicants = applicantRepository.findAll(pageable);
+            return applicantRepository.findBySearchTerm(searchTerm, pageable);
         }
-
-        return applicants.map(ApplicantResponse::fromEntity);
+        return applicantRepository.findAll(pageable);
     }
 
     // Helper methods

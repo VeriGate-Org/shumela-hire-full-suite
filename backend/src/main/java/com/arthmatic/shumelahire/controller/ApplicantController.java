@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,11 +65,12 @@ public class ApplicantController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'APPLICANT', 'EMPLOYEE')")
-    public ResponseEntity<?> updateApplicant(@PathVariable String id,
+    public ResponseEntity<?> updateApplicant(Authentication authentication,
+                                           @PathVariable String id,
                                            @Valid @RequestBody ApplicantCreateRequest request) {
         try {
             logger.info("Updating applicant: {}", id);
-            ApplicantResponse response = applicantService.updateApplicant(id, request);
+            ApplicantResponse response = applicantService.updateApplicant(id, request, authentication);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to update applicant {}: {}", id, e.getMessage());
@@ -86,9 +88,9 @@ public class ApplicantController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
-    public ResponseEntity<?> getApplicant(@PathVariable String id) {
+    public ResponseEntity<?> getApplicant(Authentication authentication, @PathVariable String id) {
         try {
-            ApplicantResponse response = applicantService.getApplicant(id);
+            ApplicantResponse response = applicantService.getApplicant(id, authentication);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.warn("Applicant not found: {}", id);
@@ -162,6 +164,7 @@ public class ApplicantController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER', 'APPLICANT', 'EMPLOYEE')")
     public ResponseEntity<?> searchApplicants(
+            Authentication authentication,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -171,7 +174,8 @@ public class ApplicantController {
             Sort.Direction sortDirection = Sort.Direction.fromString(direction);
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
-            Page<ApplicantResponse> results = applicantService.searchApplicants(search, pageable);
+            Page<ApplicantResponse> results =
+                    applicantService.searchApplicants(search, pageable, authentication);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("Error searching applicants", e);
