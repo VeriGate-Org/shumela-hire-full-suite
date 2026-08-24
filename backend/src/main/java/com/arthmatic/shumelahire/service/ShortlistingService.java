@@ -25,9 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ShortlistingService {
@@ -113,6 +117,12 @@ public class ShortlistingService {
             .orElse(new ShortlistScore());
 
         Applicant applicant = hydrate(application.getApplicant());
+        // Put the hydrated applicant back on the application, not just into the scoring call.
+        // The score is serialised to the client with its application attached, and the shortlist
+        // table renders `${applicant.name} ${applicant.surname}` off it — so leaving the stub here
+        // showed "null null" for every candidate while the scores beside them were correct.
+        // Free: the applicant has already been read on the line above.
+        application.setApplicant(applicant);
         ScoreCard card = score(application, applicant, posting);
 
         score.setApplication(application);
@@ -162,6 +172,47 @@ public class ShortlistingService {
         // Fall back to the stub rather than null: a missing applicant record should degrade the
         // score to "could not assess", not throw away the application entirely.
         return applicantRepository.findById(stub.getId()).orElse(stub);
+    }
+
+    /**
+     * Hydrates the applicant behind every score in a list, so the rows a client renders carry
+     * named candidates rather than stubs.
+     *
+     * <p>Needed on the paths that hand back scores read straight from
+     * {@code shortlistScoreRepository}: those applications are rebuilt by
+     * {@code DynamoApplicationRepository.toEntity} and carry the id-only applicant stub, so the
+     * per-application hydration done during scoring does not reach them.</p>
+     *
+     * <p>Batched by distinct applicant id rather than resolved per row. Forty-two applications
+     * from a dozen repeat candidates is a dozen reads, not forty-two, and this runs on a screen
+     * that already renders slowly. Applicants that are already hydrated are skipped entirely, so
+     * a list that needs nothing costs no reads at all.</p>
+     */
+    private void hydrateApplicants(List<ShortlistScore> scores) {
+        if (scores == null || scores.isEmpty()) return;
+
+        Set<String> needed = scores.stream()
+            .map(ShortlistScore::getApplication)
+            .filter(Objects::nonNull)
+            .map(Application::getApplicant)
+            .filter(a -> a != null && a.getId() != null && a.getName() == null)
+            .map(Applicant::getId)
+            .collect(Collectors.toSet());
+        if (needed.isEmpty()) return;
+
+        Map<String, Applicant> loaded = new HashMap<>();
+        for (String id : needed) {
+            applicantRepository.findById(id).ifPresent(a -> loaded.put(a.getId(), a));
+        }
+
+        for (ShortlistScore score : scores) {
+            Application application = score.getApplication();
+            if (application == null || application.getApplicant() == null) continue;
+            Applicant full = loaded.get(application.getApplicant().getId());
+            if (full != null) {
+                application.setApplicant(full);
+            }
+        }
     }
 
     /** Pure assembly of the five dimensions — no persistence, so it can be reasoned about. */
@@ -340,6 +391,10 @@ public class ShortlistingService {
         logger.info("Auto-shortlisted for job posting {} with threshold {}: {} shortlisted out of {}",
             jobPostingId, threshold, shortlisted, scores.size());
 
+        // These scores came back from the repository, so their applications carry the id-only
+        // applicant stub regardless of what scoring hydrated. Name them before they go out.
+        hydrateApplicants(scores);
+
         return scores;
     }
 
@@ -368,7 +423,11 @@ public class ShortlistingService {
                 reason == null || reason.isBlank() ? "not stated" : reason));
 
         logger.info("Manual override on score {}: {} by user {}", scoreId, include ? "included" : "excluded", userId);
-        return shortlistScoreRepository.save(score);
+        ShortlistScore saved = shortlistScoreRepository.save(score);
+        // The overridden row is rendered straight back into the table, so it needs a name for the
+        // same reason the list paths do.
+        hydrateApplicants(List.of(saved));
+        return saved;
     }
 
     /**
