@@ -101,6 +101,61 @@ public class ApplicantController {
     }
 
     /**
+     * This applicant's application history, summarised.
+     * GET /api/applicants/{id}/application-summary
+     *
+     * <p>Returns totals, a per-status breakdown, the last date they applied, and the applications
+     * themselves newest first. An applicant who has never applied returns {@code total: 0} with an
+     * empty list — distinguishable from a 404, which means the applicant does not exist.
+     *
+     * <p>Restricted to staff roles. The read is by applicant id with no ownership check, so
+     * including {@code APPLICANT} here would let any signed-in candidate walk ids and read other
+     * people's application histories. Self-service already has its own route to a candidate's own
+     * applications and should keep it.
+     */
+    @GetMapping("/{id}/application-summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> getApplicationSummary(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(applicantService.getApplicationSummary(id));
+        } catch (IllegalArgumentException e) {
+            logger.warn("Applicant not found: {}", id);
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error getting application summary for applicant {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
+     * Application summaries for several applicants at once, keyed by applicant id.
+     * GET /api/applicants/application-summaries?applicantIds=a,b,c
+     *
+     * <p>So a list view can show application history in one round trip instead of one request per
+     * row. Mirrors {@code GET /api/background-checks/summary?applicationIds=...}.
+     *
+     * <p>Every requested id appears in the response; an applicant with no applications returns a
+     * zeroed summary rather than being omitted. Requesting more than
+     * {@link ApplicantService#MAX_SUMMARY_BATCH} ids is rejected rather than silently truncated —
+     * a partial answer that looks complete is worse than an error.
+     */
+    @GetMapping("/application-summaries")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> getApplicationSummaries(@RequestParam List<String> applicantIds) {
+        try {
+            return ResponseEntity.ok(applicantService.getApplicationSummaries(applicantIds));
+        } catch (IllegalArgumentException e) {
+            logger.warn("Rejected application-summaries batch: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error getting application summaries", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
      * Search applicants with pagination
      * GET /api/applicants?search={term}&page={page}&size={size}&sort={field}
      */

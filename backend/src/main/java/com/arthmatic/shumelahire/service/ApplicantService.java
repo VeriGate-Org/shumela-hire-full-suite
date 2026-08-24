@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service;
 
+import com.arthmatic.shumelahire.dto.ApplicantApplicationSummary;
 import com.arthmatic.shumelahire.dto.ApplicantCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import com.arthmatic.shumelahire.entity.Applicant;
@@ -7,6 +8,7 @@ import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
 import com.arthmatic.shumelahire.entity.User;
 import com.arthmatic.shumelahire.repository.ApplicantDataRepository;
+import com.arthmatic.shumelahire.repository.ApplicationDataRepository;
 import com.arthmatic.shumelahire.repository.DocumentDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
 import org.slf4j.Logger;
@@ -18,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -32,17 +36,20 @@ public class ApplicantService {
     private final AuditLogService auditLogService;
     private final FileStorageService fileStorageService;
     private final UserDataRepository userRepository;
+    private final ApplicationDataRepository applicationRepository;
 
     public ApplicantService(ApplicantDataRepository applicantRepository,
                            DocumentDataRepository documentRepository,
                            AuditLogService auditLogService,
                            FileStorageService fileStorageService,
-                           UserDataRepository userRepository) {
+                           UserDataRepository userRepository,
+                           ApplicationDataRepository applicationRepository) {
         this.applicantRepository = applicantRepository;
         this.documentRepository = documentRepository;
         this.auditLogService = auditLogService;
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -165,6 +172,85 @@ public class ApplicantService {
     public ApplicantResponse getApplicant(String id) {
         Applicant applicant = findApplicantById(id);
         return ApplicantResponse.fromEntity(applicant);
+    }
+
+    /**
+     * This applicant's application history, summarised.
+     *
+     * <p>Answers the question the applicant record could never answer on its own: has this person
+     * been here before, and what happened. The underlying link is not new — {@code Application}
+     * stores an {@code applicantId} and DynamoDB indexes it as
+     * {@code GSI4 (APP_APPLICANT#{applicantId})} — it simply had no route to a client.
+     *
+     * <p>Throws if the applicant does not exist, so a mistyped id is a 404 rather than an empty
+     * history that reads as "never applied".
+     *
+     * <p><b>One query, one applicant.</b> Do not call this per row to decorate a list: on the
+     * DynamoDB backend {@code findByApplicantIdOrderBySubmittedAtDesc} reads every matching item,
+     * and {@code countByApplicantId} is that same read followed by {@code .size()} — so a page of
+     * twenty applicants would be twenty full index reads. A list-level count needs either a batch
+     * endpoint or a maintained counter on the applicant; neither is built here.
+     */
+    public ApplicantApplicationSummary getApplicationSummary(String applicantId) {
+        findApplicantById(applicantId);
+
+        List<com.arthmatic.shumelahire.entity.Application> applications =
+                applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId);
+
+        return ApplicantApplicationSummary.from(applications);
+    }
+
+    /**
+     * The largest batch {@link #getApplicationSummaries} will accept.
+     *
+     * <p>Each id costs one index read, so an unbounded list is both slow and a denial-of-service
+     * shape. A hundred is five pages of twenty, which is more than any list view needs at once.
+     */
+    public static final int MAX_SUMMARY_BATCH = 100;
+
+    /**
+     * Application summaries for several applicants at once, keyed by applicant id.
+     *
+     * <p>Exists so a list view can show application history without issuing one request per row.
+     * Follows the batch shape already used by
+     * {@code GET /api/background-checks/summary?applicationIds=...}.
+     *
+     * <p><b>This is one round trip, not one read.</b> Server-side it is still a GSI query per
+     * applicant, because {@code findByApplicantIdOrderBySubmittedAtDesc} reads every matching item.
+     * That is an acceptable trade for a page of twenty and a poor one for a pool of four hundred.
+     * The durable fix is a maintained counter on the applicant record — {@code applicationCount},
+     * {@code lastAppliedAt}, {@code hiredEver}, written on the application write path — which would
+     * make list decoration free. This endpoint is the stopgap that unblocks the screens now.
+     *
+     * <p>Unlike the single-applicant call, this does <b>not</b> verify that each id is a real
+     * applicant: doing so would double the reads and defeat the point. Ids come from a list the
+     * caller has already loaded. An id with no applications returns a zeroed summary rather than
+     * being dropped, so the caller can always look up every id it asked about.
+     *
+     * @throws IllegalArgumentException if more than {@link #MAX_SUMMARY_BATCH} ids are requested,
+     *                                  rather than silently truncating the answer
+     */
+    public Map<String, ApplicantApplicationSummary> getApplicationSummaries(List<String> applicantIds) {
+        if (applicantIds == null || applicantIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<String> distinctIds = applicantIds.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .distinct()
+                .toList();
+
+        if (distinctIds.size() > MAX_SUMMARY_BATCH) {
+            throw new IllegalArgumentException(
+                    "Too many applicant ids: " + distinctIds.size() + ", maximum is " + MAX_SUMMARY_BATCH);
+        }
+
+        Map<String, ApplicantApplicationSummary> summaries = new LinkedHashMap<>();
+        for (String applicantId : distinctIds) {
+            summaries.put(applicantId, ApplicantApplicationSummary.from(
+                    applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId)));
+        }
+        return summaries;
     }
 
     /**
