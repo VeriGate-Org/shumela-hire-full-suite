@@ -13,9 +13,10 @@ id, so pressing Sync on a seeded row recomputes to the value already on screen
 (plus whatever hours have since elapsed) instead of visibly rewriting it.
 If that formula changes, change it here too.
 
-Only PNET and CAREER_JUNCTION are seeded, because only they are configured for
-simulated mode. INTERNAL_PORTAL and PUBLIC_WEBSITE publish instantly and for
-real, so they are better shown live than seeded.
+Only the boards running in simulated mode are seeded — PNET, CAREER_JUNCTION
+and LINKEDIN. INTERNAL_PORTAL and PUBLIC_WEBSITE publish instantly and for
+real, so they are better shown live than seeded. A board seeded here must also
+carry mode=simulated in the environment, or Sync will not recompute its figures.
 
 Usage:
     python3 seed-idc-job-board-postings.py            # dry run, prints only
@@ -56,16 +57,21 @@ VACANCIES = [
     # The vacancy the demonstration follows end to end.
     ("049060c2-0fdb-49f2-8070-49870104b87e", "Project Manager", "PNET", 5),
     ("049060c2-0fdb-49f2-8070-49870104b87e", "Project Manager", "CAREER_JUNCTION", 4),
+    ("049060c2-0fdb-49f2-8070-49870104b87e", "Project Manager", "LINKEDIN", 3),
     # Others, so the capability does not look like one hand-made row.
     ("326f4286-3437-4c7e-8c3d-a0ebae5c5a8f", "Senior Investment Analyst", "PNET", 2),
     ("02e0cec8-8fc3-4671-8641-fcb82095457b", "Data Analyst", "CAREER_JUNCTION", 1),
     ("6bbe64fc-6340-4faa-af93-fe6b9a1e86e7", "Financial Accountant", "PNET", 1),
+    ("454071c0-870c-4d16-85af-5b838f353eec", "HR Business Partner", "LINKEDIN", 1),
 ]
 
-BOARD_PREFIX = {"PNET": "PNET", "CAREER_JUNCTION": "CJ"}
+# Must match SimulatedJobBoardConnector.externalReference / postingUrl, so a
+# row seeded here and one published live during the demonstration look the same.
+BOARD_PREFIX = {"PNET": "PNET", "CAREER_JUNCTION": "CJ", "LINKEDIN": "LI"}
 BOARD_URL = {
     "PNET": "https://www.pnet.co.za/jobs/",
     "CAREER_JUNCTION": "https://www.careerjunction.co.za/jobs/",
+    "LINKEDIN": "https://www.linkedin.com/jobs/view/",
 }
 
 now = datetime.now(timezone.utc)

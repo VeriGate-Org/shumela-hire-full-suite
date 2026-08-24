@@ -11,6 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -179,16 +181,29 @@ class SimulatedJobBoardConnectorTest {
                 eq("JOB_BOARD_POSTING"), eq("p-1"), anyString());
     }
 
-    @Test
-    void eachBoardMintsItsOwnReferenceShape() {
+    @ParameterizedTest
+    @CsvSource({
+            "PNET,            PNET-, https://www.pnet.co.za/jobs/",
+            "CAREER_JUNCTION, CJ-,   https://www.careerjunction.co.za/jobs/",
+            "LINKEDIN,        LI-,   https://www.linkedin.com/jobs/view/",
+            "INDEED,          IND-,  https://za.indeed.com/viewjob?jk=",
+    })
+    void eachBoardMintsItsOwnReferenceShape(JobBoardType boardType,
+                                            String expectedPrefix,
+                                            String expectedUrlPrefix) {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var careerJunction = new SimulatedJobBoardConnector(
-                JobBoardType.CAREER_JUNCTION, repository, auditLogService, SIMULATED_TENANTS);
-        JobBoardPosting posting = careerJunction.post("job-1", null);
+        var board = new SimulatedJobBoardConnector(
+                boardType, repository, auditLogService, SIMULATED_TENANTS);
+        JobBoardPosting posting = board.post("job-1", null);
 
-        assertTrue(posting.getExternalPostId().startsWith("CJ-"));
-        assertTrue(posting.getExternalUrl().startsWith("https://www.careerjunction.co.za/jobs/"));
+        // seed-idc-job-board-postings.py reproduces these, so a seeded row and
+        // one published live during a demonstration look identical. Changing a
+        // shape here means changing it there too.
+        assertEquals(boardType, posting.getBoardType());
+        assertTrue(posting.getExternalPostId().startsWith(expectedPrefix),
+                () -> posting.getExternalPostId() + " should start with " + expectedPrefix);
+        assertEquals(expectedUrlPrefix + posting.getExternalPostId(), posting.getExternalUrl());
     }
 
     @Test
