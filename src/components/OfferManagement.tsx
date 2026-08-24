@@ -1138,11 +1138,12 @@ export default function OfferManagement() {
 
               {/* Candidate */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                <label htmlFor="offer-candidate" className="block text-sm font-semibold text-foreground mb-1.5">
                   Candidate <span className="text-error">*</span>
                 </label>
                 <select
-                  value={createForm.applicationId}
+id="offer-candidate"
+                                      value={createForm.applicationId}
                   onChange={(e) => setCreateForm({ ...createForm, applicationId: e.target.value })}
                   disabled={eligibleLoading}
                   className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors disabled:opacity-60"
@@ -1168,9 +1169,10 @@ export default function OfferManagement() {
               {/* Offer type + salary frequency */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Offer Type</label>
+                  <label htmlFor="offer-type" className="block text-sm font-semibold text-foreground mb-1.5">Offer Type</label>
                   <select
-                    value={createForm.offerType}
+id="offer-type"
+                                        value={createForm.offerType}
                     onChange={(e) => setCreateForm({ ...createForm, offerType: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                   >
@@ -1180,9 +1182,10 @@ export default function OfferManagement() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Salary Frequency</label>
+                  <label htmlFor="offer-frequency" className="block text-sm font-semibold text-foreground mb-1.5">Salary Frequency</label>
                   <select
-                    value={createForm.salaryFrequency}
+id="offer-frequency"
+                                        value={createForm.salaryFrequency}
                     onChange={(e) => setCreateForm({ ...createForm, salaryFrequency: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                   >
@@ -1196,11 +1199,12 @@ export default function OfferManagement() {
               {/* Salary + currency */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  <label htmlFor="offer-salary" className="block text-sm font-semibold text-foreground mb-1.5">
                     Base Salary <span className="text-error">*</span>
                   </label>
                   <input
-                    type="number"
+id="offer-salary"
+                                        type="number"
                     min="0"
                     value={createForm.baseSalary}
                     onChange={(e) => setCreateForm({ ...createForm, baseSalary: e.target.value })}
@@ -1209,9 +1213,10 @@ export default function OfferManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Currency</label>
+                  <label htmlFor="offer-currency" className="block text-sm font-semibold text-foreground mb-1.5">Currency</label>
                   <input
-                    type="text"
+id="offer-currency"
+                                        type="text"
                     value={createForm.currency}
                     onChange={(e) => setCreateForm({ ...createForm, currency: e.target.value.toUpperCase() })}
                     className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
@@ -1222,9 +1227,10 @@ export default function OfferManagement() {
               {/* Signing bonus + work location */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Signing Bonus</label>
+                  <label htmlFor="offer-bonus" className="block text-sm font-semibold text-foreground mb-1.5">Signing Bonus</label>
                   <input
-                    type="number"
+id="offer-bonus"
+                                        type="number"
                     min="0"
                     value={createForm.signingBonus}
                     onChange={(e) => setCreateForm({ ...createForm, signingBonus: e.target.value })}
@@ -1233,9 +1239,10 @@ export default function OfferManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Work Location</label>
+                  <label htmlFor="offer-location" className="block text-sm font-semibold text-foreground mb-1.5">Work Location</label>
                   <input
-                    type="text"
+id="offer-location"
+                                        type="text"
                     value={createForm.workLocation}
                     onChange={(e) => setCreateForm({ ...createForm, workLocation: e.target.value })}
                     placeholder="Optional"
@@ -1247,20 +1254,22 @@ export default function OfferManagement() {
               {/* Dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  <label htmlFor="offer-start" className="block text-sm font-semibold text-foreground mb-1.5">
                     Start Date <span className="text-error">*</span>
                   </label>
                   <input
-                    type="date"
+id="offer-start"
+                                        type="date"
                     value={createForm.startDate}
                     onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Offer Expiry</label>
+                  <label htmlFor="offer-expiry" className="block text-sm font-semibold text-foreground mb-1.5">Offer Expiry</label>
                   <input
-                    type="date"
+id="offer-expiry"
+                                        type="date"
                     value={createForm.offerExpiryDate}
                     onChange={(e) => setCreateForm({ ...createForm, offerExpiryDate: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-border rounded-control text-sm text-foreground bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
@@ -1272,9 +1281,10 @@ export default function OfferManagement() {
               {/* Periods */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Probation (days)</label>
+                  <label htmlFor="offer-probation" className="block text-sm font-semibold text-foreground mb-1.5">Probation (days)</label>
                   <input
-                    type="number"
+id="offer-probation"
+                                        type="number"
                     min="0"
                     value={createForm.probationaryPeriodDays}
                     onChange={(e) => setCreateForm({ ...createForm, probationaryPeriodDays: e.target.value })}
@@ -1283,9 +1293,10 @@ export default function OfferManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Notice Period (days)</label>
+                  <label htmlFor="offer-notice" className="block text-sm font-semibold text-foreground mb-1.5">Notice Period (days)</label>
                   <input
-                    type="number"
+id="offer-notice"
+                                        type="number"
                     min="0"
                     value={createForm.noticePeriodDays}
                     onChange={(e) => setCreateForm({ ...createForm, noticePeriodDays: e.target.value })}
