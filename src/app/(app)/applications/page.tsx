@@ -68,9 +68,21 @@ const STATUS_OPTIONS = [
   { value: 'WITHDRAWN', label: 'Withdrawn' },
 ];
 
-const DEPARTMENT_OPTIONS = [
-  'Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations', 'Legal', 'Product',
-];
+/*
+ * Departments come from the applications themselves.
+ *
+ * This was a hardcoded list — Engineering, Marketing, Sales, HR, Finance, Operations, Legal,
+ * Product — with no overlap whatsoever against the departments this tenant actually uses
+ * (Strategic Business Unit, Information Technology, Enterprise Risk Management). Since the filter
+ * matches on exact string equality, choosing any department emptied the table, which reads as
+ * "no applications" rather than "wrong filter". A control that cannot match anything is worse than
+ * an absent one, because it looks like an answer.
+ *
+ * Deriving from the loaded page is a floor, not the finished job: it can only offer departments
+ * present in the current page of results. The management console already has a proper
+ * `/api/applications/manage/filter-options` endpoint and this page should use it when it is
+ * rebuilt.
+ */
 
 // Pipeline stage definitions matching the mock
 const PIPELINE_STAGES = [
@@ -133,24 +145,30 @@ function renderStars(rating: number) {
   ));
 }
 
-function getScoreBadge(rating: number | undefined) {
-  if (!rating) return null;
-  const score = rating * 20; // Convert 1-5 to 0-100 scale
-  let colorClass = 'bg-error-bg text-error';
-  let barColor = 'bg-error';
-  if (score >= 80) {
-    colorClass = 'bg-success-bg text-success';
-    barColor = 'bg-success';
-  } else if (score >= 60) {
-    colorClass = 'bg-warning-bg text-warning';
-    barColor = 'bg-warning';
+/**
+ * A rating is one to five, and is shown as one to five.
+ *
+ * This previously multiplied the rating by twenty and rendered "80%" beside a progress bar — a
+ * four-star judgement dressed as a measurement to the nearest percent. The scale has five points;
+ * presenting it as a hundred implies a precision nobody entered and nobody can act on.
+ */
+function getRatingBadge(rating: number | undefined) {
+  if (!rating) {
+    return <span className="text-xs text-muted-foreground">Not rated</span>;
   }
+  const rounded = Math.max(0, Math.min(5, Math.round(rating)));
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${colorClass}`}>
-      {score}%
-      <span className="w-10 h-1 rounded-full bg-border overflow-hidden">
-        <span className={`block h-full rounded-full ${barColor}`} style={{ width: `${score}%` }} />
-      </span>
+    <span
+      className="inline-flex items-center gap-0.5 text-accent-gold"
+      role="img"
+      aria-label={`${rounded} out of 5`}
+    >
+      {[1, 2, 3, 4, 5].map((n) => (
+        <StarIcon
+          key={n}
+          className={`w-3.5 h-3.5 ${n <= rounded ? 'fill-current' : 'text-border'}`}
+        />
+      ))}
     </span>
   );
 }
@@ -274,6 +292,12 @@ export default function ApplicationsPage() {
     setCurrentPage(0);
     loadApplications(0, '', 'ALL', sortBy, sortDir);
   };
+
+  // Only offer departments that exist in the data, so the filter can never return an empty table
+  // for a department nobody works in.
+  const departmentOptions = Array.from(
+    new Set(applications.map(app => app.department).filter(Boolean))
+  ).sort();
 
   const filteredByDepartment = departmentFilter === 'ALL'
     ? applications
@@ -403,15 +427,36 @@ export default function ApplicationsPage() {
               <StarIcon className="w-6 h-6 text-accent-gold" />
             </div>
             <div>
-              <h3 className="text-2xl font-extrabold text-foreground leading-none">
-                {applications.length > 0
-                  ? Math.round(
-                      (applications.reduce((sum, a) => sum + (a.rating || 0), 0) /
-                        applications.filter(a => a.rating).length) * 20 || 0
-                    )
-                  : 0}
-              </h3>
-              <p className="text-[0.8125rem] text-muted-foreground mt-1">Avg Score</p>
+              {/* Averaged over the applications that carry a rating, and reported on the scale
+                  people entered it on. This previously divided by the rated count, multiplied by
+                  twenty, and passed the result through `|| 0` — so an unrated pipeline produced
+                  NaN and rendered a confident "0", which reads as "everyone scored nothing"
+                  rather than "nobody has rated anyone". */}
+              {(() => {
+                const rated = applications.filter(a => a.rating);
+                if (rated.length === 0) {
+                  return (
+                    <>
+                      <h3 className="text-base font-bold text-muted-foreground leading-none pt-1.5">
+                        Not rated
+                      </h3>
+                      <p className="text-[0.8125rem] text-muted-foreground mt-1">Average rating</p>
+                    </>
+                  );
+                }
+                const average = rated.reduce((sum, a) => sum + (a.rating || 0), 0) / rated.length;
+                return (
+                  <>
+                    <h3 className="text-2xl font-extrabold text-foreground leading-none">
+                      {average.toFixed(1)}
+                      <span className="text-base font-semibold text-muted-foreground"> / 5</span>
+                    </h3>
+                    <p className="text-[0.8125rem] text-muted-foreground mt-1">
+                      Average rating &middot; {rated.length} of {applications.length} rated
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
           <div className="enterprise-card p-5 flex items-center gap-4 hover:shadow-md transition-all">
@@ -491,7 +536,7 @@ export default function ApplicationsPage() {
                     className="py-2 px-3 border border-border rounded-control text-[0.8125rem] text-foreground bg-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
                   >
                     <option value="ALL">All Departments</option>
-                    {DEPARTMENT_OPTIONS.map(dept => (
+                    {departmentOptions.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
                     ))}
                   </select>
@@ -669,11 +714,7 @@ export default function ApplicationsPage() {
                         </td>
                         {/* Score */}
                         <td className="px-4 py-3.5 whitespace-nowrap">
-                          {app.rating ? (
-                            getScoreBadge(app.rating)
-                          ) : (
-                            <span className="text-xs text-muted-foreground/60">Not rated</span>
-                          )}
+                          {getRatingBadge(app.rating)}
                         </td>
                         {/* Status */}
                         <td className="px-4 py-3.5 whitespace-nowrap">

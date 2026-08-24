@@ -167,15 +167,20 @@ export function isTransitionAllowed(
  * Get workflow progress percentage
  */
 export function getWorkflowProgress(status: RequisitionStatus): number {
+  // Weighted against the stages the backend can actually reach. The previous map reserved 50 for
+  // PENDING_HIRING_MANAGER_APPROVAL, which no backend path emits — the entity's RequisitionStatus
+  // has six values and never routes to a hiring-manager stage — so a requisition awaiting its only
+  // approval reported 33% while a third of the bar was held for a stage it would never visit.
   const progressMap: Record<string, number> = {
     [RequisitionStatus.DRAFT]: 0,
-    [RequisitionStatus.SUBMITTED]: 20,
-    [RequisitionStatus.PENDING_HR_APPROVAL]: 33,
-    [RequisitionStatus.PENDING_HIRING_MANAGER_APPROVAL]: 50,
-    [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]: 66,
+    [RequisitionStatus.SUBMITTED]: 25,
+    [RequisitionStatus.PENDING_HR_APPROVAL]: 50,
+    [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]: 75,
     [RequisitionStatus.APPROVED]: 100,
-    [RequisitionStatus.REJECTED]: 100
+    // Rejected is an end, not an achievement. It previously weighed 100, so a rejected requisition
+    // rendered a full progress bar and read as complete.
+    [RequisitionStatus.REJECTED]: 0
   };
 
-  return progressMap[status] || 0;
+  return progressMap[status] ?? 0;
 }
