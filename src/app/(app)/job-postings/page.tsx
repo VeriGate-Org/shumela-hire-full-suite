@@ -390,19 +390,13 @@ export default function JobPostingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const getPageTitle = () => {
-    switch (view) {
-      case 'workflow': return 'Job Posting Workflow';
-      default: return 'Job Postings';
-    }
-  };
+  // The workflow view opens with its own identity band, which names the record and the
+  // posting. A PageWrapper header above it repeated the same thing in weaker words, so the
+  // view supplies no title and PageWrapper renders no header block for it.
+  const getPageTitle = () => (view === 'workflow' ? undefined : 'Job Postings');
 
-  const getPageSubtitle = () => {
-    switch (view) {
-      case 'workflow': return 'Manage the approval and publishing workflow.';
-      default: return 'Create, review, and publish job postings with full workflow controls.';
-    }
-  };
+  const getPageSubtitle = () =>
+    view === 'workflow' ? undefined : 'Create, review, and publish job postings with full workflow controls.';
 
   const pageActions = view === 'list' ? (
     <div className="flex items-center gap-3 flex-wrap">
@@ -839,6 +833,37 @@ export default function JobPostingsPage() {
               jobPosting={selectedJobPosting}
               onStatusChange={handleStatusChange}
               currentUserId={currentUserId ?? undefined}
+              verificationSlot={
+                selectedJobPosting.status !== 'CANCELLED' && currentUserId ? (
+                  <section
+                    aria-label="Verification required before hire"
+                    className="rounded-card border border-border bg-card p-5 shadow-sm"
+                  >
+      {/* The verification a vacancy demands is a property of how it is RUN, not of the
+                  advert, so it stays available after approval — when the need for it usually
+                  surfaces. The general edit path is closed by then (canBeEdited allows DRAFT and
+                  REJECTED only), which is why this writes through its own endpoint. */}
+                  <VerificationRequirementsPanel
+                    jobPostingId={String(selectedJobPosting.id)}
+                    requiredCheckTypes={selectedJobPosting.requiredCheckTypes}
+                    enforceCheckCompletion={selectedJobPosting.enforceCheckCompletion}
+                    canEdit={user?.role === 'ADMIN' || user?.role === 'HR_MANAGER'}
+                    updatedBy={currentUserId}
+                    onSaved={(next) => {
+                      setSelectedJobPosting((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              enforceCheckCompletion: next.enforceCheckCompletion,
+                              requiredCheckTypes: JSON.stringify(next.requiredCheckTypes),
+                            }
+                          : prev
+                      );
+                    }}
+                  />
+                  </section>
+                ) : undefined
+              }
             />
 
             {selectedJobPosting.status === 'PUBLISHED' && (
@@ -855,33 +880,6 @@ export default function JobPostingsPage() {
                   <JobBoardManager jobId={String(selectedJobPosting.id)} />
                 </div>
               </>
-            )}
-
-            {/* The verification a vacancy demands is a property of how it is RUN, not of the
-                advert, so it stays available after approval — when the need for it usually
-                surfaces. The general edit path is closed by then (canBeEdited allows DRAFT and
-                REJECTED only), which is why this writes through its own endpoint. */}
-            {selectedJobPosting.status !== 'CANCELLED' && currentUserId && (
-              <div className="mt-6 enterprise-card p-6">
-                <VerificationRequirementsPanel
-                  jobPostingId={String(selectedJobPosting.id)}
-                  requiredCheckTypes={selectedJobPosting.requiredCheckTypes}
-                  enforceCheckCompletion={selectedJobPosting.enforceCheckCompletion}
-                  canEdit={user?.role === 'ADMIN' || user?.role === 'HR_MANAGER'}
-                  updatedBy={currentUserId}
-                  onSaved={(next) => {
-                    setSelectedJobPosting((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            enforceCheckCompletion: next.enforceCheckCompletion,
-                            requiredCheckTypes: JSON.stringify(next.requiredCheckTypes),
-                          }
-                        : prev
-                    );
-                  }}
-                />
-              </div>
             )}
 
             {/* Shortlisting is available from APPROVED onward, not only once published.

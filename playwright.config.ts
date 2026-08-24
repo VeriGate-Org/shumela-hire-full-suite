@@ -72,8 +72,10 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
+  /* Port 3210 deliberately: 3000/3100 are commonly occupied by other checkouts, and
+     `reuseExistingServer` would otherwise happily test somebody else's application. */
   webServer: {
-    command: 'npx next dev --turbo -p 3210',
+    command: 'npm run dev -- --port 3210',
     url: 'http://localhost:3210',
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000, // 3 minutes — a cold Turbopack build of this app exceeds two
