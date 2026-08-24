@@ -43,9 +43,19 @@ describe('stageLabel', () => {
     expect(stageLabel('EXECUTIVE')).toBe('Executive');
   });
 
-  it('passes an unknown stage through rather than blanking it', () => {
-    // A new stage added server-side must still render, even before this map knows about it.
-    expect(stageLabel('BOARD')).toBe('BOARD');
+  it('title-cases a stage this map has not been taught, rather than showing the enum', () => {
+    // A stage added server-side must still read as words before this map knows about it. Same
+    // fallback as formatApprovalRole, which is what the approval timeline applies.
+    expect(stageLabel('BOARD')).toBe('Board');
+    expect(stageLabel('REMUNERATION_COMMITTEE')).toBe('Remuneration Committee');
+  });
+
+  it('agrees with the labels the approval timeline emits', () => {
+    // The rail matches routing's enum values against timeline steps that have already been
+    // formatted. If these two disagree, a completed stage silently never finds its approver —
+    // which is exactly what happened before this was fixed.
+    expect(stageLabel('HR_MANAGER')).toBe('HR Manager');
+    expect(stageLabel('EXECUTIVE')).toBe('Executive');
   });
 });
 
@@ -87,17 +97,59 @@ describe('buildStages', () => {
     expect(stages.map((s) => s.name)).toEqual(['Raised', 'HR Manager', 'Executive', 'Approved']);
   });
 
-  it('marks the awaited stage as current and gives it the wait in days', () => {
-    const stages = buildStages(requisition(), HR_ONLY, [], NOW);
+  it('marks the awaited stage as current, measured from when it was entered', () => {
+    // Entered at submission on 16 Aug, so eight days waiting on 24 Aug — not the seven days
+    // since updatedAt, which any unrelated edit would have reset.
+    const steps: ApprovalStep[] = [
+      { role: 'Submitted', approverName: 'Nomvula Sithole', status: 'approved', timestamp: '2026-08-16T09:00:00Z' },
+    ];
+    const stages = buildStages(requisition(), HR_ONLY, steps, NOW);
     const hr = stages.find((s) => s.name === 'HR Manager');
 
     expect(hr?.state).toBe('current');
-    expect(hr?.days).toBe(4); // 20 Aug → 24 Aug
+    expect(hr?.days).toBe(8);
+  });
+
+  it('gives every completed stage its own dwell, from the previous decision', () => {
+    // The whole point of reading the approval history as a status history: stage N was entered
+    // when decision N-1 landed, so each stage's duration is derivable rather than only the ones
+    // whose own timestamp happens to be present.
+    const steps: ApprovalStep[] = [
+      { role: 'Submitted', approverName: 'Nomvula Sithole', status: 'approved', timestamp: '2026-08-01T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-05T09:00:00Z' },
+      { role: 'Executive', approverName: 'Lebo Ntuli', status: 'approved', timestamp: '2026-08-12T09:00:00Z' },
+    ];
+    const stages = buildStages(
+      requisition({ status: RequisitionStatus.APPROVED, createdAt: new Date('2026-07-30T09:00:00Z') }),
+      ESCALATED,
+      steps,
+      NOW
+    );
+
+    expect(stages.find((s) => s.name === 'Raised')?.days).toBe(2);       // 30 Jul → 1 Aug
+    expect(stages.find((s) => s.name === 'HR Manager')?.days).toBe(4);   // 1 Aug → 5 Aug
+    expect(stages.find((s) => s.name === 'Executive')?.days).toBe(7);    // 5 Aug → 12 Aug
+  });
+
+  it('measures the current stage from the last decision, not from submission', () => {
+    const steps: ApprovalStep[] = [
+      { role: 'Submitted', approverName: 'Nomvula Sithole', status: 'approved', timestamp: '2026-08-01T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-20T09:00:00Z' },
+    ];
+    const stages = buildStages(
+      requisition({ status: RequisitionStatus.PENDING_EXECUTIVE_APPROVAL }),
+      ESCALATED,
+      steps,
+      NOW
+    );
+
+    // With the executive since 20 Aug — four days, not the twenty-three since it was submitted.
+    expect(stages.find((s) => s.name === 'Executive')).toMatchObject({ state: 'current', days: 4 });
   });
 
   it('shows who approved a completed stage', () => {
     const steps: ApprovalStep[] = [
-      { role: 'HR_MANAGER', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-20T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-20T09:00:00Z' },
     ];
     const stages = buildStages(
       requisition({ status: RequisitionStatus.PENDING_EXECUTIVE_APPROVAL }),
@@ -113,7 +165,7 @@ describe('buildStages', () => {
 
   it('stops the rail at the stage that rejected it', () => {
     const steps: ApprovalStep[] = [
-      { role: 'HR_MANAGER', approverName: 'Thandeka Mabaso', status: 'rejected', timestamp: '2026-08-22T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'rejected', timestamp: '2026-08-22T09:00:00Z' },
     ];
     const stages = buildStages(
       requisition({ status: RequisitionStatus.REJECTED }),
@@ -129,7 +181,7 @@ describe('buildStages', () => {
 
   it('marks the outcome done once the requisition is approved', () => {
     const steps: ApprovalStep[] = [
-      { role: 'HR_MANAGER', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-21T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-21T09:00:00Z' },
     ];
     const stages = buildStages(requisition({ status: RequisitionStatus.APPROVED }), HR_ONLY, steps, NOW);
 
@@ -139,7 +191,7 @@ describe('buildStages', () => {
   it('falls back to the approval history when routing is unavailable', () => {
     // The routing endpoint failing must not blank the rail, and must not invent a chain either.
     const steps: ApprovalStep[] = [
-      { role: 'HR_MANAGER', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-20T09:00:00Z' },
+      { role: 'HR Manager', approverName: 'Thandeka Mabaso', status: 'approved', timestamp: '2026-08-20T09:00:00Z' },
     ];
     const stages = buildStages(requisition(), null, steps, NOW);
 

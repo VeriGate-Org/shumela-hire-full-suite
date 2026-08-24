@@ -31,14 +31,33 @@ export function isRouting(payload: unknown): payload is RequisitionRouting {
   );
 }
 
-/** Stage names as a person would say them. The API speaks in enum values. */
+/**
+ * Stage names as a person would say them.
+ *
+ * <p>Must agree with `formatApprovalRole` in approvalTimelineService, because the two meet: the
+ * routing endpoint speaks in enum values (`HR_MANAGER`) while the approval timeline has already
+ * formatted the same stage into a label (`HR Manager`). Matching one against the other without
+ * converting is how a completed stage silently fails to find its approver.
+ */
 const STAGE_LABELS: Record<string, string> = {
   HR_MANAGER: 'HR Manager',
+  HR: 'HR Manager',
   EXECUTIVE: 'Executive',
+  HIRING_MANAGER: 'Hiring Manager',
+  ADMIN: 'Administrator',
 };
 
 export function stageLabel(stage: string): string {
-  return STAGE_LABELS[stage] ?? stage;
+  if (STAGE_LABELS[stage]) return STAGE_LABELS[stage];
+  // Same fallback as formatApprovalRole: TITLE_CASE the enum rather than showing it raw.
+  if (/^[A-Z][A-Z_]*$/.test(stage)) {
+    return stage
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+  return stage;
 }
 
 /** Whole days between two instants, floored — never negative. */
@@ -46,20 +65,29 @@ export function daysBetween(from?: string | Date | null, to: Date = new Date()):
   if (!from) return undefined;
   const start = new Date(from).getTime();
   if (Number.isNaN(start)) return undefined;
-  return Math.max(0, Math.floor((to.getTime() - start) / 86_400_000));
+  const end = to.getTime();
+  if (Number.isNaN(end)) return undefined;
+  return Math.max(0, Math.floor((end - start) / 86_400_000));
+}
+
+/** The step recording a decision at this stage, matched by label rather than by enum value. */
+function stepForStage(steps: ApprovalStep[], stageName: string): ApprovalStep | undefined {
+  const label = stageLabel(stageName);
+  return steps.find((step) => step.role === label && step.status !== 'pending');
 }
 
 /**
- * Build the rail from the computed chain and what has actually happened.
+ * Build the rail from the computed chain and what actually happened.
  *
  * <p>The chain length is not fixed: a requisition inside the HR delegation has one approval stage,
  * one above the threshold has two. Rendering a fixed ladder is how a two-stage chain ends up
  * looking like it stalled halfway.
  *
- * <p>Dwell is only shown where it can be derived honestly. The record carries `createdAt` and
- * `updatedAt` but no per-transition timestamps, so a completed stage's duration is only known when
- * the approval history supplies its timestamp. Where it cannot be worked out, the bar is omitted
- * rather than estimated.
+ * <p><b>Dwell now comes from the approval history, which is a full status history.</b> Every
+ * transition writes a `RequisitionApproval`, and that record timestamps itself on construction —
+ * so a stage was entered when the previous event happened and left when its own did. That makes
+ * every completed stage's duration derivable, not only the ones whose own timestamp is present.
+ * The page previously showed dwell for almost nothing because it had no entry time to subtract.
  */
 export function buildStages(
   requisition: RequisitionData,
@@ -71,70 +99,74 @@ export function buildStages(
   const approved = requisition.status === RequisitionStatus.APPROVED;
 
   const raisedAt = requisition.createdAt ? new Date(requisition.createdAt) : undefined;
-  const firstDecision = steps.find((step) => step.status !== 'pending')?.timestamp;
+
+  // Decisions in the order they happened. The timeline puts the submission first as its own step,
+  // which is exactly the T0 every later stage measures from.
+  const decided = steps.filter((step) => step.status !== 'pending' && step.timestamp);
+  const submittedAt = decided.find((step) => step.role === 'Submitted')?.timestamp;
 
   const raised: Stage = {
     name: 'Raised',
     state: 'done',
     when: raisedAt ? formatDate(raisedAt) : undefined,
-    days: firstDecision ? daysBetween(raisedAt, new Date(firstDecision)) : daysBetween(raisedAt, now),
+    // Raised → submitted, or raised → now if it has not been submitted.
+    days: daysBetween(raisedAt, submittedAt ? new Date(submittedAt) : now),
   };
 
-  // No routing means the endpoint was unavailable — fall back to what the approval history shows
-  // rather than inventing a chain.
-  const chain = routing?.chain ?? steps.map((step) => step.role);
+  const chain = routing?.chain ?? inferChainFromSteps(steps);
 
-  const approvalStages: Stage[] = chain.map((stageName, index) => {
-    const step = steps.find((candidate) => candidate.role === stageName);
+  // Walk the chain and the decisions together: stage N was entered when decision N-1 landed.
+  let enteredAt: string | Date | undefined = submittedAt ?? raisedAt;
+
+  const approvalStages: Stage[] = chain.map((stageName) => {
     const label = stageLabel(stageName);
+    const step = stepForStage(steps, stageName);
 
-    if (step?.status === 'rejected') {
-      return {
+    if (step?.timestamp) {
+      const stage: Stage = {
         name: label,
-        state: 'stopped',
+        state: step.status === 'rejected' ? 'stopped' : 'done',
         actor: step.approverName,
-        when: step.timestamp ? formatDate(new Date(step.timestamp)) : undefined,
+        when: formatDate(new Date(step.timestamp)),
+        days: daysBetween(enteredAt, new Date(step.timestamp)),
       };
+      enteredAt = step.timestamp;
+      return stage;
     }
-    if (step?.status === 'approved') {
-      const previous = index === 0 ? firstDecisionBefore(steps, step) ?? raisedAt : undefined;
-      return {
-        name: label,
-        state: 'done',
-        actor: step.approverName,
-        when: step.timestamp ? formatDate(new Date(step.timestamp)) : undefined,
-        days: previous && step.timestamp ? daysBetween(previous, new Date(step.timestamp)) : undefined,
-      };
-    }
+
     if (stageName === routing?.currentStage) {
       return {
         name: label,
         state: 'current',
         actor: 'Awaiting a decision',
-        when: requisition.updatedAt ? `since ${formatDate(new Date(requisition.updatedAt))}` : undefined,
-        days: daysBetween(requisition.updatedAt, now),
+        when: enteredAt ? `since ${formatDate(new Date(enteredAt))}` : undefined,
+        days: daysBetween(enteredAt, now),
       };
     }
-    return { name: label, state: rejected ? 'todo' : 'todo', actor: rejected ? 'Not reached' : undefined };
+
+    return { name: label, state: 'todo', actor: rejected ? 'Not reached' : undefined };
   });
 
   const outcome: Stage = rejected
     ? { name: 'Rejected', state: 'stopped', actor: 'Not advertised' }
-    : {
-        name: 'Approved',
-        state: approved ? 'done' : 'todo',
-        actor: approved ? 'Clears for advertising' : 'Clears for advertising',
-      };
+    : { name: 'Approved', state: approved ? 'done' : 'todo', actor: 'Clears for advertising' };
 
   return [raised, ...approvalStages, outcome];
 }
 
-function firstDecisionBefore(steps: ApprovalStep[], step: ApprovalStep): Date | undefined {
-  const index = steps.indexOf(step);
-  for (let i = index - 1; i >= 0; i -= 1) {
-    if (steps[i].timestamp) return new Date(steps[i].timestamp as string);
+/**
+ * When routing is unavailable, recover the chain from the decisions themselves.
+ *
+ * <p>Deliberately not a guess at what the chain *should* be — only the stages that demonstrably
+ * had a decision, in order, with the submission excluded because it is its own rail entry.
+ */
+function inferChainFromSteps(steps: ApprovalStep[]): string[] {
+  const seen: string[] = [];
+  for (const step of steps) {
+    if (step.role === 'Submitted') continue;
+    if (!seen.includes(step.role)) seen.push(step.role);
   }
-  return undefined;
+  return seen;
 }
 
 export function formatDate(value: Date): string {

@@ -11,9 +11,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -43,6 +46,8 @@ import java.util.stream.Collectors;
 @Repository
 public class DynamoRequisitionRepository extends DynamoRepository<RequisitionItem, Requisition>
         implements RequisitionDataRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(DynamoRequisitionRepository.class);
 
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -102,20 +107,81 @@ public class DynamoRequisitionRepository extends DynamoRepository<RequisitionIte
 
     @Override
     public Page<Requisition> findAll(Pageable pageable) {
-        List<Requisition> all = findAll();
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), all.size());
-        List<Requisition> pageContent = start < all.size() ? all.subList(start, end) : List.of();
-        return new PageImpl<>(pageContent, pageable, all.size());
+        return page(findAll(), pageable);
     }
 
     @Override
     public Page<Requisition> findByStatus(RequisitionStatus status, Pageable pageable) {
-        List<Requisition> filtered = findByStatusOrderByCreatedAtDesc(status);
+        return page(findByStatusOrderByCreatedAtDesc(status), pageable);
+    }
+
+    /**
+     * Sort, then slice.
+     *
+     * <p>These methods previously ignored {@code pageable.getSort()} outright — one returned
+     * whatever order the scan produced and the other was hardcoded to createdAt descending — so the
+     * {@code sort} parameter callers have always sent has never had any effect on this backend. A
+     * queue ordered by longest wait needs {@code updatedAt} ascending, and that is not expressible
+     * without honouring the sort.
+     *
+     * <p>Sorting before slicing is the point: sorting a page would only reorder the twenty rows
+     * that already happened to be selected, which is the class of half-answer this work keeps
+     * removing.
+     */
+    private Page<Requisition> page(List<Requisition> records, Pageable pageable) {
+        List<Requisition> ordered = sorted(records, pageable.getSort());
         int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filtered.size());
-        List<Requisition> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
-        return new PageImpl<>(pageContent, pageable, filtered.size());
+        int end = Math.min(start + pageable.getPageSize(), ordered.size());
+        List<Requisition> pageContent = start < ordered.size() ? ordered.subList(start, end) : List.of();
+        return new PageImpl<>(pageContent, pageable, ordered.size());
+    }
+
+    /**
+     * Apply a Spring {@link Sort} to requisitions in memory.
+     *
+     * <p>Package-private and static so it can be tested directly: constructing the repository needs
+     * a live DynamoDB client, and ordering rules are worth pinning without one.
+     *
+     * <p>Only the two timestamp properties are supported, because they are the only ones a queue
+     * orders by and inventing more would imply capability that has not been tested. <b>An
+     * unrecognised property is ignored rather than guessed at</b>, leaving the incoming order — a
+     * silent mis-sort is harder to notice than an unchanged one.
+     */
+    static List<Requisition> sorted(List<Requisition> records, Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return records;
+        }
+
+        Comparator<Requisition> comparator = null;
+        for (Sort.Order order : sort) {
+            Comparator<Requisition> next = switch (order.getProperty()) {
+                case "createdAt" -> Comparator.comparing(
+                        Requisition::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+                case "updatedAt" -> Comparator.comparing(
+                        Requisition::getUpdatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+                default -> null;
+            };
+            if (next == null) {
+                logger.warn("Ignoring unsupported requisition sort property '{}'", order.getProperty());
+                continue;
+            }
+            if (order.isDescending()) {
+                // reversed() would move nulls to the front; keep records with no timestamp last
+                // either way, since an unknown date should not lead a queue.
+                next = next.reversed();
+                next = Comparator.comparing(
+                        (Requisition r) -> order.getProperty().equals("updatedAt")
+                                ? r.getUpdatedAt() == null
+                                : r.getCreatedAt() == null)
+                        .thenComparing(next);
+            }
+            comparator = comparator == null ? next : comparator.thenComparing(next);
+        }
+
+        if (comparator == null) {
+            return records;
+        }
+        return records.stream().sorted(comparator).collect(Collectors.toList());
     }
 
     // ── Conversion: RequisitionItem <-> Requisition ──────────────────────────

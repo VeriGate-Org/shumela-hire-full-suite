@@ -45,6 +45,18 @@ public class RequisitionSummaryResponse {
     /** That requisition's id, so a caller can link straight to it rather than searching for it. */
     private String oldestWaitingId;
 
+    /**
+     * Median days from raised to approved, across every approved requisition.
+     *
+     * <p>Free to compute: this response already reads every status, so the approved records are
+     * in hand. Median rather than mean because one requisition that sat for eight months would
+     * drag an average somewhere no real requisition has ever been.
+     *
+     * <p>Null when nothing has been approved yet — a queue with no completions has no typical
+     * time, which is a different statement from "zero days".
+     */
+    private Long medianDaysToApproval;
+
     public static RequisitionSummaryResponse from(Map<RequisitionStatus, List<Requisition>> byStatus,
                                                   LocalDateTime now) {
         RequisitionSummaryResponse summary = new RequisitionSummaryResponse();
@@ -76,7 +88,40 @@ public class RequisitionSummaryResponse {
                     Duration.between(waitingSince(oldest), now).toDays());
         }
 
+        summary.medianDaysToApproval = medianDaysToApproval(
+                byStatus.getOrDefault(RequisitionStatus.APPROVED, List.of()));
+
         return summary;
+    }
+
+    /**
+     * Median days from raised to approved.
+     *
+     * <p>Uses {@code updatedAt} as the approval moment, which is the closest thing the record has
+     * — there is no per-transition timestamp on the requisition itself. That is exact for a
+     * requisition approved and then left alone, and overstates one that was edited afterwards.
+     * Worth knowing before the figure is quoted anywhere it matters.
+     *
+     * <p>Records missing either timestamp are excluded rather than counted as zero: a requisition
+     * whose duration is unknown must not pull the median toward nothing.
+     */
+    private static Long medianDaysToApproval(List<Requisition> approved) {
+        List<Long> durations = approved.stream()
+                .filter(r -> r.getCreatedAt() != null && r.getUpdatedAt() != null)
+                .map(r -> Duration.between(r.getCreatedAt(), r.getUpdatedAt()).toDays())
+                .filter(days -> days >= 0)
+                .sorted()
+                .toList();
+
+        if (durations.isEmpty()) {
+            return null;
+        }
+        int middle = durations.size() / 2;
+        return durations.size() % 2 == 1
+                ? durations.get(middle)
+                // Even count: the lower of the two central values rather than their mean, so the
+                // figure is always a duration some requisition actually took.
+                : durations.get(middle - 1);
     }
 
     /**
@@ -105,4 +150,7 @@ public class RequisitionSummaryResponse {
 
     public String getOldestWaitingId() { return oldestWaitingId; }
     public void setOldestWaitingId(String oldestWaitingId) { this.oldestWaitingId = oldestWaitingId; }
+
+    public Long getMedianDaysToApproval() { return medianDaysToApproval; }
+    public void setMedianDaysToApproval(Long medianDaysToApproval) { this.medianDaysToApproval = medianDaysToApproval; }
 }

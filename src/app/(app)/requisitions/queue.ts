@@ -7,7 +7,17 @@ export interface RequisitionSummary {
   awaitingDecision: number;
   oldestWaitingDays?: number | null;
   oldestWaitingId?: string | null;
+  medianDaysToApproval?: number | null;
 }
+
+/**
+ * How the queue is ordered on the server.
+ *
+ * Oldest-updated first, because updatedAt is when a requisition entered its current status, so
+ * ascending is longest-waiting. The repository ignored the sort parameter entirely until it was
+ * implemented alongside this — before that, asking for any order produced createdAt descending.
+ */
+export const QUEUE_SORT = 'updatedAt,asc';
 
 /** Statuses where somebody owes a decision. Mirrors the server's AWAITING_DECISION. */
 export const AWAITING: RequisitionStatus[] = [
@@ -98,4 +108,45 @@ export function byLongestWait<T extends { status: RequisitionStatus; updatedAt?:
     const bDays = waitingDays(b.updatedAt, now) ?? -1;
     return bDays - aDays;
   });
+}
+
+/**
+ * Which waiting status this role is the one to clear.
+ *
+ * <p>Mirrors DelegationMatrixService.statusForStage on the server — the only two approval stages
+ * that exist — plus the fact that RequisitionController authorises ADMIN to approve at either
+ * stage without checking which one. That is the whole authority; nothing here is inferred from
+ * what a role sounds like it ought to do.
+ *
+ * <p>Returns null for every other role, and null means <b>omit the figure</b>, not show zero. A
+ * recruiter has no approval stage, so "0 on you" would be true in the same empty way that "0
+ * requisitions you have personally set fire to" is true.
+ */
+export function stagesOwnedBy(role: string | undefined): RequisitionStatus[] | null {
+  switch (role) {
+    case 'HR_MANAGER':
+      return [RequisitionStatus.PENDING_HR_APPROVAL];
+    case 'EXECUTIVE':
+      return [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL];
+    case 'ADMIN':
+      return [RequisitionStatus.PENDING_HR_APPROVAL, RequisitionStatus.PENDING_EXECUTIVE_APPROVAL];
+    default:
+      return null;
+  }
+}
+
+/**
+ * How many of the whole queue are waiting on this user specifically.
+ *
+ * <p>Read off the summary, so it describes the entire set rather than the loaded page — and needs
+ * no endpoint of its own. Null when the role owns no stage, or when the summary has not loaded:
+ * a figure that cannot be computed is absent, never zero.
+ */
+export function onYouCount(
+  summary: RequisitionSummary | null,
+  role: string | undefined
+): number | null {
+  const stages = stagesOwnedBy(role);
+  if (!summary || !stages) return null;
+  return stages.reduce((total, status) => total + (summary.countsByStatus[status] ?? 0), 0);
 }
