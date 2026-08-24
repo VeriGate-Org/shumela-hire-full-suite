@@ -223,7 +223,16 @@ public class ShumelaHireServerlessStack : Stack
                 ["LINKEDIN_ENABLED"] = ContextFlag(this, "linkedinJobBoardEnabled", "false"),
                 ["INDEED_ENABLED"] = ContextFlag(this, "indeedEnabled", "false"),
                 ["PNET_ENABLED"] = ContextFlag(this, "pnetEnabled", "false"),
-                ["CAREER_JUNCTION_ENABLED"] = ContextFlag(this, "careerJunctionEnabled", "false")
+                ["CAREER_JUNCTION_ENABLED"] = ContextFlag(this, "careerJunctionEnabled", "false"),
+                // Per-board publishing mode, mirroring ESIGNATURE_PROVIDER above.
+                // "live" posts through the board's API and needs its key.
+                // "simulated" runs the full publish/sync/takedown path against an
+                // in-process sandbox, for environments with no credentials.
+                // Engagement figures in that mode are modelled, not measured.
+                ["LINKEDIN_MODE"] = ContextFlag(this, "linkedinJobBoardMode", "live"),
+                ["INDEED_MODE"] = ContextFlag(this, "indeedMode", "live"),
+                ["PNET_MODE"] = ContextFlag(this, "pnetMode", "live"),
+                ["CAREER_JUNCTION_MODE"] = ContextFlag(this, "careerJunctionMode", "live")
             },
             CurrentVersionOptions = new VersionOptions
             {

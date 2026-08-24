@@ -78,21 +78,32 @@ ai:
     model: ${OPENAI_MODEL:gpt-4o}
 
 # Job Board Configuration
+# Each board has an `enabled` flag for its live API connector and a `mode`.
+# mode=simulated runs the board against an in-process sandbox provider
+# (SimulatedJobBoardConnector) that exercises the full publish/sync/takedown
+# path without credentials — the same idea as a payment provider's test mode.
+# Default is `live`, so nothing simulates unless an environment says so, and a
+# board with no key falls through to a manual posting as before.
+# Do not set both `enabled: true` and `mode: simulated` for the same board.
 job-boards:
   linkedin:
     enabled: ${LINKEDIN_ENABLED:false}
+    mode: ${LINKEDIN_MODE:live}
     api-key: ${LINKEDIN_API_KEY:}
     api-secret: ${LINKEDIN_API_SECRET:}
     org-id: ${LINKEDIN_ORG_ID:}
   indeed:
     enabled: ${INDEED_ENABLED:false}
+    mode: ${INDEED_MODE:live}
     employer-id: ${INDEED_EMPLOYER_ID:}
     api-token: ${INDEED_API_TOKEN:}
   pnet:
     enabled: ${PNET_ENABLED:false}
+    mode: ${PNET_MODE:live}
     api-key: ${PNET_API_KEY:}
   career-junction:
     enabled: ${CAREER_JUNCTION_ENABLED:false}
+    mode: ${CAREER_JUNCTION_MODE:live}
     api-key: ${CAREER_JUNCTION_API_KEY:}
     partner-id: ${CAREER_JUNCTION_PARTNER_ID:}
 
