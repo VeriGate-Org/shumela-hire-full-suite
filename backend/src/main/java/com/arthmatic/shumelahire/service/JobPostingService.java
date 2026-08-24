@@ -2,6 +2,7 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
+import com.arthmatic.shumelahire.dto.JobPostingSummaryResponse;
 import com.arthmatic.shumelahire.dto.VerificationRequirementsRequest;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
@@ -591,6 +592,18 @@ public class JobPostingService {
     /**
      * Get job posting statistics
      */
+    /**
+     * Counts describing the whole advert set.
+     *
+     * <p>Reads every posting once so the figures agree with each other. The existing
+     * {@code getJobPostingStatistics} returns status counts alone, which cannot express the
+     * distinction this page turns on: published-and-open versus published-and-expired.
+     */
+    @Transactional(readOnly = true)
+    public JobPostingSummaryResponse summary() {
+        return JobPostingSummaryResponse.from(jobPostingRepository.findAll(), LocalDateTime.now());
+    }
+
     @Transactional(readOnly = true)
     public List<Object[]> getJobPostingStatistics() {
         return jobPostingRepository.getJobPostingStatusCounts();

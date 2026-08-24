@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
+import com.arthmatic.shumelahire.dto.JobPostingSummaryResponse;
 import com.arthmatic.shumelahire.dto.VerificationRequirementsRequest;
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.ExperienceLevel;
@@ -483,6 +484,15 @@ public class JobPostingController {
      * Get job posting statistics
      * GET /api/job-postings/statistics
      */
+    /**
+     * Counts for the whole advert set.
+     * GET /api/job-postings/summary
+     */
+    @GetMapping("/summary")
+    public ResponseEntity<JobPostingSummaryResponse> summary() {
+        return ResponseEntity.ok(jobPostingService.summary());
+    }
+
     @GetMapping("/statistics")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<?> getJobPostingStatistics() {
