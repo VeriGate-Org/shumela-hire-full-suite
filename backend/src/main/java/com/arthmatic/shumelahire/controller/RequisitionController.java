@@ -1,6 +1,7 @@
 package com.arthmatic.shumelahire.controller;
 
 import com.arthmatic.shumelahire.dto.RequisitionRoutingResponse;
+import com.arthmatic.shumelahire.dto.RequisitionSummaryResponse;
 import com.arthmatic.shumelahire.entity.Requisition;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
 import com.arthmatic.shumelahire.entity.User;
@@ -51,6 +52,23 @@ public class RequisitionController {
         return requisitionService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Counts for the whole queue.
+     * GET /api/requisitions/summary
+     *
+     * <p>Every figure here describes the entire set, which is the point: the list currently derives
+     * its tab counts and most of its tiles from the twenty rows it happens to have loaded, so the
+     * numbers change when you paginate.
+     *
+     * <p>Declared before {@code /{id}} so the literal path is not captured as an id. Spring resolves
+     * the more specific pattern first regardless, but the ordering makes that obvious to a reader.
+     */
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'EXECUTIVE')")
+    public ResponseEntity<RequisitionSummaryResponse> summary() {
+        return ResponseEntity.ok(requisitionService.summary());
     }
 
     /**

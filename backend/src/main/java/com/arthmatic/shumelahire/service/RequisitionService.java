@@ -1,6 +1,10 @@
 package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.entity.Requisition;
+import com.arthmatic.shumelahire.dto.RequisitionSummaryResponse;
+import java.util.EnumMap;
+import java.util.Map;
+import java.time.LocalDateTime;
 import com.arthmatic.shumelahire.entity.Requisition.RequisitionStatus;
 import com.arthmatic.shumelahire.entity.RequisitionApproval;
 import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
@@ -50,6 +54,24 @@ public class RequisitionService {
 
     public Page<Requisition> findByStatus(RequisitionStatus status, Pageable pageable) {
         return requisitionRepository.findByStatus(status, pageable);
+    }
+
+    /**
+     * Counts for the whole queue, so the list's tabs and tiles stop describing the loaded page.
+     *
+     * <p>Reads each status once and derives both its count and the oldest wait from the same
+     * result. On the DynamoDB backend {@code countByStatus} runs the same GSI query as fetching and
+     * calls {@code size()} on it, so counting separately would double the reads for no benefit.
+     *
+     * <p>One index read per status — seven on the current enum. That is the honest cost of a figure
+     * that is true, against a figure computed from twenty rows that is not.
+     */
+    public RequisitionSummaryResponse summary() {
+        Map<RequisitionStatus, List<Requisition>> byStatus = new EnumMap<>(RequisitionStatus.class);
+        for (RequisitionStatus status : RequisitionStatus.values()) {
+            byStatus.put(status, requisitionRepository.findByStatusOrderByCreatedAtDesc(status));
+        }
+        return RequisitionSummaryResponse.from(byStatus, LocalDateTime.now());
     }
 
     public Optional<Requisition> findById(String id) {
