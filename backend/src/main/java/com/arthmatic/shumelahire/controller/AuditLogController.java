@@ -136,10 +136,13 @@ public class AuditLogController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "timestamp") String sort,
-            @RequestParam(defaultValue = "DESC") String direction) {
+            @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) String search) {
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-        Page<AuditLog> logs = auditLogService.getAllLogs(pageRequest);
+        // A blank search is not a search: searchLogs falls through to the unfiltered page, so the
+        // console can send the parameter unconditionally without special-casing an empty box.
+        Page<AuditLog> logs = auditLogService.searchLogs(search, pageRequest);
         return ResponseEntity.ok(logs);
     }
 
