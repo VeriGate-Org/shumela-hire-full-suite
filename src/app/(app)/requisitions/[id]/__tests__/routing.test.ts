@@ -1,4 +1,4 @@
-import { buildStages, daysBetween, decisionFor, stageLabel, RequisitionRouting } from '../routing';
+import { buildStages, daysBetween, decisionFor, isRouting, stageLabel, RequisitionRouting } from '../routing';
 import { RequisitionData, RequisitionStatus } from '@/types/workflow';
 import { ApprovalStep } from '@/components/ApprovalTimeline';
 
@@ -184,5 +184,36 @@ describe('decisionFor', () => {
     const { ask } = decisionFor(requisition({ status: RequisitionStatus.DRAFT }), null);
 
     expect(ask).toContain('not been submitted');
+  });
+});
+
+describe('isRouting', () => {
+  it('accepts a well-formed routing response', () => {
+    expect(isRouting(HR_ONLY)).toBe(true);
+    expect(isRouting(ESCALATED)).toBe(true);
+  });
+
+  it('rejects a requisition returned where routing was expected', () => {
+    // Exactly what a catch-all proxy rule produces: /requisitions/{id}/routing answered with the
+    // requisition. Reaching the strip with no chain threw on chain.map and took down a page whose
+    // own record had loaded perfectly.
+    expect(isRouting({ id: 'r1', jobTitle: 'Risk Manager', status: 'APPROVED' })).toBe(false);
+  });
+
+  it('rejects an empty or malformed chain', () => {
+    expect(isRouting({ chain: [], rationale: 'x' })).toBe(false);
+    expect(isRouting({ chain: 'HR_MANAGER', rationale: 'x' })).toBe(false);
+    expect(isRouting({ chain: [1, 2], rationale: 'x' })).toBe(false);
+  });
+
+  it('rejects a chain with no explanation, since the strip exists to explain', () => {
+    expect(isRouting({ chain: ['HR_MANAGER'] })).toBe(false);
+    expect(isRouting({ chain: ['HR_MANAGER'], rationale: '' })).toBe(false);
+  });
+
+  it('rejects nothing at all', () => {
+    expect(isRouting(null)).toBe(false);
+    expect(isRouting(undefined)).toBe(false);
+    expect(isRouting('routing')).toBe(false);
   });
 });

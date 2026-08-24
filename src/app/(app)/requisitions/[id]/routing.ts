@@ -11,6 +11,26 @@ export interface RequisitionRouting {
   currentStage?: string | null;
 }
 
+/**
+ * Is this payload usable as routing?
+ *
+ * <p>Checked at the fetch boundary rather than trusted at render time. A routing response without
+ * a chain — an older deployment, a partial rollout, a proxy answering the path with something else
+ * — would otherwise reach the strip and throw on `chain.map`, taking down a page whose actual
+ * subject loaded perfectly. The explanation is worth having; it is not worth the record.
+ */
+export function isRouting(payload: unknown): payload is RequisitionRouting {
+  if (!payload || typeof payload !== 'object') return false;
+  const candidate = payload as Partial<RequisitionRouting>;
+  return (
+    Array.isArray(candidate.chain) &&
+    candidate.chain.length > 0 &&
+    candidate.chain.every((stage) => typeof stage === 'string') &&
+    typeof candidate.rationale === 'string' &&
+    candidate.rationale.length > 0
+  );
+}
+
 /** Stage names as a person would say them. The API speaks in enum values. */
 const STAGE_LABELS: Record<string, string> = {
   HR_MANAGER: 'HR Manager',

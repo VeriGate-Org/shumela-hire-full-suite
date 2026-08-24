@@ -10,7 +10,7 @@ import { test, expect, Page, Route } from '@playwright/test';
  * RequisitionService had never written a single REQUISITION entry.
  *
  * The authorisation half is pinned server-side by AuditAuthorisationTest. This covers the half
- * that only a browser sees: that the tab is reachable, renders entries, and reports a refusal
+ * that only a browser sees: that the trail is reachable, renders entries, and reports a refusal
  * as a refusal.
  */
 
@@ -76,9 +76,17 @@ async function stubApi(
   });
 }
 
-async function openAuditTab(page: Page) {
+/**
+ * Open the full audit trail.
+ *
+ * <p>This used to be a tab. The requisition detail page no longer has tabs: the approval trail is
+ * on the page rather than behind one, and the full audit log — which is the administrative view of
+ * the same events — sits behind a disclosure under it. Every assertion below is unchanged; only the
+ * way the trail is reached has moved.
+ */
+async function openAuditLog(page: Page) {
   await page.goto('/requisitions/r1');
-  await page.getByRole('tab', { name: /Audit Log/i }).click();
+  await page.getByRole('button', { name: /show full audit log/i }).click();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -88,9 +96,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('Requisition audit trail', () => {
-  test('the tab is reachable and lists the entries', async ({ page }) => {
+  test('the audit log is reachable and lists the entries', async ({ page }) => {
     await stubApi(page);
-    await openAuditTab(page);
+    await openAuditLog(page);
 
     await expect(page.getByText(/requisition approved/i).first()).toBeVisible();
     await expect(page.getByText(/requisition submitted/i).first()).toBeVisible();
@@ -114,7 +122,7 @@ test.describe('Requisition audit trail', () => {
       return json(route, {});
     });
 
-    await openAuditTab(page);
+    await openAuditLog(page);
     await expect(page.getByText(/requisition approved/i).first()).toBeVisible();
 
     // A recruiter must not be able to read the whole tenant's trail, so the screen must never
@@ -125,7 +133,7 @@ test.describe('Requisition audit trail', () => {
 
   test('names who did what, and in which role', async ({ page }) => {
     await stubApi(page);
-    await openAuditTab(page);
+    await openAuditLog(page);
 
     await expect(page.getByText('thandi.molefe')).toBeVisible();
     await expect(page.getByText('HR_MANAGER')).toBeVisible();
@@ -134,7 +142,7 @@ test.describe('Requisition audit trail', () => {
 
   test('an empty trail says so rather than looking broken', async ({ page }) => {
     await stubApi(page, { status: 200, body: [] });
-    await openAuditTab(page);
+    await openAuditLog(page);
 
     await expect(page.getByText(/No audit logs found for this requisition/i)).toBeVisible();
   });
@@ -142,7 +150,7 @@ test.describe('Requisition audit trail', () => {
   test('a refusal is reported as a refusal', async ({ page }) => {
     // What a hiring manager used to get on every requisition, before the URL rule was narrowed.
     await stubApi(page, { status: 403, body: { message: 'Access denied' } });
-    await openAuditTab(page);
+    await openAuditLog(page);
 
     await expect(page.getByText(/403|denied|Failed to fetch audit logs/i).first()).toBeVisible();
   });

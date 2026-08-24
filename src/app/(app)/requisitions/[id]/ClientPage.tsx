@@ -29,6 +29,7 @@ import {
   daysBetween,
   decisionFor,
   formatDate,
+  isRouting,
   stageLabel,
 } from './routing';
 
@@ -74,7 +75,12 @@ export default function RequisitionDetailPage() {
       // delegation threshold in the browser.
       try {
         const routingResponse = await apiFetch(`/api/requisitions/${requisitionId}/routing`);
-        setRouting(routingResponse.ok ? await routingResponse.json() : null);
+        const payload = routingResponse.ok ? await routingResponse.json() : null;
+        // Validate the shape here rather than trusting it at render time. An older deployment, a
+        // partial rollout or a proxy that answers this path with something else would otherwise
+        // reach the strip as a chain of undefined and take the whole page down with it — the
+        // routing explanation is worth having, but never at the cost of the record itself.
+        setRouting(isRouting(payload) ? payload : null);
       } catch {
         setRouting(null);
       }
