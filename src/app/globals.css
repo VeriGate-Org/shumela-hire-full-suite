@@ -67,6 +67,24 @@
   --divider-accent: #F1C54B;
   --divider-secondary: #008C7F;
 
+  /* Identity band — a deep navy plate that carries a page's subject (e.g. the
+     role an application is for). Deliberately NOT re-declared in the dark
+     theme: the plate is already dark, so it reads the same either way and the
+     white-on-navy contrast never has to be re-checked. Everything painted on
+     top is expressed as an alpha over that navy. */
+  --band: #032E49;
+  --band-foreground: #FFFFFF;
+  --band-strong: rgba(255, 255, 255, 0.90);
+  --band-muted: rgba(255, 255, 255, 0.62);
+  --band-faint: rgba(255, 255, 255, 0.42);
+  --band-dim: rgba(255, 255, 255, 0.30);
+  --band-fill: rgba(255, 255, 255, 0.055);
+  --band-line: rgba(255, 255, 255, 0.11);
+  --band-glow: rgba(5, 82, 126, 0.60);
+  --band-accent: #F1C54B;
+  --band-accent-fill: rgba(241, 197, 75, 0.11);
+  --band-accent-line: rgba(241, 197, 75, 0.34);
+
   /* Stripe Dual-Layer Shadows — elevated baseline */
   --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 10px rgba(50, 50, 93, 0.12), 0 2px 5px rgba(0, 0, 0, 0.08);
@@ -408,6 +426,17 @@
     background-color: var(--cta-hover);
     border-color: var(--cta-hover);
     box-shadow: var(--shadow-sm);
+  }
+
+  /* Identity band lift. A flat navy rectangle looks like a missing image; the
+     off-canvas radial gives it a light source. Purely decorative, so it is an
+     ::after with pointer-events off rather than an element in the markup. */
+  .band-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 140% at 90% -15%, var(--band-glow) 0%, transparent 60%);
   }
 
   /* IDC Accent Dividers */
