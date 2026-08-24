@@ -1,9 +1,7 @@
 package com.arthmatic.shumelahire.service;
 
-import com.arthmatic.shumelahire.entity.EmployeeDocument;
 import com.arthmatic.shumelahire.entity.Offer;
 import com.arthmatic.shumelahire.entity.OfferStatus;
-import com.arthmatic.shumelahire.repository.EmployeeDocumentDataRepository;
 import com.arthmatic.shumelahire.repository.OfferDataRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,8 +23,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Real e-signature provider, active only when {@code esignature.provider=docusign}
+ * <b>and</b> the {@code DOCUSIGN_*} settings are supplied. Without credentials every
+ * call fails at the envelope POST, so {@link LocalESignatureService} is the default.
+ */
 @Service
-@ConditionalOnProperty(name = "esignature.provider", havingValue = "docusign", matchIfMissing = true)
+@ConditionalOnProperty(name = "esignature.provider", havingValue = "docusign")
 public class DocuSignService implements ESignatureService {
 
     private static final Logger logger = LoggerFactory.getLogger(DocuSignService.class);
@@ -59,7 +62,7 @@ public class DocuSignService implements ESignatureService {
     private OfferDataRepository offerRepository;
 
     @Autowired
-    private EmployeeDocumentDataRepository employeeDocumentRepository;
+    private ESignatureEventApplier eventApplier;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -224,53 +227,7 @@ public class DocuSignService implements ESignatureService {
         if (envelopeId == null) return;
 
         logger.info("DocuSign webhook: event={}, envelopeId={}", eventType, envelopeId);
-
-        // Check offers
-        offerRepository.findAll().stream()
-            .filter(o -> envelopeId.equals(o.getESignatureEnvelopeId()))
-            .findFirst()
-            .ifPresent(offer -> {
-                if ("envelope-completed".equals(eventType)) {
-                    offer.setESignatureStatus("completed");
-                    offer.setESignatureCompletedAt(LocalDateTime.now());
-                    offer.setStatus(OfferStatus.SIGNED);
-                    offerRepository.save(offer);
-                    logger.info("Offer {} signed via DocuSign", offer.getOfferNumber());
-                } else if ("envelope-declined".equals(eventType)) {
-                    offer.setESignatureStatus("declined");
-                    offer.setStatus(OfferStatus.DECLINED);
-                    offer.setDeclinedAt(LocalDateTime.now());
-                    offerRepository.save(offer);
-                    logger.info("Offer {} signature declined", offer.getOfferNumber());
-                } else if ("envelope-voided".equals(eventType)) {
-                    offer.setESignatureStatus("voided");
-                    offer.setStatus(OfferStatus.WITHDRAWN);
-                    offer.setWithdrawnAt(LocalDateTime.now());
-                    offerRepository.save(offer);
-                    logger.info("Offer {} envelope voided", offer.getOfferNumber());
-                }
-            });
-
-        // Check employee documents
-        employeeDocumentRepository.findAll().stream()
-            .filter(d -> envelopeId.equals(d.getESignatureEnvelopeId()))
-            .findFirst()
-            .ifPresent(doc -> {
-                if ("envelope-completed".equals(eventType)) {
-                    doc.setESignatureStatus("completed");
-                    doc.setESignatureCompletedAt(LocalDateTime.now());
-                    employeeDocumentRepository.save(doc);
-                    logger.info("Employee document {} signature completed via DocuSign", doc.getId());
-                } else if ("envelope-declined".equals(eventType)) {
-                    doc.setESignatureStatus("declined");
-                    employeeDocumentRepository.save(doc);
-                    logger.info("Employee document {} signature declined", doc.getId());
-                } else if ("envelope-voided".equals(eventType)) {
-                    doc.setESignatureStatus("voided");
-                    employeeDocumentRepository.save(doc);
-                    logger.info("Employee document {} envelope voided", doc.getId());
-                }
-            });
+        eventApplier.apply(envelopeId, eventType);
     }
 
     @Override
