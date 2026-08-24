@@ -379,6 +379,15 @@ public class ApplicationManagementService {
             ));
         stats.put("departmentDistribution", departmentCounts);
 
+        // Source distribution — which channel each application arrived through.
+        List<Object[]> sourceCounts = applicationRepository.countByApplicationSource();
+        Map<String, Long> sourceDistribution = sourceCounts.stream()
+            .collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> (Long) row[1]
+            ));
+        stats.put("sourceDistribution", sourceDistribution);
+
         // Recent applications (last 7 days)
         LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
         long recentApplications = applicationRepository.countBySubmittedAtAfter(weekAgo);

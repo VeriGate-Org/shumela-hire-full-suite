@@ -27,6 +27,7 @@ import {
 import AiCandidatePanel from '@/components/ai/AiCandidatePanel';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiSmartSearch from '@/components/ai/AiSmartSearch';
+import { getEnumLabel } from '@/utils/enumLabels';
 
 interface Application {
   id: number;
@@ -823,7 +824,11 @@ export default function ApplicationsPage() {
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Source</span>
-                          <span className="text-sm font-semibold text-foreground">{selectedApplication.applicationSource || 'Unknown'}</span>
+                          <span className="text-sm font-semibold text-foreground">
+                            {selectedApplication.applicationSource
+                              ? getEnumLabel('applicationSource', selectedApplication.applicationSource)
+                              : 'Not recorded'}
+                          </span>
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-[0.6875rem] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Submitted</span>

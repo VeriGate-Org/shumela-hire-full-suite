@@ -454,6 +454,16 @@ public class DynamoApplicationRepository extends DynamoRepository<ApplicationIte
     }
 
     @Override
+    public List<Object[]> countByApplicationSource() {
+        return findAll().stream()
+                .filter(a -> a.getApplicationSource() != null && !a.getApplicationSource().isBlank())
+                .collect(Collectors.groupingBy(Application::getApplicationSource, Collectors.counting()))
+                .entrySet().stream()
+                .map(e -> new Object[]{e.getKey(), e.getValue()})
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<PipelineTransition> findTransitionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         // PipelineTransitions are a separate entity; in DynamoDB they would have their own
         // item type. For now, return empty. This should be handled by a dedicated

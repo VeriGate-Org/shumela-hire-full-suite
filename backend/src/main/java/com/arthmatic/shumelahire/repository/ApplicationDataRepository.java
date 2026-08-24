@@ -191,6 +191,17 @@ public interface ApplicationDataRepository {
     /** Count applications grouped by department. Returns list of [department, Long]. */
     List<Object[]> countByDepartment();
 
+    /**
+     * Count applications grouped by the channel they arrived through.
+     * Returns list of [applicationSource, Long].
+     *
+     * Applications with no recorded source are excluded rather than bucketed as
+     * "Unknown": a source breakdown is used to decide where to spend
+     * advertising money, and a large unattributed bucket presented alongside
+     * named channels reads as a channel that performed.
+     */
+    List<Object[]> countByApplicationSource();
+
     /** Find pipeline transitions within a date range. */
     List<PipelineTransition> findTransitionsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 

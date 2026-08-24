@@ -89,6 +89,39 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     SECOND_OPINION: 'Needs Second Opinion',
   },
 
+  // The channel an application arrived through.
+  //
+  // These are third-party brands, so the spelling is theirs, not ours —
+  // formatEnumValue's title-casing would render "Pnet" and "Career Junction",
+  // which is wrong on a screen that is making a point about which boards we
+  // integrate with. Kept in step with FALLBACK_LOOKUPS.applicationSources in
+  // services/lookupService.ts and getBoardDisplayName in types/jobBoard.ts.
+  applicationSource: {
+    EXTERNAL: 'Job Board / Website',
+    INTERNAL: 'Internal Posting',
+    REFERRAL: 'Employee Referral',
+    RECRUITER: 'Recruiter Contact',
+    SOCIAL_MEDIA: 'Social Media',
+    LINKEDIN: 'LinkedIn',
+    INDEED: 'Indeed',
+    PNET: 'PNet',
+    CAREER_JUNCTION: 'CareerJunction',
+    CAREER_FAIR: 'Career Fair',
+    COMPANY_WEBSITE: 'Company Website',
+    DIRECT_APPLICATION: 'Direct Application',
+    OTHER: 'Other',
+    // Three definitions of this field disagree, and Application.applicationSource
+    // is a plain String, so none of them is enforced:
+    //   - entity/ApplicationSource.java     — the 13 values above
+    //   - dto/ApplicationCreateRequest      — INTERNAL|EXTERNAL|REFERRAL|AGENCY|JOB_BOARD
+    //   - the values actually stored        — adds CAREERS_PAGE
+    // Reconciling them is a data-model change. Until then this registry covers
+    // the union, because the cost of a gap is a source shouting on screen.
+    CAREERS_PAGE: 'Careers Page',
+    JOB_BOARD: 'Job Board',
+    AGENCY: 'Recruitment Agency',
+  },
+
   // Employment
   employmentType: {
     FULL_TIME: 'Full-time',
