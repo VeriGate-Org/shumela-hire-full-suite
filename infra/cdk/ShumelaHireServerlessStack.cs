@@ -232,7 +232,13 @@ public class ShumelaHireServerlessStack : Stack
                 ["LINKEDIN_MODE"] = ContextFlag(this, "linkedinJobBoardMode", "live"),
                 ["INDEED_MODE"] = ContextFlag(this, "indeedMode", "live"),
                 ["PNET_MODE"] = ContextFlag(this, "pnetMode", "live"),
-                ["CAREER_JUNCTION_MODE"] = ContextFlag(this, "careerJunctionMode", "live")
+                ["CAREER_JUNCTION_MODE"] = ContextFlag(this, "careerJunctionMode", "live"),
+                // Which tenants the simulated boards apply to. The modes above
+                // do nothing without this: a shared deployment must not hand a
+                // paying tenant a posting that claims to be live and is not, so
+                // every tenant not listed keeps the manual-posting behaviour.
+                ["JOB_BOARD_SIMULATED_TENANTS"] =
+                    ContextFlag(this, "jobBoardSimulatedTenants", "")
             },
             CurrentVersionOptions = new VersionOptions
             {

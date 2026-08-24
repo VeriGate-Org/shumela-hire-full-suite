@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
 import com.arthmatic.shumelahire.entity.PostingStatus;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -52,13 +54,16 @@ public class SimulatedJobBoardConnector implements JobBoardConnector {
     private final JobBoardType boardType;
     private final JobBoardPostingDataRepository repository;
     private final AuditLogService auditLogService;
+    private final Set<String> simulatedTenants;
 
     public SimulatedJobBoardConnector(JobBoardType boardType,
                                       JobBoardPostingDataRepository repository,
-                                      AuditLogService auditLogService) {
+                                      AuditLogService auditLogService,
+                                      Set<String> simulatedTenants) {
         this.boardType = boardType;
         this.repository = repository;
         this.auditLogService = auditLogService;
+        this.simulatedTenants = simulatedTenants;
     }
 
     @Override
@@ -67,12 +72,18 @@ public class SimulatedJobBoardConnector implements JobBoardConnector {
     }
 
     /**
-     * Always enabled: the bean only exists when its board is configured for
-     * simulation, so its presence is the switch.
+     * Enabled only for the tenants named in {@code job-boards.simulated-tenants}.
+     *
+     * A deployment is shared: turning simulation on for one tenant's benefit
+     * must not hand a different, paying tenant a posting that claims to be live
+     * and is not. For every other tenant this returns false, the registry finds
+     * no connector, and the board falls through to a manual posting exactly as
+     * it did before. An empty allow-list simulates for nobody.
      */
     @Override
     public boolean isEnabled() {
-        return true;
+        String tenantId = TenantContext.getCurrentTenant();
+        return tenantId != null && simulatedTenants.contains(tenantId);
     }
 
     @Override

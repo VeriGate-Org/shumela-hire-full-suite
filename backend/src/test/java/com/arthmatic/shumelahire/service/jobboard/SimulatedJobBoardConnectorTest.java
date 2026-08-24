@@ -1,11 +1,13 @@
 package com.arthmatic.shumelahire.service.jobboard;
 
+import com.arthmatic.shumelahire.config.tenant.TenantContext;
 import com.arthmatic.shumelahire.entity.JobBoardPosting;
 import com.arthmatic.shumelahire.entity.JobBoardType;
 import com.arthmatic.shumelahire.entity.PostingStatus;
 import com.arthmatic.shumelahire.repository.JobBoardPostingDataRepository;
 import com.arthmatic.shumelahire.service.AuditLogService;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +24,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SimulatedJobBoardConnectorTest {
+
+    private static final Set<String> SIMULATED_TENANTS = Set.of("idc");
 
     @Mock
     private JobBoardPostingDataRepository repository;
@@ -32,7 +37,14 @@ class SimulatedJobBoardConnectorTest {
 
     @BeforeEach
     void setUp() {
-        connector = new SimulatedJobBoardConnector(JobBoardType.PNET, repository, auditLogService);
+        connector = new SimulatedJobBoardConnector(
+                JobBoardType.PNET, repository, auditLogService, SIMULATED_TENANTS);
+        TenantContext.setCurrentTenant("idc");
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
     }
 
     private JobBoardPosting livePosting(String id, LocalDateTime postedAt) {
@@ -171,11 +183,42 @@ class SimulatedJobBoardConnectorTest {
     void eachBoardMintsItsOwnReferenceShape() {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var careerJunction =
-                new SimulatedJobBoardConnector(JobBoardType.CAREER_JUNCTION, repository, auditLogService);
+        var careerJunction = new SimulatedJobBoardConnector(
+                JobBoardType.CAREER_JUNCTION, repository, auditLogService, SIMULATED_TENANTS);
         JobBoardPosting posting = careerJunction.post("job-1", null);
 
         assertTrue(posting.getExternalPostId().startsWith("CJ-"));
         assertTrue(posting.getExternalUrl().startsWith("https://www.careerjunction.co.za/jobs/"));
+    }
+
+    @Test
+    void isEnabledOnlyForATenantOnTheAllowList() {
+        TenantContext.setCurrentTenant("idc");
+        assertTrue(connector.isEnabled());
+    }
+
+    @Test
+    void isNotEnabledForAnotherTenantOnTheSameDeployment() {
+        // The point of the allow-list: a paying tenant sharing this deployment
+        // must keep the honest manual-posting behaviour.
+        TenantContext.setCurrentTenant("uthukela");
+        assertFalse(connector.isEnabled());
+    }
+
+    @Test
+    void isNotEnabledWithNoTenantInContext() {
+        TenantContext.clear();
+        assertFalse(connector.isEnabled());
+    }
+
+    @Test
+    void anEmptyAllowListSimulatesForNobody() {
+        var noTenants = new SimulatedJobBoardConnector(
+                JobBoardType.PNET, repository, auditLogService, Set.of());
+
+        TenantContext.setCurrentTenant("idc");
+
+        assertFalse(noTenants.isEnabled(),
+                "board mode alone must not be enough to simulate");
     }
 }

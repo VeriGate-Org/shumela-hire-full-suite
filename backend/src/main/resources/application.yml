@@ -85,7 +85,14 @@ ai:
 # Default is `live`, so nothing simulates unless an environment says so, and a
 # board with no key falls through to a manual posting as before.
 # Do not set both `enabled: true` and `mode: simulated` for the same board.
+#
+# `simulated-tenants` is the second switch, and both must agree. A deployment
+# is shared, so simulating a board for a demonstration tenant must not hand a
+# different, paying tenant a posting that claims to be live and is not — every
+# tenant not named here keeps the manual-posting behaviour. Empty simulates for
+# nobody, whatever the board modes say.
 job-boards:
+  simulated-tenants: ${JOB_BOARD_SIMULATED_TENANTS:}
   linkedin:
     enabled: ${LINKEDIN_ENABLED:false}
     mode: ${LINKEDIN_MODE:live}
