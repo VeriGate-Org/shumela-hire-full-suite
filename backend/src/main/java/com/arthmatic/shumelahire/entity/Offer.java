@@ -11,10 +11,22 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Offer extends TenantAwareEntity {
 
+    /**
+     * Constraints that hold on a persisted offer but not on an incoming create request, where the
+     * controller supplies the missing piece from the path.
+     *
+     * <p>{@code POST /api/offers/applications/{applicationId}} binds the request body to this
+     * entity and {@code OfferService.createOffer} sets {@link #application} from the path variable
+     * afterwards. While that constraint sat in the default group, {@code @Valid} on the handler
+     * rejected every create before the service could run — the endpoint compiled, was reachable and
+     * was never once satisfiable.</p>
+     */
+    public interface Persisted {}
+
     private String id;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @NotNull(message = "Application is required")
+    @NotNull(message = "Application is required", groups = Persisted.class)
     private Application application;
 
     private String offerNumber;

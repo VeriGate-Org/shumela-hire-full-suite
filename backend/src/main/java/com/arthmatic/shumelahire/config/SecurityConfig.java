@@ -165,7 +165,7 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/integrations/**")).hasAnyRole("ADMIN", "HR_MANAGER")
 
                 // Offer endpoints
-                .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "APPLICANT")
+                .requestMatchers(new AntPathRequestMatcher("/api/offers/**")).hasAnyRole("ADMIN", "HR_MANAGER", "HIRING_MANAGER", "APPLICANT", "EMPLOYEE")
 
                 // Agency endpoints — method-level @PreAuthorize handles fine-grained access
                 .requestMatchers(new AntPathRequestMatcher("/api/agencies/**")).hasAnyRole("ADMIN", "HR_MANAGER", "RECRUITER")
