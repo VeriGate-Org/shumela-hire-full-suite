@@ -24,10 +24,30 @@ public class TalentPoolController {
         return ResponseEntity.status(HttpStatus.CREATED).body(talentPoolService.createPool(pool));
     }
 
+    /**
+     * Every pool, with its contents described.
+     *
+     * <p>This used to return the raw {@code TalentPool} entity, which says nothing about who is in
+     * the pool. It now returns {@link com.arthmatic.shumelahire.dto.TalentPoolResponse} — count,
+     * source split, median entry age — because a pool's value is its freshness and none of that was
+     * ever on the wire.
+     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
     public ResponseEntity<?> getAllPools() {
-        return ResponseEntity.ok(talentPoolService.getAllPools());
+        return ResponseEntity.ok(talentPoolService.getAllPoolsDetailed());
+    }
+
+    /**
+     * Counts across every pool.
+     * GET /api/talent-pools/summary
+     *
+     * <p>Separate from the list so the figures describe every pool rather than the ones on screen.
+     */
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> summary() {
+        return ResponseEntity.ok(talentPoolService.summary());
     }
 
     @GetMapping("/{id}")

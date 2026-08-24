@@ -11,22 +11,30 @@ import { useDepartments } from '@/hooks/useDepartments';
 import { useSkills } from '@/hooks/useSkills';
 import AiAssistPanel from '@/components/ai/AiAssistPanel';
 import AiSmartSearch from '@/components/ai/AiSmartSearch';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  AVAILABILITY_NOT_TRACKED,
+  POOL_FILTERS,
+  PoolRow,
+  PoolSummary,
+  byOldestMedian,
+  filterCount,
+  isPoolSummary,
+  matchesFilter,
+  medianAgeLabel,
+  oldestEntryLabel,
+  sourceSummary,
+  stateOf,
+  STATE_LABELS,
+} from './library';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface TalentPool {
-  id: number;
-  poolName: string;
-  description?: string;
-  department?: string;
-  skillsCriteria?: string;
-  experienceLevel?: string;
-  isActive: boolean;
-  autoAddEnabled: boolean;
-  entryCount?: number;
-  createdAt: string;
-  updatedAt: string;
-}
+// The pool shape now comes from library.ts, which mirrors TalentPoolResponse. The endpoint used to
+// return the raw entity, so entryCount was declared here, guarded against the undefined it always
+// was, and the "N candidates" line never once rendered.
+type TalentPool = PoolRow & { id: number | string };
 
 interface TalentPoolEntry {
   id: number;
@@ -37,7 +45,10 @@ interface TalentPoolEntry {
   sourceType: 'MANUAL' | 'AUTO_REJECTED' | 'AGENCY';
   notes?: string;
   rating?: number;
-  isAvailable: boolean;
+  // isAvailable is deliberately absent. It exists on TalentPoolEntry, defaults to true, and the
+  // only code that touches it is the DynamoDB mapper reading and writing its own copy — no service
+  // sets it false, ever. The page rendered it as an "Available" / "Unavailable" badge, so it told
+  // recruiters that every person in every pool was available, including anyone hired two years ago.
   addedAt: string;
 }
 
@@ -45,7 +56,8 @@ interface PoolAnalytics {
   totalEntries: number;
   activeEntries: number;
   averageRating?: number;
-  sourceBreakdown?: Record<string, number>;
+  // The server puts this under `bySource`; `sourceBreakdown` was never a field it sent.
+  bySource?: Record<string, number>;
 }
 
 type ModalType = null | 'createPool' | 'editPool' | 'addEntry' | 'removeEntry';
@@ -165,6 +177,10 @@ export default function TalentPoolsPage() {
   const [removeReason, setRemoveReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Counts across every pool, from GET /api/talent-pools/summary.
+  const [summary, setSummary] = useState<PoolSummary | null>(null);
+  const [poolFilter, setPoolFilter] = useState('all');
+
   // ─── Data Loading ──────────────────────────────────────────────────────────
 
   const loadPools = useCallback(async () => {
@@ -176,6 +192,16 @@ export default function TalentPoolsPage() {
       toast('Failed to load talent pools', 'error');
     } finally {
       setPoolsLoading(false);
+    }
+
+    // Counts across every pool. A separate call so the figures describe all of them rather than
+    // the ones rendered — and guarded, because an error body is an object too and reading .stale
+    // off it would render a strip of zeroes that looks like a healthy library.
+    try {
+      const payload = await apiFetchJson<unknown>('/api/talent-pools/summary');
+      setSummary(isPoolSummary(payload) ? payload : null);
+    } catch {
+      setSummary(null);
     }
   }, [toast]);
 
@@ -278,8 +304,12 @@ export default function TalentPoolsPage() {
       department: pool.department ?? '',
       skillsCriteria: pool.skillsCriteria ?? '',
       experienceLevel: pool.experienceLevel ?? '',
-      isActive: pool.isActive,
-      autoAddEnabled: pool.autoAddEnabled,
+      // Both are nullable on the record. The edit form is a checkbox, so absence has to resolve to
+      // something — active defaults to true (the column's own default; reading absence as "switched
+      // off" would silently deactivate a live pool on save) and auto-add defaults to false (adding
+      // people automatically is a decision somebody makes, never one inferred from a missing flag).
+      isActive: pool.isActive !== false,
+      autoAddEnabled: pool.autoAddEnabled === true,
     });
     setModal('editPool');
   };
@@ -389,10 +419,15 @@ export default function TalentPoolsPage() {
 
   // ─── Derived values ────────────────────────────────────────────────────────
 
-  const filteredPools = pools.filter(
-    (p) =>
-      p.poolName.toLowerCase().includes(poolSearch.toLowerCase()) ||
-      (p.department ?? '').toLowerCase().includes(poolSearch.toLowerCase()),
+  // Stalest first — that is the order they are worth reviewing in, and freshness is the whole
+  // question. The list used to arrive in whatever order the table scan returned.
+  const filteredPools = byOldestMedian(
+    pools.filter(
+      (p) =>
+        (p.poolName.toLowerCase().includes(poolSearch.toLowerCase()) ||
+          (p.department ?? '').toLowerCase().includes(poolSearch.toLowerCase())) &&
+        matchesFilter(poolFilter, p),
+    ),
   );
 
   const sourceLabel: Record<string, string> = {
@@ -451,6 +486,60 @@ export default function TalentPoolsPage() {
         </AiAssistPanel>
       </div>
 
+      {/* Where the pools actually stand. Every figure is about pools except the last, which says
+          so — a pool's value is its freshness, and none of this was ever on the wire. */}
+      {summary && (
+        <div className="mb-6">
+          <DistributionStrip
+            buckets={[
+              {
+                label: 'Growing unattended',
+                count: summary.growingUnattended,
+                detail: 'Auto-adding into a year-old shortlist',
+                tone: summary.growingUnattended > 0 ? 'critical' : 'default',
+              },
+              {
+                label: 'Stale',
+                count: summary.stale,
+                detail: 'Median entry over a year old',
+                tone: summary.stale > 0 ? 'warning' : 'default',
+              },
+              {
+                label: 'Auto-adding',
+                count: summary.autoAdding,
+                detail: 'Grows on every rejection',
+              },
+              {
+                label: 'Switched off',
+                count: summary.inactive,
+                detail: 'Not accumulating, still holding people',
+              },
+            ]}
+            footnote={
+              <>
+                Across <b className="font-bold text-foreground">{summary.pools}</b> pools holding{' '}
+                <b className="font-bold text-foreground">{summary.entriesHeld}</b> entries — entries
+                rather than people, because somebody in three pools is counted three times.
+                {summary.oldestMedianDays != null && (
+                  <>
+                    {' '}
+                    The stalest pool&rsquo;s median entry is{' '}
+                    <b className="font-bold text-foreground">
+                      {medianAgeLabel({
+                        id: '',
+                        poolName: '',
+                        medianEntryAgeDays: summary.oldestMedianDays,
+                      })}
+                    </b>{' '}
+                    old.
+                  </>
+                )}
+              </>
+            }
+          />
+        </div>
+      )}
+
       <div className="flex gap-6 h-full min-h-0">
         {/* ── Left panel: Pool list ── */}
         <div className="w-1/3 flex flex-col gap-3 min-w-0">
@@ -461,6 +550,18 @@ export default function TalentPoolsPage() {
             onChange={(e) => setPoolSearch(e.target.value)}
             placeholder="Search pools..."
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gold-400"
+          />
+
+          <FilterChips
+            chips={POOL_FILTERS.map((filter) => ({
+              key: filter.key,
+              label: filter.label,
+              count: filterCount(summary, filter.key) ?? undefined,
+            }))}
+            activeKey={poolFilter}
+            onChange={setPoolFilter}
+            aria-label="Filter pools by state"
+            note={<>Stalest first</>}
           />
 
           {/* List */}
@@ -476,7 +577,13 @@ export default function TalentPoolsPage() {
             </div>
           ) : (
             <div className="space-y-2 overflow-y-auto">
-              {filteredPools.map((pool) => (
+              {filteredPools.map((pool) => {
+                const poolState = stateOf(pool);
+                const medianLabel = medianAgeLabel(pool);
+                const sources = sourceSummary(pool);
+                const oldest = oldestEntryLabel(pool);
+
+                return (
                 <button
                   key={pool.id}
                   onClick={() => handleSelectPool(pool)}
@@ -493,21 +600,41 @@ export default function TalentPoolsPage() {
                         <p className="text-xs text-gray-500 mt-0.5 truncate">{pool.department}</p>
                       )}
                     </div>
+                    {/* The state says what the pool IS, not merely whether a flag is set. A pool
+                        that is auto-adding into a year-old shortlist read "Active" before. */}
                     <span
                       className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        pool.isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-500'
+                        poolState === 'growing-unattended'
+                          ? 'bg-red-100 text-red-700'
+                          : poolState === 'stale'
+                            ? 'bg-amber-100 text-amber-800'
+                            : poolState === 'inactive'
+                              ? 'bg-gray-100 text-gray-500'
+                              : 'bg-green-100 text-green-700'
                       }`}
                     >
-                      {pool.isActive ? 'Active' : 'Inactive'}
+                      {STATE_LABELS[poolState]}
                     </span>
                   </div>
-                  {pool.entryCount !== undefined && (
-                    <p className="text-xs text-gray-400 mt-2">{pool.entryCount} candidate{pool.entryCount !== 1 ? 's' : ''}</p>
+                  <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="text-xs font-semibold text-gray-700 tabular-nums">
+                      {pool.entryCount ?? 0} held
+                    </span>
+                    {medianLabel ? (
+                      <span className="text-xs text-gray-500">
+                        median entry <b className="font-semibold text-gray-700">{medianLabel}</b>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">no entries yet</span>
+                    )}
+                  </div>
+                  {sources && <p className="text-xs text-gray-400 mt-1">{sources}</p>}
+                  {oldest && poolState !== 'empty' && (
+                    <p className="text-xs text-gray-400 mt-0.5">Oldest {oldest}</p>
                   )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -565,7 +692,10 @@ export default function TalentPoolsPage() {
                     <p className="text-2xl font-bold text-gray-900">{analytics.totalEntries ?? 0}</p>
                   </div>
                   <div className="bg-white rounded-[10px] border border-gray-200 p-4">
-                    <p className="text-xs text-gray-500 mb-1">Available</p>
+                    {/* activeEntries counts entries that have not been REMOVED from the pool. It
+                        was labelled "Available", which is a claim about the candidate rather than
+                        about the entry, and nothing in the product records that. */}
+                    <p className="text-xs text-gray-500 mb-1">Still held</p>
                     <p className="text-2xl font-bold text-green-700">{analytics.activeEntries ?? 0}</p>
                   </div>
                   <div className="bg-white rounded-[10px] border border-gray-200 p-4">
@@ -617,9 +747,6 @@ export default function TalentPoolsPage() {
                             Rating
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            Status
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                             Added
                           </th>
                           <th className="px-4 py-3" />
@@ -652,17 +779,6 @@ export default function TalentPoolsPage() {
                                 disabled={ratingLoading === entry.id}
                               />
                             </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  entry.isAvailable
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-gray-100 text-gray-500'
-                                }`}
-                              >
-                                {entry.isAvailable ? 'Available' : 'Unavailable'}
-                              </span>
-                            </td>
                             <td className="px-4 py-3 text-xs text-gray-400">
                               {new Date(entry.addedAt).toLocaleDateString()}
                             </td>
@@ -678,6 +794,11 @@ export default function TalentPoolsPage() {
                         ))}
                       </tbody>
                     </table>
+                    {/* Said in the table's own voice, because the column that used to sit here
+                        claimed the opposite of the truth. */}
+                    <p className="px-4 py-3 text-xs text-gray-400 border-t border-gray-100">
+                      {AVAILABILITY_NOT_TRACKED}
+                    </p>
                   </div>
                 )}
               </div>
