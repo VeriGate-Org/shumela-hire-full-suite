@@ -88,9 +88,11 @@ interface DashboardCounts {
   recentAcceptances: number;
 }
 
+/* Mirrors the backend OfferStatus enum. AWAITING_SIGNATURE and SIGNED were missing, which is
+   how an offer sent for e-signature fell out of every tab below. */
 const OFFER_STATUSES = [
-  'DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'SENT', 'UNDER_NEGOTIATION',
-  'ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'
+  'DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'SENT', 'AWAITING_SIGNATURE', 'SIGNED',
+  'UNDER_NEGOTIATION', 'ACCEPTED', 'DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'
 ];
 
 const OFFER_TYPES = [
@@ -162,7 +164,10 @@ function getAvatarColor(index: number) {
 /* Tab definitions mapping to backend status groups */
 const TABS = [
   { key: 'draft', label: 'Draft', statuses: ['DRAFT', 'PENDING_APPROVAL'] },
-  { key: 'sent', label: 'Sent', statuses: ['APPROVED', 'SENT', 'UNDER_NEGOTIATION'] },
+  // Every tab filters by status, so a status in no tab is an offer nobody can see. Sending an
+  // offer for signature moves it to AWAITING_SIGNATURE and then SIGNED; both are still in flight
+  // and belong here alongside SENT.
+  { key: 'sent', label: 'Sent', statuses: ['APPROVED', 'SENT', 'AWAITING_SIGNATURE', 'SIGNED', 'UNDER_NEGOTIATION'] },
   { key: 'accepted', label: 'Accepted', statuses: ['ACCEPTED'] },
   { key: 'declined', label: 'Declined', statuses: ['DECLINED', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'] },
 ];
@@ -183,6 +188,10 @@ function getStatusBadge(status: string): { className: string; label: string } {
       return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Approved' };
     case 'SENT':
       return { className: 'bg-warning-bg text-amber-800', label: 'Sent' };
+    case 'AWAITING_SIGNATURE':
+      return { className: 'bg-warning-bg text-amber-800', label: 'Awaiting Signature' };
+    case 'SIGNED':
+      return { className: 'bg-icon-bg-teal text-accent-teal', label: 'Signed' };
     case 'UNDER_NEGOTIATION':
       return { className: 'bg-icon-bg-gold text-accent-gold', label: 'Negotiating' };
     case 'ACCEPTED':
@@ -207,6 +216,8 @@ function getStatusDotColor(status: string): string {
       return 'bg-accent-navy';
     case 'APPROVED':
     case 'SENT':
+    case 'AWAITING_SIGNATURE':
+    case 'SIGNED':
     case 'UNDER_NEGOTIATION':
       return 'bg-warning';
     case 'ACCEPTED':
