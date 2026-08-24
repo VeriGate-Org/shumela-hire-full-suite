@@ -5,6 +5,8 @@ import com.arthmatic.shumelahire.repository.AgencyProfileDataRepository;
 import com.arthmatic.shumelahire.repository.AgencySubmissionDataRepository;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
+import com.arthmatic.shumelahire.dto.AgencyResponse;
+import com.arthmatic.shumelahire.dto.AgencySummaryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +47,38 @@ public class AgencyPortalService {
         AgencyProfile saved = agencyProfileRepository.save(agency);
         logger.info("Agency registered: {}", saved.getAgencyName());
         return saved;
+    }
+
+    /**
+     * Every agency, with contract state computed against today and its placement rate on the row.
+     *
+     * <p>Replaces having to call {@code getAgencyDashboard} once per agency to see a placement rate,
+     * and adds the figure nothing anywhere computed: whether the contract has actually ended.
+     *
+     * <p>One read of every submission, grouped by agency, rather than two counts per agency.
+     */
+    public List<AgencyResponse> getAllAgenciesDetailed() {
+        LocalDate today = LocalDate.now();
+
+        Map<String, List<AgencySubmission>> byAgency = agencySubmissionRepository.findAll().stream()
+                .filter(submission -> submission.getAgency() != null
+                        && submission.getAgency().getId() != null)
+                .collect(Collectors.groupingBy(submission -> submission.getAgency().getId()));
+
+        return agencyProfileRepository.findAll().stream()
+                .map(agency -> AgencyResponse.from(
+                        agency, byAgency.getOrDefault(agency.getId(), List.of()), today))
+                .toList();
+    }
+
+    /**
+     * Counts across the whole panel.
+     *
+     * <p>Derived from the same {@link #getAllAgenciesDetailed()} objects the list is built from, so
+     * the strip and the rows beneath it cannot disagree about what "lapsed" means.
+     */
+    public AgencySummaryResponse summary() {
+        return AgencySummaryResponse.from(getAllAgenciesDetailed());
     }
 
     public List<AgencyProfile> getAllAgencies() {
