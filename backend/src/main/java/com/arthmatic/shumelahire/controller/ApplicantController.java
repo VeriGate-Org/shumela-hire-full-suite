@@ -158,6 +158,30 @@ public class ApplicantController {
     }
 
     /**
+     * Counts describing the whole applicant base.
+     * GET /api/applicants/summary
+     *
+     * <p>Separate from both the list and the batch on purpose. The list is paged, so counting from
+     * it describes a page; the batch caps at {@link ApplicantService#MAX_SUMMARY_BATCH} ids, so it
+     * cannot answer a question about everybody however many times it is called.
+     *
+     * <p>Not authorised for {@code APPLICANT} or {@code EMPLOYEE}, unlike the list beside it. These
+     * are figures about the recruitment base rather than about the caller, and a new endpoint is
+     * the one place where the narrower default costs nothing to choose.
+     */
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER')")
+    public ResponseEntity<?> summary() {
+        try {
+            return ResponseEntity.ok(applicantService.summary());
+        } catch (Exception e) {
+            logger.error("Error building applicant summary", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
      * Search applicants with pagination
      * GET /api/applicants?search={term}&page={page}&size={size}&sort={field}
      */

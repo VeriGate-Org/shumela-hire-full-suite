@@ -5,6 +5,7 @@ import com.arthmatic.shumelahire.dto.ApplicantCreateRequest;
 import com.arthmatic.shumelahire.dto.ApplicantResponse;
 import com.arthmatic.shumelahire.security.DemographicsAccess;
 import org.springframework.security.core.Authentication;
+import com.arthmatic.shumelahire.dto.ApplicantSummaryResponse;
 import com.arthmatic.shumelahire.entity.Applicant;
 import com.arthmatic.shumelahire.entity.Document;
 import com.arthmatic.shumelahire.entity.DocumentType;
@@ -23,8 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -309,6 +312,27 @@ public class ApplicantService {
                     applicationRepository.findByApplicantIdOrderBySubmittedAtDesc(applicantId)));
         }
         return summaries;
+    }
+
+    /**
+     * Counts describing the whole applicant base.
+     *
+     * <p>Reads every applicant id and every application once, then groups. That is deliberately not
+     * the shape {@link #getApplicationSummaries} uses: the batch answers "these twenty people" and
+     * costs one index read each, which is right for decorating a page and wrong for a figure about
+     * everybody. Here the cost is two scans regardless of how many applicants there are.
+     *
+     * <p>Ids rather than {@code applicantRepository.count()} so that "never applied" is a set
+     * difference. A subtraction would go negative whenever an application outlives the applicant it
+     * belongs to, and the clamp that hides it would report a data fault as a healthy tenant.
+     */
+    public ApplicantSummaryResponse summary() {
+        Set<String> registeredIds = applicantRepository.findAll().stream()
+                .map(Applicant::getId)
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toSet());
+
+        return ApplicantSummaryResponse.from(registeredIds, applicationRepository.findAll());
     }
 
     /**
