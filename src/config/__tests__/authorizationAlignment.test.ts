@@ -41,7 +41,10 @@ describe('Authorization alignment', () => {
     expectNavRoles('application-management', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('applicants', ['ADMIN', 'HR_MANAGER', 'RECRUITER', 'HIRING_MANAGER']);
     expectNavRoles('integrations', ['ADMIN', 'HR_MANAGER']);
-    expectNavRoles('reports', ['ADMIN', 'EXECUTIVE', 'HR_MANAGER']);
+    // ReportingController admits HIRING_MANAGER as of the same change that
+    // granted the role view_reports — a hiring manager reads reports on their
+    // own vacancies.
+    expectNavRoles('reports', ['ADMIN', 'EXECUTIVE', 'HR_MANAGER', 'HIRING_MANAGER']);
     expectNavRoles('audit-logs', ['ADMIN']);
     expectNavRoles('permissions', ['ADMIN']);
     expectNavRoles('recruiter-dashboard', ['ADMIN', 'HR_MANAGER', 'RECRUITER']);
@@ -68,7 +71,10 @@ describe('Authorization alignment', () => {
     expectNavRoles('compliance', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('labour-relations', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('hr-analytics', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'HIRING_MANAGER', 'RECRUITER']);
-    expectNavRoles('report-export', ['ADMIN', 'HR_MANAGER', 'EXECUTIVE']);
+    // ReportExportController is ADMIN/HR_MANAGER only — EXECUTIVE was never
+    // admitted, so the entry it used to get here would have 403'd. The nav
+    // entry now pins the role set instead of inheriting it from view_reports.
+    expectNavRoles('report-export', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('sage-integration', ['ADMIN', 'HR_MANAGER']);
     expectNavRoles('sso-configuration', ['ADMIN', 'HR_MANAGER']);
   });

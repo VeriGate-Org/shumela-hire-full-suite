@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reports")
-@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE')")
+@PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER', 'EXECUTIVE', 'HIRING_MANAGER')")
 public class ReportingController {
 
     @Autowired

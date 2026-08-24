@@ -164,7 +164,10 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'performance-analytics', label: 'Performance Analytics', href: '/performance-analytics', icon: ChartBarIcon, section: 'analytics', requiredPermissions: ['view_analytics'], requiredFeature: 'TRAINING_MANAGEMENT' },
   { id: 'recruiter-dashboard', label: 'Recruiter Analytics', href: '/recruiter-dashboard', icon: PresentationChartBarIcon, section: 'analytics', requiredPermissions: ['view_recruiter_analytics'], requiredFeature: 'RECRUITMENT' },
   { id: 'reports', label: 'Reports', href: '/reports', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'] },
-  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT' },
+  // Pinned to the roles ReportExportController actually admits. HIRING_MANAGER
+  // holds view_reports (to read reports) but not export rights, and an entry
+  // that appears and then 403s is worse than no entry.
+  { id: 'report-export', label: 'Report Export', href: '/reports/export', icon: DocumentCheckIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'REPORT_EXPORT', allowedRoles: ['ADMIN', 'HR_MANAGER'] },
   { id: 'employee-reports', label: 'Employee Reports', href: '/reports/employees', icon: IdentificationIcon, section: 'analytics', requiredPermissions: ['view_reports'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Administration
@@ -189,17 +192,25 @@ export const navigationRegistry: NavigationEntry[] = [
   { id: 'candidate-portal', label: 'Candidate Portal', href: '/candidate', icon: IdentificationIcon, section: 'candidate_portal', requiredPermissions: ['browse_jobs'] },
   { id: 'candidate-interviews', label: 'Interviews & Offers', href: '/candidate/interviews', icon: CalendarIcon, section: 'candidate_portal', requiredPermissions: ['view_own_interviews'] },
 
-  // Communication
-  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
-  { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'] },
+  // Communication — staff-portal features, not ATS ones. Gated on the HR_CORE
+  // module for the same reason the HR section is: they were untagged, so they
+  // could never lock, and an ATS-only tenant was getting an internal-comms
+  // section it had not licensed. Hiding the /notifications PAGE does not touch
+  // the header notification bell, which is NotificationsPanel, not this entry.
+  { id: 'announcements', label: 'Announcements', href: '/announcements', icon: MegaphoneIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'messaging', label: 'Messaging', href: '/messages', icon: ChatBubbleLeftRightIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'notifications-search', label: 'Notifications & Search', href: '/notifications', icon: BellIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
+  { id: 'it-support', label: 'IT Support', href: '/support', icon: WrenchIcon, section: 'communication', requiredPermissions: ['view_own_profile'], requiredFeature: 'EMPLOYEE_SELF_SERVICE' },
 
   // Personal (Applicant-facing; Employees share this section too — see
   // ROLE_HIDDEN_SECTIONS.EMPLOYEE and rolePermissions.EMPLOYEE)
   { id: 'browse-jobs', label: 'Browse Jobs', href: '/candidate/jobs', icon: MagnifyingGlassIcon, section: 'personal', requiredPermissions: ['browse_jobs'] },
   { id: 'my-applications', label: 'My Applications', href: '/candidate/applications', icon: DocumentTextIcon, section: 'personal', requiredPermissions: ['manage_own_applications'] },
-  { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'] },
+  // Points at the CANDIDATE profile, so it belongs to people who have one.
+  // Every staff role also holds view_own_profile, which put a lone "My Profile"
+  // under Personal in an administrator's sidebar, linking to the wrong page.
+  // Not feature-gated: an Applicant must keep this whatever the tenant licenses.
+  { id: 'my-profile', label: 'My Profile', href: '/candidate/profile', icon: UsersIcon, section: 'personal', requiredPermissions: ['view_own_profile'], allowedRoles: ['APPLICANT', 'EMPLOYEE'] },
   { id: 'interview-schedule', label: 'Interview Schedule', href: '/candidate/interviews', icon: CalendarIcon, section: 'personal', requiredPermissions: ['view_own_interviews'] },
   { id: 'my-offers', label: 'My Offers', href: '/candidate/offers', icon: CurrencyDollarIcon, section: 'personal', requiredPermissions: ['view_own_offers'] },
   // Employees also have 'view_internal_jobs' via the (now-hidden) Recruitment

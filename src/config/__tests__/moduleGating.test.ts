@@ -1,4 +1,8 @@
-import { navigationRegistry, NavSection } from '@/config/navigationRegistry';
+import {
+  navigationRegistry,
+  getHiddenSectionsForRole,
+  NavSection,
+} from '@/config/navigationRegistry';
 import { MODULE_FEATURES } from '@/config/featurePlanMap';
 import { rolePermissions } from '@/config/permissions';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -28,7 +32,9 @@ function featuresFor(modules: string[]): Set<string> {
 function visibleSidebar(role: UserRole, modules: string[]) {
   const permissions = rolePermissions[role];
   const features = featuresFor(modules);
+  const hiddenSections = getHiddenSectionsForRole(role);
   return navigationRegistry.filter((entry) => {
+    if (hiddenSections.includes(entry.section)) return false;
     if (entry.allowedRoles && !entry.allowedRoles.includes(role)) return false;
     if (!entry.requiredPermissions.every((p) => permissions.includes(p))) return false;
     // A module-scoped tenant drops locked entries entirely, rather than
@@ -39,7 +45,7 @@ function visibleSidebar(role: UserRole, modules: string[]) {
 }
 
 /** Sections whose entries are module-owned and must all be feature-gated. */
-const MODULE_OWNED_SECTIONS: NavSection[] = ['hr_core', 'talent', 'engagement'];
+const MODULE_OWNED_SECTIONS: NavSection[] = ['hr_core', 'talent', 'engagement', 'communication'];
 
 const IDC_MODULES = ['RECRUITMENT', 'AI', 'ANALYTICS', 'ADMINISTRATION'];
 const ALL_MODULES = Object.keys(MODULE_FEATURES);
@@ -69,6 +75,33 @@ describe('Module gating', () => {
     for (const role of ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'RECRUITER'] as UserRole[]) {
       const hr = visibleSidebar(role, IDC_MODULES).filter((e) => e.section === 'hr_core');
       expect({ role, hr: hr.map((e) => e.label) }).toEqual({ role, hr: [] });
+    }
+  });
+
+  it('shows a recruitment-only tenant no internal-comms section', () => {
+    for (const role of ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'RECRUITER'] as UserRole[]) {
+      const comms = visibleSidebar(role, IDC_MODULES).filter((e) => e.section === 'communication');
+      expect({ role, comms: comms.map((e) => e.label) }).toEqual({ role, comms: [] });
+    }
+  });
+
+  it('gives staff no stray Personal entries, whatever the tenant licenses', () => {
+    // Every staff role holds view_own_profile, which used to surface a lone
+    // "My Profile" pointing at the candidate profile page.
+    for (const modules of [IDC_MODULES, ALL_MODULES]) {
+      for (const role of ['ADMIN', 'HR_MANAGER', 'HIRING_MANAGER', 'RECRUITER'] as UserRole[]) {
+        const personal = visibleSidebar(role, modules).filter((e) => e.section === 'personal');
+        expect({ role, personal: personal.map((e) => e.label) }).toEqual({ role, personal: [] });
+      }
+    }
+  });
+
+  it('leaves the applicant portal intact on a recruitment-only tenant', () => {
+    // An applicant has no module entitlements of their own; hiding staff
+    // clutter must never cost them their own portal.
+    const labels = visibleSidebar('APPLICANT', IDC_MODULES).map((e) => e.label);
+    for (const label of ['Browse Jobs', 'My Applications', 'My Profile', 'My Offers']) {
+      expect(labels).toContain(label);
     }
   });
 
