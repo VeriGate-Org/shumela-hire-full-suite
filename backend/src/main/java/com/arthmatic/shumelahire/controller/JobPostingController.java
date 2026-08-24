@@ -3,6 +3,7 @@ package com.arthmatic.shumelahire.controller;
 import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
+import com.arthmatic.shumelahire.dto.VerificationRequirementsRequest;
 import com.arthmatic.shumelahire.entity.EmploymentType;
 import com.arthmatic.shumelahire.entity.ExperienceLevel;
 import com.arthmatic.shumelahire.entity.JobPostingStatus;
@@ -73,6 +74,35 @@ public class JobPostingController {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             logger.error("Error updating job posting {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Internal server error"));
+        }
+    }
+
+    /**
+     * Set the verification a requisition requires before a candidate may progress past Background
+     * Check.
+     * PUT /api/job-postings/{id}/verification-requirements
+     *
+     * <p>Separate from the general update because that one is closed once a posting is approved.
+     * Restricted to ADMIN and HR_MANAGER: this is the control itself, not the vacancy — a recruiter
+     * who is blocked by it must not be able to switch it off.</p>
+     */
+    @PutMapping("/{id}/verification-requirements")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    public ResponseEntity<?> updateVerificationRequirements(
+            @PathVariable String id,
+            @RequestBody VerificationRequirementsRequest request,
+            @RequestParam String updatedBy) {
+        try {
+            logger.info("Updating verification requirements on job posting {} by user {}", id, updatedBy);
+            JobPostingResponse response = jobPostingService.updateVerificationRequirements(id, request, updatedBy);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            logger.warn("Failed to update verification requirements on {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error updating verification requirements on {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Internal server error"));
         }

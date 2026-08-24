@@ -75,6 +75,31 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
 }
 
 /**
+ * Pulls the human-readable reason out of a failed response.
+ *
+ * The API refuses business rules with a body — `{ message }` from ErrorResponse, or
+ * `{ error, message }` from the global handler. Showing the user `HTTP 400` when the server has
+ * just explained itself makes an enforced rule look like a broken screen. Falls back to the raw
+ * body, then to the status, so there is always something to show.
+ */
+export async function refusalMessage(response: Response): Promise<string> {
+  const body = await response.text().catch(() => '');
+  if (body) {
+    try {
+      const parsed = JSON.parse(body);
+      const message = parsed?.message ?? parsed?.error;
+      if (typeof message === 'string' && message.trim()) {
+        return message;
+      }
+    } catch {
+      // Not JSON — the raw body is still more use than the status code.
+      return body;
+    }
+  }
+  return `HTTP ${response.status}`;
+}
+
+/**
  * Like apiFetch but parses JSON and throws on non-2xx responses.
  */
 export async function apiFetchJson<T = unknown>(path: string, init?: RequestInit): Promise<T> {

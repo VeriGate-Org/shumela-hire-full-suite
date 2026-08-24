@@ -10,6 +10,7 @@ import JobBoardManager from '@/components/JobBoardManager';
 import MultiChannelPublishWizard from '@/components/MultiChannelPublishWizard';
 import VacancyReportActions from '@/components/VacancyReportActions';
 import ShortlistingPanel from '@/components/ShortlistingPanel';
+import VerificationRequirementsPanel from '@/components/VerificationRequirementsPanel';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useToast } from '@/components/Toast';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -57,6 +58,8 @@ interface JobPosting {
   featured: boolean;
   urgent: boolean;
   remoteWorkAllowed: boolean;
+  requiredCheckTypes?: string | null;
+  enforceCheckCompletion?: boolean | null;
 }
 
 const PAGE_SIZE = 10;
@@ -852,6 +855,33 @@ export default function JobPostingsPage() {
                   <JobBoardManager jobId={String(selectedJobPosting.id)} />
                 </div>
               </>
+            )}
+
+            {/* The verification a vacancy demands is a property of how it is RUN, not of the
+                advert, so it stays available after approval — when the need for it usually
+                surfaces. The general edit path is closed by then (canBeEdited allows DRAFT and
+                REJECTED only), which is why this writes through its own endpoint. */}
+            {selectedJobPosting.status !== 'CANCELLED' && currentUserId && (
+              <div className="mt-6 enterprise-card p-6">
+                <VerificationRequirementsPanel
+                  jobPostingId={String(selectedJobPosting.id)}
+                  requiredCheckTypes={selectedJobPosting.requiredCheckTypes}
+                  enforceCheckCompletion={selectedJobPosting.enforceCheckCompletion}
+                  canEdit={user?.role === 'ADMIN' || user?.role === 'HR_MANAGER'}
+                  updatedBy={currentUserId}
+                  onSaved={(next) => {
+                    setSelectedJobPosting((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            enforceCheckCompletion: next.enforceCheckCompletion,
+                            requiredCheckTypes: JSON.stringify(next.requiredCheckTypes),
+                          }
+                        : prev
+                    );
+                  }}
+                />
+              </div>
             )}
 
             {/* Shortlisting is available from APPROVED onward, not only once published.

@@ -1,5 +1,6 @@
 package com.arthmatic.shumelahire.controller;
 
+import com.arthmatic.shumelahire.dto.ErrorResponse;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.service.PipelineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,19 @@ public class PipelineController {
     private PipelineService pipelineService;
 
     // Transition operations
+    //
+    // A refused transition is an ANSWER, not a failure: the pipeline rules exist to be seen. These
+    // endpoints therefore return the refusal reason in the body. They previously returned an empty
+    // 400, so a caller could only report "HTTP 400" — a governance control that looks like a bug is
+    // worse than no control at all.
     @PostMapping("/applications/{applicationId}/move")
-    public ResponseEntity<PipelineTransition> moveApplicationToStage(
+    public ResponseEntity<?> moveApplicationToStage(
             @PathVariable String applicationId,
             @RequestParam PipelineStage targetStage,
             @RequestParam(required = false) String reason,
             @RequestParam(required = false) String notes,
             @RequestParam String performedBy) {
-        
+
         try {
             PipelineTransition transition = pipelineService.moveApplicationToStage(
                 applicationId, targetStage, reason, notes, performedBy);
@@ -38,17 +44,17 @@ public class PipelineController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 
     @PostMapping("/applications/{applicationId}/progress")
-    public ResponseEntity<PipelineTransition> progressToNextStage(
+    public ResponseEntity<?> progressToNextStage(
             @PathVariable String applicationId,
             @RequestParam(required = false) String reason,
             @RequestParam(required = false) String notes,
             @RequestParam String performedBy) {
-        
+
         try {
             PipelineTransition transition = pipelineService.progressToNextStage(
                 applicationId, reason, notes, performedBy);
@@ -56,40 +62,44 @@ public class PipelineController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 
     @PostMapping("/applications/{applicationId}/reject")
-    public ResponseEntity<PipelineTransition> rejectApplication(
+    public ResponseEntity<?> rejectApplication(
             @PathVariable String applicationId,
             @RequestParam PipelineStage rejectionStage,
             @RequestParam String reason,
             @RequestParam(required = false) String notes,
             @RequestParam String rejectedBy) {
-        
+
         try {
             PipelineTransition transition = pipelineService.rejectApplication(
                 applicationId, rejectionStage, reason, notes, rejectedBy);
             return ResponseEntity.ok(transition);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 
     @PostMapping("/applications/{applicationId}/withdraw")
-    public ResponseEntity<PipelineTransition> withdrawApplication(
+    public ResponseEntity<?> withdrawApplication(
             @PathVariable String applicationId,
             @RequestParam String reason,
             @RequestParam(required = false) String notes,
             @RequestParam String withdrawnBy) {
-        
+
         try {
             PipelineTransition transition = pipelineService.withdrawApplication(
                 applicationId, reason, notes, withdrawnBy);
             return ResponseEntity.ok(transition);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 

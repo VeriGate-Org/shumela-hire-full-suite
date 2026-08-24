@@ -2,19 +2,27 @@ package com.arthmatic.shumelahire.service;
 
 import com.arthmatic.shumelahire.dto.JobPostingCreateRequest;
 import com.arthmatic.shumelahire.dto.JobPostingResponse;
+import com.arthmatic.shumelahire.dto.VerificationRequirementsRequest;
 import com.arthmatic.shumelahire.entity.*;
 import com.arthmatic.shumelahire.repository.JobPostingDataRepository;
 import com.arthmatic.shumelahire.repository.RequisitionDataRepository;
 import com.arthmatic.shumelahire.repository.UserDataRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,19 +37,25 @@ public class JobPostingService {
     private final NotificationService notificationService;
     private final RequisitionDataRepository requisitionRepository;
     private final UserDataRepository userRepository;
+    /** Optional: the verification provider is feature-flagged, so the bean may be absent. */
+    private final ObjectProvider<BackgroundCheckService> backgroundCheckService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JobPostingService(JobPostingDataRepository jobPostingRepository,
                              AuditLogService auditLogService,
                              JobAdSyncService jobAdSyncService,
                              NotificationService notificationService,
                              RequisitionDataRepository requisitionRepository,
-                             UserDataRepository userRepository) {
+                             UserDataRepository userRepository,
+                             ObjectProvider<BackgroundCheckService> backgroundCheckService) {
         this.jobPostingRepository = jobPostingRepository;
         this.auditLogService = auditLogService;
         this.jobAdSyncService = jobAdSyncService;
         this.notificationService = notificationService;
         this.requisitionRepository = requisitionRepository;
         this.userRepository = userRepository;
+        this.backgroundCheckService = backgroundCheckService;
     }
 
     /**
@@ -154,6 +168,96 @@ public class JobPostingService {
         return JobPostingResponse.fromEntity(updatedJobPosting);
     }
     
+    /**
+     * Sets the verification a requisition demands before a candidate may progress past Background
+     * Check.
+     *
+     * <p>Separate from {@link #updateJobPosting} on purpose. That path refuses an approved or
+     * published posting via {@code canBeEdited()}, which is correct — an advertised title, salary
+     * band or description must not move under candidates who applied to it. Verification
+     * requirements are not part of the advert: they govern how the vacancy is run, and the reason
+     * to add one usually appears after approval. Left to the general edit path, the only way to
+     * require a criminal check on a live vacancy would be to unpublish and re-advertise it.</p>
+     *
+     * <p>Widening {@code canBeEdited()} would have been the smaller diff and the wrong change: it
+     * would have opened every field on the record to reach two of them.</p>
+     *
+     * <p>Unknown check codes are refused rather than stored. A typo would otherwise be silently
+     * unsatisfiable — no check of that type can ever complete, so every candidate on the requisition
+     * would be blocked at Background Check for ever, with no clue why.</p>
+     */
+    public JobPostingResponse updateVerificationRequirements(String id,
+                                                             VerificationRequirementsRequest request,
+                                                             String updatedBy) {
+        JobPosting jobPosting = findJobPostingById(id);
+
+        List<String> requested = request.getRequiredCheckTypes() == null
+                ? List.of()
+                : new ArrayList<>(new LinkedHashSet<>(request.getRequiredCheckTypes()));
+
+        List<String> unknown = rejectUnknownCheckTypes(requested);
+        if (!unknown.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Unknown verification check type(s): " + String.join(", ", unknown));
+        }
+
+        boolean enforce = Boolean.TRUE.equals(request.getEnforceCheckCompletion());
+        if (enforce && requested.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Select at least one check to require before enforcing completion, "
+                    + "otherwise the rule would block nobody and imply a control that is not there.");
+        }
+
+        String previousTypes = jobPosting.getRequiredCheckTypes();
+        boolean previousEnforce = Boolean.TRUE.equals(jobPosting.getEnforceCheckCompletion());
+
+        try {
+            jobPosting.setRequiredCheckTypes(objectMapper.writeValueAsString(requested));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Could not store the verification requirements", e);
+        }
+        jobPosting.setEnforceCheckCompletion(enforce);
+        jobPosting.setUpdatedAt(LocalDateTime.now());
+
+        JobPosting saved = jobPostingRepository.save(jobPosting);
+
+        // Who tightened or relaxed a hiring control, and when, is exactly the question an auditor
+        // asks. Record the before and after, not just that something changed.
+        auditLogService.logUserAction(updatedBy, "JOB_POSTING_VERIFICATION_REQUIREMENTS_UPDATED",
+                "JOB_POSTING",
+                String.format("%s (ID: %s): enforcement %s -> %s, required checks %s -> %s",
+                        saved.getTitle(), saved.getId(),
+                        previousEnforce ? "on" : "off", enforce ? "on" : "off",
+                        previousTypes == null || previousTypes.isBlank() ? "[]" : previousTypes,
+                        requested));
+
+        logger.info("Verification requirements updated on job posting {} by {}: enforce={}, types={}",
+                id, updatedBy, enforce, requested);
+
+        return JobPostingResponse.fromEntity(saved);
+    }
+
+    /**
+     * Returns the requested codes that the provider catalogue does not recognise.
+     *
+     * <p>When the verification provider is not wired in there is no catalogue to check against, so
+     * nothing is refused — an absent provider must not stop a requisition being configured for the
+     * day it is present.</p>
+     */
+    private List<String> rejectUnknownCheckTypes(List<String> requested) {
+        if (requested.isEmpty()) {
+            return List.of();
+        }
+        BackgroundCheckService provider = backgroundCheckService.getIfAvailable();
+        if (provider == null) {
+            return List.of();
+        }
+        Set<String> known = provider.getAvailableCheckTypes().stream()
+                .map(ct -> String.valueOf(((Map<?, ?>) ct).get("code")))
+                .collect(Collectors.toSet());
+        return requested.stream().filter(code -> !known.contains(code)).toList();
+    }
+
     /**
      * Get job posting by ID
      */

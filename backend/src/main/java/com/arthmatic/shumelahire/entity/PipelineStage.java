@@ -65,6 +65,43 @@ public enum PipelineStage {
         return this == WITHDRAWN;
     }
 
+    /**
+     * Whether moving from {@code currentStage} to {@code targetStage} is the move the verification
+     * gate guards: leaving the checks stages for a later stage of the pipeline.
+     *
+     * <p>Two corrections to what this used to ask, and it lives here so the single-candidate path
+     * and the bulk path cannot answer it differently.</p>
+     *
+     * <p><b>It covers Reference Check as well as Background Check.</b> The pipeline board treats
+     * both as one "Checks" column and greys out the move button across the whole column, but the
+     * rule only ever fired on the second of them — so a candidate sitting at Reference Check could
+     * be sent to Offer Preparation with every check outstanding, by bulk action or by calling the
+     * API directly, while the screen said they were blocked. The screen was right about the intent;
+     * the server was not enforcing it.</p>
+     *
+     * <p><b>It never blocks a move that CLOSES an application unsuccessfully.</b> Rejected and
+     * Withdrawn sort above every active stage by order, so the old comparison caught them too: a
+     * candidate whose criminal check came back ADVERSE could not be rejected, because rejecting them
+     * counted as progressing past a check that had not come back clear. That is exactly backwards —
+     * an adverse result is the reason you are rejecting. The gate exists to stop someone being hired
+     * without verification, never to trap them in the pipeline.</p>
+     *
+     * <p>Note that the exemption turns on {@link #isSuccessful()}, not on {@link #isTerminal()}.
+     * {@code HIRED} and {@code OFFER_ACCEPTED} are terminal as well, and they are the precise
+     * outcomes this gate exists to prevent without verification — exempting everything terminal
+     * would have left the hole open at the only place it matters.</p>
+     */
+    public static boolean requiresCompletedChecks(PipelineStage currentStage, PipelineStage targetStage) {
+        if (currentStage == null || targetStage == null) {
+            return false;
+        }
+        if (targetStage.isTerminal && !targetStage.isSuccessful()) {
+            return false;
+        }
+        boolean leavingChecks = currentStage == REFERENCE_CHECK || currentStage == BACKGROUND_CHECK;
+        return leavingChecks && targetStage.order > BACKGROUND_CHECK.order;
+    }
+
     public boolean canProgressTo(PipelineStage nextStage) {
         // Cannot move backwards (except for special cases)
         if (nextStage.order < this.order && !isSpecialTransition(this, nextStage)) {

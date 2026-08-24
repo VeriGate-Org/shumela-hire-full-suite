@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import PageWrapper from '@/components/PageWrapper';
-import { apiFetch } from '@/lib/api-fetch';
+import { apiFetch, refusalMessage } from '@/lib/api-fetch';
 import { useToast } from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
@@ -619,13 +619,14 @@ export default function PipelinePage() {
         { method: 'POST' }
       );
       if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err || `HTTP ${response.status}`);
+        throw new Error(await refusalMessage(response));
       }
       toast('Stage transition saved', 'success');
       await loadPipelineData();
     } catch (error: any) {
-      toast(`Failed to move candidate: ${error.message || 'Unknown error'}`, 'error');
+      // The API explains a refusal in words ("required verification checks are not completed…").
+      // Show those words: the rule is the point, and "HTTP 400" reads as a broken screen.
+      toast(error.message || 'Could not move this candidate', 'error');
     }
   };
 
@@ -644,13 +645,12 @@ export default function PipelinePage() {
         { method: 'POST' }
       );
       if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err || `HTTP ${response.status}`);
+        throw new Error(await refusalMessage(response));
       }
       toast('Candidate progressed to next stage', 'success');
       await loadPipelineData();
     } catch (error: any) {
-      toast(`Failed to progress candidate: ${error.message || 'Unknown error'}`, 'error');
+      toast(error.message || 'Could not progress this candidate', 'error');
     }
   };
 
@@ -672,12 +672,25 @@ export default function PipelinePage() {
         method: 'PUT',
         body: JSON.stringify({ applicationIds: ids, pipelineStage: targetBackendStage }),
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      toast(`Moved ${ids.length} candidates to ${group.displayName}`, 'success');
+      if (!response.ok) throw new Error(await refusalMessage(response));
+      // Bulk is many decisions, not one: the server moves who it can and refuses who it cannot.
+      // Reporting `ids.length` moved would claim a clean sweep while a candidate sat unmoved.
+      const result = await response.json().catch(() => null);
+      const refused: string[] = Array.isArray(result?.errors) ? result.errors : [];
+      const moved: number = typeof result?.updatedCount === 'number' ? result.updatedCount : ids.length;
+
+      if (refused.length > 0) {
+        toast(
+          `Moved ${moved} of ${ids.length} to ${group.displayName}. ${refused.length} blocked: ${refused.join(' · ')}`,
+          moved > 0 ? 'info' : 'error'
+        );
+      } else {
+        toast(`Moved ${moved} candidates to ${group.displayName}`, 'success');
+      }
       setSelectedIds(new Set());
       await loadPipelineData();
     } catch (error: any) {
-      toast(`Bulk move failed: ${error.message || 'Unknown error'}`, 'error');
+      toast(error.message || 'Bulk move failed', 'error');
     }
   };
 

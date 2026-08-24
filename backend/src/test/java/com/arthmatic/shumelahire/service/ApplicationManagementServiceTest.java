@@ -303,4 +303,78 @@ class ApplicationManagementServiceTest {
         assertFalse(exportedApp.containsKey("department")); // Not requested
         verify(applicationRepository).findAllByIds(stringIds);
     }
+
+    /**
+     * Bulk was the way round the rules.
+     *
+     * <p>The single-candidate path refuses a move that skips stages; bulk wrote the target stage
+     * straight onto every selected record, so a recruiter could tick a column of candidates and
+     * send them from Application Received to Offer Extended in one action — past every interview,
+     * past reference and background checks. The rule and the bypass shipped side by side.</p>
+     */
+    @Test
+    void bulkAssignPipelineStageRefusesAJumpTheSingleCandidatePathWouldRefuse() {
+        // Given — John Doe is at Application Received (order 1); Offer Extended is order 13
+        List<String> applicationIds = Arrays.asList("1");
+        when(applicationRepository.findAllByIds(applicationIds)).thenReturn(List.of(mockApplication));
+
+        // When
+        Map<String, Object> result = applicationManagementService.bulkAssignPipelineStage(
+            applicationIds, PipelineStage.OFFER_EXTENDED);
+
+        // Then — nothing moved, and the reason names the person and both stages
+        assertEquals(0, result.get("updatedCount"));
+        assertEquals(1, result.get("totalRequested"));
+        @SuppressWarnings("unchecked")
+        List<String> errors = (List<String>) result.get("errors");
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).contains("John Doe"), "a bare id tells the reader nothing: " + errors.get(0));
+        assertTrue(errors.get(0).contains("Application Received"), errors.get(0));
+        assertTrue(errors.get(0).contains("Offer Extended"), errors.get(0));
+        assertEquals(PipelineStage.APPLICATION_RECEIVED, mockApplication.getPipelineStage());
+        verify(applicationRepository, never()).save(ArgumentMatchers.any(Application.class));
+    }
+
+    /**
+     * A bulk request is many decisions, not one. Some candidates in a selection may be eligible for
+     * the target stage and others not, so the caller has to be told which — reading
+     * {@code updatedCount} alone would report a clean success while a candidate sat unmoved.
+     */
+    @Test
+    void bulkAssignPipelineStageMovesTheEligibleAndReportsTheRest() {
+        // Given — one candidate mid-pipeline, one already rejected (a terminal stage)
+        Applicant second = new Applicant();
+        second.setId("2");
+        second.setName("Thandi");
+        second.setSurname("Nkosi");
+
+        Application rejected = new Application();
+        rejected.setId("2");
+        rejected.setApplicant(second);
+        rejected.setJobPosting(mockJobPosting);
+        rejected.setStatus(ApplicationStatus.SUBMITTED);
+        rejected.setPipelineStage(PipelineStage.REJECTED);
+
+        mockApplication.setPipelineStage(PipelineStage.FIRST_INTERVIEW);
+
+        List<String> applicationIds = Arrays.asList("1", "2");
+        when(applicationRepository.findAllByIds(applicationIds))
+            .thenReturn(List.of(mockApplication, rejected));
+        when(applicationRepository.save(ArgumentMatchers.any(Application.class))).thenReturn(mockApplication);
+
+        // When
+        Map<String, Object> result = applicationManagementService.bulkAssignPipelineStage(
+            applicationIds, PipelineStage.TECHNICAL_ASSESSMENT);
+
+        // Then
+        assertEquals(1, result.get("updatedCount"));
+        assertEquals(PipelineStage.TECHNICAL_ASSESSMENT, mockApplication.getPipelineStage());
+        assertEquals(PipelineStage.REJECTED, rejected.getPipelineStage(), "a closed application must not be reopened by a bulk move");
+        @SuppressWarnings("unchecked")
+        List<String> errors = (List<String>) result.get("errors");
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).contains("Thandi Nkosi"), errors.get(0));
+        verify(applicationRepository).save(mockApplication);
+        verify(applicationRepository, never()).save(rejected);
+    }
 }

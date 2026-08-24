@@ -12,6 +12,7 @@ import { ArrowLeftIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/components/Toast';
 import { useWizardDraft } from '@/hooks/useWizardDraft';
 import WizardShell, { WizardStep } from '@/components/WizardShell';
+import { useCheckTypeCatalogue } from '@/components/VerificationRequirementsPanel';
 
 interface JobPostingFormProps {
   jobPostingId?: string | number;
@@ -47,6 +48,9 @@ interface JobPostingData {
   seoKeywords: string;
   featured: boolean;
   urgent: boolean;
+  /** JSON array of check-type codes — the API stores it as a string. */
+  requiredCheckTypes: string;
+  enforceCheckCompletion: boolean;
 }
 
 const WIZARD_STEPS: WizardStep[] = [
@@ -87,6 +91,8 @@ const DEFAULT_JOB_POSTING_DATA: JobPostingData = {
   seoKeywords: '',
   featured: false,
   urgent: false,
+  requiredCheckTypes: '[]',
+  enforceCheckCompletion: false,
 };
 
 export default function JobPostingForm({ jobPostingId, initialData, currentUserId, onSuccess, onCancel, variant = 'modal' }: JobPostingFormProps) {
@@ -117,6 +123,8 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
     seoKeywords: '',
     featured: false,
     urgent: false,
+    requiredCheckTypes: '[]',
+    enforceCheckCompletion: false,
     ...(initialData ?? {}),
     id: undefined, // ensure no id for cloned postings
   }));
@@ -481,6 +489,29 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
     </div>
   );
 
+  const { catalogue: checkTypes, loading: catalogueLoading } = useCheckTypeCatalogue();
+
+  const selectedCheckTypes = useMemo<string[]>(() => {
+    try {
+      const parsed = JSON.parse(formData.requiredCheckTypes || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [formData.requiredCheckTypes]);
+
+  const toggleCheckType = (code: string) => {
+    const next = selectedCheckTypes.includes(code)
+      ? selectedCheckTypes.filter((c) => c !== code)
+      : [...selectedCheckTypes, code];
+    setFormData((prev) => ({
+      ...prev,
+      requiredCheckTypes: JSON.stringify(next),
+      // Enforcing an empty list would show a control that blocks nobody.
+      enforceCheckCompletion: next.length === 0 ? false : prev.enforceCheckCompletion,
+    }));
+  };
+
   const renderDetailsStep = () => (
     <div className="space-y-5">
       <AiAssistPanel title="Generate with AI" feature="AI_JOB_DESCRIPTION" description="Auto-generate description, responsibilities, requirements, and benefits from the job title and department">
@@ -553,6 +584,73 @@ export default function JobPostingForm({ jobPostingId, initialData, currentUserI
           className={inputClass}
           placeholder="List the benefits, perks, and what makes this opportunity attractive..."
         />
+      </div>
+
+      {/* Set here so a vacancy carries its verification from the start. It stays changeable
+          afterwards on the posting itself — the need for a check is often discovered later, and by
+          then the general edit path is closed. */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
+        <label className={labelClass}>Verification required before hire</label>
+        {catalogueLoading ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading check types…</p>
+        ) : checkTypes.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No verification provider is configured. This can be set later on the vacancy.
+          </p>
+        ) : (
+          <>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {checkTypes.map((ct) => {
+                const checked = selectedCheckTypes.includes(ct.code);
+                return (
+                  <label
+                    key={ct.code}
+                    className={`flex items-start gap-2.5 p-3 border rounded-[2px] cursor-pointer transition-colors ${
+                      checked
+                        ? 'border-primary/40 bg-primary/5'
+                        : 'border-gray-200 dark:border-gray-700'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-0.5"
+                      checked={checked}
+                      onChange={() => toggleCheckType(ct.code)}
+                      aria-label={ct.name}
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">{ct.name}</span>
+                      {ct.turnaround && (
+                        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ct.turnaround}</span>
+                      )}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+
+            <label className="flex items-start gap-2.5 mt-4 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={formData.enforceCheckCompletion}
+                disabled={selectedCheckTypes.length === 0}
+                onChange={(e) => handleInputChange('enforceCheckCompletion', e.target.checked)}
+                aria-label="Block progression until every required check is clear"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Block progression until every required check is clear
+                </span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {selectedCheckTypes.length === 0
+                    ? 'Select at least one check to enable this.'
+                    : 'Candidates cannot pass Background Check until each selected check comes back clear.'}
+                </span>
+              </span>
+            </label>
+          </>
+        )}
       </div>
     </div>
   );

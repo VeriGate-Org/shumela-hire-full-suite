@@ -61,8 +61,7 @@ public class PipelineService {
 
         PipelineStage currentStage = application.getPipelineStage();
 
-        // Enforce required background check completion when moving from BACKGROUND_CHECK
-        if (currentStage == PipelineStage.BACKGROUND_CHECK && targetStage.getOrder() > currentStage.getOrder()) {
+        if (PipelineStage.requiresCompletedChecks(currentStage, targetStage)) {
             if (backgroundCheckService != null) {
                 backgroundCheckService.enforceBackgroundCheckCompletion(application);
             } else {
