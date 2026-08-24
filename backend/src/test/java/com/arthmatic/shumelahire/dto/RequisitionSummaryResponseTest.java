@@ -171,6 +171,62 @@ class RequisitionSummaryResponseTest {
         assertNull(summary.getOldestWaitingDays(), "but its wait is unknown, not zero");
     }
 
+    private static Requisition approvedAfter(String id, long days) {
+        Requisition requisition = new Requisition();
+        requisition.setId(id);
+        requisition.setCreatedAt(NOW.minusDays(days));
+        requisition.setUpdatedAt(NOW);
+        return requisition;
+    }
+
+    @Test
+    @DisplayName("Median time to approval is a duration some requisition actually took")
+    void medianIsARealDuration() {
+        Map<RequisitionStatus, List<Requisition>> map = new EnumMap<>(RequisitionStatus.class);
+        map.put(RequisitionStatus.APPROVED, List.of(
+                approvedAfter("a", 4), approvedAfter("b", 8), approvedAfter("c", 40)));
+
+        RequisitionSummaryResponse summary = RequisitionSummaryResponse.from(map, NOW);
+
+        // The 40-day outlier would drag a mean to 17; the median stays where requisitions live.
+        assertEquals(8L, summary.getMedianDaysToApproval());
+    }
+
+    @Test
+    @DisplayName("With nothing approved, there is no typical time rather than a time of zero")
+    void medianAbsentWhenNothingApproved() {
+        Map<RequisitionStatus, List<Requisition>> map = new EnumMap<>(RequisitionStatus.class);
+        map.put(RequisitionStatus.PENDING_HR_APPROVAL, List.of(req("a", NOW.minusDays(3))));
+
+        assertNull(RequisitionSummaryResponse.from(map, NOW).getMedianDaysToApproval());
+    }
+
+    @Test
+    @DisplayName("An approved requisition missing a timestamp is excluded, not counted as zero days")
+    void medianExcludesUndatedRecords() {
+        Requisition undated = new Requisition();
+        undated.setId("undated");
+        undated.setCreatedAt(null);
+        undated.setUpdatedAt(NOW);
+
+        Map<RequisitionStatus, List<Requisition>> map = new EnumMap<>(RequisitionStatus.class);
+        map.put(RequisitionStatus.APPROVED, List.of(undated, approvedAfter("a", 9)));
+
+        // Were the undated record counted as zero, the median would drop to 0.
+        assertEquals(9L, RequisitionSummaryResponse.from(map, NOW).getMedianDaysToApproval());
+    }
+
+    @Test
+    @DisplayName("Only approved requisitions count toward time to approval")
+    void medianIgnoresOtherStatuses() {
+        Map<RequisitionStatus, List<Requisition>> map = new EnumMap<>(RequisitionStatus.class);
+        map.put(RequisitionStatus.APPROVED, List.of(approvedAfter("a", 6)));
+        map.put(RequisitionStatus.REJECTED, List.of(approvedAfter("r", 90)));
+        map.put(RequisitionStatus.DRAFT, List.of(approvedAfter("d", 120)));
+
+        assertEquals(6L, RequisitionSummaryResponse.from(map, NOW).getMedianDaysToApproval());
+    }
+
     @Test
     @DisplayName("Draft is counted in the total but is not awaiting anyone")
     void draftIsNotAwaitingADecision() {

@@ -6,6 +6,8 @@ import {
   isAwaiting,
   waitingDays,
   waitingOn,
+  onYouCount,
+  stagesOwnedBy,
 } from '../queue';
 import { RequisitionStatus } from '@/types/workflow';
 
@@ -153,5 +155,63 @@ describe('byLongestWait', () => {
     byLongestWait(input, NOW);
 
     expect(input.map((r) => r.id)).toEqual(before);
+  });
+});
+
+describe('stagesOwnedBy', () => {
+  it('gives each approving role the stage the server says it clears', () => {
+    expect(stagesOwnedBy('HR_MANAGER')).toEqual([RequisitionStatus.PENDING_HR_APPROVAL]);
+    expect(stagesOwnedBy('EXECUTIVE')).toEqual([RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]);
+  });
+
+  it('gives an administrator both, because the controller lets them approve either', () => {
+    expect(stagesOwnedBy('ADMIN')).toEqual([
+      RequisitionStatus.PENDING_HR_APPROVAL,
+      RequisitionStatus.PENDING_EXECUTIVE_APPROVAL,
+    ]);
+  });
+
+  it('returns null — not an empty list — for a role with no approval stage', () => {
+    // Null is "there is no such figure for you"; an empty list would render as a truthful zero,
+    // which is the thing this is avoiding.
+    expect(stagesOwnedBy('RECRUITER')).toBeNull();
+    expect(stagesOwnedBy('HIRING_MANAGER')).toBeNull();
+    expect(stagesOwnedBy(undefined)).toBeNull();
+  });
+});
+
+describe('onYouCount', () => {
+  const summary = {
+    countsByStatus: {
+      [RequisitionStatus.PENDING_HR_APPROVAL]: 4,
+      [RequisitionStatus.PENDING_EXECUTIVE_APPROVAL]: 3,
+      [RequisitionStatus.APPROVED]: 11,
+    },
+    total: 18,
+    awaitingDecision: 7,
+  };
+
+  it('counts only the stage the role clears', () => {
+    expect(onYouCount(summary, 'HR_MANAGER')).toBe(4);
+    expect(onYouCount(summary, 'EXECUTIVE')).toBe(3);
+  });
+
+  it('sums both stages for an administrator', () => {
+    expect(onYouCount(summary, 'ADMIN')).toBe(7);
+  });
+
+  it('is null for a role that approves nothing', () => {
+    expect(onYouCount(summary, 'RECRUITER')).toBeNull();
+  });
+
+  it('is null before the summary loads, rather than zero', () => {
+    // A failed or pending request must never render as "nothing is waiting on you".
+    expect(onYouCount(null, 'HR_MANAGER')).toBeNull();
+  });
+
+  it('counts a stage the summary omits as zero, not as absent', () => {
+    // The summary returns every status including the empty ones, so a missing key here means
+    // genuinely none — distinct from the summary itself being unavailable.
+    expect(onYouCount({ ...summary, countsByStatus: {} }, 'HR_MANAGER')).toBe(0);
   });
 });

@@ -12,15 +12,18 @@ import DistributionStrip from '@/components/record/DistributionStrip';
 import FilterChips from '@/components/record/FilterChips';
 import RequisitionForm from '@/components/RequisitionForm';
 import { useToast } from '@/components/Toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api-fetch';
 import { formatSalaryRange } from '@/utils/currency';
 import { RequisitionData, RequisitionStatus } from '@/types/workflow';
 import {
   QUEUE_FILTERS,
+  QUEUE_SORT,
   RequisitionSummary,
   byLongestWait,
   filterCount,
   isAwaiting,
+  onYouCount,
   waitingDays,
   waitingOn,
 } from './queue';
@@ -34,6 +37,7 @@ function formatDate(value: string | Date): string {
 
 export default function RequisitionsPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [requisitions, setRequisitions] = useState<RequisitionData[]>([]);
   const [summary, setSummary] = useState<RequisitionSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +57,9 @@ export default function RequisitionsPage() {
       const params = new URLSearchParams();
       params.append('page', String(page));
       params.append('size', String(PAGE_SIZE));
-      params.append('sort', 'createdAt');
+      // The server orders the whole queue by longest wait; the page is a slice of that order
+      // rather than a re-sort of an arbitrary twenty rows.
+      params.append('sort', QUEUE_SORT);
       // Every filter maps to at most one status, so the server does the filtering and the pager
       // reports a total that matches what is on screen.
       if (statuses.length === 1) params.append('status', statuses[0]);
@@ -99,6 +105,8 @@ export default function RequisitionsPage() {
     loadSummary();
   }, [loadSummary]);
 
+  // The server already returns the queue in wait order. This keeps anything settled below
+  // anything awaiting a decision, which status ordering alone does not express.
   const rows = useMemo(() => byLongestWait(requisitions), [requisitions]);
 
   const buckets = summary
@@ -131,6 +139,9 @@ export default function RequisitionsPage() {
       ]
     : [];
 
+  // Null for a role that owns no approval stage — which reads as "omit", not "zero".
+  const onYou = onYouCount(summary, user?.role);
+
   return (
     <PageWrapper title="Requisitions" subtitle="Headcount requests and their approval">
       <IdentityBand
@@ -145,6 +156,15 @@ export default function RequisitionsPage() {
           summary
             ? [
                 { label: 'Awaiting a decision', value: summary.awaitingDecision },
+                // Only for the roles that actually clear a stage. A figure nobody can act on is
+                // one more number to read past.
+                ...(onYou !== null
+                  ? [{
+                      label: 'On you',
+                      value: onYou,
+                      tone: (onYou > 0 ? 'warning' : undefined) as 'warning' | undefined,
+                    }]
+                  : []),
                 ...(typeof summary.oldestWaitingDays === 'number'
                   ? [{
                       label: 'Oldest waiting',
@@ -159,9 +179,13 @@ export default function RequisitionsPage() {
 
       {summary && summary.awaitingDecision > 0 && (
         <DecisionBar
-          ask={`${summary.awaitingDecision} ${
-            summary.awaitingDecision === 1 ? 'requisition is' : 'requisitions are'
-          } waiting on a decision.`}
+          ask={
+            onYou
+              ? `${onYou} ${onYou === 1 ? 'requisition is' : 'requisitions are'} waiting on your approval.`
+              : `${summary.awaitingDecision} ${
+                  summary.awaitingDecision === 1 ? 'requisition is' : 'requisitions are'
+                } waiting on a decision.`
+          }
           why={
             typeof summary.oldestWaitingDays === 'number'
               ? `The longest has been waiting ${summary.oldestWaitingDays} ${
@@ -210,7 +234,10 @@ export default function RequisitionsPage() {
           }}
           note={
             <>
-              Sorted by <b className="font-bold text-foreground">longest waiting</b> within this page
+              Sorted by <b className="font-bold text-foreground">longest waiting</b>
+              {typeof summary?.medianDaysToApproval === 'number' && (
+                <> · median {summary.medianDaysToApproval} days to approval</>
+              )}
             </>
           }
         />
