@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api-fetch';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
+import AuthLayout from '@/components/auth/AuthLayout';
+import { Field, AuthButton, AuthAlert, PasswordStrength } from '@/components/auth/AuthControls';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,11 +25,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const strength = getPasswordStrength(form.password);
-  const strengthColor =
-    strength.label === 'Strong' ? 'bg-green-500' :
-    strength.label === 'Good' ? 'bg-gold-500' :
-    strength.label === 'Fair' ? 'bg-yellow-500' :
-    'bg-red-400';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -81,161 +78,116 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 px-4">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 tracking-[-0.03em]">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm font-extrabold tracking-[-0.03em]">
-            <span className="text-primary">Shumela</span><span className="text-cta">Hire</span>
+    <AuthLayout
+      wide
+      eyebrow="Candidate registration"
+      title="Create your account"
+      subtitle="Register once, then apply to any advertised role and track where your application stands."
+      footer={
+        <div className="space-y-2 text-center text-sm text-muted-foreground">
+          <p>
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+              Sign in
+            </Link>
           </p>
-          <p className="mt-1 text-center text-sm text-gray-500">
-            Register to apply for job opportunities
+          <p>
+            Registering as a recruitment agency?{' '}
+            <Link
+              href="/agencies/register"
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Agency registration
+            </Link>
           </p>
         </div>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && <AuthAlert tone="error">{error}</AuthAlert>}
 
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-control">
-            {error}
-          </div>
-        )}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            id="firstName"
+            name="firstName"
+            label="First name"
+            type="text"
+            required
+            value={form.firstName}
+            onChange={handleChange}
+            placeholder="Thandi"
+            autoComplete="given-name"
+          />
+          <Field
+            id="lastName"
+            name="lastName"
+            label="Last name"
+            type="text"
+            required
+            value={form.lastName}
+            onChange={handleChange}
+            placeholder="Molefe"
+            autoComplete="family-name"
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="firstName" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                First Name
-              </label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                required
-                value={form.firstName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Jane"
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Last Name
-              </label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                required
-                value={form.lastName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Doe"
-              />
-            </div>
-          </div>
+        <Field
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          required
+          value={form.email}
+          onChange={handleChange}
+          placeholder="you@example.com"
+          autoComplete="email"
+        />
 
+        <Field
+          id="phone"
+          name="phone"
+          label="Phone"
+          hint="(optional)"
+          type="tel"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="+27 82 000 0000"
+          autoComplete="tel"
+        />
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="email" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={form.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-              Phone <span className="normal-case tracking-normal text-gray-400">(optional)</span>
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="+27 12 345 6789"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-              Password
-            </label>
-            <input
+            <Field
               id="password"
               name="password"
+              label="Password"
               type="password"
               required
               value={form.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="At least 8 characters"
+              placeholder="Create a password"
               autoComplete="new-password"
             />
-            {form.password && (
-              <div className="mt-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${strengthColor}`}
-                      style={{ width: `${strength.score}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-500 w-12">{strength.label}</span>
-                </div>
-              </div>
-            )}
+            {form.password && <PasswordStrength score={strength.score} label={strength.label} />}
           </div>
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-control text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              placeholder="Confirm your password"
-              autoComplete="new-password"
-            />
-          </div>
+          <Field
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm password"
+            type="password"
+            required
+            value={form.confirmPassword}
+            onChange={handleChange}
+            placeholder="Repeat your password"
+            autoComplete="new-password"
+          />
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border-2 border-gold-500 text-sm font-medium rounded-full bg-transparent text-gold-500 hover:bg-gold-500 hover:text-violet-950 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Creating account...' : 'Create Account'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500">
-          Already have an account?{' '}
-          <Link href="/login" className="text-primary font-medium hover:underline">
-            Sign in
-          </Link>
-        </p>
-
-        <p className="text-center text-sm text-gray-500">
-          Registering as a recruitment agency?{' '}
-          <Link href="/agencies/register" className="text-primary font-medium hover:underline">
-            Agency registration
-          </Link>
-        </p>
-      </div>
-    </div>
+        <AuthButton type="submit" disabled={loading}>
+          {loading ? 'Creating account…' : 'Create account'}
+        </AuthButton>
+      </form>
+    </AuthLayout>
   );
 }

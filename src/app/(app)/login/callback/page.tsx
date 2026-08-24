@@ -4,6 +4,7 @@ import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { rolePermissions } from '@/config/permissions';
+import { AuthSpinner } from '@/components/auth/AuthControls';
 
 function LoginCallbackContent() {
   const router = useRouter();
@@ -67,26 +68,12 @@ function LoginCallbackContent() {
     handleCallback();
   }, [searchParams, login, router]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Completing sign in...</p>
-      </div>
-    </div>
-  );
+  return <AuthSpinner message="Completing sign in…" />;
 }
 
 export default function LoginCallbackPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gold-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<AuthSpinner message="Loading…" />}>
       <LoginCallbackContent />
     </Suspense>
   );

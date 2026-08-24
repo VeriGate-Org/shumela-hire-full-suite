@@ -71,24 +71,24 @@ describe('LoginPage', () => {
   it('displays development mode indicator', async () => {
     renderLoginPage();
 
-    const devLabel = await screen.findByText('Development Mode');
+    const devLabel = await screen.findByText('Development mode');
     expect(devLabel).toBeInTheDocument();
   });
 
-  it('renders the ShumelaHire brand name', async () => {
+  it('renders the ShumelaHire brand name as a single word', async () => {
     renderLoginPage();
 
-    const shumela = await screen.findByText('Shumela');
-    const hire = await screen.findByText('Hire');
-    expect(shumela).toBeInTheDocument();
-    expect(hire).toBeInTheDocument();
+    // One mark per breakpoint variant; CSS decides which is visible.
+    const marks = await screen.findAllByLabelText('ShumelaHire');
+    expect(marks.length).toBeGreaterThan(0);
+    expect(marks[0]).toHaveTextContent('ShumelaHire');
   });
 
   it('renders all role selection buttons', async () => {
     renderLoginPage();
 
     // Wait for the page to fully render
-    await screen.findByText('Development Mode');
+    await screen.findByText('Development mode');
 
     expect(screen.getByText('Administrator')).toBeInTheDocument();
     expect(screen.getByText('Executive')).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await screen.findByText('Development Mode');
+    await screen.findByText('Development mode');
 
     // Click on Recruiter role
     const recruiterButton = screen.getByText('Recruiter');
@@ -125,7 +125,7 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await screen.findByText('Development Mode');
+    await screen.findByText('Development mode');
 
     // Click the sign-in button (defaults to ADMIN)
     const signInButton = screen.getByRole('button', { name: /Sign In as Administrator/i });
@@ -139,7 +139,7 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await screen.findByText('Development Mode');
+    await screen.findByText('Development mode');
 
     // Select HR Manager
     const hrButton = screen.getByText('HR Manager');
@@ -166,7 +166,7 @@ describe('LoginPage', () => {
       const user = userEvent.setup();
       renderLoginPage();
 
-      await screen.findByText('Development Mode');
+      await screen.findByText('Development mode');
       await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
 
       expect(mockPush).toHaveBeenCalledWith(target);
@@ -176,7 +176,7 @@ describe('LoginPage', () => {
       const user = userEvent.setup();
       renderLoginPage();
 
-      await screen.findByText('Development Mode');
+      await screen.findByText('Development mode');
       await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
 
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
@@ -192,7 +192,7 @@ describe('LoginPage', () => {
       const user = userEvent.setup();
       renderLoginPage();
 
-      await screen.findByText('Development Mode');
+      await screen.findByText('Development mode');
       await user.click(screen.getByRole('button', { name: /Sign In as Administrator/i }));
 
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
