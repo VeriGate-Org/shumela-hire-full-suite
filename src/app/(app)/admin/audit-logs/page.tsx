@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import EmptyState from '@/components/EmptyState';
 import {
@@ -151,35 +151,47 @@ export default function AuditLogsPage() {
       filtered = filtered.filter(log => log.userRole === filters.userRole);
     }
 
-    // Search filter. Every field here is nullable on entries written by older
-    // code paths, and an unguarded .toLowerCase() on one of them throws inside
-    // the filter callback — which takes the whole console down the moment
-    // somebody types in the search box, not on load.
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      const matches = (value: unknown) =>
-        typeof value === 'string' && value.toLowerCase().includes(search);
-      filtered = filtered.filter(log =>
-        matches(log.action) ||
-        matches(log.entityType) ||
-        matches(log.userRole) ||
-        matches(log.userName) ||
-        JSON.stringify(log.details ?? '').toLowerCase().includes(search)
-      );
-    }
+    // The search term is deliberately NOT applied here any more. It runs on the server against
+    // the whole log, so `auditLogs` already holds only matches — see AuditLogService.searchLogs.
+    //
+    // Re-filtering them here would not just be redundant, it would be wrong: the server treats
+    // underscores as spaces so that "escalated to executive" finds
+    // REQUISITION_ESCALATED_TO_EXECUTIVE, which is what the console displays. A raw substring
+    // filter on the client would match none of those and empty the table on top of a successful
+    // search — the same class of silent-nothing this change exists to remove.
 
     setFilteredLogs(filtered);
-  }, [auditLogs, filters, searchTerm]);
+  }, [auditLogs, filters]);
 
   useEffect(() => {
     applyFilters();
-  }, [auditLogs, filters, searchTerm, applyFilters]);
+  }, [auditLogs, filters, applyFilters]);
 
-  const loadAuditLogs = async (page: number = 0) => {
+  // Searching re-queries the server and always returns to page 1: the result set is a different
+  // list, so holding the old page number would land the reader in the middle of it — or past the
+  // end, on an empty table that looks like "no matches".
+  //
+  // Debounced because each keystroke is a round trip. 350ms is below the point where typing feels
+  // laggy and above the rate a person types, so a word costs one request rather than eight.
+  const isFirstSearchRun = useRef(true);
+  useEffect(() => {
+    if (isFirstSearchRun.current) {
+      isFirstSearchRun.current = false;
+      return; // the initial load already ran
+    }
+    const t = setTimeout(() => {
+      setCurrentPage(0);
+      loadAuditLogs(0, searchTerm);
+    }, 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
+
+  const loadAuditLogs = async (page: number = 0, search: string = searchTerm) => {
     setLoading(true);
     setLoadError(null);
     try {
-      const result = await auditLogService.getAllAuditLogs(page, pageSize);
+      const result = await auditLogService.getAllAuditLogs(page, pageSize, undefined, search);
       setAuditLogs(result.logs);
       setCurrentPage(result.currentPage);
       setTotalPages(result.totalPages);
@@ -197,7 +209,10 @@ export default function AuditLogsPage() {
     if (!realTimeMode) return;
     const interval = setInterval(async () => {
       try {
-        const result = await auditLogService.getAllAuditLogs(0, pageSize);
+        // Carry the active search. Polling without it would replace a search result with the
+        // unfiltered newest fifty every five seconds — the reader's search would appear to
+        // undo itself while they were reading it.
+        const result = await auditLogService.getAllAuditLogs(0, pageSize, undefined, searchTerm);
         setAuditLogs(result.logs);
         setTotalElements(result.totalElements);
         setTotalPages(result.totalPages);
@@ -206,7 +221,7 @@ export default function AuditLogsPage() {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [realTimeMode, pageSize]);
+  }, [realTimeMode, pageSize, searchTerm]);
 
   const auditStats = useMemo((): AuditStats => {
     if (auditLogs.length === 0) {
@@ -522,20 +537,33 @@ export default function AuditLogsPage() {
                 <path d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {/* Results count. Filtering and search run over the loaded page only,
-                so "N of TOTAL" overstates the reach of a filter whenever there is
-                more than one page — say which set was actually searched rather
-                than letting an empty result read as "no such entry exists". */}
+            {/* Results count.
+                A SEARCH now runs on the server across the whole log, so the honest number is the
+                total match count — "3 events match ESCALAT" — not how many landed on this page.
+                The dropdown FILTERS are still client-side over the loaded page, so when one of
+                those is active the wording still says "on this page": an empty result there
+                genuinely does not mean the entry is absent, and the counter should not imply it
+                does. Two different reaches, two different sentences. */}
             <span className="ml-auto text-[0.8125rem] text-muted-foreground whitespace-nowrap">
-              {totalPages > 1
-                ? `Showing ${filteredLogs.length.toLocaleString()} of ${auditLogs.length.toLocaleString()} events on this page`
-                : `Showing ${filteredLogs.length.toLocaleString()} of ${totalElements.toLocaleString()} events`}
+              {searchTerm
+                ? `${totalElements.toLocaleString()} event${totalElements === 1 ? '' : 's'} match “${searchTerm}”`
+                : totalPages > 1
+                  ? `Showing ${filteredLogs.length.toLocaleString()} of ${auditLogs.length.toLocaleString()} events on this page`
+                  : `Showing ${filteredLogs.length.toLocaleString()} of ${totalElements.toLocaleString()} events`}
             </span>
           </div>
-          {totalPages > 1 && (isFilterActive || searchTerm) && (
+          {/* Only the dropdown filters are page-scoped now. Saying so while a SEARCH is running
+              would be false — and would undersell a result that did cover everything. */}
+          {totalPages > 1 && isFilterActive && !searchTerm && (
             <p className="mt-2 text-[0.75rem] text-muted-foreground">
               Filters apply to the {auditLogs.length.toLocaleString()} entries loaded on page {currentPage + 1} of {totalPages}
-              {' '}({totalElements.toLocaleString()} in total). Widen the date range or change page to search further back.
+              {' '}({totalElements.toLocaleString()} in total). Search covers every entry; the dropdown filters do not.
+            </p>
+          )}
+          {searchTerm && (
+            <p className="mt-2 text-[0.75rem] text-muted-foreground">
+              Searched every entry in the audit trail, not just this page.
+              {totalPages > 1 && ` Matches run across ${totalPages} pages.`}
             </p>
           )}
 

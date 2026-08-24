@@ -176,13 +176,17 @@ export class AuditLogService {
    * Fetch audit logs with pagination. Supports both page-based (JPA) and
    * cursor-based (DynamoDB) pagination. When `cursor` is provided, `page` is ignored.
    */
-  async getAllAuditLogs(page: number = 0, size: number = 50, cursor?: string): Promise<PaginatedAuditLogs> {
+  async getAllAuditLogs(page: number = 0, size: number = 50, cursor?: string, search?: string): Promise<PaginatedAuditLogs> {
     try {
       // Prefer cursor-based pagination when a cursor is provided (DynamoDB)
       const paginationParam = cursor
         ? `cursor=${encodeURIComponent(cursor)}`
         : `page=${page}`;
-      const response = await apiFetch(`/api/audit/all?${paginationParam}&size=${size}&sort=timestamp&direction=DESC`);
+      // The search runs on the server, across the whole log. Filtering the page the client had
+      // already been given meant a term whose matches sat on a later page returned nothing at
+      // all — see AuditLogService.searchLogs.
+      const searchParam = search && search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+      const response = await apiFetch(`/api/audit/all?${paginationParam}&size=${size}&sort=timestamp&direction=DESC${searchParam}`);
       if (!response.ok) {
         // Return empty result instead of throwing for API errors
         return { logs: [], totalElements: 0, totalPages: 0, currentPage: page, pageSize: size };

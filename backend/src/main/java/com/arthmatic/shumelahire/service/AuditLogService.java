@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -136,6 +139,66 @@ public class AuditLogService {
     @Transactional(readOnly = true)
     public Page<AuditLog> getAllLogs(Pageable pageable) {
         return auditLogRepository.findAll(pageable);
+    }
+
+    /**
+     * Audit logs matching a free-text query, across the whole log rather than one page.
+     *
+     * <p><strong>Why this exists.</strong> The admin console filtered the fifty entries it had
+     * already been handed. That is invisible while a tenant holds one page and quietly wrong the
+     * moment it holds ten: searching for a term whose only matches sit on page six returns nothing,
+     * with no indication that anything was missed. On the IDC tenant, typing {@code ESCALAT} — the
+     * one search that produces the requisition escalation, the governance record the audit trail
+     * exists to hold — returned zero results, because those entries had aged onto page six of ten.
+     * A search that silently reports "no matches" for a record that is present is worse than no
+     * search at all: it reads as evidence of absence.</p>
+     *
+     * <p>Matching is deliberately broad — action, entity, user, role and the detail payload — since
+     * the console offers one box and a person searching an audit trail is as likely to type a name
+     * or a reference as an action. Underscores are treated as spaces on <em>both</em> sides, so
+     * {@code escalated to executive} finds {@code REQUISITION_ESCALATED_TO_EXECUTIVE}: the console
+     * displays actions with the underscores stripped, and a search should match what is on screen
+     * rather than what is in storage.</p>
+     *
+     * <p>Cost is a filter over a list the repository already materialises — {@code findAll(Pageable)}
+     * reads the whole table and slices it in memory regardless — so scanning every entry here adds
+     * no reads. Should the log outgrow that, this and {@code findAll(Pageable)} need the same fix,
+     * not different ones.</p>
+     */
+    public Page<AuditLog> searchLogs(String query, Pageable pageable) {
+        if (query == null || query.isBlank()) {
+            return getAllLogs(pageable);
+        }
+        String needle = normaliseForSearch(query);
+
+        List<AuditLog> matched = auditLogRepository.findAll().stream()
+                .filter(log -> matches(log, needle))
+                // Newest first, and a null timestamp sorts last rather than throwing — the same
+                // rule DynamoAuditLogRepository applies, so paged and searched views agree.
+                .sorted(Comparator.comparing(
+                        AuditLog::getTimestamp,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), matched.size());
+        List<AuditLog> pageContent = start < matched.size() ? matched.subList(start, end) : List.of();
+        return new PageImpl<>(pageContent, pageable, matched.size());
+    }
+
+    /** Lower-cased, with underscores read as spaces so screen text and stored text both match. */
+    private static String normaliseForSearch(String value) {
+        return value == null ? "" : value.toLowerCase().replace('_', ' ');
+    }
+
+    private static boolean matches(AuditLog log, String needle) {
+        if (log == null) return false;
+        for (String field : new String[] {
+                log.getAction(), log.getEntityType(), log.getEntityId(),
+                log.getDetails(), log.getUserRole(), log.getUserName(), log.getUserId() }) {
+            if (field != null && normaliseForSearch(field).contains(needle)) return true;
+        }
+        return false;
     }
 
     /**
