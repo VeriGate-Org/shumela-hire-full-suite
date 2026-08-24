@@ -89,13 +89,16 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     SECOND_OPINION: 'Needs Second Opinion',
   },
 
-  // The channel an application arrived through.
+  // The channel an application arrived through. Mirrors the backend enum
+  // entity/ApplicationSource.java, which is the single definition — the DTO
+  // validates against it rather than repeating its values.
   //
-  // These are third-party brands, so the spelling is theirs, not ours —
-  // formatEnumValue's title-casing would render "Pnet" and "Career Junction",
-  // which is wrong on a screen that is making a point about which boards we
-  // integrate with. Kept in step with FALLBACK_LOOKUPS.applicationSources in
-  // services/lookupService.ts and getBoardDisplayName in types/jobBoard.ts.
+  // Several of these are third-party brands, so the spelling is theirs, not
+  // ours. getEnumLabel's fallback only strips underscores, so an unregistered
+  // value reaches the screen shouting ("CAREERS PAGE"), and title-casing would
+  // give "Pnet" and "Career Junction" — both wrong on screens making a point
+  // about which boards this product integrates with. Kept in step with
+  // FALLBACK_LOOKUPS.applicationSources and getBoardDisplayName by test.
   applicationSource: {
     EXTERNAL: 'Job Board / Website',
     INTERNAL: 'Internal Posting',
@@ -110,16 +113,9 @@ export const ENUM_LABELS: Record<string, Record<string, string>> = {
     COMPANY_WEBSITE: 'Company Website',
     DIRECT_APPLICATION: 'Direct Application',
     OTHER: 'Other',
-    // Three definitions of this field disagree, and Application.applicationSource
-    // is a plain String, so none of them is enforced:
-    //   - entity/ApplicationSource.java     — the 13 values above
-    //   - dto/ApplicationCreateRequest      — INTERNAL|EXTERNAL|REFERRAL|AGENCY|JOB_BOARD
-    //   - the values actually stored        — adds CAREERS_PAGE
-    // Reconciling them is a data-model change. Until then this registry covers
-    // the union, because the cost of a gap is a source shouting on screen.
-    CAREERS_PAGE: 'Careers Page',
-    JOB_BOARD: 'Job Board',
     AGENCY: 'Recruitment Agency',
+    JOB_BOARD: 'Job Board',
+    CAREERS_PAGE: 'Careers Page',
   },
 
   // Employment

@@ -39,17 +39,32 @@ describe('application source labels', () => {
     }
   });
 
-  it.each(['CAREERS_PAGE', 'JOB_BOARD', 'AGENCY', 'EXTERNAL', 'INTERNAL', 'REFERRAL'])(
-    'covers %s, which the stored data actually uses',
-    (value) => {
-      // These are the six values present on the demonstration tenant. Three of
-      // them are absent from entity/ApplicationSource.java, so relying on that
-      // enum alone left them rendering in capitals.
-      const label = getEnumLabel('applicationSource', value);
-      expect(label).not.toBe(value.replace(/_/g, ' '));
-      expect(label).toMatch(/^[A-Z][a-z]/);
-    },
-  );
+  /**
+   * Mirrors entity/ApplicationSource.java. That enum is the single definition
+   * and the request DTO validates against it, so anything it admits can reach
+   * the screen and must have a label here.
+   */
+  const BACKEND_SOURCES = [
+    'EXTERNAL', 'INTERNAL', 'REFERRAL', 'RECRUITER', 'SOCIAL_MEDIA',
+    'AGENCY', 'JOB_BOARD', 'CAREERS_PAGE',
+    'LINKEDIN', 'INDEED', 'PNET', 'CAREER_JUNCTION',
+    'CAREER_FAIR', 'COMPANY_WEBSITE', 'DIRECT_APPLICATION', 'OTHER',
+  ];
+
+  it.each(BACKEND_SOURCES)('labels %s, which the API can accept', (value) => {
+    const label = getEnumLabel('applicationSource', value);
+    // The fallback only strips underscores, so an unregistered value arrives
+    // shouting. Detect that by the absence of any lowercase letter rather than
+    // by a leading-capital pattern — "PNet" is the brand's own spelling and
+    // must pass.
+    expect(label).not.toBe(value.replace(/_/g, ' '));
+    expect(label).toMatch(/[a-z]/);
+  });
+
+  it('offers every backend source in the lookup list', () => {
+    const offered = FALLBACK_LOOKUPS.applicationSources.map((s) => s.value);
+    expect([...offered].sort()).toEqual([...BACKEND_SOURCES].sort());
+  });
 
   it('falls back on a source it has never seen', () => {
     // The fallback only strips underscores — it does not case-correct, so an

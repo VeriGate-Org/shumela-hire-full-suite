@@ -1,7 +1,7 @@
 package com.arthmatic.shumelahire.dto;
 
+import com.arthmatic.shumelahire.validation.ValidApplicationSource;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class ApplicationCreateRequest {
@@ -31,7 +31,12 @@ public class ApplicationCreateRequest {
     @Size(max = 5000, message = "Cover letter must not exceed 5000 characters")
     private String coverLetter;
 
-    @Pattern(regexp = "^(INTERNAL|EXTERNAL|REFERRAL|AGENCY|JOB_BOARD)$", message = "Invalid application source")
+    // Validated against ApplicationSource itself rather than a regex repeating
+    // its values. The regex admitted five of them and rejected the rest, so an
+    // application genuinely sourced from PNet or LinkedIn could not be created
+    // through the API at all — while seeded data used values the regex did not
+    // admit either. Adding a value to the enum is now sufficient.
+    @ValidApplicationSource
     private String applicationSource = "EXTERNAL";
     
     // Constructors
