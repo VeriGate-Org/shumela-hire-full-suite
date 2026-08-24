@@ -100,3 +100,6 @@ android/
 # Hive agent workspaces
 .hive/
 repos/team-*
+
+# Seeder backups — snapshots of live tenant data, not source
+scripts/_backup-*.json
