@@ -8,6 +8,24 @@ import { useAuth } from '@/contexts/AuthContext';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import type { DropdownOption } from '@/components/SearchableDropdown';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import DistributionStrip from '@/components/record/DistributionStrip';
+import FilterChips from '@/components/record/FilterChips';
+import {
+  AGENCY_FILTERS,
+  AgencyRow,
+  AgencySummary,
+  NO_RAND_FIGURE,
+  beeLabel,
+  byContractState,
+  contractLabel,
+  feeLabel,
+  filterCount,
+  isAgencySummary,
+  matchesFilter,
+  placementLabel,
+  stateOf,
+  STATE_LABELS,
+} from './queue';
 
 const SPECIALIZATION_OPTIONS: DropdownOption[] = [
   { value: 'IT & Software Development', label: 'IT & Software Development' },
@@ -35,22 +53,14 @@ const SPECIALIZATION_OPTIONS: DropdownOption[] = [
 type AgencyStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED' | 'TERMINATED';
 type SubmissionStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
 
-interface Agency {
-  id: number;
-  agencyName: string;
-  registrationNumber?: string;
+// The row shape now comes from queue.ts, which mirrors AgencyResponse — contract state derived
+// against today, and the placement rate that previously needed one dashboard call per agency.
+type Agency = AgencyRow & {
   contactPerson: string;
   contactEmail: string;
-  contactPhone?: string;
-  specializations?: string;
-  status: AgencyStatus;
-  feePercentage?: number;
-  contractStartDate?: string;
-  contractEndDate?: string;
-  beeLevel?: number;
   createdAt: string;
   updatedAt?: string;
-}
+};
 
 interface AgencySubmission {
   id: number;
@@ -128,6 +138,9 @@ export default function AgenciesPage() {
   const [agenciesLoading, setAgenciesLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<AgencyStatus | 'ALL'>('ALL');
+  // Counts across the whole panel, from GET /api/agencies/summary.
+  const [summary, setSummary] = useState<AgencySummary | null>(null);
+  const [contractFilter, setContractFilter] = useState('all');
 
   // Selected agency detail
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
@@ -143,7 +156,10 @@ export default function AgenciesPage() {
   const [editingAgency, setEditingAgency] = useState<Agency | null>(null);
   const [reviewingSubmission, setReviewingSubmission] = useState<AgencySubmission | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [statusActionLoading, setStatusActionLoading] = useState<number | null>(null);
+  // Holds the id of the agency whose approve/suspend call is in flight. Widened to string because
+  // the API returns string ids — the numeric type was a lie the value only ever survived by being
+  // compared against another id of the same wrong type.
+  const [statusActionLoading, setStatusActionLoading] = useState<string | number | null>(null);
   const [approveAgency, setApproveAgency] = useState<Agency | null>(null);
   const [suspendAgency, setSuspendAgency] = useState<Agency | null>(null);
 
@@ -188,6 +204,15 @@ export default function AgenciesPage() {
       toast('Failed to load agencies', 'error');
     } finally {
       setAgenciesLoading(false);
+    }
+
+    // Counts across the whole panel, guarded — an error body is an object too, and reading .lapsed
+    // off it would render a strip of zeroes that looks like a panel with nothing wrong.
+    try {
+      const payload = await apiFetchJson<unknown>('/api/agencies/summary');
+      setSummary(isAgencySummary(payload) ? payload : null);
+    } catch {
+      setSummary(null);
     }
   }, [toast]);
 
@@ -403,14 +428,18 @@ export default function AgenciesPage() {
 
   // ─── Derived values ────────────────────────────────────────────────────────
 
-  const filteredAgencies = agencies.filter((a) => {
-    const matchesSearch =
-      a.agencyName.toLowerCase().includes(search.toLowerCase()) ||
-      a.contactPerson.toLowerCase().includes(search.toLowerCase()) ||
-      (a.contactEmail ?? '').toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || a.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Ordered by what needs attention: lapsed first, longest lapse leading, then expiring, then by
+  // placement rate — because once nothing is on fire the question is who is filling roles.
+  const filteredAgencies = byContractState(
+    agencies.filter((a) => {
+      const matchesSearch =
+        a.agencyName.toLowerCase().includes(search.toLowerCase()) ||
+        a.contactPerson.toLowerCase().includes(search.toLowerCase()) ||
+        (a.contactEmail ?? '').toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === 'ALL' || a.status === statusFilter;
+      return matchesSearch && matchesStatus && matchesFilter(contractFilter, a);
+    }),
+  );
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -449,6 +478,64 @@ export default function AgenciesPage() {
         </button>
       }
     >
+      {/* Where the panel actually stands. The headline is not "two contracts lapsed" but how many
+          candidates have been put forward under contracts that had already ended. */}
+      {summary && (
+        <div className="mb-6">
+          <DistributionStrip
+            buckets={[
+              {
+                label: 'Contract lapsed',
+                count: summary.lapsed,
+                detail:
+                  summary.submissionsOnLapsedContracts > 0
+                    ? `${summary.submissionsOnLapsedContracts} submission${
+                        summary.submissionsOnLapsedContracts === 1 ? '' : 's'
+                      } received since`
+                    : 'Still able to submit',
+                tone: summary.lapsed > 0 ? 'critical' : 'default',
+              },
+              {
+                label: 'Expiring in 60 days',
+                count: summary.expiringSoon,
+                detail: 'Renewal decision due',
+                tone: summary.expiringSoon > 0 ? 'warning' : 'default',
+              },
+              {
+                label: 'No end date',
+                count: summary.noEndDate,
+                detail: 'Never appears in any expiry check',
+                tone: summary.noEndDate > 0 ? 'warning' : 'default',
+              },
+              {
+                label: 'Awaiting our review',
+                count: summary.awaitingReview,
+                detail: 'Submissions owed a decision',
+              },
+            ]}
+            footnote={
+              <>
+                Across <b className="font-bold text-foreground">{summary.agencies}</b> agencies and{' '}
+                <b className="font-bold text-foreground">{summary.totalSubmissions}</b> submissions.
+                {summary.medianReviewDays != null && (
+                  <>
+                    {' '}
+                    We take a median{' '}
+                    <b className="font-bold text-foreground">
+                      {summary.medianReviewDays} day
+                      {summary.medianReviewDays === 1 ? '' : 's'}
+                    </b>{' '}
+                    to review a submission — a number about us, not about the panel, and it includes
+                    the ones still waiting.
+                  </>
+                )}{' '}
+                {NO_RAND_FIGURE}
+              </>
+            }
+          />
+        </div>
+      )}
+
       <div className="flex gap-6 min-h-0">
         {/* ── Left panel: Agency list ── */}
         <div className="w-1/3 flex flex-col gap-3 min-w-0">
@@ -472,6 +559,20 @@ export default function AgenciesPage() {
             <option value="TERMINATED">Terminated</option>
           </select>
 
+          {/* Contract state, which the status dropdown above cannot express: there is no EXPIRED in
+              AgencyStatus, so a lapsed contract is an APPROVED agency with a past end date. */}
+          <FilterChips
+            chips={AGENCY_FILTERS.map((filter) => ({
+              key: filter.key,
+              label: filter.label,
+              count: filterCount(summary, filter.key) ?? undefined,
+            }))}
+            activeKey={contractFilter}
+            onChange={setContractFilter}
+            aria-label="Filter agencies by contract state"
+            note={<>Lapsed first</>}
+          />
+
           {/* List */}
           {agenciesLoading ? (
             <div className="flex justify-center py-12">
@@ -487,7 +588,13 @@ export default function AgenciesPage() {
             </div>
           ) : (
             <div className="space-y-2 overflow-y-auto">
-              {filteredAgencies.map((agency) => (
+              {filteredAgencies.map((agency) => {
+                const contractState = stateOf(agency);
+                const contract = contractLabel(agency);
+                const placement = placementLabel(agency);
+                const fee = feeLabel(agency);
+
+                return (
                 <button
                   key={agency.id}
                   onClick={() => handleSelectAgency(agency)}
@@ -502,17 +609,58 @@ export default function AgenciesPage() {
                       <p className="font-medium text-sm text-gray-900 truncate">{agency.agencyName}</p>
                       <p className="text-xs text-gray-500 mt-0.5 truncate">{agency.contactPerson}</p>
                     </div>
+                    {/* The contract state, not the status pill. An agency whose contract ended
+                        seventy days ago showed "Approved" and still does, on the record — this says
+                        whether it is actually entitled to be submitting. */}
                     <span
-                      className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[agency.status]}`}
+                      className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        contractState === 'LAPSED'
+                          ? 'bg-red-100 text-red-700'
+                          : contractState === 'EXPIRING_SOON'
+                            ? 'bg-amber-100 text-amber-800'
+                            : contractState === 'SUSPENDED' || contractState === 'TERMINATED'
+                              ? 'bg-gray-100 text-gray-500'
+                              : 'bg-green-100 text-green-700'
+                      }`}
                     >
-                      {STATUS_LABEL[agency.status]}
+                      {STATE_LABELS[contractState]}
                     </span>
                   </div>
+
+                  <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    {placement ? (
+                      <span className="text-xs font-semibold text-gray-700 tabular-nums">
+                        {placement}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">No submissions yet</span>
+                    )}
+                    {/* Fee sits beside the rate because neither means anything alone: 18% at a 9%
+                        placement rate and 12.5% at 31% are not close decisions on the same row. */}
+                    {fee && <span className="text-xs text-gray-500">fee {fee}</span>}
+                    <span className="text-xs text-gray-500">{beeLabel(agency)}</span>
+                  </div>
+
+                  <p
+                    className={`text-xs mt-1 ${
+                      contractState === 'LAPSED' ? 'text-red-600 font-medium' : 'text-gray-400'
+                    }`}
+                  >
+                    {contract}
+                    {contractState === 'LAPSED' &&
+                      agency.submissionsSinceLapse != null &&
+                      agency.submissionsSinceLapse > 0 &&
+                      ` · ${agency.submissionsSinceLapse} submission${
+                        agency.submissionsSinceLapse === 1 ? '' : 's'
+                      } since`}
+                  </p>
+
                   {agency.specializations && (
-                    <p className="text-xs text-gray-400 mt-2 truncate">{agency.specializations}</p>
+                    <p className="text-xs text-gray-400 mt-1 truncate">{agency.specializations}</p>
                   )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
