@@ -13,6 +13,26 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
+  /*
+   * Stop the CI run once it is unambiguously broken.
+   *
+   * A failing test on CI costs `retries + 1` attempts, and the slowest suites run under
+   * `test.slow()` — a tripled 30s budget, so 90s per attempt. With one worker those add up end to
+   * end rather than overlapping. Six broken tests in `offer-esignature.spec.ts` on 24 Aug turned a
+   * three-minute suite into **30.6 minutes**: 103 passed, 6 failed, and roughly 27 of those minutes
+   * were nothing but timeouts being re-run.
+   *
+   * That pattern repeated four times in one evening, every time on a branch whose redesign had
+   * moved a selector its spec still asserted on. Waiting half an hour to be told what the first
+   * ninety seconds already knew is not information, it is delay.
+   *
+   * Five is deliberately not one. Stopping at the first failure hides whether a change broke one
+   * thing or a whole surface, which is the difference between a typo and a bad assumption. Five is
+   * enough to see the shape and still caps the worst case at roughly a quarter of an hour.
+   *
+   * Local runs are unaffected: `retries` is 0 there and a developer can watch the whole suite.
+   */
+  maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
