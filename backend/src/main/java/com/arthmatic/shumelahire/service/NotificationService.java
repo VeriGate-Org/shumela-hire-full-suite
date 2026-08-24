@@ -77,7 +77,7 @@ public class NotificationService {
             "Thank you for your interest in joining our organization.\n\n" +
             "Best regards,\n" +
             "HR Team",
-            application.getApplicant().getFullName(),
+            candidateNameOf(application),
             application.getJobTitle(),
             application.getJobTitle(),
             application.getDepartment(),
@@ -112,7 +112,7 @@ public class NotificationService {
             "%s\n\n" +
             "Best regards,\n" +
             "HR Team",
-            application.getApplicant().getFullName(),
+            candidateNameOf(application),
             application.getJobTitle(),
             interviewDetails
         );
@@ -138,7 +138,7 @@ public class NotificationService {
             "Thank you for your interest in our organization.\n\n" +
             "Best regards,\n" +
             "HR Team",
-            application.getApplicant().getFullName(),
+            candidateNameOf(application),
             application.getJobTitle(),
             application.getJobTitle(),
             application.getId(),
@@ -166,7 +166,7 @@ public class NotificationService {
             "Thank you for your continued interest in our organization.\n\n" +
             "Best regards,\n" +
             "HR Team",
-            application.getApplicant().getFullName(),
+            candidateNameOf(application),
             application.getJobTitle(),
             application.getJobTitle(),
             application.getDepartment(),
@@ -186,7 +186,7 @@ public class NotificationService {
         String message = String.format(
             "Dear %s,\n\nYour interview for the position '%s' has been rescheduled.\n\n" +
             "New Date: %s\nReason: %s\n\nBest regards,\nHR Team",
-            app.getApplicant().getFullName(), app.getJobTitle(),
+            candidateNameOf(app), app.getJobTitle(),
             interview.getScheduledAt(), interview.getRescheduleReason());
         sendNotificationDirect(app.getApplicant().getId(), subject, message,
             NotificationType.INTERVIEW_RESCHEDULED, NotificationPriority.HIGH);
@@ -199,7 +199,7 @@ public class NotificationService {
         String message = String.format(
             "Dear %s,\n\nWe regret to inform you that your interview for the position '%s' has been cancelled.\n\n" +
             "Reason: %s\n\nWe will be in touch regarding next steps.\n\nBest regards,\nHR Team",
-            app.getApplicant().getFullName(), app.getJobTitle(),
+            candidateNameOf(app), app.getJobTitle(),
             interview.getCancellationReason());
         sendNotificationDirect(app.getApplicant().getId(), subject, message,
             NotificationType.INTERVIEW_CANCELLED, NotificationPriority.HIGH);
@@ -212,7 +212,7 @@ public class NotificationService {
         String message = String.format(
             "Dear %s,\n\nThank you for completing your interview for the position '%s'.\n\n" +
             "We are reviewing all candidates and will be in touch soon.\n\nBest regards,\nHR Team",
-            app.getApplicant().getFullName(), app.getJobTitle());
+            candidateNameOf(app), app.getJobTitle());
         sendNotificationDirect(app.getApplicant().getId(), subject, message,
             NotificationType.INTERVIEW_COMPLETED, NotificationPriority.MEDIUM);
     }
@@ -397,7 +397,7 @@ public class NotificationService {
             "Dear %s,\n\nThank you for your interest in the position '%s'.\n\n" +
             "After careful consideration, we have decided to move forward with other candidates.\n\n" +
             "We encourage you to apply for other opportunities with us.\n\nBest regards,\nHR Team",
-            application.getApplicant().getFullName(), application.getJobTitle());
+            candidateNameOf(application), application.getJobTitle());
         sendNotificationDirect(application.getApplicant().getId(), subject, message,
             NotificationType.APPLICATION_REJECTED, NotificationPriority.HIGH);
     }
@@ -658,7 +658,7 @@ public class NotificationService {
     }
 
     private String getStatusChangeMessage(Application application, ApplicationStatus previousStatus) {
-        String applicantName = application.getApplicant().getFullName();
+        String applicantName = candidateNameOf(application);
         String jobTitle = application.getJobTitle();
         String currentStatus = getStatusDisplayName(application.getStatus());
 
